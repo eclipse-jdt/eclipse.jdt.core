@@ -7716,4 +7716,39 @@ public void test0176(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68594
+ */
+public void test0177(){
+	String str =
+		"public class X{\n" + 
+		"  Stack<List<Object>> o = null;\n" + 
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "Stack";
+	int cursorLocation = str.indexOf("Stack") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Stack>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Stack";
+	String expectedReplacedSource = "Stack";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  <CompleteOnType:Stack>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

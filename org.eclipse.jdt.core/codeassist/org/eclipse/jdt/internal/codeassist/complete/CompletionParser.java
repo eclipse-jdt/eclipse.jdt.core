@@ -196,7 +196,10 @@ protected void attachOrphanCompletionNode(){
 			if(recoveredType.foundOpeningBrace && this.genericsPtr > -1) {
 				if(this.genericsStack[this.genericsPtr] instanceof TypeParameter) {
 					TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
-					this.currentElement.add(new CompletionOnMethodTypeParameter(new TypeParameter[]{typeParameter},this.compilationUnit.compilationResult()), 0);
+					CompletionNodeDetector detector =  new CompletionNodeDetector(this.assistNode, typeParameter);
+					if(detector.containsCompletionNode()) {
+						this.currentElement.add(new CompletionOnMethodTypeParameter(new TypeParameter[]{typeParameter},this.compilationUnit.compilationResult()), 0);
+					}
 					return;
 				}
 			}
