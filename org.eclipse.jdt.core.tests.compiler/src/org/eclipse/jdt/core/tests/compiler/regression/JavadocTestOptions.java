@@ -1298,6 +1298,26 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	/*
+	 * Tests for 'invalid javadoc' options when no doc support is set
+	 */
+	public void testInvalidTagsClassNoSupport() {
+		docCommentSupport = CompilerOptions.DISABLED;
+		runConformTest(InvalidReferencesClassJavadocComments);
+	}
+	public void testInvalidTagsFieldNoSupport() {
+		docCommentSupport = CompilerOptions.DISABLED;
+		runConformTest(InvalidReferencesFieldJavadocComments);
+	}
+	public void testInvalidTagsMethodNoSupport() {
+		docCommentSupport = CompilerOptions.DISABLED;
+		runConformTest(InvalidReferencesMethodJavadocComments);
+	}
+	public void testInvalidTagsConstructorNoSupport() {
+		docCommentSupport = CompilerOptions.DISABLED;
+		runConformTest(InvalidReferencesConstructorJavadocComments);
+	}
+
+	/*
 	 * Tests for 'invalid javadoc' options
 	 */
 	// Test default invalid javadoc (means "ignore" with tags"disabled" and visibility "public")

@@ -34,11 +34,9 @@ public class JavadocTestMixed extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testBug74369" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_PREFIX = "testBug77602";
+//		TESTS_NAMES = new String[] { "testBug77510" };
 //		TESTS_NUMBERS = new int[] { 3, 7, 10, 21 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -3982,7 +3980,7 @@ public class JavadocTestMixed extends JavadocTest {
 					" *      href=\"http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/package-summary.html\">\n" + 
 					" *      JDK 5.0 </a>\n" + 
 					" * @author {@link <a href=\"http://gee.cs.oswego.edu/dl\">Doug Lea</a>}\n" + 
-					" * @author {@link <a href=\"http://home.pacbell.net/jfai\">Jürgen Failenschmid</a>}\n" + 
+					" * @author {@link <a href=\"http://home.pacbell.net/jfai\">J?rgen Failenschmid</a>}\n" + 
 					"  *\n" + 
 					"  * It is assumed that you have read the introductory document\n" + 
 					"  * {@link <a HREF=\"../../../../../internat/overview.htm\">\n" + 
@@ -4139,6 +4137,362 @@ public class JavadocTestMixed extends JavadocTest {
 					"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 					"Javadoc: Unexpected text\n" + 
 					"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 77510: [javadoc] compiler wrongly report deprecation when option "process javadoc comments" is not set
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77510">77510</a>
+	 */
+	public void testBug77510enabled() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+					"	/** \\u0009 @deprecated */\n" + 
+					"	static int i0009;\n" + 
+					"	/** \\u000a @deprecated */\n" + 
+					"	static int i000a;\n" + 
+					"	/** \\u000b @deprecated */\n" + 
+					"	static int i000b;\n" + 
+					"	/** \\u000c @deprecated */\n" + 
+					"	static int i000c;\n" + 
+					"	/** \\u001c @deprecated */\n" + 
+					"	static int i001c;\n" + 
+					"	/** \\u001d @deprecated */\n" + 
+					"	static int i001d;\n" + 
+					"	/** \\u001e @deprecated */\n" + 
+					"	static int i001e;\n" + 
+					"	/** \\u001f @deprecated */\n" + 
+					"	static int i001f;\n" + 
+					"	/** \\u2007 @deprecated */\n" + 
+					"	static int i2007;\n" + 
+					"	/** \\u202f @deprecated */\n" + 
+					"	static int i202f;\n" + 
+					"}\n",
+				"X.java",
+				"public class X {\n" + 
+					"	int i0 = A.i0009;\n" + 
+					"	int i1 = A.i000a;\n" + 
+					"	int i2 = A.i000b;\n" + 
+					"	int i3 = A.i000c;\n" + 
+					"	int i4 = A.i001c;\n" + 
+					"	int i5 = A.i001d;\n" + 
+					"	int i6 = A.i001e;\n" + 
+					"	int i7 = A.i001f;\n" + 
+					"	int i8 = A.i2007;\n" + 
+					"	int i9 = A.i202f;\n" + 
+					"}\n" },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	int i0 = A.i0009;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i0009 is deprecated\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	int i1 = A.i000a;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i000a is deprecated\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	int i3 = A.i000c;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i000c is deprecated\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug77510disabled() {
+		docCommentSupport = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+					"	/** \\u0009 @deprecated */\n" + 
+					"	static int i0009;\n" + 
+					"	/** \\u000a @deprecated */\n" + 
+					"	static int i000a;\n" + 
+					"	/** \\u000b @deprecated */\n" + 
+					"	static int i000b;\n" + 
+					"	/** \\u000c @deprecated */\n" + 
+					"	static int i000c;\n" + 
+					"	/** \\u001c @deprecated */\n" + 
+					"	static int i001c;\n" + 
+					"	/** \\u001d @deprecated */\n" + 
+					"	static int i001d;\n" + 
+					"	/** \\u001e @deprecated */\n" + 
+					"	static int i001e;\n" + 
+					"	/** \\u001f @deprecated */\n" + 
+					"	static int i001f;\n" + 
+					"	/** \\u2007 @deprecated */\n" + 
+					"	static int i2007;\n" + 
+					"	/** \\u202f @deprecated */\n" + 
+					"	static int i202f;\n" + 
+					"}\n",
+				"X.java",
+				"public class X {\n" + 
+					"	int i0 = A.i0009;\n" + 
+					"	int i1 = A.i000a;\n" + 
+					"	int i2 = A.i000b;\n" + 
+					"	int i3 = A.i000c;\n" + 
+					"	int i4 = A.i001c;\n" + 
+					"	int i5 = A.i001d;\n" + 
+					"	int i6 = A.i001e;\n" + 
+					"	int i7 = A.i001f;\n" + 
+					"	int i8 = A.i2007;\n" + 
+					"	int i9 = A.i202f;\n" + 
+					"}\n" },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	int i0 = A.i0009;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i0009 is deprecated\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	int i1 = A.i000a;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i000a is deprecated\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	int i3 = A.i000c;\n" + 
+				"	         ^^^^^^^\n" + 
+				"The field A.i000c is deprecated\n" + 
+				"----------\n"
+		);
+	}
+	
+	/**
+	 * Test bug 77260: [Javadoc] deprecation warning should not be reported when @deprecated tag is set
+	 */
+	public void testBug77260() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** @deprecated */\n" + 
+					"public class X {\n" + 
+					"	public int x;\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Y.java",
+				"/**\n" + 
+					" * @see X\n" + 
+					" * @deprecated\n" + 
+					" */\n" + 
+					"public class Y {\n" + 
+					"	/** @see X#x */\n" + 
+					"	public int x;\n" + 
+					"	/** @see X#foo() */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Z.java",
+				"public class Z {\n" + 
+					"	/** \n" + 
+					"	 * @see X#x\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public int x;\n" + 
+					"	/**\n" + 
+					"	 * @see X#foo()\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n" }
+		);
+	}
+	public void testBug77260nested() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"/** @deprecated */\n" + 
+					"public class X {\n" + 
+					"	public int x;\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Y.java",
+				"/**\n" + 
+					" * @see X\n" + 
+					" * @deprecated\n" + 
+					" */\n" + 
+					"public class Y {\n" + 
+					"	/** @see X#x */\n" + 
+					"	public int x;\n" + 
+					"	/** @see X#foo() */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Z.java",
+				"public class Z {\n" + 
+					"	/** \n" + 
+					"	 * @see X#x\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public int x;\n" + 
+					"	/**\n" + 
+					"	 * @see X#foo()\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n" },
+			"----------\n" + 
+				"1. ERROR in Y.java (at line 2)\n" + 
+				"	* @see X\n" + 
+				"	       ^\n" + 
+				"Javadoc: The type X is deprecated\n" + 
+				"----------\n" + 
+				"2. ERROR in Y.java (at line 6)\n" + 
+				"	/** @see X#x */\n" + 
+				"	         ^\n" + 
+				"Javadoc: The type X is deprecated\n" + 
+				"----------\n" + 
+				"3. ERROR in Y.java (at line 6)\n" + 
+				"	/** @see X#x */\n" + 
+				"	           ^\n" + 
+				"Javadoc: The field X.x is deprecated\n" + 
+				"----------\n" + 
+				"4. ERROR in Y.java (at line 8)\n" + 
+				"	/** @see X#foo() */\n" + 
+				"	         ^\n" + 
+				"Javadoc: The type X is deprecated\n" + 
+				"----------\n" + 
+				"5. ERROR in Y.java (at line 8)\n" + 
+				"	/** @see X#foo() */\n" + 
+				"	           ^^^\n" + 
+				"Javadoc: The method foo() from the type X is deprecated\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in Z.java (at line 3)\n" + 
+				"	* @see X#x\n" + 
+				"	       ^\n" + 
+				"Javadoc: The type X is deprecated\n" + 
+				"----------\n" + 
+				"2. ERROR in Z.java (at line 3)\n" + 
+				"	* @see X#x\n" + 
+				"	         ^\n" + 
+				"Javadoc: The field X.x is deprecated\n" + 
+				"----------\n" + 
+				"3. ERROR in Z.java (at line 8)\n" + 
+				"	* @see X#foo()\n" + 
+				"	       ^\n" + 
+				"Javadoc: The type X is deprecated\n" + 
+				"----------\n" + 
+				"4. ERROR in Z.java (at line 8)\n" + 
+				"	* @see X#foo()\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: The method foo() from the type X is deprecated\n" + 
+				"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug77260nested_disabled() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** @deprecated */\n" + 
+					"public class X {\n" + 
+					"	public int x;\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Y.java",
+				"/**\n" + 
+					" * @see X\n" + 
+					" * @deprecated\n" + 
+					" */\n" + 
+					"public class Y {\n" + 
+					"	/** @see X#x */\n" + 
+					"	public int x;\n" + 
+					"	/** @see X#foo() */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Z.java",
+				"public class Z {\n" + 
+					"	/** \n" + 
+					"	 * @see X#x\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public int x;\n" + 
+					"	/**\n" + 
+					"	 * @see X#foo()\n" + 
+					"	 * @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n"
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null
+		);
+	}
+
+	/**
+	 * Test fix for bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
+	 */
+	public void testBug77602public() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @see\n" + 
+					"   * @see UnknownClass\n" + 
+					"   */\n" + 
+					"  protected void foo() {\n" + 
+					"  }\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null
+		);
+	}
+	public void testBug77602private() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @see\n" + 
+					"   * @see UnknownClass\n" + 
+					"   */\n" + 
+					"  protected void foo() {\n" + 
+					"  }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @see\n" + 
+				"	   ^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @see UnknownClass\n" + 
+				"	       ^^^^^^^^^^^^\n" + 
+				"Javadoc: UnknownClass cannot be resolved to a type\n" + 
+				"----------\n"
 		);
 	}
 }
