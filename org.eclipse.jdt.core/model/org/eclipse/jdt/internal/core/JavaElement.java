@@ -482,18 +482,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	/**
-	 * Default is to not do any source indices updates.
-	 */
-	public void offsetSourceEndAndChildren(int amount, IJavaElement child) {
-		
-	}
-	/**
-	 * Default behaviour is not to change the source range
-	 * for the Java element
-	 */
-	public void offsetSourceRange(int amount) {
-	}
-	/**
 	 * Opens this element and all parents that are not already open.
 	 *
 	 * @exception JavaModelException this element is not present or accessible
@@ -656,18 +644,5 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (info == null) {
 			buffer.append(" (not open)"); //$NON-NLS-1$
 		}
-	}
-	/**
-	 * Updates the source end position for this element.
-	 * Default behaviour is to do nothing.
-	 */
-	public void triggerSourceEndOffset(int amount, int nameStart, int nameEnd) {
-	}
-	/**
-	 * Updates the source positions for this element.
-	 * Default behaviour is to do nothing.
-	 */
-	public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
-	
 	}
 }

@@ -189,19 +189,6 @@ public boolean isReadOnly() {
 	return getClassFile() != null;
 }
 /**
- * Changes the source indexes of this element.  Updates the name range as well.
- */
-public void offsetSourceRange(int amount) {
-	super.offsetSourceRange(amount);
-	try {
-		MemberElementInfo info = (MemberElementInfo) getRawInfo();
-		info.setNameSourceStart(info.getNameSourceStart() + amount);
-		info.setNameSourceEnd(info.getNameSourceEnd() + amount);
-	} catch (JavaModelException npe) {
-		return;
-	}
-}
-/**
  */
 public String readableName() {
 
@@ -215,20 +202,6 @@ public String readableName() {
 	} else {
 		return super.readableName();
 	}
-}
-/**
- * Updates the source positions for this element.
- */
-public void triggerSourceEndOffset(int amount, int nameStart, int nameEnd) {
-	super.triggerSourceEndOffset(amount, nameStart, nameEnd);
-	updateNameRange(nameStart, nameEnd);
-}
-/**
- * Updates the source positions for this element.
- */
-public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
-	super.triggerSourceRangeOffset(amount, nameStart, nameEnd);
-	updateNameRange(nameStart, nameEnd);
 }
 /**
  * Updates the name range for this element.

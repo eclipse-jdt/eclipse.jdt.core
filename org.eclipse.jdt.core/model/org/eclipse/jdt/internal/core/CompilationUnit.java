@@ -673,45 +673,6 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 }
 
 /**
- * Changes the source end index of this element and all children (following
- * <code>child</code>). 
- */
-public void offsetSourceEndAndChildren(int amount, IJavaElement child) {
-	try {
-		CompilationUnitElementInfo cuInfo = (CompilationUnitElementInfo) getElementInfo();
-		cuInfo.setSourceLength(cuInfo.getSourceLength() + amount);
-		IJavaElement[] children = getChildren();
-		boolean afterChild = false;
-		for (int i = 0; i < children.length; i++) {
-			IJavaElement aChild = children[i];
-			if (child == null || aChild.equals(child)) {
-				afterChild = true;
-			} else
-				if (afterChild) {
-					((JavaElement) aChild).offsetSourceRange(amount);
-				}
-		}
-	} catch (JavaModelException npe) {
-		return;
-	}
-}
-/**
- * Changes the source indexes of this element and all children elements.
- */
-public void offsetSourceRange(int amount) {
-	try {
-		CompilationUnitElementInfo cuInfo = (CompilationUnitElementInfo) getElementInfo();
-		cuInfo.setSourceLength(cuInfo.getSourceLength() + amount);
-		IJavaElement[] children = getChildren();
-		for (int i = 0; i < children.length; i++) {
-			IJavaElement aChild = children[i];
-			((JavaElement) aChild).offsetSourceRange(amount);
-		}
-	} catch (JavaModelException npe) {
-		return;
-	}
-}
-/**
  * @see Openable#openBuffer(IProgressMonitor)
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
@@ -794,23 +755,6 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
  * @see IWorkingCopy#restore()
  */
 public void restore () throws JavaModelException {
-}
-/**
- * Updates the source end index for this element.
- */
-public void triggerSourceEndOffset(int amount, int nameStart, int nameEnd) {
-	try {
-		CompilationUnitElementInfo cuInfo = (CompilationUnitElementInfo) getRawInfo();
-		cuInfo.setSourceLength(cuInfo.getSourceLength() + amount);
-	} catch (JavaModelException npe) {
-		return;
-	}
-}
-/**
- * Updates the source indexes for this element.
- */
-public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
-	triggerSourceEndOffset(amount, nameStart, nameEnd);
 }
 /**
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
