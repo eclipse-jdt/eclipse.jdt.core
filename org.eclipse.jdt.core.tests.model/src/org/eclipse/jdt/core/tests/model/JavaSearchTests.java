@@ -303,7 +303,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReferenceBug73336" };
+//	testsNames = new String[] { "testTypeReferenceBug73336b" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -3396,6 +3396,19 @@ public void testTypeReferenceBug73336() throws CoreException {
 		"src/bug73336/C73336.java bug73336.C73336 [A73336]\n" + 
 		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]\n" + 
 		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]",
+		resultCollector);
+}
+public void testTypeReferenceBug73336b() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/bug73336b/A73336b.java").getType("A73336b");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
+		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
+		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
+		"src/bug73336b/B73336b.java bug73336b.B73336b() [A73336b]\n" + 
+		"src/bug73336b/B73336b.java bug73336b.B73336b() [A73336b]",
 		resultCollector);
 }
 /**
