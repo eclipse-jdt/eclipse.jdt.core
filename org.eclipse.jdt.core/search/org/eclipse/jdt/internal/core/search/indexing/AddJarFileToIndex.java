@@ -38,6 +38,7 @@ public boolean belongsTo(String jobFamily){
 	return jobFamily.equals(projectName);
 }
 public boolean execute() {
+	IIndex index = null;
 	try {
 		if (this.resource != null) {
 			if (!this.resource.isLocal(IResource.DEPTH_ZERO)) {
@@ -46,7 +47,7 @@ public boolean execute() {
 		}
 		IPath indexedPath = this.path;
 		// if index already cached, then do not perform any check
-		IIndex index = (IIndex) manager.getIndex(indexedPath, false);
+		index = (IIndex) manager.getIndex(indexedPath, false);
 		if (index != null) return COMPLETE;
 		
 		index = manager.getIndex(indexedPath);
@@ -137,6 +138,13 @@ public boolean execute() {
 			monitor.exitWrite(); // free write lock
 		}
 	} catch (IOException e) {
+		// something wrong happened during indexing this file, so we can get rid of it
+		if (index != null) {
+			File indexFile = index.getIndexFile();
+			if (indexFile != null) {
+				indexFile.delete();
+			}
+		}
 		return FAILED;
 	}
 	return COMPLETE;
