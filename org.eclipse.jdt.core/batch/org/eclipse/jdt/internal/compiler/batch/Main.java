@@ -505,7 +505,8 @@ private void configure(String[] argv) throws InvalidInputException {
 	 * Standalone options
 	 */
 	if (versionIDRequired) {
-		out.println("Eclipse Java Compiler "+ this.versionID + ", Copyright IBM Corp 2000\n");
+		out.println(Main.bind("configure.version"/*nonNLS*/,this.versionID));
+		out.println();
 		return;
 	}
 		
@@ -519,7 +520,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	if (pathCount == 0) {
 		String classProp = System.getProperty("LFclasspath"/*nonNLS*/);
 		if ((classProp == null) || (classProp.length() == 0)) {
-			out.println("no classpath defined (LF_CLASSPATH), using default directory instead");
+			out.println(Main.bind("configure.noClasspath"/*nonNLS*/));
 			classProp = "."/*nonNLS*/;
 		}
 		StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
@@ -535,7 +536,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	for (int i = 0, max = classpaths.length; i < max; i++) {
 		File file = new File(classpaths[i]);
 		if (!file.exists())
-			throw new InvalidInputException("incorrect classpath: " + classpaths[i]);
+			throw new InvalidInputException(Main.bind("configure.incorrectClasspath"/*nonNLS*/,classpaths[i]));
 	}
 	if (destinationPath == null) {
 		destinationPath = System.getProperty("user.dir"/*nonNLS*/);
@@ -544,13 +545,13 @@ private void configure(String[] argv) throws InvalidInputException {
 	}
 		
 	if (filenames == null)
-		throw new InvalidInputException("no source file specified");
+		throw new InvalidInputException(Main.bind("configure.noSource"/*nonNLS*/));
 
 	if (log != null){
 		try {
 			out = new PrintWriter(new FileOutputStream(log, false));
 		} catch(IOException e){
-			throw new InvalidInputException("cannot open .log file");
+			throw new InvalidInputException(Main.bind("configure.cannotOpenLog"/*nonNLS*/));
 		}
 	} else {
 		showProgress = false;
@@ -584,20 +585,21 @@ protected ICompilerRequestor getBatchRequestor() {
 						globalProblemsCount++;
 						if (localErrorCount == 0)
 							out.println("----------"/*nonNLS*/);
-						out.print(globalProblemsCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
+						out.print(globalProblemsCount + ". "/*nonNLS*/ + (problems[i].isError() ? Main.bind("requestor.error"/*nonNLS*/) : Main.bind("requestor.warning"/*nonNLS*/)));
 						if (problems[i].isError()) {
 							globalErrorsCount++;
 						} else {
 							globalWarningsCount++;
 						}
-						out.print(" in " + new String(problems[i].getOriginatingFileName()));
+						out.print(" ");
+						out.print(Main.bind("requestor.in"/*nonNLS*/,new String(problems[i].getOriginatingFileName())));
 						try {
 							out.println(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
 							out.println(problems[i].getMessage());
 						} catch (Exception e) {
-							out.println("Cannot retrieve the error message for " + problems[i].toString());
+							out.println(Main.bind("requestor.notRetrieveErrorMessage"/*nonNLS*/,problems[i].toString()));
 						}
-						out.println("----------");
+						out.println("----------"/*nonNLS*/);
 						if (problems[i].isError())
 							localErrorCount++;
 					}
@@ -624,13 +626,13 @@ protected CompilationUnit[] getCompilationUnits() throws InvalidInputException {
 	for (int i = 0; i < fileCount; i++) {
 		char[] charName = filenames[i].toCharArray();
 		if (knownFileNames.get(charName) != null){
-			throw new InvalidInputException("File " + filenames[i] + " is specified more than once");			
+			throw new InvalidInputException(Main.bind("unit.more"/*nonNLS*/,filenames[i]));			
 		} else {
 			knownFileNames.put(charName, charName);
 		}
 		File file = new File(filenames[i]);
 		if (!file.exists())
-			throw new InvalidInputException("File " + filenames[i] + " is missing");
+			throw new InvalidInputException(Main.bind("unit.missing"/*nonNLS*/,filenames[i]));
 		units[i] = new CompilationUnit(null, filenames[i]);
 	}
 	return units;
@@ -702,10 +704,7 @@ protected void outputClassFiles(CompilationResult unitResult) {
 				} catch (IOException e) {
 					String fileName = destinationPath + new String(relativeName);
 					e.printStackTrace();
-					System.out.println(
-						"No .class file created for file named "
-							+ fileName
-							+ " because of a IOException.");
+					System.out.println(Main.bind("output.noClassFileCreated"/*nonNLS*/,fileName));
 				}
 				exportedClassFilesCounter++;
 			}
@@ -784,14 +783,14 @@ public static String bind(String id) {
  */
 public static String bind(String id, String[] bindings) {
 	if (id == null)
-		return "No message available";
+		return "No message available"/*nonNLS*/;
 	String message = null;
 	try {
 		message = bundle.getString(id);
 	} catch (MissingResourceException e) {
 		// If we got an exception looking for the message, fail gracefully by just returning
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-		return "Missing message: " + id + " in: " + bundleName;
+		return "Missing message: "/*nonNLS*/+id+" in: "/*nonNLS*/+bundleName;
 	}
 	if (bindings == null)
 		return message;
@@ -810,7 +809,7 @@ public static String bind(String id, String[] bindings) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					output.append("{missing " + Integer.toString(index) + "}");
+					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
 				}
 			} else {
 				output.append(message.substring(end, length));
