@@ -20,7 +20,9 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.formatter.CodeFormatter;
 
 /**
@@ -84,6 +86,15 @@ public class ToolFactory {
 
 		if (options == null) options = JavaCore.getOptions();
 		return new CodeFormatter(options);
+	}
+	
+	/**
+	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
+	 * 
+	 * @see IClassFileDisassembler
+	 */
+	public static IClassFileDisassembler createDefaultClassFileDisassembler(){
+		return new Disassembler();
 	}
 	
 	/**
