@@ -2,6 +2,8 @@ package org.eclipse.jdt.core;
 
 /**
  * A callback interface for receiving java problem correction.
+ * 
+ * @since 2.0
  */
 public interface ICorrectionRequestor {
 /**

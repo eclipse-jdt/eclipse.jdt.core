@@ -12,6 +12,8 @@ import org.eclipse.jdt.internal.core.*;
 
 /**
  * This class is the entry point for source corrections.
+ * 
+ * @since 2.0 
  */
 public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 	protected int correctionStart;
