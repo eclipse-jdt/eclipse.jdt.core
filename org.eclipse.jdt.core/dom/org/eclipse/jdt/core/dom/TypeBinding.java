@@ -561,7 +561,7 @@ class TypeBinding implements ITypeBinding {
 		if (isMember()) {
 			StringBuffer buffer = new StringBuffer();
 			buffer
-				.append(this.resolver.getTypeBinding(this.binding.enclosingType()).getQualifiedName())
+				.append(getDeclaringClass().getQualifiedName())
 				.append('.')
 				.append(getName());
 			return String.valueOf(buffer);
