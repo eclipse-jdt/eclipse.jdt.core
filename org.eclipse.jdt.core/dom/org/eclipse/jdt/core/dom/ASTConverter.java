@@ -4171,8 +4171,6 @@ class ASTConverter {
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				IExtendedModifier modifier = null;
 				switch(token) {
-					case TerminalTokens.TokenNameWHITESPACE:
-						continue;
 					case TerminalTokens.TokenNameabstract:
 						modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 						break;
