@@ -350,7 +350,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								public String getID() {
 									return path.toString();
 								}
-								public void run() throws JavaModelException {
+								public void run() /* throws JavaModelException */ {
 									indexManager.removeSourceFolderFromIndex(project, path, exclusionPatterns);
 								}
 							}, 
@@ -362,7 +362,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								public String getID() {
 									return path.toString();
 								}
-								public void run() throws JavaModelException {
+								public void run() /* throws JavaModelException */ {
 									if (deltaState.otherRoots.get(path) == null) { // if root was not shared
 										indexManager.discardJobs(path.toString());
 										indexManager.removeIndex(path);
@@ -451,7 +451,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 									public String getID() {
 										return newPath.toString();
 									}
-									public void run() throws JavaModelException {
+									public void run() /* throws JavaModelException */ {
 										indexManager.indexLibrary(newPath, project.getProject());
 									}
 								}, 
@@ -466,7 +466,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								public String getID() {
 									return path.toString();
 								}
-								public void run() throws JavaModelException {
+								public void run() /* throws JavaModelException */ {
 									indexManager.indexSourceFolder(project, path, exclusionPatterns);
 								}
 							}, 
