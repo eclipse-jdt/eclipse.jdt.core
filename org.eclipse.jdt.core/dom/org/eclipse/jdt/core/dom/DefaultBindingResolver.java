@@ -56,7 +56,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Internal class for resolving bindings using old ASTs.
@@ -150,8 +149,10 @@ class DefaultBindingResolver extends BindingResolver {
 					} else {
 						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
 					}
-				} catch (AbortCompilation e) {
+				} catch (RuntimeException e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 				}
 				if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 					return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
@@ -227,7 +228,7 @@ class DefaultBindingResolver extends BindingResolver {
 						} else {
 							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
 						}
-					} catch (AbortCompilation e) {
+					} catch (RuntimeException e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
@@ -248,7 +249,7 @@ class DefaultBindingResolver extends BindingResolver {
 				Binding binding = null;
 				try {
 					binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, indexInImportReference));
-				} catch (AbortCompilation e) {
+				} catch (RuntimeException e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 				}
 				if (binding != null) {
@@ -753,8 +754,10 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 			}
-		} catch(AbortCompilation e) {
+		} catch(RuntimeException e) {
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 		}
 		return null;
 	}
@@ -781,8 +784,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return packageBinding;
 				}
 			}
-		} catch (AbortCompilation e) {
+		} catch (RuntimeException e) {
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 		}
 		return null;
 	}
