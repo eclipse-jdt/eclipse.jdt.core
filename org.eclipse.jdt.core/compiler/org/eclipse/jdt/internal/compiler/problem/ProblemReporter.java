@@ -1409,6 +1409,15 @@ public void illegalUsageOfQualifiedTypeReference(QualifiedTypeReference qualifie
 		qualifiedTypeReference.sourceStart,
 		qualifiedTypeReference.sourceEnd);	
 }
+public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl) {
+	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(methodDecl.selector)};
+	this.handle(
+		IProblem.IllegalVararg,
+		arguments,
+		arguments,
+		argType.sourceStart,
+		argType.sourceEnd);
+}
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(

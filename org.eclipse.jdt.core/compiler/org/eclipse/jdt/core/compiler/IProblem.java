@@ -700,7 +700,9 @@ public interface IProblem {
 	int IncompatibleReturnTypeForNonInheritedInterfaceMethod = MethodRelated + 413;
 	/** @since 2.1 */
 	int IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod = MethodRelated + 414;
-	
+	/** @since 3.0 */
+	int IllegalVararg = MethodRelated + 415;
+
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
 	int CodeSnippetMissingMethod = Internal + 421;
