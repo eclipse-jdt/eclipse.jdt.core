@@ -89,7 +89,6 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
  * @see IOpenable
  */
 public void close() throws JavaModelException {
-
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		if (this instanceof IParent) {
@@ -101,6 +100,9 @@ public void close() throws JavaModelException {
 		}
 		closing(info);
 		fgJavaModelManager.removeInfo(this);
+		if (JavaModelManager.VERBOSE && fgJavaModelManager.fModelInfo != null){
+			System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 }
 /**
