@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
