@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	int dimensions;
@@ -34,11 +35,16 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
-		if (leafComponentType.isParameterizedType()) {
-		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+		try {
+			TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
+			if (leafComponentType.isParameterizedType()) {
+			    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+			}
+			return scope.createArrayType(leafComponentType, dimensions);
+		} catch (AbortCompilation e) {
+			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
+			throw e;
 		}
-		return scope.createArrayType(leafComponentType, dimensions);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

@@ -941,4 +941,9 @@ public interface IProblem {
     int IllegalExtendedDimensions = MethodRelated + 601;
     /** @since 3.0 */
 	int InvalidFileNameForPackageAnnotations = Syntax + Internal + 602;
+	
+	/**
+	 * Corrupted binaries
+	 */
+	int CorruptedSignature = Internal + 700;
 }

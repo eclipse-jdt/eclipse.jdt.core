@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class QualifiedTypeReference extends TypeReference {
 
@@ -36,7 +37,12 @@ public class QualifiedTypeReference extends TypeReference {
 		
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		return scope.getType(this.tokens, this.tokens.length);
+		try {
+			return scope.getType(this.tokens, this.tokens.length);
+		} catch (AbortCompilation e) {
+			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
+			throw e;
+		}
 	}
 	
 	public char[][] getTypeName(){

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Syntactic representation of a reference to a generic type.
@@ -70,7 +71,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		    if (i == 0) {
 		        // isolate first fragment
 				while (this.typeArguments[i] == null) i++;
-				this.resolvedType = scope.getType(this.tokens, i+1);
+				try {
+					this.resolvedType = scope.getType(this.tokens, i+1);
+				} catch (AbortCompilation e) {
+					e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
+					throw e;
+				}
 				if (!(this.resolvedType.isValidBinding())) {
 					reportInvalidType(scope);
 					return null;

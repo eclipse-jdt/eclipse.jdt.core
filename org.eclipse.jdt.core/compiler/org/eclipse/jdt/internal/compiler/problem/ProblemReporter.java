@@ -687,6 +687,15 @@ public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 		literal.sourceStart,
 		literal.sourceEnd);
 }
+public void corruptedSignature(TypeBinding enclosingType, char[] signature, int position) {
+	this.handle(
+		IProblem.CorruptedSignature,
+		new String[] { new String(enclosingType.readableName()), new String(signature), String.valueOf(position) },
+		new String[] { new String(enclosingType.shortReadableName()), new String(signature), String.valueOf(position) },
+		Error | Abort,
+		0,
+		0);
+}
 public void deprecatedField(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.UsingDeprecatedField,

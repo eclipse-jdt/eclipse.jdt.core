@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstants {
@@ -604,7 +603,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 * NOTE: Aborts compilation if the class file cannot be found.
 */
 
-TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized) {
+TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType) {
 	int dimension = 0;
 	while (signature[start] == '[') {
 		start++;
@@ -645,7 +644,8 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 				binding = ShortBinding;
 				break;
 			default :
-				problemReporter.abortDueToInternalError(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
+				problemReporter.corruptedSignature(enclosingType, signature, start);
+				// will never reach here, since error will cause abort
 		}
 	} else {
 		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized);
@@ -686,7 +686,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		return null; // cannot reach this, since previous problem will abort compilation
 	}
 
-	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), true);
+	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), true, enclosingType);
 	if (wrapper.end != wrapper.bracket)
 		return dimension == 0 ? type : createArrayType(type, dimension);
 

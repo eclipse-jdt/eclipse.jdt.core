@@ -237,7 +237,7 @@ private void createFields(IBinaryField[] iFields, boolean checkGenericSignatures
 				IBinaryField field = iFields[i];
 				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
-					? environment.getTypeFromSignature(field.getTypeName(), 0, -1, false)
+					? environment.getTypeFromSignature(field.getTypeName(), 0, -1, false, this)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
 				this.fields[i] =
 					new FieldBinding(
@@ -284,7 +284,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 					while ((nextChar = methodDescriptor[++end]) != ';'){/*empty*/}
 	
 				if (i >= startIndex)   // skip the synthetic arg if necessary
-					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false);
+					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false, this);
 				index = end + 1;
 			}
 		}
@@ -300,7 +300,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 		}
 
 		if (!method.isConstructor())
-			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false);   // index is currently pointing at the ')'
+			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false, this);   // index is currently pointing at the ')'
 	} else {
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
 		SignatureWrapper wrapper = new SignatureWrapper(methodSignature);
