@@ -15,9 +15,11 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 public class RecoveredUnit extends RecoveredElement {
@@ -40,9 +42,21 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	/* attach it to last type - if any */
 	if (this.typeCount > 0){
 		RecoveredType type = this.types[this.typeCount -1];
+		int start = type.bodyEnd;
+		int end = type.typeDeclaration.bodyEnd;
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
+		
+		if(start < end) {
+			Initializer initializer = new Initializer(new Block(0), 0);
+			initializer.bodyStart = end;
+			initializer.bodyEnd = end;
+			initializer.declarationSourceStart = end;
+			initializer.declarationSourceEnd = start;
+			type.add(initializer, bracketBalanceValue);
+		}
+		
 		return type.add(methodDeclaration, bracketBalanceValue);
 	}
 	return this; // ignore

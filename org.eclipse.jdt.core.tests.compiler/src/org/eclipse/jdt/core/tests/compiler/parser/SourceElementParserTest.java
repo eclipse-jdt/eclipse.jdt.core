@@ -1874,6 +1874,7 @@ public void test19() {
 
 	String expectedUnitToString = 
 			"public class X {\n"
+			+ "\t{}\n"
 			+ "\tint y;\n"
 			+ "\tjava.lang.Object(0)\n"
 			+ "\tvoid foo() {}\n"
@@ -1896,10 +1897,13 @@ public void test19() {
 
 	SourceField[] fields = currentType.getFields();
 	assertTrue(" invalid fields ", fields != null);
-	assertEquals(" invalid fields length ", 1, fields.length);
+	assertEquals(" invalid fields length ", 2, fields.length);
 
-	assertEquals("Invalid declaration source start for field y", 181, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field y", 186, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	
+	assertEquals("Invalid declaration source start for field y", 181, fields[1].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field y", 186, fields[1].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -1945,6 +1949,7 @@ public void test20() {
 
 	String expectedUnitToString = 
 			"public class X {\n"
+			+ "\t{}\n"
 			+ "\tpublic int x;\n"
 			+ "\tint y;\n"
 			+ "\tjava.lang.Object(0)\n"
@@ -1968,13 +1973,16 @@ public void test20() {
 
 	SourceField[] fields = currentType.getFields();
 	assertTrue(" invalid fields ", fields != null);
-	assertEquals(" invalid fields length ", 2, fields.length);
+	assertEquals(" invalid fields length ", 3, fields.length);
 
-	assertEquals("Invalid declaration source start for field x", 126, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 138, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	
+	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for field y", 185, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field y", 190, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for field y", 185, fields[2].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field y", 190, fields[2].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -2020,6 +2028,7 @@ public void test21() {
 
 	String expectedUnitToString = 
 			"public class X {\n"
+			+ "\t{}\n"
 			+ "\tpublic int x;\n"
 			+ "\tint y;\n"
 			+ "\tvoid foo() {}\n"
@@ -2042,13 +2051,16 @@ public void test21() {
 
 	SourceField[] fields = currentType.getFields();
 	assertTrue(" invalid fields ", fields != null);
-	assertEquals(" invalid fields length ", 2, fields.length);
+	assertEquals(" invalid fields length ", 3, fields.length);
 
-	assertEquals("Invalid declaration source start for field x", 126, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 138, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	
+	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for field y", 185, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field y", 190, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for field y", 185, fields[2].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field y", 190, fields[2].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4663,6 +4675,7 @@ public void test65() {
 			
 	String expectedUnitToString = 
 		"public class X {\n"
+		+ "\t{}\n"
 		+ "\tint foo() {}\n"
 		+ "\tint x() {}\n"
 		+ "}";
@@ -4683,7 +4696,11 @@ public void test65() {
 	assertTrue("has no superinterfaces " , currentType.getInterfaceNames() == null);
 
 	SourceField[] fields = currentType.getFields();
-	assertTrue(" invalid fields ", fields == null);
+	assertTrue(" invalid fields ", fields != null);
+	assertEquals(" invalid fields length ", 1, fields.length);
+
+	assertEquals("Invalid declaration source start for initializer", 47, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 46, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4717,6 +4734,7 @@ public void test66() {
 			
 	String expectedUnitToString = 
 		"public interface X {\n"
+		+ "\t{}\n"
 		+ "\tint foo() {}\n"
 		+ "\tint x() {}\n"
 		+ "}";
@@ -4737,7 +4755,11 @@ public void test66() {
 	assertTrue("has no superinterfaces " , currentType.getInterfaceNames() == null);
 
 	SourceField[] fields = currentType.getFields();
-	assertTrue(" invalid fields ", fields == null);
+	assertTrue(" invalid fields ", fields != null);
+	assertEquals(" invalid fields length ", 1, fields.length);
+
+	assertEquals("Invalid declaration source start for initializer", 51, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 50, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);

@@ -596,6 +596,8 @@ public void test05() {
 
 	String expectedFullUnitToString = 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -642,6 +644,8 @@ public void test06() {
 	String expectedDietUnitToString = 
 		"import java.lang.*;\n" + 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -657,6 +661,8 @@ public void test06() {
 	String expectedDietPlusBodyUnitToString = 
 		"import java.lang.*;\n" + 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -705,6 +711,8 @@ public void test07() {
 
 	String expectedDietUnitToString = 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  int x;\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
@@ -719,6 +727,8 @@ public void test07() {
 
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  int x;\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
@@ -1027,6 +1037,8 @@ public void test11() {
 
 	String expectedDietUnitToString = 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -1040,6 +1052,8 @@ public void test11() {
 
 	String expectedDietPlusBodyUnitToString =
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
@@ -1088,6 +1102,8 @@ public void test12() {
 
 	String expectedDietUnitToString =
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public int x;\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
@@ -1102,6 +1118,8 @@ public void test12() {
 		
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public int x;\n" + 
 		"  int y;\n" + 
 		"  public X() {\n" + 
@@ -4025,6 +4043,8 @@ public void test67() {
 		"    Y() {\n" + 
 		"    }\n" + 
 		"  }\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  X(int i) {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -4035,6 +4055,8 @@ public void test67() {
 		"    Y() {\n" + 
 		"      super();\n" + 
 		"    }\n" + 
+		"  }\n" + 
+		"  {\n" + 
 		"  }\n" + 
 		"  X(int i) {\n" + 
 		"    super();\n" + 
@@ -5532,6 +5554,8 @@ public void test99() {
 		"breakpoint is currently restricted to\n";
 	String expectedDietUnitToString = 
 		"class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  X() {\n" + 
 		"  }\n" + 
 		"  public void addThreadFilter(IJavaThread thread) {\n" + 
@@ -5544,6 +5568,8 @@ public void test99() {
 		
 	String expectedDietPlusBodyUnitToString = 
 		"class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  X() {\n" + 
 		"    super();\n" + 		
 		"  }\n" + 
@@ -6132,6 +6158,55 @@ public void test110() {
 		"  void bar() {\n" + 
 		"  }\n" + 
 		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
+public void test111() {
+	String s = 
+		"public class X {\n" +
+		"	void bar(){\n" +
+		"	}\n" +
+		"	}\n" +
+		"	void foo() {\n" +
+		"	}\n" +
+		"}";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" +
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" +
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
 	
 	String testName = "";
 	checkParse(

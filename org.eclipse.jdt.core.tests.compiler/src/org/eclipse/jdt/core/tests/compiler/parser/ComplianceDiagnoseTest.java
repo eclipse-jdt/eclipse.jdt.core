@@ -1891,31 +1891,128 @@ public void test0043() {
 	
 	String expected13ProblemLog =
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public static void foo(){}\n" + 
-		"	^^^^^^\n" + 
-		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	public static void foo(){}\n" + 
-		"	^^^^^^\n" + 
-		"Syntax error, insert \"EnumBody\" to complete EnumDeclaration\n" + 
+		"	                         ^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = 
+		expected13ProblemLog;
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62472
+ */
+public void test0044() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public <T> X(T t){\n" + 
+		"		System.out.println(t);\n" + 
+		"	}\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		class Local extends X {\n" + 
+		"			Local() {\n" + 
+		"				<String>super(\"SUCCESS\");\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		new Local();\n" + 
+		"	}\n" + 
+		"}\n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public <T> X(T t){\n" + 
+		"	        ^\n" + 
+		"Syntax error, type parameters are only available if source level is 1.5\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	public <T> X(T t){\n" + 
+		"	             ^\n" + 
+		"T cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	<String>super(\"SUCCESS\");\n" + 
+		"	 ^^^^^^\n" + 
+		"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 9)\n" + 
+		"	<String>super(\"SUCCESS\");\n" + 
+		"	 ^^^^^^\n" + 
+		"Syntax error, type parameters are only available if source level is 1.5\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 9)\n" + 
+		"	<String>super(\"SUCCESS\");\n" + 
+		"	        ^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X(String) is undefined\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public static void foo(){}\n" + 
-		"	              ^^^^\n" + 
-		"Syntax error on token \"void\", @ expected\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	public static void foo(){}\n" + 
-		"	                       ^\n" + 
-		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62472
+ */
+public void test0045() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public void foo(){\n" + 
+		"	}\n" + 
+		"	}\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}\n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = 
+		expected13ProblemLog;
 	
 	runComplianceParserTest(
 		testFiles,
