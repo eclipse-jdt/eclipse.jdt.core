@@ -487,16 +487,12 @@ private boolean isWorthBuilding() throws CoreException {
 	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
 		IProject p = requiredProjects[i];
 		if (getLastState(p) == null)  {
-			// The prereq project has no build state: if this project has a 'warning' cycle marker and the prereq project is involved in the cycle
+			// The prereq project has no build state: if this prereq project has a 'warning' cycle marker
 			// then allow build (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23357)
-			JavaProject jProject = (JavaProject)this.javaProject;
-			IMarker cycleMarker = jProject.getCycleMarker();
-			if (cycleMarker != null && ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_WARNING) {
-				HashSet cycleParticipants = new HashSet();
-				jProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot());
-				if (cycleParticipants.contains(JavaCore.create(p))) {
-					continue;
-				}
+			JavaProject prereqProject = (JavaProject)JavaCore.create(p);
+			if (prereqProject.hasCycleMarker() 
+					&& JavaCore.WARNING.equals(JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH))) {
+				continue;
 			}
 			if (DEBUG)
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
