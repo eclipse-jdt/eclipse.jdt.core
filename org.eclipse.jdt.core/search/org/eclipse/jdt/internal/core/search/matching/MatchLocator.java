@@ -1168,8 +1168,10 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 				// continue and try next matching openable
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
-					throw (JavaModelException) e;
+					// problem with class path: it could not find base classes
+					// continue and try next matching openable
 				} else {
+					// core exception thrown by client's code: let it through
 					throw new JavaModelException(e);
 				}
 			}
