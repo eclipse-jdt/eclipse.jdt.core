@@ -117,7 +117,7 @@ STREAM: 2.0
   PRs Closed in this Release
   ===============================================================================
   3288      CodeAssist - Code assist doesn't work in some methods (1GELEBH)
-
+  5073      delete does not work on default package  
 
 **********************************************************************************
 *** BUILD 205 (2.0 STREAM, v_205) ************************************************
