@@ -82,6 +82,16 @@ public void setUpSuite() throws Exception {
 		"public class Y extends ArrayList implements List {\n" +
 		"}"
 	);
+	createFile(
+		"/TypeHierarchy15/src/I.java", 
+		"public interface I<E> {\n" +
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/A.java", 
+		"public class A<E> implements I<E> {\n" +
+		"}"
+	);
 }
 
 /* (non-Javadoc)
@@ -864,6 +874,21 @@ public void testGeneric4() throws JavaModelException {
 	);
 }
 
+/*
+ * Ensures that a hierarchy on a generic interface can be opened
+ * (regression test for bug 82004 [model][5.0] 3.1M4 type hierarchy for generic interface)
+ */
+public void testGeneric5() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/I.java").getType("I");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: I [in I.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"Sub types:\n" + 
+		"  A [in A.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
+}
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
  */

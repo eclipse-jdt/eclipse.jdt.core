@@ -56,7 +56,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superinterface, INTERFACE_SUFFIX));
 			}
 		}
 	}
@@ -95,7 +95,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, superinterface, INTERFACE_SUFFIX));
 			}
 		}
 	}	
@@ -119,7 +119,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, INTERFACE_SUFFIX, superinterface, INTERFACE_SUFFIX));
 			}
 		}
 	}
