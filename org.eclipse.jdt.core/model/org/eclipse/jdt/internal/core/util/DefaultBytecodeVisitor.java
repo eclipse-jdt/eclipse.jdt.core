@@ -1823,15 +1823,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	public void _lookupswitch(int pc, int defaultoffset, int npairs, int[][] offset_pairs) {
 		dumpPcNumber(pc);
 		buffer.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LOOKUPSWITCH])
-			.append("default:") //$NON-NLS-1$
+			.append(" default: ") //$NON-NLS-1$
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = 0; i < npairs; i++) {
-			writeExtraTabs(1);
+			writeExtraTabs(3);
 			buffer
-				.append("case") //$NON-NLS-1$
+				.append("case ") //$NON-NLS-1$
 				.append(offset_pairs[i][0])
-				.append(":") //$NON-NLS-1$
+				.append(": ") //$NON-NLS-1$
 				.append(offset_pairs[i][1] + pc);
 			writeNewLine();
 		}
@@ -2157,15 +2157,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 		dumpPcNumber(pc);
 		buffer.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.TABLESWITCH])
-			.append("default:") //$NON-NLS-1$
+			.append(" default: ") //$NON-NLS-1$
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = low; i < high + 1; i++) {
-			writeExtraTabs(1);
+			writeExtraTabs(3);
 			buffer
-				.append("case") //$NON-NLS-1$
+				.append("case ") //$NON-NLS-1$
 				.append(i)
-				.append(":") //$NON-NLS-1$
+				.append(": ") //$NON-NLS-1$
 				.append(jump_offsets[i - low] + pc);
 			writeNewLine();
 		}
