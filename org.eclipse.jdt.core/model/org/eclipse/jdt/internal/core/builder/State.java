@@ -209,9 +209,10 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				newState.binaryLocations[i] = newState.sourceLocations[in.readInt()];
 				break;
 			case BINARY_FOLDER :
-				IContainer outputFolder = project;
 				IPath path = new Path(in.readUTF());
-				if (path.segmentCount() > 1) outputFolder = root.getFolder(path);
+				IContainer outputFolder = path.segmentCount() == 1
+					? (IContainer) root.getProject(path.toString())
+					: (IContainer) root.getFolder(path);
 				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
