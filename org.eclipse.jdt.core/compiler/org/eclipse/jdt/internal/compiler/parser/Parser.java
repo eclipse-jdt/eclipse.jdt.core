@@ -760,6 +760,11 @@ protected void consumeAllocationHeader() {
 		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
 		anonymousType.sourceStart = this.intStack[this.intPtr--];
 		anonymousType.sourceEnd = this.rParenPos; // closing parenthesis
+		QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType);
+		alloc.type = getTypeReference(0);
+		alloc.sourceStart = anonymousType.sourceStart;
+		alloc.sourceEnd = anonymousType.sourceEnd ;
+		anonymousType.allocation = alloc; 
 		this.lastCheckPoint = anonymousType.bodyStart = this.scanner.currentPosition;
 		this.currentElement = this.currentElement.add(anonymousType, 0);
 		this.lastIgnoredToken = -1;

@@ -7782,4 +7782,86 @@ public void test0137(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=41395
+ */
+public void test0138(){
+	String str =
+		"public class X{\n" + 
+		"  public void foo() {\n" + 
+		"    new Y() {\n" + 
+		"      public void bar() {\n" + 
+		"        switch (zzz){\n" + 
+		"          case 1 :\n" + 
+    	"          };\n" + 
+		"        }\n" + 
+		"        new Z() {\n" + 
+		"          public void toto() {		\n" + 	
+		"        }\n" + 
+		"      });\n" + 
+		"    });\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "to";
+	int cursorLocation = str.indexOf("to") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnFieldName:void to>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "to";
+	expectedReplacedSource = "toto";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    new Y() {\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"      public void bar() {\n" + 
+		"        new Z() {\n" + 
+		"          <CompleteOnFieldName:void to>;\n" + 
+		"          {\n" + 
+		"          }\n" + 
+		"          () {\n" + 
+		"          }\n" + 
+		"        };\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
