@@ -92,7 +92,7 @@ public boolean contains(IResource resource) {
  * @see IJavaModel
  */
 public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (elements != null && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
 		runOperation(new CopyResourceElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
 	} else {
 		runOperation(new CopyElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
@@ -109,7 +109,7 @@ protected OpenableElementInfo createElementInfo() {
  * @see IJavaModel
  */
 public void delete(IJavaElement[] elements, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (elements != null && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
 		runOperation(new DeleteResourceElementsOperation(elements, force), monitor);
 	} else {
 		runOperation(new DeleteElementsOperation(elements, force), monitor);
@@ -444,7 +444,7 @@ public IWorkspace getWorkspace() {
  * @see IJavaModel
  */
 public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (elements != null && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
 		runOperation(new MoveResourceElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
 	} else {
 		runOperation(new MoveElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
@@ -466,7 +466,7 @@ public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonit
  */
 public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[] renamings, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	MultiOperation op;
-	if (elements != null && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
 		op = new RenameResourceElementsOperation(elements, destinations, renamings, force);
 	} else {
 		op = new RenameElementsOperation(elements, destinations, renamings, force);
