@@ -1444,6 +1444,7 @@ protected void consumeMethodHeaderName() {
 		//name
 		md.selector = identifierStack[identifierPtr];
 		long selectorSource = identifierPositionStack[identifierPtr--];
+		identifierLengthPtr--;
 		//type
 		md.returnType = getTypeReference(intStack[intPtr--]);
 		//modifiers

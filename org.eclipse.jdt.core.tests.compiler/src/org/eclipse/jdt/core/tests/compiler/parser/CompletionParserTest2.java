@@ -7679,4 +7679,38 @@ public void test0135(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48070
+ */
+public void test0136(){
+	String str =
+		"public class X {\n" +
+		"	void bar(){\n" +
+		"	}\n" +
+		"}\n";
+
+
+	String completeBehind = "ba";
+	int cursorLocation = str.indexOf("ba") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompletionOnMethodName:void ba()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ba";
+	String expectedReplacedSource = "bar()";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  <CompletionOnMethodName:void ba()>\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
