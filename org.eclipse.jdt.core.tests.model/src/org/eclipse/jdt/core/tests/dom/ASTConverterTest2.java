@@ -75,7 +75,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
-		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not a super method invocation", node.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION); //$NON-NLS-1$
 		checkSourceRange(node, "new A().super();", source); //$NON-NLS-1$
@@ -88,7 +88,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0403", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 1);
-		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -122,7 +122,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0404", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -153,7 +153,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0405", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 1);
-		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -184,7 +184,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0406", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -214,7 +214,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0407() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0407", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -240,7 +240,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0408() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0408", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -276,7 +276,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ASTNode result = runConversion(sourceUnit, true);
 			assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit compilationUnit = (CompilationUnit) result; 
-			assertEquals("Wrong number of errors", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
+			assertEquals("Wrong number of problems", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 			assertEquals("Unexpected problem", "The import java.lang is never used", compilationUnit.getProblems()[0].getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			BindingsCollectorVisitor bindingsCollectorVisitor = new BindingsCollectorVisitor();
 			compilationUnit.accept(bindingsCollectorVisitor);
@@ -363,7 +363,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0410() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0410", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
@@ -380,7 +380,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0411() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0411", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
@@ -399,7 +399,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0);
 		assertNotNull(node);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
@@ -429,7 +429,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -449,7 +449,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -475,7 +475,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		result = runConversion(sourceUnit2, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit2 = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit2.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, unit2.getProblems().length); //$NON-NLS-1$
 		ASTNode declaringNode3 = unit2.findDeclaringNode(typeBinding);
 		assertNull("Got a declaring node", declaringNode3); //$NON-NLS-1$
 		
@@ -491,7 +491,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a switch statement", node.getNodeType() == ASTNode.SWITCH_STATEMENT); //$NON-NLS-1$
@@ -513,7 +513,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
@@ -546,7 +546,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
@@ -571,7 +571,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 1, 0);
 		assertNotNull("No node", node);
 		assertTrue("not an expression statement ", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
@@ -592,7 +592,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -615,7 +615,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -642,7 +642,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -670,7 +670,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -698,7 +698,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -725,7 +725,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -749,7 +749,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -776,7 +776,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -797,7 +797,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -821,7 +821,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -846,7 +846,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -872,7 +872,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertTrue("Not a constructor invocation", node.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
 		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
@@ -895,7 +895,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertTrue("Not a constructor invocation", node.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
 		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
@@ -916,7 +916,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -938,7 +938,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -962,7 +962,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -986,7 +986,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -1010,7 +1010,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1036,7 +1036,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1058,7 +1058,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		List imports = unit.imports();
 		assertEquals("Wrong size", 1, imports.size()); //$NON-NLS-1$<
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
@@ -1074,7 +1074,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1095,7 +1095,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1135,7 +1135,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1163,7 +1163,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1192,7 +1192,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 2, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1209,7 +1209,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 2, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0);
 		assertEquals("Wrong type", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1233,7 +1233,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 	}
 
 	/**
@@ -1244,7 +1244,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
 	}
 
 	/**
@@ -1255,7 +1255,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 4, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 4, unit.getProblems().length); //$NON-NLS-1$<
 	}
 
 	/**
@@ -1266,7 +1266,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Not a method declaration", node.getNodeType(), ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1286,7 +1286,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Not a method declaration", node.getNodeType(), ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1304,7 +1304,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0);
 		assertEquals("Not a type declaration", node.getNodeType(), ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1384,7 +1384,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of errors", 2, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
