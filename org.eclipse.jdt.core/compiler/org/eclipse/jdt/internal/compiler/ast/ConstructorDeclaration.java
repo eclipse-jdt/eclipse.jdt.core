@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -169,18 +170,53 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
+	public void generateSyntheticFieldInitializationsIfNecessary(
+		MethodScope scope,
+		CodeStream codeStream,
+		ReferenceBinding declaringClass) {
+			
+		if (!declaringClass.isNestedType()) return;
+		
+		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
+		SyntheticArgumentBinding[] syntheticArgs =
+			nestedType.syntheticEnclosingInstances();
+		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
+			i < max;
+			i++) {
+			if (syntheticArgs[i].matchingField != null) {
+				codeStream.aload_0();
+				codeStream.load(syntheticArgs[i]);
+				codeStream.putfield(syntheticArgs[i].matchingField);
+			}
+		}
+		syntheticArgs = nestedType.syntheticOuterLocalVariables();
+		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
+			i < max;
+			i++) {
+			if (syntheticArgs[i].matchingField != null) {
+				codeStream.aload_0();
+				codeStream.load(syntheticArgs[i]);
+				codeStream.putfield(syntheticArgs[i].matchingField);
+			}
+		}
+	}
+
 	private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
+		
 		classFile.generateMethodInfoHeader(binding);
 		int methodAttributeOffset = classFile.contentsOffset;
 		int attributeNumber = classFile.generateMethodInfoAttribute(binding);
 		if ((!binding.isNative()) && (!binding.isAbstract())) {
+			
 			TypeDeclaration declaringType = classScope.referenceContext;
 			int codeAttributeOffset = classFile.contentsOffset;
 			classFile.generateCodeAttributeHeader();
 			CodeStream codeStream = classFile.codeStream;
 			codeStream.reset(this, classFile);
+
 			// initialize local positions - including initializer scope.
 			ReferenceBinding declaringClass = binding.declaringClass;
+
 			int argSize = 0;
 			scope.computeLocalVariablePositions(// consider synthetic arguments if any
 			argSize =
@@ -203,40 +239,23 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			MethodScope initializerScope = declaringType.initializerScope;
-			initializerScope.computeLocalVariablePositions(argSize, codeStream);
-			// offset by the argument size (since not linked to method scope)
+			initializerScope.computeLocalVariablePositions(argSize, codeStream); // offset by the argument size (since not linked to method scope)
 
+			boolean needFieldInitializations = constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This;
+			// post 1.4 source level, synthetic initializations occur prior to explicit constructor call
+			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= CompilerOptions.JDK1_4;
+
+			if (needFieldInitializations && preInitSyntheticFields){
+				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
+			}			
 			// generate constructor call
 			if (constructorCall != null) {
 				constructorCall.generateCode(scope, codeStream);
 			}
 			// generate field initialization - only if not invoking another constructor call of the same class
-			if ((constructorCall != null)
-				&& (constructorCall.accessMode != ExplicitConstructorCall.This)) {
-				// generate synthetic fields initialization
-				if (declaringClass.isNestedType()) {
-					NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
-					SyntheticArgumentBinding[] syntheticArgs =
-						nestedType.syntheticEnclosingInstances();
-					for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
-						i < max;
-						i++) {
-						if (syntheticArgs[i].matchingField != null) {
-							codeStream.aload_0();
-							codeStream.load(syntheticArgs[i]);
-							codeStream.putfield(syntheticArgs[i].matchingField);
-						}
-					}
-					syntheticArgs = nestedType.syntheticOuterLocalVariables();
-					for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
-						i < max;
-						i++) {
-						if (syntheticArgs[i].matchingField != null) {
-							codeStream.aload_0();
-							codeStream.load(syntheticArgs[i]);
-							codeStream.putfield(syntheticArgs[i].matchingField);
-						}
-					}
+			if (needFieldInitializations) {
+				if (!preInitSyntheticFields){
+					generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
 				}
 				// generate user field initialization
 				if (declaringType.fields != null) {
