@@ -143,4 +143,17 @@ public class AssertStatement extends Statement {
 			}
 		}
 	}
+	public String toString(int tab) {
+		/* slow code */
+		StringBuffer buffer = new StringBuffer(tabString(tab));
+		buffer.append("assert"); //$NON-NLS-1$
+		buffer.append(this.assertExpression);
+		if (this.exceptionArgument != null) {
+			buffer.append(":"); //$NON-NLS-1$
+			buffer.append(this.exceptionArgument);
+			buffer.append(";"); //$NON-NLS-1$
+		}
+		return buffer.toString();
+	}
+	
 }
