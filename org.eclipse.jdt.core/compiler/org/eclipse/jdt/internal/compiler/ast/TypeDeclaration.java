@@ -33,7 +33,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int declarationSourceStart ;
 	public int declarationSourceEnd ;
 	public int bodyStart;
-	private boolean hasBeenGenerated = false;
 	
 /*
  *	We cause the compilation task to abort to a given extent.
@@ -552,8 +551,6 @@ public TypeDeclaration declarationOfType(char[][] typeName) {
  * Generic bytecode generation for type
  */
 public void generateCode(ClassFile enclosingClassFile) {
-	if (hasBeenGenerated) return;
-	hasBeenGenerated = true;	
 	if (ignoreFurtherInvestigation) {
 		if (binding == null)
 			return;
@@ -610,8 +607,6 @@ public void generateCode(ClassFile enclosingClassFile) {
  * Bytecode generation for a local inner type (API as a normal statement code gen)
  */
 public void generateCode(BlockScope blockScope, CodeStream codeStream) {
-	if (hasBeenGenerated) return;
-	hasBeenGenerated = true;
 	int pc = codeStream.position;
 	if (binding != null){ 
 		 ((NestedTypeBinding) binding).computeSyntheticArgumentsOffset();
@@ -623,8 +618,7 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
  * Bytecode generation for a member inner type
  */
 public void generateCode(ClassScope classScope, ClassFile enclosingClassFile) {
-	if (hasBeenGenerated) return;
-	hasBeenGenerated = true;
+
 	((NestedTypeBinding)binding).computeSyntheticArgumentsOffset();
 	generateCode(enclosingClassFile);
 }
