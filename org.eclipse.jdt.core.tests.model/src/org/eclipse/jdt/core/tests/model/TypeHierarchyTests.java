@@ -741,6 +741,45 @@ public void testGetAllSuperclasses() throws JavaModelException {
 		types);
 }
 /**
+ * Ensures that the correct superclasses of a binary type exist in the type  hierarchy.
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
+ */
+public void testGetAllSuperclassesFromBinary() throws JavaModelException {
+	String fileName = "TypeHierarchy/lib53095/p53095/X53095.class";	//$NON-NLS-1$
+	IJavaElement javaElement = JavaCore.create(getFile(fileName));
+	assertNotNull("Problem to get class file \""+fileName+"\"", javaElement);
+	assertTrue("Invalid type for class file \""+fileName+"\"", javaElement instanceof IClassFile);
+	IType type = ((IClassFile) javaElement).getType();
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null); // it works when we use newTypeHierarchy(null)
+	IType[] types = hierarchy.getAllSupertypes(type);
+	assertTypesEqual(
+		"Unexpected all super classes of X53095", 
+		"java.lang.RuntimeException\n" +
+		"java.lang.Exception\n" +
+		"java.lang.Throwable\n" +
+		"java.lang.Object\n",
+		types,
+		false);
+}
+/**
+ * Ensures that the correct superclasses of a binary type exist in the type  hierarchy.
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043)
+ */
+public void testGetAllSuperclassesFromBinary2() throws JavaModelException {
+	IClassFile cf = getClassFile("TypeHierarchy", "test54043.jar", "p54043", "X54043.class");
+	IType type = cf.getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSupertypes(type);
+	assertTypesEqual(
+		"Unexpected all super classes of X54043", 
+		"java.lang.RuntimeException\n" +
+		"java.lang.Exception\n" +
+		"java.lang.Throwable\n" +
+		"java.lang.Object\n",
+		types,
+		false);
+}
+/**
  * Ensures that the correct superinterfaces of a type exist in the type 
  * hierarchy.
  */

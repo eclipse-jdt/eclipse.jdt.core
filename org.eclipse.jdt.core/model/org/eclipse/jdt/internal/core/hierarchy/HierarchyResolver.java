@@ -407,19 +407,17 @@ private void rememberWithMemberTypes(TypeDeclaration typeDecl, IType typeHandle)
 		}
 	}
 }
-private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit, BinaryTypeBinding binaryTypeBinding) {
+/*
+ * Reports the hierarchy from the remembered bindings.
+ * Note that 'binaryTypeBinding' is null if focus type is a source type.
+ */
+private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit, ReferenceBinding binaryTypeBinding) {
 	
 	// set focus type binding
 	if (focus != null) {
 		if (binaryTypeBinding != null) {
 			// binary type
 			this.focusType = binaryTypeBinding;
-		} else if (focus.isBinary()) {
-			// may have been resolved indirectly, should then be in type cache
-			// TODO (jerome) review this fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043
-			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
-			this.focusType = this.lookupEnvironment.getCachedType(CharOperation.splitOn('.', fullyQualifiedName));
-			if (this.focusType == null) return;
 		} else {
 			// source type
 			Member declaringMember = ((Member)focus).getOuterMostLocalContext();
@@ -492,7 +490,6 @@ public void resolve(IGenericType suppliedType) {
 			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
 			remember(suppliedType, binaryTypeBinding);
 			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
-			// TODO (jerome) review this fix
 			int startIndex = this.typeIndex;
 			for (int i = startIndex; i <= this.typeIndex; i++) {
 				IGenericType igType = this.typeModels[i];
@@ -544,7 +541,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		int unitsIndex = 0;
 		
 		CompilationUnitDeclaration focusUnit = null;
-		BinaryTypeBinding focusBinaryBinding = null;
+		ReferenceBinding focusBinaryBinding = null;
 		IType focus = this.requestor.getType();
 		Openable focusOpenable = null;
 		if (focus != null) {
@@ -708,6 +705,14 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					
 				rememberAllTypes(parsedUnit, cus[i], containsLocalType);
 			}
+		}
+		
+		// if no potential subtype was a real subtype of the binary focus type, no need to go further
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043)
+		if (focusBinaryBinding == null && focus != null && focus.isBinary()) {
+			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
+			focusBinaryBinding = this.lookupEnvironment.getCachedType(CharOperation.splitOn('.', fullyQualifiedName));
+			if (focusBinaryBinding == null) return;
 		}
 
 		reportHierarchy(focus, focusUnit, focusBinaryBinding);

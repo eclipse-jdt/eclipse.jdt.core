@@ -43,9 +43,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 
 	// static variables for subsets tests
-	protected static String[] testsNames = null; // list of test names to perform
-	protected static int[] testsNumbers = null; // list of test numbers to perform
-	protected static int[] testsRange = null; // range of test numbers to perform
+	public static String[] testsNames = null; // list of test names to perform
+	public static int[] testsNumbers = null; // list of test numbers to perform
+	public static int[] testsRange = null; // range of test numbers to perform
 	protected static NumberFormat methNameFormat = NumberFormat.getIntegerInstance();
 	static {
 		methNameFormat.setMinimumIntegerDigits(3);

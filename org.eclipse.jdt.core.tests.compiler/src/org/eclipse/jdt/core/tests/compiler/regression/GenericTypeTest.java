@@ -75,7 +75,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		return options;
 	}
 	static {
-		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
+		// Use this static to specify a subset of tests using testsNames, testsNumbers or testsRange arrays
+//		testsNames = new String[] { "MissingTagsErrorPublicOverriding" };
 //		testsRange = new int[] { 78, -1 };
 //		testsNumbers = new int[] { 58, 79 };
 	}
@@ -85,12 +86,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		} else {
 			// To run a specific test, just uncomment line with testNumbers in static initializer above
 			// and put numbers of tests you want to perform
-//			if (true) {
-				return setupSuite(testClass());
-//			}
-//			TestSuite suite = new TestSuite(testClass().getName());
-//			suite.addTest(new GenericTypeTest("test006"));
-//			return suite;
+			return setupSuite(testClass());
 		}
 	}
 

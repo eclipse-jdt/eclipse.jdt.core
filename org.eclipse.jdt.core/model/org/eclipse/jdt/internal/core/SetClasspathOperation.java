@@ -291,6 +291,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
 		}
 		boolean hasDelta = false;
+		if (this.classpathWasSaved) {
+			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
+			hasDelta = true;
+		}
 		int oldLength = oldResolvedPath.length;
 		int newLength = newResolvedPath.length;
 			
