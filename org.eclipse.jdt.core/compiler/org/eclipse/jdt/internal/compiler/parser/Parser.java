@@ -643,7 +643,7 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 								scanner.pushLineSeparator();
 							}
 						}
-						isWhiteSpace = Scanner.isWhitespace(scanner.currentCharacter);
+						isWhiteSpace = CharOperation.isWhitespace(scanner.currentCharacter);
 					}
 				} while (isWhiteSpace && (scanner.currentPosition < scanner.eofPosition));
 

@@ -349,6 +349,36 @@ public static final int hashCode(char[] array) {
 	}
 	return hash & 0x7FFFFFFF;
 }
+public static boolean isWhitespace(char c) {
+	if (Character.isWhitespace(c)) {
+		switch(c) {
+			case 11 :
+			case 12288 :
+			case 28 :
+			case 29 :
+			case 30 :
+			case 31 :
+			case 5760 :
+			case 8192 :
+			case 8193 :
+			case 8194 :
+			case 8195 :
+			case 8196 :
+			case 8197 :
+			case 8198 :
+			case 8200 :
+			case 8201 :
+			case 8202 :
+			case 8203 :
+			case 8232 :
+			case 8233 :
+				return false;
+			default :
+				return true;
+		}
+	}
+	return false;
+}
 public static final int indexOf(char toBeFound, char[] array) {
 	for (int i = 0; i < array.length; i++)
 		if (toBeFound == array[i])
