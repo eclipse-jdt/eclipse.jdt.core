@@ -109,7 +109,7 @@ public void testExtraClosingCurlyBracket() {
 public void testExtraOpenRoundBracket() {
 	evaluateWithExpectedProblem(
 		"foo((a);".toCharArray(), 
-		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 0, 6, 1)); // Unmatched bracket
+		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 6, 6, 1)); // Unmatched bracket
 }
 /**
  * Test a code snippet that contains an expression followed by a semi-colon.
@@ -178,7 +178,7 @@ public void testInvalidUseOfThisInSnippet2() {
 public void testMissingClosingRoundBracket() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"System.out.println(\"3 + 3\";"}), 
-		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 0, 25, 1)); // Unmatched bracket
+		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 19, 25, 1)); // Unmatched bracket
 }
 /**
  * Test a code snippet that contains a string that misses the closing double quote .

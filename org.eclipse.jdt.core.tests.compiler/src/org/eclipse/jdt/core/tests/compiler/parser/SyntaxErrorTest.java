@@ -107,7 +107,7 @@ public void test01() {
 		"----------\n" +
 		"1. ERROR in <parenthesis mismatch> (at line 9)\n" + 
 		"	if (this.equals(result.documentName){		\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                                   ^\n" + 
 		"Syntax error, insert \") Statement\" to complete BlockStatements\n" + 
 		"----------\n";
 

@@ -2117,6 +2117,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					errorEnd); 
 				break;
 			case SCOPE_CODE:
+				// error start is on the last token start
+				errorStart = lexStream.start(rightToken);
+			
 	            StringBuffer buf = new StringBuffer();
 	            for (int i = Parser.scope_suffix[- (int) nameIndex]; Parser.scope_rhs[i] != 0; i++) {
 	                buf.append(Parser.name[Parser.scope_rhs[i]]);
