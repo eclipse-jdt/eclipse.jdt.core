@@ -79,7 +79,7 @@ public static void assertEquals(String message, String expected, String actual) 
 		return;
 	if (expected != null && expected.equals(actual))
 		return;
-	throw new ComparisonFailure(message, showCRs(expected), showCRs(actual));
+	throw new ComparisonFailure(message, showLineSeparators(expected), showLineSeparators(actual));
 }
 protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 	this.sortResources(resources);
@@ -857,9 +857,9 @@ public static String displayString(String inputString, int indent) {
 	return buffer.toString();
 }
 /*
- * Shows the cariage returns in the given String.
+ * Shows the line separators in the given String.
  */
-protected static String showCRs(String string) {
+protected static String showLineSeparators(String string) {
 	StringBuffer buffer = new StringBuffer();
 	int length = string.length();
 	for (int i = 0; i < length; i++) {
