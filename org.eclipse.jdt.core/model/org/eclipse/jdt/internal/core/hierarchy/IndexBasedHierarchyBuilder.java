@@ -295,7 +295,11 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 			if (currentProject == null) {
 				// case of no potential subtypes
 				currentProject = focusType.getJavaProject();
-				potentialSubtypes.add(focusType.getCompilationUnit());
+				if (focusType.isBinary()) {
+					potentialSubtypes.add(focusType.getClassFile());
+				} else {
+					potentialSubtypes.add(focusType.getCompilationUnit());
+				}
 			}
 			this.buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
 		} catch (JavaModelException e) {
