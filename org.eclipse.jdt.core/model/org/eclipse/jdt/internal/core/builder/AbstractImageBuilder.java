@@ -359,7 +359,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
 		if (missingClassFile != null)
-			throw new AbortCompilation(true, new IncompleteClassPathException(missingClassFile));
+			throw new IncompleteClassPathException(missingClassFile);
 	}
 }
 
