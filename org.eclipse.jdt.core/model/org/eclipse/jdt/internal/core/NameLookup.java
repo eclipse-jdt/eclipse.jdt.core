@@ -113,7 +113,7 @@ public class NameLookup {
 		workspace= project.getJavaModel().getWorkspace();
 		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
 		fPackageFragments= new Hashtable();
-		IPackageFragment[] frags= ((JavaProject) project).getAllPackageFragments();
+		IPackageFragment[] frags= ((JavaProject) project).getPackageFragmentsInRoots(fPackageFragmentRoots);
 		for (int i= 0; i < frags.length; i++) {
 			IPackageFragment fragment= frags[i];
 			IPackageFragment[] entry= (IPackageFragment[]) fPackageFragments.get(fragment.getElementName());

@@ -145,21 +145,21 @@ public class JavaProject
 	}
 	
 	/**
-	 * Returns (all) the package fragment roots identified by the given project's classpath.
+	 * Returns (local/all) the package fragment roots identified by the given project's classpath.
 	 * Note: this follows project classpath references to find required project contributions,
 	 * eliminating duplicates silently.
 	 */
-	public IPackageFragmentRoot[] computePackageFragmentRoots(boolean computeBuilderRoots) {
+	public IPackageFragmentRoot[] computePackageFragmentRoots(boolean retrieveExportedRoots) {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
-		computePackageFragmentRoots(accumulatedRoots, new ObjectSet(5), true, true, computeBuilderRoots);
+		computePackageFragmentRoots(accumulatedRoots, new ObjectSet(5), true, true, retrieveExportedRoots);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
 	}
 
 	/**
-	 * Returns (all) the package fragment roots identified by the given project's classpath.
+	 * Returns (local/all) the package fragment roots identified by the given project's classpath.
 	 * Note: this follows project classpath references to find required project contributions,
 	 * eliminating duplicates silently.
 	 */
@@ -168,7 +168,7 @@ public class JavaProject
 		ObjectSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
-		boolean computeBuilderRoots) {
+		boolean retrieveExportedRoots) {
 
 		if (insideOriginalProject){
 			rootIDs.add(rootID());
@@ -183,7 +183,7 @@ public class JavaProject
 					rootIDs,
 					insideOriginalProject,
 					checkExistency,
-					computeBuilderRoots);
+					retrieveExportedRoots);
 			}
 		} catch(JavaModelException e){
 		}			
@@ -199,7 +199,7 @@ public class JavaProject
 		ObjectSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
-		boolean computeBuilderRoots) {
+		boolean retrieveExportedRoots) {
 			
 		String rootID = ((ClasspathEntry)entry).rootID();
 		if (rootIDs.contains(rootID)) return;
@@ -213,7 +213,6 @@ public class JavaProject
 			// source folder
 			case IClasspathEntry.CPE_SOURCE :
 
-				if (computeBuilderRoots) return;
 				if (projectPath.isPrefixOf(entryPath)){
 					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
 					if (target == null) return;
@@ -269,28 +268,14 @@ public class JavaProject
 			// recurse into required project
 			case IClasspathEntry.CPE_PROJECT :
 
+				if (!retrieveExportedRoots) return;
 				if (!insideOriginalProject && !entry.isExported()) return;
 
 				JavaProject requiredProject = (JavaProject)getJavaModel().getJavaProject(entryPath.segment(0));
 				IProject requiredProjectRsc = requiredProject.getProject();
 				if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
-					if (computeBuilderRoots){
-						try {
-							IResource output = workspaceRoot.findMember(requiredProject.getOutputLocation());
-							if (output != null && output.exists()){
-								PackageFragmentRoot binaryOutputRoot =
-									(PackageFragmentRoot) requiredProject.getPackageFragmentRoot(output);
-								binaryOutputRoot.setOccurrenceCount(binaryOutputRoot.getOccurrenceCount() + 1);
-								((PackageFragmentRootInfo) binaryOutputRoot.getElementInfo()).setRootKind(
-									IPackageFragmentRoot.K_BINARY);
-								binaryOutputRoot.refreshChildren();
-								accumulatedRoots.add(binaryOutputRoot);
-							}
-						} catch (JavaModelException e){
-						}
-					}
 					rootIDs.add(rootID);
-					requiredProject.computePackageFragmentRoots(accumulatedRoots, rootIDs, false, checkExistency, computeBuilderRoots);
+					requiredProject.computePackageFragmentRoots(accumulatedRoots, rootIDs, false, checkExistency, retrieveExportedRoots);
 				}
 				break;
 			}
@@ -549,22 +534,7 @@ public class JavaProject
 	public IPackageFragmentRoot[] getAllPackageFragmentRoots()
 		throws JavaModelException {
 
-		IJavaElement[] tempChildren = getElementInfo().getChildren();
-		IPackageFragmentRoot[] children = new IPackageFragmentRoot[tempChildren.length];
-		for (int i = 0; i < tempChildren.length; i++) {
-			children[i] = (IPackageFragmentRoot) tempChildren[i];
-		}
-		return children;
-	}
-
-	/**
-	 * Returns all package fragments from all of the package fragment roots
-	 * on the classpath.
-	 */
-	public IPackageFragment[] getAllPackageFragments() throws JavaModelException {
-
-		IPackageFragmentRoot[] roots = getAllPackageFragmentRoots();
-		return getPackageFragmentsInRoots(roots);
+		return computePackageFragmentRoots(true);
 	}
 
 	/**
@@ -640,14 +610,6 @@ public class JavaProject
 		IPackageFragmentRoot[] result = new IPackageFragmentRoot[builderRoots.size()];
 		builderRoots.copyInto(result);
 		return result;
-	}
-	
-	/**
-	 * @see IParent 
-	 */
-	public IJavaElement[] getChildren() throws JavaModelException {
-
-		return getPackageFragmentRoots();
 	}
 
 	/**
@@ -902,19 +864,18 @@ public class JavaProject
 	public IPackageFragmentRoot[] getPackageFragmentRoots()
 		throws JavaModelException {
 
-		IPackageFragmentRoot[] children = getAllPackageFragmentRoots();
-		ObjectVector directChildren = new ObjectVector();
+		Object[] children;
+		int length;
+		IPackageFragmentRoot[] roots;
 
-		for (int i = 0; i < children.length; i++) {
-			IPackageFragmentRoot root = children[i];
-			IJavaProject proj = root.getJavaProject();
-			if (proj != null && proj.equals(this)) {
-				directChildren.add(root);
-			}
-		}
-		children = new IPackageFragmentRoot[directChildren.size()];
-		directChildren.copyInto(children);
-		return children;
+		System.arraycopy(
+			children = getChildren(), 
+			0, 
+			roots = new IPackageFragmentRoot[length = children.length], 
+			0, 
+			length);
+			
+		return roots;
 	}
 
 	/**
@@ -1038,7 +999,7 @@ public class JavaProject
 	 * Returns all the package fragments found in the specified
 	 * package fragment roots.
 	 */
-	private IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots) {
+	public IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots) {
 
 		Vector frags = new Vector();
 		for (int i = 0; i < roots.length; i++) {
@@ -1679,6 +1640,40 @@ public class JavaProject
 	}
 
 	/**
+	 * Reset the collection of package fragment roots (local ones) - only if opened.
+	 */
+	public void updatePackageFragmentRoots(){
+		
+			if (this.isOpen()) {
+
+				try {
+					IPackageFragmentRoot[] oldRoots = getPackageFragmentRoots();
+					IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(false);
+					checkIdentical: {
+						if (oldRoots.length == newRoots.length){
+							for (int i = 0, length = oldRoots.length; i < length; i++){
+								if (!oldRoots[i].equals(newRoots[i])){
+									break checkIdentical;
+								}
+							}
+							return; // no need to update
+						}	
+					}
+					JavaProjectElementInfo info = getJavaProjectElementInfo();
+					info.setChildren(
+						computePackageFragmentRoots(false));		
+					info.setNameLookup(null); // discard name lookup (hold onto roots)
+					info.setNonJavaResources(null);
+				} catch(JavaModelException e){
+					try {
+						close(); // could not do better
+					} catch(JavaModelException ex){
+					}
+				}
+			}
+	}
+	
+	/**
 	 * Returns the <code>IResource</code> that correspond to the specified path.
 	 * null if none.
 	 */
@@ -1899,17 +1894,12 @@ public class JavaProject
 			info.setChildren(new IPackageFragmentRoot[] {});
 			info.setRawClasspath(rawEntries);
 
-			IndexManager indexManager =
-				((JavaModelManager) JavaModelManager.getJavaModelManager()).getIndexManager();
-
-			// compute the new roots, and trigger indexing of referenced JARs
-			ObjectVector accumulatedRoots = new ObjectVector();
-			computePackageFragmentRoots(accumulatedRoots, new ObjectSet(5), true, true, false);
-			IJavaElement[] rootArray = new IJavaElement[accumulatedRoots.size()];
-			accumulatedRoots.copyInto(rootArray);
-			info.setChildren(rootArray);					
+			// compute the new roots
+			updatePackageFragmentRoots();				
 			
 			// only trigger indexing of immediate libraries
+			IndexManager indexManager =
+				((JavaModelManager) JavaModelManager.getJavaModelManager()).getIndexManager();
 			IPackageFragmentRoot[] immediateRoots = getPackageFragmentRoots();						
 			for(int i = 0, length = immediateRoots.length; i < length; i++){
 				PackageFragmentRoot root = (PackageFragmentRoot)immediateRoots[i];
@@ -1923,10 +1913,6 @@ public class JavaProject
 					}
 				}
 			}
-			
-			// flush namelookup (holds onto caches)
-			info.setNameLookup(null);
-			((JavaProjectElementInfo) getElementInfo()).setNonJavaResources(null);
 		}
 	}
 

@@ -44,12 +44,6 @@ public class DeltaProcessor {
 	 */
 	protected JavaElementDelta fCurrentDelta;
 
-	/**
-	 * JavaProjects that need classpaths updated when resource delta
-	 * translation is complete.
-	 */
-	protected Hashtable fJavaProjectsToUpdate = null;
-
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
 
@@ -91,11 +85,12 @@ public class DeltaProcessor {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
 					JavaProject project = (JavaProject) element.getJavaProject();
-					updateProject(project);
-					try {
-						project.getJavaProjectElementInfo().setNameLookup(null);
-					} catch (JavaModelException e) {
-					}
+					project.updatePackageFragmentRoots();
+					//updateProject(project);
+					//try {
+					//	project.getJavaProjectElementInfo().setNameLookup(null);
+					//} catch (JavaModelException e) {
+					//}
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
 					addToParentInfo(element);
@@ -216,14 +211,6 @@ public class DeltaProcessor {
 				checkProjectPropertyFileUpdate(children[i], element);
 			}
 		}
-	}
-
-	/**
-	 * Clears the caches related to classpath updates.
-	 */
-	protected void clearState() {
-
-		fJavaProjectsToUpdate = null;
 	}
 
 	/**
@@ -431,12 +418,8 @@ public class DeltaProcessor {
 					(JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-				updateProject(element.getJavaProject()); // to trigger deltas
 				JavaProject project = (JavaProject) element.getJavaProject();
-				try {
-					project.getJavaProjectElementInfo().setNameLookup(null);
-				} catch (JavaModelException e) {
-				}
+				project.updatePackageFragmentRoots();
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
@@ -561,9 +544,6 @@ public class DeltaProcessor {
 	 */
 	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes) {
 
-		// clear state
-		clearState();
-
 		// get the workspace delta, and start processing there.
 		IResourceDelta[] deltas = changes.getAffectedChildren();
 		IJavaElementDelta[] translatedDeltas = new JavaElementDelta[deltas.length];
@@ -577,11 +557,6 @@ public class DeltaProcessor {
 				translatedDeltas[i] = fCurrentDelta;
 			}
 		}
-		// update classpaths
-		updateClasspaths(false);
-
-		// clear state
-		clearState();
 
 		return filterRealDeltas(translatedDeltas);
 	}
@@ -780,28 +755,6 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 	}
 }
 
-	/**
-	 * Updates the classpath of each project requiring update. This refreshes
-	 * the cached info in each project's namelookup facility, and persists
-	 * classpaths.
-	 */
-	protected void updateClasspaths(boolean canChangeResource) {
-
-		if (fJavaProjectsToUpdate != null) {
-			Enumeration projects = fJavaProjectsToUpdate.elements();
-			while (projects.hasMoreElements()) {
-				JavaProject project = (JavaProject) projects.nextElement();
-				try {
-					project.updateClassPath(null, canChangeResource);
-					if (canChangeResource)
-						project.saveClasspath(false);
-				} catch (JavaModelException e) {
-				}
-			}
-		}
-
-	}
-
 protected void updateIndex(Openable element, IResourceDelta delta) {
 
 	try {		
@@ -913,15 +866,4 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 	}
 }
 
-	/**
-	 * Adds the given project to the cache of projects requiring classpath
-	 * updates when delta translation is complete.
-	 */
-	protected void updateProject(IJavaProject project) {
-
-		if (fJavaProjectsToUpdate == null) {
-			fJavaProjectsToUpdate = new Hashtable(2);
-		}
-		fJavaProjectsToUpdate.put(project, project);
-	}
 }
