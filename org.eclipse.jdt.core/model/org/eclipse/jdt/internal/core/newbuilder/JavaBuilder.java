@@ -281,10 +281,16 @@ private void initializeBuilder() throws CoreException {
 
 				if (!(target instanceof IProject)) continue;
 				IProject prereqProject = (IProject) target;
-				IPath prereqPath = getJavaProject(prereqProject).getOutputLocation();
-				IResource prereqOutputFolder = prereqProject.getFullPath().equals(prereqPath)
-					? prereqProject
-					: workspaceRoot.findMember(prereqPath);
+				IPath outputLocation = getJavaProject(prereqProject).getOutputLocation();
+				IResource prereqOutputFolder;
+				if (prereqProject.getFullPath().equals(outputLocation)){
+					prereqOutputFolder = prereqProject;
+				} else {
+					prereqOutputFolder = workspaceRoot.findMember(outputLocation);
+					if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder)){
+						continue;
+					}
+				}
 				prereqOutputFolders.put(prereqProject, prereqOutputFolder);
 				classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toOSString());
 				break;
