@@ -252,6 +252,11 @@ public void computeId() {
 		id = T_JavaLangVoid;
 		return;
 	}
+	
+	if (CharOperation.equals(JAVA_LANG_ASSERTIONERROR, compoundName)) {
+		id = T_JavaLangAssertionError;
+		return;
+	}
 }
 /* Answer the receiver's constant pool name.
 *

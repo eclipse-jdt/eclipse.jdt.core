@@ -33,6 +33,7 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 			
 	int debugMask = CompilerOptions.Lines | CompilerOptions.Source;
 	int targetJDK = CompilerOptions.JDK1_1;
+	boolean assertMode = false;
 	boolean verbose = false;
 	boolean produceRefInfo = false;
 	boolean importProblemIsError = true;
@@ -254,6 +255,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	final int InsideLog = 8;
 	final int InsideRepetition = 16;
 	final int Default = 0;
+	final int SourceOption = 32;
 	int DEFAULT_SIZE_CLASSPATH = 4;
 	boolean noWarnOptionInUsed = false;
 	boolean warnOptionInUsed = false;
@@ -433,6 +435,22 @@ private void configure(String[] argv) throws InvalidInputException {
 			preserveAllLocalVariables = true;
 			continue;
 		}
+		if (currentArg.equals("-source"/*nonNLS*/)) {
+			mode = SourceOption;
+			continue;
+		}
+		
+		if (mode == SourceOption) {
+			if (currentArg.equals("1.4"/*nonNLS*/)) {
+				assertMode = true;
+			} else if (currentArg.equals("1.3"/*nonNLS*/)) {
+				assertMode = false;
+			} else {
+				throw new InvalidInputException(Main.bind("configure.sourceOption"/*nonNLS*/,currentArg));
+			}
+			mode = Default;			
+			continue;
+		}		
 		if (mode == TargetSetting) {
 			if (currentArg.equals("1.1"/*nonNLS*/)) {
 				targetJDK = CompilerOptions.JDK1_1;
@@ -675,6 +693,7 @@ protected ConfigurableOption[] getOptions() {
 	options.handleImportProblemAsError(importProblemIsError);
 	options.setWarningThreshold(warningMask);
 	options.setTargetJDK(targetJDK);
+	options.setAssertMode(this.assertMode);
 	return options.getConfigurableOptions(Locale.getDefault());
 }
 protected IProblemFactory getProblemFactory() {

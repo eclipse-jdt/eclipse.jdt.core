@@ -33,6 +33,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	protected int lastIgnoredToken, nextIgnoredToken;
 	protected int lastErrorEndPosition;
 		
+	// 1.4 feature
+	boolean assertMode = false;
+	
 	//internal data for the automat 
 	protected final static int StackIncrement = 255;
 	protected int stateStackTop;
@@ -78,270 +81,266 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
 	protected int[] variablesCounter;
 	//===DATA===DATA===DATA===DATA===DATA===DATA===//
-
-	public final static byte rhs[] = {0,
-			2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-			2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			2,2,1,1,1,1,3,4,0,1,2,1,1,1,1,
-			1,1,1,1,1,5,1,2,1,2,2,2,1,1,2,
-			2,2,4,1,1,1,1,2,1,1,1,1,1,1,1,
-			1,1,1,1,2,3,3,2,2,1,3,1,3,1,2,
-			1,1,1,3,0,1,1,1,1,1,1,1,4,1,3,
-			3,7,0,0,0,0,0,2,1,1,1,2,2,4,4,
-			5,4,4,2,1,2,3,3,1,3,3,1,3,1,4,
-			0,2,1,2,4,1,1,2,5,5,7,7,7,7,2,
-			2,3,2,2,3,1,2,1,2,1,1,2,2,1,1,
-			1,1,1,3,3,4,1,3,4,0,1,2,1,1,1,
-			1,2,3,4,0,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
-			2,1,1,1,1,1,1,1,5,7,7,6,2,3,3,
-			4,1,2,2,1,2,3,2,5,5,7,9,9,1,1,
-			1,1,3,2,3,2,3,3,3,5,1,3,4,1,2,
-			5,2,1,1,1,1,1,1,3,1,1,3,3,3,3,
-			3,1,1,5,6,8,7,2,0,2,0,1,3,4,4,
-			1,2,3,2,1,1,2,2,3,3,4,6,6,4,4,
-			1,1,1,1,2,2,0,1,1,3,3,1,3,3,1,
-			3,3,1,5,5,4,1,3,3,3,1,3,3,1,3,
-			3,3,1,3,3,3,3,3,1,3,3,1,3,1,3,
-			1,3,1,3,1,3,1,5,1,1,3,3,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			0,1,0,1,0,1,0,1,0,1,0,1,0,2,0,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,2,
-			0,0,1,0,1,0,1,0,1,0,1
-	};
+    public final static byte rhs[] = {0,
+            2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+            2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            2,2,1,1,1,1,3,4,0,1,2,1,1,1,1,
+            1,1,1,1,1,5,1,2,1,2,2,2,1,1,2,
+            2,2,4,1,1,1,1,2,1,1,1,1,1,1,1,
+            1,1,1,1,2,3,3,2,2,1,3,1,3,1,2,
+            1,1,1,3,0,3,1,1,1,1,1,1,1,4,1,
+            3,3,7,0,0,0,0,0,2,1,1,1,2,2,4,
+            4,5,4,4,2,1,2,3,3,1,3,3,1,3,1,
+            4,0,2,1,2,4,1,1,2,5,5,7,7,7,7,
+            2,2,3,2,2,3,1,2,1,2,1,1,2,2,1,
+            1,1,1,1,3,3,4,1,3,4,0,1,2,1,1,
+            1,1,2,3,4,0,1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            3,3,2,1,1,1,1,1,1,1,5,7,7,6,2,
+            3,3,4,1,2,2,1,2,3,2,5,5,7,9,9,
+            1,1,1,1,3,3,5,2,3,2,3,3,3,5,1,
+            3,4,1,2,5,2,1,1,1,1,1,1,3,1,1,
+            3,3,3,3,3,1,1,5,6,8,7,2,0,2,0,
+            1,3,4,4,1,2,3,2,1,1,2,2,3,3,4,
+            6,6,4,4,1,1,1,1,2,2,0,1,1,3,3,
+            1,3,3,1,3,3,1,5,5,4,1,3,3,3,1,
+            3,3,1,3,3,3,1,3,3,3,3,3,1,3,3,
+            1,3,1,3,1,3,1,3,1,3,1,5,1,1,3,
+            3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,
+            1,0,2,0,1,0,1,0,1,0,1,0,1,0,1,
+            0,1,0,2,0,0,1,0,1,0,1,0,1,0,1
+    };
 		
 	public  static char asb[] = null;
 	public  static char asr[] = null;
 	public  static char symbol_index[] = null;
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File"/*nonNLS*/ ;
 
-	public final static String name[] = { null,
-			"++"/*nonNLS*/,
-			"--"/*nonNLS*/,
-			"=="/*nonNLS*/,
-			"<="/*nonNLS*/,
-			">="/*nonNLS*/,
-			"!="/*nonNLS*/,
-			"<<"/*nonNLS*/,
-			">>"/*nonNLS*/,
-			">>>"/*nonNLS*/,
-			"+="/*nonNLS*/,
-			"-="/*nonNLS*/,
-			"*="/*nonNLS*/,
-			"/="/*nonNLS*/,
-			"&="/*nonNLS*/,
-			"|="/*nonNLS*/,
-			"^="/*nonNLS*/,
-			"%="/*nonNLS*/,
-			"<<="/*nonNLS*/,
-			">>="/*nonNLS*/,
-			">>>="/*nonNLS*/,
-			"||"/*nonNLS*/,
-			"&&"/*nonNLS*/,
-			"+"/*nonNLS*/,
-			"-"/*nonNLS*/,
-			"!"/*nonNLS*/,
-			"%"/*nonNLS*/,
-			"^"/*nonNLS*/,
-			"&"/*nonNLS*/,
-			"*"/*nonNLS*/,
-			"|"/*nonNLS*/,
-			"~"/*nonNLS*/,
-			"/"/*nonNLS*/,
-			">"/*nonNLS*/,
-			"<"/*nonNLS*/,
-			"("/*nonNLS*/,
-			")"/*nonNLS*/,
-			"{"/*nonNLS*/,
-			"}"/*nonNLS*/,
-			"["/*nonNLS*/,
-			"]"/*nonNLS*/,
-			";"/*nonNLS*/,
-			"?"/*nonNLS*/,
-			":"/*nonNLS*/,
-			","/*nonNLS*/,
-			"."/*nonNLS*/,
-			"="/*nonNLS*/,
-			""/*nonNLS*/,
-			"$empty"/*nonNLS*/,
-			"Identifier"/*nonNLS*/,
-			"abstract"/*nonNLS*/,
-			"boolean"/*nonNLS*/,
-			"break"/*nonNLS*/,
-			"byte"/*nonNLS*/,
-			"case"/*nonNLS*/,
-			"catch"/*nonNLS*/,
-			"char"/*nonNLS*/,
-			"class"/*nonNLS*/,
-			"continue"/*nonNLS*/,
-			"default"/*nonNLS*/,
-			"do"/*nonNLS*/,
-			"double"/*nonNLS*/,
-			"else"/*nonNLS*/,
-			"extends"/*nonNLS*/,
-			"false"/*nonNLS*/,
-			"final"/*nonNLS*/,
-			"finally"/*nonNLS*/,
-			"float"/*nonNLS*/,
-			"for"/*nonNLS*/,
-			"if"/*nonNLS*/,
-			"implements"/*nonNLS*/,
-			"import"/*nonNLS*/,
-			"instanceof"/*nonNLS*/,
-			"int"/*nonNLS*/,
-			"interface"/*nonNLS*/,
-			"long"/*nonNLS*/,
-			"native"/*nonNLS*/,
-			"new"/*nonNLS*/,
-			"null"/*nonNLS*/,
-			"package"/*nonNLS*/,
-			"private"/*nonNLS*/,
-			"protected"/*nonNLS*/,
-			"public"/*nonNLS*/,
-			"return"/*nonNLS*/,
-			"short"/*nonNLS*/,
-			"static"/*nonNLS*/,
-			"strictfp"/*nonNLS*/,
-			"super"/*nonNLS*/,
-			"switch"/*nonNLS*/,
-			"synchronized"/*nonNLS*/,
-			"this"/*nonNLS*/,
-			"throw"/*nonNLS*/,
-			"throws"/*nonNLS*/,
-			"transient"/*nonNLS*/,
-			"true"/*nonNLS*/,
-			"try"/*nonNLS*/,
-			"void"/*nonNLS*/,
-			"volatile"/*nonNLS*/,
-			"while"/*nonNLS*/,
-			"IntegerLiteral"/*nonNLS*/,
-			"LongLiteral"/*nonNLS*/,
-			"FloatingPointLiteral"/*nonNLS*/,
-			"DoubleLiteral"/*nonNLS*/,
-			"CharacterLiteral"/*nonNLS*/,
-			"StringLiteral"/*nonNLS*/,
-  			UNEXPECTED_EOF,
-			"Invalid Character"/*nonNLS*/,
-			"Goal"/*nonNLS*/,
-			"MethodBody"/*nonNLS*/,
-			"ConstructorBody"/*nonNLS*/,
-			"StaticInitializer"/*nonNLS*/,
-			"ClassBodyDeclaration"/*nonNLS*/,
-			"Headers"/*nonNLS*/,
-			"BlockStatements"/*nonNLS*/,
-			"MethodPushModifiersHeader"/*nonNLS*/,
-			"CatchHeader"/*nonNLS*/,
-			"FieldDeclaration"/*nonNLS*/,
-			"ImportDeclaration"/*nonNLS*/,
-			"PackageDeclaration"/*nonNLS*/,
-			"TypeDeclaration"/*nonNLS*/,
-			"GenericMethodDeclaration"/*nonNLS*/,
-			"Expression"/*nonNLS*/,
-			"Type"/*nonNLS*/,
-			"PrimitiveType"/*nonNLS*/,
-			"ReferenceType"/*nonNLS*/,
-			"ClassOrInterfaceType"/*nonNLS*/,
-			"ArrayType"/*nonNLS*/,
-			"Name"/*nonNLS*/,
-			"Dims"/*nonNLS*/,
-			"ClassType"/*nonNLS*/,
-			"SimpleName"/*nonNLS*/,
-			"Header"/*nonNLS*/,
-			"ClassHeader"/*nonNLS*/,
-			"InterfaceHeader"/*nonNLS*/,
-			"MethodHeader"/*nonNLS*/,
-			"ConstructorHeader"/*nonNLS*/,
-			"FormalParameter"/*nonNLS*/,
-			"ImportDeclarations"/*nonNLS*/,
-			"TypeDeclarations"/*nonNLS*/,
-			"PackageDeclarationName"/*nonNLS*/,
-			"SingleTypeImportDeclarationNam"/*nonNLS*/ +
-			"e"/*nonNLS*/,
-			"TypeImportOnDemandDeclarationN"/*nonNLS*/ +
-			"ame"/*nonNLS*/,
-			"Modifiers"/*nonNLS*/,
-			"Modifier"/*nonNLS*/,
-			"ClassBody"/*nonNLS*/,
-			"ClassHeaderName"/*nonNLS*/,
-			"InterfaceTypeList"/*nonNLS*/,
-			"InterfaceType"/*nonNLS*/,
-			"ClassBodyDeclarations"/*nonNLS*/,
-			"Block"/*nonNLS*/,
-			"VariableDeclarators"/*nonNLS*/,
-			"VariableDeclarator"/*nonNLS*/,
-			"VariableDeclaratorId"/*nonNLS*/,
-			"VariableInitializer"/*nonNLS*/,
-			"ArrayInitializer"/*nonNLS*/,
-			"MethodHeaderName"/*nonNLS*/,
-			"MethodHeaderParameters"/*nonNLS*/,
-			"MethodPushModifiersHeaderName"/*nonNLS*/,
-			"ClassTypeList"/*nonNLS*/,
-			"ConstructorHeaderName"/*nonNLS*/,
-			"FormalParameterList"/*nonNLS*/,
-			"ClassTypeElt"/*nonNLS*/,
-			"StaticOnly"/*nonNLS*/,
-			"ExplicitConstructorInvocation"/*nonNLS*/,
-			"Primary"/*nonNLS*/,
-			"InterfaceBody"/*nonNLS*/,
-			"InterfaceHeaderName"/*nonNLS*/,
-			"InterfaceMemberDeclarations"/*nonNLS*/,
-			"InterfaceMemberDeclaration"/*nonNLS*/,
-			"VariableInitializers"/*nonNLS*/,
-			"BlockStatement"/*nonNLS*/,
-			"Statement"/*nonNLS*/,
-			"LocalVariableDeclaration"/*nonNLS*/,
-			"StatementWithoutTrailingSubsta"/*nonNLS*/ +
-			"tement"/*nonNLS*/,
-			"StatementNoShortIf"/*nonNLS*/,
-			"StatementExpression"/*nonNLS*/,
-			"PostIncrementExpression"/*nonNLS*/,
-			"PostDecrementExpression"/*nonNLS*/,
-			"MethodInvocation"/*nonNLS*/,
-			"ClassInstanceCreationExpressio"/*nonNLS*/ +
-			"n"/*nonNLS*/,
-			"SwitchBlock"/*nonNLS*/,
-			"SwitchBlockStatements"/*nonNLS*/,
-			"SwitchLabels"/*nonNLS*/,
-			"SwitchBlockStatement"/*nonNLS*/,
-			"SwitchLabel"/*nonNLS*/,
-			"ConstantExpression"/*nonNLS*/,
-			"StatementExpressionList"/*nonNLS*/,
-			"OnlySynchronized"/*nonNLS*/,
-			"Catches"/*nonNLS*/,
-			"Finally"/*nonNLS*/,
-			"CatchClause"/*nonNLS*/,
-			"PushLPAREN"/*nonNLS*/,
-			"PushRPAREN"/*nonNLS*/,
-			"PrimaryNoNewArray"/*nonNLS*/,
-			"FieldAccess"/*nonNLS*/,
-			"ArrayAccess"/*nonNLS*/,
-			"ClassInstanceCreationExpressio"/*nonNLS*/ +
-			"nName"/*nonNLS*/,
-			"ArgumentList"/*nonNLS*/,
-			"DimWithOrWithOutExprs"/*nonNLS*/,
-			"DimWithOrWithOutExpr"/*nonNLS*/,
-			"DimsLoop"/*nonNLS*/,
-			"OneDimLoop"/*nonNLS*/,
-			"PostfixExpression"/*nonNLS*/,
-			"UnaryExpression"/*nonNLS*/,
-			"UnaryExpressionNotPlusMinus"/*nonNLS*/,
-			"MultiplicativeExpression"/*nonNLS*/,
-			"AdditiveExpression"/*nonNLS*/,
-			"ShiftExpression"/*nonNLS*/,
-			"RelationalExpression"/*nonNLS*/,
-			"EqualityExpression"/*nonNLS*/,
-			"AndExpression"/*nonNLS*/,
-			"ExclusiveOrExpression"/*nonNLS*/,
-			"InclusiveOrExpression"/*nonNLS*/,
-			"ConditionalAndExpression"/*nonNLS*/,
-			"ConditionalOrExpression"/*nonNLS*/,
-			"ConditionalExpression"/*nonNLS*/,
-			"AssignmentExpression"/*nonNLS*/,
-			"LeftHandSide"/*nonNLS*/,
-			"AssignmentOperator"/*nonNLS*/
-	};
-
+    public final static String name[] = { null,
+            "++"/*nonNLS*/,
+            "--"/*nonNLS*/,
+            "=="/*nonNLS*/,
+            "<="/*nonNLS*/,
+            ">="/*nonNLS*/,
+            "!="/*nonNLS*/,
+            "<<"/*nonNLS*/,
+            ">>"/*nonNLS*/,
+            ">>>"/*nonNLS*/,
+            "+="/*nonNLS*/,
+            "-="/*nonNLS*/,
+            "*="/*nonNLS*/,
+            "/="/*nonNLS*/,
+            "&="/*nonNLS*/,
+            "|="/*nonNLS*/,
+            "^="/*nonNLS*/,
+            "%="/*nonNLS*/,
+            "<<="/*nonNLS*/,
+            ">>="/*nonNLS*/,
+            ">>>="/*nonNLS*/,
+            "||"/*nonNLS*/,
+            "&&"/*nonNLS*/,
+            "+"/*nonNLS*/,
+            "-"/*nonNLS*/,
+            "!"/*nonNLS*/,
+            "%"/*nonNLS*/,
+            "^"/*nonNLS*/,
+            "&"/*nonNLS*/,
+            "*"/*nonNLS*/,
+            "|"/*nonNLS*/,
+            "~"/*nonNLS*/,
+            "/"/*nonNLS*/,
+            ">"/*nonNLS*/,
+            "<"/*nonNLS*/,
+            "("/*nonNLS*/,
+            ")"/*nonNLS*/,
+            "{"/*nonNLS*/,
+            "}"/*nonNLS*/,
+            "["/*nonNLS*/,
+            "]"/*nonNLS*/,
+            ";"/*nonNLS*/,
+            "?"/*nonNLS*/,
+            ":"/*nonNLS*/,
+            ","/*nonNLS*/,
+            "."/*nonNLS*/,
+            "="/*nonNLS*/,
+            ""/*nonNLS*/,
+            "$empty"/*nonNLS*/,
+            "Identifier"/*nonNLS*/,
+            "abstract"/*nonNLS*/,
+            "assert"/*nonNLS*/,
+            "boolean"/*nonNLS*/,
+            "break"/*nonNLS*/,
+            "byte"/*nonNLS*/,
+            "case"/*nonNLS*/,
+            "catch"/*nonNLS*/,
+            "char"/*nonNLS*/,
+            "class"/*nonNLS*/,
+            "continue"/*nonNLS*/,
+            "default"/*nonNLS*/,
+            "do"/*nonNLS*/,
+            "double"/*nonNLS*/,
+            "else"/*nonNLS*/,
+            "extends"/*nonNLS*/,
+            "false"/*nonNLS*/,
+            "final"/*nonNLS*/,
+            "finally"/*nonNLS*/,
+            "float"/*nonNLS*/,
+            "for"/*nonNLS*/,
+            "if"/*nonNLS*/,
+            "implements"/*nonNLS*/,
+            "import"/*nonNLS*/,
+            "instanceof"/*nonNLS*/,
+            "int"/*nonNLS*/,
+            "interface"/*nonNLS*/,
+            "long"/*nonNLS*/,
+            "native"/*nonNLS*/,
+            "new"/*nonNLS*/,
+            "null"/*nonNLS*/,
+            "package"/*nonNLS*/,
+            "private"/*nonNLS*/,
+            "protected"/*nonNLS*/,
+            "public"/*nonNLS*/,
+            "return"/*nonNLS*/,
+            "short"/*nonNLS*/,
+            "static"/*nonNLS*/,
+            "strictfp"/*nonNLS*/,
+            "super"/*nonNLS*/,
+            "switch"/*nonNLS*/,
+            "synchronized"/*nonNLS*/,
+            "this"/*nonNLS*/,
+            "throw"/*nonNLS*/,
+            "throws"/*nonNLS*/,
+            "transient"/*nonNLS*/,
+            "true"/*nonNLS*/,
+            "try"/*nonNLS*/,
+            "void"/*nonNLS*/,
+            "volatile"/*nonNLS*/,
+            "while"/*nonNLS*/,
+            "IntegerLiteral"/*nonNLS*/,
+            "LongLiteral"/*nonNLS*/,
+            "FloatingPointLiteral"/*nonNLS*/,
+            "DoubleLiteral"/*nonNLS*/,
+            "CharacterLiteral"/*nonNLS*/,
+            "StringLiteral"/*nonNLS*/,
+            UNEXPECTED_EOF,
+            "Invalid Character"/*nonNLS*/,            
+            "Goal"/*nonNLS*/,
+            "MethodBody"/*nonNLS*/,
+            "ConstructorBody"/*nonNLS*/,
+            "StaticInitializer"/*nonNLS*/,
+            "Initializer"/*nonNLS*/,
+            "Headers"/*nonNLS*/,
+            "BlockStatements"/*nonNLS*/,
+            "MethodPushModifiersHeader"/*nonNLS*/,
+            "CatchHeader"/*nonNLS*/,
+            "FieldDeclaration"/*nonNLS*/,
+            "ImportDeclaration"/*nonNLS*/,
+            "PackageDeclaration"/*nonNLS*/,
+            "TypeDeclaration"/*nonNLS*/,
+            "GenericMethodDeclaration"/*nonNLS*/,
+            "ClassBodyDeclaration"/*nonNLS*/,
+            "Expression"/*nonNLS*/,
+            "Type"/*nonNLS*/,
+            "PrimitiveType"/*nonNLS*/,
+            "ReferenceType"/*nonNLS*/,
+            "ClassOrInterfaceType"/*nonNLS*/,
+            "ArrayType"/*nonNLS*/,
+            "Name"/*nonNLS*/,
+            "Dims"/*nonNLS*/,
+            "ClassType"/*nonNLS*/,
+            "SimpleName"/*nonNLS*/,
+            "Header"/*nonNLS*/,
+            "ClassHeader"/*nonNLS*/,
+            "InterfaceHeader"/*nonNLS*/,
+            "MethodHeader"/*nonNLS*/,
+            "ConstructorHeader"/*nonNLS*/,
+            "FormalParameter"/*nonNLS*/,
+            "ImportDeclarations"/*nonNLS*/,
+            "TypeDeclarations"/*nonNLS*/,
+            "PackageDeclarationName"/*nonNLS*/,
+            "SingleTypeImportDeclarationName"/*nonNLS*/,
+            "TypeImportOnDemandDeclarationName"/*nonNLS*/,
+            "Modifiers"/*nonNLS*/,
+            "Modifier"/*nonNLS*/,
+            "ClassBody"/*nonNLS*/,
+            "ClassHeaderName"/*nonNLS*/,
+            "InterfaceTypeList"/*nonNLS*/,
+            "InterfaceType"/*nonNLS*/,
+            "ClassBodyDeclarations"/*nonNLS*/,
+            "Block"/*nonNLS*/,
+            "VariableDeclarators"/*nonNLS*/,
+            "VariableDeclarator"/*nonNLS*/,
+            "VariableDeclaratorId"/*nonNLS*/,
+            "VariableInitializer"/*nonNLS*/,
+            "ArrayInitializer"/*nonNLS*/,
+            "MethodHeaderName"/*nonNLS*/,
+            "MethodHeaderParameters"/*nonNLS*/,
+            "MethodPushModifiersHeaderName"/*nonNLS*/,
+            "ClassTypeList"/*nonNLS*/,
+            "ConstructorHeaderName"/*nonNLS*/,
+            "FormalParameterList"/*nonNLS*/,
+            "ClassTypeElt"/*nonNLS*/,
+            "StaticOnly"/*nonNLS*/,
+            "ExplicitConstructorInvocation"/*nonNLS*/,
+            "Primary"/*nonNLS*/,
+            "InterfaceBody"/*nonNLS*/,
+            "InterfaceHeaderName"/*nonNLS*/,
+            "InterfaceMemberDeclarations"/*nonNLS*/,
+            "InterfaceMemberDeclaration"/*nonNLS*/,
+            "VariableInitializers"/*nonNLS*/,
+            "BlockStatement"/*nonNLS*/,
+            "Statement"/*nonNLS*/,
+            "LocalVariableDeclaration"/*nonNLS*/,
+            "StatementWithoutTrailingSubstatement"/*nonNLS*/,
+            "StatementNoShortIf"/*nonNLS*/,
+            "StatementExpression"/*nonNLS*/,
+            "PostIncrementExpression"/*nonNLS*/,
+            "PostDecrementExpression"/*nonNLS*/,
+            "MethodInvocation"/*nonNLS*/,
+            "ClassInstanceCreationExpression"/*nonNLS*/,
+            "SwitchBlock"/*nonNLS*/,
+            "SwitchBlockStatements"/*nonNLS*/,
+            "SwitchLabels"/*nonNLS*/,
+            "SwitchBlockStatement"/*nonNLS*/,
+            "SwitchLabel"/*nonNLS*/,
+            "ConstantExpression"/*nonNLS*/,
+            "StatementExpressionList"/*nonNLS*/,
+            "OnlySynchronized"/*nonNLS*/,
+            "Catches"/*nonNLS*/,
+            "Finally"/*nonNLS*/,
+            "CatchClause"/*nonNLS*/,
+            "PushLPAREN"/*nonNLS*/,
+            "PushRPAREN"/*nonNLS*/,
+            "PrimaryNoNewArray"/*nonNLS*/,
+            "FieldAccess"/*nonNLS*/,
+            "ArrayAccess"/*nonNLS*/,
+            "ClassInstanceCreationExpressionName"/*nonNLS*/,
+            "ArgumentList"/*nonNLS*/,
+            "DimWithOrWithOutExprs"/*nonNLS*/,
+            "DimWithOrWithOutExpr"/*nonNLS*/,
+            "DimsLoop"/*nonNLS*/,
+            "OneDimLoop"/*nonNLS*/,
+            "PostfixExpression"/*nonNLS*/,
+            "UnaryExpression"/*nonNLS*/,
+            "UnaryExpressionNotPlusMinus"/*nonNLS*/,
+            "MultiplicativeExpression"/*nonNLS*/,
+            "AdditiveExpression"/*nonNLS*/,
+            "ShiftExpression"/*nonNLS*/,
+            "RelationalExpression"/*nonNLS*/,
+            "EqualityExpression"/*nonNLS*/,
+            "AndExpression"/*nonNLS*/,
+            "ExclusiveOrExpression"/*nonNLS*/,
+            "InclusiveOrExpression"/*nonNLS*/,
+            "ConditionalAndExpression"/*nonNLS*/,
+            "ConditionalOrExpression"/*nonNLS*/,
+            "ConditionalExpression"/*nonNLS*/,
+            "AssignmentExpression"/*nonNLS*/,
+            "LeftHandSide"/*nonNLS*/,
+            "AssignmentOperator"/*nonNLS*/
+    };
+    
 	public  static short check_table[] = null;
 	public  static char lhs[] =  null;
 	public  static char action[] = lhs;
@@ -363,9 +362,13 @@ public Parser(ProblemReporter problemReporter) {
 	this(problemReporter, false);
 }
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
+	this(problemReporter, false, false);
+}
+public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, boolean assertMode) {
 		
 	this.problemReporter = problemReporter;
 	this.optimizeStringLiterals = optimizeStringLiterals;
+	this.assertMode = assertMode;
 	this.initializeScanner();
 	astLengthStack = new int[50];
 	expressionLengthStack = new int[30];
@@ -613,8 +616,8 @@ protected static short check(int i) {
  */
 public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 
+	scanner.wasAcr = false;
 	boolean anomaliesDetected = false;	
-	scanner.wasAcr = false;	
 	try {
 		char[] source = scanner.source;
 		int[] leftCount = {0, 0, 0};
@@ -1143,6 +1146,13 @@ protected void consumeArrayInitializer() {
 
 	arrayInitializer(expressionLengthStack[expressionLengthPtr--]);
 }
+
+protected void consumeAssertStatement() {
+	// AssertStatement ::= 'assert' Expression ':' Expression ';'
+	expressionLengthPtr-=2;
+	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], expressionStack[expressionPtr--], intStack[intPtr--]));
+}
+
 protected void consumeAssignment() {
 	// Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
 	//optimize the push/pop
@@ -2699,662 +2709,678 @@ protected void consumeRightParen() {
 	// PushRPAREN ::= ')'
 	pushOnIntStack(rParenPos);
 }
-// This method is part of an automatic generation : do NOT edit-modify  
-protected void consumeRule(int act) {
-	switch (act) {
-		case 29 : // System.out.println("Type ::= PrimitiveType");
-			consumePrimitiveType();
-			break;
-		case 43 : // System.out.println("ReferenceType ::= ClassOrInterfaceType");
-			consumeReferenceType();
-			break;
-		case 52 : // System.out.println("QualifiedName ::= Name DOT SimpleName");
-			consumeQualifiedName();
-			break;
-		case 53 : // System.out.println("CompilationUnit ::= EnterCompilationUnit PackageDeclarationopt ImportDeclarationsopt");
-			consumeCompilationUnit();
-			break;
-		case 54 : // System.out.println("EnterCompilationUnit ::=");
-			consumeEnterCompilationUnit();
-			break;
-		case 66 : // System.out.println("CatchHeader ::= catch LPAREN FormalParameter RPAREN LBRACE");
-			consumeCatchHeader();
-			break;
-		case 68 : // System.out.println("ImportDeclarations ::= ImportDeclarations ImportDeclaration");
-			consumeImportDeclarations();
-			break;
-		case 70 : // System.out.println("TypeDeclarations ::= TypeDeclarations TypeDeclaration");
-			consumeTypeDeclarations();
-			break;
-		case 71 : // System.out.println("PackageDeclaration ::= PackageDeclarationName SEMICOLON");
-			consumePackageDeclaration();
-			break;
-		case 72 : // System.out.println("PackageDeclarationName ::= package Name");
-			consumePackageDeclarationName();
-			break;
-		case 75 : // System.out.println("SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName SEMICOLON");
-			consumeSingleTypeImportDeclaration();
-			break;
-		case 76 : // System.out.println("SingleTypeImportDeclarationName ::= import Name");
-			consumeSingleTypeImportDeclarationName();
-			break;
-		case 77 : // System.out.println("TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName SEMICOLON");
-			consumeTypeImportOnDemandDeclaration();
-			break;
-		case 78 : // System.out.println("TypeImportOnDemandDeclarationName ::= import Name DOT MULTIPLY");
-			consumeTypeImportOnDemandDeclarationName();
-			break;
-		case 81 : // System.out.println("TypeDeclaration ::= SEMICOLON");
-			consumeEmptyTypeDeclaration();
-			break;
-		case 95 : // System.out.println("ClassDeclaration ::= ClassHeader ClassBody");
-			consumeClassDeclaration();
-			break;
-		case 96 : // System.out.println("ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt");
-			consumeClassHeader();
-			break;
-		case 97 : // System.out.println("ClassHeaderName ::= Modifiersopt class Identifier");
-			consumeClassHeaderName();
-			break;
-		case 98 : // System.out.println("ClassHeaderExtends ::= extends ClassType");
-			consumeClassHeaderExtends();
-			break;
-		case 99 : // System.out.println("ClassHeaderImplements ::= implements InterfaceTypeList");
-			consumeClassHeaderImplements();
-			break;
-		case 101 : // System.out.println("InterfaceTypeList ::= InterfaceTypeList COMMA InterfaceType");
-			consumeInterfaceTypeList();
-			break;
-		case 102 : // System.out.println("InterfaceType ::= ClassOrInterfaceType");
-			consumeInterfaceType();
-			break;
-		case 105 : // System.out.println("ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration");
-			consumeClassBodyDeclarations();
-			break;
-		case 109 : // System.out.println("ClassBodyDeclaration ::= Diet NestedMethod Block");
-			consumeClassBodyDeclaration();
-			break;
-		case 110 : // System.out.println("Diet ::=");
-			consumeDiet();
-			break;
-		case 117 : // System.out.println("ClassMemberDeclaration ::= SEMICOLON");
-			consumeEmptyClassMemberDeclaration();
-			break;
-		case 118 : // System.out.println("FieldDeclaration ::= Modifiersopt Type VariableDeclarators SEMICOLON");
-			consumeFieldDeclaration();
-			break;
-		case 120 : // System.out.println("VariableDeclarators ::= VariableDeclarators COMMA VariableDeclarator");
-			consumeVariableDeclarators();
-			break;
-		case 123 : // System.out.println("EnterVariable ::=");
-			consumeEnterVariable();
-			break;
-		case 124 : // System.out.println("ExitVariableWithInitialization ::=");
-			consumeExitVariableWithInitialization();
-			break;
-		case 125 : // System.out.println("ExitVariableWithoutInitialization ::=");
-			consumeExitVariableWithoutInitialization();
-			break;
-		case 126 : // System.out.println("ForceNoDiet ::=");
-			consumeForceNoDiet();
-			break;
-		case 127 : // System.out.println("RestoreDiet ::=");
-			consumeRestoreDiet();
-			break;
-		case 132 : // System.out.println("MethodDeclaration ::= MethodHeader MethodBody");
-			// set to true to consume a method with a body
-			consumeMethodDeclaration(true);
-			break;
-		case 133 : // System.out.println("AbstractMethodDeclaration ::= MethodHeader SEMICOLON");
-			// set to false to consume a method without body
-			consumeMethodDeclaration(false);
-			break;
-		case 134 : // System.out.println("MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims");
-			consumeMethodHeader();
-			break;
-		case 135 : // System.out.println("MethodPushModifiersHeader ::= MethodPushModifiersHeaderName MethodHeaderParameters");
-			consumeMethodHeader();
-			break;
-		case 136 : // System.out.println("MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers Identifier LPAREN");
-			consumeMethodPushModifiersHeaderName();
-			break;
-		case 137 : // System.out.println("MethodPushModifiersHeaderName ::= Type PushModifiers Identifier LPAREN");
-			consumeMethodPushModifiersHeaderName();
-			break;
-		case 138 : // System.out.println("MethodHeaderName ::= Modifiersopt Type Identifier LPAREN");
-			consumeMethodHeaderName();
-			break;
-		case 139 : // System.out.println("MethodHeaderParameters ::= FormalParameterListopt RPAREN");
-			consumeMethodHeaderParameters();
-			break;
-		case 140 : // System.out.println("MethodHeaderExtendedDims ::= Dimsopt");
-			consumeMethodHeaderExtendedDims();
-			break;
-		case 141 : // System.out.println("MethodHeaderThrowsClause ::= throws ClassTypeList");
-			consumeMethodHeaderThrowsClause();
-			break;
-		case 142 : // System.out.println("ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters...");
-			consumeConstructorHeader();
-			break;
-		case 143 : // System.out.println("ConstructorHeaderName ::= Modifiersopt Identifier LPAREN");
-			consumeConstructorHeaderName();
-			break;
-		case 145 : // System.out.println("FormalParameterList ::= FormalParameterList COMMA FormalParameter");
-			consumeFormalParameterList();
-			break;
-		case 146 : // System.out.println("FormalParameter ::= Modifiersopt Type VariableDeclaratorId");
-			// the boolean is used to know if the modifiers should be reset
-			consumeFormalParameter();
-			break;
-		case 148 : // System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt");
-			consumeClassTypeList();
-			break;
-		case 149 : // System.out.println("ClassTypeElt ::= ClassType");
-			consumeClassTypeElt();
-			break;
-		case 150 : // System.out.println("MethodBody ::= NestedMethod LBRACE BlockStatementsopt RBRACE");
-			consumeMethodBody();
-			break;
-		case 151 : // System.out.println("NestedMethod ::=");
-			consumeNestedMethod();
-			break;
-		case 152 : // System.out.println("StaticInitializer ::= StaticOnly Block");
-			consumeStaticInitializer();
-			break;
-		case 153 : // System.out.println("StaticOnly ::= static");
-			consumeStaticOnly();
-			break;
-		case 154 : // System.out.println("ConstructorDeclaration ::= ConstructorHeader ConstructorBody");
-			consumeConstructorDeclaration();
-			break;
-		case 155 : // System.out.println("ConstructorBody ::= NestedMethod LBRACE ConstructorBlockStatementsopt RBRACE");
-			consumeConstructorBody();
-			break;
-		case 158 : // System.out.println("ConstructorBlockStatementsopt ::= ExplicitConstructorInvocation BlockStatements");
-			consumeConstructorBlockStatements();
-			break;
-		case 159 : // System.out.println("ExplicitConstructorInvocation ::= this LPAREN ArgumentListopt RPAREN SEMICOLON");
-			consumeExplicitConstructorInvocation(0, ExplicitConstructorCall.This);
-			break;
-		case 160 : // System.out.println("ExplicitConstructorInvocation ::= super LPAREN ArgumentListopt RPAREN SEMICOLON");
-			consumeExplicitConstructorInvocation(0, ExplicitConstructorCall.Super);
-			break;
-		case 161 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT super LPAREN ArgumentListopt RPAREN");
-			consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super);
-			break;
-		case 162 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT super LPAREN ArgumentListopt RPAREN...");
-			consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super);
-			break;
-		case 163 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT this LPAREN ArgumentListopt RPAREN...");
-			consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This);
-			break;
-		case 164 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT this LPAREN ArgumentListopt RPAREN...");
-			consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This);
-			break;
-		case 165 : // System.out.println("InterfaceDeclaration ::= InterfaceHeader InterfaceBody");
-			consumeInterfaceDeclaration();
-			break;
-		case 166 : // System.out.println("InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt");
-			consumeInterfaceHeader();
-			break;
-		case 167 : // System.out.println("InterfaceHeaderName ::= Modifiersopt interface Identifier");
-			consumeInterfaceHeaderName();
-			break;
-		case 169 : // System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList");
-			consumeInterfaceHeaderExtends();
-			break;
-		case 172 : // System.out.println("InterfaceMemberDeclarations ::= InterfaceMemberDeclarations...");
-			consumeInterfaceMemberDeclarations();
-			break;
-		case 173 : // System.out.println("InterfaceMemberDeclaration ::= SEMICOLON");
-			consumeEmptyInterfaceMemberDeclaration();
-			break;
-		case 176 : // System.out.println("InterfaceMemberDeclaration ::= InvalidMethodDeclaration");
-			ignoreMethodBody();
-			break;
-		case 177 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody");
-			ignoreInvalidConstructorDeclaration(true);
-			break;
-		case 178 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader SEMICOLON");
-			ignoreInvalidConstructorDeclaration(false);
-			break;
-		case 184 : // System.out.println("ArrayInitializer ::= LBRACE ,opt RBRACE");
-			consumeEmptyArrayInitializer();
-			break;
-		case 185 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers RBRACE");
-			consumeArrayInitializer();
-			break;
-		case 186 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers COMMA RBRACE");
-			consumeArrayInitializer();
-			break;
-		case 188 : // System.out.println("VariableInitializers ::= VariableInitializers COMMA VariableInitializer");
-			consumeVariableInitializers();
-			break;
-		case 189 : // System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE");
-			consumeBlock();
-			break;
-		case 190 : // System.out.println("OpenBlock ::=");
-			consumeOpenBlock();
-			break;
-		case 192 : // System.out.println("BlockStatements ::= BlockStatements BlockStatement");
-			consumeBlockStatements();
-			break;
-		case 196 : // System.out.println("BlockStatement ::= InvalidInterfaceDeclaration");
-			ignoreInterfaceDeclaration();
-			break;
-		case 197 : // System.out.println("LocalVariableDeclarationStatement ::= LocalVariableDeclaration SEMICOLON");
-			consumeLocalVariableDeclarationStatement();
-			break;
-		case 198 : // System.out.println("LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators");
-			consumeLocalVariableDeclaration();
-			break;
-		case 199 : // System.out.println("LocalVariableDeclaration ::= Modifiers Type PushModifiers VariableDeclarators");
-			consumeLocalVariableDeclaration();
-			break;
-		case 200 : // System.out.println("PushModifiers ::=");
-			consumePushModifiers();
-			break;
-		case 223 : // System.out.println("EmptyStatement ::= SEMICOLON");
-			consumeEmptyStatement();
-			break;
-		case 224 : // System.out.println("LabeledStatement ::= Identifier COLON Statement");
-			consumeStatementLabel();
-			break;
-		case 225 : // System.out.println("LabeledStatementNoShortIf ::= Identifier COLON StatementNoShortIf");
-			consumeStatementLabel();
-			break;
-		case 226 : // System.out.println("ExpressionStatement ::= StatementExpression SEMICOLON");
-			consumeExpressionStatement();
-			break;
-		case 234 : // System.out.println("IfThenStatement ::= if LPAREN Expression RPAREN Statement");
-			consumeStatementIfNoElse();
-			break;
-		case 235 : // System.out.println("IfThenElseStatement ::= if LPAREN Expression RPAREN StatementNoShortIf else...");
-			consumeStatementIfWithElse();
-			break;
-		case 236 : // System.out.println("IfThenElseStatementNoShortIf ::= if LPAREN Expression RPAREN StatementNoShortIf...");
-			consumeStatementIfWithElse();
-			break;
-		case 237 : // System.out.println("SwitchStatement ::= switch OpenBlock LPAREN Expression RPAREN SwitchBlock");
-			consumeStatementSwitch();
-			break;
-		case 238 : // System.out.println("SwitchBlock ::= LBRACE RBRACE");
-			consumeEmptySwitchBlock();
-			break;
-		case 241 : // System.out.println("SwitchBlock ::= LBRACE SwitchBlockStatements SwitchLabels RBRACE");
-			consumeSwitchBlock();
-			break;
-		case 243 : // System.out.println("SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement");
-			consumeSwitchBlockStatements();
-			break;
-		case 244 : // System.out.println("SwitchBlockStatement ::= SwitchLabels BlockStatements");
-			consumeSwitchBlockStatement();
-			break;
-		case 246 : // System.out.println("SwitchLabels ::= SwitchLabels SwitchLabel");
-			consumeSwitchLabels();
-			break;
-		case 247 : // System.out.println("SwitchLabel ::= case ConstantExpression COLON");
-			consumeCaseLabel();
-			break;
-		case 248 : // System.out.println("SwitchLabel ::= default COLON");
-			consumeDefaultLabel();
-			break;
-		case 249 : // System.out.println("WhileStatement ::= while LPAREN Expression RPAREN Statement");
-			consumeStatementWhile();
-			break;
-		case 250 : // System.out.println("WhileStatementNoShortIf ::= while LPAREN Expression RPAREN StatementNoShortIf");
-			consumeStatementWhile();
-			break;
-		case 251 : // System.out.println("DoStatement ::= do Statement while LPAREN Expression RPAREN SEMICOLON");
-			consumeStatementDo();
-			break;
-		case 252 : // System.out.println("ForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON...");
-			consumeStatementFor();
-			break;
-		case 253 : // System.out.println("ForStatementNoShortIf ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON");
-			consumeStatementFor();
-			break;
-		case 254 : // System.out.println("ForInit ::= StatementExpressionList");
-			consumeForInit();
-			break;
-		case 258 : // System.out.println("StatementExpressionList ::= StatementExpressionList COMMA StatementExpression");
-			consumeStatementExpressionList();
-			break;
-		case 259 : // System.out.println("BreakStatement ::= break SEMICOLON");
-			consumeStatementBreak();
-			break;
-		case 260 : // System.out.println("BreakStatement ::= break Identifier SEMICOLON");
-			consumeStatementBreakWithLabel();
-			break;
-		case 261 : // System.out.println("ContinueStatement ::= continue SEMICOLON");
-			consumeStatementContinue();
-			break;
-		case 262 : // System.out.println("ContinueStatement ::= continue Identifier SEMICOLON");
-			consumeStatementContinueWithLabel();
-			break;
-		case 263 : // System.out.println("ReturnStatement ::= return Expressionopt SEMICOLON");
-			consumeStatementReturn();
-			break;
-		case 264 : // System.out.println("ThrowStatement ::= throw Expression SEMICOLON");
-			consumeStatementThrow();
-			break;
-		case 265 : // System.out.println("SynchronizedStatement ::= OnlySynchronized LPAREN Expression RPAREN Block");
-			consumeStatementSynchronized();
-			break;
-		case 266 : // System.out.println("OnlySynchronized ::= synchronized");
-			consumeOnlySynchronized();
-			break;
-		case 267 : // System.out.println("TryStatement ::= try Block Catches");
-			consumeStatementTry(false);
-			break;
-		case 268 : // System.out.println("TryStatement ::= try Block Catchesopt Finally");
-			consumeStatementTry(true);
-			break;
-		case 270 : // System.out.println("Catches ::= Catches CatchClause");
-			consumeCatches();
-			break;
-		case 271 : // System.out.println("CatchClause ::= catch LPAREN FormalParameter RPAREN Block");
-			consumeStatementCatch();
-			break;
-		case 273 : // System.out.println("PushLPAREN ::= LPAREN");
-			consumeLeftParen();
-			break;
-		case 274 : // System.out.println("PushRPAREN ::= RPAREN");
-			consumeRightParen();
-			break;
-		case 278 : // System.out.println("PrimaryNoNewArray ::= this");
-			consumePrimaryNoNewArrayThis();
-			break;
-		case 279 : // System.out.println("PrimaryNoNewArray ::= PushLPAREN Expression PushRPAREN");
-			consumePrimaryNoNewArray();
-			break;
-		case 282 : // System.out.println("PrimaryNoNewArray ::= Name DOT this");
-			consumePrimaryNoNewArrayNameThis();
-			break;
-		case 283 : // System.out.println("PrimaryNoNewArray ::= Name DOT super");
-			consumePrimaryNoNewArrayNameSuper();
-			break;
-		case 284 : // System.out.println("PrimaryNoNewArray ::= Name DOT class");
-			consumePrimaryNoNewArrayName();
-			break;
-		case 285 : // System.out.println("PrimaryNoNewArray ::= ArrayType DOT class");
-			consumePrimaryNoNewArrayArrayType();
-			break;
-		case 286 : // System.out.println("PrimaryNoNewArray ::= PrimitiveType DOT class");
-			consumePrimaryNoNewArrayPrimitiveType();
-			break;
-		case 289 : // System.out.println("AllocationHeader ::= new ClassType LPAREN ArgumentListopt RPAREN");
-			consumeAllocationHeader();
-			break;
-		case 290 : // System.out.println("ClassInstanceCreationExpression ::= new ClassType LPAREN ArgumentListopt RPAREN...");
-			consumeClassInstanceCreationExpression();
-			break;
-		case 291 : // System.out.println("ClassInstanceCreationExpression ::= Primary DOT new SimpleName LPAREN...");
-			consumeClassInstanceCreationExpressionQualified();
-			break;
-		case 292 : // System.out.println("ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName new...");
-			consumeClassInstanceCreationExpressionQualified();
-			break;
-		case 293 : // System.out.println("ClassInstanceCreationExpressionName ::= Name DOT");
-			consumeClassInstanceCreationExpressionName();
-			break;
-		case 294 : // System.out.println("ClassBodyopt ::=");
-			consumeClassBodyopt();
-			break;
-		case 296 : // System.out.println("EnterAnonymousClassBody ::=");
-			consumeEnterAnonymousClassBody();
-			break;
-		case 298 : // System.out.println("ArgumentList ::= ArgumentList COMMA Expression");
-			consumeArgumentList();
-			break;
-		case 299 : // System.out.println("ArrayCreationExpression ::= new PrimitiveType DimWithOrWithOutExprs...");
-			consumeArrayCreationExpression();
-			break;
-		case 300 : // System.out.println("ArrayCreationExpression ::= new ClassOrInterfaceType DimWithOrWithOutExprs...");
-			consumeArrayCreationExpression();
-			break;
-		case 302 : // System.out.println("DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr");
-			consumeDimWithOrWithOutExprs();
-			break;
-		case 304 : // System.out.println("DimWithOrWithOutExpr ::= LBRACKET RBRACKET");
-			consumeDimWithOrWithOutExpr();
-			break;
-		case 305 : // System.out.println("Dims ::= DimsLoop");
-			consumeDims();
-			break;
-		case 308 : // System.out.println("OneDimLoop ::= LBRACKET RBRACKET");
-			consumeOneDimLoop();
-			break;
-		case 309 : // System.out.println("FieldAccess ::= Primary DOT Identifier");
-			consumeFieldAccess(false);
-			break;
-		case 310 : // System.out.println("FieldAccess ::= super DOT Identifier");
-			consumeFieldAccess(true);
-			break;
-		case 311 : // System.out.println("MethodInvocation ::= Name LPAREN ArgumentListopt RPAREN");
-			consumeMethodInvocationName();
-			break;
-		case 312 : // System.out.println("MethodInvocation ::= Primary DOT Identifier LPAREN ArgumentListopt RPAREN");
-			consumeMethodInvocationPrimary();
-			break;
-		case 313 : // System.out.println("MethodInvocation ::= super DOT Identifier LPAREN ArgumentListopt RPAREN");
-			consumeMethodInvocationSuper();
-			break;
-		case 314 : // System.out.println("ArrayAccess ::= Name LBRACKET Expression RBRACKET");
-			consumeArrayAccess(true);
-			break;
-		case 315 : // System.out.println("ArrayAccess ::= PrimaryNoNewArray LBRACKET Expression RBRACKET");
-			consumeArrayAccess(false);
-			break;
-		case 317 : // System.out.println("PostfixExpression ::= Name");
-			consumePostfixExpression();
-			break;
-		case 320 : // System.out.println("PostIncrementExpression ::= PostfixExpression PLUS_PLUS");
-			consumeUnaryExpression(OperatorExpression.PLUS, true);
-			break;
-		case 321 : // System.out.println("PostDecrementExpression ::= PostfixExpression MINUS_MINUS");
-			consumeUnaryExpression(OperatorExpression.MINUS, true);
-			break;
-		case 322 : // System.out.println("PushPosition ::=");
-			consumePushPosition();
-			break;
-		case 325 : // System.out.println("UnaryExpression ::= PLUS PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.PLUS);
-			break;
-		case 326 : // System.out.println("UnaryExpression ::= MINUS PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.MINUS);
-			break;
-		case 328 : // System.out.println("PreIncrementExpression ::= PLUS_PLUS PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.PLUS, false);
-			break;
-		case 329 : // System.out.println("PreDecrementExpression ::= MINUS_MINUS PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.MINUS, false);
-			break;
-		case 331 : // System.out.println("UnaryExpressionNotPlusMinus ::= TWIDDLE PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.TWIDDLE);
-			break;
-		case 332 : // System.out.println("UnaryExpressionNotPlusMinus ::= NOT PushPosition UnaryExpression");
-			consumeUnaryExpression(OperatorExpression.NOT);
-			break;
-		case 334 : // System.out.println("CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression");
-			consumeCastExpression();
-			break;
-		case 335 : // System.out.println("CastExpression ::= PushLPAREN Name Dims PushRPAREN UnaryExpressionNotPlusMinus");
-			consumeCastExpression();
-			break;
-		case 336 : // System.out.println("CastExpression ::= PushLPAREN Expression PushRPAREN UnaryExpressionNotPlusMinus");
-			consumeCastExpressionLL1();
-			break;
-		case 338 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression MULTIPLY UnaryExpression");
-			consumeBinaryExpression(OperatorExpression.MULTIPLY);
-			break;
-		case 339 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression DIVIDE UnaryExpression");
-			consumeBinaryExpression(OperatorExpression.DIVIDE);
-			break;
-		case 340 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression REMAINDER UnaryExpression");
-			consumeBinaryExpression(OperatorExpression.REMAINDER);
-			break;
-		case 342 : // System.out.println("AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression");
-			consumeBinaryExpression(OperatorExpression.PLUS);
-			break;
-		case 343 : // System.out.println("AdditiveExpression ::= AdditiveExpression MINUS MultiplicativeExpression");
-			consumeBinaryExpression(OperatorExpression.MINUS);
-			break;
-		case 345 : // System.out.println("ShiftExpression ::= ShiftExpression LEFT_SHIFT AdditiveExpression");
-			consumeBinaryExpression(OperatorExpression.LEFT_SHIFT);
-			break;
-		case 346 : // System.out.println("ShiftExpression ::= ShiftExpression RIGHT_SHIFT AdditiveExpression");
-			consumeBinaryExpression(OperatorExpression.RIGHT_SHIFT);
-			break;
-		case 347 : // System.out.println("ShiftExpression ::= ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression");
-			consumeBinaryExpression(OperatorExpression.UNSIGNED_RIGHT_SHIFT);
-			break;
-		case 349 : // System.out.println("RelationalExpression ::= RelationalExpression LESS ShiftExpression");
-			consumeBinaryExpression(OperatorExpression.LESS);
-			break;
-		case 350 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER ShiftExpression");
-			consumeBinaryExpression(OperatorExpression.GREATER);
-			break;
-		case 351 : // System.out.println("RelationalExpression ::= RelationalExpression LESS_EQUAL ShiftExpression");
-			consumeBinaryExpression(OperatorExpression.LESS_EQUAL);
-			break;
-		case 352 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER_EQUAL ShiftExpression");
-			consumeBinaryExpression(OperatorExpression.GREATER_EQUAL);
-			break;
-		case 353 : // System.out.println("RelationalExpression ::= RelationalExpression instanceof ReferenceType");
-			consumeInstanceOfExpression(OperatorExpression.INSTANCEOF);
-			break;
-		case 355 : // System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL RelationalExpression");
-			consumeEqualityExpression(OperatorExpression.EQUAL_EQUAL);
-			break;
-		case 356 : // System.out.println("EqualityExpression ::= EqualityExpression NOT_EQUAL RelationalExpression");
-			consumeEqualityExpression(OperatorExpression.NOT_EQUAL);
-			break;
-		case 358 : // System.out.println("AndExpression ::= AndExpression AND EqualityExpression");
-			consumeBinaryExpression(OperatorExpression.AND);
-			break;
-		case 360 : // System.out.println("ExclusiveOrExpression ::= ExclusiveOrExpression XOR AndExpression");
-			consumeBinaryExpression(OperatorExpression.XOR);
-			break;
-		case 362 : // System.out.println("InclusiveOrExpression ::= InclusiveOrExpression OR ExclusiveOrExpression");
-			consumeBinaryExpression(OperatorExpression.OR);
-			break;
-		case 364 : // System.out.println("ConditionalAndExpression ::= ConditionalAndExpression AND_AND InclusiveOrExpression");
-			consumeBinaryExpression(OperatorExpression.AND_AND);
-			break;
-		case 366 : // System.out.println("ConditionalOrExpression ::= ConditionalOrExpression OR_OR ConditionalAndExpression");
-			consumeBinaryExpression(OperatorExpression.OR_OR);
-			break;
-		case 368 : // System.out.println("ConditionalExpression ::= ConditionalOrExpression QUESTION Expression COLON...");
-			consumeConditionalExpression(OperatorExpression.QUESTIONCOLON);
-			break;
-		case 371 : // System.out.println("Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression");
-			consumeAssignment();
-			break;
-		case 373 : // System.out.println("Assignment ::= InvalidArrayInitializerAssignement");
-			ignoreExpressionAssignment();
-			break;
-		case 374 : // System.out.println("LeftHandSide ::= Name");
-			consumeLeftHandSide();
-			break;
-		case 377 : // System.out.println("AssignmentOperator ::= EQUAL");
-			consumeAssignmentOperator(EQUAL);
-			break;
-		case 378 : // System.out.println("AssignmentOperator ::= MULTIPLY_EQUAL");
-			consumeAssignmentOperator(MULTIPLY);
-			break;
-		case 379 : // System.out.println("AssignmentOperator ::= DIVIDE_EQUAL");
-			consumeAssignmentOperator(DIVIDE);
-			break;
-		case 380 : // System.out.println("AssignmentOperator ::= REMAINDER_EQUAL");
-			consumeAssignmentOperator(REMAINDER);
-			break;
-		case 381 : // System.out.println("AssignmentOperator ::= PLUS_EQUAL");
-			consumeAssignmentOperator(PLUS);
-			break;
-		case 382 : // System.out.println("AssignmentOperator ::= MINUS_EQUAL");
-			consumeAssignmentOperator(MINUS);
-			break;
-		case 383 : // System.out.println("AssignmentOperator ::= LEFT_SHIFT_EQUAL");
-			consumeAssignmentOperator(LEFT_SHIFT);
-			break;
-		case 384 : // System.out.println("AssignmentOperator ::= RIGHT_SHIFT_EQUAL");
-			consumeAssignmentOperator(RIGHT_SHIFT);
-			break;
-		case 385 : // System.out.println("AssignmentOperator ::= UNSIGNED_RIGHT_SHIFT_EQUAL");
-			consumeAssignmentOperator(UNSIGNED_RIGHT_SHIFT);
-			break;
-		case 386 : // System.out.println("AssignmentOperator ::= AND_EQUAL");
-			consumeAssignmentOperator(AND);
-			break;
-		case 387 : // System.out.println("AssignmentOperator ::= XOR_EQUAL");
-			consumeAssignmentOperator(XOR);
-			break;
-		case 388 : // System.out.println("AssignmentOperator ::= OR_EQUAL");
-			consumeAssignmentOperator(OR);
-			break;
-		case 395 : // System.out.println("Expressionopt ::=");
-			consumeEmptyExpression();
-			break;
-		case 399 : // System.out.println("ImportDeclarationsopt ::=");
-			consumeEmptyImportDeclarationsopt();
-			break;
-		case 400 : // System.out.println("ImportDeclarationsopt ::= ImportDeclarations");
-			consumeImportDeclarationsopt();
-			break;
-		case 401 : // System.out.println("TypeDeclarationsopt ::=");
-			consumeEmptyTypeDeclarationsopt();
-			break;
-		case 402 : // System.out.println("TypeDeclarationsopt ::= TypeDeclarations");
-			consumeTypeDeclarationsopt();
-			break;
-		case 403 : // System.out.println("ClassBodyDeclarationsopt ::=");
-			consumeEmptyClassBodyDeclarationsopt();
-			break;
-		case 404 : // System.out.println("ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations");
-			consumeClassBodyDeclarationsopt();
-			break;
-		case 405 : // System.out.println("Modifiersopt ::=");
-			consumeDefaultModifiers();
-			break;
-		case 406 : // System.out.println("Modifiersopt ::= Modifiers");
-			consumeModifiers();
-			break;
-		case 407 : // System.out.println("BlockStatementsopt ::=");
-			consumeEmptyBlockStatementsopt();
-			break;
-		case 409 : // System.out.println("Dimsopt ::=");
-			consumeEmptyDimsopt();
-			break;
-		case 411 : // System.out.println("ArgumentListopt ::=");
-			consumeEmptyArgumentListopt();
-			break;
-		case 415 : // System.out.println("FormalParameterListopt ::=");
-			consumeFormalParameterListopt();
-			break;
-		case 419 : // System.out.println("InterfaceMemberDeclarationsopt ::=");
-			consumeEmptyInterfaceMemberDeclarationsopt();
-			break;
-		case 420 : // System.out.println("InterfaceMemberDeclarationsopt ::= NestedType InterfaceMemberDeclarations");
-			consumeInterfaceMemberDeclarationsopt();
-			break;
-		case 421 : // System.out.println("NestedType ::=");
-			consumeNestedType();
-			break;
-		case 422 : // System.out.println("ForInitopt ::=");
-			consumeEmptyForInitopt();
-			break;
-		case 424 : // System.out.println("ForUpdateopt ::=");
-			consumeEmptyForUpdateopt();
-			break;
-		case 428 : // System.out.println("Catchesopt ::=");
-			consumeEmptyCatchesopt();
-			break;
-		case 430 : // System.out.println("ArrayInitializeropt ::=");
-			consumeEmptyArrayInitializeropt();
-			break;
+	// This method is part of an automatic generation : do NOT edit-modify  
+	protected void consumeRule(int act) {
+		switch (act) {
+			case 29 : // System.out.println("Type ::= PrimitiveType");
+				consumePrimitiveType();
+				break;
+			case 43 : // System.out.println("ReferenceType ::= ClassOrInterfaceType");
+				consumeReferenceType();
+				break;
+			case 52 : // System.out.println("QualifiedName ::= Name DOT SimpleName");
+				consumeQualifiedName();
+				break;
+			case 53 : // System.out.println("CompilationUnit ::= EnterCompilationUnit PackageDeclarationopt ImportDeclarationsopt");
+				consumeCompilationUnit();
+				break;
+			case 54 : // System.out.println("EnterCompilationUnit ::=");
+				consumeEnterCompilationUnit();
+				break;
+			case 66 : // System.out.println("CatchHeader ::= catch LPAREN FormalParameter RPAREN LBRACE");
+				consumeCatchHeader();
+				break;
+			case 68 : // System.out.println("ImportDeclarations ::= ImportDeclarations ImportDeclaration");
+				consumeImportDeclarations();
+				break;
+			case 70 : // System.out.println("TypeDeclarations ::= TypeDeclarations TypeDeclaration");
+				consumeTypeDeclarations();
+				break;
+			case 71 : // System.out.println("PackageDeclaration ::= PackageDeclarationName SEMICOLON");
+				consumePackageDeclaration();
+				break;
+			case 72 : // System.out.println("PackageDeclarationName ::= package Name");
+				consumePackageDeclarationName();
+				break;
+			case 75 : // System.out.println("SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName SEMICOLON");
+				consumeSingleTypeImportDeclaration();
+				break;
+			case 76 : // System.out.println("SingleTypeImportDeclarationName ::= import Name");
+				consumeSingleTypeImportDeclarationName();
+				break;
+			case 77 : // System.out.println("TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName SEMICOLON");
+				consumeTypeImportOnDemandDeclaration();
+				break;
+			case 78 : // System.out.println("TypeImportOnDemandDeclarationName ::= import Name DOT MULTIPLY");
+				consumeTypeImportOnDemandDeclarationName();
+				break;
+			case 81 : // System.out.println("TypeDeclaration ::= SEMICOLON");
+				consumeEmptyTypeDeclaration();
+				break;
+			case 95 : // System.out.println("ClassDeclaration ::= ClassHeader ClassBody");
+				consumeClassDeclaration();
+				break;
+			case 96 : // System.out.println("ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt");
+				consumeClassHeader();
+				break;
+			case 97 : // System.out.println("ClassHeaderName ::= Modifiersopt class Identifier");
+				consumeClassHeaderName();
+				break;
+			case 98 : // System.out.println("ClassHeaderExtends ::= extends ClassType");
+				consumeClassHeaderExtends();
+				break;
+			case 99 : // System.out.println("ClassHeaderImplements ::= implements InterfaceTypeList");
+				consumeClassHeaderImplements();
+				break;
+			case 101 : // System.out.println("InterfaceTypeList ::= InterfaceTypeList COMMA InterfaceType");
+				consumeInterfaceTypeList();
+				break;
+			case 102 : // System.out.println("InterfaceType ::= ClassOrInterfaceType");
+				consumeInterfaceType();
+				break;
+			case 105 : // System.out.println("ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration");
+				consumeClassBodyDeclarations();
+				break;
+			case 109 : // System.out.println("ClassBodyDeclaration ::= Diet NestedMethod Block");
+				consumeClassBodyDeclaration();
+				break;
+			case 110 : // System.out.println("Diet ::=");
+				consumeDiet();
+				break;
+			case 111 : // System.out.println("Initializer ::= Diet NestedMethod Block");
+				consumeClassBodyDeclaration();
+				break;
+			case 118 : // System.out.println("ClassMemberDeclaration ::= SEMICOLON");
+				consumeEmptyClassMemberDeclaration();
+				break;
+			case 119 : // System.out.println("FieldDeclaration ::= Modifiersopt Type VariableDeclarators SEMICOLON");
+				consumeFieldDeclaration();
+				break;
+			case 121 : // System.out.println("VariableDeclarators ::= VariableDeclarators COMMA VariableDeclarator");
+				consumeVariableDeclarators();
+				break;
+			case 124 : // System.out.println("EnterVariable ::=");
+				consumeEnterVariable();
+				break;
+			case 125 : // System.out.println("ExitVariableWithInitialization ::=");
+				consumeExitVariableWithInitialization();
+				break;
+			case 126 : // System.out.println("ExitVariableWithoutInitialization ::=");
+				consumeExitVariableWithoutInitialization();
+				break;
+			case 127 : // System.out.println("ForceNoDiet ::=");
+				consumeForceNoDiet();
+				break;
+			case 128 : // System.out.println("RestoreDiet ::=");
+				consumeRestoreDiet();
+				break;
+			case 133 : // System.out.println("MethodDeclaration ::= MethodHeader MethodBody");
+				// set to true to consume a method with a body
+				consumeMethodDeclaration(true);
+				break;
+			case 134 : // System.out.println("AbstractMethodDeclaration ::= MethodHeader SEMICOLON");
+				// set to false to consume a method without body
+				consumeMethodDeclaration(false);
+				break;
+			case 135 : // System.out.println("MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims");
+				consumeMethodHeader();
+				break;
+			case 136 : // System.out.println("MethodPushModifiersHeader ::= MethodPushModifiersHeaderName MethodHeaderParameters");
+				consumeMethodHeader();
+				break;
+			case 137 : // System.out.println("MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers Identifier LPAREN");
+				consumeMethodPushModifiersHeaderName();
+				break;
+			case 138 : // System.out.println("MethodPushModifiersHeaderName ::= Type PushModifiers Identifier LPAREN");
+				consumeMethodPushModifiersHeaderName();
+				break;
+			case 139 : // System.out.println("MethodHeaderName ::= Modifiersopt Type Identifier LPAREN");
+				consumeMethodHeaderName();
+				break;
+			case 140 : // System.out.println("MethodHeaderParameters ::= FormalParameterListopt RPAREN");
+				consumeMethodHeaderParameters();
+				break;
+			case 141 : // System.out.println("MethodHeaderExtendedDims ::= Dimsopt");
+				consumeMethodHeaderExtendedDims();
+				break;
+			case 142 : // System.out.println("MethodHeaderThrowsClause ::= throws ClassTypeList");
+				consumeMethodHeaderThrowsClause();
+				break;
+			case 143 : // System.out.println("ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters...");
+				consumeConstructorHeader();
+				break;
+			case 144 : // System.out.println("ConstructorHeaderName ::= Modifiersopt Identifier LPAREN");
+				consumeConstructorHeaderName();
+				break;
+			case 146 : // System.out.println("FormalParameterList ::= FormalParameterList COMMA FormalParameter");
+				consumeFormalParameterList();
+				break;
+			case 147 : // System.out.println("FormalParameter ::= Modifiersopt Type VariableDeclaratorId");
+				// the boolean is used to know if the modifiers should be reset
+				consumeFormalParameter();
+				break;
+			case 149 : // System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt");
+				consumeClassTypeList();
+				break;
+			case 150 : // System.out.println("ClassTypeElt ::= ClassType");
+				consumeClassTypeElt();
+				break;
+			case 151 : // System.out.println("MethodBody ::= NestedMethod LBRACE BlockStatementsopt RBRACE");
+				consumeMethodBody();
+				break;
+			case 152 : // System.out.println("NestedMethod ::=");
+				consumeNestedMethod();
+				break;
+			case 153 : // System.out.println("StaticInitializer ::= StaticOnly Block");
+				consumeStaticInitializer();
+				break;
+			case 154 : // System.out.println("StaticOnly ::= static");
+				consumeStaticOnly();
+				break;
+			case 155 : // System.out.println("ConstructorDeclaration ::= ConstructorHeader ConstructorBody");
+				consumeConstructorDeclaration();
+				break;
+			case 156 : // System.out.println("ConstructorBody ::= NestedMethod LBRACE ConstructorBlockStatementsopt RBRACE");
+				consumeConstructorBody();
+				break;
+			case 159 : // System.out.println("ConstructorBlockStatementsopt ::= ExplicitConstructorInvocation BlockStatements");
+				consumeConstructorBlockStatements();
+				break;
+			case 160 : // System.out.println("ExplicitConstructorInvocation ::= this LPAREN ArgumentListopt RPAREN SEMICOLON");
+				consumeExplicitConstructorInvocation(0, ExplicitConstructorCall.This);
+				break;
+			case 161 : // System.out.println("ExplicitConstructorInvocation ::= super LPAREN ArgumentListopt RPAREN SEMICOLON");
+				consumeExplicitConstructorInvocation(0, ExplicitConstructorCall.Super);
+				break;
+			case 162 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT super LPAREN ArgumentListopt RPAREN");
+				consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super);
+				break;
+			case 163 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT super LPAREN ArgumentListopt RPAREN...");
+				consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super);
+				break;
+			case 164 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT this LPAREN ArgumentListopt RPAREN...");
+				consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This);
+				break;
+			case 165 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT this LPAREN ArgumentListopt RPAREN...");
+				consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This);
+				break;
+			case 166 : // System.out.println("InterfaceDeclaration ::= InterfaceHeader InterfaceBody");
+				consumeInterfaceDeclaration();
+				break;
+			case 167 : // System.out.println("InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt");
+				consumeInterfaceHeader();
+				break;
+			case 168 : // System.out.println("InterfaceHeaderName ::= Modifiersopt interface Identifier");
+				consumeInterfaceHeaderName();
+				break;
+			case 170 : // System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList");
+				consumeInterfaceHeaderExtends();
+				break;
+			case 173 : // System.out.println("InterfaceMemberDeclarations ::= InterfaceMemberDeclarations...");
+				consumeInterfaceMemberDeclarations();
+				break;
+			case 174 : // System.out.println("InterfaceMemberDeclaration ::= SEMICOLON");
+				consumeEmptyInterfaceMemberDeclaration();
+				break;
+			case 177 : // System.out.println("InterfaceMemberDeclaration ::= InvalidMethodDeclaration");
+				ignoreMethodBody();
+				break;
+			case 178 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody");
+				ignoreInvalidConstructorDeclaration(true);
+				break;
+			case 179 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader SEMICOLON");
+				ignoreInvalidConstructorDeclaration(false);
+				break;
+			case 185 : // System.out.println("ArrayInitializer ::= LBRACE ,opt RBRACE");
+				consumeEmptyArrayInitializer();
+				break;
+			case 186 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers RBRACE");
+				consumeArrayInitializer();
+				break;
+			case 187 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers COMMA RBRACE");
+				consumeArrayInitializer();
+				break;
+			case 189 : // System.out.println("VariableInitializers ::= VariableInitializers COMMA VariableInitializer");
+				consumeVariableInitializers();
+				break;
+			case 190 : // System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE");
+				consumeBlock();
+				break;
+			case 191 : // System.out.println("OpenBlock ::=");
+				consumeOpenBlock();
+				break;
+			case 193 : // System.out.println("BlockStatements ::= BlockStatements BlockStatement");
+				consumeBlockStatements();
+				break;
+			case 197 : // System.out.println("BlockStatement ::= InvalidInterfaceDeclaration");
+				ignoreInterfaceDeclaration();
+				break;
+			case 198 : // System.out.println("LocalVariableDeclarationStatement ::= LocalVariableDeclaration SEMICOLON");
+				consumeLocalVariableDeclarationStatement();
+				break;
+			case 199 : // System.out.println("LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators");
+				consumeLocalVariableDeclaration();
+				break;
+			case 200 : // System.out.println("LocalVariableDeclaration ::= Modifiers Type PushModifiers VariableDeclarators");
+				consumeLocalVariableDeclaration();
+				break;
+			case 201 : // System.out.println("PushModifiers ::=");
+				consumePushModifiers();
+				break;
+			case 225 : // System.out.println("EmptyStatement ::= SEMICOLON");
+				consumeEmptyStatement();
+				break;
+			case 226 : // System.out.println("LabeledStatement ::= Identifier COLON Statement");
+				consumeStatementLabel();
+				break;
+			case 227 : // System.out.println("LabeledStatementNoShortIf ::= Identifier COLON StatementNoShortIf");
+				consumeStatementLabel();
+				break;
+			case 228 : // System.out.println("ExpressionStatement ::= StatementExpression SEMICOLON");
+				consumeExpressionStatement();
+				break;
+			case 236 : // System.out.println("IfThenStatement ::= if LPAREN Expression RPAREN Statement");
+				consumeStatementIfNoElse();
+				break;
+			case 237 : // System.out.println("IfThenElseStatement ::= if LPAREN Expression RPAREN StatementNoShortIf else...");
+				consumeStatementIfWithElse();
+				break;
+			case 238 : // System.out.println("IfThenElseStatementNoShortIf ::= if LPAREN Expression RPAREN StatementNoShortIf...");
+				consumeStatementIfWithElse();
+				break;
+			case 239 : // System.out.println("SwitchStatement ::= switch OpenBlock LPAREN Expression RPAREN SwitchBlock");
+				consumeStatementSwitch();
+				break;
+			case 240 : // System.out.println("SwitchBlock ::= LBRACE RBRACE");
+				consumeEmptySwitchBlock();
+				break;
+			case 243 : // System.out.println("SwitchBlock ::= LBRACE SwitchBlockStatements SwitchLabels RBRACE");
+				consumeSwitchBlock();
+				break;
+			case 245 : // System.out.println("SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement");
+				consumeSwitchBlockStatements();
+				break;
+			case 246 : // System.out.println("SwitchBlockStatement ::= SwitchLabels BlockStatements");
+				consumeSwitchBlockStatement();
+				break;
+			case 248 : // System.out.println("SwitchLabels ::= SwitchLabels SwitchLabel");
+				consumeSwitchLabels();
+				break;
+			case 249 : // System.out.println("SwitchLabel ::= case ConstantExpression COLON");
+				consumeCaseLabel();
+				break;
+			case 250 : // System.out.println("SwitchLabel ::= default COLON");
+				consumeDefaultLabel();
+				break;
+			case 251 : // System.out.println("WhileStatement ::= while LPAREN Expression RPAREN Statement");
+				consumeStatementWhile();
+				break;
+			case 252 : // System.out.println("WhileStatementNoShortIf ::= while LPAREN Expression RPAREN StatementNoShortIf");
+				consumeStatementWhile();
+				break;
+			case 253 : // System.out.println("DoStatement ::= do Statement while LPAREN Expression RPAREN SEMICOLON");
+				consumeStatementDo();
+				break;
+			case 254 : // System.out.println("ForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON...");
+				consumeStatementFor();
+				break;
+			case 255 : // System.out.println("ForStatementNoShortIf ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON");
+				consumeStatementFor();
+				break;
+			case 256 : // System.out.println("ForInit ::= StatementExpressionList");
+				consumeForInit();
+				break;
+			case 260 : // System.out.println("StatementExpressionList ::= StatementExpressionList COMMA StatementExpression");
+				consumeStatementExpressionList();
+				break;
+			case 261 : // System.out.println("AssertStatement ::= assert Expression SEMICOLON");
+				consumeSimpleAssertStatement();
+				break;
+			case 262 : // System.out.println("AssertStatement ::= assert Expression COLON Expression SEMICOLON");
+				consumeAssertStatement();
+				break;
+			case 263 : // System.out.println("BreakStatement ::= break SEMICOLON");
+				consumeStatementBreak();
+				break;
+			case 264 : // System.out.println("BreakStatement ::= break Identifier SEMICOLON");
+				consumeStatementBreakWithLabel();
+				break;
+			case 265 : // System.out.println("ContinueStatement ::= continue SEMICOLON");
+				consumeStatementContinue();
+				break;
+			case 266 : // System.out.println("ContinueStatement ::= continue Identifier SEMICOLON");
+				consumeStatementContinueWithLabel();
+				break;
+			case 267 : // System.out.println("ReturnStatement ::= return Expressionopt SEMICOLON");
+				consumeStatementReturn();
+				break;
+			case 268 : // System.out.println("ThrowStatement ::= throw Expression SEMICOLON");
+				consumeStatementThrow();
+				break;
+			case 269 : // System.out.println("SynchronizedStatement ::= OnlySynchronized LPAREN Expression RPAREN Block");
+				consumeStatementSynchronized();
+				break;
+			case 270 : // System.out.println("OnlySynchronized ::= synchronized");
+				consumeOnlySynchronized();
+				break;
+			case 271 : // System.out.println("TryStatement ::= try Block Catches");
+				consumeStatementTry(false);
+				break;
+			case 272 : // System.out.println("TryStatement ::= try Block Catchesopt Finally");
+				consumeStatementTry(true);
+				break;
+			case 274 : // System.out.println("Catches ::= Catches CatchClause");
+				consumeCatches();
+				break;
+			case 275 : // System.out.println("CatchClause ::= catch LPAREN FormalParameter RPAREN Block");
+				consumeStatementCatch();
+				break;
+			case 277 : // System.out.println("PushLPAREN ::= LPAREN");
+				consumeLeftParen();
+				break;
+			case 278 : // System.out.println("PushRPAREN ::= RPAREN");
+				consumeRightParen();
+				break;
+			case 282 : // System.out.println("PrimaryNoNewArray ::= this");
+				consumePrimaryNoNewArrayThis();
+				break;
+			case 283 : // System.out.println("PrimaryNoNewArray ::= PushLPAREN Expression PushRPAREN");
+				consumePrimaryNoNewArray();
+				break;
+			case 286 : // System.out.println("PrimaryNoNewArray ::= Name DOT this");
+				consumePrimaryNoNewArrayNameThis();
+				break;
+			case 287 : // System.out.println("PrimaryNoNewArray ::= Name DOT super");
+				consumePrimaryNoNewArrayNameSuper();
+				break;
+			case 288 : // System.out.println("PrimaryNoNewArray ::= Name DOT class");
+				consumePrimaryNoNewArrayName();
+				break;
+			case 289 : // System.out.println("PrimaryNoNewArray ::= ArrayType DOT class");
+				consumePrimaryNoNewArrayArrayType();
+				break;
+			case 290 : // System.out.println("PrimaryNoNewArray ::= PrimitiveType DOT class");
+				consumePrimaryNoNewArrayPrimitiveType();
+				break;
+			case 293 : // System.out.println("AllocationHeader ::= new ClassType LPAREN ArgumentListopt RPAREN");
+				consumeAllocationHeader();
+				break;
+			case 294 : // System.out.println("ClassInstanceCreationExpression ::= new ClassType LPAREN ArgumentListopt RPAREN...");
+				consumeClassInstanceCreationExpression();
+				break;
+			case 295 : // System.out.println("ClassInstanceCreationExpression ::= Primary DOT new SimpleName LPAREN...");
+				consumeClassInstanceCreationExpressionQualified();
+				break;
+			case 296 : // System.out.println("ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName new...");
+				consumeClassInstanceCreationExpressionQualified();
+				break;
+			case 297 : // System.out.println("ClassInstanceCreationExpressionName ::= Name DOT");
+				consumeClassInstanceCreationExpressionName();
+				break;
+			case 298 : // System.out.println("ClassBodyopt ::=");
+				consumeClassBodyopt();
+				break;
+			case 300 : // System.out.println("EnterAnonymousClassBody ::=");
+				consumeEnterAnonymousClassBody();
+				break;
+			case 302 : // System.out.println("ArgumentList ::= ArgumentList COMMA Expression");
+				consumeArgumentList();
+				break;
+			case 303 : // System.out.println("ArrayCreationExpression ::= new PrimitiveType DimWithOrWithOutExprs...");
+				consumeArrayCreationExpression();
+				break;
+			case 304 : // System.out.println("ArrayCreationExpression ::= new ClassOrInterfaceType DimWithOrWithOutExprs...");
+				consumeArrayCreationExpression();
+				break;
+			case 306 : // System.out.println("DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr");
+				consumeDimWithOrWithOutExprs();
+				break;
+			case 308 : // System.out.println("DimWithOrWithOutExpr ::= LBRACKET RBRACKET");
+				consumeDimWithOrWithOutExpr();
+				break;
+			case 309 : // System.out.println("Dims ::= DimsLoop");
+				consumeDims();
+				break;
+			case 312 : // System.out.println("OneDimLoop ::= LBRACKET RBRACKET");
+				consumeOneDimLoop();
+				break;
+			case 313 : // System.out.println("FieldAccess ::= Primary DOT Identifier");
+				consumeFieldAccess(false);
+				break;
+			case 314 : // System.out.println("FieldAccess ::= super DOT Identifier");
+				consumeFieldAccess(true);
+				break;
+			case 315 : // System.out.println("MethodInvocation ::= Name LPAREN ArgumentListopt RPAREN");
+				consumeMethodInvocationName();
+				break;
+			case 316 : // System.out.println("MethodInvocation ::= Primary DOT Identifier LPAREN ArgumentListopt RPAREN");
+				consumeMethodInvocationPrimary();
+				break;
+			case 317 : // System.out.println("MethodInvocation ::= super DOT Identifier LPAREN ArgumentListopt RPAREN");
+				consumeMethodInvocationSuper();
+				break;
+			case 318 : // System.out.println("ArrayAccess ::= Name LBRACKET Expression RBRACKET");
+				consumeArrayAccess(true);
+				break;
+			case 319 : // System.out.println("ArrayAccess ::= PrimaryNoNewArray LBRACKET Expression RBRACKET");
+				consumeArrayAccess(false);
+				break;
+			case 321 : // System.out.println("PostfixExpression ::= Name");
+				consumePostfixExpression();
+				break;
+			case 324 : // System.out.println("PostIncrementExpression ::= PostfixExpression PLUS_PLUS");
+				consumeUnaryExpression(OperatorExpression.PLUS, true);
+				break;
+			case 325 : // System.out.println("PostDecrementExpression ::= PostfixExpression MINUS_MINUS");
+				consumeUnaryExpression(OperatorExpression.MINUS, true);
+				break;
+			case 326 : // System.out.println("PushPosition ::=");
+				consumePushPosition();
+				break;
+			case 329 : // System.out.println("UnaryExpression ::= PLUS PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.PLUS);
+				break;
+			case 330 : // System.out.println("UnaryExpression ::= MINUS PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.MINUS);
+				break;
+			case 332 : // System.out.println("PreIncrementExpression ::= PLUS_PLUS PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.PLUS, false);
+				break;
+			case 333 : // System.out.println("PreDecrementExpression ::= MINUS_MINUS PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.MINUS, false);
+				break;
+			case 335 : // System.out.println("UnaryExpressionNotPlusMinus ::= TWIDDLE PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.TWIDDLE);
+				break;
+			case 336 : // System.out.println("UnaryExpressionNotPlusMinus ::= NOT PushPosition UnaryExpression");
+				consumeUnaryExpression(OperatorExpression.NOT);
+				break;
+			case 338 : // System.out.println("CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression");
+				consumeCastExpression();
+				break;
+			case 339 : // System.out.println("CastExpression ::= PushLPAREN Name Dims PushRPAREN UnaryExpressionNotPlusMinus");
+				consumeCastExpression();
+				break;
+			case 340 : // System.out.println("CastExpression ::= PushLPAREN Expression PushRPAREN UnaryExpressionNotPlusMinus");
+				consumeCastExpressionLL1();
+				break;
+			case 342 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression MULTIPLY UnaryExpression");
+				consumeBinaryExpression(OperatorExpression.MULTIPLY);
+				break;
+			case 343 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression DIVIDE UnaryExpression");
+				consumeBinaryExpression(OperatorExpression.DIVIDE);
+				break;
+			case 344 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression REMAINDER UnaryExpression");
+				consumeBinaryExpression(OperatorExpression.REMAINDER);
+				break;
+			case 346 : // System.out.println("AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression");
+				consumeBinaryExpression(OperatorExpression.PLUS);
+				break;
+			case 347 : // System.out.println("AdditiveExpression ::= AdditiveExpression MINUS MultiplicativeExpression");
+				consumeBinaryExpression(OperatorExpression.MINUS);
+				break;
+			case 349 : // System.out.println("ShiftExpression ::= ShiftExpression LEFT_SHIFT AdditiveExpression");
+				consumeBinaryExpression(OperatorExpression.LEFT_SHIFT);
+				break;
+			case 350 : // System.out.println("ShiftExpression ::= ShiftExpression RIGHT_SHIFT AdditiveExpression");
+				consumeBinaryExpression(OperatorExpression.RIGHT_SHIFT);
+				break;
+			case 351 : // System.out.println("ShiftExpression ::= ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression");
+				consumeBinaryExpression(OperatorExpression.UNSIGNED_RIGHT_SHIFT);
+				break;
+			case 353 : // System.out.println("RelationalExpression ::= RelationalExpression LESS ShiftExpression");
+				consumeBinaryExpression(OperatorExpression.LESS);
+				break;
+			case 354 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER ShiftExpression");
+				consumeBinaryExpression(OperatorExpression.GREATER);
+				break;
+			case 355 : // System.out.println("RelationalExpression ::= RelationalExpression LESS_EQUAL ShiftExpression");
+				consumeBinaryExpression(OperatorExpression.LESS_EQUAL);
+				break;
+			case 356 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER_EQUAL ShiftExpression");
+				consumeBinaryExpression(OperatorExpression.GREATER_EQUAL);
+				break;
+			case 357 : // System.out.println("RelationalExpression ::= RelationalExpression instanceof ReferenceType");
+				consumeInstanceOfExpression(OperatorExpression.INSTANCEOF);
+				break;
+			case 359 : // System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL RelationalExpression");
+				consumeEqualityExpression(OperatorExpression.EQUAL_EQUAL);
+				break;
+			case 360 : // System.out.println("EqualityExpression ::= EqualityExpression NOT_EQUAL RelationalExpression");
+				consumeEqualityExpression(OperatorExpression.NOT_EQUAL);
+				break;
+			case 362 : // System.out.println("AndExpression ::= AndExpression AND EqualityExpression");
+				consumeBinaryExpression(OperatorExpression.AND);
+				break;
+			case 364 : // System.out.println("ExclusiveOrExpression ::= ExclusiveOrExpression XOR AndExpression");
+				consumeBinaryExpression(OperatorExpression.XOR);
+				break;
+			case 366 : // System.out.println("InclusiveOrExpression ::= InclusiveOrExpression OR ExclusiveOrExpression");
+				consumeBinaryExpression(OperatorExpression.OR);
+				break;
+			case 368 : // System.out.println("ConditionalAndExpression ::= ConditionalAndExpression AND_AND InclusiveOrExpression");
+				consumeBinaryExpression(OperatorExpression.AND_AND);
+				break;
+			case 370 : // System.out.println("ConditionalOrExpression ::= ConditionalOrExpression OR_OR ConditionalAndExpression");
+				consumeBinaryExpression(OperatorExpression.OR_OR);
+				break;
+			case 372 : // System.out.println("ConditionalExpression ::= ConditionalOrExpression QUESTION Expression COLON...");
+				consumeConditionalExpression(OperatorExpression.QUESTIONCOLON);
+				break;
+			case 375 : // System.out.println("Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression");
+				consumeAssignment();
+				break;
+			case 377 : // System.out.println("Assignment ::= InvalidArrayInitializerAssignement");
+				ignoreExpressionAssignment();
+				break;
+			case 378 : // System.out.println("LeftHandSide ::= Name");
+				consumeLeftHandSide();
+				break;
+			case 381 : // System.out.println("AssignmentOperator ::= EQUAL");
+				consumeAssignmentOperator(EQUAL);
+				break;
+			case 382 : // System.out.println("AssignmentOperator ::= MULTIPLY_EQUAL");
+				consumeAssignmentOperator(MULTIPLY);
+				break;
+			case 383 : // System.out.println("AssignmentOperator ::= DIVIDE_EQUAL");
+				consumeAssignmentOperator(DIVIDE);
+				break;
+			case 384 : // System.out.println("AssignmentOperator ::= REMAINDER_EQUAL");
+				consumeAssignmentOperator(REMAINDER);
+				break;
+			case 385 : // System.out.println("AssignmentOperator ::= PLUS_EQUAL");
+				consumeAssignmentOperator(PLUS);
+				break;
+			case 386 : // System.out.println("AssignmentOperator ::= MINUS_EQUAL");
+				consumeAssignmentOperator(MINUS);
+				break;
+			case 387 : // System.out.println("AssignmentOperator ::= LEFT_SHIFT_EQUAL");
+				consumeAssignmentOperator(LEFT_SHIFT);
+				break;
+			case 388 : // System.out.println("AssignmentOperator ::= RIGHT_SHIFT_EQUAL");
+				consumeAssignmentOperator(RIGHT_SHIFT);
+				break;
+			case 389 : // System.out.println("AssignmentOperator ::= UNSIGNED_RIGHT_SHIFT_EQUAL");
+				consumeAssignmentOperator(UNSIGNED_RIGHT_SHIFT);
+				break;
+			case 390 : // System.out.println("AssignmentOperator ::= AND_EQUAL");
+				consumeAssignmentOperator(AND);
+				break;
+			case 391 : // System.out.println("AssignmentOperator ::= XOR_EQUAL");
+				consumeAssignmentOperator(XOR);
+				break;
+			case 392 : // System.out.println("AssignmentOperator ::= OR_EQUAL");
+				consumeAssignmentOperator(OR);
+				break;
+			case 399 : // System.out.println("Expressionopt ::=");
+				consumeEmptyExpression();
+				break;
+			case 403 : // System.out.println("ImportDeclarationsopt ::=");
+				consumeEmptyImportDeclarationsopt();
+				break;
+			case 404 : // System.out.println("ImportDeclarationsopt ::= ImportDeclarations");
+				consumeImportDeclarationsopt();
+				break;
+			case 405 : // System.out.println("TypeDeclarationsopt ::=");
+				consumeEmptyTypeDeclarationsopt();
+				break;
+			case 406 : // System.out.println("TypeDeclarationsopt ::= TypeDeclarations");
+				consumeTypeDeclarationsopt();
+				break;
+			case 407 : // System.out.println("ClassBodyDeclarationsopt ::=");
+				consumeEmptyClassBodyDeclarationsopt();
+				break;
+			case 408 : // System.out.println("ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations");
+				consumeClassBodyDeclarationsopt();
+				break;
+			case 409 : // System.out.println("Modifiersopt ::=");
+				consumeDefaultModifiers();
+				break;
+			case 410 : // System.out.println("Modifiersopt ::= Modifiers");
+				consumeModifiers();
+				break;
+			case 411 : // System.out.println("BlockStatementsopt ::=");
+				consumeEmptyBlockStatementsopt();
+				break;
+			case 413 : // System.out.println("Dimsopt ::=");
+				consumeEmptyDimsopt();
+				break;
+			case 415 : // System.out.println("ArgumentListopt ::=");
+				consumeEmptyArgumentListopt();
+				break;
+			case 419 : // System.out.println("FormalParameterListopt ::=");
+				consumeFormalParameterListopt();
+				break;
+			case 423 : // System.out.println("InterfaceMemberDeclarationsopt ::=");
+				consumeEmptyInterfaceMemberDeclarationsopt();
+				break;
+			case 424 : // System.out.println("InterfaceMemberDeclarationsopt ::= NestedType InterfaceMemberDeclarations");
+				consumeInterfaceMemberDeclarationsopt();
+				break;
+			case 425 : // System.out.println("NestedType ::=");
+				consumeNestedType();
+				break;
+			case 426 : // System.out.println("ForInitopt ::=");
+				consumeEmptyForInitopt();
+				break;
+			case 428 : // System.out.println("ForUpdateopt ::=");
+				consumeEmptyForUpdateopt();
+				break;
+			case 432 : // System.out.println("Catchesopt ::=");
+				consumeEmptyCatchesopt();
+				break;
+			case 434 : // System.out.println("ArrayInitializeropt ::=");
+				consumeEmptyArrayInitializeropt();
+				break;
+		}
 	}
+	
+protected void consumeSimpleAssertStatement() {
+	// AssertStatement ::= 'assert' Expression ';'
+	expressionLengthPtr--;
+	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], intStack[intPtr--]));	
 }
+	
 protected void consumeSingleTypeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
 
@@ -3961,6 +3987,7 @@ protected void consumeToken(int type) {
 			endPosition = scanner.currentPosition - 1;
 			pushOnIntStack(scanner.startPosition);
 			break;
+		case TokenNameassert :
 		case TokenNameimport :
 		case TokenNamepackage :
 		case TokenNamethrow :
@@ -4644,7 +4671,7 @@ $Terminals
 
 	Identifier
 
-	abstract boolean break byte case catch char class 
+	abstract assert boolean break byte case catch char class 
 	continue default do double else extends false final finally float
 	for if implements import instanceof int
 	interface long native new null package private
@@ -4775,7 +4802,7 @@ Goal ::= '--' MethodBody
 Goal ::= '==' ConstructorBody
 -- Initializer
 Goal ::= '>>' StaticInitializer
-Goal ::= '>>' ClassBodyDeclaration
+Goal ::= '>>' Initializer
 -- error recovery
 Goal ::= '>>>' Headers
 Goal ::= '*' BlockStatements
@@ -4978,6 +5005,9 @@ ClassBodyDeclaration ::= Diet NestedMethod Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
 Diet ::= $empty
 /.$putCase consumeDiet(); $break./
+
+Initializer ::= Diet NestedMethod Block
+/.$putCase consumeClassBodyDeclaration(); $break ./
 
 ClassMemberDeclaration -> FieldDeclaration
 ClassMemberDeclaration -> MethodDeclaration
@@ -5279,6 +5309,7 @@ StatementNoShortIf -> IfThenElseStatementNoShortIf
 StatementNoShortIf -> WhileStatementNoShortIf
 StatementNoShortIf -> ForStatementNoShortIf
 
+StatementWithoutTrailingSubstatement -> AssertStatement
 StatementWithoutTrailingSubstatement -> Block
 StatementWithoutTrailingSubstatement -> EmptyStatement
 StatementWithoutTrailingSubstatement -> ExpressionStatement
@@ -5373,6 +5404,13 @@ StatementExpressionList -> StatementExpression
 StatementExpressionList ::= StatementExpressionList ',' StatementExpression
 /.$putCase consumeStatementExpressionList() ; $break ./
 
+-- 1.4 feature
+AssertStatement ::= 'assert' Expression ';'
+/.$putCase consumeSimpleAssertStatement() ; $break ./
+
+AssertStatement ::= 'assert' Expression ':' Expression ';'
+/.$putCase consumeAssertStatement() ; $break ./
+          
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
@@ -6006,7 +6044,7 @@ public void initialize() {
 	lastErrorEndPosition = -1;
 }
 public void initializeScanner(){
-	this.scanner = new Scanner(false, false, this.problemReporter.options.isNonExternalizedStringLiteralHandledAsWarning());
+	this.scanner = new Scanner(false, false, this.problemReporter.options.isNonExternalizedStringLiteralHandledAsWarning(), this.assertMode);
 }
 public final static void initTables() throws java.io.IOException {
 

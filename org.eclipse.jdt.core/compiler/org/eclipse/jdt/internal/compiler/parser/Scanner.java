@@ -18,6 +18,9 @@ public class Scanner implements TerminalSymbols {
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
 
+	// 1.4 feature
+	public boolean assertMode;
+
 	public boolean recordLineSeparator;
 	public char currentCharacter;
 	public int startPosition;
@@ -1963,20 +1966,34 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	firstLetter = data[index];
 	switch (firstLetter) {
 
-		case 'a' : //abstract
-			if (length == 8) {
-				if ((data[++index] == 'b')
-					&& (data[++index] == 's')
-					&& (data[++index] == 't')
-					&& (data[++index] == 'r')
-					&& (data[++index] == 'a')
-					&& (data[++index] == 'c')
-					&& (data[++index] == 't')) {
-					return TokenNameabstract;
-				}
+		case 'a' : 
+			switch(length) {
+				case 8: //abstract
+					if ((data[++index] == 'b')
+						&& (data[++index] == 's')
+						&& (data[++index] == 't')
+						&& (data[++index] == 'r')
+						&& (data[++index] == 'a')
+						&& (data[++index] == 'c')
+						&& (data[++index] == 't')) {
+							return TokenNameabstract;
+						} else {
+							return TokenNameIdentifier;
+						}
+				case 6: // assert
+					if (assertMode 
+						&& (data[++index] == 's')
+						&& (data[++index] == 's')
+						&& (data[++index] == 'e')
+						&& (data[++index] == 'r')
+						&& (data[++index] == 't')) {
+							return TokenNameassert;
+						} else {
+							return TokenNameIdentifier;
+						}
+				default: 
+					return TokenNameIdentifier;
 			}
-			return TokenNameIdentifier;
-
 		case 'b' : //boolean break byte
 			switch (length) {
 				case 4 :
@@ -2904,9 +2921,14 @@ public final String toStringAction(int act) {
 }
 
 public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals) {
+	this(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false);
+}
+
+public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals, boolean assertMode) {
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.assertMode = assertMode;
 }
 }

@@ -41,11 +41,11 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	protected ObjectCache classCache;
 	protected FieldNameAndTypeCache nameAndTypeCacheForFields;
 	protected MethodNameAndTypeCache nameAndTypeCacheForMethods;
-	int[] wellKnownTypes = new int[20];
-	int[] wellKnownMethods = new int[26];
+	int[] wellKnownTypes = new int[21];
+	int[] wellKnownMethods = new int[35];
 	int[] wellKnownFields = new int[10];
 	int[] wellKnownFieldNameAndTypes = new int[2];
-	int[] wellKnownMethodNameAndTypes = new int[24];
+	int[] wellKnownMethodNameAndTypes = new int[32];
 	public byte[] poolContent;
 	public int currentIndex = 1;
 	public int currentOffset;
@@ -70,6 +70,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int JAVA_LANG_ERROR_TYPE = 17;
 	final static int JAVA_LANG_EXCEPTION_TYPE = 18;
 	final static int JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE = 19;
+	final static int JAVA_LANG_ASSERTIONERROR_TYPE = 20;
+	
 	// predefined constant index for well known fields  
 	final static int TYPE_BYTE_FIELD = 0;
 	final static int TYPE_SHORT_FIELD = 1;
@@ -108,12 +110,21 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int VALUEOF_CHAR_METHOD = 23;
 	final static int VALUEOF_BOOLEAN_METHOD = 24;
 	final static int VALUEOF_DOUBLE_METHOD = 25;
+	final static int ASSERTIONERROR_CONSTR_OBJECT_METHOD = 26;
+	final static int ASSERTIONERROR_CONSTR_INT_METHOD = 27;
+	final static int ASSERTIONERROR_CONSTR_LONG_METHOD = 28;
+	final static int ASSERTIONERROR_CONSTR_FLOAT_METHOD = 29;
+	final static int ASSERTIONERROR_CONSTR_DOUBLE_METHOD = 30;
+	final static int ASSERTIONERROR_CONSTR_BOOLEAN_METHOD = 31;
+	final static int ASSERTIONERROR_CONSTR_CHAR_METHOD = 32;
+	final static int ASSERTIONERROR_DEFAULT_CONSTR_METHOD = 33;
+	final static int DESIREDASSERTIONSTATUS_CLASS_METHOD = 34;
 	// predefined constant index for well known name and type for fields
 	final static int TYPE_JAVALANGCLASS_NAME_AND_TYPE = 0;
 	final static int OUT_SYSTEM_NAME_AND_TYPE = 1;
 	// predefined constant index for well known name and type for methods
 	final static int FORNAME_CLASS_METHOD_NAME_AND_TYPE = 0;
-	final static int STRING_CONSTR_METHOD_NAME_AND_TYPE = 1;
+	final static int CONSTR_STRING_METHOD_NAME_AND_TYPE = 1;
 	final static int DEFAULT_CONSTR_METHOD_NAME_AND_TYPE = 2;
 	final static int APPEND_INT_METHOD_NAME_AND_TYPE = 3;
 	final static int APPEND_FLOAT_METHOD_NAME_AND_TYPE = 4;
@@ -136,6 +147,15 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int VALUEOF_CHAR_METHOD_NAME_AND_TYPE = 21;
 	final static int VALUEOF_BOOLEAN_METHOD_NAME_AND_TYPE = 22;
 	final static int VALUEOF_DOUBLE_METHOD_NAME_AND_TYPE = 23;
+	final static int CONSTR_INT_METHOD_NAME_AND_TYPE = 24;
+	final static int CONSTR_LONG_METHOD_NAME_AND_TYPE = 25;
+	final static int CONSTR_FLOAT_METHOD_NAME_AND_TYPE = 26;
+	final static int CONSTR_DOUBLE_METHOD_NAME_AND_TYPE = 27;
+	final static int CONSTR_OBJECT_METHOD_NAME_AND_TYPE = 28;
+	final static int CONSTR_CHAR_METHOD_NAME_AND_TYPE = 29;
+	final static int CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE = 30;
+	final static int DESIREDASSERTIONSTATUS_METHOD_NAME_AND_TYPE = 31;
+	
 	public ClassFile classFile;
 
 /**
@@ -252,13 +272,33 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 			break;
 		case '<' :
 			if (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Init)) {
-				if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.StringConstructorSignature)) {
-					// This method binding is (java.lang.String)V
-					return STRING_CONSTR_METHOD_NAME_AND_TYPE;
-				} else
-					if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.DefaultConstructorSignature)) {
-						return DEFAULT_CONSTR_METHOD_NAME_AND_TYPE;
-					}
+				switch(methodBinding.parameters.length) {
+					case 1:
+						switch(methodBinding.parameters[0].id) {
+							case T_String :
+								return CONSTR_STRING_METHOD_NAME_AND_TYPE;	
+							case T_Object :
+								return CONSTR_OBJECT_METHOD_NAME_AND_TYPE;
+							case T_int :
+							case T_byte :
+							case T_short :
+								return CONSTR_INT_METHOD_NAME_AND_TYPE;
+							case T_char :
+								return CONSTR_CHAR_METHOD_NAME_AND_TYPE;
+							case T_boolean :
+								return CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE;
+							case T_float :
+								return CONSTR_FLOAT_METHOD_NAME_AND_TYPE;
+							case T_double :
+								return CONSTR_DOUBLE_METHOD_NAME_AND_TYPE;
+							case T_long :
+								return CONSTR_LONG_METHOD_NAME_AND_TYPE;
+						}
+					case 0:
+						if (methodBinding.signature().length == 3) {
+							return DEFAULT_CONSTR_METHOD_NAME_AND_TYPE;
+						}
+				}
 			}
 			break;
 		case 'a' :
@@ -357,10 +397,11 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 			if ((firstChar == 'f') && (methodBinding.isStatic()) && (methodBinding.parameters.length == 1) && (methodBinding.parameters[0].id == T_JavaLangString) && (methodBinding.returnType.id == T_JavaLangClass) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.ForName))) {
 				// This method binding is forName(java.lang.String)
 				return FORNAME_CLASS_METHOD;
-			} else
-				if ((firstChar == 'g') && (methodBinding.parameters.length == 1) && (methodBinding.returnType.id == T_JavaLangReflectConstructor) && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetConstructor) && CharOperation.equals(methodBinding.parameters[0].constantPoolName(), QualifiedNamesConstants.ArrayJavaLangClassConstantPoolName)) {
+			} else if ((firstChar == 'g') && (methodBinding.parameters.length == 1) && (methodBinding.returnType.id == T_JavaLangReflectConstructor) && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetConstructor) && CharOperation.equals(methodBinding.parameters[0].constantPoolName(), QualifiedNamesConstants.ArrayJavaLangClassConstantPoolName)) {
 					return GETCONSTRUCTOR_CLASS_METHOD;
-				}
+			} else if ((firstChar == 'd') && (methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_boolean) && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.DesiredAssertionStatus)) {
+					return DESIREDASSERTIONSTATUS_CLASS_METHOD;
+			}
 			break;
 		case T_JavaLangNoClassDefError :
 			if ((firstChar == '<') && (methodBinding.parameters.length == 1) && (methodBinding.parameters[0].id == T_JavaLangString) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Init))) {
@@ -462,6 +503,32 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 			if ((firstChar == '<') && (methodBinding.parameters.length == 1) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Init)) && (methodBinding.parameters[0].id == T_String)) {
 				return JAVALANGERROR_CONSTR_METHOD;
 			}
+		case T_JavaLangAssertionError :
+			if ((firstChar == '<') && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Init)) {
+				switch (methodBinding.parameters.length) {
+					case 0:
+						return ASSERTIONERROR_DEFAULT_CONSTR_METHOD;
+					case 1:
+						switch(methodBinding.parameters[0].id) {
+							case T_boolean :
+								return ASSERTIONERROR_CONSTR_BOOLEAN_METHOD;
+							case T_char :
+								return ASSERTIONERROR_CONSTR_CHAR_METHOD;
+							case T_double :
+								return ASSERTIONERROR_CONSTR_DOUBLE_METHOD;
+							case T_int :
+							case T_byte :
+							case T_short :
+								return ASSERTIONERROR_CONSTR_INT_METHOD;
+							case T_float :
+								return ASSERTIONERROR_CONSTR_FLOAT_METHOD;
+							case T_long :
+								return ASSERTIONERROR_CONSTR_LONG_METHOD;
+							default:
+								return ASSERTIONERROR_CONSTR_OBJECT_METHOD;
+						}
+				}
+			}
 	}
 	return -1;
 }
@@ -496,6 +563,7 @@ public int indexOfWellKnownTypes(TypeBinding typeBinding) {
 		case T_JavaLangError : return JAVA_LANG_ERROR_TYPE;
 		case T_JavaLangException : return JAVA_LANG_EXCEPTION_TYPE;
 		case T_JavaLangReflectConstructor : return JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE;
+		case T_JavaLangAssertionError : return JAVA_LANG_ASSERTIONERROR_TYPE;
 	}
 	return -1;
 }
@@ -1248,6 +1316,42 @@ public int literalIndexForJavaLangClassGetConstructor() {
 	return index;
 }
 /**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor. It can be either an interface method reference constant
+ * or a method reference constant.
+ *
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaLangClassDesiredAssertionStatus() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[DESIREDASSERTIONSTATUS_CLASS_METHOD]) == 0) {
+		classIndex = literalIndexForJavaLangClass();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[DESIREDASSERTIONSTATUS_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.DesiredAssertionStatus);
+			int typeIndex = literalIndex(QualifiedNamesConstants.DesiredAssertionStatusSignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[DESIREDASSERTIONSTATUS_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[DESIREDASSERTIONSTATUS_CLASS_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(MethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+/**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
  * @param TypeBinding aTypeBinding
@@ -1358,10 +1462,10 @@ public int literalIndexForJavaLangErrorConstructor() {
 	// Looking into the method ref table
 	if ((index = wellKnownMethods[JAVALANGERROR_CONSTR_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangError();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(QualifiedNamesConstants.Init);
 			int typeIndex = literalIndex(QualifiedNamesConstants.StringConstructorSignature);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE] = currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
@@ -1576,6 +1680,254 @@ public int literalIndexForJavaLangNoClassDefFoundError() {
 	}
 	return index;
 }
+
+/**
+ * This method returns the index into the constantPool corresponding to the type descriptor.
+ *
+ * @param TypeBinding aTypeBinding
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaLangAssertionError() {
+	int index;
+	if ((index = wellKnownTypes[JAVA_LANG_ASSERTIONERROR_TYPE]) == 0) {
+		int nameIndex;
+		// The entry doesn't exit yet
+		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName);
+		index = wellKnownTypes[JAVA_LANG_ASSERTIONERROR_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		writeU1(ClassTag);
+		// Then add the 8 bytes representing the long
+		writeU2(nameIndex);
+	}
+	return index;
+}
+
+/**
+ * This method returns the index into the constantPool corresponding to the type descriptor.
+ *
+ * @param TypeBinding aTypeBinding
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaLangAssertionErrorConstructor(int typeBindingID) {
+	int index = 0;
+	int nameAndTypeIndex = 0;
+	int classIndex = 0;
+	switch (typeBindingID) {
+		case T_int :
+		case T_byte :
+		case T_short :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_INT_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_INT_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorIntConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_INT_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_INT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_long :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_LONG_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_LONG_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorLongConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_LONG_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_LONG_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_float :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_FLOAT_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_FLOAT_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorFloatConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_FLOAT_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_FLOAT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_double :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_DOUBLE_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_DOUBLE_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorDoubleConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_DOUBLE_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_DOUBLE_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_char :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_CHAR_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_CHAR_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorCharConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_CHAR_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_CHAR_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_boolean :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_BOOLEAN_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorBooleanConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_BOOLEAN_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+			break;
+		case T_Object :
+		case T_String :
+		case T_null :
+			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_OBJECT_METHOD]) == 0) {
+				classIndex = literalIndexForJavaLangAssertionError();
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_OBJECT_METHOD_NAME_AND_TYPE]) == 0) {
+					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+					int typeIndex = literalIndex(QualifiedNamesConstants.AssertionErrorObjectConstrSignature);
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_OBJECT_METHOD_NAME_AND_TYPE] = currentIndex++;
+					writeU1(NameAndTypeTag);
+					writeU2(nameIndex);
+					writeU2(typeIndex);
+				}
+				index = wellKnownMethods[ASSERTIONERROR_CONSTR_OBJECT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
+				// Write the method ref constant into the constant pool
+				// First add the tag
+				writeU1(MethodRefTag);
+				// Then write the class index
+				writeU2(classIndex);
+				// The write the nameAndType index
+				writeU2(nameAndTypeIndex);
+			}
+	}
+	return index;
+}
+
+/**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor. It can be either an interface method reference constant
+ * or a method reference constant.
+ *
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaLangAssertionErrorDefaultConstructor() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[ASSERTIONERROR_DEFAULT_CONSTR_METHOD]) == 0) {
+		classIndex = literalIndexForJavaLangAssertionError();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[DEFAULT_CONSTR_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.Init);
+			int typeIndex = literalIndex(QualifiedNamesConstants.DefaultConstructorSignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[DEFAULT_CONSTR_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[ASSERTIONERROR_DEFAULT_CONSTR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(MethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+
+
 /**
  * This method returns the index into the constantPool corresponding to the 
  * method descriptor. It can be either an interface method reference constant
@@ -1590,10 +1942,10 @@ public int literalIndexForJavaLangNoClassDefFoundErrorStringConstructor() {
 	// Looking into the method ref table
 	if ((index = wellKnownMethods[NOCLASSDEFFOUNDERROR_CONSTR_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangNoClassDefFoundError();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(QualifiedNamesConstants.Init);
 			int typeIndex = literalIndex(QualifiedNamesConstants.StringConstructorSignature);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE] = currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
@@ -2006,10 +2358,10 @@ public int literalIndexForJavaLangStringBufferConstructor() {
 	// Looking into the method ref table
 	if ((index = wellKnownMethods[STRINGBUFFER_STRING_CONSTR_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangStringBuffer();
-				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE]) == 0) {
+				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE]) == 0) {
 					int nameIndex = literalIndex(QualifiedNamesConstants.Init);
 					int typeIndex = literalIndex(QualifiedNamesConstants.StringConstructorSignature);
-					nameAndTypeIndex = wellKnownMethodNameAndTypes[STRING_CONSTR_METHOD_NAME_AND_TYPE] = currentIndex++;
+					nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_STRING_METHOD_NAME_AND_TYPE] = currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);

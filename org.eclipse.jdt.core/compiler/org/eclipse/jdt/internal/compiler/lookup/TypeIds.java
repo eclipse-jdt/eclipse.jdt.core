@@ -41,6 +41,7 @@ public interface TypeIds {
 	final int T_JavaLangClassNotFoundException = 23;
 	final int T_JavaIoPrintStream = 24;
 	final int T_JavaLangException = 25;
+	final int T_JavaLangAssertionError = 35; // 1.4 feature
 
 	// wrapper types
 	final int T_JavaLangByte = 26;

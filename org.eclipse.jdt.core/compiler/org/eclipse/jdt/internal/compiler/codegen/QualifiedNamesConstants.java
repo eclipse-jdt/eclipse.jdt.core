@@ -69,5 +69,14 @@ public interface QualifiedNamesConstants {
 	char[] ExitIntSignature = new char[] {'(', 'I', ')', 'V'};
 	char[] ArrayJavaLangObjectConstantPoolName = "[Ljava/lang/Object;"/*nonNLS*/.toCharArray();
 	char[] ArrayJavaLangClassConstantPoolName = "[Ljava/lang/Class;"/*nonNLS*/.toCharArray();
-
+	char[] JavaLangAssertionErrorConstantPoolName = "java/lang/AssertionError"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorIntConstrSignature = "(I)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorLongConstrSignature = "(J)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorFloatConstrSignature = "(F)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorDoubleConstrSignature = "(D)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorCharConstrSignature = "(C)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorBooleanConstrSignature = "(Z)V"/*nonNLS*/.toCharArray();
+	char[] AssertionErrorObjectConstrSignature = "(Ljava/lang/Object;)V"/*nonNLS*/.toCharArray();
+	char[] DesiredAssertionStatus = "desiredAssertionStatus"/*nonNLS*/.toCharArray();
+	char[] DesiredAssertionStatusSignature = "()Z"/*nonNLS*/.toCharArray();
 }

@@ -36,6 +36,9 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public static final int JDK1_2 = 1;
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
 
+	// 1.4 feature
+	public boolean assertMode = false;
+	
 	// print what unit is being processed
 	public boolean verbose = false;
 	// indicates if reference info is desired
@@ -151,7 +154,13 @@ public ConfigurableOption[] getConfigurableOptions(Locale locale) {
 			componentName,
 			"optionalWarning.nonExternalizedString"/*nonNLS*/, 
 			locale, 
-			(warningThreshold & NonExternalizedString) != 0 ? 0 : 1)
+			(warningThreshold & NonExternalizedString) != 0 ? 0 : 1),
+		new ConfigurableOption(
+			componentName,
+			"source"/*nonNLS*/, 
+			locale, 
+			assertMode ? 0 : 1)
+
 		}; 
 }
 public int getDebugAttributesMask() {
@@ -160,6 +169,11 @@ public int getDebugAttributesMask() {
 public int getTargetJDK() {
 	return this.targetJDK;
 }
+
+public boolean getAssertMode() {
+	return this.assertMode;
+}
+
 public void handleAccessEmulationAsWarning(boolean flag) {
 	if (flag) {
 		warningThreshold |= AccessEmulation;
@@ -361,11 +375,18 @@ void setOption(ConfigurableOption setting) {
 		case 16: // non externalized string literal
 			handleNonExternalizedStringLiteralAsWarning(setting.getCurrentValueIndex() == 0);
 			break;
+		case 17: // assertion mode
+			setAssertMode(setting.getCurrentValueIndex() == 0);
 	}
 }
 public void setTargetJDK(int vmID) {
 	this.targetJDK = vmID;
 }
+
+public void setAssertMode(boolean assertMode) {
+	this.assertMode = assertMode;
+}
+
 public void setVerboseMode(boolean flag) {
 	this.verbose = flag;
 }

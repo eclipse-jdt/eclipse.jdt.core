@@ -130,6 +130,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String OPTIMIZE_OUT = "optimize out"/*nonNLS*/;
 	public static final String VERSION_1_1 = "1.1"/*nonNLS*/;
 	public static final String VERSION_1_2 = "1.2"/*nonNLS*/;
+	public static final String VERSION_1_4 = "1.4"/*nonNLS*/;
 	public static final String ERROR = "error"/*nonNLS*/;
 	public static final String WARNING = "warning"/*nonNLS*/;
 	public static final String IGNORE = "ignore"/*nonNLS*/;
@@ -140,6 +141,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// possible values are WARNING or IGNORE (default is IGNORE)
 
 	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
+	public static final String COMPILER_COMPILATION_SOURCE = PLUGIN_ID + ".compiler.compilation.source"/*nonNLS*/;
 
 	private static Hashtable DefaultOptions;
 	private final static String PropertiesBundleName = "org.eclipse.jdt.core.JavaCore"/*nonNLS*/;

@@ -17,6 +17,7 @@ public interface TypeConstants {
 	// Constant compound names
 	final char[][] JAVA_LANG = new char[][] {JAVA, LANG};
 	final char[][] JAVA_IO = new char[][] {JAVA, IO};
+	final char[][] JAVA_LANG_ASSERTIONERROR = new char[][] {JAVA, LANG, "AssertionError"/*nonNLS*/.toCharArray()};
 	final char[][] JAVA_LANG_CLASS = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's'}};
 	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's', 'N', 'o', 't', 'F', 'o', 'u', 'n', 'd', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
 	final char[][] JAVA_LANG_CLONEABLE = new char[][] {JAVA, LANG, {'C', 'l', 'o', 'n', 'e', 'a', 'b', 'l', 'e'}};

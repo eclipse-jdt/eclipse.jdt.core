@@ -84,7 +84,7 @@ public Compiler(
 			problemFactory);
 	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, environment);
 	this.parser = 
-		new Parser(problemReporter, this.options.parseLiteralExpressionsAsConstants); 
+		new Parser(problemReporter, this.options.parseLiteralExpressionsAsConstants, this.options.getAssertMode()); 
 }
 /**
  * Add an additional binary type

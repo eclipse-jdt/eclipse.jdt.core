@@ -4,8 +4,11 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -21,6 +24,16 @@ public class CodeSnippetReturnStatement extends ReturnStatement implements Invoc
 public CodeSnippetReturnStatement(Expression expr, int s, int e, EvaluationContext evaluationContext) {
 	super(expr, s, e);
 }
+
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	FlowInfo info = super.analyseCode(currentScope, flowContext, flowInfo);
+	// we need to remove this optimization in order to prevent the inlining of the return bytecode
+	// 1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
+	this.bits &= ~ValueForReturnMASK;
+	this.expression.bits &= ~ValueForReturnMASK;
+	return info;
+}
+
 /**
  * Dump the suitable return bytecode for a return statement
  *

@@ -33,6 +33,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int declarationSourceStart ;
 	public int declarationSourceEnd ;
 	public int bodyStart;
+	public boolean emulationAssertionSupport = false;
 /*
  *	We cause the compilation task to abort to a given extent.
  */
@@ -650,6 +651,9 @@ public final boolean needClassInitMethod() {
 	
 	return false ;}
 	----------------------------------------------------*/
+	if (emulationAssertionSupport) {
+		return true;
+	}
 	if (fields == null)
 		return false;
 	if (isInterface()) return true; // fields are implicitly statics
