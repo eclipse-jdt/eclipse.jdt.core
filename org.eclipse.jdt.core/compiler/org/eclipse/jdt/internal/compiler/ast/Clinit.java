@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class Clinit extends AbstractMethodDeclaration {
-	public final static char[] ConstantPoolName = "<clinit>".toCharArray();
+	public final static char[] ConstantPoolName = "<clinit>"/*nonNLS*/.toCharArray();
 public Clinit() {
 	modifiers = 0;
 	selector = ConstantPoolName;
@@ -137,9 +137,9 @@ public void resolve(ClassScope scope) {
 public String toString(int tab){
 	/* slow code */
 
-	String s = "" ;
+	String s = ""/*nonNLS*/ ;
 	s = s + tabString(tab);
-	s = s + "<clinit>()" ;
+	s = s + "<clinit>()"/*nonNLS*/ ;
 	s = s + toStringStatements(tab + 1);
 	return s ;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {

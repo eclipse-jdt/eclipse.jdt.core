@@ -802,8 +802,8 @@ public TypeDeclaration referenceType() {
 }
 public String toString() {
 	if (referenceContext != null)
-		return "--- Class Scope ---\n\n" + referenceContext.binding.toString();
+		return "--- Class Scope ---\n\n"/*nonNLS*/ + referenceContext.binding.toString();
 	else
-		return "--- Class Scope ---\n\n Binding not initialized";
+		return "--- Class Scope ---\n\n Binding not initialized"/*nonNLS*/;
 }
 }

@@ -7,6 +7,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+
 public class SuperInterfaceReferencePattern extends SuperTypeReferencePattern {
 public SuperInterfaceReferencePattern(char[] superQualification, char[] superSimpleName, int matchMode, boolean isCaseSensitive) {
 	super(superQualification, superSimpleName, matchMode, isCaseSensitive);
@@ -35,24 +38,44 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("SuperInterfaceReferencePattern: <");
+	buffer.append("SuperInterfaceReferencePattern: <"/*nonNLS*/);
 	if (superSimpleName != null) buffer.append(superSimpleName);
-	buffer.append(">, ");
+	buffer.append(">, "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, ");
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, ");
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, ");
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive");
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive");
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
+}
+
+/**
+ * @see SearchPattern#matchesBinary
+ */
+public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
+	if (!(binaryInfo instanceof IBinaryType)) return false;
+	IBinaryType type = (IBinaryType)binaryInfo;
+
+	char[][] superInterfaces = type.getInterfaceNames();
+	if (superInterfaces != null) {
+		for (int i = 0, max = superInterfaces.length; i < max; i++) {
+			char[] superInterfaceName = (char[])superInterfaces[i].clone();
+			CharOperation.replace(superInterfaceName, '/', '.');
+			if (this.matchesType(this.superSimpleName, this.superQualification, superInterfaceName)){
+				return true;
+			}
+		}
+	}
+	return false;
 }
 }

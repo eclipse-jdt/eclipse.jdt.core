@@ -46,6 +46,6 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 }
 public String toStringExpression(int tab){
 
-	return "<SelectOnType:" + new String(token) + ">" ;
+	return "<SelectOnType:"/*nonNLS*/ + new String(token) + ">"/*nonNLS*/ ;
 }
 }

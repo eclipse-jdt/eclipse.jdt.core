@@ -16,6 +16,8 @@ import org.eclipse.jdt.internal.core.search.*;
 
 import java.io.*;
 
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+
 public class SuperTypeReferencePattern extends SearchPattern {
 
 	public char[] superQualification;
@@ -179,24 +181,53 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("SuperTypeReferencePattern: <");
+	buffer.append("SuperTypeReferencePattern: <"/*nonNLS*/);
 	if (superSimpleName != null) buffer.append(superSimpleName);
-	buffer.append(">, ");
+	buffer.append(">, "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, ");
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, ");
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, ");
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive");
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive");
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
+}
+
+/**
+ * @see SearchPattern#matchesBinary
+ */
+public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
+	if (!(binaryInfo instanceof IBinaryType)) return false;
+	IBinaryType type = (IBinaryType)binaryInfo;
+
+	char[] vmName = type.getSuperclassName();
+	if (vmName != null) {
+		char[] superclassName = (char[])vmName.clone();
+		CharOperation.replace(vmName, '/', '.');
+		if (this.matchesType(this.superSimpleName, this.superQualification, superclassName)){
+			return true;
+		}
+	}
+	
+	char[][] superInterfaces = type.getInterfaceNames();
+	if (superInterfaces != null) {
+		for (int i = 0, max = superInterfaces.length; i < max; i++) {
+			char[] superInterfaceName = (char[])superInterfaces[i].clone();
+			CharOperation.replace(superInterfaceName, '/', '.');
+			if (this.matchesType(this.superSimpleName, this.superQualification, superInterfaceName)){
+				return true;
+			}
+		}
+	}
+	return false;
 }
 }

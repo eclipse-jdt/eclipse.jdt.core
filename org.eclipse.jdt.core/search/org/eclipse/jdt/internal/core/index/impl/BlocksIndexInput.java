@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core.index.impl;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import java.io.*;
@@ -189,10 +190,10 @@ public class BlocksIndexInput extends IndexInput {
 
 	public void open() throws IOException {
 		if (!opened) {
-			raf= new SafeRandomAccessFile(indexFile, "r");
+			raf= new SafeRandomAccessFile(indexFile, "r"/*nonNLS*/);
 			String sig= raf.readUTF();
 			if (!sig.equals(IIndexConstants.SIGNATURE))
-				throw new IOException("Wrong format");
+				throw new IOException(Util.bind("exception.wrongFormat"/*nonNLS*/));
 			int summaryBlockNum= raf.readInt();
 			raf.seek(summaryBlockNum * (long) IIndexConstants.BLOCK_SIZE);
 			summary= new IndexSummary();

@@ -1,5 +1,14 @@
 package org.eclipse.jdt.internal.eval;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A global variable is a variable defined for an evaluation context and that persists
+ * accross evaluations.
+ */
 public class GlobalVariable {
 	char[] typeName;
 	char[] name;
@@ -43,13 +52,13 @@ public char[] getTypeName() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(this.typeName);
-	buffer.append(" ");
+	buffer.append(" "/*nonNLS*/);
 	buffer.append(this.name);
 	if (this.initializer != null) {
-		buffer.append("= ");
+		buffer.append("= "/*nonNLS*/);
 		buffer.append(this.initializer);
 	}
-	buffer.append(";");
+	buffer.append(";"/*nonNLS*/);
 	return buffer.toString();
 }
 }

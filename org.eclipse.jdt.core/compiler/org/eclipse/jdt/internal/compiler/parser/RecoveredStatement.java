@@ -30,7 +30,7 @@ public int sourceEnd(){
 	return this.statement.sourceEnd;
 }
 public String toString(int tab){
-	return tabString(tab) + "Recovered statement:\n" + statement.toString(tab + 1);
+	return tabString(tab) + "Recovered statement:\n"/*nonNLS*/ + statement.toString(tab + 1);
 }
 public Statement updatedStatement(){
 	return statement;

@@ -261,22 +261,22 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
 	int modifiers = getModifiers();
 	return buffer
-		.append("{")
+		.append("{"/*nonNLS*/)
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "")
-				+ ((modifiers & 0x0001) == 1 ? "public " : "")
-				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "")
-				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "")
-				+ ((modifiers & 0x0008) == 0x000008 ? "static " : "")
-				+ ((modifiers & 0x0010) == 0x0010 ? "final " : "")
-				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "")
-				+ ((modifiers & 0x0080) == 0x0080 ? "transient " : ""))
+			((modifiers & AccDeprecated) != 0 ? "deprecated "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0001) == 1 ? "public "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0002) == 0x0002 ? "private "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0004) == 0x0004 ? "protected "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0008) == 0x000008 ? "static "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0010) == 0x0010 ? "final "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0040) == 0x0040 ? "volatile "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0080) == 0x0080 ? "transient "/*nonNLS*/ : ""/*nonNLS*/))
 		.append(getTypeName())
-		.append(" ")
+		.append(" "/*nonNLS*/)
 		.append(getName())
-		.append(" ")
+		.append(" "/*nonNLS*/)
 		.append(getConstant())
-		.append("}")
+		.append("}"/*nonNLS*/)
 		.toString(); 
 }
 }

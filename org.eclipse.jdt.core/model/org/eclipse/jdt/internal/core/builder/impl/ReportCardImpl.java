@@ -104,7 +104,7 @@ private void getProblemsForPath(IPath path, Vector vResults) {
 		if (path.isPrefixOf(sEntryPath)) {
 			String extension = sEntryPath.getFileExtension();
 			// test most frequent cases first
-			if (extension != null && (extension.toLowerCase().equals("java") || extension.toLowerCase().equals("class"))) {
+			if (extension != null && (extension.toLowerCase().equals("java"/*nonNLS*/) || extension.toLowerCase().equals("class"/*nonNLS*/))) {
 				getProblemsForSourceEntry(sEntry, vResults);
 			} else {
 				if (fState.isZipElement(sEntryPath)) {

@@ -66,42 +66,42 @@ private void buildCUSource() {
 
 	// package declaration
 	if (this.packageName != null && this.packageName.length != 0) {
-		buffer.append("package ");
+		buffer.append("package "/*nonNLS*/);
 		buffer.append(this.packageName);
-		buffer.append(";").append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(";"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 
 	// import declarations
 	char[][] imports = this.imports;
 	for (int i = 0; i < imports.length; i++) {
-		buffer.append("import ");
+		buffer.append("import "/*nonNLS*/);
 		buffer.append(imports[i]);
 		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 
 	// class declaration
-	buffer.append("public class ");
+	buffer.append("public class "/*nonNLS*/);
 	buffer.append(this.className);
 
 	// super class is either a global variable class or the CodeSnippet class
 	if (this.varClassName != null) {
-		buffer.append(" extends ");
+		buffer.append(" extends "/*nonNLS*/);
 		buffer.append(this.varClassName);
 	} else {
-		buffer.append(" extends ");
+		buffer.append(" extends "/*nonNLS*/);
 		buffer.append(PACKAGE_NAME);
-		buffer.append(".");
+		buffer.append("."/*nonNLS*/);
 		buffer.append(ROOT_CLASS_NAME);
 	}
-	buffer.append(" {").append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append(" {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	this.lineNumberOffset++;
 
 	if (this.declaringTypeName != null){
-		buffer.append("  ");
+		buffer.append("  "/*nonNLS*/);
 		buffer.append(this.declaringTypeName);
-		buffer.append(" ");
+		buffer.append(" "/*nonNLS*/);
 		buffer.append(DELEGATE_THIS); // val$this
 		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
 		this.lineNumberOffset++;
@@ -109,9 +109,9 @@ private void buildCUSource() {
 	// add some storage location for local variable persisted state
 	if (localVarNames != null) {
 		for (int i = 0, max = localVarNames.length; i < max; i++) {
-			buffer.append("    ");
+			buffer.append("    "/*nonNLS*/);
 			buffer.append(localVarTypeNames[i]);
-			buffer.append(" ");
+			buffer.append(" "/*nonNLS*/);
 			buffer.append(LOCAL_VAR_PREFIX); // val$...
 			buffer.append(localVarNames[i]);
 			buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
@@ -119,7 +119,7 @@ private void buildCUSource() {
 		}
 	}
 	// run() method declaration
-	buffer.append("public void run() throws Throwable {").append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append("public void run() throws Throwable {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	this.lineNumberOffset++;
 	startPosOffset = buffer.length();
 	buffer.append(codeSnippet);
@@ -173,7 +173,7 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 			// Remove completion on generated method
 			if (CharOperation.equals(declaringTypePackageName, CodeSnippetToCuMapper.this.packageName) 
 					&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.className)
-					&& CharOperation.equals(selector, "run".toCharArray())) return;
+					&& CharOperation.equals(selector, "run"/*nonNLS*/.toCharArray())) return;
 			originalRequestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);
 		}
 		public void acceptModifier(char[] modifierName, int completionStart, int completionEnd) {

@@ -10,7 +10,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class RecoveredBlock extends RecoveredStatement implements CompilerModifiers, TerminalSymbols {
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
+public class RecoveredBlock extends RecoveredStatement implements CompilerModifiers, TerminalSymbols, BaseTypes {
 
 	public Block blockDeclaration;
 
@@ -132,11 +134,11 @@ public AstNode parseTree(){
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered block:\n");
+	result.append("Recovered block:\n"/*nonNLS*/);
 	result.append(blockDeclaration.toString(tab + 1));
 	if (this.statements != null) {
 		for (int i = 0; i < this.statementCount; i++) {
-			result.append("\n");
+			result.append("\n"/*nonNLS*/);
 			result.append(this.statements[i].toString(tab + 1));
 		}
 	}
@@ -243,5 +245,33 @@ public Statement updateStatement(){
 	}
 
 	return blockDeclaration;
+}
+
+/*
+ * Record a field declaration 
+ */
+public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalance) {
+
+	/* local variables inside method can only be final and non void */
+	char[][] fieldTypeName; 
+	if ((fieldDeclaration.modifiers & ~AccFinal) != 0 /* local var can only be final */
+		|| (fieldDeclaration.type == null) // initializer
+		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
+			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
+		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
+		return this.parent.add(fieldDeclaration, bracketBalance);
+	}
+	
+	/* do not consider a local variable starting passed the block end (if set)
+		it must be belonging to an enclosing block */
+	if (blockDeclaration.sourceEnd != 0 
+		&& fieldDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
+		return this.parent.add(fieldDeclaration, bracketBalance);
+	}
+
+	// ignore the added field, since indicates a local variable behind recovery point
+	// which thus got parsed as a field reference. This can happen if restarting after
+	// having reduced an assistNode to get the following context (see 1GEK7SG)
+	return this;	
 }
 }

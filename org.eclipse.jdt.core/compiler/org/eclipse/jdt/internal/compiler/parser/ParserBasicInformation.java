@@ -1,4 +1,12 @@
 package org.eclipse.jdt.internal.compiler.parser;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+
+/*An interface that contains static declarations for some basic information
+ about the parser such as the number of rules in the grammar, the starting state, etc...*/
 
 public interface ParserBasicInformation {
 

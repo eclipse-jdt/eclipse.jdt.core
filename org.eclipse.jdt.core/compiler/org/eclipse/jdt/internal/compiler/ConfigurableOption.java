@@ -44,34 +44,34 @@ public ConfigurableOption(
 	ResourceBundle resource = null;
 	try {
 		String location = componentName.substring(0, componentName.lastIndexOf('.'));
-		resource = ResourceBundle.getBundle(location + ".Options", loc); 
+		resource = ResourceBundle.getBundle(location + ".Options"/*nonNLS*/, loc); 
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for" + componentName + " options";
-		name = "Missing ressources entries for" + componentName + " options";
-		description = "Missing ressources entries for" + componentName + " options";
+		category = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		name = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		description = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
 		possibleValues = new String[0];
 		id = -1;
 	}
 	if (resource == null) return;
 	try {
-		id = Integer.parseInt(resource.getString(optionName + ".number")); 
+		id = Integer.parseInt(resource.getString(optionName + ".number"/*nonNLS*/)); 
 	} catch (MissingResourceException e) {
 		id = -1;
 	} catch (NumberFormatException e) {
 		id = -1;
 	}
 	try {
-		category = resource.getString(optionName + ".category"); 
+		category = resource.getString(optionName + ".category"/*nonNLS*/); 
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for" + componentName + " options";
+		category = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
 	}
 	try {
-		name = resource.getString(optionName + ".name"); 
+		name = resource.getString(optionName + ".name"/*nonNLS*/); 
 	} catch (MissingResourceException e) {
-		name = "Missing ressources entries for" + componentName + " options";
+		name = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
 	}
 	try {
-		StringTokenizer tokenizer = new StringTokenizer(resource.getString(optionName + ".possibleValues"), "|");
+		StringTokenizer tokenizer = new StringTokenizer(resource.getString(optionName + ".possibleValues"/*nonNLS*/), "|"/*nonNLS*/);
 		int numberOfValues = Integer.parseInt(tokenizer.nextToken());
 		if(numberOfValues == -1){
 			possibleValues = NoDiscreteValue;
@@ -91,9 +91,9 @@ public ConfigurableOption(
 		possibleValues = new String[0];
 	}
 	try {
-		description = resource.getString(optionName + ".description"); 
+		description = resource.getString(optionName + ".description"/*nonNLS*/); 
 	} catch (MissingResourceException e) {
-		description = "Missing ressources entries for" + componentName + " options";
+		description = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
 	}
 }
 /**
@@ -182,31 +182,31 @@ public void setValueIndex(int newIndex) {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Configurable option for ");
-	buffer.append(this.componentName).append("\n");
-	buffer.append("- category:			").append(this.category).append("\n");
-	buffer.append("- name:				").append(this.name).append("\n");
+	buffer.append("Configurable option for "/*nonNLS*/);
+	buffer.append(this.componentName).append("\n"/*nonNLS*/);
+	buffer.append("- category:			"/*nonNLS*/).append(this.category).append("\n"/*nonNLS*/);
+	buffer.append("- name:				"/*nonNLS*/).append(this.name).append("\n"/*nonNLS*/);
 	/* display current value */
-	buffer.append("- current value:	");
+	buffer.append("- current value:	"/*nonNLS*/);
 	if (possibleValues == NoDiscreteValue){
 		buffer.append(this.currentValueIndex);
 	} else {
 		buffer.append(this.possibleValues[this.currentValueIndex]);
 	}
-	buffer.append("\n");
+	buffer.append("\n"/*nonNLS*/);
 	
 	/* display possible values */
 	if (possibleValues != NoDiscreteValue){
-		buffer.append("- possible values:	[");
+		buffer.append("- possible values:	["/*nonNLS*/);
 		for (int i = 0, max = possibleValues.length; i < max; i++) {
 			if (i != 0)
-				buffer.append(", ");
+				buffer.append(", "/*nonNLS*/);
 			buffer.append(possibleValues[i]);
 		}
-		buffer.append("]\n");
-		buffer.append("- curr. val. index:	").append(currentValueIndex).append("\n");
+		buffer.append("]\n"/*nonNLS*/);
+		buffer.append("- curr. val. index:	"/*nonNLS*/).append(currentValueIndex).append("\n"/*nonNLS*/);
 	}
-	buffer.append("- description:		").append(description).append("\n");
+	buffer.append("- description:		"/*nonNLS*/).append(description).append("\n"/*nonNLS*/);
 	return buffer.toString();
 }
 }

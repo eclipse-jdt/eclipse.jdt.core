@@ -122,9 +122,9 @@ public String toStringExpression(){
 	/* slow code */
 	
 	return 	receiver.toStringExpression()
-			+ "[" 
+			+ "["/*nonNLS*/ 
 			+ position.toStringExpression()
-			+ "]" ;}
+			+ "]"/*nonNLS*/ ;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		receiver.traverse(visitor, scope);

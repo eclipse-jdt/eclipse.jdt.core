@@ -72,7 +72,7 @@ IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMoni
  * <li> The name is not a valid package name (INVALID_NAME)
  * </ul>
  */
- IPackageDeclaration createPackageDeclaration(String name, IProgressMonitor monitor) throws JavaModelException;  
+ IPackageDeclaration createPackageDeclaration(String name, IProgressMonitor monitor) throws JavaModelException;   
 /**
  * Creates and returns a type in this compilation unit with the
  * given contents. If this compilation unit does not exist, one

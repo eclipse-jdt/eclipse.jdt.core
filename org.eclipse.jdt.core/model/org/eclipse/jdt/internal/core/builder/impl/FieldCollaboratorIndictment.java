@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.builder.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 class FieldCollaboratorIndictment extends Indictment {
 /**
@@ -19,6 +24,6 @@ protected FieldCollaboratorIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("FieldIndictment(").append(fName).append(")").toString();
+	return new StringBuffer("FieldIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
 }
 }

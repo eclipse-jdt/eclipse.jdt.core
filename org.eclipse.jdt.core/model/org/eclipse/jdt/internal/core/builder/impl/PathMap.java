@@ -4,9 +4,16 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.builder.IPackage;
-import java.util.*;
 import org.eclipse.jdt.internal.core.util.LookupTable;
 
 /**
@@ -54,10 +61,10 @@ boolean hasPath(IPath path) {
 IPackage packageHandleFromPath(IPath path) {
 	IPackage[] pkgs = (IPackage[])fTable.get(path);
 	if (pkgs == null) {
-		throw new Error("Attempt to access packages for non-existent path:" + path);
+		throw new Error(Util.bind("build.noPackagePath"/*nonNLS*/, path.toString()));
 	}
 	if (pkgs.length != 1) {
-		throw new Error("Didn't get exactly one package for " + path);
+		throw new Error(Util.bind("build.ambiguousPackage"/*nonNLS*/, path.toString()));
 	}
 	return pkgs[0];
 }
@@ -113,23 +120,23 @@ IPackage[] packageHandlesFromPath(IPath path) {
 		}
 		Collections.sort(list, StateImpl.getPathComparator());
 		StringBuffer sb = new StringBuffer();
-		sb.append(super.toString() + ":\n");
+		sb.append(super.toString() + ":\n"/*nonNLS*/);
 		for (int i = 0; i < list.size(); ++i) {
 			IPath path = (IPath) list.get(i);
-			sb.append("  " + path + ": ");
+			sb.append("  "/*nonNLS*/ + path + ": "/*nonNLS*/);
 			IPackage[] pkgs = packageHandlesFromPath(path);
 			if (pkgs.length == 1) {
 				sb.append(pkgs[0].getName());
 			}
 			else {
 				Arrays.sort(pkgs, StateImpl.getPackageComparator());
-				sb.append("(" + pkgs.length + " packages)");
+				sb.append("("/*nonNLS*/ + pkgs.length + " packages)"/*nonNLS*/);
 				for (int j = 0; j < pkgs.length; ++j) {
-					sb.append("\n    ");
+					sb.append("\n    "/*nonNLS*/);
 					sb.append(pkgs[j].getName());
 				}
 			}
-			sb.append("\n");
+			sb.append("\n"/*nonNLS*/);
 		}
 		return sb.toString();
 	}

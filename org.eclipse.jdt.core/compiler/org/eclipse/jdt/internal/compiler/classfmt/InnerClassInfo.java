@@ -4,12 +4,12 @@ package org.eclipse.jdt.internal.compiler.classfmt;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.compiler.env.*;
+
 /**
  * Describes one entry in the classes table of the InnerClasses attribute.
  * See the inner class specification (The class file attribute "InnerClasses").
  */
-
-import org.eclipse.jdt.internal.compiler.env.*;
 
 public class InnerClassInfo extends ClassFileStruct implements IBinaryNestedType {
 	int innerClassNameIndex = -1;
@@ -109,11 +109,11 @@ public String toString() {
 	if (getName() != null) {
 		buffer.append(getName());
 	}
-	buffer.append("\n");
+	buffer.append("\n"/*nonNLS*/);
 	if (getEnclosingTypeName() != null) {
 		buffer.append(getEnclosingTypeName());
 	}
-	buffer.append("\n");
+	buffer.append("\n"/*nonNLS*/);
 	if (getSourceName() != null) {
 		buffer.append(getSourceName());
 	}

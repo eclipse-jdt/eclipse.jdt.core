@@ -1,5 +1,14 @@
 package org.eclipse.jdt.internal.core.util;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A class to do characters operations so that we can use
+ * char arrays more effectively.
+ */
 public class CharArrayOps {
 /**
  * Returns the char arrays as an array of Strings
@@ -80,9 +89,9 @@ public static int indexOf(char character, char[] buffer, int offset) {
  * Extracts a sub-array from the given array, starting
  * at the given startIndex and proceeding for length characters.
  * Returns null if:
- *	1. the src array is null
- *	2. the start index is out of bounds
- *	3. the length parameter specifies a end point which is out of bounds
+ *  1. the src array is null
+ *  2. the start index is out of bounds
+ *  3. the length parameter specifies a end point which is out of bounds
  * Does not return a copy of the array if possible, i.e. if start is zero
  * and length equals the length of the src array.
  *
@@ -110,9 +119,9 @@ public static char[] subarray(char[] src, int start, int length) {
  * Extracts a substring from the given array, starting
  * at the given startIndex and proceeding for length characters.
  * Returns null if:
- *	1. the src array is null
- *	2. the start index is out of bounds
- *	3. the length parameter specifies a end point which is out of bounds
+ *  1. the src array is null
+ *  2. the start index is out of bounds
+ *  3. the length parameter specifies a end point which is out of bounds
  * Does not return a copy of the array if possible, i.e. if start is zero
  * and length equals the length of the src array.
  *

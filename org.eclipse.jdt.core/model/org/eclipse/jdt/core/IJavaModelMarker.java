@@ -1,5 +1,17 @@
 package org.eclipse.jdt.core;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.core.*;
 
+/**
+ * Markers used by the Java model.
+ * <p>
+ * This interface declares constants only; it is not intended to be implemented
+ * or extended.
+ * </p>
+ */
 public interface IJavaModelMarker {
 
 	/**
@@ -7,7 +19,7 @@ public interface IJavaModelMarker {
 	 * This can be used to recognize those markers in the workspace that flag problems 
 	 * detected by the Java tooling during compilation.
 	 */
-	public static final String JAVA_MODEL_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".problem";
+	public static final String JAVA_MODEL_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".problem"/*nonNLS*/;
 
 
 	/**
@@ -16,19 +28,19 @@ public interface IJavaModelMarker {
 	 * problems detected by the Java tooling (such as a cycle in the build path, a problem
 	 * detected by the outliner, or a problem detected during a code completion)
 	 */
-	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem";
-	
+	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"/*nonNLS*/;
+    
 	/** 
 	 * Id marker attribute (value <code>"id"</code>).
 	 * Reserved for future use.
 	 */
-	 public static final String ID = "id";
+	 public static final String ID = "id"/*nonNLS*/;
 
 	/** 
 	 * Flags marker attribute (value <code>"flags"</code>).
 	 * Reserved for future use.
 	 */
-	 public static final String FLAGS = "flags";
+	 public static final String FLAGS = "flags"/*nonNLS*/;
 
 	/** 
 	 * Cycle detected marker attribute (value <code>"cycleDetected"</code>).
@@ -36,11 +48,11 @@ public interface IJavaModelMarker {
 	 * The value of this attribute is the name of the project that caused a 
 	 * cycle in the projects classpaths.
 	 */
-	 public static final String CYCLE_DETECTED = "cycleDetected";
+	 public static final String CYCLE_DETECTED = "cycleDetected"/*nonNLS*/;
 	/**
 	 * Build path problem marker type (value <code>"org.eclipse.jdt.core.buildpath_problem"</code>).
 	 * This can be used to recognize those markers in the workspace that flag problems 
 	 * detected by the Java tooling during classpath setting.
 	 */
-	public static final String BUILDPATH_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".buildpath_problem";
+	public static final String BUILDPATH_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".buildpath_problem"/*nonNLS*/;
 }

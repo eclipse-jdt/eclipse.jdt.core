@@ -48,6 +48,6 @@ public boolean execute(){
 	return COMPLETE;
 }
 public String toString(){
-	return "removing from index "+resourceName;
+	return "removing from index "/*nonNLS*/ + resourceName;
 }
 }

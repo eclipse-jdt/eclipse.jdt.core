@@ -41,8 +41,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/* slow code */
 	
-	return 	"<SelectionOnFieldReference:" 
+	return 	"<SelectionOnFieldReference:"/*nonNLS*/ 
 			+ super.toStringExpression() 
-			+ ">";
+			+ ">"/*nonNLS*/;
 }
 }

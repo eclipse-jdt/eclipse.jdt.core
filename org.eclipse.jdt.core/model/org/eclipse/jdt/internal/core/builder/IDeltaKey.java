@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public interface IDeltaKey {
 	/**
@@ -29,16 +34,16 @@ public interface IDeltaKey {
 	 * Returns the key describing the receiver's parent, or null if the receiver
 	 * is the root key.
 	 */
-	 DeltaKey parent();
+	 DeltaKey parent(); 
 	/**
 	 * Returns a new key containing the first few local names in the
 	 * receiver.
 	 *
 	 * @param count
-	 *	number of local names to copy (length of prefix)
+	 *  number of local names to copy (length of prefix)
 	 * @exception IllegalArgumentException
-	 *	receiver contains fewer than count local names, or count is
-	 *	negative."
+	 *  receiver contains fewer than count local names, or count is
+	 *  negative."
 	 */
 	DeltaKey prefix (int count);
 	/**
@@ -50,10 +55,10 @@ public interface IDeltaKey {
 	 * names in the receiver.
 	 *
 	 * @param count
-	 *	number of local names in the key to leave out (length of prefix to cut)
+	 *  number of local names in the key to leave out (length of prefix to cut)
 	 * @exception IllegalArgumentException
-	 *	receiver contains fewer than count local names, or count is
-	 *	negative.
+	 *  receiver contains fewer than count local names, or count is
+	 *  negative.
 	 */
 	DeltaKey withoutPrefix (int count);
 }

@@ -645,7 +645,7 @@ public int getNextToken() throws InvalidInputException {
 					if (atEnd())
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
-					throw new InvalidInputException("Ctrl-Z");
+					throw new InvalidInputException("Ctrl-Z"/*nonNLS*/);
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter))

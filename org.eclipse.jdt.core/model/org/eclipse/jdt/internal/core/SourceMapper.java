@@ -109,7 +109,7 @@ public class SourceMapper extends ReferenceInfoAdapter implements ISourceElement
 public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
 	fZipPath= zipPath;
 	fRootPath= rootPath.replace('\\', '/');
-	if (fRootPath.endsWith("/")) {
+	if (fRootPath.endsWith("/"/*nonNLS*/)) {
 		fRootPath = fRootPath.substring(0, fRootPath.lastIndexOf('/'));
 	}
 	fJavaModel= model;
@@ -305,11 +305,12 @@ public char[] findSource(IType type) {
  * code cannot be found.
  */
 public char[] findSource(IType type, IBinaryType info) {
-	String name= null;
+	String name = null;
 	// see 1FVVWZT
 	if (info instanceof ClassFileReader) {
-		char[] sourceFileName = ((ClassFileReader)info).sourceFileName();
-		if (sourceFileName == null) return null; // no source file attribute
+		char[] sourceFileName = ((ClassFileReader) info).sourceFileName();
+		if (sourceFileName == null)
+			return null; // no source file attribute
 		name = new String(sourceFileName);
 	} else {
 		return null;
@@ -452,7 +453,7 @@ public ISourceRange mapSource(IType type, char[] contents, IJavaElement searched
 	try {
 		IProblemFactory factory= new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(this, factory);
-		parser.parseCompilationUnit(new BasicCompilationUnit(contents, type.getElementName() + ".java"), false);
+		parser.parseCompilationUnit(new BasicCompilationUnit(contents, type.getElementName() + ".java"/*nonNLS*/), false);
 		if (searchedElement != null) {
 			ISourceRange range = this.getNameRange(searchedElement);
 			return range;

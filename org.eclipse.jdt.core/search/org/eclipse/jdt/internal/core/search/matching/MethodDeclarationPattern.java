@@ -70,7 +70,7 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 	}
 }
 public String getPatternName(){
-	return "MethodDeclarationPattern: ";
+	return "MethodDeclarationPattern: "/*nonNLS*/;
 }
 /**
  * @see SearchPattern#indexEntryPrefix

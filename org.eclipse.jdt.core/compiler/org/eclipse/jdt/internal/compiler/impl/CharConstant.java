@@ -39,13 +39,13 @@ public String stringValue() {
 	
 	String s = new Character(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(char)" + value ; }
+	return "(char)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_char;
 }

@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.codegen;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class IntegerCache {
 	public int keyTable[];
@@ -17,7 +22,7 @@ public IntegerCache() {
  * Constructs a new, empty hashtable with the specified initial
  * capacity.
  * @param initialCapacity int
- *	the initial number of buckets
+ *  the initial number of buckets
  */
 public IntegerCache(int initialCapacity) {
 	elementSize = 0;
@@ -54,7 +59,7 @@ public boolean containsKey(int key) {
  * hashtable.
  * @param key <CODE>double</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
- *	defined in the hash table.
+ *  defined in the hash table.
  * @see ConstantPoolCache#put
  */
 public int get(int key) {
@@ -133,16 +138,16 @@ public int size() {
 public String toString() {
 	int max = size();
 	StringBuffer buf = new StringBuffer();
-	buf.append("{");
+	buf.append("{"/*nonNLS*/);
 	for (int i = 0; i < max; ++i) {
 		if ((keyTable[i] != 0) || ((keyTable[i] == 0) && (valueTable[i] != 0))) {
-			buf.append(keyTable[i]).append("->").append(valueTable[i]);
+			buf.append(keyTable[i]).append("->"/*nonNLS*/).append(valueTable[i]);
 		}
 		if (i < max) {
-			buf.append(", ");
+			buf.append(", "/*nonNLS*/);
 		}
 	}
-	buf.append("}");
+	buf.append("}"/*nonNLS*/);
 	return buf.toString();
 }
 }

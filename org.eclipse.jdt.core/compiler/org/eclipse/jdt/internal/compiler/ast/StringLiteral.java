@@ -57,38 +57,38 @@ public char[] source() {
 public String toStringExpression() {
 
 	// handle some special char.....
-	StringBuffer result = new StringBuffer("\"");
+	StringBuffer result = new StringBuffer("\""/*nonNLS*/);
 	for (int i = 0; i < source.length; i++) {
 		switch (source[i]) {
 			case '\b' :
-				result.append("\\b");
+				result.append("\\b"/*nonNLS*/);
 				break;
 			case '\t' :
-				result.append("\\t");
+				result.append("\\t"/*nonNLS*/);
 				break;
 			case '\n' :
-				result.append("\\n");
+				result.append("\\n"/*nonNLS*/);
 				break;
 			case '\f' :
-				result.append("\\f");
+				result.append("\\f"/*nonNLS*/);
 				break;
 			case '\r' :
-				result.append("\\r");
+				result.append("\\r"/*nonNLS*/);
 				break;
 			case '\"' :
-				result.append("\\\"");
+				result.append("\\\""/*nonNLS*/);
 				break;
 			case '\'' :
-				result.append("\\'");
+				result.append("\\'"/*nonNLS*/);
 				break;
 			case '\\' : //take care not to display the escape as a potential real char
-				result.append("\\\\");
+				result.append("\\\\"/*nonNLS*/);
 				break;
 			default :
 				result.append(source[i]);
 		}
 	}
-	result.append("\"");
+	result.append("\""/*nonNLS*/);
 	return result.toString();
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

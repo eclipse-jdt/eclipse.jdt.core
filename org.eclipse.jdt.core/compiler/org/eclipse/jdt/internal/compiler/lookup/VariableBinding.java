@@ -26,9 +26,9 @@ public char[] readableName() {
 	return name;
 }
 public String toString() {
-	String s = (type != null) ? type.debugName() : "UNDEFINED TYPE";
-	s += " ";
-	s += (name != null) ? new String(name) : "UNNAMED FIELD";
+	String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"/*nonNLS*/;
+	s += " "/*nonNLS*/;
+	s += (name != null) ? new String(name) : "UNNAMED FIELD"/*nonNLS*/;
 	return s;
 }
 }

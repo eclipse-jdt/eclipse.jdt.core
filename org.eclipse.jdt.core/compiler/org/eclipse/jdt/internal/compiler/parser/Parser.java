@@ -114,238 +114,238 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	public  static char asb[] = null;
 	public  static char asr[] = null;
 	public  static char symbol_index[] = null;
-	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ;
+	private static final String UNEXPECTED_EOF = "Unexpected End Of File"/*nonNLS*/ ;
 
 	public final static String name[] = { null,
-			"++",
-			"--",
-			"==",
-			"<=",
-			">=",
-			"!=",
-			"<<",
-			">>",
-			">>>",
-			"+=",
-			"-=",
-			"*=",
-			"/=",
-			"&=",
-			"|=",
-			"^=",
-			"%=",
-			"<<=",
-			">>=",
-			">>>=",
-			"||",
-			"&&",
-			"+",
-			"-",
-			"!",
-			"%",
-			"^",
-			"&",
-			"*",
-			"|",
-			"~",
-			"/",
-			">",
-			"<",
-			"(",
-			")",
-			"{",
-			"}",
-			"[",
-			"]",
-			";",
-			"?",
-			":",
-			",",
-			".",
-			"=",
-			"",
-			"$empty",
-			"Identifier",
-			"abstract",
-			"boolean",
-			"break",
-			"byte",
-			"case",
-			"catch",
-			"char",
-			"class",
-			"continue",
-			"default",
-			"do",
-			"double",
-			"else",
-			"extends",
-			"false",
-			"final",
-			"finally",
-			"float",
-			"for",
-			"if",
-			"implements",
-			"import",
-			"instanceof",
-			"int",
-			"interface",
-			"long",
-			"native",
-			"new",
-			"null",
-			"package",
-			"private",
-			"protected",
-			"public",
-			"return",
-			"short",
-			"static",
-			"strictfp",
-			"super",
-			"switch",
-			"synchronized",
-			"this",
-			"throw",
-			"throws",
-			"transient",
-			"true",
-			"try",
-			"void",
-			"volatile",
-			"while",
-			"IntegerLiteral",
-			"LongLiteral",
-			"FloatingPointLiteral",
-			"DoubleLiteral",
-			"CharacterLiteral",
-			"StringLiteral",
+			"++"/*nonNLS*/,
+			"--"/*nonNLS*/,
+			"=="/*nonNLS*/,
+			"<="/*nonNLS*/,
+			">="/*nonNLS*/,
+			"!="/*nonNLS*/,
+			"<<"/*nonNLS*/,
+			">>"/*nonNLS*/,
+			">>>"/*nonNLS*/,
+			"+="/*nonNLS*/,
+			"-="/*nonNLS*/,
+			"*="/*nonNLS*/,
+			"/="/*nonNLS*/,
+			"&="/*nonNLS*/,
+			"|="/*nonNLS*/,
+			"^="/*nonNLS*/,
+			"%="/*nonNLS*/,
+			"<<="/*nonNLS*/,
+			">>="/*nonNLS*/,
+			">>>="/*nonNLS*/,
+			"||"/*nonNLS*/,
+			"&&"/*nonNLS*/,
+			"+"/*nonNLS*/,
+			"-"/*nonNLS*/,
+			"!"/*nonNLS*/,
+			"%"/*nonNLS*/,
+			"^"/*nonNLS*/,
+			"&"/*nonNLS*/,
+			"*"/*nonNLS*/,
+			"|"/*nonNLS*/,
+			"~"/*nonNLS*/,
+			"/"/*nonNLS*/,
+			">"/*nonNLS*/,
+			"<"/*nonNLS*/,
+			"("/*nonNLS*/,
+			")"/*nonNLS*/,
+			"{"/*nonNLS*/,
+			"}"/*nonNLS*/,
+			"["/*nonNLS*/,
+			"]"/*nonNLS*/,
+			";"/*nonNLS*/,
+			"?"/*nonNLS*/,
+			":"/*nonNLS*/,
+			","/*nonNLS*/,
+			"."/*nonNLS*/,
+			"="/*nonNLS*/,
+			""/*nonNLS*/,
+			"$empty"/*nonNLS*/,
+			"Identifier"/*nonNLS*/,
+			"abstract"/*nonNLS*/,
+			"boolean"/*nonNLS*/,
+			"break"/*nonNLS*/,
+			"byte"/*nonNLS*/,
+			"case"/*nonNLS*/,
+			"catch"/*nonNLS*/,
+			"char"/*nonNLS*/,
+			"class"/*nonNLS*/,
+			"continue"/*nonNLS*/,
+			"default"/*nonNLS*/,
+			"do"/*nonNLS*/,
+			"double"/*nonNLS*/,
+			"else"/*nonNLS*/,
+			"extends"/*nonNLS*/,
+			"false"/*nonNLS*/,
+			"final"/*nonNLS*/,
+			"finally"/*nonNLS*/,
+			"float"/*nonNLS*/,
+			"for"/*nonNLS*/,
+			"if"/*nonNLS*/,
+			"implements"/*nonNLS*/,
+			"import"/*nonNLS*/,
+			"instanceof"/*nonNLS*/,
+			"int"/*nonNLS*/,
+			"interface"/*nonNLS*/,
+			"long"/*nonNLS*/,
+			"native"/*nonNLS*/,
+			"new"/*nonNLS*/,
+			"null"/*nonNLS*/,
+			"package"/*nonNLS*/,
+			"private"/*nonNLS*/,
+			"protected"/*nonNLS*/,
+			"public"/*nonNLS*/,
+			"return"/*nonNLS*/,
+			"short"/*nonNLS*/,
+			"static"/*nonNLS*/,
+			"strictfp"/*nonNLS*/,
+			"super"/*nonNLS*/,
+			"switch"/*nonNLS*/,
+			"synchronized"/*nonNLS*/,
+			"this"/*nonNLS*/,
+			"throw"/*nonNLS*/,
+			"throws"/*nonNLS*/,
+			"transient"/*nonNLS*/,
+			"true"/*nonNLS*/,
+			"try"/*nonNLS*/,
+			"void"/*nonNLS*/,
+			"volatile"/*nonNLS*/,
+			"while"/*nonNLS*/,
+			"IntegerLiteral"/*nonNLS*/,
+			"LongLiteral"/*nonNLS*/,
+			"FloatingPointLiteral"/*nonNLS*/,
+			"DoubleLiteral"/*nonNLS*/,
+			"CharacterLiteral"/*nonNLS*/,
+			"StringLiteral"/*nonNLS*/,
   			UNEXPECTED_EOF,
-			"Invalid Character",
-			"Goal",
-			"MethodBody",
-			"ConstructorBody",
-			"StaticInitializer",
-			"ClassBodyDeclaration",
-			"Headers",
-			"BlockStatements",
-			"MethodPushModifiersHeader",
-			"CatchHeader",
-			"FieldDeclaration",
-			"ImportDeclaration",
-			"PackageDeclaration",
-			"TypeDeclaration",
-			"GenericMethodDeclaration",
-			"Expression",
-			"Type",
-			"PrimitiveType",
-			"ReferenceType",
-			"ClassOrInterfaceType",
-			"ArrayType",
-			"Name",
-			"Dims",
-			"ClassType",
-			"SimpleName",
-			"Header",
-			"ClassHeader",
-			"InterfaceHeader",
-			"MethodHeader",
-			"ConstructorHeader",
-			"FormalParameter",
-			"ImportDeclarations",
-			"TypeDeclarations",
-			"PackageDeclarationName",
-			"SingleTypeImportDeclarationNam" +
-			"e",
-			"TypeImportOnDemandDeclarationN" +
-			"ame",
-			"Modifiers",
-			"Modifier",
-			"ClassBody",
-			"ClassHeaderName",
-			"InterfaceTypeList",
-			"InterfaceType",
-			"ClassBodyDeclarations",
-			"Block",
-			"VariableDeclarators",
-			"VariableDeclarator",
-			"VariableDeclaratorId",
-			"VariableInitializer",
-			"ArrayInitializer",
-			"MethodHeaderName",
-			"MethodHeaderParameters",
-			"MethodPushModifiersHeaderName",
-			"ClassTypeList",
-			"ConstructorHeaderName",
-			"FormalParameterList",
-			"ClassTypeElt",
-			"StaticOnly",
-			"ExplicitConstructorInvocation",
-			"Primary",
-			"InterfaceBody",
-			"InterfaceHeaderName",
-			"InterfaceMemberDeclarations",
-			"InterfaceMemberDeclaration",
-			"VariableInitializers",
-			"BlockStatement",
-			"Statement",
-			"LocalVariableDeclaration",
-			"StatementWithoutTrailingSubsta" +
-			"tement",
-			"StatementNoShortIf",
-			"StatementExpression",
-			"PostIncrementExpression",
-			"PostDecrementExpression",
-			"MethodInvocation",
-			"ClassInstanceCreationExpressio" +
-			"n",
-			"SwitchBlock",
-			"SwitchBlockStatements",
-			"SwitchLabels",
-			"SwitchBlockStatement",
-			"SwitchLabel",
-			"ConstantExpression",
-			"StatementExpressionList",
-			"OnlySynchronized",
-			"Catches",
-			"Finally",
-			"CatchClause",
-			"PushLPAREN",
-			"PushRPAREN",
-			"PrimaryNoNewArray",
-			"FieldAccess",
-			"ArrayAccess",
-			"ClassInstanceCreationExpressio" +
-			"nName",
-			"ArgumentList",
-			"DimWithOrWithOutExprs",
-			"DimWithOrWithOutExpr",
-			"DimsLoop",
-			"OneDimLoop",
-			"PostfixExpression",
-			"UnaryExpression",
-			"UnaryExpressionNotPlusMinus",
-			"MultiplicativeExpression",
-			"AdditiveExpression",
-			"ShiftExpression",
-			"RelationalExpression",
-			"EqualityExpression",
-			"AndExpression",
-			"ExclusiveOrExpression",
-			"InclusiveOrExpression",
-			"ConditionalAndExpression",
-			"ConditionalOrExpression",
-			"ConditionalExpression",
-			"AssignmentExpression",
-			"LeftHandSide",
-			"AssignmentOperator"
+			"Invalid Character"/*nonNLS*/,
+			"Goal"/*nonNLS*/,
+			"MethodBody"/*nonNLS*/,
+			"ConstructorBody"/*nonNLS*/,
+			"StaticInitializer"/*nonNLS*/,
+			"ClassBodyDeclaration"/*nonNLS*/,
+			"Headers"/*nonNLS*/,
+			"BlockStatements"/*nonNLS*/,
+			"MethodPushModifiersHeader"/*nonNLS*/,
+			"CatchHeader"/*nonNLS*/,
+			"FieldDeclaration"/*nonNLS*/,
+			"ImportDeclaration"/*nonNLS*/,
+			"PackageDeclaration"/*nonNLS*/,
+			"TypeDeclaration"/*nonNLS*/,
+			"GenericMethodDeclaration"/*nonNLS*/,
+			"Expression"/*nonNLS*/,
+			"Type"/*nonNLS*/,
+			"PrimitiveType"/*nonNLS*/,
+			"ReferenceType"/*nonNLS*/,
+			"ClassOrInterfaceType"/*nonNLS*/,
+			"ArrayType"/*nonNLS*/,
+			"Name"/*nonNLS*/,
+			"Dims"/*nonNLS*/,
+			"ClassType"/*nonNLS*/,
+			"SimpleName"/*nonNLS*/,
+			"Header"/*nonNLS*/,
+			"ClassHeader"/*nonNLS*/,
+			"InterfaceHeader"/*nonNLS*/,
+			"MethodHeader"/*nonNLS*/,
+			"ConstructorHeader"/*nonNLS*/,
+			"FormalParameter"/*nonNLS*/,
+			"ImportDeclarations"/*nonNLS*/,
+			"TypeDeclarations"/*nonNLS*/,
+			"PackageDeclarationName"/*nonNLS*/,
+			"SingleTypeImportDeclarationNam"/*nonNLS*/ +
+			"e"/*nonNLS*/,
+			"TypeImportOnDemandDeclarationN"/*nonNLS*/ +
+			"ame"/*nonNLS*/,
+			"Modifiers"/*nonNLS*/,
+			"Modifier"/*nonNLS*/,
+			"ClassBody"/*nonNLS*/,
+			"ClassHeaderName"/*nonNLS*/,
+			"InterfaceTypeList"/*nonNLS*/,
+			"InterfaceType"/*nonNLS*/,
+			"ClassBodyDeclarations"/*nonNLS*/,
+			"Block"/*nonNLS*/,
+			"VariableDeclarators"/*nonNLS*/,
+			"VariableDeclarator"/*nonNLS*/,
+			"VariableDeclaratorId"/*nonNLS*/,
+			"VariableInitializer"/*nonNLS*/,
+			"ArrayInitializer"/*nonNLS*/,
+			"MethodHeaderName"/*nonNLS*/,
+			"MethodHeaderParameters"/*nonNLS*/,
+			"MethodPushModifiersHeaderName"/*nonNLS*/,
+			"ClassTypeList"/*nonNLS*/,
+			"ConstructorHeaderName"/*nonNLS*/,
+			"FormalParameterList"/*nonNLS*/,
+			"ClassTypeElt"/*nonNLS*/,
+			"StaticOnly"/*nonNLS*/,
+			"ExplicitConstructorInvocation"/*nonNLS*/,
+			"Primary"/*nonNLS*/,
+			"InterfaceBody"/*nonNLS*/,
+			"InterfaceHeaderName"/*nonNLS*/,
+			"InterfaceMemberDeclarations"/*nonNLS*/,
+			"InterfaceMemberDeclaration"/*nonNLS*/,
+			"VariableInitializers"/*nonNLS*/,
+			"BlockStatement"/*nonNLS*/,
+			"Statement"/*nonNLS*/,
+			"LocalVariableDeclaration"/*nonNLS*/,
+			"StatementWithoutTrailingSubsta"/*nonNLS*/ +
+			"tement"/*nonNLS*/,
+			"StatementNoShortIf"/*nonNLS*/,
+			"StatementExpression"/*nonNLS*/,
+			"PostIncrementExpression"/*nonNLS*/,
+			"PostDecrementExpression"/*nonNLS*/,
+			"MethodInvocation"/*nonNLS*/,
+			"ClassInstanceCreationExpressio"/*nonNLS*/ +
+			"n"/*nonNLS*/,
+			"SwitchBlock"/*nonNLS*/,
+			"SwitchBlockStatements"/*nonNLS*/,
+			"SwitchLabels"/*nonNLS*/,
+			"SwitchBlockStatement"/*nonNLS*/,
+			"SwitchLabel"/*nonNLS*/,
+			"ConstantExpression"/*nonNLS*/,
+			"StatementExpressionList"/*nonNLS*/,
+			"OnlySynchronized"/*nonNLS*/,
+			"Catches"/*nonNLS*/,
+			"Finally"/*nonNLS*/,
+			"CatchClause"/*nonNLS*/,
+			"PushLPAREN"/*nonNLS*/,
+			"PushRPAREN"/*nonNLS*/,
+			"PrimaryNoNewArray"/*nonNLS*/,
+			"FieldAccess"/*nonNLS*/,
+			"ArrayAccess"/*nonNLS*/,
+			"ClassInstanceCreationExpressio"/*nonNLS*/ +
+			"nName"/*nonNLS*/,
+			"ArgumentList"/*nonNLS*/,
+			"DimWithOrWithOutExprs"/*nonNLS*/,
+			"DimWithOrWithOutExpr"/*nonNLS*/,
+			"DimsLoop"/*nonNLS*/,
+			"OneDimLoop"/*nonNLS*/,
+			"PostfixExpression"/*nonNLS*/,
+			"UnaryExpression"/*nonNLS*/,
+			"UnaryExpressionNotPlusMinus"/*nonNLS*/,
+			"MultiplicativeExpression"/*nonNLS*/,
+			"AdditiveExpression"/*nonNLS*/,
+			"ShiftExpression"/*nonNLS*/,
+			"RelationalExpression"/*nonNLS*/,
+			"EqualityExpression"/*nonNLS*/,
+			"AndExpression"/*nonNLS*/,
+			"ExclusiveOrExpression"/*nonNLS*/,
+			"InclusiveOrExpression"/*nonNLS*/,
+			"ConditionalAndExpression"/*nonNLS*/,
+			"ConditionalOrExpression"/*nonNLS*/,
+			"ConditionalExpression"/*nonNLS*/,
+			"AssignmentExpression"/*nonNLS*/,
+			"LeftHandSide"/*nonNLS*/,
+			"AssignmentOperator"/*nonNLS*/
 	};
 
 	public  static short check_table[] = null;
 	public  static char lhs[] =  null;
 	public  static char action[] = lhs;
-	private final static String FILEPREFIX = "parser";
+	private final static String FILEPREFIX = "parser"/*nonNLS*/;
 
 	static {
 		try{
@@ -428,7 +428,7 @@ private final static void buildFileFor(String filename, String tag, String[] tok
 	char[] chars = new char[tokens.length]; //can't be bigger
 	int ic = 0;
 	String token;
-	while (!(token = tokens[i++]).equals("}")) {
+	while (!(token = tokens[i++]).equals("}"/*nonNLS*/)) {
 		int c = Integer.parseInt(token);
 		if (isShort)
 			c += 32768;
@@ -471,11 +471,11 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 		reader.read(contents, 0, contents.length);
 		reader.close();
 	} catch (IOException ex) {
-		System.out.println("The path for the javadcl.java file is incorrect");
+		System.out.println(Util.bind("parser.incorrectPath"/*nonNLS*/));
 		return;
 	}
 	java.util.StringTokenizer st = 
-		new java.util.StringTokenizer(new String(contents), " \t\n\r[]={,;"); 
+		new java.util.StringTokenizer(new String(contents), " \t\n\r[]={,;"/*nonNLS*/); 
 	String[] tokens = new String[st.countTokens()];
 	int i = 0;
 	while (st.hasMoreTokens()) {
@@ -483,12 +483,12 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 	}
 	final String prefix = FILEPREFIX;
 	i = 0;
-	buildFileFor(prefix + (++i) + ".rsc", "lhs", tokens, false);
-	buildFileFor(prefix + (++i) + ".rsc", "check_table", tokens, true);
-	buildFileFor(prefix + (++i) + ".rsc", "asb", tokens, false);
-	buildFileFor(prefix + (++i) + ".rsc", "asr", tokens, false);
-	buildFileFor(prefix + (++i) + ".rsc", "symbol_index", tokens, false);
-	System.out.println("MOVE FILES IN THE Runtime DIRECTORY OF Parser.class");
+	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "lhs"/*nonNLS*/, tokens, false);
+	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "check_table"/*nonNLS*/, tokens, true);
+	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "asb"/*nonNLS*/, tokens, false);
+	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "asr"/*nonNLS*/, tokens, false);
+	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "symbol_index"/*nonNLS*/, tokens, false);
+	System.out.println(Util.bind("parser.moveFiles"/*nonNLS*/));
 }
 /*
  * Build initial recovery state.
@@ -3934,11 +3934,12 @@ protected void consumeToken(int type) {
 					scanner.currentPosition - 1)); 
 			break;
 		case TokenNameStringLiteral :
-			pushOnExpressionStack(
-				new StringLiteral(
+			StringLiteral stringLiteral = new StringLiteral(
 					scanner.getCurrentTokenSourceString(), 
 					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
+					scanner.currentPosition - 1); 
+			if (scanner.wasNonExternalizedStringLiteral) problemReporter().nonExternalizedStringLiteral(stringLiteral);
+			pushOnExpressionStack(stringLiteral); 
 			break;
 		case TokenNamefalse :
 			pushOnExpressionStack(
@@ -4292,15 +4293,17 @@ protected CompilationUnitDeclaration endParse(int act) {
 	if (currentElement != null){
 		currentElement.topElement().updateParseTree();
 		if (VERBOSE_RECOVERY){
-			System.out.println("SYNTAX RECOVERY--------------------------");		
+			System.out.print(Util.bind("parser.syntaxRecovery"/*nonNLS*/));
+			System.out.println("--------------------------"/*nonNLS*/);		
 			System.out.println(compilationUnit);		
-			System.out.println("----------------------------------");
+			System.out.println("----------------------------------"/*nonNLS*/);
 		}		
 	} else {
 		if (diet & VERBOSE_RECOVERY){
-			System.out.println("REGULAR PARSE--------------------------");		
+			System.out.print(Util.bind("parser.regularParse"/*nonNLS*/));	
+			System.out.println("--------------------------"/*nonNLS*/);	
 			System.out.println(compilationUnit);		
-			System.out.println("----------------------------------");
+			System.out.println("----------------------------------"/*nonNLS*/);
 		}
 	}
 	if (scanner.recordLineSeparator) {
@@ -6002,21 +6005,21 @@ public void initialize() {
 	lastErrorEndPosition = -1;
 }
 public void initializeScanner(){
-	this.scanner = new Scanner();
+	this.scanner = new Scanner(false, false, this.problemReporter.options.isNonExternalizedStringLiteralHandledAsWarning());
 }
 public final static void initTables() throws java.io.IOException {
 
 	final String prefix = FILEPREFIX;
 	int i = 0;
-	lhs = readTable(prefix + (++i) + ".rsc");
-	char[] chars = readTable(prefix + (++i) + ".rsc");
+	lhs = readTable(prefix + (++i) + ".rsc"/*nonNLS*/);
+	char[] chars = readTable(prefix + (++i) + ".rsc"/*nonNLS*/);
 	check_table = new short[chars.length];
 	for (int c = chars.length; c-- > 0;) {
 		check_table[c] = (short) (chars[c] - 32768);
 	}
-	asb = readTable(prefix + (++i) + ".rsc");
-	asr = readTable(prefix + (++i) + ".rsc");
-	symbol_index = readTable(prefix + (++i) + ".rsc");
+	asb = readTable(prefix + (++i) + ".rsc"/*nonNLS*/);
+	asr = readTable(prefix + (++i) + ".rsc"/*nonNLS*/);
+	symbol_index = readTable(prefix + (++i) + ".rsc"/*nonNLS*/);
 	action = lhs;
 }
 public final void jumpOverMethodBody() {
@@ -6636,7 +6639,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
-		throw new java.io.IOException("missing file" + filename);
+		throw new java.io.IOException(Util.bind("parser.missingFile"/*nonNLS*/,filename));
 	}
 
 	ByteArrayOutputStream os = new ByteArrayOutputStream(32000);
@@ -6654,7 +6657,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//minimal integrity check (even size expected)
 	if (streamLength % 2 != 0)
-		throw new java.io.IOException("corrupted file " + filename);
+		throw new java.io.IOException(Util.bind("parser.corruptedFile"/*nonNLS*/,filename));
 
 	// convert bytes into chars
 	char[] chars = new char[streamLength / 2];
@@ -6737,9 +6740,9 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 		}
 	} else { //the next test is HEAVILY grammar DEPENDENT.
 		if ((length == 2)
-			&& (tokenName.equals(";"))
-			&& (expectings[0] == "++")
-			&& (expectings[1] == "--")
+			&& (tokenName.equals(";"/*nonNLS*/))
+			&& (expectings[0] == "++"/*nonNLS*/)
+			&& (expectings[1] == "--"/*nonNLS*/)
 			&& (expressionPtr > -1)) {
 			// the ; is not the expected token ==> it ends a statement when an expression is not ended
 			problemReporter().invalidExpressionAsStatement(expressionStack[expressionPtr]);
@@ -6840,40 +6843,40 @@ protected static int tAction(int state, int sym) {
 }
 public String toString() {
 
-	String s = "identifierStack : char[][] = {";
+	String s = "identifierStack : char[][] = {"/*nonNLS*/;
 	for (int i = 0; i <= identifierPtr; i++) {
-		s = s + "\"" + String.valueOf(identifierStack[i]) + "\",";
+		s = s + "\""/*nonNLS*/ + String.valueOf(identifierStack[i]) + "\","/*nonNLS*/;
 	};
-	s = s + "}\n";
+	s = s + "}\n"/*nonNLS*/;
 
-	s = s + "identierLengthStack : int[] = {";
+	s = s + "identierLengthStack : int[] = {"/*nonNLS*/;
 	for (int i = 0; i <= identifierLengthPtr; i++) {
-		s = s + identifierLengthStack[i] + ",";
+		s = s + identifierLengthStack[i] + ","/*nonNLS*/;
 	};
-	s = s + "}\n";
+	s = s + "}\n"/*nonNLS*/;
 
-	s = s + "astLengthStack : int[] = {";
+	s = s + "astLengthStack : int[] = {"/*nonNLS*/;
 	for (int i = 0; i <= astLengthPtr; i++) {
-		s = s + astLengthStack[i] + ",";
+		s = s + astLengthStack[i] + ","/*nonNLS*/;
 	};
-	s = s + "}\n";
-	s = s + "astPtr : int = " + String.valueOf(astPtr) + "\n";
+	s = s + "}\n"/*nonNLS*/;
+	s = s + "astPtr : int = "/*nonNLS*/ + String.valueOf(astPtr) + "\n"/*nonNLS*/;
 
-	s = s + "intStack : int[] = {";
+	s = s + "intStack : int[] = {"/*nonNLS*/;
 	for (int i = 0; i <= intPtr; i++) {
-		s = s + intStack[i] + ",";
+		s = s + intStack[i] + ","/*nonNLS*/;
 	};
-	s = s + "}\n";
+	s = s + "}\n"/*nonNLS*/;
 
-	s = s + "expressionLengthStack : int[] = {";
+	s = s + "expressionLengthStack : int[] = {"/*nonNLS*/;
 	for (int i = 0; i <= expressionLengthPtr; i++) {
-		s = s + expressionLengthStack[i] + ",";
+		s = s + expressionLengthStack[i] + ","/*nonNLS*/;
 	};
-	s = s + "}\n";
+	s = s + "}\n"/*nonNLS*/;
 
-	s = s + "expressionPtr : int = " + String.valueOf(expressionPtr) + "\n";
+	s = s + "expressionPtr : int = "/*nonNLS*/ + String.valueOf(expressionPtr) + "\n"/*nonNLS*/;
 
-	s = s + "\n\n\n----------------Scanner--------------\n" + scanner.toString();
+	s = s + "\n\n\n----------------Scanner--------------\n"/*nonNLS*/ + scanner.toString();
 	return s;
 
 }

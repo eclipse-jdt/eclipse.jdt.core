@@ -125,15 +125,15 @@ public String toString(int tab) {
 
 	String inFront, s = tabString(tab);
 	inFront = s;
-	s = s + "do";
+	s = s + "do"/*nonNLS*/;
 	if (action == null)
-		s = s + " {}\n";
+		s = s + " {}\n"/*nonNLS*/;
 	else
 		if (action instanceof Block)
-			s = s + "\n" + action.toString(tab + 1) + "\n";
+			s = s + "\n"/*nonNLS*/ + action.toString(tab + 1) + "\n"/*nonNLS*/;
 		else
-			s = s + " {\n" + action.toString(tab + 1) + ";}\n";
-	s = s + inFront + "while (" + condition.toStringExpression() + ")";
+			s = s + " {\n"/*nonNLS*/ + action.toString(tab + 1) + ";}\n"/*nonNLS*/;
+	s = s + inFront + "while ("/*nonNLS*/ + condition.toStringExpression() + ")"/*nonNLS*/;
 	return s;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

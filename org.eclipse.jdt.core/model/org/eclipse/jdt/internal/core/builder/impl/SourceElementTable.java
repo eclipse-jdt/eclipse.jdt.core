@@ -75,7 +75,6 @@ SourceEntry getSourceEntry(IPackage pkg, String fileName) {
 	Assert.isTrue(!pkg.isStateSpecific());
 	LookupTable pkgTable = getPackageTable(pkg);
 	if (pkgTable != null) {
-		Assert.isTrue(fileName.indexOf('.') != -1, "name must have extension");
 		return (SourceEntry) pkgTable.get(fileName);
 	}
 	return null;
@@ -124,6 +123,6 @@ SourceEntry removeSourceEntry(IPackage pkg, String fileName) {
 	 * @return a string representation of the receiver
 	 */
 	public String toString() {
-		return "SourceElementTable(" + fPackageTable + ")";
+		return "SourceElementTable("/*nonNLS*/ + fPackageTable + ")"/*nonNLS*/;
 	}
 }

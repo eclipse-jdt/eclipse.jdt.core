@@ -1,5 +1,16 @@
 package org.eclipse.jdt.internal.compiler.env;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
+/**
+ * The name environment provides a callback API that the compiler
+ * can use to look up types, compilation units, and packages in the
+ * current environment.  The name environment is passed to the compiler
+ * on creation.
+ */
 public interface INameEnvironment {
 /**
  * Find a type with the given compound name.
@@ -37,8 +48,8 @@ NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
  * The default package is always assumed to exist.
  *
  * For example:
- * 		isPackage({{java}, {awt}}, {event});
- *		isPackage(null, {java});
+ *      isPackage({{java}, {awt}}, {event});
+ *      isPackage(null, {java});
  */
 
 boolean isPackage(char[][] parentPackageName, char[] packageName);

@@ -95,7 +95,7 @@ protected void closing(Object info) throws JavaModelException {
  */
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICodeCompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
-		throw new IllegalArgumentException("requestor cannot be null");
+		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor"/*nonNLS*/));
 	}
 	if (position < -1 || position > getBuffer().getLength()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));

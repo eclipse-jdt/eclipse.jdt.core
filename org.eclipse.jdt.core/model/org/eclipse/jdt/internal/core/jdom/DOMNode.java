@@ -4,11 +4,16 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.util.*;
+import java.util.Enumeration;
 
-import java.util.*;
+import org.eclipse.jdt.core.jdom.DOMException;
+import org.eclipse.jdt.core.jdom.DOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
+import org.eclipse.jdt.core.jdom.IDOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMMethod;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * DOMNode provides an implementation for <code>IDOMNode</code>.
@@ -326,23 +331,23 @@ protected abstract void appendFragmentedContents(CharArrayBuffer buffer);
 void basicAddChild(IDOMNode child) throws IllegalArgumentException, DOMException {
 	// verify child may be added
 	if (!canHaveChildren()) {
-		throw new DOMException("attempt to add child to node that cannot have children");
+		throw new DOMException(Util.bind("dom.unableAddChild"/*nonNLS*/));
 	}
 	if (child == null) {
-		throw new IllegalArgumentException("attempt to add null child");
+		throw new IllegalArgumentException(Util.bind("dom.addNullChild"/*nonNLS*/));
 	}
 	if (!isAllowableChild(child)) {
-		throw new DOMException("attempt to add child of incompatible type");
+		throw new DOMException(Util.bind("dom.addIncompatibleChild"/*nonNLS*/));
 	}
 	if (child.getParent() != null) {
-		throw new DOMException("attempt to add child that is already parented");
+		throw new DOMException(Util.bind("dom.addChildWithParent"/*nonNLS*/));
 	}
 	/* NOTE: To test if the child is an ancestor of this node, we
 	 * need only test if the root of this node is the child (the child
 	 * is already a root since we have just guarenteed it has no parent).
 	 */
 	if (child == getRoot()) {
-		throw new DOMException("attempt to add ancestor as child");
+		throw new DOMException(Util.bind("dom.addAncestorAsChild"/*nonNLS*/));
 	}
 
 	DOMNode node= (DOMNode)child;
@@ -374,7 +379,7 @@ protected void becomeDetailed() throws DOMException {
 	if (!isDetailed()) {
 		DOMNode detailed= getDetailedNode();
 		if (detailed == null) {
-			throw new DOMException("Unable to generate detailed source indexes.");
+			throw new DOMException(Util.bind("dom.cannotDetail"/*nonNLS*/));
 		}
 		if (detailed != this) {
 			shareContents(detailed);
@@ -647,23 +652,23 @@ public int getStartPosition() {
 public void insertSibling(IDOMNode sibling) throws IllegalArgumentException, DOMException {
 	// verify sibling may be added
 	if (sibling == null) {
-		throw new IllegalArgumentException("attempt to insert null sibling");
+		throw new IllegalArgumentException(Util.bind("dom.addNullSibling"/*nonNLS*/));
 	}
 	if (fParent == null) {
-		throw new DOMException("attempt to insert sibling before root node");
+		throw new DOMException(Util.bind("dom.addSiblingBeforeRoot"/*nonNLS*/));
 	}
 	if (!fParent.isAllowableChild(sibling)) {
-		throw new DOMException("attempt to insert sibling of incompatible type");
+		throw new DOMException(Util.bind("dom.addIncompatibleSibling"/*nonNLS*/));
 	}
 	if (sibling.getParent() != null) {
-		throw new DOMException("attempt to insert sibling that is already parented");
+		throw new DOMException(Util.bind("dom.addSiblingWithParent"/*nonNLS*/));
 	}
 	/* NOTE: To test if the sibling is an ancestor of this node, we
 	 * need only test if the root of this node is the child (the sibling
 	 * is already a root since we have just guaranteed it has no parent).
 	 */
 	if (sibling == getRoot()) {
-		throw new DOMException("attempt to insert ancestor as sibling");
+		throw new DOMException(Util.bind("dom.addAncestorAsSibling"/*nonNLS*/));
 	}
 
 	DOMNode node= (DOMNode)sibling;

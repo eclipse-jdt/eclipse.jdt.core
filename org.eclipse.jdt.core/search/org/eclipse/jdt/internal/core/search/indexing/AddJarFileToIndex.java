@@ -73,11 +73,11 @@ public boolean execute() {
 			}
 				
 			if (JobManager.VERBOSE)
-				System.out.println("INDEX : " + zip.getName());
+				System.out.println("INDEX : "/*nonNLS*/ + zip.getName());
 			long initialTime = System.currentTimeMillis();
 
 			final Hashtable indexedFileNames = new Hashtable(100);
-			IQueryResult[] results = index.queryInDocumentNames(""); // all file names
+			IQueryResult[] results = index.queryInDocumentNames(""/*nonNLS*/); // all file names
 			int resultLength = results == null ? 0 : results.length;
 			if (resultLength != 0) {
 				/* check integrity of the existing index file
@@ -135,11 +135,11 @@ public boolean execute() {
 			}
 			if (JobManager.VERBOSE)
 				System.out.println(
-					"INDEX : "
+					"INDEX : "/*nonNLS*/
 						+ zip.getName()
-						+ " COMPLETE in "
+						+ " COMPLETE in "/*nonNLS*/
 						+ (System.currentTimeMillis() - initialTime)
-						+ " ms"); 
+						+ " ms"/*nonNLS*/); 
 		} finally {
 			if (zip != null)
 				zip.close();
@@ -160,12 +160,12 @@ public String toString() {
 		if (resource != null) {
 			IPath location = resource.getLocation();
 			if (location == null){
-				toString = "indexing ";
+				toString = "indexing "/*nonNLS*/;
 			} else {
-			    toString = "indexing " + location.toFile().toString();
+			    toString = "indexing "/*nonNLS*/ + location.toFile().toString();
 			}
 		} else {
-		    toString = "indexing " + this.path.toFile().toString();
+		    toString = "indexing "/*nonNLS*/ + this.path.toFile().toString();
 		}
 	}
 	return toString;

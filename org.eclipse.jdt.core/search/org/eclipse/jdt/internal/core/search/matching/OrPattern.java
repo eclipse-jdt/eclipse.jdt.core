@@ -107,7 +107,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	}
 }
 public String toString(){
-	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString();
+	return this.leftPattern.toString() + "\n| "/*nonNLS*/ + this.rightPattern.toString();
 }
 
 /**

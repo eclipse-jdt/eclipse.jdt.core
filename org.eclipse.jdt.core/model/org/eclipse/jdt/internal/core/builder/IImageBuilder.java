@@ -1,5 +1,17 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * An ImageBuilder represents the process of building
+ * a state.  It can be queried for the State being built. 
+ * If the state is being built incrementally as a change to 
+ * a previous state, this object can be queried for the 
+ * image delta between the old state and the new state.
+ */
 public interface IImageBuilder 
 {
 
@@ -33,12 +45,12 @@ public interface IImageBuilder
 	IState getOldState();
 /**
  * Return a string of the form:
- * 		batch image builder for:
- * 			new state: this.data.newstate
+ *      batch image builder for:
+ *          new state: this.data.newstate
  * OR
- * 		incremental image builder for:
- *			new state: this.data.newstate
- * 			old state: this.data.oldstate
+ *      incremental image builder for:
+ *          new state: this.data.newstate
+ *          old state: this.data.oldstate
  * Obviously, which string gets returned depends
  * on the type of image builder.
  * The string returned is only for debugging purposes,

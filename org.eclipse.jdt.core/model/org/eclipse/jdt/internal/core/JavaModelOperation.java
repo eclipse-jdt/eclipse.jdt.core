@@ -135,7 +135,7 @@ public void beginTask(String name, int totalWork) {
  */
 protected void checkCanceled() {
 	if (isCanceled()) {
-		throw new OperationCanceledException("Operation cancelled");
+		throw new OperationCanceledException(Util.bind("operation.cancelled"/*nonNLS*/));
 	}
 }
 /**

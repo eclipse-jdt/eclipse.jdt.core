@@ -69,7 +69,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  * Constructs a handle for a java element of the specified type, with
  * the given parent element and name.
  *
- * @param type - one of the constants defined in IJavaLanguageElementTypes
+ * @param type - one of the constants defined in IJavaLanguageElement
  *
  * @exception IllegalArgumentException if the type is not one of the valid
  *		Java element type constants
@@ -77,7 +77,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  */
 protected JavaElement(int type, IJavaElement parent, String name) throws IllegalArgumentException {
 	if (type < JAVA_MODEL || type > IMPORT_DECLARATION) {
-		throw new IllegalArgumentException("type is not one of the defined constants");
+		throw new IllegalArgumentException(Util.bind("element.invalidType"/*nonNLS*/));
 	}
 	fLEType= type;
 	fParent= parent;
@@ -516,7 +516,7 @@ protected void setOccurrenceCount(int count) {
 protected String tabString(int tab) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = tab; i > 0; i--)
-		buffer.append("  ");
+		buffer.append("  "/*nonNLS*/);
 	return buffer.toString();
 }
 /**
@@ -554,11 +554,11 @@ protected void toString(int tab, StringBuffer buffer) {
 protected void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
 	if (parent != null) {
-		buffer.append(" [in ");
+		buffer.append(" [in "/*nonNLS*/);
 		Object parentInfo = fgJavaModelManager.getInfo(parent);
 		parent.toStringInfo(0, buffer, parentInfo);
 		parent.toStringAncestors(buffer);
-		buffer.append("]");
+		buffer.append("]"/*nonNLS*/);
 	}
 }
 /**
@@ -568,7 +568,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 	for (int i = 0; i < children.length; i++) {
-		buffer.append("\n");
+		buffer.append("\n"/*nonNLS*/);
 		((JavaElement)children[i]).toString(tab + 1, buffer);
 	}
 }
@@ -578,7 +578,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(getElementName());
 	if (info == null) {
-		buffer.append(" (not open)");
+		buffer.append(" (not open)"/*nonNLS*/);
 	}
 }
 /**

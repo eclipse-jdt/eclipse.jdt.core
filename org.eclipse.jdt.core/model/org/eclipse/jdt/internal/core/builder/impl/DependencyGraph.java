@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.builder.*;
 import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.core.Util;
 
 import java.util.*;
 
@@ -105,7 +106,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
 		}
 		catch (CloneNotSupportedException e) {
 			// Should not happen since we implement Cloneable
-			Assert.isTrue(false, "Unexpected clone exception in DependencyGraph.clone()");
+			Assert.isTrue(false, "Unexpected clone exception in DependencyGraph.clone()"/*nonNLS*/);
 			return null;
 		}
 	}
@@ -185,7 +186,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
 				value = fZips.remove(((ZipNode)toRemove).getZipFile());
 				break;
 			default:
-				Assert.isTrue(false, "Attempt to delete unknown node type from dependency graph");
+				Assert.isTrue(false, "Attempt to delete unknown node type from dependency graph"/*nonNLS*/);
 		}
 		return (INode)value;
 	}
@@ -193,7 +194,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
  * For debugging only. Dump the graph in readable form.
  */
 public void dump(Dumper dumper) {
-	dumper.dumpMessage("Namespaces", "");
+	dumper.dumpMessage("Namespaces"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fNamespaces.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();
@@ -201,7 +202,7 @@ public void dump(Dumper dumper) {
 	}
 	dumper.outdent();
 
-	dumper.dumpMessage("JCUs", "");
+	dumper.dumpMessage("JCUs"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fCompilationUnits.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();
@@ -209,7 +210,7 @@ public void dump(Dumper dumper) {
 	}
 	dumper.outdent();
 
-	dumper.dumpMessage("ZIPs", "");
+	dumper.dumpMessage("ZIPs"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fZips.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();
@@ -311,7 +312,7 @@ public Enumeration getJCUNodes() {
 			return getNodeFor((IPath)o, create);
 		}
 		else {
-			Assert.isTrue(false, "Unknown kind of node.");
+			Assert.isTrue(false, "Unknown kind of node"/*nonNLS*/);
 			return null;
 		}
 	}
@@ -476,7 +477,7 @@ public Vector getUnusedNamespaceNodes() {
 	 * For debugging only -- asserts graph integrity
 	 */
 	public void integrityCheck(Dictionary table) {
-		String msg = "Internal Error: the dependency graph is corrupt, do a full build to workaround error.";
+		String msg = "Internal Error: the dependency graph is corrupt, do a full build to workaround error"/*nonNLS*/;
 		for (Enumeration e = table.elements(); e.hasMoreElements();) {
 			AbstractNode node = (AbstractNode) e.nextElement();
 
@@ -563,6 +564,6 @@ public void removePackage(IPackage pkg) {
 		return fNamespaces.size() + fTypes.size() + fCompilationUnits.size();
 	}
 	public String toString() {
-		return "a DependencyGraph";
+		return "a DependencyGraph"/*nonNLS*/;
 	}
 }

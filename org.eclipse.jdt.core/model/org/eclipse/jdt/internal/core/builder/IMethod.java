@@ -1,5 +1,26 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A Method provides information about a single method
+ * on a class or interface.  The method may be a class method
+ * or an instance method (including an abstract method).
+ *
+ * Changes from java.lang and java.lang.reflect:
+ * <ul>
+ * <li>toString() changed to be a handle-only method; 
+ *	 it ignores the modifiers, return type, and exceptions.</li>
+ * </ul>
+ *
+ * @see IMember
+ * @see IType
+ * @see IType#getMethodHandle
+ * @see IType#getDeclaredMethods()
+ */
 public interface IMethod extends IMember {
 
 
@@ -58,7 +79,7 @@ public interface IMethod extends IMember {
 	 */
 	boolean isPresent();
 	/**
-	 * Returns a string describing this Method handle.	The string is
+	 * Returns a string describing this Method handle.  The string is
 	 * formatted as the fully qualified name of the declaring class,
 	 * followed by a period, followed by the method name, 
 	 * followed by a parenthesized, comma-separated list of the method's 

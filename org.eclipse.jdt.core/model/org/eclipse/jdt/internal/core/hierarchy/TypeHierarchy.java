@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.search.*;
 
 import java.util.*;
@@ -1021,7 +1022,7 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		fProgressMonitor = monitor;
 		if (monitor != null) {
-			monitor.beginTask("Creating type hierarchy...", IProgressMonitor.UNKNOWN);
+			monitor.beginTask(Util.bind("hierarchy.creating"/*nonNLS*/), IProgressMonitor.UNKNOWN);
 		}
 		compute();
 		if (fType != null) {
@@ -1096,7 +1097,7 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
 		return false;
 	}
 	if (superclassName == null) {
-		superclassName = "Object";
+		superclassName = "Object"/*nonNLS*/;
 	}
 	int dot = -1;
 	String simpleSuper = (dot = superclassName.lastIndexOf('.')) > -1 ?
@@ -1132,24 +1133,24 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Focus: ");
-	buffer.append(fType == null ? "<NONE>" : fType.getFullyQualifiedName());
-	buffer.append("\n");
+	buffer.append("Focus: "/*nonNLS*/);
+	buffer.append(fType == null ? "<NONE>"/*nonNLS*/ : fType.getFullyQualifiedName());
+	buffer.append("\n"/*nonNLS*/);
 	if (exists()) {
 		if (fType != null) {
-			buffer.append("Super types:\n");
+			buffer.append("Super types:\n"/*nonNLS*/);
 			toString(buffer, fType, 1, true);
-			buffer.append("Sub types:\n");
+			buffer.append("Sub types:\n"/*nonNLS*/);
 			toString(buffer, fType, 1, false);
 		} else {
-			buffer.append("Sub types of root classes:\n");
+			buffer.append("Sub types of root classes:\n"/*nonNLS*/);
 			IType[] roots= getRootClasses();
 			for (int i= 0; i < roots.length; i++) {
 				toString(buffer, roots[i], 1, false);
 			}
 		}
 	} else {
-		buffer.append("(Hierarchy became stale)");
+		buffer.append("(Hierarchy became stale)"/*nonNLS*/);
 	}
 	return buffer.toString();
 }
@@ -1160,7 +1161,7 @@ public String toString() {
  */
 private void toString(StringBuffer buffer, IType type, int indent, boolean ascendant) {
 	for (int i= 0; i < indent; i++) {
-		buffer.append("  ");
+		buffer.append("  "/*nonNLS*/);
 	}
 	buffer.append(type.getFullyQualifiedName());
 	buffer.append('\n');

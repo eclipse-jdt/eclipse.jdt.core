@@ -56,13 +56,13 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression() {
 
-	StringBuffer buffer = new StringBuffer("<SelectOnName:");
+	StringBuffer buffer = new StringBuffer("<SelectOnName:"/*nonNLS*/);
 	for (int i = 0, length = tokens.length; i < length; i++) {
 		buffer.append(tokens[i]);
 		if (i != length - 1)
-			buffer.append(".");
+			buffer.append("."/*nonNLS*/);
 	}
-	buffer.append(">");
+	buffer.append(">"/*nonNLS*/);
 	return buffer.toString();
 }
 }

@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class NullConstant extends Constant {
 	public static final NullConstant Default = new NullConstant();
@@ -12,7 +17,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(null)" + null ; }
+	return "(null)"/*nonNLS*/ + null ; }
 public int typeID() {
 	return T_null;
 }

@@ -1139,127 +1139,127 @@ private void newLine(int newLineCount) {
 private String operatorString(int operator) {
 	switch (operator) {
 		case TokenNameextends :
-			return "extends";
+			return "extends"/*nonNLS*/;
 
 		case TokenNameimplements :
-			return "implements";
+			return "implements"/*nonNLS*/;
 
 		case TokenNamethrows :
-			return "throws";
+			return "throws"/*nonNLS*/;
 
 		case TokenNameSEMICOLON : // ;
-			return ";";
+			return ";"/*nonNLS*/;
 
 		case TokenNameCOMMA : // ,
-			return ",";
+			return ","/*nonNLS*/;
 
 		case TokenNameEQUAL : // =
-			return "=";
+			return "="/*nonNLS*/;
 
 		case TokenNameAND_AND : // && (15.22)
-			return "&&";
+			return "&&"/*nonNLS*/;
 
 		case TokenNameOR_OR : // || (15.23)
-			return "||";
+			return "||"/*nonNLS*/;
 
 		case TokenNameQUESTION : // ? (15.24)
-			return "?";
+			return "?"/*nonNLS*/;
 
 		case TokenNameCOLON : // : (15.24)
-			return ":";
+			return ":"/*nonNLS*/;
 
 		case TokenNameEQUAL_EQUAL : // == (15.20, 15.20.1, 15.20.2, 15.20.3)
-			return "==";
+			return "=="/*nonNLS*/;
 
 		case TokenNameNOT_EQUAL : // != (15.20, 15.20.1, 15.20.2, 15.20.3)
-			return "!=";
+			return "!="/*nonNLS*/;
 
 		case TokenNameLESS : // < (15.19.1)
-			return "<";
+			return "<"/*nonNLS*/;
 
 		case TokenNameLESS_EQUAL : // <= (15.19.1)
-			return "<=";
+			return "<="/*nonNLS*/;
 
 		case TokenNameGREATER : // > (15.19.1)
-			return ">";
+			return ">"/*nonNLS*/;
 
 		case TokenNameGREATER_EQUAL : // >= (15.19.1)
-			return ">=";
+			return ">="/*nonNLS*/;
 
 		case TokenNameinstanceof : // instanceof
-			return "instanceof";
+			return "instanceof"/*nonNLS*/;
 
 		case TokenNamePLUS : // + (15.17, 15.17.2)
-			return "+";
+			return "+"/*nonNLS*/;
 
 		case TokenNameMINUS : // - (15.17.2)
-			return "-";
+			return "-"/*nonNLS*/;
 
 		case TokenNameMULTIPLY : // * (15.16.1)
-			return "*";
+			return "*"/*nonNLS*/;
 
 		case TokenNameDIVIDE : // / (15.16.2)
-			return "/";
+			return "/"/*nonNLS*/;
 
 		case TokenNameREMAINDER : // % (15.16.3)
-			return "%";
+			return "%"/*nonNLS*/;
 
 		case TokenNameLEFT_SHIFT : // << (15.18)
-			return "<<";
+			return "<<"/*nonNLS*/;
 
 		case TokenNameRIGHT_SHIFT : // >> (15.18)
-			return ">>";
+			return ">>"/*nonNLS*/;
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT : // >>> (15.18)
-			return ">>>";
+			return ">>>"/*nonNLS*/;
 
 		case TokenNameAND : // & (15.21, 15.21.1, 15.21.2)
-			return "&";
+			return "&"/*nonNLS*/;
 
 		case TokenNameOR : // | (15.21, 15.21.1, 15.21.2)
-			return "|";
+			return "|"/*nonNLS*/;
 
 		case TokenNameXOR : // ^ (15.21, 15.21.1, 15.21.2)
-			return "^";
+			return "^"/*nonNLS*/;
 
 		case TokenNameMULTIPLY_EQUAL : // *= (15.25.2)
-			return "*=";
+			return "*="/*nonNLS*/;
 
 		case TokenNameDIVIDE_EQUAL : // /= (15.25.2)
-			return "/=";
+			return "/="/*nonNLS*/;
 
 		case TokenNameREMAINDER_EQUAL : // %= (15.25.2)
-			return "%=";
+			return "%="/*nonNLS*/;
 
 		case TokenNamePLUS_EQUAL : // += (15.25.2)
-			return "+=";
+			return "+="/*nonNLS*/;
 
 		case TokenNameMINUS_EQUAL : // -= (15.25.2)
-			return "-=";
+			return "-="/*nonNLS*/;
 
 		case TokenNameLEFT_SHIFT_EQUAL : // <<= (15.25.2)
-			return "<<=";
+			return "<<="/*nonNLS*/;
 
 		case TokenNameRIGHT_SHIFT_EQUAL : // >>= (15.25.2)
-			return ">>=";
+			return ">>="/*nonNLS*/;
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : // >>>= (15.25.2)
-			return ">>>=";
+			return ">>>="/*nonNLS*/;
 
 		case TokenNameAND_EQUAL : // &= (15.25.2)
-			return "&=";
+			return "&="/*nonNLS*/;
 
 		case TokenNameXOR_EQUAL : // ^= (15.25.2)
-			return "^=";
+			return "^="/*nonNLS*/;
 
 		case TokenNameOR_EQUAL : // |= (15.25.2)
-			return "|=";
+			return "|="/*nonNLS*/;
 
 		case TokenNameDOT : // .
-			return ".";
+			return "."/*nonNLS*/;
 
 		default :
-			return "";
+			return ""/*nonNLS*/;
 	}
 }
 /** 
@@ -1399,7 +1399,7 @@ private void outputLine(
 			}
 		}
 
-		boolean containsMultiLineComment = currentString.lastIndexOf("/*") != -1;
+		boolean containsMultiLineComment = currentString.lastIndexOf("/*"/*nonNLS*/) != -1;
 		int numberOfSpaces = 0;
 		int max = currentString.length();
 		updateMappedPositionsWhileSplitting(
@@ -1506,7 +1506,7 @@ private void outputLine(
 
 		if (currentResult.length() != 0 || splitOperators[i] != 0) {
 			int newDepth = 
-				(currentResult.startsWith("/*") || currentResult.startsWith("//"))
+				(currentResult.startsWith("/*"/*nonNLS*/) || currentResult.startsWith("//"/*nonNLS*/))
 					? indentationLevel - 1
 					: depth; 
 			outputLine(

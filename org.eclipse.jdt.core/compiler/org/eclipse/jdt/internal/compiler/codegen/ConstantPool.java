@@ -70,7 +70,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int JAVA_LANG_ERROR_TYPE = 17;
 	final static int JAVA_LANG_EXCEPTION_TYPE = 18;
 	final static int JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE = 19;
-	// predefined constant index for well known fields	
+	// predefined constant index for well known fields  
 	final static int TYPE_BYTE_FIELD = 0;
 	final static int TYPE_SHORT_FIELD = 1;
 	final static int TYPE_CHARACTER_FIELD = 2;
@@ -81,7 +81,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int TYPE_BOOLEAN_FIELD = 7;
 	final static int TYPE_VOID_FIELD = 8;
 	final static int OUT_SYSTEM_FIELD = 9;
-	// predefined constant index for well known methods	
+	// predefined constant index for well known methods 
 	final static int FORNAME_CLASS_METHOD = 0;
 	final static int NOCLASSDEFFOUNDERROR_CONSTR_METHOD = 1;
 	final static int APPEND_INT_METHOD = 2;
@@ -136,22 +136,25 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int VALUEOF_CHAR_METHOD_NAME_AND_TYPE = 21;
 	final static int VALUEOF_BOOLEAN_METHOD_NAME_AND_TYPE = 22;
 	final static int VALUEOF_DOUBLE_METHOD_NAME_AND_TYPE = 23;
+	public ClassFile classFile;
+
 /**
  * ConstantPool constructor comment.
  */
 public ConstantPool(ClassFile classFile) {
-	UTF8Cache = new CharArrayCache(UTF8_INITIAL_SIZE);
-	stringCache = new CharArrayCache(STRING_INITIAL_SIZE);
-	fieldCache = new ObjectCache(FIELD_INITIAL_SIZE);
-	methodCache = new ObjectCache(METHOD_INITIAL_SIZE);
-	interfaceMethodCache = new ObjectCache(INTERFACE_INITIAL_SIZE);
-	classCache = new ObjectCache(CLASS_INITIAL_SIZE);
-	nameAndTypeCacheForMethods = new MethodNameAndTypeCache(NAMEANDTYPE_INITIAL_SIZE);
-	nameAndTypeCacheForFields = new FieldNameAndTypeCache(NAMEANDTYPE_INITIAL_SIZE);	
-	poolContent = classFile.header;
-	currentOffset = classFile.headerOffset;
+	this.UTF8Cache = new CharArrayCache(UTF8_INITIAL_SIZE);
+	this.stringCache = new CharArrayCache(STRING_INITIAL_SIZE);
+	this.fieldCache = new ObjectCache(FIELD_INITIAL_SIZE);
+	this.methodCache = new ObjectCache(METHOD_INITIAL_SIZE);
+	this.interfaceMethodCache = new ObjectCache(INTERFACE_INITIAL_SIZE);
+	this.classCache = new ObjectCache(CLASS_INITIAL_SIZE);
+	this.nameAndTypeCacheForMethods = new MethodNameAndTypeCache(NAMEANDTYPE_INITIAL_SIZE);
+	this.nameAndTypeCacheForFields = new FieldNameAndTypeCache(NAMEANDTYPE_INITIAL_SIZE);   
+	this.poolContent = classFile.header;
+	this.currentOffset = classFile.headerOffset;
 	// currentOffset is initialized to 0 by default
-	currentIndex = 1;
+	this.currentIndex = 1;
+	this.classFile = classFile;
 }
 /**
  * Return the content of the receiver
@@ -334,7 +337,7 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangString) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Intern))) {
 				// This method binding is toString()
 				return INTERN_METHOD_NAME_AND_TYPE;
-			}		
+			}       
 	}
 	return -1;
 }
@@ -407,7 +410,7 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 				} else
 					if ((firstChar == '<') && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Init))) {
 						if ((methodBinding.parameters.length == 1) && (methodBinding.parameters[0].id == T_JavaLangString)) {
-							// This method binding is <init>(String)					
+							// This method binding is <init>(String)                    
 							return STRINGBUFFER_STRING_CONSTR_METHOD;
 						} else {
 							if (methodBinding.parameters.length == 0) {
@@ -501,6 +504,9 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 	if ((index = UTF8Cache.get(stringCharArray)) < 0) {
 		// The entry doesn't exit yet
 		index = UTF8Cache.put(stringCharArray, currentIndex);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		currentIndex++;
 		// Write the tag first
 		writeU1(Utf8Tag);
@@ -577,7 +583,10 @@ public int literalIndex(char[] utf8Constant) {
 			return -1;
 		}
 		index = UTF8Cache.put(utf8Constant, currentIndex);
-		currentIndex++;		
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		currentIndex++;     
 		// Now we know the length that we have to write in the constant pool
 		// we use savedCurrentOffset to do that
 		poolContent[savedCurrentOffset] = (byte) (length >> 8);
@@ -592,6 +601,9 @@ public int literalIndex(char[] stringCharArray, byte[] utf8encoding) {
 		// The entry doesn't exit yet
 		stringIndex = literalIndex(utf8encoding, stringCharArray);
 		index = stringCache.put(stringCharArray, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the tag first
 		writeU1(StringTag);
 		// Then the string index
@@ -619,6 +631,9 @@ public int literalIndex(double key) {
 	}
 	if ((index = doubleCache.get(key)) < 0) {
 		index = doubleCache.put(key, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		currentIndex++; // a double needs an extra place into the constant pool
 		// Write the double into the constant pool
 		// First add the tag
@@ -655,6 +670,9 @@ public int literalIndex(float key) {
 	}
 	if ((index = floatCache.get(key)) < 0) {
 		index = floatCache.put(key, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the float constant entry into the constant pool
 		// First add the tag
 		writeU1(FloatTag);
@@ -690,6 +708,9 @@ public int literalIndex(int key) {
 	}
 	if ((index = intCache.get(key)) < 0) {
 		index = intCache.put(key, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the integer constant entry into the constant pool
 		// First add the tag
 		writeU1(IntegerTag);
@@ -726,6 +747,9 @@ public int literalIndex(long key) {
 	}
 	if ((index = longCache.get(key)) < 0) {
 		index = longCache.put(key, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		currentIndex++; // long value need an extra place into thwe constant pool
 		// Write the long into the constant pool
 		// First add the tag
@@ -756,6 +780,9 @@ public int literalIndex(String stringConstant) {
 		// The entry doesn't exit yet
 		int stringIndex = literalIndex(stringCharArray);
 		index = stringCache.put(stringCharArray, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the tag first
 		writeU1(StringTag);
 		// Then the string index
@@ -781,6 +808,9 @@ public int literalIndex(FieldBinding aFieldBinding) {
 			classIndex = literalIndex(aFieldBinding.declaringClass);
 			nameAndTypeIndex = literalIndexForFields(literalIndex(aFieldBinding.name), literalIndex(aFieldBinding.type.signature()), aFieldBinding);
 			index = fieldCache.put(aFieldBinding, currentIndex++);
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(FieldRefTag);
 			writeU2(classIndex);
 			writeU2(nameAndTypeIndex);
@@ -791,6 +821,9 @@ public int literalIndex(FieldBinding aFieldBinding) {
 			classIndex = literalIndex(aFieldBinding.declaringClass);
 			nameAndTypeIndex = literalIndexForFields(literalIndex(aFieldBinding.name), literalIndex(aFieldBinding.type.signature()), aFieldBinding);
 			index = wellKnownFields[indexWellKnownField] = currentIndex++;
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(FieldRefTag);
 			writeU2(classIndex);
 			writeU2(nameAndTypeIndex);
@@ -819,6 +852,9 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				classIndex = literalIndex(aMethodBinding.declaringClass);
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = interfaceMethodCache.put(aMethodBinding, currentIndex++);
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the interface method ref constant into the constant pool
 				// First add the tag
 				writeU1(InterfaceMethodRefTag);
@@ -833,6 +869,9 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				classIndex = literalIndex(aMethodBinding.declaringClass);
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = methodCache.put(aMethodBinding, currentIndex++);
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -851,6 +890,9 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				classIndex = literalIndex(aMethodBinding.declaringClass);
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the interface method ref constant into the constant pool
 				// First add the tag
 				writeU1(InterfaceMethodRefTag);
@@ -863,6 +905,9 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				classIndex = literalIndex(aMethodBinding.declaringClass);
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -890,6 +935,9 @@ public int literalIndex(TypeBinding aTypeBinding) {
 			// The entry doesn't exit yet
 			nameIndex = literalIndex(aTypeBinding.constantPoolName());
 			index = classCache.put(aTypeBinding, currentIndex++);
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(ClassTag);
 			// Then add the 8 bytes representing the long
 			writeU2(nameIndex);
@@ -899,6 +947,9 @@ public int literalIndex(TypeBinding aTypeBinding) {
 			// Need to insert that binding
 			nameIndex = literalIndex(aTypeBinding.constantPoolName());
 			index = wellKnownTypes[indexWellKnownType] = currentIndex++;
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(ClassTag);
 			// Then add the 8 bytes representing the long
 			writeU2(nameIndex);
@@ -923,6 +974,9 @@ public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key)
 		if ((index = nameAndTypeCacheForFields.get(key)) == -1) {
 			// The entry doesn't exit yet
 			index = nameAndTypeCacheForFields.put(key, currentIndex++);
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
@@ -930,6 +984,9 @@ public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key)
 	} else {
 		if ((index = wellKnownFieldNameAndTypes[indexOfWellKnownFieldNameAndType]) == 0) {
 			index = wellKnownFieldNameAndTypes[indexOfWellKnownFieldNameAndType] = currentIndex++;
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
@@ -950,6 +1007,9 @@ public int literalIndexForJavaLangBoolean() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangBooleanConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_BOOLEAN_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -978,6 +1038,9 @@ public int literalIndexForJavaLangBooleanTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_BOOLEAN_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -997,6 +1060,9 @@ public int literalIndexForJavaLangByte() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangByteConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_BYTE_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1025,6 +1091,9 @@ public int literalIndexForJavaLangByteTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_BYTE_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1044,6 +1113,9 @@ public int literalIndexForJavaLangCharacter() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangCharacterConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_CHARACTER_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1072,6 +1144,9 @@ public int literalIndexForJavaLangCharacterTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_CHARACTER_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1091,6 +1166,9 @@ public int literalIndexForJavaLangClass() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangClassConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_CLASS_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1120,6 +1198,9 @@ public int literalIndexForJavaLangClassForName() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[FORNAME_CLASS_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1153,6 +1234,9 @@ public int literalIndexForJavaLangClassGetConstructor() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[GETCONSTRUCTOR_CLASS_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1176,6 +1260,9 @@ public int literalIndexForJavaLangClassNotFoundException() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangClassNotFoundExceptionConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_CLASSNOTFOUNDEXCEPTION_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1195,6 +1282,9 @@ public int literalIndexForJavaLangDouble() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangDoubleConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_DOUBLE_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1223,6 +1313,9 @@ public int literalIndexForJavaLangDoubleTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_DOUBLE_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1242,6 +1335,9 @@ public int literalIndexForJavaLangError() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangErrorConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_ERROR_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1271,6 +1367,9 @@ public int literalIndexForJavaLangErrorConstructor() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[JAVALANGERROR_CONSTR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1287,6 +1386,9 @@ public int literalIndexForJavaLangException() {
 		// The entry doesn't exit yet
 		int nameIndex = literalIndex(QualifiedNamesConstants.JavaLangExceptionConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_EXCEPTION_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1306,6 +1408,9 @@ public int literalIndexForJavaLangFloat() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangFloatConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_FLOAT_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1334,6 +1439,9 @@ public int literalIndexForJavaLangFloatTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_FLOAT_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1353,6 +1461,9 @@ public int literalIndexForJavaLangInteger() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangIntegerConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_INTEGER_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1381,6 +1492,9 @@ public int literalIndexForJavaLangIntegerTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_INTEGER_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1400,6 +1514,9 @@ public int literalIndexForJavaLangLong() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangLongConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_LONG_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1428,6 +1545,9 @@ public int literalIndexForJavaLangLongTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_LONG_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1447,6 +1567,9 @@ public int literalIndexForJavaLangNoClassDefFoundError() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangNoClassDefFoundErrorConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_NOCLASSDEFFOUNDERROR_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1476,6 +1599,9 @@ public int literalIndexForJavaLangNoClassDefFoundErrorStringConstructor() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[NOCLASSDEFFOUNDERROR_CONSTR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1499,6 +1625,9 @@ public int literalIndexForJavaLangObject() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangObjectConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_OBJECT_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1518,6 +1647,9 @@ public int literalIndexForJavaLangReflectConstructor() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangReflectConstructor);
 		index = wellKnownTypes[JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1540,6 +1672,9 @@ public int literalIndexForJavaLangReflectConstructorNewInstance() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[NEWINSTANCE_CONSTRUCTOR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1563,6 +1698,9 @@ public int literalIndexForJavaLangShort() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangShortConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_SHORT_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1591,6 +1729,9 @@ public int literalIndexForJavaLangShortTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_SHORT_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -1610,6 +1751,9 @@ public int literalIndexForJavaLangString() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangStringConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_STRING_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1629,6 +1773,9 @@ public int literalIndexForJavaLangStringBuffer() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangStringBufferConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_STRINGBUFFER_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1661,6 +1808,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_INT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1682,6 +1832,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_LONG_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1703,6 +1856,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_FLOAT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1724,6 +1880,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_DOUBLE_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1745,6 +1904,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_CHAR_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1766,6 +1928,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_BOOLEAN_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1787,6 +1952,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_OBJECT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1809,6 +1977,9 @@ public int literalIndexForJavaLangStringBufferAppend(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[APPEND_STRING_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1844,6 +2015,9 @@ public int literalIndexForJavaLangStringBufferConstructor() {
 					writeU2(typeIndex);
 				}
 		index = wellKnownMethods[STRINGBUFFER_STRING_CONSTR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1877,6 +2051,9 @@ public int literalIndexForJavaLangStringBufferDefaultConstructor() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[STRINGBUFFER_DEFAULT_CONSTR_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1910,6 +2087,9 @@ public int literalIndexForJavaLangStringBufferToString() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[STRINGBUFFER_TOSTRING_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1943,6 +2123,9 @@ public int literalIndexForJavaLangStringIntern() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[STRING_INTERN_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1978,6 +2161,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_INT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1998,6 +2184,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_LONG_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2018,6 +2207,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_FLOAT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2038,6 +2230,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_DOUBLE_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2058,6 +2253,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_CHAR_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2078,6 +2276,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_BOOLEAN_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2098,6 +2299,9 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 					writeU2(typeIndex);
 				}
 				index = wellKnownMethods[VALUEOF_OBJECT_METHOD] = currentIndex++;
+				if (index > 0xFFFF){
+					this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+				}
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -2123,6 +2327,9 @@ public int literalIndexForJavaLangSystem() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangSystemConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_SYSTEM_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -2152,6 +2359,9 @@ public int literalIndexForJavaLangSystemExitInt() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[SYSTEM_EXIT_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -2184,6 +2394,9 @@ public int literalIndexForJavaLangSystemOut() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[OUT_SYSTEM_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -2203,6 +2416,9 @@ public int literalIndexForJavaLangThrowable() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangThrowableConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_THROWABLE_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -2232,6 +2448,9 @@ public int literalIndexForJavaLangThrowableGetMessage() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[THROWABLE_GETMESSAGE_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -2255,6 +2474,9 @@ public int literalIndexForJavaLangVoid() {
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(QualifiedNamesConstants.JavaLangVoidConstantPoolName);
 		index = wellKnownTypes[JAVA_LANG_VOID_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -2283,6 +2505,9 @@ public int literalIndexForJavaLangVoidTYPE() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownFields[TYPE_VOID_FIELD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		writeU1(FieldRefTag);
 		writeU2(classIndex);
 		writeU2(nameAndTypeIndex);
@@ -2349,6 +2574,9 @@ public int literalIndexForLdc(char[] stringCharArray) {
 			poolContent[savedCurrentOffset + 1] = (byte) length;
 		}
 		index = stringCache.put(stringCharArray, currentIndex++);
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
 		// Write the tag first
 		writeU1(StringTag);
 		// Then the string index
@@ -2373,6 +2601,9 @@ public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding ke
 		if ((index = nameAndTypeCacheForMethods.get(key)) == -1) {
 			// The entry doesn't exit yet
 			index = nameAndTypeCacheForMethods.put(key, currentIndex++);
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
@@ -2380,6 +2611,9 @@ public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding ke
 	} else {
 		if ((index = wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType]) == 0) {
 			index = wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType] = currentIndex++;
+			if (index > 0xFFFF){
+				this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+			}
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);

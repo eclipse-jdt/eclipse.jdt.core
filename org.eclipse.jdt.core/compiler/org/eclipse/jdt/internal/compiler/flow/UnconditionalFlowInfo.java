@@ -187,8 +187,9 @@ final private boolean isDefinitelyAssigned(int position) {
  * Check status of definite assignment for a field.
  */
 final public boolean isDefinitelyAssigned(FieldBinding field) {
+	// Dependant of CodeStream.isDefinitelyAssigned(..)
 	// We do not want to complain in unreachable code
-	if (this == DeadEnd)
+	if ((this == DeadEnd) || (this.isFakeReachable))
 		return true;
 	return isDefinitelyAssigned(field.id); 
 }
@@ -419,9 +420,9 @@ static int numberOfEnclosingFields(ReferenceBinding type){
 }
 public String toString(){
 	if (this == DeadEnd){
-		return "FlowInfo.DeadEnd";
+		return "FlowInfo.DeadEnd"/*nonNLS*/;
 	}
-	return "FlowInfo<def: "+ definiteInits +", pot: " + potentialInits + ">";
+	return "FlowInfo<def: "/*nonNLS*/+ definiteInits +", pot: "/*nonNLS*/ + potentialInits + ">"/*nonNLS*/;
 }
 public UnconditionalFlowInfo unconditionalInits() {
 	// also see conditional inits, where it requests them to merge

@@ -152,7 +152,7 @@ public class NameLookup implements INameLookup {
 		if (index != -1) {
 			cuName= cuName.substring(0, index);
 		}
-		cuName += ".java";
+		cuName += ".java"/*nonNLS*/;
 
 		IPackageFragment[] frags= (IPackageFragment[]) fPackageFragments.get(pkgName);
 		if (frags != null) {
@@ -173,7 +173,7 @@ public class NameLookup implements INameLookup {
  */
 public IPackageFragment findPackageFragment(IPath path) {
 	if (!path.isAbsolute()) {
-		throw new IllegalArgumentException("Path must be absolute");
+		throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute"/*nonNLS*/));
 	}
 	IResource possibleFragment = workspace.getRoot().findMember(path);
 	if (possibleFragment == null) {
@@ -244,7 +244,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 	 */
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path) {
 		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException("Path must be absolute");
+			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute"/*nonNLS*/));
 		}
 		for (int i= 0; i < fPackageFragmentRoots.length; i++) {
 			IPackageFragmentRoot classpathRoot= fPackageFragmentRoots[i];
@@ -532,7 +532,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 		 * the compilationUnits always will. So add it if we're looking for 
 		 * an exact match.
 		 */
-		String unitName= partialMatch ? matchName.toLowerCase() : matchName + ".java";
+		String unitName= partialMatch ? matchName.toLowerCase() : matchName + ".java"/*nonNLS*/;
 
 		for (int i= 0; i < length; i++) {
 			if (requestor.isCanceled())

@@ -23,13 +23,13 @@ public String stringValue() {
 	
 	String s = new Boolean(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(boolean)" + value ; }
+	return "(boolean)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_boolean;
 }

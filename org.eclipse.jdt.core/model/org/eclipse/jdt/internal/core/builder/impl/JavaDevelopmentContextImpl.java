@@ -4,18 +4,35 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Vector;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.internal.core.builder.*;
-import java.io.*;
-import java.util.*;
-import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.internal.core.util.IProgressListener;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.builder.IBinaryBroker;
+import org.eclipse.jdt.internal.core.builder.IBuildListener;
+import org.eclipse.jdt.internal.core.builder.IBuildMonitor;
+import org.eclipse.jdt.internal.core.builder.IDevelopmentContext;
+import org.eclipse.jdt.internal.core.builder.IImage;
+import org.eclipse.jdt.internal.core.builder.IImageBuilder;
+import org.eclipse.jdt.internal.core.builder.IImageContext;
+import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.IProblemReporter;
+import org.eclipse.jdt.internal.core.builder.IState;
+import org.eclipse.jdt.internal.core.builder.IType;
+import org.eclipse.jdt.internal.core.builder.NotPresentException;
+import org.eclipse.jdt.internal.core.util.IProgressListener;
 
 public class JavaDevelopmentContextImpl implements IDevelopmentContext {
 
@@ -53,12 +70,12 @@ public class JavaDevelopmentContextImpl implements IDevelopmentContext {
 	/**
 	 * The default package.
 	 */
-	private final IPackage fDefaultPackage = fImage.getPackageHandle("java.lang", false);
+	private final IPackage fDefaultPackage = fImage.getPackageHandle("java.lang"/*nonNLS*/, false);
 
 	/**
 	 * The root class handle
 	 */
-	private final IType fRootClass = fDefaultPackage.getClassHandle("Object");
+	private final IType fRootClass = fDefaultPackage.getClassHandle("Object"/*nonNLS*/);
 
 	/**
 	 * Primitive types
@@ -178,7 +195,7 @@ protected Vector getBuildListeners() {
 	}
 public IState getCurrentState() throws NotPresentException {
 	if (fCurrentState == null) {
-		throw new NotPresentException("no current state");
+		throw new NotPresentException("Internal Error - No current state"/*nonNLS*/);
 	}
 	return fCurrentState;
 }
@@ -286,7 +303,7 @@ protected IType[] parameterTypesFromSignature(final String signature) {
 		char c = localSig.charAt(position);
 		if (c == 'L' || c == 'Q') {
 			/* its a class type */
-			int endIndex = localSig.indexOf(";") + 1;
+			int endIndex = localSig.indexOf(";"/*nonNLS*/) + 1;
 			parmType = classTypeFromName(localSig.substring(position, endIndex));
 			localSig = localSig.substring(endIndex);
 		} else {
@@ -339,12 +356,10 @@ public IState restoreState(IProject project, DataInputStream in) throws IOExcept
 		return new StateSnap().read(this, project, in);
 	}
 	catch (RuntimeException e) {
-		System.out.println("RuntimeException restoring state:");
 		e.printStackTrace();
 		throw e;
 	}
 	catch (Error e) {
-		System.out.println("Error restoring state:");
 		e.printStackTrace();
 		throw e;
 	}
@@ -357,17 +372,14 @@ public void saveState(IState state, DataOutputStream out) throws IOException {
 		new StateSnap().save((StateImpl) state, out);
 	}
 	catch (IOException e) {
-		System.out.println("IOException saving state: ");
 		e.printStackTrace();
 		throw e;
 	}
 	catch (RuntimeException e) {
-		System.out.println("RuntimeException saving state: ");
 		e.printStackTrace();
 		throw e;
 	}
 	catch (Error e) {
-		System.out.println("Error saving state:");
 		e.printStackTrace();
 		throw e;
 	}
@@ -417,6 +429,6 @@ public void setCurrentState(IState state) {
 		fProgressMonitor = monitor;
 	}
 	public String toString() {
-		return "a JavaDevelopmentContextImpl(" + fCurrentState + ")";
+		return "a JavaDevelopmentContextImpl("/*nonNLS*/ + fCurrentState + ")"/*nonNLS*/;
 	}
 }

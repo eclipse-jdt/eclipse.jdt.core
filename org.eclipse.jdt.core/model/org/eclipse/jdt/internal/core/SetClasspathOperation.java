@@ -57,7 +57,7 @@ public SetClasspathOperation(IJavaProject project, IClasspathEntry[] oldResolved
  * Sets the classpath of the pre-specified project.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask("Setting classpath...", 2);
+	beginTask(Util.bind("classpath.settingProgress"/*nonNLS*/), 2);
 	JavaProject project= ((JavaProject) getElementsToProcess()[0]);
 	
 	project.setRawClasspath0(this.newRawPath);
@@ -164,9 +164,7 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	IClasspathEntry[] classpath = this.newRawPath;
 	IJavaProject javaProject = (IJavaProject)getElementToProcess();
-	IPath projectPath= javaProject.getProject().getFullPath();
 
 	// retrieve output location
 	IPath outputLocation;
@@ -176,46 +174,7 @@ public IJavaModelStatus verify() {
 		return e.getJavaModelStatus();
 	}
 
-	// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-	boolean allowNestingInOutput = false;
-	for (int i = 0 ; i < classpath.length; i++) {
-		if (classpath[i].getPath().equals(outputLocation)){
-			allowNestingInOutput = true;
-			break;
-		}
-	}
-
-	// check all entries
-	for (int i = 0 ; i < classpath.length; i++) {
-		IClasspathEntry entry = classpath[i];
-		IPath entryPath = entry.getPath();
-
-		// no further check if entry coincidates with project or output location
-		if (entryPath.equals(projectPath)) continue;
-		if (entryPath.equals(outputLocation)) continue;
-		
-		// prevent nesting source entries in each other
-		if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
-			for (int j = 0; j < classpath.length; j++){
-				IClasspathEntry otherEntry = classpath[j];
-				if (entry != otherEntry && otherEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
-					if (entryPath.isPrefixOf(otherEntry.getPath())){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryPath);
-					}
-				}
-			}
-		}
-		// prevent nesting output location inside entry
-		if (entryPath.isPrefixOf(outputLocation)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryPath);
-		}
-
-		// prevent nesting entry inside output location - when distinct from project or a source folder
-		if (!allowNestingInOutput && outputLocation.isPrefixOf(entryPath)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryPath);
-		}
-	}
-	return JavaModelStatus.VERIFIED_OK;
+	return JavaConventions.validateClasspath(javaProject, this.newRawPath, outputLocation);
 }
 
 /**

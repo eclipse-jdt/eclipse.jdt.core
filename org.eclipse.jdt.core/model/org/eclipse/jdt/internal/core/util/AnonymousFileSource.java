@@ -19,7 +19,7 @@ public AnonymousFileSource(File directory) {
 	if (!directory.exists()) {
 		directory.mkdirs();
 	} else if (!directory.isDirectory()) {
-		throw new IllegalArgumentException("Directory arguments should be a directory.");
+		throw new IllegalArgumentException("Directory arguments should be a directory."/*nonNLS*/);
 	}
 	fDirectory = directory;	
 }
@@ -30,7 +30,7 @@ public AnonymousFileSource(File directory) {
 synchronized public RandomAccessFile allocateAnonymousFile() throws IOException {
 	
 	File file = getAnonymousFile();
-	return new RandomAccessFile(file, "rw");
+	return new RandomAccessFile(file, "rw"/*nonNLS*/);
 }
 /**
  * Returns a URL on a newly allocated file with the given initial content.
@@ -38,17 +38,17 @@ synchronized public RandomAccessFile allocateAnonymousFile() throws IOException 
  */
 synchronized public URL allocateAnonymousURL(byte[] bytes) throws IOException {
 	try {
-		byte hasharray[] = java.security.MessageDigest.getInstance("SHA").digest(bytes);
+		byte hasharray[] = java.security.MessageDigest.getInstance("SHA"/*nonNLS*/).digest(bytes);
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < hasharray.length; i++) {
 			sb.append(Character.forDigit((int)((hasharray[i] >> 4) & 0x0F), 16));
 			sb.append(Character.forDigit((int)(hasharray[i] & 0x0F), 16));
 		}
-		sb.append(".jnk");
+		sb.append(".jnk"/*nonNLS*/);
 		String fileName = sb.toString();
 		File file = fileForName(fileName);
 		if (!file.exists()) {
-			RandomAccessFile raf = new RandomAccessFile(file, "rw");
+			RandomAccessFile raf = new RandomAccessFile(file, "rw"/*nonNLS*/);
 			raf.write(bytes);
 			raf.close();
 		}
@@ -64,7 +64,7 @@ synchronized public URL allocateAnonymousURL(byte[] bytes) throws IOException {
 static public URL convertFileToURL(File file) {
 	try {
 		String path = file.getCanonicalPath().replace(java.io.File.separatorChar, '/');
-		return new URL("file", "", "/" + path);
+		return new URL("file"/*nonNLS*/, ""/*nonNLS*/, "/"/*nonNLS*/ + path);
 	}
 	catch (IOException ioe) {
 		throw new Error();
@@ -121,7 +121,7 @@ synchronized public String getAnonymousFileName(long l) {
 		sb.append(Character.forDigit((int)(l % 36), 36));
 		l /= 36;
 	}
-	sb.append(".jnk");
+	sb.append(".jnk"/*nonNLS*/);
 	return sb.toString();
 }
 }

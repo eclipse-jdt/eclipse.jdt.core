@@ -112,13 +112,7 @@ public void accept(ICompilationUnit sourceUnit) {
 		}
 
 		if (options.verbose) {
-			System.out.println(
-				"request "
-					+ (totalUnits + 1)
-					+ "/"
-					+ (totalUnits + 1)
-					+ " : "
-					+ new String(sourceUnit.getFileName())); 
+			System.out.println(Util.bind("compilation.request"/*nonNLS*/,new String[]{String.valueOf(totalUnits + 1),String.valueOf(totalUnits + 1),new String(sourceUnit.getFileName())})); 
 		}
 
 		// initial type binding creation
@@ -142,12 +136,7 @@ public void accept(ICompilationUnit sourceUnit) {
  */
 
 public void accept(ISourceType sourceType, PackageBinding packageBinding) {
-	problemReporter.abortDueToInternalError(
-		new StringBuffer("Cannot compile against source model ")
-			.append(sourceType.getName())
-			.append(" issued from ")
-			.append(sourceType.getFileName())
-			.toString());
+	problemReporter.abortDueToInternalError(Util.bind("abort.againstSourceModel "/*nonNLS*/,String.valueOf(sourceType.getName()),String.valueOf(sourceType.getFileName())));
 }
 protected void addCompilationUnit(ICompilationUnit sourceUnit, CompilationUnitDeclaration parsedUnit) {
 
@@ -177,7 +166,7 @@ protected void beginToCompile(ICompilationUnit[] sourceUnits) {
 			else
 			{	parsedUnit = parser.dietParse(sourceUnits[i], unitResult);}
 			if (options.verbose) {
-				System.out.println("request " + (i+1) + "/" + maxUnits + " : " + new String(sourceUnits[i].getFileName()));
+				System.out.println(Util.bind("compilation.request"/*nonNLS*/,new String[]{String.valueOf(i+1),String.valueOf(maxUnits),new String(sourceUnits[i].getFileName())}));
 			}
 			// initial type binding creation
 			lookupEnvironment.buildTypeBindings(parsedUnit);
@@ -209,13 +198,13 @@ public void compile(ICompilationUnit[] sourceUnits) {
 		for (; i < totalUnits; i++) {
 			unit = unitsToProcess[i];
 			try {
-				if (options.verbose) System.out.println(	"process " + (i + 1) + "/" + totalUnits + " : " + new String(unitsToProcess[i].getFileName())); 
+				if (options.verbose) System.out.println(Util.bind("compilation.process"/*nonNLS*/,new String[]{String.valueOf(i + 1),String.valueOf(totalUnits),new String(unitsToProcess[i].getFileName())})); 
 				process(unit, i);
 			} finally {
 				// cleanup compilation unit result
 				unit.cleanUp();
 				if (options.verbose) 
-					System.out.println("done    " + (i + 1) + "/" + totalUnits + " : " + new String(unitsToProcess[i].getFileName())); 
+					System.out.println(Util.bind("compilation.done"/*nonNLS*/,new String[]{String.valueOf(i + 1),String.valueOf(totalUnits),new String(unitsToProcess[i].getFileName())}));  
 			}
 			unitsToProcess[i] = null; // release reference to processed unit declaration
 			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
@@ -233,9 +222,9 @@ public void compile(ICompilationUnit[] sourceUnits) {
 	}
 	if (options.verbose) {
 		if (totalUnits > 1) {
-			System.out.println(totalUnits + " units compiled");
+			System.out.println(Util.bind("compilation.units"/*nonNLS*/,String.valueOf(totalUnits)));
 		} else {
-			System.out.println(totalUnits + " unit compiled");
+			System.out.println(Util.bind("compilation.unit"/*nonNLS*/,String.valueOf(totalUnits)));
 		}
 	}
 }
@@ -292,7 +281,7 @@ protected void handleInternalException(Throwable internalException, CompilationU
 			problemReporter.createProblem(
 				result.getFileName(), 
 				ProblemIrritants.UnclassifiedProblem, 
-				new String[] {"Internal compiler error\n" + buffer.toString()},
+				new String[] {Util.bind("compilation.internalError"/*nonNLS*/)+"\n"/*nonNLS*/ + buffer.toString()},
 				Error, // severity
 				0, // source start
 				0, // source end

@@ -101,15 +101,15 @@ public String toStringExpression(){
 
 	//subclass redefine toStringExpressionNoParenthesis()
 	
-	return	"(" + toStringExpressionNoParenthesis() + ")"; }
+	return	"("/*nonNLS*/ + toStringExpressionNoParenthesis() + ")"/*nonNLS*/; }
 public String toStringExpressionNoParenthesis() {
 
-	return 	lhs.toStringExpression() + " " +
-			"=" + 
+	return 	lhs.toStringExpression() + " "/*nonNLS*/ +
+			"="/*nonNLS*/ + 
 			
 			( (expression.constant != null ) && (expression.constant != NotAConstant) ?
-			 	" /*cst:"+expression.constant.toString()+"*/ " :
-			 	" " ) +
+			 	" /*cst:"/*nonNLS*/+expression.constant.toString()+"*/ "/*nonNLS*/ :
+			 	" "/*nonNLS*/ ) +
 				
 			expression.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -55,7 +55,7 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 		// is actually the package fragment root)
 		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
 			Vector vChildren = new Vector(5);
-			computeFolderChildren((IContainer) fResource, "", vChildren);
+			computeFolderChildren((IContainer) fResource, ""/*nonNLS*/, vChildren);
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.copyInto(children);
 			info.setChildren(children);
@@ -86,7 +86,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, Vector vC
 				if (prefix.length() == 0) {
 					newPrefix = member.getName();
 				} else {
-					newPrefix = prefix + "." + member.getName();
+					newPrefix = prefix + "."/*nonNLS*/ + member.getName();
 				}
 				// eliminate binary output only if nested inside direct subfolders
 				if (!member.getFullPath().equals(outputLocationPath)) {
@@ -219,7 +219,7 @@ protected String getPackageName(IFolder folder) throws JavaModelException {
 	StringBuffer name = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
 	for (int i= mySegmentCount; i < pkgSegmentCount; i++) {
 		if (i > mySegmentCount) {
-			name.append(".");
+			name.append('.');
 		}
 		name.append(pkgPath.segment(i));
 	}
@@ -296,12 +296,12 @@ public void refreshChildren() {
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (getElementName().length() == 0) {
-		buffer.append("[project root]");
+		buffer.append("[project root]"/*nonNLS*/);
 	} else {
 		buffer.append(getElementName());
 	}
 	if (info == null) {
-		buffer.append(" (not open)");
+		buffer.append(" (not open)"/*nonNLS*/);
 	}
 }
 }

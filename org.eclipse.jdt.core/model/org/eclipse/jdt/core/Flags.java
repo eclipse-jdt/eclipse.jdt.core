@@ -169,20 +169,20 @@ private Flags() {}
 	public static String toString(int flags) {
 		StringBuffer sb = new StringBuffer();
 
-		if (isPublic(flags))	sb.append("public ");
-		if (isProtected(flags)) sb.append("protected ");
-		if (isPrivate(flags))	sb.append("private ");
-		if (isStatic(flags)) sb.append("static ");
-		if (isAbstract(flags)) sb.append("abstract ");
-		if (isFinal(flags)) sb.append("final ");
-		if (isNative(flags)) sb.append("native ");
-		if (isSynchronized(flags)) sb.append("synchronized ");
-		if (isTransient(flags)) sb.append("transient ");
-		if (isVolatile(flags)) sb.append("volatile ");
-		if (isStrictfp(flags)) sb.append("strictfp ");
+		if (isPublic(flags))	sb.append("public "/*nonNLS*/);
+		if (isProtected(flags)) sb.append("protected "/*nonNLS*/);
+		if (isPrivate(flags))	sb.append("private "/*nonNLS*/);
+		if (isStatic(flags)) sb.append("static "/*nonNLS*/);
+		if (isAbstract(flags)) sb.append("abstract "/*nonNLS*/);
+		if (isFinal(flags)) sb.append("final "/*nonNLS*/);
+		if (isNative(flags)) sb.append("native "/*nonNLS*/);
+		if (isSynchronized(flags)) sb.append("synchronized "/*nonNLS*/);
+		if (isTransient(flags)) sb.append("transient "/*nonNLS*/);
+		if (isVolatile(flags)) sb.append("volatile "/*nonNLS*/);
+		if (isStrictfp(flags)) sb.append("strictfp "/*nonNLS*/);
 
 		int len = sb.length();
-		if (len == 0) return "";
+		if (len == 0) return ""/*nonNLS*/;
 		sb.setLength(len-1);
 		return sb.toString();
 	}

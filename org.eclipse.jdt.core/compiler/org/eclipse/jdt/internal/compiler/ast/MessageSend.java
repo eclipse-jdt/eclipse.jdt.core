@@ -239,15 +239,15 @@ public void setFieldIndex(int depth) {
 public String toStringExpression(){
 	/*slow code*/
 	
-	String s = "";
+	String s = ""/*nonNLS*/;
 	if (receiver != ThisReference.ThisImplicit)
-		s = s + receiver.toStringExpression()+".";
-	s = s + new String(selector) + "(" ;
+		s = s + receiver.toStringExpression()+"."/*nonNLS*/;
+	s = s + new String(selector) + "("/*nonNLS*/ ;
 	if (arguments != null)
 		for (int i = 0; i < arguments.length ; i ++)
 		{	s = s + arguments[i].toStringExpression();
-			if ( i != arguments.length -1 ) s = s + " , " ;};;
-	s =s + ")" ;
+			if ( i != arguments.length -1 ) s = s + " , "/*nonNLS*/ ;};;
+	s =s + ")"/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

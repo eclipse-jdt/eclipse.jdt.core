@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.index.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public final class ObjectVector {
 	static int INITIAL_SIZE= 10;
@@ -56,9 +61,9 @@ public final class ObjectVector {
 		size= 0;
 	}
 	public String toString() {
-		String s= "";
+		String s= ""/*nonNLS*/;
 		for (int i= 0; i < size; i++)
-			s += elements[i].toString() + "\n";
+			s += elements[i].toString() + "\n"/*nonNLS*/;
 		return s;
 	}
 }

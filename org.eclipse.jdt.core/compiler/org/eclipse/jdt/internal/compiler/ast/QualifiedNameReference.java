@@ -597,7 +597,7 @@ public String toStringExpression() {
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append(".");
+			buffer.append("."/*nonNLS*/);
 		}
 	}
 	return buffer.toString();

@@ -10,6 +10,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Statement extends AstNode {
 	// storage for internal flags (32 bits)
@@ -77,7 +78,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 public void generateCode(BlockScope currentScope, CodeStream codeStream){
-	throw new ShouldNotImplement("Missing statement code generation implementation");
+	throw new ShouldNotImplement(Util.bind("ast.missingStatement"/*nonNLS*/));
 }
 public boolean isEmptyBlock(){
 	return false;

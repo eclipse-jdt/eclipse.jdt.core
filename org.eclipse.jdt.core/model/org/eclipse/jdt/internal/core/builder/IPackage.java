@@ -1,5 +1,13 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * The <code>IPackage</code> represents a package.
+ */
 public interface IPackage extends IHandle {
 
 
@@ -58,8 +66,8 @@ public interface IPackage extends IHandle {
 	 * string of this unnamed packaged.
 	 * This is a handle-only method.
 	 *
-	 * @return	the fully qualified name of the package
-	 *			represented by this object.
+	 * @return  the fully qualified name of the package
+	 *          represented by this object.
 	 */
 	String getName();
 	/**
@@ -88,7 +96,7 @@ public interface IPackage extends IHandle {
 	 *
 	 * @exception NotPresentException if this package is not present.
 	 */
-	 IPackage[] getReferencedPackages() throws NotPresentException;
+	 IPackage[] getReferencedPackages() throws NotPresentException; 
 	/**
 	 * Returns an array of Package objects representing all packages
 	 * in the given image context which directly reference this package.

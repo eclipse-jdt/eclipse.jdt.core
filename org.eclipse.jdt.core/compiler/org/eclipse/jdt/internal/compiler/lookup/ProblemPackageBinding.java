@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.lookup;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class ProblemPackageBinding extends PackageBinding {
 	private int problemId;

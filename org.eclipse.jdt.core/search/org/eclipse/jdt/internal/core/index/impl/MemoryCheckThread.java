@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.index.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public class MemoryCheckThread extends Thread {
 	Runtime rt= Runtime.getRuntime();

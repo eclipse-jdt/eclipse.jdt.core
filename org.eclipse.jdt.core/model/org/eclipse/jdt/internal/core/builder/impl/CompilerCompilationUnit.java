@@ -64,6 +64,6 @@ public SourceEntry getSourceEntry() {
 }
 	public String toString() {
 		// don't use append(char[]) due to JDK1.2 problems
-		return new StringBuffer("CompilationUnit(").append(getFileName()).append(")").toString();
+		return new StringBuffer("CompilationUnit("/*nonNLS*/).append(getFileName()).append(")"/*nonNLS*/).toString();
 	}
 }

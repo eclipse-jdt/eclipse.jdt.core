@@ -49,12 +49,12 @@ public TypeBinding getTypeBinding(Scope scope) {
 public String toStringExpression(int tab) {
 
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("<CompleteOnType:");
+	buffer.append("<CompleteOnType:"/*nonNLS*/);
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
-		buffer.append(".");
+		buffer.append("."/*nonNLS*/);
 	}
-	buffer.append(completionIdentifier).append(">");
+	buffer.append(completionIdentifier).append(">"/*nonNLS*/);
 	return buffer.toString();
 }
 }

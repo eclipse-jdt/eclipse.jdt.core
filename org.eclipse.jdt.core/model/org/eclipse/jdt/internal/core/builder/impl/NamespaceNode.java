@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core.builder.impl;
  */
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.IType;
 
 /**
  * 
@@ -18,11 +19,13 @@ public class NamespaceNode extends AbstractNode {
 	public NamespaceNode (IPackage pkg) {
 		fPackage = pkg;
 	}
+	public IType[] getTypes(){
+		return null;
+	}	
 	/**
 	 * Adds a node that this node depends on.  Backwards link is added automatically
 	 */
 	public void addDependency(INode nodeThatIDependOn) {
-		Assert.isTrue(false, "namespaces cannot have dependencies");
 	}
 	/**
 	 * Returns a copy of this node, without copying dependencies.  Used
@@ -59,6 +62,6 @@ public class NamespaceNode extends AbstractNode {
 	 * purposes only.
 	 */
 	public String toString() {
-		return "NamespaceNode(" + fPackage.getName() + ")";
+		return "NamespaceNode("/*nonNLS*/ + fPackage.getName() + ")"/*nonNLS*/;
 	}
 }

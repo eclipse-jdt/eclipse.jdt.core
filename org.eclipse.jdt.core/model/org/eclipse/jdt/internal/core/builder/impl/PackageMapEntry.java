@@ -32,7 +32,6 @@ void addFragment(IPath fragment) {
 	} else {
 		for (int i = 0; i < fFragments.length; ++i) {
 			if (fFragments[i].equals(fragment)) {
-				System.out.println("Warning: internal error: attempt to add duplicate package fragment in image builder: " + fragment);
 				return;
 			}
 		}
@@ -74,9 +73,9 @@ void addFragment(IPath fragment) {
 	 * This method is for debugging purposes only.
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer("PackageMapEntry(");
+		StringBuffer buf = new StringBuffer("PackageMapEntry("/*nonNLS*/);
 		buf.append(fPkg);
-		buf.append(")");
+		buf.append(")"/*nonNLS*/);
 		return buf.toString();
 	}
 }

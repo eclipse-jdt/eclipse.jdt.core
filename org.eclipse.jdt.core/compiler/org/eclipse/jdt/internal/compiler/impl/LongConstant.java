@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class LongConstant extends Constant {
 	long value;
@@ -31,13 +36,13 @@ public String stringValue() {
 	
 	String s = new Long(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(long)" + value ; }
+	return "(long)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_long;
 }

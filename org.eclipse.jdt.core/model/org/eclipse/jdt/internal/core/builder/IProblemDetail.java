@@ -1,5 +1,16 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * <code>IProblemDetail</code> provides details about a problem
+ * with the image.
+ *
+ * @see IState#getReportCard(IImageContext)
+ */ 
 public interface IProblemDetail {
 
 	/** 

@@ -37,7 +37,7 @@ final public boolean isDeadEnd() {
 /**
  * Check status of definite assignment for a field.
  */
- abstract public boolean isDefinitelyAssigned(FieldBinding field);  
+ abstract public boolean isDefinitelyAssigned(FieldBinding field);   
 /**
  * Check status of definite assignment for a local.
  */
@@ -46,11 +46,11 @@ abstract public boolean isFakeReachable();
 /**
  * Check status of potential assignment for a field.
  */
- abstract public boolean isPotentiallyAssigned(FieldBinding field);  
+ abstract public boolean isPotentiallyAssigned(FieldBinding field);   
 /**
  * Check status of potential assignment for a local variable.
  */
- abstract public boolean isPotentiallyAssigned(LocalVariableBinding field);  
+ abstract public boolean isPotentiallyAssigned(LocalVariableBinding field);   
 /**
  * Record a field got definitely assigned.
  */
@@ -71,7 +71,7 @@ abstract public FlowInfo markAsFakeReachable(boolean isFakeReachable);
 abstract public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits);
 public String toString(){
 	if (this == DeadEnd){
-		return "FlowInfo.DeadEnd";
+		return "FlowInfo.DeadEnd"/*nonNLS*/;
 	}
 	return super.toString();
 }

@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.lookup;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public class ReferenceInfo {
 
@@ -23,7 +28,7 @@ public class ReferenceInfo {
 	public static final byte REFTYPE_type = 0x20;
 	public static final byte REFTYPE_class = 0x40;
 	public static final byte REFTYPE_constant = (byte)0x80;
-//	public static final byte REFTYPE_label = 256;
+//  public static final byte REFTYPE_label = 256;
 
 /**
  * Creates a new ReferenceInfo object.  There should be one per compilation unit.
@@ -48,12 +53,12 @@ public char[][] getNames() {
  * For debugging only
  */
 public String toString() {
-	StringBuffer buf = new StringBuffer("ReferenceInfo(");
+	StringBuffer buf = new StringBuffer("ReferenceInfo("/*nonNLS*/);
 	for (int i = 0; i < fNames.length; i++) {
 		buf.append(fNames[i]);
-		buf.append(" ");
+		buf.append(" "/*nonNLS*/);
 	}
-	buf.append(")");
+	buf.append(")"/*nonNLS*/);
 	return buf.toString();
 }
 }

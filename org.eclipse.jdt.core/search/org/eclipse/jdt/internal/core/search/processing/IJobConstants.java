@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.search.processing;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public interface IJobConstants {
 
@@ -7,5 +12,5 @@ public interface IJobConstants {
 	int WaitUntilReady = 3;
 
 	boolean FAILED = false;
-	boolean COMPLETE = true;	
+	boolean COMPLETE = true;    
 }

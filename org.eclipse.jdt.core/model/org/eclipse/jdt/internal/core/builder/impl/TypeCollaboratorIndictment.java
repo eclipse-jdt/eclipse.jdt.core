@@ -1,5 +1,14 @@
 package org.eclipse.jdt.internal.core.builder.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * These indictments are issued when there is a T1 change to a
+ * type, including change of visibility, change of gender, abstractness, etc.
+ */
 class TypeCollaboratorIndictment extends Indictment {
 /**
  * Creates a new TypeCollaboratorIndictment.
@@ -19,6 +28,6 @@ protected TypeCollaboratorIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("TypeIndictment(").append(fName).append(")").toString();
+	return new StringBuffer("TypeIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
 }
 }

@@ -1,5 +1,17 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * The listener event which is sent to all <code>ISearchListener</code>s
+ * when an <code>ISearch</code> has a result to report.
+ *
+ * @see ISearch
+ * @see ISearchListener
+ */
 public class SearchResultEvent extends java.util.EventObject {
 	IHandle result;
 	int[] fMatchingPositions;

@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.util;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public final class HashtableOfObject {
 	// to avoid using Enumerations, walk the individual tables skipping nulls
@@ -73,11 +78,11 @@ public int size() {
 	return elementSize;
 }
 public String toString() {
-	String s = "";
+	String s = ""/*nonNLS*/;
 	Object object;
 	for (int i = 0, length = valueTable.length; i < length; i++)
 		if ((object = valueTable[i]) != null)
-			s += new String(keyTable[i]) + " -> " + object.toString() + "\n";
+			s += new String(keyTable[i]) + " -> "/*nonNLS*/ + object.toString() + "\n"/*nonNLS*/;
 	return s;
 }
 }

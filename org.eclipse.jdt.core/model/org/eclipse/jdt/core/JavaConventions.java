@@ -1,24 +1,25 @@
 package org.eclipse.jdt.core;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
  
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Status;
-
+
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
-
+
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
+
 import java.util.StringTokenizer;
-
-import org.eclipse.jdt.internal.core.Util;
-
+
+import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.core.runtime.*;
+import java.io.File;
+import org.eclipse.jdt.internal.core.*;
+import org.eclipse.core.resources.*;
+
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
  * <p>
@@ -28,7 +29,7 @@ import org.eclipse.jdt.internal.core.Util;
  */
 public final class JavaConventions {
 	private final static char fgDot= '.';
-	private final static String fgJAVA= "JAVA";
+	private final static String fgJAVA= "JAVA"/*nonNLS*/;
 /**
  * Not instantiable.
  */
@@ -47,8 +48,8 @@ public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
 	}
 	String extension1 = rootPath1.getFileExtension();
 	String extension2 = rootPath2.getFileExtension();
-	String jarExtension = "JAR";
-	String zipExtension = "ZIP";
+	String jarExtension = "JAR"/*nonNLS*/;
+	String zipExtension = "ZIP"/*nonNLS*/;
 	if (extension1 != null && (extension1.equalsIgnoreCase(jarExtension) || extension1.equalsIgnoreCase(zipExtension))) {
 		return false;
 	} 
@@ -110,14 +111,14 @@ private static char[] scannedIdentifier(String id) {
  */
 public static IStatus validateCompilationUnitName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "Compilation unit name must not be null", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"/*nonNLS*/), null);
 	}
 	String extension;
 	String identifier;
 	int index;
 	index = name.indexOf('.');
 	if (index == -1) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "Compilation unit name must include the \".java\" suffix", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"/*nonNLS*/), null);
 	}
 	identifier = name.substring(0, index);
 	extension = name.substring(index + 1);
@@ -126,9 +127,9 @@ public static IStatus validateCompilationUnitName(String name) {
 		return status;
 	}
 	if (!Util.isJavaFileName(name)) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "Compilation unit name must include the \".java\" suffix", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"/*nonNLS*/), null);
 	}
-	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null);
+	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
 }
 /**
  * Validate the given field name.
@@ -158,9 +159,9 @@ public static IStatus validateFieldName(String name) {
  */
 public static IStatus validateIdentifier(String id) {
 	if (scannedIdentifier(id) != null) {
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null);
+		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
 	} else {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, id + " is not a valid Java identifier", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier"/*nonNLS*/, id), null);
 	}
 }
 /**
@@ -177,13 +178,13 @@ public static IStatus validateIdentifier(String id) {
  */
 public static IStatus validateImportDeclaration(String name) {
 	if (name == null || name.length() == 0) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "An import declaration must not be null", null);;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.nullImport"/*nonNLS*/), null);
 	} 
 	if (name.charAt(name.length() - 1) == '*') {
 		if (name.charAt(name.length() - 2) == '.') {
 			return validatePackageName(name.substring(0, name.length() - 2));
 		} else {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "An import declaration must not end with an unqualified *", null);;
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.unqualifiedImport"/*nonNLS*/), null);
 		}
 	}
 	return validatePackageName(name);
@@ -203,11 +204,11 @@ public static IStatus validateImportDeclaration(String name) {
  */
 public static IStatus validateJavaTypeName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A Java type name must not be null", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nullName"/*nonNLS*/), null);
 	}
 	String trimmed = name.trim();
 	if (!name.equals(trimmed)) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A Java type name must not start or end with a blank.", null);;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nameWithBlanks"/*nonNLS*/), null);
 	}
 	int index = name.lastIndexOf('.');
 	char[] scannedID;
@@ -224,17 +225,17 @@ public static IStatus validateJavaTypeName(String name) {
 		String type = name.substring(index + 1).trim();
 		scannedID = scannedIdentifier(type);
 	}
-
+
 	if (scannedID != null) {
 		if (CharOperation.contains('$', scannedID)) {
-			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, "By convention, Java type names usually don't contain the $ character.", null);
+			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"/*nonNLS*/), null);
 		}
 		if ((scannedID.length > 0 && Character.isLowerCase(scannedID[0]))) {
-			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, "By convention, Java type names usually start with an uppercase letter.", null);
+			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.lowercaseName"/*nonNLS*/), null);
 		}
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null);
+		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
 	} else {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "The type name " + name + " is not a valid identifier.", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.invalidName"/*nonNLS*/, name), null);
 	}
 }
 /**
@@ -265,22 +266,22 @@ public static IStatus validateMethodName(String name) {
  */
 public static IStatus validatePackageName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A package name must not be null", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nullName"/*nonNLS*/), null);
 	}
 	int length;
 	if ((length = name.length()) == 0) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A package name must not be empty", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.emptyName"/*nonNLS*/), null);
 	}
 	if (name.charAt(0) == fgDot || name.charAt(length-1) == fgDot) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A package name cannot start or end with a dot", null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"/*nonNLS*/), null);
 	}
 	if (Character.isWhitespace(name.charAt(0)) || Character.isWhitespace(name.charAt(name.length() - 1))) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A package name must not start or end with a blank", null);;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"/*nonNLS*/), null);;
 	}
 	int dot = 0;
 	while (dot != -1 && dot < length-1) {
 		if ((dot = name.indexOf(fgDot, dot+1)) != -1 && dot < length-1 && name.charAt(dot+1) == fgDot) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "A package name must not contain two consecutive dots", null);
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"/*nonNLS*/), null);
 			}
 	}
 	StringTokenizer st = new StringTokenizer(name, new String(new char[] {fgDot}));
@@ -292,6 +293,7 @@ public static IStatus validatePackageName(String name) {
 			return status;
 		}
 	}
-	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null);
+	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
 }
+
 }

@@ -529,6 +529,7 @@ public TypeBinding reportError(BlockScope scope) {
 
 	return super.reportError(scope);
 }
+
 public TypeBinding resolveTypeVisibility(BlockScope scope) {
 	// field and/or local are done before type lookups
 

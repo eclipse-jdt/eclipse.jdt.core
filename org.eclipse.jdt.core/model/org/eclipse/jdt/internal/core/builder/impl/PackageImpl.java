@@ -4,14 +4,22 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.core.builder.*;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.builder.IHandle;
+import org.eclipse.jdt.internal.core.builder.IImageContext;
+import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.ISourceFragment;
+import org.eclipse.jdt.internal.core.builder.IState;
+import org.eclipse.jdt.internal.core.builder.IType;
+import org.eclipse.jdt.internal.core.builder.NotPresentException;
+import org.eclipse.jdt.internal.core.builder.StateSpecificException;
 
 public class PackageImpl extends NonStateSpecificHandleImpl implements IPackage {
 	JavaDevelopmentContextImpl fDevelopmentContext;
 	String fName;
 	boolean fIsUnnamed;
 
-	public static final String DEFAULT_PACKAGE_PREFIX = "Default-";
+	public static final String DEFAULT_PACKAGE_PREFIX = "Default-"/*nonNLS*/;
 /**
  * Creates a new package
  * @param name of package
@@ -195,9 +203,9 @@ public boolean isUnnamed() {
 public static String readableName(IPackage pkg) {
 	String name = pkg.getName();
 	if (pkg.isUnnamed()) {
-		return "default package for " + name.substring(DEFAULT_PACKAGE_PREFIX.length());
+		return Util.bind("build.defaultPackageName"/*nonNLS*/, name.substring(DEFAULT_PACKAGE_PREFIX.length()));
 	} else {
-		return "package " + name;
+		return Util.bind("build.packageName"/*nonNLS*/, name);
 	}
 }
 	/**
@@ -205,9 +213,9 @@ public static String readableName(IPackage pkg) {
 	 * only (NON-NLS).
 	 */
 	public String toString() {
-		String result = "package ";
+		String result = "package "/*nonNLS*/;
 		if (isUnnamed()) 
-			result += "{unnamed, id=" + getName() + "}";
+			result += "{unnamed, id="/*nonNLS*/ + getName() + "}"/*nonNLS*/;
 		else
 			result += getName();
 		return result;

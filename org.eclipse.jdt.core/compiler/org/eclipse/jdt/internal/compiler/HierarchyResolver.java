@@ -70,9 +70,9 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
  */
 
 public void accept(ICompilationUnit sourceUnit) {
-	System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
+	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	lookupEnvironment.problemReporter.abortDueToInternalError(
-		new StringBuffer("Cannot accept the compilation unit: ")
+		new StringBuffer(Util.bind("accept.cannot"/*nonNLS*/))
 			.append(sourceUnit.getFileName())
 			.toString());
 }
@@ -275,6 +275,8 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			lookupEnvironment.completeTypeBindings(units[i], false);
 
 		reportHierarchy();
+		
+	} catch (ClassCastException e){ // work-around for 1GF5W1S - can happen in case duplicates are fed to the hierarchy with binaries hiding sources
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 	} finally {
 		reset();

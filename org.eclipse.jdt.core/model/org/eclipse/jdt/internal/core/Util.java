@@ -8,6 +8,10 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
 
+import java.util.MissingResourceException;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 /**
  * Provides convenient utility methods to other types in this package.
  */
@@ -36,13 +40,19 @@ public class Util {
 	 */
 	private static boolean JDK1_1 = false;
 
-	private final static char[] SUFFIX_class = ".class".toCharArray();
-	private final static char[] SUFFIX_CLASS = ".CLASS".toCharArray();
-	private final static char[] SUFFIX_java = ".java".toCharArray();
-	private final static char[] SUFFIX_JAVA = ".JAVA".toCharArray();
+	/* Bundle containing messages */
+	protected static ResourceBundle bundle;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.Messages"/*nonNLS*/;
+
+	public final static char[] SUFFIX_class = ".class"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_CLASS = ".CLASS"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_java = ".java"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_JAVA = ".JAVA"/*nonNLS*/.toCharArray();
+
 	static {
-		String ver = System.getProperty("java.version");
-		JDK1_1 = ((ver != null) && ver.startsWith("1.1"));
+		String ver = System.getProperty("java.version"/*nonNLS*/);
+		JDK1_1 = ((ver != null) && ver.startsWith("1.1"/*nonNLS*/));
+		relocalize();
 	}	
 	/**
 	 * Checks the type signature in String sig, 
@@ -145,8 +155,8 @@ public static int compare(char[] v1, char[] v2) {
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, char c, String s2) {
-		if (s1 == null) s1 = "null";
-		if (s2 == null) s2 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + 1 + l2];
@@ -166,8 +176,8 @@ public static int compare(char[] v1, char[] v2) {
 	 * String constructor copies its argument, but there's no way around this.
 	 */
 	public static String concat(String s1, String s2) {
-		if (s1 == null) s1 = "null";
-		if (s2 == null) s2 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + l2];
@@ -180,9 +190,9 @@ public static int compare(char[] v1, char[] v2) {
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, String s2, String s3) {
-		if (s1 == null) s1 = "null";
-		if (s2 == null) s2 = "null";
-		if (s3 == null) s3 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
+		if (s3 == null) s3 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		int l3 = s3.length();
@@ -749,6 +759,75 @@ public static void sortReverseOrder(String[] strings) {
 		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
 	}
 
+/**
+ * Lookup the message with the given ID in this catalog 
+ */
+public static String bind(String id) {
+	return bind(id, (String[])null);
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given string values.
+ */
+public static String bind(String id, String[] bindings) {
+	if (id == null)
+		return "No message available"/*nonNLS*/;
+	String message = null;
+	try {
+		message = bundle.getString(id);
+	} catch (MissingResourceException e) {
+		// If we got an exception looking for the message, fail gracefully by just returning
+		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
+		return "Missing message: "/*nonNLS*/ + id + " in: "/*nonNLS*/ + bundleName;
+	}
+	if (bindings == null)
+		return message;
+	int length = message.length();
+	int start = -1;
+	int end = length;
+	StringBuffer output = new StringBuffer(80);
+	while (true) {
+		if ((end = message.indexOf('{', start)) > -1) {
+			output.append(message.substring(start + 1, end));
+			if ((start = message.indexOf('}', end)) > -1) {
+				int index = -1;
+				try {
+					index = Integer.parseInt(message.substring(end + 1, start));
+					output.append(bindings[index]);
+				} catch (NumberFormatException nfe) {
+					output.append(message.substring(end + 1, start + 1));
+				} catch (ArrayIndexOutOfBoundsException e) {
+					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
+				}
+			} else {
+				output.append(message.substring(end, length));
+				break;
+			}
+		} else {
+			output.append(message.substring(start + 1, length));
+			break;
+		}
+	}
+	return output.toString();
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given string.
+ */
+public static String bind(String id, String binding) {
+	return bind(id, new String[] {binding});
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given strings.
+ */
+public static String bind(String id, String binding1, String binding2) {
+	return bind(id, new String[] {binding1, binding2});
+}
+
 	/**
 	 * Returns true iff str.toLowerCase().endsWith(end.toLowerCase())
 	 * implementation is not creating extra strings.
@@ -805,4 +884,11 @@ public static void sortReverseOrder(String[] strings) {
 		}
 		return true;		
 	}
+
+/**
+ * Creates a NLS catalog for the given locale.
+ */
+public static void relocalize() {
+	bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+}
 }

@@ -162,27 +162,27 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	if (this.modifiers == IConstants.AccPublic) {
-		buffer.append("public ");
+		buffer.append("public "/*nonNLS*/);
 	}
 	if (this.isClass()) {
-		buffer.append("class ");
+		buffer.append("class "/*nonNLS*/);
 	} else {
-		buffer.append("interface ");
+		buffer.append("interface "/*nonNLS*/);
 	}
 	if (this.name != null) {
 		buffer.append(this.name);
 	}
 	if (this.superclass != null) {
-		buffer.append("\n  extends ");
+		buffer.append("\n  extends "/*nonNLS*/);
 		buffer.append(this.superclass);
 	}
 	int length;
 	if (this.superInterfaces != null && (length = this.superInterfaces.length) != 0) {
-		buffer.append("\n implements ");
+		buffer.append("\n implements "/*nonNLS*/);
 		for (int i = 0; i < length; i++) {
 			buffer.append(this.superInterfaces[i]);
 			if (i != length - 1) {
-				buffer.append(", ");
+				buffer.append(", "/*nonNLS*/);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core;
 
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -9,6 +10,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
+
 
 public class Problem implements IProblem, ProblemSeverities, ProblemIrritants {
 	private char[] fileName;
@@ -35,85 +37,6 @@ public Problem(
 	this.startPosition = startPosition;
 	this.endPosition = endPosition;
 	this.line = line;
-}
-public String errorReportSource(ICompilationUnit compilationUnit) {
-	//extra from the source the innacurate     token
-	//and "highlight" it using some underneath ^^^^^
-	//put some context around too.
-
-	//this code assumes that the font used in the console is fixed size
-
-	//sanity .....
-	if ((startPosition > endPosition)
-		|| ((startPosition <= 0) && (endPosition <= 0)))
-		return "\n!! no source information available !!";
-
-	//regular behavior....(slow code)
-
-	final int AROUND = 60; //increase this value to see more ....
-	final char SPACE = '\u0020';
-	final char MARK = '^';
-	final char TAB = '\t';
-	char[] source = compilationUnit.getContents();
-	//the next code tries to underline the token.....
-	//it assumes (for a good display) that token source does not
-	//contain any \r \n. This is false on statements ! 
-	//(the code still works but the display is not optimal !)
-
-	//compute the how-much-char we are displaying around the inaccurate token
-	int begin = startPosition >= source.length ? source.length - 1 : startPosition;
-	int relativeStart = 0;
-	int end = endPosition >= source.length ? source.length - 1 : endPosition;
-	int relativeEnd = 0;
-	label : for (relativeStart = 0;; relativeStart++) {
-		if (begin == 0)
-			break label;
-		if ((source[begin - 1] == '\n') || (source[begin - 1] == '\r'))
-			break label;
-		begin--;
-	}
-	label : for (relativeEnd = 0;; relativeEnd++) {
-		if ((end + 1)>= source.length)
-			break label;
-		if ((source[end + 1] == '\r') || (source[end + 1] == '\n')) {
-			break label;
-		}
-		end++;
-	}
-	//extract the message form the source
-	char[] extract = new char[end - begin + 1];
-	System.arraycopy(source, begin, extract, 0, extract.length);
-	char c;
-	//remove all SPACE and TAB that begin the error message...
-	int trimLeftIndex = 0;
-	while (((c = extract[trimLeftIndex++]) == TAB) || (c == SPACE)) {};
-	System.arraycopy(
-		extract, 
-		trimLeftIndex - 1, 
-		extract = new char[extract.length - trimLeftIndex + 1], 
-		0, 
-		extract.length); 
-	relativeStart -= trimLeftIndex;
-	//buffer spaces and tabs in order to reach the error position
-	int pos = 0;
-	char[] underneath = new char[extract.length]; // can't be bigger
-	for (int i = 0; i <= relativeStart; i++) {
-		if (extract[i] == TAB) {
-			underneath[pos++] = TAB;
-		} else {
-			underneath[pos++] = SPACE;
-		}
-	}
-	//mark the error position
-	for (int i = startPosition; 
-		i <= (endPosition >= source.length ? source.length - 1 : endPosition); 
-		i++)
-		underneath[pos++] = MARK;
-	//resize underneathto remove 'null' chars
-	System.arraycopy(underneath, 0, underneath = new char[pos], 0, pos);
-
-	return " (at line " + String.valueOf(line) + ")" + //NON NLS
-	"\n\t" + new String(extract) + "\n\t" + new String(underneath);
 }
 /**
  * Answer back the original arguments recorded into the problem.
@@ -213,13 +136,14 @@ public void setSourceStart(int sourceStart) {
 }
 public String toString() {
 
-	String s = "Pb(" + (id & IgnoreCategoriesMask) + ") ";
+
+	String s = "Pb("/*nonNLS*/ + (id & IgnoreCategoriesMask) + ") "/*nonNLS*/;
 	if (message != null) {
 		s += message;
 	} else {
 		if (arguments != null)
 			for (int i = 0; i < arguments.length; i++)
-				s += " " + arguments[i];
+				s += " "/*nonNLS*/ + arguments[i];
 	}
 	return s;
 }

@@ -66,18 +66,18 @@ public void recordInitializationStartPC(int pc) {
 public String toString() {
 	String s = super.toString();
 	if (!used)
-		s += "[pos: unused]";
+		s += "[pos: unused]"/*nonNLS*/;
 	else
-		s += "[pos: " + String.valueOf(resolvedPosition) + "]";
-	s += "[id:" + String.valueOf(id) + "]";
+		s += "[pos: "/*nonNLS*/ + String.valueOf(resolvedPosition) + "]"/*nonNLS*/;
+	s += "[id:"/*nonNLS*/ + String.valueOf(id) + "]"/*nonNLS*/;
 	if (initializationCount > 0) {
-		s += "[pc: ";
+		s += "[pc: "/*nonNLS*/;
 		for (int i = 0; i < initializationCount; i++) {
 			if (i > 0)
-				s += ", ";
-			s += String.valueOf(initializationPCs[i << 1]) + "-" + ((initializationPCs[(i << 1) + 1] == -1) ? "?" : String.valueOf(initializationPCs[(i<< 1) + 1]));
+				s += ", "/*nonNLS*/;
+			s += String.valueOf(initializationPCs[i << 1]) + "-"/*nonNLS*/ + ((initializationPCs[(i << 1) + 1] == -1) ? "?"/*nonNLS*/ : String.valueOf(initializationPCs[(i<< 1) + 1]));
 		}
-		s += "]";
+		s += "]"/*nonNLS*/;
 	}
 	return s;
 }

@@ -98,13 +98,13 @@ public boolean isDoesNotExist() {
  */
 public String toString() {
 	StringBuffer buffer= new StringBuffer();
-	buffer.append("Java Model Exception: ");
+	buffer.append("Java Model Exception: "/*nonNLS*/);
 	if (getException() != null) {
 		if (getException() instanceof CoreException) {
 			CoreException c= (CoreException)getException();
-			buffer.append("Core Exception [code ");
+			buffer.append("Core Exception [code "/*nonNLS*/);
 			buffer.append(c.getStatus().getCode());
-			buffer.append("] ");
+			buffer.append("] "/*nonNLS*/);
 			buffer.append(c.getStatus().getMessage());
 		} else {
 			buffer.append(getException().toString());

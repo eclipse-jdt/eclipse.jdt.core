@@ -109,7 +109,7 @@ public IType getDeclaringType() {
 			return null;
 		}
 		enclosingTypeName = ClassFile.unqualifiedName(enclosingTypeName);
-		return getPackageFragment().getClassFile(new String(enclosingTypeName) + ".class").getType();
+		return getPackageFragment().getClassFile(new String(enclosingTypeName) + ".class"/*nonNLS*/).getType();
 	} catch (JavaModelException npe) {
 		return null;
 	}
@@ -231,7 +231,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
  * @see IType#getType
  */
 public IType getType(String name) {
-	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + ".class");
+	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$"/*nonNLS*/ + name + ".class"/*nonNLS*/);
 	return new BinaryType(classFile, name);
 }
 /**
@@ -302,7 +302,7 @@ public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaMode
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {
-		throw new IllegalArgumentException("project argument cannot be null");
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject"/*nonNLS*/));
 	}
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
 		this, 

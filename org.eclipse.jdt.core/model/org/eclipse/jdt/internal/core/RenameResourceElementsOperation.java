@@ -34,7 +34,7 @@ public RenameResourceElementsOperation(IJavaElement[] elements, IJavaElement[] d
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return "Renaming resources...";
+	return Util.bind("operation.renameResourceProgress"/*nonNLS*/);
 }
 /**
  * @see CopyResourceElementsOperation#isRename()

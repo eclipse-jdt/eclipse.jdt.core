@@ -36,6 +36,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	throw new CompletionNodeFound(this, scope);
 }
 public String toStringExpression() {
-	return "<CompleteOnName:" + super.toStringExpression() + ">";
+	return "<CompleteOnName:"/*nonNLS*/ + super.toStringExpression() + ">"/*nonNLS*/;
 }
 }

@@ -773,48 +773,48 @@ public String toString(int tab ){
 public String toStringBody(int tab) {
 	/*slow code */
 
-	String s = " {";
+	String s = " {"/*nonNLS*/;
 	if (memberTypes != null) {
 		for (int i = 0; i < memberTypes.length; i++) {
 			if (memberTypes[i] != null) {
-				s += "\n" + memberTypes[i].toString(tab + 1);
+				s += "\n"/*nonNLS*/ + memberTypes[i].toString(tab + 1);
 			}
 		}
 	}
 	if (fields != null) {
 		for (int fieldI = 0; fieldI < fields.length; fieldI++) {
 			if (fields[fieldI] != null) {
-				s += "\n" + fields[fieldI].toString(tab + 1);
-				if (fields[fieldI].isField()) s += ";";
+				s += "\n"/*nonNLS*/ + fields[fieldI].toString(tab + 1);
+				if (fields[fieldI].isField()) s += ";"/*nonNLS*/;
 			}
 		}
 	}
 	if (methods != null) {
 		for (int i = 0; i < methods.length; i++) {
 			if (methods[i] != null) {
-				s += "\n" + methods[i].toString(tab + 1);
+				s += "\n"/*nonNLS*/ + methods[i].toString(tab + 1);
 			}
 		}
 	}
-	s += "\n"+tabString(tab) + "}";	
+	s += "\n"/*nonNLS*/+tabString(tab) + "}"/*nonNLS*/;	
 	return s;
 }
 public String toStringHeader() {
 	/*slow code */
 
-	String s = "";
+	String s = ""/*nonNLS*/;
 	if (modifiers != AccDefault) {
 		s += modifiersString(modifiers);
 	}
-	s += (isInterface() ? "interface " : "class ") + new String(name);
+	s += (isInterface() ? "interface "/*nonNLS*/ : "class "/*nonNLS*/) + new String(name);
 	if (superclass != null)
-		s += " extends " + superclass.toString(0);
+		s += " extends "/*nonNLS*/ + superclass.toString(0);
 	if (superInterfaces != null && superInterfaces.length > 0) {
-		s += (isInterface() ? " extends " : " implements ");
+		s += (isInterface() ? " extends "/*nonNLS*/ : " implements "/*nonNLS*/);
 		for (int i = 0; i < superInterfaces.length; i++) {
 			s += superInterfaces[i].toString(0);
 			if (i != superInterfaces.length-1)
-				s += ", ";
+				s += ", "/*nonNLS*/;
 		};
 	};
 

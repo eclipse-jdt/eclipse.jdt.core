@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.core.builder.*;
+import org.eclipse.jdt.internal.core.Util;
 
 public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl implements IMember{
 	/**
@@ -23,7 +24,7 @@ public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl im
 	String computeSignature(String name, IType[] parameterTypes) {
 
 		if (parameterTypes.length == 0) {
-			return name + "()";
+			return name + "()"/*nonNLS*/;
 		}
 		
 		StringBuffer sb = new StringBuffer(name);
@@ -32,7 +33,7 @@ public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl im
 			try {
 				((TypeImpl)parameterTypes[i]).appendSignature(sb, true);
 			} catch (ClassCastException e) {
-				throw new StateSpecificException("incompatible parameter types");
+				throw new StateSpecificException("Incompatible parameter types"/*nonNLS*/);
 			}
 		}
 		sb.append(')');

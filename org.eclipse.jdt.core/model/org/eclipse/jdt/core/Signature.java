@@ -173,54 +173,54 @@ public final class Signature {
 	 * String constant for the signature of the primitive type boolean.
 	 * Value is <code>"Z"</code>.
 	 */
-	public static final String SIG_BOOLEAN 		= "Z";
+	public static final String SIG_BOOLEAN 		= "Z"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type byte. 
 	 * Value is <code>"B"</code>.
 	 */
-	public static final String SIG_BYTE 		= "B";
+	public static final String SIG_BYTE 		= "B"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type char.
 	 * Value is <code>"C"</code>.
 	 */
-	public static final String SIG_CHAR 		= "C";
+	public static final String SIG_CHAR 		= "C"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type double.
 	 * Value is <code>"D"</code>.
 	 */
-	public static final String SIG_DOUBLE 		= "D";
+	public static final String SIG_DOUBLE 		= "D"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type float.
 	 * Value is <code>"F"</code>.
 	 */
-	public static final String SIG_FLOAT 		= "F";
+	public static final String SIG_FLOAT 		= "F"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type int.
 	 * Value is <code>"I"</code>.
 	 */
-	public static final String SIG_INT 			= "I";
+	public static final String SIG_INT 			= "I"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type long.
 	 * Value is <code>"J"</code>.
 	 */
-	public static final String SIG_LONG			= "J";
+	public static final String SIG_LONG			= "J"/*nonNLS*/;
 
 	/**
 	 * String constant for the signature of the primitive type short.
 	 * Value is <code>"S"</code>.
 	 */
-	public static final String SIG_SHORT		= "S";
+	public static final String SIG_SHORT		= "S"/*nonNLS*/;
 
 	/** String constant for the signature of result type void.
 	 * Value is <code>"V"</code>.
 	 */
-	public static final String SIG_VOID			= "V";
+	public static final String SIG_VOID			= "V"/*nonNLS*/;
 	
 /**
  * Not instantiable.
@@ -236,7 +236,7 @@ private static String arrayIfy(String typeName, int arrayCount) {
 	StringBuffer sb = new StringBuffer(typeName.length() + arrayCount * 2);
 	sb.append(typeName);
 	for (int i = 0; i < arrayCount; ++i) {
-		sb.append("[]");
+		sb.append("[]"/*nonNLS*/);
 	}
 	return sb.toString();
 }
@@ -302,7 +302,7 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
 					return SIG_VOID;
 			case 6 :
 				if (typeName[0] == 'S' && typeName[1] == 't' && typeName[2] == 'r' && typeName[3] == 'i' && typeName[4] == 'n' && typeName[5] == 'g')
-					if (!isResolved) return "QString;";
+					if (!isResolved) return "QString;"/*nonNLS*/;
 					break;
 			case 7 :
 				if (typeName[0] == 'b' && typeName[1] == 'o' && typeName[2] == 'o' && typeName[3] == 'l' && typeName[4] == 'e' && typeName[5] == 'a' && typeName[6] == 'n')
@@ -617,7 +617,7 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 public static String getQualifier(String name) {
 	int lastDot = name.lastIndexOf(C_DOT);
 	if (lastDot == -1) {
-		return "";
+		return ""/*nonNLS*/;
 	}
 	return name.substring(0, lastDot);
 }
@@ -715,7 +715,7 @@ public static String[] getSimpleNames(String name) {
  */
 public static String toQualifiedName(String[] segments) {
 	if (segments.length == 0) {
-		return "";
+		return ""/*nonNLS*/;
 	}
 	if (segments.length == 1) {
 		return segments[0];
@@ -755,28 +755,28 @@ public static String toQualifiedName(String[] segments) {
 public static String toString(String signature) throws IllegalArgumentException {
 	try {
 		if (signature.charAt(0) == C_PARAM_START) {
-			return toString(signature, "", null, true, true);
+			return toString(signature, ""/*nonNLS*/, null, true, true);
 		}
 		int arrayCount = getArrayCount(signature);
 		switch (signature.charAt(arrayCount)) {
 			case C_BOOLEAN :
-				return arrayIfy("boolean", arrayCount);
+				return arrayIfy("boolean"/*nonNLS*/, arrayCount);
 			case C_BYTE :
-				return arrayIfy("byte", arrayCount);
+				return arrayIfy("byte"/*nonNLS*/, arrayCount);
 			case C_CHAR :
-				return arrayIfy("char", arrayCount);
+				return arrayIfy("char"/*nonNLS*/, arrayCount);
 			case C_DOUBLE :
-				return arrayIfy("double", arrayCount);
+				return arrayIfy("double"/*nonNLS*/, arrayCount);
 			case C_FLOAT :
-				return arrayIfy("float", arrayCount);
+				return arrayIfy("float"/*nonNLS*/, arrayCount);
 			case C_INT :
-				return arrayIfy("int", arrayCount);
+				return arrayIfy("int"/*nonNLS*/, arrayCount);
 			case C_LONG :
-				return arrayIfy("long", arrayCount);
+				return arrayIfy("long"/*nonNLS*/, arrayCount);
 			case C_SHORT :
-				return arrayIfy("short", arrayCount);
+				return arrayIfy("short"/*nonNLS*/, arrayCount);
 			case C_VOID :
-				return arrayIfy("void", arrayCount);
+				return arrayIfy("void"/*nonNLS*/, arrayCount);
 			case C_RESOLVED :
 			case C_UNRESOLVED :
 				int semi = signature.indexOf(C_SEMICOLON, arrayCount + 1);
@@ -838,7 +838,7 @@ public static String toString(String methodSignature, String methodName, String[
 	sb.append(C_PARAM_START);
 	for (int i = 0; i < paramTypes.length; ++i) {
 		if (i != 0)
-			sb.append(", ");
+			sb.append(", "/*nonNLS*/);
 		String readableParamType = toString(paramTypes[i]);
 		if (!fullyQualifyTypeNames) {
 			int lastDot = readableParamType.lastIndexOf(C_DOT);

@@ -1,5 +1,15 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A build monitor tracks what compilation units have been compiled during a
+ * given build.  This allows test suites to evaluate the efficiency of incremental
+ * compilation.
+ */
 public interface IBuildMonitor {
 	/**
 	 * Signals that a new build has begun

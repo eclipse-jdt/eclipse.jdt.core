@@ -25,7 +25,7 @@ public NonVoidMethodRequestor(ISearchRequestor requestor) {
 }
 public void acceptMethod(IMethod method) {
 	try {
-		if (!Signature.getReturnType(method.getSignature()).equals("V")) {
+		if (!Signature.getReturnType(method.getSignature()).equals("V"/*nonNLS*/)) {
 			super.acceptMethod(method);
 		}
 	} catch (JavaModelException npe) {

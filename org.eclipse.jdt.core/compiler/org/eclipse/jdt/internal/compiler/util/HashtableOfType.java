@@ -79,11 +79,11 @@ public int size() {
 	return elementSize;
 }
 public String toString() {
-	String s = "";
+	String s = ""/*nonNLS*/;
 	ReferenceBinding type;
 	for (int i = 0, length = valueTable.length; i < length; i++)
 		if ((type = valueTable[i]) != null)
-			s += type.toString() + "\n";
+			s += type.toString() + "\n"/*nonNLS*/;
 	return s;
 }
 }

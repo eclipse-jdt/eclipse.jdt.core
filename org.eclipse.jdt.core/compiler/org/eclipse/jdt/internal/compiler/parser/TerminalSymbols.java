@@ -1,4 +1,12 @@
 package org.eclipse.jdt.internal.compiler.parser;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+
+/*Maps each terminal symbol in the java-grammar into a unique integer. 
+This integer is used to represent the terminal when computing a parsing action. */
 
 public interface TerminalSymbols {
 

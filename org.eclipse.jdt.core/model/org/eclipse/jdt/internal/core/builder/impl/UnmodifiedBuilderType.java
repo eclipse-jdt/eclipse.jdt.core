@@ -52,6 +52,6 @@ public boolean isAffected() {
  * For debugging only
  */
 public String toString() {
-	return "UnmodifiedBuilderType(" + fNewTSEntry.getType().getName() + ")";
+	return "UnmodifiedBuilderType("/*nonNLS*/ + fNewTSEntry.getType().getName() + ")"/*nonNLS*/;
 }
 }

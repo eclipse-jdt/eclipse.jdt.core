@@ -72,7 +72,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return "Creating a package declaration...";
+	return Util.bind("operation.createPackageProgress"/*nonNLS*/);
 }
 /**
  * Sets the correct position for new package declaration:<ul>

@@ -35,7 +35,7 @@ public class JavaModel extends Openable implements IJavaModel {
  * @exception Error if called more than once
  */
 protected JavaModel(IWorkspace workspace) throws Error {
-	super(JAVA_MODEL, null, "" /*workspace has empty name*/);
+	super(JAVA_MODEL, null, ""/*nonNLS*/ /*workspace has empty name*/);
 	this.workspace = workspace;
 }
 private void cleanupCycleMarkers() {
@@ -102,7 +102,7 @@ protected int computeDepth(String projectName, StringHashtableOfInt depthTable, 
 			if (generateMarkerOnError) {
 				try {
 					IMarker marker = this.workspace.getRoot().getProject(dependentProjectName).createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IMarker.MESSAGE, "A cycle was detected in the project's classpath");
+					marker.setAttribute(IMarker.MESSAGE, Util.bind("classpath.cycle"/*nonNLS*/));
 					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 					marker.setAttribute(IMarker.LOCATION, dependentProjectName);
 					marker.setAttribute(IJavaModelMarker.CYCLE_DETECTED, dependentProjectName);
@@ -374,7 +374,8 @@ public String getHandleMemento(){
  * contribution to a memento.
  */
 protected char getHandleMementoDelimiter(){
-	throw new Error("should not be called");
+	Assert.isTrue(false, Util.bind("assert.shouldNotImplement"/*nonNLS*/));
+	return 0;
 }
 /**
  * @see IJavaElement
@@ -410,7 +411,7 @@ public IJavaProject getJavaProject(IResource resource) {
 	} else if (resource.getType() == IResource.PROJECT) {
 		return new JavaProject((IProject)resource, this);
 	} else {
-		throw new IllegalArgumentException("Illegal argument - must be one of IProject, IFolder, or IFile");
+		throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject"/*nonNLS*/));
 	}
 }
 /**
@@ -480,9 +481,9 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append("Java Model");
+	buffer.append("Java Model"/*nonNLS*/);
 	if (info == null) {
-		buffer.append(" (not open)");
+		buffer.append(" (not open)"/*nonNLS*/);
 	}
 }
 

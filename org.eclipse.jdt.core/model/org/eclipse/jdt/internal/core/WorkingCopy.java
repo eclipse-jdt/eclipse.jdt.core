@@ -306,7 +306,7 @@ public void restore() throws JavaModelException {
  */
 protected void toString(int tab, StringBuffer buffer) {
 	buffer.append(this.tabString(tab));
-	buffer.append("(working copy)\n");
+	buffer.append("(working copy)\n"/*nonNLS*/);
 	super.toString(tab, buffer);
 }
 }

@@ -29,8 +29,8 @@ public class TryStatement extends Statement {
 	Label subRoutineStartLabel;
 	LocalVariableBinding anyExceptionVariable, returnAddressVariable;
 
-	final static char[] SecretReturnName = " returnAddress".toCharArray() ;
-	final static char[] SecretAnyHandlerName = " anyExceptionHandler".toCharArray();
+	final static char[] SecretReturnName = " returnAddress"/*nonNLS*/.toCharArray() ;
+	final static char[] SecretAnyHandlerName = " anyExceptionHandler"/*nonNLS*/.toCharArray();
 
 	// for local variables table attributes
 	int preTryInitStateIndex = -1;
@@ -374,24 +374,24 @@ public String toString(int tab){
 
 	String s = tabString(tab) ;
 	//try
-	s = s + "try " ;
+	s = s + "try "/*nonNLS*/ ;
 	if (tryBlock == Block.None)
-		s =s + "{}" ;
+		s =s + "{}"/*nonNLS*/ ;
 	else
-		s = s + "\n" + tryBlock.toString(tab+1) ;
+		s = s + "\n"/*nonNLS*/ + tryBlock.toString(tab+1) ;
 	
 	//catches
 	if (catchBlocks != null)
 		for (int i = 0; i < catchBlocks.length ; i++)
-			s = s 	+ "\n" + tabString(tab) + "catch (" 
-					+ catchArguments[i].toString(0) + ") "
+			s = s 	+ "\n"/*nonNLS*/ + tabString(tab) + "catch ("/*nonNLS*/ 
+					+ catchArguments[i].toString(0) + ") "/*nonNLS*/
 					+ catchBlocks[i].toString(tab+1) ;
 	//finally
 	if (finallyBlock != null)
 	{	if (finallyBlock == Block.None) 
-			s = s + "\n" + tabString(tab)+ "finally {}" ;
+			s = s + "\n"/*nonNLS*/ + tabString(tab)+ "finally {}"/*nonNLS*/ ;
 		else
-			s = s + "\n" + tabString(tab)+ "finally\n" + 
+			s = s + "\n"/*nonNLS*/ + tabString(tab)+ "finally\n"/*nonNLS*/ + 
 				finallyBlock.toString(tab+1) ;}
 	
 	return s ;}

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.PathCollector;
+import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
@@ -245,7 +246,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		/* initialize progress monitor */
 		IProgressMonitor progressMonitor = resultCollector.getProgressMonitor();
 		if (progressMonitor != null) {
-			progressMonitor.beginTask("Searching...", 105); // 5 for getting paths, 100 for locating matches
+			progressMonitor.beginTask(Util.bind("engine.searching"/*nonNLS*/), 105); // 5 for getting paths, 100 for locating matches
 		}
 
 		/* index search */
@@ -416,7 +417,7 @@ public void searchAllTypeNames(
  */	
 public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.FIELD, IJavaSearchConstants.REFERENCES, true),
+		(SearchPattern)createSearchPattern("*"/*nonNLS*/, IJavaSearchConstants.FIELD, IJavaSearchConstants.REFERENCES, true),
 		IInfoConstants.DeclarationInfo,
 		resultCollector,
 		new JavaWorkspaceScope());
@@ -463,7 +464,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
  */	
 public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, true),
+		(SearchPattern)createSearchPattern("*"/*nonNLS*/, IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, true),
 		IInfoConstants.DeclarationInfo,
 		resultCollector,
 		new JavaWorkspaceScope());
@@ -513,7 +514,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
  */	
 public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.METHOD, IJavaSearchConstants.REFERENCES, true),
+		(SearchPattern)createSearchPattern("*"/*nonNLS*/, IJavaSearchConstants.METHOD, IJavaSearchConstants.REFERENCES, true),
 		IInfoConstants.DeclarationInfo,
 		resultCollector,
 		new JavaWorkspaceScope());

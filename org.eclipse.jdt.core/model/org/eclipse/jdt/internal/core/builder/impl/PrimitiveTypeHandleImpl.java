@@ -98,7 +98,6 @@ void appendSignature(StringBuffer sb, boolean includeUnnamed) {
 			sig = 'V';
 			break;
 		default :
-			Assert.isTrue(false, "invalid type code");
 			sig = ' ';
 	}
 	sb.append(sig);
@@ -150,25 +149,24 @@ public String getName() {
 public String getSimpleName() {
 	switch (fTypeCode) {
 		case TC_BOOLEAN :
-			return "boolean";
+			return "boolean"/*nonNLS*/;
 		case TC_BYTE :
-			return "byte";
+			return "byte"/*nonNLS*/;
 		case TC_CHAR :
-			return "char";
+			return "char"/*nonNLS*/;
 		case TC_DOUBLE :
-			return "double";
+			return "double"/*nonNLS*/;
 		case TC_FLOAT :
-			return "float";
+			return "float"/*nonNLS*/;
 		case TC_INT :
-			return "int";
+			return "int"/*nonNLS*/;
 		case TC_LONG :
-			return "long";
+			return "long"/*nonNLS*/;
 		case TC_SHORT :
-			return "short";
+			return "short"/*nonNLS*/;
 		case TC_VOID :
-			return "void";
+			return "void"/*nonNLS*/;
 		default :
-			Assert.isTrue(false, "invalid type code");
 	}
 	return null;
 }
@@ -221,25 +219,25 @@ public boolean isPrimitive() {
 protected static String typeSignature(int typeCode) {
 	switch (typeCode) {
 		case TC_VOID :
-			return "V";
+			return "V"/*nonNLS*/;
 		case TC_BOOLEAN :
-			return "Z";
+			return "Z"/*nonNLS*/;
 		case TC_BYTE :
-			return "B";
+			return "B"/*nonNLS*/;
 		case TC_CHAR :
-			return "C";
+			return "C"/*nonNLS*/;
 		case TC_SHORT :
-			return "S";
+			return "S"/*nonNLS*/;
 		case TC_INT :
-			return "I";
+			return "I"/*nonNLS*/;
 		case TC_LONG :
-			return "J";
+			return "J"/*nonNLS*/;
 		case TC_FLOAT :
-			return "F";
+			return "F"/*nonNLS*/;
 		case TC_DOUBLE :
-			return "D";
+			return "D"/*nonNLS*/;
 		default :
-			return "unknown";
+			return "unknown"/*nonNLS*/;
 	}
 }
 }

@@ -58,7 +58,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return "Creating a type...";
+	return Util.bind("operation.createTypeProgress"/*nonNLS*/);
 }
 /**
  * Returns the <code>IType</code> the member is to be created in.

@@ -9,6 +9,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Reference extends Expression  {
 /**
@@ -18,7 +19,7 @@ public Reference() {
 	super();
 }
 public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
-	throw new ShouldNotImplement("Assignment variable should provide an implementation for flow analysis");
+	throw new ShouldNotImplement(Util.bind("ast.variableShouldProvide"/*nonNLS*/));
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	return flowInfo;
@@ -60,13 +61,13 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 	}
 }
 public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
-	throw new ShouldNotImplement("Compound pre assignments  should provide an implementation for code generation");
+	throw new ShouldNotImplement(Util.bind("ast.compoundPreShouldProvide"/*nonNLS*/));
 }
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
-	throw new ShouldNotImplement("Compound assignment variable  should provide an implementation for code generation");
+	throw new ShouldNotImplement(Util.bind("ast.compoundVariableShouldProvide"/*nonNLS*/));
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
-	throw new ShouldNotImplement("Post increment variable  should provide an implementation for code generation");
+	throw new ShouldNotImplement(Util.bind("ast.postIncrShouldProvide"/*nonNLS*/));
 }
 public boolean isFieldReference() {
 

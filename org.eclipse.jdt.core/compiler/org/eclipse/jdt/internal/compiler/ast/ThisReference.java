@@ -56,8 +56,8 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression(){
 
-	if (this == ThisImplicit) return "" ;
-	return "this";
+	if (this == ThisImplicit) return ""/*nonNLS*/ ;
+	return "this"/*nonNLS*/;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	visitor.visit(this, blockScope);

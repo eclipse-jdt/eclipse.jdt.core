@@ -44,19 +44,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The plug-in identifier of the Java core support
 	 * (value <code>"org.eclipse.jdt.core"</code>).
 	 */
-	public static final String PLUGIN_ID = "org.eclipse.jdt.core"; // getPlugin().getDescriptor().getUniqueIdentifier();
+	public static final String PLUGIN_ID = "org.eclipse.jdt.core"/*nonNLS*/; // getPlugin().getDescriptor().getUniqueIdentifier();
 
 	/**
 	 * The identifier for the Java builder
 	 * (value <code>"org.eclipse.jdt.core.javabuilder"</code>).
 	 */
-	public static final String BUILDER_ID = PLUGIN_ID + ".javabuilder";
+	public static final String BUILDER_ID = PLUGIN_ID + ".javabuilder"/*nonNLS*/;
 
 	/**
 	 * The identifier for the Java model
 	 * (value <code>"org.eclipse.jdt.core.javamodel"</code>).
 	 */
-	public static final String MODEL_ID = PLUGIN_ID + ".javamodel";
+	public static final String MODEL_ID = PLUGIN_ID + ".javamodel"/*nonNLS*/;
 
 	/**
 	 * The identifier for the Java nature
@@ -66,76 +66,80 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * @see org.eclipse.core.resources.IProject#hasNature
 	 */
-	public static final String NATURE_ID = PLUGIN_ID + ".javanature";
+	public static final String NATURE_ID = PLUGIN_ID + ".javanature"/*nonNLS*/;
 
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
-	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId";
+	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"/*nonNLS*/;
 
 	/**
 	 * Names of recognized configurable options
 	 */
-	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable";
+	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"/*nonNLS*/;
 		// possible values are GENERATE or DO_NOT_GENERATE (default is DO_NOT_GENERATE)
 		
-	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber";
+	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"/*nonNLS*/;
 		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
 		
-	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile";
+	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"/*nonNLS*/;
 		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
 
-	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal";
+	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"/*nonNLS*/;
 		// possible values are PRESERVE or OPTIMIZE_OUT	(default is OPTIMIZE_OUT)
 
-	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform";
+	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"/*nonNLS*/;
 		// possible values are VERSION_1_1 or VERSION_1_2	(default is VERSION_1_1)
 
-	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode";
+	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"/*nonNLS*/;
 		// possible values are ERROR or WARNING	(default is ERROR)
 
-	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport";
+	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"/*nonNLS*/;
 		// possible values are ERROR or WARNING	(default is ERROR)
 
-	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod";
+	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 		
-	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName";
+	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 
-	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation";
+	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 
-	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock";
+	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 
-	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal";
+	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 
-	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter";
+	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"/*nonNLS*/;
 		// possible values are WARNING or IGNORE (default is WARNING)
 
-	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation";
-		// possible values are WARNING or IGNORE (default is IGNORE)
-
-	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder";
+	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"/*nonNLS*/;
+		// possible values are WARNING or IGNORE (default is IGNORE)	
+	
+	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"/*nonNLS*/;
 		// possible values are COMPUTE or IGNORE (default is COMPUTE)
 	/**
 	 * Possible values for configurable options
 	 */
-	public static final String GENERATE = "generate";
-	public static final String DO_NOT_GENERATE = "do not generate";
-	public static final String PRESERVE = "preserve";
-	public static final String OPTIMIZE_OUT = "optimize out";
-	public static final String VERSION_1_1 = "1.1";
-	public static final String VERSION_1_2 = "1.2";
-	public static final String ERROR = "error";
-	public static final String WARNING = "warning";
-	public static final String IGNORE = "ignore";
-	public static final String COMPUTE = "compute";
+	public static final String GENERATE = "generate"/*nonNLS*/;
+	public static final String DO_NOT_GENERATE = "do not generate"/*nonNLS*/;
+	public static final String PRESERVE = "preserve"/*nonNLS*/;
+	public static final String OPTIMIZE_OUT = "optimize out"/*nonNLS*/;
+	public static final String VERSION_1_1 = "1.1"/*nonNLS*/;
+	public static final String VERSION_1_2 = "1.2"/*nonNLS*/;
+	public static final String ERROR = "error"/*nonNLS*/;
+	public static final String WARNING = "warning"/*nonNLS*/;
+	public static final String IGNORE = "ignore"/*nonNLS*/;
+	public static final String COMPUTE = "compute"/*nonNLS*/;
 	
 	private static Hashtable ConfigurableOptions;
 	private static Hashtable Variables = new Hashtable(5);
+		// possible values are WARNING or IGNORE (default is IGNORE)
+
+	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
+
 /**
  * Creates the Java core plug-in.
  */
@@ -216,11 +220,11 @@ public static IJavaElement create(IFile file) {
 	String extension= file.getProjectRelativePath().getFileExtension();
 	if (extension != null) {
 		extension= extension.toLowerCase();
-		if (extension.equals("java")) {
+		if (extension.equals("java"/*nonNLS*/)) {
 			return createCompilationUnitFrom(file);
-		} else if (extension.equals("class")) {
+		} else if (extension.equals("class"/*nonNLS*/)) {
 			return createClassFileFrom(file);
-		} else if (extension.equals("jar") || extension.equals("zip")) {
+		} else if (extension.equals("jar"/*nonNLS*/) || extension.equals("zip"/*nonNLS*/)) {
 			return createJarPackageFragmentRootFrom(file);
 		}
 	}	
@@ -412,7 +416,7 @@ private static IJavaElement determineIfOnClasspath(IResource resource, IJavaProj
 						}
 						pkgName.append(segment);
 						if (j < pkgPath.segmentCount() - 1) {
-							pkgName.append(".");
+							pkgName.append("."/*nonNLS*/);
 						}
 					}
 					return root.getPackageFragment(pkgName.toString());
@@ -554,7 +558,8 @@ public static Hashtable getDefaultOptions(){
 	defaultOptions.put(COMPILER_PB_UNUSED_LOCAL,						IGNORE);
 	defaultOptions.put(COMPILER_PB_UNUSED_PARAMETER,					IGNORE);
 	defaultOptions.put(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION,			IGNORE);
-
+	defaultOptions.put(COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL,		WARNING);
+	
 	// JavaCore settings
 	defaultOptions.put(CORE_JAVA_BUILD_ORDER,							IGNORE);
 
@@ -640,7 +645,7 @@ public static IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry) {
 					return JavaCore.newProjectEntry(resolvedPath); // internal project
 				case IResource.FILE :
 					String extension = resolvedResource.getFileExtension();
-					if ("jar".equalsIgnoreCase(extension) || "zip".equalsIgnoreCase(extension)){ // internal binary archive
+					if ("jar"/*nonNLS*/.equalsIgnoreCase(extension) || "zip"/*nonNLS*/.equalsIgnoreCase(extension)){ // internal binary archive
 						return JavaCore.newLibraryEntry( 
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
@@ -660,7 +665,7 @@ public static IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry) {
 		File externalFile = (File) target;
 		if (externalFile.isFile()){
 			String fileName = externalFile.getName().toLowerCase();
-			if (fileName.endsWith(".jar") || fileName.endsWith(".zip")){ // external binary archive
+			if (fileName.endsWith(".jar"/*nonNLS*/) || fileName.endsWith(".zip"/*nonNLS*/)){ // external binary archive
 				return JavaCore.newLibraryEntry( 
 						resolvedPath,
 						getResolvedVariablePath(entry.getSourceAttachmentPath()),
@@ -751,7 +756,7 @@ public static boolean isReferencedBy(IJavaElement element, IMarkerDelta markerDe
  */ 
 
 public static IClasspathEntry newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) {
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY, 
 			IClasspathEntry.CPE_LIBRARY, 
@@ -773,7 +778,7 @@ public static IClasspathEntry newLibraryEntry(IPath path, IPath sourceAttachment
  * The prerequisite project is referred to using an absolute path relative to the workspace root.
  */
 public static IClasspathEntry newProjectEntry(IPath path){
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(IPackageFragmentRoot.K_SOURCE, IClasspathEntry.CPE_PROJECT, path, null, null);
 }
 /**
@@ -793,7 +798,7 @@ public static IRegion newRegion() {
  * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
  */ 
 public static IClasspathEntry newSourceEntry(IPath path){
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(IPackageFragmentRoot.K_SOURCE, IClasspathEntry.CPE_SOURCE, path, null, null);
 }
 /**
@@ -826,7 +831,7 @@ public static IClasspathEntry newSourceEntry(IPath path){
  *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
  */
 public static IClasspathEntry newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath sourceAttachmentRootPath){
-	Assert.isTrue(variablePath != null && variablePath.segmentCount() >= 1, "invalid variable path");
+	Assert.isTrue(variablePath != null && variablePath.segmentCount() >= 1, Util.bind("classpath.illegalVariablePath"/*nonNLS*/));
 	return new ClasspathEntry(
 					IPackageFragmentRoot.K_SOURCE, 
 					IClasspathEntry.CPE_VARIABLE, 
@@ -920,7 +925,7 @@ public static void setClasspathVariable(String variableName, IPath path) throws 
  */
 public static void setClasspathVariable(String variableName, IPath path, IProgressMonitor monitor) throws JavaModelException {
 
-	Assert.isTrue(path != null, "variable path cannot be null");
+	Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath"/*nonNLS*/));
 	updateVariableValue(variableName, path, monitor);
 }
 /* (non-Javadoc)

@@ -170,12 +170,12 @@ public void removeSyntaxErrors(Object entry) {
 	 * @return a string representation of the receiver
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer("ProblemTable(\n\t");
-		buf.append("type problems: ");
+		StringBuffer buf = new StringBuffer("ProblemTable(\n\t"/*nonNLS*/);
+		buf.append("type problems: "/*nonNLS*/);
 		buf.append(fTable);
-		buf.append("\n\timage problems: ");
+		buf.append("\n\timage problems: "/*nonNLS*/);
 		buf.append(fImageProblems);
-		buf.append(")");
+		buf.append(")"/*nonNLS*/);
 		return buf.toString();
 	}
 

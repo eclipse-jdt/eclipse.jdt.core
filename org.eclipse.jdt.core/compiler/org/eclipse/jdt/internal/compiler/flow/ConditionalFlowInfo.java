@@ -114,7 +114,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 	return unconditionalInits().mergedWith(otherInits);
 }
 public String toString() {
-	return "FlowInfo<true: " + initsWhenTrue.toString() + ", false: " + initsWhenFalse.toString() + ">";
+	return "FlowInfo<true: "/*nonNLS*/ + initsWhenTrue.toString() + ", false: "/*nonNLS*/ + initsWhenFalse.toString() + ">"/*nonNLS*/;
 }
 public UnconditionalFlowInfo unconditionalInits() {
 	return initsWhenTrue.unconditionalInits().copy()

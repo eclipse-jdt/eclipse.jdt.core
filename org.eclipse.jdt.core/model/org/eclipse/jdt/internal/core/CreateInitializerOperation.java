@@ -78,7 +78,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return "Creating an initializer...";
+	return Util.bind("operation.createInitializerProgress"/*nonNLS*/);
 }
 /**
  * By default the new initializer is positioned after the last existing initializer

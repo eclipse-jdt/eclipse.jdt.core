@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.core.builder.*;
 public class ConstructorImpl extends AbstractMemberHandle implements IConstructor {
 	ConstructorImpl (ClassOrInterfaceHandleImpl owner, IType[] paramTypes) {
 		fOwner = owner;
-		fSignature = computeSignature("", paramTypes);
+		fSignature = computeSignature(""/*nonNLS*/, paramTypes);
 	}
 	public ConstructorImpl(ClassOrInterfaceHandleImpl owner, String signature) {
 		fOwner = owner;

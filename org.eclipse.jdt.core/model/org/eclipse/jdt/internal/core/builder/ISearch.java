@@ -1,5 +1,31 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * An <code>ISearch</code> represents an image search and its results.
+ * <code>ISearch</code>es are created by <code>ISearchFactory</code> objects. 
+ * They can be queried for results and report progress as the search runs. A 
+ * search can be stopped before it finishes and can be run again. 
+ * <code>ISearch</code> is implemented in a thread safe manner.
+ * <p>
+ * The search is not precise. Instead it provides a best-effort search. 
+ * No occurrences of what is being searched for will be missed, and no duplicate 
+ * results will be returned.  However, the search may occasionally return additional 
+ * matches which don't actually relate to what was being searched for.
+ * This will only be an issue when searching for source references. An 
+ * example of this would be if a search for references to a field called <code>io</code> was
+ * performed. Any methods which contained a reference to <code>java.io.</code><i>something</i> 
+ * would be returned as matches, because in the source, it is unclear whether 
+ * <code>io</code> is a field in some class called <code>java</code> or not.
+ * <p>
+ * ISearchFactory shows examples of using ISearch.
+ *
+ * @see ISearchFactory
+ */
 public interface ISearch extends Runnable
 {
 /**
@@ -7,11 +33,11 @@ public interface ISearch extends Runnable
  * from this search. Progress events occur as a search examines the types
  * and packages in the search scope. Result events occur as a search finds
  * matches to the search criteria.
- * @param		listener the search listener
- * @see			ISearchListener 
- * @see			SearchProgressEvent
- * @see			SearchResultEvent
- * @see			ISearch#removeSearchListener
+ * @param       listener the search listener
+ * @see         ISearchListener 
+ * @see         SearchProgressEvent
+ * @see         SearchResultEvent
+ * @see         ISearch#removeSearchListener
  */
 void addSearchListener(ISearchListener listener);
 /** 
@@ -26,9 +52,9 @@ void cancelSearch();
  * <ul>
  * <li> neither is equal to null AND
  * <li> both searches have the same kind (i.e.. search for type), name 
- * 		(i.e., type named 'Foo') return type, number and type of parameters 
- * 		(even if not used -- as in the case of search for type), and search 
- * 		context (i.e., ISearchFactory.SEARCH_FOR_DECLS)
+ *      (i.e., type named 'Foo') return type, number and type of parameters 
+ *      (even if not used -- as in the case of search for type), and search 
+ *      context (i.e., ISearchFactory.SEARCH_FOR_DECLS)
  * <li> their scopes are equal (contain the same IPackage and IType handles, in any order)
  * </ul>
  */
@@ -57,11 +83,11 @@ boolean isSearching();
 /**
  * Removes the specified action listener so that it no longer
  * receives progress and result events from the search.
- * @param		listener the search listener
- * @see			ISearchListener 
- * @see			SearchProgressEvent
- * @see			SearchResultEvent
- * @see			ISearch#addSearchListener
+ * @param       listener the search listener
+ * @see         ISearchListener 
+ * @see         SearchProgressEvent
+ * @see         SearchResultEvent
+ * @see         ISearch#addSearchListener
  */
 void removeSearchListener(ISearchListener listener);
 /**

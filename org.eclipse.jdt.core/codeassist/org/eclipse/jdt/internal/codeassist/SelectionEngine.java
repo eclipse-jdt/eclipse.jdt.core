@@ -227,7 +227,7 @@ private boolean mustQualifyType(char[][] packageName, char[] readableTypeName) {
 public void select(ICompilationUnit sourceUnit, int selectionSourceStart, int selectionSourceEnd) {
 
 	char[] source = sourceUnit.getContents();
-	if (!checkSelection(source, selectionSourceStart, selectionSourceEnd-1)) return;
+	if (!checkSelection(source, selectionSourceStart, selectionSourceEnd)) return;
 	try{
 		acceptedAnswer = false;
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
@@ -400,7 +400,7 @@ public void selectType(ISourceType sourceType, char[] typeName) {
 							selectionIdentifier,
 							new long[previousIdentifiers.length + 1]);
 				}
-				field.name = "<fakeField>".toCharArray();
+				field.name = "<fakeField>"/*nonNLS*/.toCharArray();
 				typeDecl.fields = new FieldDeclaration[] {field};
 
 				// build bindings

@@ -64,11 +64,11 @@ protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaMod
 protected IDOMNode generateSyntaxIncorrectDOM() throws JavaModelException {
 	//create some dummy source to generate a dom node
 	StringBuffer buff = new StringBuffer();
-	buff.append(JavaModelManager.LINE_SEPARATOR + " public class A {" + JavaModelManager.LINE_SEPARATOR);
+	buff.append(JavaModelManager.LINE_SEPARATOR + " public class A {"/*nonNLS*/ + JavaModelManager.LINE_SEPARATOR);
 	buff.append(fSource);
 	buff.append(JavaModelManager.LINE_SEPARATOR).append('}');
-	IDOMCompilationUnit domCU = (new DOMFactory()).createCompilationUnit(buff.toString(), "A.java");
-	IDOMNode node = (IDOMNode) domCU.getChild("A").getChildren().nextElement();
+	IDOMCompilationUnit domCU = (new DOMFactory()).createCompilationUnit(buff.toString(), "A.java"/*nonNLS*/);
+	IDOMNode node = (IDOMNode) domCU.getChild("A"/*nonNLS*/).getChildren().nextElement();
 	if (node != null) {
 		node.remove();
 	}

@@ -31,7 +31,7 @@ public class FormatterOptions {
 	public boolean compactElseIfMode = false; // if true, else and if are kept on the same line.
 	public boolean newLineInEmptyBlockMode = true; // if false, no new line in {} if it's empty.
 	
-	public char[] lineSeparatorSequence = System.getProperty("line.separator").toCharArray();
+	public char[] lineSeparatorSequence = System.getProperty("line.separator"/*nonNLS*/).toCharArray();
 /** 
  * Initializing the formatter options with default settings
  */
@@ -59,15 +59,15 @@ public FormatterOptions(ConfigurableOption[] settings){
 public ConfigurableOption[] getConfigurableOptions(Locale locale) {
 	String componentName = CodeFormatter.class.getName();
 	return new ConfigurableOption[] {
-		new ConfigurableOption(componentName, "newline.openingBrace",  locale, newLineBeforeOpeningBraceMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.controlStatement",  locale, newlineInControlStatementMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.clearAll",  locale, clearAllBlankLinesMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.elseIf",  locale, compactElseIfMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.emptyBlock",  locale, newLineInEmptyBlockMode ? 0 : 1),
-		new ConfigurableOption(componentName, "line.split",  locale, maxLineLength),
-		new ConfigurableOption(componentName, "style.compactAssignment",  locale, compactAssignmentMode ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.char",  locale, indentWithTab ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.size",  locale, tabSize)	
+		new ConfigurableOption(componentName, "newline.openingBrace"/*nonNLS*/,  locale, newLineBeforeOpeningBraceMode ? 0 : 1),
+		new ConfigurableOption(componentName, "newline.controlStatement"/*nonNLS*/,  locale, newlineInControlStatementMode ? 0 : 1),
+		new ConfigurableOption(componentName, "newline.clearAll"/*nonNLS*/,  locale, clearAllBlankLinesMode ? 0 : 1),
+		new ConfigurableOption(componentName, "newline.elseIf"/*nonNLS*/,  locale, compactElseIfMode ? 0 : 1),
+		new ConfigurableOption(componentName, "newline.emptyBlock"/*nonNLS*/,  locale, newLineInEmptyBlockMode ? 0 : 1),
+		new ConfigurableOption(componentName, "line.split"/*nonNLS*/,  locale, maxLineLength),
+		new ConfigurableOption(componentName, "style.compactAssignment"/*nonNLS*/,  locale, compactAssignmentMode ? 0 : 1),
+		new ConfigurableOption(componentName, "tabulation.char"/*nonNLS*/,  locale, indentWithTab ? 0 : 1),
+		new ConfigurableOption(componentName, "tabulation.size"/*nonNLS*/,  locale, tabSize)	
 	};
 }
 /**

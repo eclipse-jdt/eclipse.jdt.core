@@ -30,7 +30,7 @@ public class SelectionParser extends AssistParser {
 	public int selectionStart, selectionEnd;
 	public AstNode selectionNode;
 
-	public static final char[] SUPER = "super".toCharArray();
+	public static final char[] SUPER = "super"/*nonNLS*/.toCharArray();
 public SelectionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 }

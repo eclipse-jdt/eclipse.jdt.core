@@ -35,10 +35,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		currentScope,
 		(condLoopContext = new LoopingFlowContext(flowContext, this, null, null, currentScope)),
 		flowInfo);
-	condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 
 	LoopingFlowContext loopingContext;
 	if ((action == null) || action.isEmptyBlock()) {
+		condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 		if ((condition.constant != NotAConstant) && (condition.constant.booleanValue() == true)) {
 			return FlowInfo.DeadEnd;
 		} else {
@@ -63,16 +63,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 
 		// code generation can be optimized when no need to continue in the loop
-		if ((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable()){
-			if ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable()){
+		if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
+			&& ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable())){
 				continueLabel = null;
-			} else {
-				loopingContext.complainOnFinalAssignmentsInLoop(currentScope, loopingContext.initsOnContinue);				
-			}
 		} else {
+			condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 			loopingContext.complainOnFinalAssignmentsInLoop(currentScope, actionInfo);
 		}
-	}		
+	}
 
 	// infinite loop
 	FlowInfo mergedInfo;
@@ -151,14 +149,14 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "while (" + condition.toStringExpression() + ")";
+	s = s + "while ("/*nonNLS*/ + condition.toStringExpression() + ")"/*nonNLS*/;
 	if (action == null)
-		s = s + " {} ;";
+		s = s + " {} ;"/*nonNLS*/;
 	else
 		if (action instanceof Block)
-			s = s + "\n" + action.toString(tab+1) ;
+			s = s + "\n"/*nonNLS*/ + action.toString(tab+1) ;
 		else
-			s = s + " {\n" + action.toString(tab+1) + "}" ;
+			s = s + " {\n"/*nonNLS*/ + action.toString(tab+1) + "}"/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

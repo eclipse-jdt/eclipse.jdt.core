@@ -1,25 +1,40 @@
 package org.eclipse.jdt.internal.compiler.lookup;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
+/*
+ * Not all fields defined by this type (& its subclasses) are initialized when it is created.
+ * Some are initialized only when needed.
+ *
+ * Accessors have been provided for some public fields so all TypeBindings have the same API...
+ * but access public fields directly whenever possible.
+ * Non-public fields have accessors which should be used everywhere you expect the field to be initialized.
+ *
+ * null is NOT a valid value for a non-public field... it just means the field is not initialized.
+ */
 abstract public class TypeBinding extends Binding implements BaseTypes, TagBits, TypeConstants, TypeIds {
 	public int id = NoId;
 	public int tagBits = 0; // See values in the interface TagBits below
 /* API
-* Answer the receiver's binding type from Binding.BindingID.
-*/
+ * Answer the receiver's binding type from Binding.BindingID.
+ */
 
 public final int bindingType() {
 	return TYPE;
 }
 /* Answer true if the receiver can be instantiated
-*/
+ */
 
 public boolean canBeInstantiated() {
 	return !isBaseType();
 }
 /* Answer the receiver's constant pool name.
-*
-* NOTE: This method should only be used during/after code gen.
-*/
+ *
+ * NOTE: This method should only be used during/after code gen.
+ */
 
 public abstract char[] constantPoolName(); /* java/lang/Object */
 String debugName() {
