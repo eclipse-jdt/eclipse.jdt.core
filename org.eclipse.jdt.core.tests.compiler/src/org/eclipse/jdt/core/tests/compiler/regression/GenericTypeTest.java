@@ -7425,5 +7425,71 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"");
-	}				
+	}
+	// 71241
+	// TODO (kent) reenable once fixed
+	public void _test274() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"    public List useList(List l) {\n" + 
+				"        l.add(\"asdf\");\n" + 
+				"        return l;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"    public List<String> useList(List<String> l) {\n" + 
+				"        l.add(\"asdf\");\n" + 
+				"        return l;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	l.add(\"asdf\");\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the method add(E) of raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	public List<String> useList(List<String> l) {\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"name clash: useList(java.util.List<java.lang.String>) in Y and useList(java.util.List) in X have the same erasure, yet neither overrides the other\n" + 
+			"----------\n");
+	}
+	// 71241 - variation
+	// TODO (kent) reenable once fixed
+	public void _test275() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"    public List<String> useList(List<String> l) {\n" + 
+				"        l.add(\"asdf\");\n" + 
+				"        return l;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"    public List useList(List l) {\n" + 
+				"        l.add(\"asdf\");\n" + 
+				"        return l;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	public List useList(List l) {\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"useList(java.util.List) in Y overrides useList(java.util.List<java.lang.String>) in X; return type requires unchecked conversion\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	l.add(\"asdf\");\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the method add(E) of raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+	}
 }
