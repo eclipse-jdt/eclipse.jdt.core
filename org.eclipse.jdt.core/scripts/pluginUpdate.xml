@@ -22,6 +22,9 @@
 		<echo message="UPDATE plugin.xml" />
 		<copy file="plugin.xml" todir="${dest}" />
 
+		<echo message="UPDATE plugin.properties" />
+		<copy file="plugin.properties" todir="${dest}" />
+
 		<echo message="UPDATE notice.html" />
 		<copy file="notice.html" todir="${dest}" />
 		
