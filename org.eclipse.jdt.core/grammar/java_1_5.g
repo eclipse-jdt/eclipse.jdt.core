@@ -168,8 +168,8 @@ Goal ::= '--' MethodBody
 Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
 -- error recovery
-Goal ::= '>>>' Header
-/.$putCase consumeHeaderInRecovery(); $break ./
+-- Modifiersopt is used to properly consume a header and exit the rule reduction at the end of the parse() method
+Goal ::= '>>>' Header Modifiersopt
 Goal ::= '*' BlockStatements
 Goal ::= '*' CatchHeader
 -- JDOM
