@@ -63,7 +63,13 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		optionNames.add(JavaCore.CORE_ENCODING);
 
 		// Formatter settings
-		formatterSettings(defaultOptionsMap, optionNames);
+        Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getEclipseDefaultSettings(); // code formatter defaults
+        for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            String optionName = (String) entry.getKey();
+            defaultOptionsMap.put(optionName, entry.getValue());
+            optionNames.add(optionName);
+        }
 
 		// CodeAssist settings
 		defaultOptionsMap.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
@@ -87,27 +93,5 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 			defaultPreferences.put(optionName, (String)entry.getValue());
 			optionNames.add(optionName);
 		}
-	}
-	
-	/**
-	 * Avoid deprection warnings on formatter settings
-	 * @deprecated
-	 */
-	private void formatterSettings(Map defaultOptionsMap, HashSet optionNames) {
-		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getEclipseDefaultSettings(); // code formatter defaults
-		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String optionName = (String) entry.getKey();
-			defaultOptionsMap.put(optionName, entry.getValue());
-			optionNames.add(optionName);
-		}
-		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT); 
-		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
-		defaultOptionsMap.put(JavaCore.FORMATTER_CLEAR_BLANK_LINES, JavaCore.PRESERVE_ONE); 
-		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_ELSE_IF, JavaCore.DO_NOT_INSERT);
-		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_EMPTY_BLOCK, JavaCore.INSERT); 
-		defaultOptionsMap.put(JavaCore.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
-		defaultOptionsMap.put(JavaCore.FORMATTER_COMPACT_ASSIGNMENT, JavaCore.NORMAL); 
-		defaultOptionsMap.put(JavaCore.FORMATTER_SPACE_CASTEXPRESSION, JavaCore.INSERT); //$NON-NLS-1$ 
 	}
 }
