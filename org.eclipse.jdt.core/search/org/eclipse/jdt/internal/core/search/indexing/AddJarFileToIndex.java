@@ -171,6 +171,9 @@ public int hashCode() {
 						index.add(
 							new JarFileEntryDocument(ze, classFileBytes, zipFilePath),
 							new BinaryIndexer(true));
+							
+						// Give a chance to other threads with higher priority to run
+						Thread.yield();
 					}
 				}
 				if (JobManager.VERBOSE)

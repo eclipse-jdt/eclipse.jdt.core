@@ -223,7 +223,7 @@ public abstract class JobManager implements Runnable {
 								previousJob = currentJob;
 							}
 							try {
-								Thread.currentThread().sleep(50);
+								Thread.sleep(50);
 							} catch (InterruptedException e) {
 							}
 						}
@@ -320,7 +320,7 @@ public abstract class JobManager implements Runnable {
 						}
 						moveToNextJob();
 						if (this.awaitingClients == 0) {
-							Thread.currentThread().sleep(50);
+							Thread.sleep(50);
 						}
 					}
 				} catch (InterruptedException e) { // background indexing was interrupted
