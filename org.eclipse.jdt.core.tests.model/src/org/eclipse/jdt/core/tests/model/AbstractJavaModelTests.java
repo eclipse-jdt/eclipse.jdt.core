@@ -104,7 +104,7 @@ protected void assertSourceEquals(String message, String expected, String actual
 		assertEquals(message, expected, null);
 		return;
 	}
-	assertEquals(message, expected, org.eclipse.jdt.core.tests.util.Util.convertToIndependantLfs(actual));
+	assertEquals(message, expected, org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual));
 }
 /**
  * Ensures the elements are present after creation.
