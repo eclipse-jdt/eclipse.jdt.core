@@ -369,7 +369,7 @@ public void testClasspathDeleteNestedRoot() throws CoreException {
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
 	// delete the root
-	root.getUnderlyingResource().delete(false, null);
+	deleteResource(root.getUnderlyingResource());
 
 	IClasspathEntry[] newCP= project.getRawClasspath();
 
@@ -412,7 +412,7 @@ public void testClasspathDeleteNestedRootParent() throws CoreException {
 
 	// delete the root's parent folder
 	IFolder folder= (IFolder)root.getUnderlyingResource().getParent();
-	folder.delete(false, null);
+	deleteResource(folder);
 
 	IClasspathEntry[] newCP= project.getRawClasspath();
 

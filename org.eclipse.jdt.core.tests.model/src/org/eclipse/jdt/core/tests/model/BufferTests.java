@@ -41,7 +41,7 @@ protected void deleteBuffer(IBuffer buffer) throws CoreException {
 	buffer.removeBufferChangedListener(this);
 	IResource resource = buffer.getUnderlyingResource();
 	if (resource != null) {
-		resource.delete(true, null);
+		deleteResource(resource);
 	}
 }
 /**
@@ -494,7 +494,7 @@ public void testCreateImport() throws CoreException {
 		if (copy != null) {
 			copy.destroy();
 		}
-		file.delete(true, null);
+		deleteResource(file);
 	}
 }
 /**

@@ -155,7 +155,7 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 			(IResource[])resources);
 	} finally {
 		// clean up
-		resource.getWorkspace().getRoot().getFile(newPath).delete(true, null);
+		deleteResource(resource.getWorkspace().getRoot().getFile(newPath));
 	}
 }
 /**
@@ -258,7 +258,7 @@ public void testDeletePackageWithAutobuild() throws JavaModelException, CoreExce
 	IPackageFragment frag = getPackageFragment("JavaProjectTests", "", "x.y");
 	IFolder folder = (IFolder) frag.getUnderlyingResource();
 	try {
-		folder.delete(true, null);
+		deleteResource(folder);
 		assertDeltas(
 			"Unexpected delta",
 			"JavaProjectTests[*]: {CHILDREN}\n" + 
@@ -409,7 +409,7 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 		}
 		assertTrue("org.eclipse should not exist", !bogus.exists());
 	} finally {
-		folder.getFolder(new Path("org.eclipse")).delete(true, null);
+		deleteResource(folder.getFolder(new Path("org.eclipse")));
 	}	
 }
 /*
@@ -610,7 +610,7 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 		assertTrue("should be one delta (resource deltas)", this.deltaListener.deltas != null || this.deltaListener.deltas.length == 1);
 	} finally {
 		stopDeltas();
-		newFolder.delete(true, null);
+		deleteResource(newFolder);
 	}
 }
 /**
@@ -696,7 +696,7 @@ public void testPackageFragmentRenameAndCreate() throws JavaModelException, Core
 		assertTrue("should be able to recreate the y folder", false);
 	}
 	// restore the original state
-	yFolder.delete(true, null);
+	deleteResource(yFolder);
 	IPackageFragment foo = getPackageFragment("JavaProjectTests", "", "x.foo");
 	IFolder fooFolder = (IFolder) foo.getUnderlyingResource();
 	fooFolder.move(yPath, true, null);

@@ -398,7 +398,7 @@ public void testAddListenerTwice() throws JavaModelException, CoreException, IOE
 	
 	IFile file = (IFile) superCU.getUnderlyingResource();
 	try {
-		file.delete(false, null);
+		deleteResource(file);
 		this.assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -756,7 +756,7 @@ public void testRemoveCompilationUnit() throws JavaModelException, CoreException
 	
 	IFile file = (IFile) superCU.getUnderlyingResource();
 	try {
-		file.delete(false, null);
+		deleteResource(file);
 		this.assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -775,7 +775,7 @@ public void testRemoveExternalCompilationUnit() throws JavaModelException, CoreE
 	
 	IFile file = (IFile) otherCU.getUnderlyingResource();
 	try {
-		file.delete(false, null);
+		deleteResource(file);
 		assertTrue("Should not receive changes", !this.changeReceived);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -794,7 +794,7 @@ public void testRemoveExternalPackage() throws JavaModelException, CoreException
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p.other");
 	IFolder folder = (IFolder) pkg.getUnderlyingResource();
 	try {
-		folder.delete(false, null);
+		deleteResource(folder);
 		assertTrue("Should receive NO change", !this.changeReceived);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -914,7 +914,7 @@ public void testRemovePackage() throws JavaModelException, CoreException, IOExce
 	
 	IPackageFragment pkg = type.getPackageFragment();
 	try {
-		pkg.getUnderlyingResource().delete(false, null);
+		deleteResource(pkg.getUnderlyingResource());
 		this.assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -956,7 +956,7 @@ public void testRemoveProject() throws JavaModelException, CoreException, IOExce
 	
 		// Delete a related project
 		IResource folder = getJavaProject("TypeHierarchyNotification").getUnderlyingResource();
-		folder.delete(false, null);
+		deleteResource(folder);
 		this.assertOneChange(h);
 		assertTrue("Should still exist", h.exists());
 		h.refresh(null);
@@ -965,7 +965,7 @@ public void testRemoveProject() throws JavaModelException, CoreException, IOExce
 	
 		// Delete the project type lives in.
 		folder = getJavaProject("TypeHierarchyDependent").getUnderlyingResource();
-		folder.delete(false, null);
+		deleteResource(folder);
 		assertTrue("Should have been invalidated", ! h.exists());	
 	} finally {
 		this.deleteProject("TypeHierarchyDependent");

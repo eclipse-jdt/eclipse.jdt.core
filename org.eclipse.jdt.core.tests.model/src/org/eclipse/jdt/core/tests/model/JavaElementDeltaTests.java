@@ -709,7 +709,7 @@ public void testCompilationUnitRemoveAndAdd() throws CoreException {
 		
 		// delete cu
 		startDeltas();
-		file.delete(false, null);
+		deleteResource(file);
 		assertDeltas(
 			"Unexpected delta after deleting /P/p/X.java",
 			"P[*]: {CHILDREN}\n" + 
@@ -801,7 +801,7 @@ public void testCUNotOnClasspath() throws CoreException {
 		);
 		
 		startDeltas();
-		file.delete(false, null);
+		deleteResource(file);
 		assertDeltas(
 			"Unexpected delta after deletion of /P/src/p/X.java",
 			"P[*]: {CONTENT}\n" + 
@@ -837,7 +837,7 @@ public void testDeleteInnerJar() throws CoreException {
 		this.createFolder("/P/lib");
 		IFile file = this.createFile("/P/lib/x.jar", "");
 		this.startDeltas();
-		file.delete(false, null);
+		deleteResource(file);
 		assertDeltas(
 			"Unexpected deltas",
 			"P[*]: {CHILDREN | CONTENT}\n" + 
@@ -859,7 +859,7 @@ public void testDeleteNonJavaFolder() throws CoreException {
 		this.createJavaProject("P", new String[] {"foo/bar"}, "bin");
 		IFolder folder = this.getFolder("/P/foo");
 		this.startDeltas();
-		folder.delete(false, null);
+		deleteResource(folder);
 		assertDeltas(
 			"Unexpected deltas",
 			"P[*]: {CHILDREN | CONTENT}\n" + 
@@ -1445,7 +1445,7 @@ public void testModifyProjectDescriptionAndRemoveFolder() throws CoreException {
 					IProjectDescription desc = projectFolder.getDescription();
 					desc.setComment("A comment");
 					projectFolder.setDescription(desc, null);
-					folder.delete(false, null);
+					deleteResource(folder);
 				}
 			},
 			null);
@@ -1598,7 +1598,7 @@ public void testNonJavaResourceRemoveAndAdd() throws CoreException {
 		IFile file = createFile("/P/src/read.txt", "");
 		
 		startDeltas();
-		file.delete(false, null);
+		deleteResource(file);
 		assertDeltas(
 			"Unexpected delta after deleting /P/src/read.txt",
 			"P[*]: {CHILDREN}\n" + 
@@ -1682,7 +1682,7 @@ public void testOverwriteClasspath() throws CoreException {
 		IWorkspaceRunnable run = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				IFile oldCP = newCP.getParent().getFile(new Path(".classpath"));
-				oldCP.delete(true, null);
+				deleteResource(oldCP);
 				newCP.move(new Path("/P/.classpath"), true, null);
 			}
 		};
@@ -1718,7 +1718,7 @@ public void testPackageFragmentAddAndRemove() throws CoreException {
 		);
 		
 		clearDeltas();
-		folder.delete(false, null);
+		deleteResource(folder);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
@@ -1762,7 +1762,7 @@ public void testPackageFragmentRootRemoveAndAdd() throws CoreException {
 		createJavaProject("P", new String[] {"src"}, "bin");
 		
 		startDeltas();
-		getFolder("/P/src").delete(false, null);
+		deleteFolder("/P/src");
 		assertDeltas(
 			"Unexpected delta after deleting /P/src",
 			"P[*]: {CHILDREN}\n" + 
