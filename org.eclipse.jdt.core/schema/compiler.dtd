@@ -7,10 +7,10 @@
 <!ELEMENT sources (source+)>
 <!ELEMENT source (problems*,tasks*,(classfile | error)*)>
 <!ELEMENT problems (problem+)>
-<!ELEMENT problem (message,problem_source,arguments)>
+<!ELEMENT problem (message,source_context,arguments)>
 <!ELEMENT arguments (argument+)>
 <!ELEMENT tasks (task+)>
-<!ELEMENT task (message)>
+<!ELEMENT task (message, source_context)>
 <!ELEMENT stats (time?,number_of_lines?,problem_summary?,number_of_classfiles?)>
 <!ELEMENT argument (#PCDATA)>
 <!ELEMENT option (#PCDATA)>
@@ -20,7 +20,7 @@
 <!ELEMENT time (#PCDATA)>
 <!ELEMENT number_of_classfiles (#PCDATA)>
 <!ELEMENT classfile (#PCDATA)>
-<!ELEMENT problem_source (#PCDATA)>
+<!ELEMENT source_context (#PCDATA)>
 <!ELEMENT problem_summary (#PCDATA)>
 <!ELEMENT exception (#PCDATA)>
 <!ATTLIST argument value CDATA #REQUIRED>
@@ -43,7 +43,7 @@
 				  id        CDATA #REQUIRED
 >
 <!ATTLIST message value CDATA #REQUIRED>
-<!ATTLIST problem_source value       CDATA #REQUIRED
+<!ATTLIST source_context value       CDATA #REQUIRED
                          sourceStart CDATA #REQUIRED
                          sourceEnd   CDATA #REQUIRED
 >

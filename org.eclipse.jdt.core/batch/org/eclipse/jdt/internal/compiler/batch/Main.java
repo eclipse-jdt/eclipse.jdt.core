@@ -93,13 +93,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String PROBLEM_LINE = "line"; //$NON-NLS-1$
 		private static final String PROBLEM_MESSAGE = "message"; //$NON-NLS-1$
 		private static final String PROBLEM_SEVERITY = "severity"; //$NON-NLS-1$
-		private static final String PROBLEM_SOURCE = "problem_source"; //$NON-NLS-1$
 		private static final String PROBLEM_SOURCE_START = "charStart"; //$NON-NLS-1$
 		private static final String PROBLEM_SOURCE_END = "charEnd"; //$NON-NLS-1$
 		private static final String PROBLEM_SUMMARY = "problem_summary"; //$NON-NLS-1$
 		private static final String PROBLEM_TAG = "problem"; //$NON-NLS-1$
 		private static final String PROBLEMS = "problems"; //$NON-NLS-1$
 		private static final String SOURCE = "source"; //$NON-NLS-1$
+		private static final String SOURCE_CONTEXT = "source_context"; //$NON-NLS-1$
 		private static final String SOURCE_END = "sourceEnd"; //$NON-NLS-1$
 		private static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 		private static final String SOURCES = "sources"; //$NON-NLS-1$
@@ -736,7 +736,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
 			this.parameters.clear();
 			extractContext(problem, unitSource);
-			this.printTag(PROBLEM_SOURCE, this.parameters, true, true);
+			this.printTag(SOURCE_CONTEXT, this.parameters, true, true);
 			String[] arguments = problem.getArguments();
 			final int length = arguments.length;
 			if (length != 0) {
@@ -757,14 +757,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 *            the given unit source
 		 */
 		private void logXmlTask(IProblem problem, char[] unitSource) {
-			parameters.clear();
-			parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
-			parameters.put(PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));
-			parameters.put(PROBLEM_SOURCE_END, new Integer(problem.getSourceEnd()));
-			this.printTag(TASK, parameters, true, false);
-			parameters.clear();
-			parameters.put(VALUE, problem.getMessage());
-			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
+			this.parameters.clear();
+			this.parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
+			this.parameters.put(PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));
+			this.parameters.put(PROBLEM_SOURCE_END, new Integer(problem.getSourceEnd()));
+			this.printTag(TASK, this.parameters, true, false);
+			this.parameters.clear();
+			this.parameters.put(VALUE, problem.getMessage());
+			this.printTag(PROBLEM_MESSAGE, this.parameters, true, true);
+			this.parameters.clear();
+			extractContext(problem, unitSource);
+			this.printTag(SOURCE_CONTEXT, this.parameters, true, true);
 			this.endTag(TASK);
 		}
 		private void printErr(String s) {
