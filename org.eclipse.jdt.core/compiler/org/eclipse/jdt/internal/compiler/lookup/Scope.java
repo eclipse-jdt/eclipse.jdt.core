@@ -48,28 +48,6 @@ public abstract class Scope
 		return NotRelated;
 	}
 
-	/**
-	 * Internal use only
-	 * Given a method, returns null if arguments cannot be converted to parameters.
-	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
-	 * in case the method was originally compatible, then simply answer it back.
-	 */
-	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments) {
-	    TypeBinding[] parameters = method.parameters;
-		if (parameters == arguments)
-			return method;
-
-		int length = parameters.length;
-		if (length != arguments.length)
-			return null;
-
-		for (int i = 0; i < length; i++)
-			if (parameters[i] != arguments[i])
-				if (!arguments[i].isCompatibleWith(parameters[i]))
-					return null;
-		return method;
-	}
-
 	/* Answer an int describing the relationship between the given type and unchecked exceptions.
 	*
 	* 	NotRelated 
@@ -92,6 +70,28 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
+	/**
+	 * Internal use only
+	 * Given a method, returns null if arguments cannot be converted to parameters.
+	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
+	 * in case the method was originally compatible, then simply answer it back.
+	 */
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments) {
+	    TypeBinding[] parameters = method.parameters;
+		if (parameters == arguments)
+			return method;
+
+		int length = parameters.length;
+		if (length != arguments.length)
+			return null;
+
+		for (int i = 0; i < length; i++)
+			if (parameters[i] != arguments[i])
+				if (!arguments[i].isCompatibleWith(parameters[i]))
+					return null;
+		return method;
+	}
+	
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters) {
 		boolean noProblems = true;
 		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) return true;
