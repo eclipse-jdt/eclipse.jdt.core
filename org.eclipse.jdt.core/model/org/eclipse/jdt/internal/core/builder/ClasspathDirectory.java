@@ -100,7 +100,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 					try {
 						ClassFileReader reader = ClassFileReader.read(location.toString());
 						if (reader != null) return new NameEnvironmentAnswer(reader);
-					} catch (Exception ignored) {} // treat as if class file is missing
+					} catch (Exception ignored) { // treat as if class file is missing
+					}
 				}
 			}
 		}

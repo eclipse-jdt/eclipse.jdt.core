@@ -363,7 +363,8 @@ private boolean hasClasspathChanged() {
 				o--;
 				continue;
 			}
-		} catch (CoreException ignore) {}
+		} catch (CoreException ignore) { // skip it
+		}
 		if (DEBUG)
 			System.out.println(newSourceLocations[n] + " != " + oldSourceLocations[o]); //$NON-NLS-1$
 		return true;
@@ -374,7 +375,8 @@ private boolean hasClasspathChanged() {
 				n++;
 				continue;
 			}
-		} catch (CoreException ignore) {}
+		} catch (CoreException ignore) { // skip it
+		}
 		if (DEBUG)
 			System.out.println("Added non-empty source folder"); //$NON-NLS-1$
 		return true;
