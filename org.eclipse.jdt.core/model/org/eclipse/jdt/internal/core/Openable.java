@@ -105,7 +105,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
-	INameLookup nameLookup = ((JavaProject) getJavaProject()).getNameLookup();
+	NameLookup nameLookup = ((JavaProject) getJavaProject()).getNameLookup();
 	environment.unitToSkip = unitToSkip;
 
 	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), JavaCore.getOptions());

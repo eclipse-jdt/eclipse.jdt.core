@@ -14,14 +14,31 @@ import java.io.File;
 import org.eclipse.jdt.core.*;
 
 /**
- *  This class implements basic namelookup functionality as
- *  described in <code>INameLookup</code>.  It performs its
- *  searches by querying the Java Model directly.
+ * A <code>NameLookup</code> provides name resolution within a Java project.
+ * The name lookup facility uses the project's classpath to prioritize the 
+ * order in which package fragments are searched when resolving a name.
  *
- * @see INameLookup
+ * <p>Name lookup only returns a handle when the named element actually
+ * exists in the model; otherwise <code>null</code> is returned.
+ *
+ * <p>There are two logical sets of methods within this interface.  Methods
+ * which start with <code>find*</code> are intended to be convenience methods for quickly
+ * finding an element within another element, i.e. finding a class within a
+ * package.  The other set of methods all begin with <code>seek*</code>.  These methods
+ * do comprehensive searches of the <code>IJavaProject</code> returning hits
+ * in real time through an <code>IJavaElementRequestor</code>.
+ *
  */
+public class NameLookup {
+	/**
+	 * Accept flag for specifying classes.
+	 */
+	public static final int ACCEPT_CLASSES = 0x00000002;
 
-public class NameLookup implements INameLookup {
+	/**
+	 * Accept flag for specifying interfaces.
+	 */
+	public static final int ACCEPT_INTERFACES = 0x00000004;
 
 	/**
 	 * The <code>IPackageFragmentRoot</code>'s associated
@@ -144,7 +161,13 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Returns the <code>ICompilationUnit</code> which defines the type
+	 * named <code>qualifiedTypeName</code>, or <code>null</code> if
+	 * none exists. The domain of the search is bounded by the classpath
+	 * of the <code>IJavaProject</code> this <code>NameLookup</code> was
+	 * obtained from.
+	 * <p>
+	 * The name must be fully qualified (eg "java.lang.Object", "java.util.Hashtable$Entry")
 	 */
 	public ICompilationUnit findCompilationUnit(String qualifiedTypeName) {
 		String pkgName= IPackageFragment.DEFAULT_PACKAGE_NAME;
@@ -176,7 +199,13 @@ public class NameLookup implements INameLookup {
 	}
 	
 	/**
-	 * @see INameLookup
+	 * Returns the package fragment whose path matches the given
+	 * (absolute) path, or <code>null</code> if none exist. The domain of
+	 * the search is bounded by the classpath of the <code>IJavaProject</code>
+	 * this <code>NameLookup</code> was obtained from.
+	 * The path can be:
+	 * 	- internal to the workbench: "/Project/src"
+	 *  - external to the workbench: "c:/jdk/classes.zip/java/lang"
 	 */
 	public IPackageFragment findPackageFragment(IPath path) {
 		if (!path.isAbsolute()) {
@@ -248,7 +277,13 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Returns the package fragment root whose path matches the given
+	 * (absolute) path, or <code>null</code> if none exist. The domain of
+	 * the search is bounded by the classpath of the <code>IJavaProject</code>
+	 * this <code>NameLookup</code> was obtained from.
+	 * The path can be:
+	 *	- internal to the workbench: "/Compiler/src"
+	 *	- external to the workbench: "c:/jdk/classes.zip"
 	 */
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path) {
 		if (!path.isAbsolute()) {
@@ -264,7 +299,14 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Returns the package fragments whose name matches the given
+	 * (qualified) name, or <code>null</code> if none exist.
+	 *
+	 * The name can be:
+	 *	- empty: ""
+	 *	- qualified: "pack.pack1.pack2"
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
 		int count= fPackageFragmentRoots.length;
@@ -336,7 +378,21 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Returns the first type in the given package whose name
+	 * matches the given (unqualified) name, or <code>null</code> if none
+	 * exist. Specifying a <code>null</code> package will result in no matches.
+	 * The domain of the search is bounded by the Java project from which 
+	 * this name lookup was obtained.
+	 *
+	 * @name the name of the type to find
+	 * @pkg the package to search
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *	only exact name matches qualify when <code>false</code>
+	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
+	 * 	are desired results. If no flags are specified, all types are returned.
+	 *
+	 * @see ACCEPT_CLASSES
+	 * @see ACCEPT_INTERFACES
 	 */
 	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags) {
 		if (pkg == null) {
@@ -350,7 +406,18 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Returns the type specified by the qualified name, or <code>null</code>
+	 * if none exist. The domain of
+	 * the search is bounded by the Java project from which this name lookup was obtained.
+	 *
+	 * @name the name of the type to find
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *	only exact name matches qualify when <code>false</code>
+	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
+	 * 	are desired results. If no flags are specified, all types are returned.
+	 *
+	 * @see ACCEPT_CLASSES
+	 * @see ACCEPT_INTERFACES
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
 		int index= name.lastIndexOf('.');
@@ -384,7 +451,14 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Notifies the given requestor of all package fragments with the
+	 * given name. Checks the requestor at regular intervals to see if the
+	 * requestor has canceled. The domain of
+	 * the search is bounded by the <code>IJavaProject</code>
+	 * this <code>NameLookup</code> was obtained from.
+	 *
+	 * @param partialMatch partial name matches qualify when <code>true</code>;
+	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
 		int count= fPackageFragmentRoots.length;
@@ -411,7 +485,19 @@ public class NameLookup implements INameLookup {
 	}
 
 	/**
-	 * @see INameLookup
+	 * Notifies the given requestor of all types (classes and interfaces) in the
+	 * given package fragment with the given (unqualified) name.
+	 * Checks the requestor at regular intervals to see if the requestor
+	 * has canceled.  If the given package fragment is <code>null</code>, all types in the
+	 * project whose simple name matches the given name are found.
+	 *
+	 * @param partialMatch partial name matches qualify when <code>true</code>;
+	 *	only exact name matches qualify when <code>false</code>
+	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
+	 * 	are desired results. If no flags are specified, all types are returned.
+	 *
+	 * @see ACCEPT_CLASSES
+	 * @see ACCEPT_INTERFACES
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
 

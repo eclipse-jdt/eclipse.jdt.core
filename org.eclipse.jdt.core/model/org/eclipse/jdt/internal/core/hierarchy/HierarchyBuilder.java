@@ -34,9 +34,9 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected SearchableEnvironment searchableEnvironment;
 
 	/**
-	 * @see INameLookup
+	 * @see NameLookup
 	 */
-	protected INameLookup nameLookup;
+	protected NameLookup nameLookup;
 
 	/**
 	 * The resolver used to resolve type hierarchies

@@ -41,7 +41,7 @@ import org.xml.sax.*;
  * the classpath, except has source folder entries in place of output
  * locations in external projects.
  *
- * <p>Each JavaProject has an INameLookup facility that locates elements
+ * <p>Each JavaProject has a NameLookup facility that locates elements
  * on by name, based on the devpath.
  *
  * @see IJavaProject
@@ -260,7 +260,7 @@ public class JavaProject
 					getNameLookup().findType(
 						qualifiedName,
 						false,
-						INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 				if (type != null) {
 					return type.getParent();
 				} else {
@@ -281,7 +281,7 @@ public class JavaProject
 	}
 
 	/**
-	 * @see INameLookup
+	 * @see NameLookup
 	 */
 	public IPackageFragment findPackageFragment(IPath path)
 		throws JavaModelException {
@@ -290,7 +290,7 @@ public class JavaProject
 	}
 
 	/**
-	 * @see INameLookup
+	 * @see NameLookup
 	 */
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
@@ -621,7 +621,7 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public INameLookup getNameLookup() throws JavaModelException {
+	public NameLookup getNameLookup() throws JavaModelException {
 
 		JavaProjectElementInfo info = getJavaProjectElementInfo();
 		if (info.getNameLookup() == null) {

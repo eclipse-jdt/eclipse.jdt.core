@@ -16,9 +16,9 @@ public class CompletionRequestorWrapper implements ICompletionRequestor {
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
 	
 	ICodeCompletionRequestor clientRequestor;
-	INameLookup nameLookup;
+	NameLookup nameLookup;
 	
-public CompletionRequestorWrapper(ICodeCompletionRequestor clientRequestor, INameLookup nameLookup){
+public CompletionRequestorWrapper(ICodeCompletionRequestor clientRequestor, NameLookup nameLookup){
 	this.clientRequestor = clientRequestor;
 	this.nameLookup = nameLookup;
 }
@@ -144,7 +144,7 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 	int length = parameterTypeNames.length;
 	
 	char[] typeName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
-	IType type = nameLookup.findType(new String(typeName),false,INameLookup.ACCEPT_CLASSES &NameLookup.ACCEPT_INTERFACES);
+	IType type = nameLookup.findType(new String(typeName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
 	if(type instanceof BinaryType){
 		String[] args = new String[length];
 		for(int i = 0;	i< length ; i++){

@@ -343,7 +343,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	} else {
 		// Attempts to find the corresponding java file
 		String qualifiedName = getType().getFullyQualifiedName();
-		INameLookup lookup = ((JavaProject) getJavaProject()).getNameLookup();
+		NameLookup lookup = ((JavaProject) getJavaProject()).getNameLookup();
 		ICompilationUnit cu = lookup.findCompilationUnit(qualifiedName);
 		if (cu != null) {
 			return cu.getBuffer();

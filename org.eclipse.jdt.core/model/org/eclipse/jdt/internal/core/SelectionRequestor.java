@@ -19,7 +19,7 @@ public class SelectionRequestor implements ISelectionRequestor {
 	/**
 	 * The name lookup facility used to resolve packages
 	 */
-	protected INameLookup fNameLookup= null;
+	protected NameLookup fNameLookup= null;
 
 	/**
 	 * Fix for 1FVXGDK
@@ -43,7 +43,7 @@ public class SelectionRequestor implements ISelectionRequestor {
  *
  * Fix for 1FVXGDK
  */
-public SelectionRequestor(INameLookup nameLookup, IJavaElement codeResolve) {
+public SelectionRequestor(NameLookup nameLookup, IJavaElement codeResolve) {
 	super();
 	fNameLookup = nameLookup;
 	fCodeResolve = codeResolve;
@@ -75,7 +75,7 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
  * Resolve the class.
  */
 public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
-	acceptType(packageName, className, INameLookup.ACCEPT_CLASSES, needQualification);
+	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, needQualification);
 }
 /**
  * Do nothing.
@@ -86,7 +86,7 @@ public void acceptError(IProblem error) {}
  */
 public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {
 	IType type= resolveType(declaringTypePackageName, declaringTypeName,
-		INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	if (type != null) {
 		IField field= type.getField(new String(name));
 		if (field.exists()) {
@@ -98,14 +98,14 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
  * Resolve the interface
  */
 public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
-	acceptType(packageName, interfaceName, INameLookup.ACCEPT_INTERFACES, needQualification);
+	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification);
 }
 /**
  * Resolve the method
  */
 public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
 	IType type= resolveType(declaringTypePackageName, declaringTypeName,
-		INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	// fix for 1FWFT6Q
 	if (type != null) {
 		if (type.isBinary()) {

@@ -46,7 +46,7 @@ public class SearchableEnvironment
 				typeName,
 				packageName,
 				false,
-				INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 		if (type == null) {
 			// look inside the compilation unit that is being searched currently
 			//for a non-public or inner type.
@@ -160,7 +160,7 @@ public class SearchableEnvironment
 
 		/*
 			if (true){
-				findTypes(new String(prefix), storage, INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+				findTypes(new String(prefix), storage, NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 				return;		
 			}
 		*/
@@ -172,7 +172,7 @@ public class SearchableEnvironment
 					findTypes(
 						new String(prefix),
 						storage,
-						INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 					return;
 				}
 				excludePath =
@@ -262,13 +262,13 @@ public class SearchableEnvironment
 				findTypes(
 					new String(prefix),
 					storage,
-					INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+					NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 			}
 		} catch (JavaModelException e) {
 			findTypes(
 				new String(prefix),
 				storage,
-				INameLookup.ACCEPT_CLASSES | INameLookup.ACCEPT_INTERFACES);
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 		}
 	}
 
