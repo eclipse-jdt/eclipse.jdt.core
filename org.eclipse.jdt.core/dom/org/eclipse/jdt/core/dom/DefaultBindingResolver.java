@@ -274,7 +274,7 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
-			if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) { // TODO (olivier) Unnecessary instanceof check, the expression of type TypeBinding is already compatible with type TypeBinding
+			if (binding != null) {
 				return this.getTypeBinding(binding.leafComponentType());
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
