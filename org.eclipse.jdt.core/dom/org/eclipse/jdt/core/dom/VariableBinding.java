@@ -83,6 +83,10 @@ class VariableBinding implements IVariableBinding {
 			return null;
 		}
 	}
+
+	/*
+	 * @see IVariableBinding#getDeclaringMethod()
+	 */
 	public IMethodBinding getDeclaringMethod() {
 		if (!isField()) {
 			ASTNode node = this.resolver.findDeclaringNode(this);
@@ -216,7 +220,7 @@ class VariableBinding implements IVariableBinding {
 		return this.binding instanceof FieldBinding;
 	}
 
-	/**
+	/*
 	 * @see IBinding#isSynthetic()
 	 */
 	public boolean isSynthetic() {
