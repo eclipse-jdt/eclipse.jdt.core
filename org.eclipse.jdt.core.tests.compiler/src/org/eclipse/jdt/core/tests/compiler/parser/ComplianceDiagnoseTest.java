@@ -2041,7 +2041,7 @@ public void test0046() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public @interface X {\n" + 
-		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                  ^\n" + 
 		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
 		"----------\n";
 	String expected14ProblemLog =
@@ -2072,7 +2072,7 @@ public void test0047() {
 		"----------\n" + 
 		"1. ERROR in A.java (at line 1)\n" + 
 		"	public @interface A {}\n" + 
-		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                  ^\n" + 
 		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
 		"----------\n" + 
 		"----------\n" + 

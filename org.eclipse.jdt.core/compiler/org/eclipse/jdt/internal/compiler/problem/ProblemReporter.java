@@ -2446,7 +2446,7 @@ public void invalidUsageOfAnnotationDeclarations(AnnotationTypeDeclaration annot
 		IProblem.InvalidUsageOfAnnotationDeclarations,
 		NoArgument, 
 		NoArgument, 
-		annotationTypeDeclaration.modifiersSourceStart,
+		annotationTypeDeclaration.sourceStart,
 		annotationTypeDeclaration.sourceEnd);
 }
 public void invalidUsageOfEnumDeclarations(EnumDeclaration enumDeclaration) {
@@ -2454,7 +2454,7 @@ public void invalidUsageOfEnumDeclarations(EnumDeclaration enumDeclaration) {
 		IProblem.InvalidUsageOfEnumDeclarations,
 		NoArgument, 
 		NoArgument, 
-		enumDeclaration.modifiersSourceStart,
+		enumDeclaration.sourceStart,
 		enumDeclaration.sourceEnd);
 }
 public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
