@@ -243,6 +243,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceNotCaseSensitive"));
 	suite.addTest(new JavaSearchTests("testAccurateTypeReference"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInHierarchy"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceWithRecovery"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2648,6 +2649,24 @@ public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreExc
 		"src/p/X.java p.X.foo(int, String, X) -> void [X]\n" +
 		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [X]",
+		resultCollector.toString());
+}
+/**
+ * Type reference with recovery test.
+ * (Regression test for bug 29366 Search reporting invalid inaccurate match )
+ */
+public void testTypeReferenceWithRecovery() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "e1", "A29366.java").getType("A29366");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showAccuracy = true;
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/e1/A29366.java e1.A29366.foo() -> void [A29366] EXACT_MATCH",
 		resultCollector.toString());
 }
 /**

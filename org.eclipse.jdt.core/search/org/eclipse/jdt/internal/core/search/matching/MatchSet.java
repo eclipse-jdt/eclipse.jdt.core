@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
 import org.eclipse.jdt.internal.core.Util;
 
 /**
@@ -50,12 +51,14 @@ public class MatchSet {
 	 * Set of matching ast nodes that don't need to be resolved.
 	 */
 	Map matchingNodes = new HashMap(5);
+	HashtableOfLong matchingNodesKeys = new HashtableOfLong(5);
 
 	/**
 	 * Set of potential matching ast nodes. They need to be resolved
 	 * to determine if they really match the search pattern.
 	 */
 	Map potentialMatchingNodes = new HashMap(5);
+	HashtableOfLong potentialMatchingNodesKeys = new HashtableOfLong(5);
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -116,10 +119,34 @@ public MatchSet(MatchLocator locator) {
 	this.matchContainer = locator.pattern.matchContainer();
 }
 public void addPossibleMatch(AstNode node) {
+
+	// remove existing node at same position from set
+	// (case of recovery that created the same node several time
+	// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=29366)
+	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
+	AstNode existing = (AstNode)this.potentialMatchingNodesKeys.get(key);
+	if (existing != null && existing.getClass().equals(node.getClass())) {
+		this.potentialMatchingNodes.remove(existing);
+	}
+
+	// add node to set
 	this.potentialMatchingNodes.put(node, new Integer(SearchPattern.POSSIBLE_MATCH));
+	this.potentialMatchingNodesKeys.put(key, node);
 }
 public void addTrustedMatch(AstNode node) {
+	
+	// remove existing node at same position from set
+	// (case of recovery that created the same node several time
+	// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=29366)
+	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
+	AstNode existing = (AstNode)this.matchingNodesKeys.get(key);
+	if (existing != null && existing.getClass().equals(node.getClass())) {
+		this.matchingNodes.remove(existing);
+	}
+	
+	// add node to set
 	this.matchingNodes.put(node, new Integer(SearchPattern.ACCURATE_MATCH));
+	this.matchingNodesKeys.put(key, node);
 }
 public void checkMatching(AstNode node) {
 	this.locator.pattern.matchCheck(node, this);
@@ -172,9 +199,13 @@ private AstNode[] potentialMatchingNodes(int start, int end) {
 	return this.nodesInRange(start, end, this.potentialMatchingNodes);
 }
 public Integer removePossibleMatch(AstNode node) {
+	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
+	this.potentialMatchingNodesKeys.put(key, null);
 	return (Integer)this.potentialMatchingNodes.remove(node);
 }
 public Integer removeTrustedMatch(AstNode node) {
+	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
+	this.matchingNodesKeys.put(key, null);
 	return (Integer)this.matchingNodes.remove(node);
 }
 /**
