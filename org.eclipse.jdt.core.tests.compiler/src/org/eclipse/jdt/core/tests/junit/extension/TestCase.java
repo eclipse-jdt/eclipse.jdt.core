@@ -189,6 +189,14 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 	}
 	return tests;
 }
+public void assertPerformance() {
+	// make it public to avoid compiler warning about synthetic access
+	super.assertPerformance();
+}
+public void commitMeasurements() {
+	// make it public to avoid compiler warning about synthetic access
+	super.commitMeasurements();
+}
 public void startMeasuring() {
 	// make it public to avoid compiler warning about synthetic access
 	super.startMeasuring();
