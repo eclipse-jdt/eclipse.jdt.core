@@ -33,14 +33,6 @@ public class SwitchStatement extends Statement {
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-	/**
-	 * SwitchStatement constructor comment.
-	 */
-	public SwitchStatement() {
-
-		super();
-	}
-
 	public FlowInfo analyseCode(
 			BlockScope currentScope,
 			FlowContext flowContext,
