@@ -78,8 +78,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	        sig.append(this.superclass.genericTypeSignature());
 	    }
 		for (int i = 0; i < interfaceLength; i++) {
-		    if (i > 0) sig.append(':');
-		    sig.append(this.superInterfaces[i].genericTypeSignature());
+		    sig.append(':').append(this.superInterfaces[i].genericTypeSignature());
 		}
 		return sig.toString().toCharArray();
 	}
