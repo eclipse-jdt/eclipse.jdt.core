@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
+import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -370,8 +370,12 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 
 	boolean allowNestingInOutput = false;
 	boolean hasSource = false;
+
+	// tolerate null path, it will be reset to default
+	int length = classpath == null ? 0 : classpath.length; 
+
 	IClasspathEntry[] originalClasspath = classpath;
-	for (int i = 0, length = classpath.length ; i < length; i++) {
+	for (int i = 0 ; i < length; i++) {
 		// use resolved variable
 		if (classpath[i].getEntryKind() == IClasspathEntry.CPE_VARIABLE){
 			if (classpath == originalClasspath) System.arraycopy(originalClasspath, 0, classpath = new IClasspathEntry[length], 0, length);
@@ -385,24 +389,45 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 	}
 	if (!hasSource) allowNestingInOutput = true; // if no source, then allowed
 	
+	ObjectSet pathes = new ObjectSet(length);
+	
 	// check all entries
-	for (int i = 0 ; i < classpath.length; i++) {
+	for (int i = 0 ; i < length; i++) {
 		IClasspathEntry entry = classpath[i];
-		if (entry == null) continue;
-		IPath entryPath = entry.getPath();
 
+		if (entry == null) continue;
+
+		IPath entryPath = entry.getPath();
+		int kind = entry.getEntryKind();
+
+		// complain if duplicate path
+		if (!pathes.add(entryPath)){
+			return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Util.bind("classpath.duplicateEntryPath", entryPath.toString())); //$NON-NLS-1$
+		}
 		// no further check if entry coincidates with project or output location
-		if (entryPath.equals(projectPath)) continue;
+		if (entryPath.equals(projectPath)){
+			// complain if self-referring project entry
+			if (kind == IClasspathEntry.CPE_PROJECT){
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Util.bind("classpath.cannotReferToItself", entryPath.toString()));//$NON-NLS-1$
+			}
+			continue;
+		}
 		if (entryPath.equals(outputLocation)) continue;
-		
+
+
 		// prevent nesting source entries in each other
-		if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
+		if (kind == IClasspathEntry.CPE_SOURCE 
+				|| (kind == IClasspathEntry.CPE_LIBRARY && !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.toString()))){
 			for (int j = 0; j < classpath.length; j++){
 				IClasspathEntry otherEntry = classpath[j];
 				if (otherEntry == null) continue;
-				if (entry != otherEntry && otherEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
-					if (entryPath.isPrefixOf(otherEntry.getPath())){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInSource",entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
+				int otherKind = otherEntry.getEntryKind();
+				if (entry != otherEntry 
+					&& (otherKind == IClasspathEntry.CPE_SOURCE 
+							|| (otherKind == IClasspathEntry.CPE_LIBRARY 
+									&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherEntry.getPath().toString())))){
+					if (otherEntry.getPath().isPrefixOf(entryPath)){
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
 					}
 				}
 			}
