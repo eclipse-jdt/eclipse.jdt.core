@@ -604,6 +604,18 @@ public final class AST {
 	}
 	
 	/**
+	 * Added this method back so that one can patch a I20040219 build.
+	 * @deprecated 
+	 * TODO (jerome) remove before 3.0 M8
+	 */
+	public static CompilationUnit parseCompilationUnit(
+		ICompilationUnit unit,
+		boolean resolveBindings,
+		WorkingCopyOwner owner) {
+		
+		return parseCompilationUnit(unit, resolveBindings, owner, null);
+	}	
+	/**
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns a corresponding abstract syntax tree. The source 
 	 * string is obtained from the Java model element using
@@ -1092,7 +1104,18 @@ public final class AST {
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
 	}
-
+	/**
+	 * Added this method back so that one can patch a I20040219 build.
+	 * @deprecated
+	 * TODO (jerome) remove before 3.0 M8
+	 */
+	public static CompilationUnit parsePartialCompilationUnit(
+		ICompilationUnit unit,
+		int position,
+		boolean resolveBindings) {
+		
+		return parsePartialCompilationUnit(unit, position, resolveBindings, null, null);
+	}
 	/**
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns an abridged abstract syntax tree. This method
