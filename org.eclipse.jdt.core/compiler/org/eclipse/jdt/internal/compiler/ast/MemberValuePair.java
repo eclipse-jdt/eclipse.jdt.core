@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+
 /**
  * MemberValuePair node
  */
@@ -34,5 +39,29 @@ public class MemberValuePair extends ASTNode {
 			.append(" = "); //$NON-NLS-1$
 		value.print(indent, output);
 		return output;
+	}
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.value != null) {
+				this.value.traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.value != null) {
+				this.value.traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.value != null) {
+				this.value.traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
 	}
 }

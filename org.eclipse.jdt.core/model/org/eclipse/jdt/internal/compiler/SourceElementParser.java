@@ -1374,7 +1374,7 @@ private void visitIfNeeded(FieldDeclaration field) {
 	if (this.localDeclarationVisitor != null 
 		&& (field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (field.initialization != null) {
-				field.initialization.traverse(this.localDeclarationVisitor, null);
+				field.initialization.traverse(this.localDeclarationVisitor, (MethodScope) null);
 			}
 	}
 }

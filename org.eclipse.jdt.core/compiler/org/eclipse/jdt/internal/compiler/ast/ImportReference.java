@@ -68,6 +68,11 @@ public class ImportReference extends ASTNode {
 	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
 
 		visitor.visit(this, scope);
+		if (this.annotations != null) {
+			int annotationsLength = this.annotations.length;
+			for (int i = 0; i < annotationsLength; i++)
+				this.annotations[i].traverse(visitor, scope);
+		}
 		visitor.endVisit(this, scope);
 	}
 }

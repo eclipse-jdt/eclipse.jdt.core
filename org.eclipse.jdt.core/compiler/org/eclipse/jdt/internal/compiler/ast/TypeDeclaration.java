@@ -995,6 +995,11 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, unitScope)) {
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
+				}
 				if (this.superclass != null)
 					this.superclass.traverse(visitor, scope);
 				if (this.superInterfaces != null) {
@@ -1050,6 +1055,11 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, blockScope)) {
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
+				}
 				if (this.superclass != null)
 					this.superclass.traverse(visitor, scope);
 				if (this.superInterfaces != null) {
@@ -1105,6 +1115,11 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, classScope)) {
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
+				}
 				if (this.superclass != null)
 					this.superclass.traverse(visitor, scope);
 				if (this.superInterfaces != null) {

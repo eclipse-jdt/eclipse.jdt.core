@@ -435,6 +435,11 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		ClassScope classScope) {
 
 		if (visitor.visit(this, classScope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (arguments != null) {
 				int argumentLength = arguments.length;
 				for (int i = 0; i < argumentLength; i++)

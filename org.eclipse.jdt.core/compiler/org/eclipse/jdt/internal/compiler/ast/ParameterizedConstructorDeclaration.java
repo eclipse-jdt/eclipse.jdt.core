@@ -63,6 +63,11 @@ public class ParameterizedConstructorDeclaration extends ConstructorDeclaration 
 		ClassScope classScope) {
 
 		if (visitor.visit(this, classScope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (this.typeParameters != null) {
 				int typeParametersLength = this.typeParameters.length;
 				for (int i = 0; i < typeParametersLength; i++) {

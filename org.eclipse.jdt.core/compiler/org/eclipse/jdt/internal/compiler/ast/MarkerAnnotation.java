@@ -6,6 +6,11 @@
  */
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+
 public class MarkerAnnotation extends Annotation {
 	
 	public MarkerAnnotation(char[][] tokens, long[] sourcePositions, int sourceStart) {
@@ -20,5 +25,18 @@ public class MarkerAnnotation extends Annotation {
 		this.sourcePositions = new long[] { sourcePosition };
 		this.sourceStart = sourceStart;
 		this.sourceEnd = (int) sourcePosition;
+	}
+	
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 }

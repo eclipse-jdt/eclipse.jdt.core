@@ -68,7 +68,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0027"));
+		suite.addTest(new ASTConverter15Test("test0026"));
 		return suite;
 	}
 		

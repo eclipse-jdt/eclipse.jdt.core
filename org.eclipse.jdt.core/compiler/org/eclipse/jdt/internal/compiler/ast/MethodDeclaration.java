@@ -138,6 +138,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		ClassScope classScope) {
 
 		if (visitor.visit(this, classScope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (returnType != null)
 				returnType.traverse(visitor, scope);
 			if (arguments != null) {
