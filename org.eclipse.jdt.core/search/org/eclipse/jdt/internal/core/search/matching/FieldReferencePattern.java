@@ -38,7 +38,8 @@ public class FieldReferencePattern extends MultipleSearchPattern {
 
 	protected char[] decodedName;
 
-	private static char[][] TAGS = { FIELD_REF, REF };
+	private static char[][] REF_TAGS = { FIELD_REF, REF };
+	private static char[][] REF_AND_DECL_TAGS = { FIELD_REF, REF, FIELD_DECL };
 
 public FieldReferencePattern(
 	char[] name, 
@@ -92,8 +93,12 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 		}
 	}
 }
-protected char[][] getPossibleTags(){
-	return TAGS;
+protected char[][] getPossibleTags() {
+	if (this.writeAccess && !this.readAccess) {
+		return REF_AND_DECL_TAGS;
+	} else {
+		return REF_TAGS;
+	}
 }
 /**
  * @see AndPattern#hasNextQuery
