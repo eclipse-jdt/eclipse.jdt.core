@@ -868,8 +868,18 @@ public class ASTMatcher {
 		// for backwards compatibility, treat the deprecated comment string
 		// and the new list of fragments as separate properties, and
 		// compare both
-		return safeEquals(node.getComment(), o.getComment())
+		return compareDeprecatedComment(node, o)
 		       && safeSubtreeListMatch(node.fragments(), o.fragments());
+	}
+
+	/**
+	 * Return whether the deprecated comment strings of the given java doc are equals.
+	 * <p>
+	 * Note the only purpose of this method is to hide deprecated warnings.
+	 * @deprecated mark deprecated to hide deprecated usage
+	 */
+	private boolean compareDeprecatedComment(Javadoc first, Javadoc second) {
+		return safeEquals(first.getComment(), second.getComment());
 	}
 
 	/**

@@ -2983,7 +2983,7 @@ class ASTConverter {
 						int length = scanner.currentPosition - start;
 						char[] contents = new char[length];
 						System.arraycopy(this.compilationUnitSource, start, contents, 0, length);
-						javadocComment.setComment(new String(contents));
+						setDeprecatedComment(javadocComment, contents);
 						javadocComment.setSourceRange(start, length);
 						bodyDeclaration.setJavadoc(javadocComment);
 						return;
@@ -2996,6 +2996,16 @@ class ASTConverter {
 		}
 	}
 	
+	/**
+	 * Sets the deprecated comment string on the given java doc.
+	 * <p>
+	 * Note the only purpose of this method is to hide deprecated warnings.
+	 * @deprecated mark deprecated to hide deprecated usage
+	 */
+	private void setDeprecatedComment(Javadoc javadocComment, char[] contents) {
+		javadocComment.setComment(new String(contents));
+	}
+
 	private void propagateErrors(CompilationUnit unit, IProblem[] problems, int problemLength) {
 		// resize the problem array to the proper size
 		IProblem[] resizeProblems = null;

@@ -953,7 +953,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	IBinding resolveReference(MemberRef ref) {
 		// TODO (frederic) missing implementation
-		throw new RuntimeException("Missing implementation");
+		throw new RuntimeException("Missing implementation"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -962,7 +962,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	IBinding resolveReference(MethodRef ref) {
 		// TODO (frederic) missing implementation
-		throw new RuntimeException("Missing implementation");
+		throw new RuntimeException("Missing implementation"); //$NON-NLS-1$
 	}
 
 }
