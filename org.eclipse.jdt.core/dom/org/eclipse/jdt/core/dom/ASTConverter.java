@@ -2818,6 +2818,8 @@ class ASTConverter {
 						javadocComment.setSourceRange(start, length);
 						bodyDeclaration.setJavadoc(javadocComment);
 						return;
+					default :
+						return;
 				}
 			}
 		} catch(InvalidInputException e) {
