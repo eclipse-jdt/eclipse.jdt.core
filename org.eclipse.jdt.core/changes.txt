@@ -122,6 +122,7 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3433		search: missing field occurrecnces (1GKZ8J6)  
   3176      JCK1.3a - STMT - Single declaration in try block (1GLDSH9)  
   1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types
   
