@@ -1176,8 +1176,9 @@ public class Main implements ProblemSeverities {
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		} else if (options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)) {
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+		} else if (options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
+				  && options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_1)) {
+					throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget11", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
 		// compliance must be 1.4 if source is 1.4
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
