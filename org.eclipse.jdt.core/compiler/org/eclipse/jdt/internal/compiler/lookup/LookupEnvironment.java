@@ -850,7 +850,7 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 		Object[] keys = this.uniqueWildcardBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
 			if (keys[i] == unresolvedType) {
-				keys[i] = resolvedType.isGenericType() ? createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType; // hashCode is based on compoundName so this works
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works
 				break;
 			}
 		}

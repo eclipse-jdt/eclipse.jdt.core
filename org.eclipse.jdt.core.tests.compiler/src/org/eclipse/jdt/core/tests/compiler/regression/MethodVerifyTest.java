@@ -1020,8 +1020,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 		);
 	}
 
-	// TODO (philippe) Binary case is busted
-	public void _test021() {
+	public void test021() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
