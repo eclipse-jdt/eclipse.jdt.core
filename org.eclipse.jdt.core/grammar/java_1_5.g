@@ -669,44 +669,44 @@ ConstructorDeclaration ::= ConstructorHeader ';'
 -- in the rule below in order to make the grammar lalr(1).
 
 ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocation(0, THIS); $break ./
 
 ExplicitConstructorInvocation ::= OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,THIS); $break ./
 
 ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocation(0,SUPER); $break ./
 
 ExplicitConstructorInvocation ::= OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,SUPER); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocation(1, SUPER); $break ./
 
 ExplicitConstructorInvocation ::= Primary '.' OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, SUPER); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocation(2, SUPER); $break ./
 
 ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, SUPER); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocation(1, THIS); $break ./
 
 ExplicitConstructorInvocation ::= Primary '.' OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, THIS); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocation(2, THIS); $break ./
 
 ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, THIS); $break ./
 /:$readableName ExplicitConstructorInvocation:/
 
 --18.9 Productions from 9: Interface Declarations
@@ -1579,7 +1579,8 @@ Argumentsopt ::= $empty
 Argumentsopt -> Arguments
 /:$readableName Argumentsopt:/
 
-EnumDeclarations -> ';' ClassBodyDeclarationsopt
+EnumDeclarations ::= ';' ClassBodyDeclarationsopt
+/.$putCase consumeEnumDeclarations(); $break ./
 /:$readableName EnumDeclarations:/
 
 EnumBodyDeclarationsopt ::= $empty
