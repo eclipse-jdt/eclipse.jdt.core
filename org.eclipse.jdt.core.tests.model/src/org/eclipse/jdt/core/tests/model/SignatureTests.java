@@ -282,12 +282,20 @@ public void testGetTypeParameters2() {
 /**
  * @see Signature
  */
-public void testGetQualifier() {
-	assertEquals("Signature#getQualifier is not correct1", "java.lang",
-			Signature.getQualifier("java.lang.Object"));
-	assertEquals("Signature#getQualifier is not correct2",  "",
-			Signature.getQualifier(""));
-	
+public void testGetQualifier1() {
+	assertEquals(
+		"java.lang",
+		Signature.getQualifier("java.lang.Object"));
+}
+public void testGetQualifier2() {
+	assertEquals(
+		"",
+		Signature.getQualifier(""));
+}
+public void testGetQualifier3() {
+	assertEquals(
+		"java.util",
+		Signature.getQualifier("java.util.List<java.lang.Object>"));
 }
 /**
  * @see Signature

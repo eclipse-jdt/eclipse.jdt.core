@@ -1618,6 +1618,7 @@ public static String[] getTypeParameterBounds(String formalTypeParameterSignatur
  * <code>
  * getQualifier({'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'}) -> {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g'}
  * getQualifier({'O', 'u', 't', 'e', 'r', '.', 'I', 'n', 'n', 'e', 'r'}) -> {'O', 'u', 't', 'e', 'r'}
+ * getQualifier({'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '>'}) -> {'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l'}
  * </code>
  * </pre>
  * </p>
@@ -1629,7 +1630,8 @@ public static String[] getTypeParameterBounds(String formalTypeParameterSignatur
  * @since 2.0
  */
 public static char[] getQualifier(char[] name) {
-	int lastDot = CharOperation.lastIndexOf(C_DOT, name);
+	int firstGenericStart = CharOperation.indexOf(C_GENERIC_START, name);
+	int lastDot = CharOperation.lastIndexOf(C_DOT, name, 0, firstGenericStart == -1 ? name.length-1 : firstGenericStart);
 	if (lastDot == -1) {
 		return CharOperation.NO_CHAR;
 	}
@@ -1644,6 +1646,7 @@ public static char[] getQualifier(char[] name) {
  * <code>
  * getQualifier("java.lang.Object") -> "java.lang"
  * getQualifier("Outer.Inner") -> "Outer"
+ * getQualifier("java.util.List<java.lang.String>") -> "java.util"
  * </code>
  * </pre>
  * </p>
@@ -1654,11 +1657,9 @@ public static char[] getQualifier(char[] name) {
  * @exception NullPointerException if name is null
  */
 public static String getQualifier(String name) {
-	int lastDot = name.lastIndexOf(C_DOT);
-	if (lastDot == -1) {
-		return EMPTY;
-	}
-	return name.substring(0, lastDot);
+	char[] qualifier = getQualifier(name.toCharArray());
+	if (qualifier.length == 0) return EMPTY;
+	return new String(qualifier);
 }
 /**
  * Extracts the return type from the given method signature. The method signature is 
