@@ -548,7 +548,6 @@ public class JavaProject
 		JavaElementInfo jmi = model.getElementInfo();
 		jmi.removeChild(this);
 	}
-	}
 
 	/**
 	 * Returns a default class path.
