@@ -365,8 +365,9 @@ public interface IProblem {
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
+	/** @since 3.1 */
+	int NullParameterToVarargsMethod = MethodRelated + 120;
 
-	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
 	int NotVisibleConstructor = ConstructorRelated + 131;
@@ -390,6 +391,8 @@ public interface IProblem {
 	int AmbiguousConstructorInImplicitConstructorCall = ConstructorRelated + 145;
 	int UnhandledExceptionInDefaultConstructor = TypeRelated + 146;
 	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
+	/** @since 3.1 */
+	int NullParameterToVarargsConstructor = ConstructorRelated + 148;
 				
 	// expressions
 	int ArrayReferenceRequired = Internal + 150;

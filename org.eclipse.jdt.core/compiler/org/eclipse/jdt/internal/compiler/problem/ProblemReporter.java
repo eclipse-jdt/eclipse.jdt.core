@@ -3388,6 +3388,23 @@ public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding 
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void nullParameterToVarargsMethod(MethodBinding method, ASTNode location) {
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.NullParameterToVarargsConstructor,
+			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
+			location.sourceStart,
+			location.sourceEnd);
+	} else {
+		this.handle(
+			IProblem.NullParameterToVarargsMethod,
+			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+			location.sourceStart,
+			location.sourceEnd);
+	}
+}
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.ObjectCannotBeGeneric,
