@@ -368,6 +368,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final int fragmentsSize = builder.size();
 		
 		if (fragmentsSize > 1 && numberOfParens == 0) {
+			this.scribe.printComment();
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
 			boolean ok = false;

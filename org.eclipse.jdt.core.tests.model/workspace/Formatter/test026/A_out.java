@@ -6,7 +6,8 @@ public class A {
 		this.extremlylongReceiverWillCauseTwoSplitActions
 				.someQuiteLongMessageSend("aaaaaaaaaaa", "bbbbbbbbbbbbb",
 						"cccccccc");
-		Alignment expressionsAlignment = this.scribe.createAlignment("expressions", Alignment.M_COMPACT_SPLIT
+		Alignment expressionsAlignment = this.scribe.createAlignment(
+				"expressions", Alignment.M_COMPACT_SPLIT
 						+ someMessageSend(Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,
