@@ -140,10 +140,7 @@ public class FlowContext implements TypeConstants {
 							for (int i = 0; i < raisedCount; i++) {
 								TypeBinding raisedException;
 								if ((raisedException = raisedExceptions[i]) != null) {
-									// only required for actually thrown exceptions
-									if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()){
-										exceptionContext.mergeUnhandledException(raisedException);
-									}
+									exceptionContext.mergeUnhandledException(raisedException);
 								}
 							}
 							return; // no need to complain, will fix up constructor exceptions						
@@ -235,10 +232,7 @@ public class FlowContext implements TypeConstants {
 							&& method.binding.declaringClass.isAnonymousType()
 							&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
 									
-							// only required for actually thrown exceptions
-							if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()){
-								exceptionContext.mergeUnhandledException(raisedException);
-							}
+							exceptionContext.mergeUnhandledException(raisedException);
 							return; // no need to complain, will fix up constructor exceptions						
 						}
 					}

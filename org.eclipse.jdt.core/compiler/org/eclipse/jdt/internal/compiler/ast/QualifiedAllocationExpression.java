@@ -35,6 +35,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowInfo = arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 		}
 	}
+
+	// analyse the anonymous nested type
+	if (anonymousType != null) {
+		flowInfo = anonymousType.analyseCode(currentScope, flowContext, flowInfo);
+	}
+
 	// record some dependency information for exception types
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = binding.thrownExceptions).length) != 0) {
@@ -42,10 +48,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
 	}
 
-	// analyse the anonymous nested type
-	if (anonymousType != null) {
-		flowInfo = anonymousType.analyseCode(currentScope, flowContext, flowInfo);
-	}
 	manageEnclosingInstanceAccessIfNecessary(currentScope);
 	manageSyntheticAccessIfNecessary(currentScope);
 	return flowInfo;
