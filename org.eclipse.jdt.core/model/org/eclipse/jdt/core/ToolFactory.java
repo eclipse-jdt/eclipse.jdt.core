@@ -185,8 +185,14 @@ public class ToolFactory {
 		if (root != null){
 			try {
 				if (root instanceof JarPackageFragmentRoot) {
-						
-					String archiveName = ((JarPackageFragmentRoot)root).getJar().getName();
+					String archiveName = null;
+					ZipFile jar = null;
+					try {
+						jar = ((JarPackageFragmentRoot)root).getJar();
+						archiveName = jar.getName();
+					} finally {
+						JavaModelManager.getJavaModelManager().closeZipFile(jar);
+					}
 					PackageFragment packageFragment = (PackageFragment) classfile.getParent();
 					String classFileName = classfile.getElementName();
 					String entryName = org.eclipse.jdt.internal.core.util.Util.concatWith(packageFragment.names, classFileName, '/');
