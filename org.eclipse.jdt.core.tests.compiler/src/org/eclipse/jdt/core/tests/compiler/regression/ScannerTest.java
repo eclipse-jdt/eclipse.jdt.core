@@ -361,4 +361,82 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertEquals("Wrong number of tokens", 1, counter);
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
+	 */
+	public void test019() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "0x".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+			return;
+		}
+		assertTrue(false);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
+	 */
+	public void test020() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+			return;
+		}
+		assertTrue(false);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
+	 */
+	public void test021() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "0x1".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
+	 */
+	public void test022() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x1".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
 }

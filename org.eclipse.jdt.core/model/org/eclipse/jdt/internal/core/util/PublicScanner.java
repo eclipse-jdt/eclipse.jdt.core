@@ -3135,6 +3135,8 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				}
 				return TokenNameDoubleLiteral;
 			} else {
+				if (end == start)
+					throw new InvalidInputException(INVALID_HEXA);
 				return TokenNameIntegerLiteral;
 			}
 		}
