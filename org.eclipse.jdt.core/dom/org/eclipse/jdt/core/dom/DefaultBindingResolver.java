@@ -823,6 +823,9 @@ class DefaultBindingResolver extends BindingResolver {
 			return getVariableBinding(((FieldReference) node).binding);
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
+			if (singleTypeReference.binding == null) {
+				return null;
+			}
 			return this.getTypeBinding(singleTypeReference.binding.leafComponentType());
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
@@ -886,7 +889,11 @@ class DefaultBindingResolver extends BindingResolver {
 	private IBinding internalResolveNameForSimpleType(Name name) {
 		AstNode node = (AstNode) this.newAstToOldAst.get(name);
 		if (node instanceof TypeReference) {
-			return this.getTypeBinding(((TypeReference) node).binding.leafComponentType());
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = ((TypeReference) node).binding;
+			if (binding == null) {
+				return null;
+			}
+			return this.getTypeBinding(binding.leafComponentType());
 		} else if (node instanceof NameReference) {
 			NameReference nameReference = (NameReference) node;
 			if (nameReference.isTypeReference()) {
