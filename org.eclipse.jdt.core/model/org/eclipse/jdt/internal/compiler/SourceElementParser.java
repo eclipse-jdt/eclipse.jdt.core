@@ -255,17 +255,19 @@ protected void consumeExitVariableWithInitialization() {
 	// the scanner is located after the comma or the semi-colon.
 	// we want to include the comma or the semi-colon
 	super.consumeExitVariableWithInitialization();
-	if (isLocalDeclaration() || ((currentToken != TokenNameCOMMA) && (currentToken != TokenNameSEMICOLON)))
-		return;
-	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
 	super.consumeExitVariableWithoutInitialization();
-	if (isLocalDeclaration() || ((currentToken != TokenNameCOMMA) && (currentToken != TokenNameSEMICOLON)))
-		return;
-	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
 }
 /*
  *
@@ -580,20 +582,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		this.addUnknownRef(ref);
 	}
 	return ref;
-}
-/*
- *
- * INTERNAL USE-ONLY
- */
-private boolean isLocalDeclaration() {
-	int nestedDepth = nestedType;
-	while (nestedDepth >= 0) {
-		if (nestedMethod[nestedDepth] != 0) {
-			return true;
-		}
-		nestedDepth--;
-	}
-	return false;
 }
 /*
  * Update the bodyStart of the corresponding parse node

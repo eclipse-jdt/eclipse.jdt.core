@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -72,19 +70,11 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-
 	if (true) {
-		Class c = SortCompilationUnitElementsTests.class;
-		Method[] methods = c.getMethods();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new SortCompilationUnitElementsTests(methods[i].getName()));
-			}
-		}
-	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test014")); //$NON-NLS-1$
-	}	
+		return new Suite(SortCompilationUnitElementsTests.class);
+	}
+	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
+	suite.addTest(new SortCompilationUnitElementsTests("test017")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -988,6 +978,174 @@ public void test015() throws CoreException {
 			"  \n" +
 			"  static int i; // end of static field declaration\n" + 
 			"  int j;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66216
+ */
+public void test016() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66216
+ */
+public void test017() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
