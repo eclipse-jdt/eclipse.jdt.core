@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -71,7 +71,7 @@ public class NameLookup implements SuffixConstants {
 	 * with the classpath of this NameLookup facility's
 	 * project.
 	 */
-	protected IPackageFragmentRoot[] fPackageFragmentRoots= null;
+	protected IPackageFragmentRoot[] packageFragmentRoots;
 
 	/**
 	 * Table that maps package names to lists of package fragments for
@@ -80,24 +80,26 @@ public class NameLookup implements SuffixConstants {
 	 * with the same name, values are arrays of package fragments
 	 * ordered as they appear on the classpath.
 	 */
-	protected Map fPackageFragments;
+	protected Map packageFragments;
 
-	/**
-	 * The <code>IWorkspace</code> that this NameLookup
-	 * is configure within.
-	 */
-	protected IWorkspace workspace;
-	
 	/**
 	 * A map from compilation unit handles to units to look inside (compilation
 	 * units or working copies).
 	 * Allows working copies to take precedence over compilation units.
-	 * The cache is a 2-level cache, first keyed by thread.
 	 */
-	protected ThreadLocal unitsToLookInside = new ThreadLocal();
+	protected HashMap unitsToLookInside;
 
-	public NameLookup(IJavaProject project) throws JavaModelException {
-		configureFromProject(project);
+	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashMap packageFragments, ICompilationUnit[] workingCopies) throws JavaModelException {
+		this.packageFragmentRoots = packageFragmentRoots;
+		this.packageFragments = packageFragments;
+		if (workingCopies != null) {
+			this.unitsToLookInside = new HashMap();
+			for (int i = 0, length = workingCopies.length; i < length; i++) {
+				ICompilationUnit unitToLookInside = workingCopies[i];
+				ICompilationUnit original = unitToLookInside.getPrimary();
+				this.unitsToLookInside.put(original, unitToLookInside);
+			}
+		}
 	}
 
 	/**
@@ -126,33 +128,6 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	/**
-	 * Configures this <code>NameLookup</code> based on the
-	 * info of the given <code>IJavaProject</code>.
-	 *
-	 * @throws JavaModelException if the <code>IJavaProject</code> has no classpath.
-	 */
-	private void configureFromProject(IJavaProject project) throws JavaModelException {
-		workspace= ResourcesPlugin.getWorkspace();
-		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
-		fPackageFragments= new HashMap();
-		IPackageFragment[] frags = this.getPackageFragmentsInRoots(fPackageFragmentRoots, project);
-		for (int i= 0; i < frags.length; i++) {
-			IPackageFragment fragment= frags[i];
-			IPackageFragment[] entry= (IPackageFragment[]) fPackageFragments.get(fragment.getElementName());
-			if (entry == null) {
-				entry= new IPackageFragment[1];
-				entry[0]= fragment;
-				fPackageFragments.put(fragment.getElementName(), entry);
-			} else {
-				IPackageFragment[] copy= new IPackageFragment[entry.length + 1];
-				System.arraycopy(entry, 0, copy, 0, entry.length);
-				copy[entry.length]= fragment;
-				fPackageFragments.put(fragment.getElementName(), copy);
-			}
-		}
-	}
-
-	/**
 	 * Finds every type in the project whose simple name matches
 	 * the prefix, informing the requestor of each hit. The requestor
 	 * is polled for cancellation at regular intervals.
@@ -161,11 +136,11 @@ public class NameLookup implements SuffixConstants {
 	 * should be considered.
 	 */
 	private void findAllTypes(String prefix, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
-		int count= fPackageFragmentRoots.length;
+		int count= this.packageFragmentRoots.length;
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
 				return;
-			IPackageFragmentRoot root= fPackageFragmentRoots[i];
+			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IJavaElement[] packages= null;
 			try {
 				packages= root.getChildren();
@@ -205,7 +180,7 @@ public class NameLookup implements SuffixConstants {
 			cuName= cuName.substring(0, index);
 		}
 		cuName += SUFFIX_STRING_java;
-		IPackageFragment[] frags= (IPackageFragment[]) fPackageFragments.get(pkgName);
+		IPackageFragment[] frags= (IPackageFragment[]) this.packageFragments.get(pkgName);
 		if (frags != null) {
 			for (int i= 0; i < frags.length; i++) {
 				IPackageFragment frag= frags[i];
@@ -237,11 +212,11 @@ public class NameLookup implements SuffixConstants {
  * this code should rather use the package fragment map to find the candidate package, then
  * check if the respective enclosing root maps to the one on this given IPath.
  */		
-		IResource possibleFragment = workspace.getRoot().findMember(path);
+		IResource possibleFragment = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 		if (possibleFragment == null) {
 			//external jar
-			for (int i = 0; i < fPackageFragmentRoots.length; i++) {
-				IPackageFragmentRoot root = fPackageFragmentRoots[i];
+			for (int i = 0; i < this.packageFragmentRoots.length; i++) {
+				IPackageFragmentRoot root = this.packageFragmentRoots[i];
 				if (!root.isExternal()) {
 					continue;
 				}
@@ -283,7 +258,7 @@ public class NameLookup implements SuffixConstants {
 						if (entry != null) {
 							IPackageFragmentRoot root =
 								project.getPackageFragmentRoot(project.getResource());
-							IPackageFragment[] pkgs = (IPackageFragment[]) fPackageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
+							IPackageFragment[] pkgs = (IPackageFragment[]) this.packageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
 							if (pkgs == null) {
 								return null;
 							}
@@ -312,11 +287,11 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
-		int count= fPackageFragmentRoots.length;
+		int count= this.packageFragmentRoots.length;
 		if (partialMatch) {
 			name= name.toLowerCase();
 			for (int i= 0; i < count; i++) {
-				IPackageFragmentRoot root= fPackageFragmentRoots[i];
+				IPackageFragmentRoot root= this.packageFragmentRoots[i];
 				IJavaElement[] list= null;
 				try {
 					list= root.getChildren();
@@ -340,7 +315,7 @@ public class NameLookup implements SuffixConstants {
 				}
 			}
 		} else {
-			IPackageFragment[] fragments= (IPackageFragment[]) fPackageFragments.get(name);
+			IPackageFragment[] fragments= (IPackageFragment[]) this.packageFragments.get(name);
 			if (fragments != null) {
 				IPackageFragment[] result = new IPackageFragment[fragments.length];
 				int resultLength = 0; 
@@ -379,49 +354,6 @@ public class NameLookup implements SuffixConstants {
 				return type;
 		}
 		return null;
-	}
-	/**
-	 * Returns all the package fragments found in the specified
-	 * package fragment roots. Make sure the returned fragments have the given
-	 * project as great parent. This ensures the name lookup will not refer to another
-	 * project (through jar package fragment roots)
-	 */
-	private IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots, IJavaProject project) {
-
-		// The following code assumes that all the roots have the given project as their parent
-		ArrayList frags = new ArrayList();
-		for (int i = 0; i < roots.length; i++) {
-			IPackageFragmentRoot root = roots[i];
-			try {
-				IJavaElement[] children = root.getChildren();
-
-				/* 2 jar package fragment roots can be equals but not belonging 
-				   to the same project. As a result, they share the same element info.
-				   So this jar package fragment root could get the children of
-				   another jar package fragment root.
-				   The following code ensures that the children of this jar package
-				   fragment root have the given project as a great parent.
-				 */
-				int length = children.length;
-				if (length == 0) continue;
-				if (children[0].getParent().getParent().equals(project)) {
-					// the children have the right parent, simply add them to the list
-					for (int j = 0; j < length; j++) {
-						frags.add(children[j]);
-					}
-				} else {
-					// create a new handle with the root as the parent
-					for (int j = 0; j < length; j++) {
-						frags.add(root.getPackageFragment(children[j].getElementName()));
-					}
-				}
-			} catch (JavaModelException e) {
-				// do nothing
-			}
-		}
-		IPackageFragment[] fragments = new IPackageFragment[frags.size()];
-		frags.toArray(fragments);
-		return fragments;
 	}
 
 	/**
@@ -470,6 +402,7 @@ public class NameLookup implements SuffixConstants {
 				}
 			};
 
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			new SearchEngine().searchAllTypeNames(
 				workspace,
 				pkg.getElementName().toCharArray(),
@@ -556,12 +489,12 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
-		int count= fPackageFragmentRoots.length;
+		int count= this.packageFragmentRoots.length;
 		String matchName= partialMatch ? name.toLowerCase() : name;
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
 				return;
-			IPackageFragmentRoot root= fPackageFragmentRoots[i];
+			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IJavaElement[] list= null;
 			try {
 				list= root.getChildren();
@@ -690,11 +623,10 @@ public class NameLookup implements SuffixConstants {
 		// replace with working copies to look inside
 		int length= compilationUnits.length;
 		boolean[] isWorkingCopy = new boolean[length];
-		Map workingCopies = (Map) this.unitsToLookInside.get();
 		int workingCopiesSize;
-		if (workingCopies != null && (workingCopiesSize = workingCopies.size()) > 0) {
+		if (this.unitsToLookInside != null && (workingCopiesSize = this.unitsToLookInside.size()) > 0) {
 			Map temp = new HashMap(workingCopiesSize);
-			temp.putAll(workingCopies);
+			temp.putAll(this.unitsToLookInside);
 			for (int i = 0; i < length; i++) {
 				ICompilationUnit unit = compilationUnits[i];
 				ICompilationUnit workingCopy = (ICompilationUnit)temp.remove(unit);
@@ -792,26 +724,6 @@ public class NameLookup implements SuffixConstants {
 
 		}
 	}
-/**
- * Remembers a set of compilation units that will be looked inside
- * when looking up a type. If they are working copies, they take
- * precedence over their compilation units.
- * <code>null</code> means that no special compilation units should be used.
- */
-public void setUnitsToLookInside(ICompilationUnit[] unitsToLookInside) {
-	
-	if (unitsToLookInside == null) {
-		this.unitsToLookInside.set(null); 
-	} else {
-		HashMap workingCopies = new HashMap();
-		this.unitsToLookInside.set(workingCopies);
-		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
-			ICompilationUnit unitToLookInside = unitsToLookInside[i];
-			ICompilationUnit original = unitToLookInside.getPrimary();
-			workingCopies.put(original, unitToLookInside);
-		}
-	}
-}
 
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the

@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
@@ -80,21 +79,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allOpenablesInRegion, IP
 		// resolve
 		if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
 		if (size > 0) {
-			IType focusType = this.getType();
-			CompilationUnit unitToLookInside = null;
-			if (focusType != null) {
-				unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
-			}
-			if (this.nameLookup != null && unitToLookInside != null) {
-				try {
-					nameLookup.setUnitsToLookInside(new ICompilationUnit[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
-					this.hierarchyResolver.resolve(openables, null, monitor);
-				} finally {
-					nameLookup.setUnitsToLookInside(null);
-				}
-			} else {
-				this.hierarchyResolver.resolve(openables, null, monitor);
-			}
+			this.hierarchyResolver.resolve(openables, null, monitor);
 		}
 	} finally {
 		if (monitor != null) monitor.done();

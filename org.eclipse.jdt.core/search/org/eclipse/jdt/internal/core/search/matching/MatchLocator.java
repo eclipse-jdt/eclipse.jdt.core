@@ -560,11 +560,13 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	if (this.nameEnvironment != null)
 		this.nameEnvironment.cleanup();
 
+	SearchableEnvironment searchableEnvironment = (SearchableEnvironment) project.newSearchableNameEnvironment(this.workingCopies);
+	
 	// if only one possible match, a file name environment costs too much,
 	// so use the existing searchable  environment which will populate the java model
 	// only for this possible match and its required types.
 	this.nameEnvironment = possibleMatchSize == 1
-		? (INameEnvironment) project.getSearchableNameEnvironment()
+		? (INameEnvironment) searchableEnvironment
 		: (INameEnvironment) new JavaSearchNameEnvironment(project);
 
 	// create lookup environment
@@ -579,7 +581,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	this.parser = MatchLocatorParser.createParser(problemReporter, this);
 
 	// remember project's name lookup
-	this.nameLookup = project.getNameLookup();
+	this.nameLookup = searchableEnvironment.nameLookup;
 
 	// initialize queue of units
 	this.numberOfMatches = 0;
@@ -588,63 +590,57 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws JavaModelException {
 	initialize(javaProject, length);
 
+	// create and resolve binding (equivalent to beginCompilation() in Compiler)
+	boolean bindingsWereCreated = true;
 	try {
-		this.nameLookup.setUnitsToLookInside(this.workingCopies);
+		for (int i = start, maxUnits = start + length; i < maxUnits; i++)
+			buildBindings(possibleMatches[i]);
+		lookupEnvironment.completeTypeBindings();
 
-		// create and resolve binding (equivalent to beginCompilation() in Compiler)
-		boolean bindingsWereCreated = true;
+		// create hierarchy resolver if needed
+		IType focusType = getFocusType();
+		if (focusType == null) {
+			this.hierarchyResolver = null;
+		} else if (!createHierarchyResolver(focusType, possibleMatches)) {
+			// focus type is not visible, use the super type names instead of the bindings
+			if (computeSuperTypeNames(focusType) == null) return;
+		}
+	} catch (AbortCompilation e) {
+		bindingsWereCreated = false;
+	}
+
+	// possible match resolution
+	for (int i = 0; i < this.numberOfMatches; i++) {
+		if (this.progressMonitor != null && this.progressMonitor.isCanceled())
+			throw new OperationCanceledException();
+		PossibleMatch possibleMatch = this.matchesToProcess[i];
+		this.matchesToProcess[i] = null; // release reference to processed possible match
 		try {
-			for (int i = start, maxUnits = start + length; i < maxUnits; i++)
-				buildBindings(possibleMatches[i]);
-			lookupEnvironment.completeTypeBindings();
-
-			// create hierarchy resolver if needed
-			IType focusType = getFocusType();
-			if (focusType == null) {
-				this.hierarchyResolver = null;
-			} else if (!createHierarchyResolver(focusType, possibleMatches)) {
-				// focus type is not visible, use the super type names instead of the bindings
-				if (computeSuperTypeNames(focusType) == null) return;
-			}
+			process(possibleMatch, bindingsWereCreated);
 		} catch (AbortCompilation e) {
+			// problem with class path: it could not find base classes
+			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
 			bindingsWereCreated = false;
+		} catch (JavaModelException e) {
+			// problem with class path: it could not find base classes
+			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+			bindingsWereCreated = false;
+		} catch (CoreException e) {
+			// core exception thrown by client's code: let it through
+			throw new JavaModelException(e);
+		} finally {
+			if (this.options.verbose)
+				System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
+					new String[] {
+						String.valueOf(i + 1),
+						String.valueOf(numberOfMatches),
+						new String(possibleMatch.parsedUnit.getFileName())}));
+			// cleanup compilation unit result
+			possibleMatch.parsedUnit.cleanUp();
+			possibleMatch.parsedUnit = null;
 		}
-
-		// possible match resolution
-		for (int i = 0; i < this.numberOfMatches; i++) {
-			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
-				throw new OperationCanceledException();
-			PossibleMatch possibleMatch = this.matchesToProcess[i];
-			this.matchesToProcess[i] = null; // release reference to processed possible match
-			try {
-				process(possibleMatch, bindingsWereCreated);
-			} catch (AbortCompilation e) {
-				// problem with class path: it could not find base classes
-				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
-				bindingsWereCreated = false;
-			} catch (JavaModelException e) {
-				// problem with class path: it could not find base classes
-				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
-				bindingsWereCreated = false;
-			} catch (CoreException e) {
-				// core exception thrown by client's code: let it through
-				throw new JavaModelException(e);
-			} finally {
-				if (this.options.verbose)
-					System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
-						new String[] {
-							String.valueOf(i + 1),
-							String.valueOf(numberOfMatches),
-							new String(possibleMatch.parsedUnit.getFileName())}));
-				// cleanup compilation unit result
-				possibleMatch.parsedUnit.cleanUp();
-				possibleMatch.parsedUnit = null;
-			}
-			if (this.progressMonitor != null)
-				this.progressMonitor.worked(5);
-		}
-	} finally {
-		this.nameLookup.setUnitsToLookInside(null);
+		if (this.progressMonitor != null)
+			this.progressMonitor.worked(5);
 	}
 }
 /**

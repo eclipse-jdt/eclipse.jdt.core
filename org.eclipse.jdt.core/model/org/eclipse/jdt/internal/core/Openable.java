@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 
 
@@ -113,66 +112,36 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		throw new IllegalArgumentException("Completion position "+position+" is not located in supplied source range (0, "+buffer.getLength()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = null;
-	NameLookup nameLookup = null;
-	try {
-		// set unit to skip
-		environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
-		environment.unitToSkip = unitToSkip;
-	
-		// set the units to look inside
-		nameLookup = project.getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		nameLookup.setUnitsToLookInside(workingCopies);
+	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
 
-		// code complete
-		CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor,nameLookup);
-		CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
-		requestorWrapper.completionEngine = engine;
-		engine.complete(cu, position, 0);
-	} finally {
-		if (environment != null) {
-			environment.unitToSkip = null;
-		}
-		if (nameLookup != null) {
-			nameLookup.setUnitsToLookInside(null);
-		}
-	}
+	// set unit to skip
+	environment.unitToSkip = unitToSkip;
+
+	// code complete
+	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor, environment.nameLookup);
+	CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
+	requestorWrapper.completionEngine = engine;
+	engine.complete(cu, position, 0);
 }
 protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
-	NameLookup nameLookup = null;
-	try {
-		// set the units to look inside
-		nameLookup = ((JavaProject)getJavaProject()).getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		nameLookup.setUnitsToLookInside(workingCopies);
 
-		// code select
-		SelectionRequestor requestor= new SelectionRequestor(nameLookup, this);
-		IBuffer buffer = getBuffer();
-		if (buffer == null) {
-			return requestor.getElements();
-		}
-		int end= buffer.getLength();
-		if (offset < 0 || length < 0 || offset + length > end ) {
-			throw new IllegalArgumentException("Selected range ("+offset+ ", " + (offset+length)+") is not located in supplied source range (0, "+end+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		}
+	JavaProject project = (JavaProject)getJavaProject();
+	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
 	
-		// fix for 1FVGGKF
-		JavaProject project = (JavaProject)getJavaProject();
-		ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
-		
-		// fix for 1FVXGDK
-		SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
-		engine.select(cu, offset, offset + length - 1);
+	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
+	IBuffer buffer = getBuffer();
+	if (buffer == null) {
 		return requestor.getElements();
-	} finally {
-		if (nameLookup != null) {
-			nameLookup.setUnitsToLookInside(null);
-		}
 	}
+	int end= buffer.getLength();
+	if (offset < 0 || length < 0 || offset + length > end ) {
+		throw new IllegalArgumentException("Selected range ("+offset+ ", " + (offset+length)+") is not located in supplied source range (0, "+end+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	}
+
+	// fix for 1FVXGDK
+	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
+	engine.select(cu, offset, offset + length - 1);
+	return requestor.getElements();
 }
 /*
  * Returns a new element info for this element.

@@ -64,40 +64,28 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
-	NameLookup nameLookup = project.getNameLookup();
-	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor,nameLookup);
+	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
+	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor, environment.nameLookup);
 	CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
 	requestorWrapper.completionEngine = engine;
 
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
-		try {
-			// set the units to look inside
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			nameLookup.setUnitsToLookInside(workingCopies);
-	
-			// code complete
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true); 
-			
-			char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
-			char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
-			char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
-			
-			BasicCompilationUnit cu = 
-				new BasicCompilationUnit(
-					fakeSource, 
-					null,
-					getElementName(),
-					encoding); 
-	
-			engine.complete(cu, prefix.length + position, prefix.length);
-		} finally {
-			if (nameLookup != null) {
-				nameLookup.setUnitsToLookInside(null);
-			}
-		}
+		// code complete
+		String encoding = project.getOption(JavaCore.CORE_ENCODING, true); 
+		
+		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
+		char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
+		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
+		
+		BasicCompilationUnit cu = 
+			new BasicCompilationUnit(
+				fakeSource, 
+				null,
+				getElementName(),
+				encoding); 
+
+		engine.complete(cu, prefix.length + position, prefix.length);
 	} else {
 		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}

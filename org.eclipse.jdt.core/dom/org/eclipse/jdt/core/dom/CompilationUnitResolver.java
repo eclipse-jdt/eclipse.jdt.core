@@ -158,18 +158,6 @@ class CompilationUnitResolver extends Compiler {
 		};
 	}
 
-	protected static INameEnvironment getNameEnvironment(ICompilationUnit sourceUnit)
-		throws JavaModelException {
-		return (SearchableEnvironment) ((JavaProject) sourceUnit.getJavaProject())
-			.getSearchableNameEnvironment();
-	}
-
-	protected static INameEnvironment getNameEnvironment(IJavaProject javaProject)
-		throws JavaModelException {
-		return (SearchableEnvironment) ((JavaProject) javaProject)
-			.getSearchableNameEnvironment();
-	}
-	
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
@@ -214,14 +202,15 @@ class CompilationUnitResolver extends Compiler {
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
 		boolean cleanUp,
-		char[] source)
+		char[] source,
+		WorkingCopyOwner owner)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
-		IJavaProject project = unitElement.getJavaProject();
+		JavaProject project = (JavaProject) unitElement.getJavaProject();
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				getNameEnvironment(unitElement),
+				project.newSearchableNameEnvironment(owner),
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
@@ -343,12 +332,13 @@ class CompilationUnitResolver extends Compiler {
 		char[] source,
 		String unitName,
 		IJavaProject javaProject,
-		boolean cleanUp)
+		boolean cleanUp,
+		WorkingCopyOwner owner)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				getNameEnvironment(javaProject),
+				((JavaProject)javaProject).newSearchableNameEnvironment(owner),
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),
@@ -380,16 +370,17 @@ class CompilationUnitResolver extends Compiler {
 		ICompilationUnit unitElement,
 		NodeSearcher nodeSearcher,
 		boolean cleanUp,
-		char[] source)
+		char[] source,
+		WorkingCopyOwner owner)
 		throws JavaModelException {
 
 		CompilationUnitDeclaration unit = null;
 		try {
 			char[] fileName = unitElement.getElementName().toCharArray();
-			IJavaProject project = unitElement.getJavaProject();
+			JavaProject project = (JavaProject) unitElement.getJavaProject();
 			CompilationUnitResolver compilationUnitVisitor =
 				new CompilationUnitResolver(
-					getNameEnvironment(unitElement),
+					project.newSearchableNameEnvironment(owner),
 					getHandlingPolicy(),
 					project.getOptions(true),
 					getRequestor(),
@@ -426,12 +417,13 @@ class CompilationUnitResolver extends Compiler {
 		char[][] packageName,
 		String unitName,
 		IJavaProject javaProject,
-		boolean cleanUp)
+		boolean cleanUp,
+		WorkingCopyOwner owner)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				getNameEnvironment(javaProject),
+				((JavaProject)javaProject).newSearchableNameEnvironment(owner),
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),

@@ -24,10 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.NameLookup;
 
 /**
  * Umbrella owner and abstract syntax tree node factory.
@@ -334,17 +331,10 @@ public final class AST {
 		}
 
 		if (resolveBindings) {
-			NameLookup lookup = null;
 			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
-				// set the units to look inside
-				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-				lookup.setUnitsToLookInside(workingCopies);
-				
 				// parse and resolve
-				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source);
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source, owner);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -364,9 +354,6 @@ public final class AST {
 			} finally {
 				if (compilationUnitDeclaration != null) {
 					compilationUnitDeclaration.cleanUp();
-				}
-				if (lookup != null) {
-					lookup.setUnitsToLookInside(null);
 				}
 			}
 		} else {
@@ -536,15 +523,8 @@ public final class AST {
 		String classFileName = classFile.getElementName(); // this includes the trailing .class
 		buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
 		IJavaProject project = classFile.getJavaProject();
-		NameLookup lookup = null;
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
-			// set the units to look inside
-			lookup = ((JavaProject)project).getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-			
 			// parse and resolve
 			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
@@ -552,7 +532,8 @@ public final class AST {
 					CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
 					buffer.toString(),
 					project,
-					false/*don't cleanup*/);
+					false/*don't cleanup*/,
+					owner);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -572,9 +553,6 @@ public final class AST {
 		} finally {
 			if (compilationUnitDeclaration != null) {
 				compilationUnitDeclaration.cleanUp();
-			}
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
 			}
 		}
 	}
@@ -743,22 +721,16 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 	
-		NameLookup lookup = null;
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
-			// set the units to look inside
-			lookup = ((JavaProject)project).getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-				
-				// parse and resolve
+			// parse and resolve
 			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
 					source,
 					unitName,
 					project,
-					false/*don't cleanup*/);
+					false/*don't cleanup*/,
+					owner);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -778,9 +750,6 @@ public final class AST {
 		} finally {
 			if (compilationUnitDeclaration != null) {
 				compilationUnitDeclaration.cleanUp();
-			}
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
 			}
 		}
 	}
@@ -1058,21 +1027,15 @@ public final class AST {
 
 		final Map options = unit.getJavaProject().getOptions(true);
 		if (resolveBindings) {
-			NameLookup lookup = null;
 			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
-				// set the units to look inside
-				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-				lookup.setUnitsToLookInside(workingCopies);
-
 				// parse and resolve
 				compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					searcher,
 					false/*don't cleanup*/,
-					source);
+					source,
+					owner);
 				
 				ASTConverter converter = new ASTConverter(options, true);
 				AST ast = new AST();
@@ -1107,9 +1070,6 @@ public final class AST {
 			} finally {
 				if (compilationUnitDeclaration != null) {
 					compilationUnitDeclaration.cleanUp();
-				}
-				if (lookup != null) {
-					lookup.setUnitsToLookInside(null);
 				}
 			}
 		} else {

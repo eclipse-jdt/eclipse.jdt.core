@@ -21,10 +21,12 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		
 	boolean forceProblemDetection;
+	WorkingCopyOwner workingCopyOwner;
 	
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean forceProblemDetection) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
 		this.forceProblemDetection = forceProblemDetection;
+		this.workingCopyOwner = workingCopyOwner;
 	}
 	/**
 	 * @exception JavaModelException if setting the source
@@ -60,7 +62,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 				if (problemRequestor != null && problemRequestor.isActive()){
 					problemRequestor.beginReporting();
-					CompilationUnitProblemFinder.process(workingCopy, problemRequestor, progressMonitor);
+					CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, progressMonitor);
 					problemRequestor.endReporting();
 				}
 			}
