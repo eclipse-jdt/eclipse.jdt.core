@@ -781,18 +781,18 @@ public class BlockScope extends Scope {
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
 		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
-		if (methodBinding != null)
+		if (methodBinding != null) {
 			if (methodBinding.canBeSeenBy(invocationSite, this))
 				return methodBinding;
-
+		}
 		MethodBinding[] methods =
 			receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
-		if (methods == NoMethods)
+		if (methods == NoMethods) {
 			return new ProblemMethodBinding(
 				ConstructorDeclaration.ConstantPoolName,
 				argumentTypes,
 				NotFound);
-
+		}
 		MethodBinding[] compatible = new MethodBinding[methods.length];
 		int compatibleIndex = 0;
 		for (int i = 0, length = methods.length; i < length; i++)
