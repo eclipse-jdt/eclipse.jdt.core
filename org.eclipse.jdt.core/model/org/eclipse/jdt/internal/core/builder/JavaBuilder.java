@@ -436,7 +436,11 @@ private boolean isWorthBuilding() throws CoreException {
 		// remove all existing class files... causes all dependent projects to do the same
 		new BatchImageBuilder(this).scrubOutputFolder();
 
-		removeProblemsFor(currentProject); // make this the only problem for this project
+		removeProblemsFor(currentProject); // remove all compilation problems
+
+		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.abortDueToClasspathProblems")); //$NON-NLS-1$
+		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		return false;
 	}
 
