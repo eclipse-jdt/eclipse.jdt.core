@@ -415,13 +415,16 @@ public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJav
  */
 public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	
+	long start = -1;
 	if (VERBOSE) {
+		start = System.currentTimeMillis();
 		System.out.println("Searching for " + searchPattern + " in " + scope); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/* search is starting */
 	resultCollector.aboutToStart();
 
+	MatchLocator matchLocator = null;
 	try {	
 		if (searchPattern == null) return;
 
@@ -445,7 +448,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
-		MatchLocator matchLocator = 
+		matchLocator = 
 			new MatchLocator2(
 				pattern, 
 				detailLevel, 
@@ -485,6 +488,10 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 	} finally {
 		/* search has ended */
 		resultCollector.done();
+		if (VERBOSE) {
+			System.out.println("Total time: " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (matchLocator != null) System.out.println("Time in result collector: " + ((MatchLocator2)matchLocator).resultCollectorTime + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 }
 /**
