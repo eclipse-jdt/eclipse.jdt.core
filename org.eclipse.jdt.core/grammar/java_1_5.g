@@ -191,6 +191,8 @@ Goal ::= '%' Expression
 Goal ::= '~' BlockStatementsopt
 -- source type converter
 Goal ::= '||' MemberValue
+-- syntax diagnosis
+Goal ::= '?' AnnotationTypeMemberDeclaration
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -326,8 +328,9 @@ Header -> PackageDeclaration
 Header -> ClassHeader
 Header -> InterfaceHeader
 Header -> EnumHeader
+Header -> AnnotationTypeDeclarationHeader
 Header -> StaticInitializer
-Header -> MethodHeader
+Header -> RecoveryMethodHeader
 Header -> FieldDeclaration
 Header -> AllocationHeader
 Header -> ArrayCreationHeader
@@ -590,16 +593,16 @@ MethodDeclaration ::= MethodHeader MethodBody
 AbstractMethodDeclaration ::= MethodHeader ';'
 /.$putCase // set to false to consume a method without body
   consumeMethodDeclaration(false); $break ./
-/:$readableName AbstractMethodDeclaration:/
+/:$readableName MethodDeclaration:/
 
 MethodHeader ::= MethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
 /.$putCase consumeMethodHeader(); $break ./
 /:$readableName MethodDeclaration:/
 
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
-/.$putCase consumeMethodHeaderNameWithTypeParameters(); $break ./
+/.$putCase consumeMethodHeaderNameWithTypeParameters(false); $break ./
 MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-/.$putCase consumeMethodHeaderName(); $break ./
+/.$putCase consumeMethodHeaderName(false); $break ./
 /:$readableName MethodHeaderName:/
 
 MethodHeaderRightParen ::= ')'
@@ -2029,15 +2032,20 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : annotation - Metadata feature jsr175
 -----------------------------------------------
-AnnotationTypeDeclarationHeader ::= Modifiers '@' PushRealModifiers interface Identifier
-/.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
+AnnotationTypeDeclarationHeaderName ::= Modifiers '@' PushRealModifiers interface Identifier
+/.$putCase consumeAnnotationTypeDeclarationHeaderName() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeDeclarationHeader ::= '@' PushModifiersForHeader interface Identifier
+AnnotationTypeDeclarationHeaderName ::= '@' PushModifiersForHeader interface Identifier
+/.$putCase consumeAnnotationTypeDeclarationHeaderName() ; $break ./
+/:$readableName AnnotationTypeDeclarationHeaderName:/
+/:$compliance 1.5:/
+
+AnnotationTypeDeclarationHeader ::= AnnotationTypeDeclarationHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
 /.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
 /:$readableName AnnotationTypeDeclarationHeader:/
 /:$compliance 1.5:/
 
-AnnotationTypeDeclaration ::= AnnotationTypeDeclarationHeader ClassHeaderExtendsopt ClassHeaderImplementsopt AnnotationTypeBody
+AnnotationTypeDeclaration ::= AnnotationTypeDeclarationHeader AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
 /:$compliance 1.5:/
@@ -2050,7 +2058,7 @@ AnnotationTypeMemberDeclarationsopt ::= $empty
 /.$putCase consumeEmptyAnnotationTypeMemberDeclarationsopt() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclarationsopt -> AnnotationTypeMemberDeclarations
-/:$readableName AnnotationTypeMemberDeclarationsopt:/
+/:$readableName AnnotationTypeMemberDeclarations:/
 /:$compliance 1.5:/
 
 AnnotationTypeMemberDeclarations -> AnnotationTypeMemberDeclaration
@@ -2060,22 +2068,27 @@ AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations Annotation
 /:$readableName AnnotationTypeMemberDeclarations:/
 /:$compliance 1.5:/
 
-AnnotationTypeMemberDeclarationHeader ::= Modifiersopt TypeParameters Type Identifier '(' FormalParameterListopt ')'
-/.$putCase consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() ; $break ./
-/:$readableName AnnotationTypeMemberDeclarationHeader:/
+AnnotationMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+/.$putCase consumeMethodHeaderNameWithTypeParameters(true); $break ./
+AnnotationMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+/.$putCase consumeMethodHeaderName(true); $break ./
+/:$readableName MethodHeaderName:/
+
+AnnotationMethodHeaderDefaultValueopt ::= $empty
+/.$putCase consumeEmptyMethodHeaderDefaultValue() ; $break ./
+/:$readableName MethodHeaderDefaultValue:/
+/:$compliance 1.5:/
+AnnotationMethodHeaderDefaultValueopt ::= DefaultValue
+/.$putCase consumeMethodHeaderDefaultValue(); $break ./
+/:$readableName MethodHeaderDefaultValue:/
 /:$compliance 1.5:/
 
-AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' FormalParameterListopt ')'
-/.$putCase consumeAnnotationTypeMemberDeclarationHeader() ; $break ./
-/:$readableName AnnotationTypeMemberDeclarationHeader:/
+AnnotationMethodHeader ::= AnnotationMethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims AnnotationMethodHeaderDefaultValueopt
+/.$putCase consumeMethodHeader(); $break ./
+/:$readableName AnnotationMethodHeader:/
 /:$compliance 1.5:/
 
-AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt
-/.$putCase consumeAnnotationTypeMemberHeaderExtendedDims() ; $break ./
-/:$readableName AnnotationTypeMemberHeaderExtendedDims:/
-/:$compliance 1.5:/
-
-AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader AnnotationTypeMemberHeaderExtendedDims DefaultValueopt ';'
+AnnotationTypeMemberDeclaration ::= AnnotationMethodHeader ';'
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ConstantDeclaration
@@ -2084,13 +2097,6 @@ AnnotationTypeMemberDeclaration -> ConstructorDeclaration
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> TypeDeclaration
 /:$readableName AnnotationTypeMemberDeclaration:/
-/:$compliance 1.5:/
-
-DefaultValueopt ::= $empty
-/.$putCase consumeEmptyDefaultValue() ; $break ./
-/:$compliance 1.5:/
-DefaultValueopt -> DefaultValue
-/:$readableName DefaultValueopt:/
 /:$compliance 1.5:/
 
 DefaultValue ::= 'default' MemberValue
@@ -2173,6 +2179,26 @@ SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 --------------------------------------
 -- 1.5 features : end of annotation --
 --------------------------------------
+
+-----------------------------------
+-- 1.5 features : recovery rules --
+-----------------------------------
+RecoveryMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+/.$putCase consumeRecoveryMethodHeaderNameWithTypeParameters(); $break ./
+/:$compliance 1.5:/
+RecoveryMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+/.$putCase consumeRecoveryMethodHeaderName(); $break ./
+/:$readableName MethodHeaderName:/
+
+RecoveryMethodHeader ::= RecoveryMethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims AnnotationMethodHeaderDefaultValueopt
+/.$putCase consumeMethodHeader(); $break ./
+RecoveryMethodHeader ::= RecoveryMethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims MethodHeaderThrowsClause
+/.$putCase consumeMethodHeader(); $break ./
+/:$readableName MethodHeader:/
+-----------------------------------
+-- 1.5 features : recovery rules --
+-----------------------------------
+
 /.	}
 }./
 

@@ -405,6 +405,16 @@ public void updateFromParserState(){
 		}
 	}
 }
+public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
+	if(this.methodDeclaration.isAnnotationMethod()) {
+		this.updateSourceEndIfNecessary(braceStart, braceEnd);
+		if(!this.foundOpeningBrace && this.parent != null) {
+			return this.parent.updateOnClosingBrace(braceStart, braceEnd);
+		}
+		return this;
+	}
+	return super.updateOnClosingBrace(braceStart, braceEnd);
+}
 /*
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.

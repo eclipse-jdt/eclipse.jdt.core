@@ -859,10 +859,14 @@ protected void consumeMethodHeaderExtendedDims() {
 		}
 	}
 }
-protected void consumeMethodHeaderName() {
+protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
-
+	MethodDeclaration md = null;
+	if(isAnnotationMethod) {
+		md = new AnnotationMethodDeclaration(this.compilationUnit.compilationResult);
+	} else {
+		md = new MethodDeclaration(this.compilationUnit.compilationResult);
+	}
 	//name
 	md.selector = identifierStack[identifierPtr];
 	selectorSourcePositions = identifierPositionStack[identifierPtr--];

@@ -1723,7 +1723,7 @@ protected void consumeMethodInvocationSuper() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeMethodInvocationSuper();
 }
-protected void consumeMethodHeaderName() {
+protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	if(this.indexOfAssistIdentifier() < 0) {
 		identifierPtr--;
 		identifierLengthPtr--;
@@ -1731,7 +1731,7 @@ protected void consumeMethodHeaderName() {
 			this.identifierLengthStack[this.identifierLengthPtr] != this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr]) {
 			identifierPtr++;
 			identifierLengthPtr++;
-			super.consumeMethodHeaderName();
+			super.consumeMethodHeaderName(isAnnotationMethod);
 		} else {
 			restartRecovery = true;
 			

@@ -259,6 +259,11 @@ public abstract class AbstractMethodDeclaration
 		return (this.modifiers & AccAbstract) != 0;
 	}
 
+	public boolean isAnnotationMethod() {
+
+		return false;
+	}
+	
 	public boolean isClinit() {
 
 		return false;

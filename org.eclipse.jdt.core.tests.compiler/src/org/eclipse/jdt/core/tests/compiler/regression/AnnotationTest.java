@@ -172,7 +172,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in Foo.java (at line 2)\n" + 
 			"	String value(int i);\n" + 
-			"	       ^^^^^\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
 			"Annotation attributes cannot have parameters\n" + 
 			"----------\n");
 	}			
@@ -194,7 +194,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"2. ERROR in Foo.java (at line 2)\n" + 
 			"	<T> T value();\n" + 
-			"	      ^^^^^\n" + 
+			"	      ^^^^^^^\n" + 
 			"Annotation attributes cannot be generic\n" + 
 			"----------\n");
 	}			
@@ -929,7 +929,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	native int id() default 0;\n" + 
-		"	           ^^\n" + 
+		"	           ^^^^\n" + 
 		"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" + 
 		"----------\n");
 	}		
@@ -2140,7 +2140,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	int hashCode();\n" + 
-			"	    ^^^^^^^^\n" + 
+			"	    ^^^^^^^^^^\n" + 
 			"The annotation type I cannot override the method Annotation.hashCode()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
@@ -2150,7 +2150,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 3)\n" + 
 			"	Object clone();\n" + 
-			"	       ^^^^^\n" + 
+			"	       ^^^^^^^\n" + 
 			"The annotation type I cannot override the method Object.clone()\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 7)\n" + 

@@ -388,7 +388,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		typeDeclaration.methods = methodDeclarations;
 	} else {
-		if (!hasConstructor && typeDeclaration.kind() != IGenericType.INTERFACE_DECL) {// if was already reduced, then constructor
+		if (!hasConstructor && typeDeclaration.kind() != IGenericType.INTERFACE_DECL && typeDeclaration.kind() != IGenericType.ANNOTATION_TYPE_DECL) {// if was already reduced, then constructor
 			boolean insideFieldInitializer = false;
 			RecoveredElement parentElement = this.parent; 
 			while (parentElement != null){

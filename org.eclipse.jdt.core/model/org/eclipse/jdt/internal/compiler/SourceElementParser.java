@@ -233,22 +233,6 @@ private long[] collectAnnotationPositions(Annotation[] annotations) {
 	}
 	return result;
 }
-protected void consumeAnnotationTypeMemberDeclarationHeader() {
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
-	int selectorSourceEnd = (int) selectorSourcePositions;
-	int currentAstPtr = this.astPtr;
-	super.consumeAnnotationTypeMemberDeclarationHeader();
-	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
-		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
-}
-protected void consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() {
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
-	int selectorSourceEnd = (int) selectorSourcePositions;
-	int currentAstPtr = this.astPtr;
-	super.consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters();
-	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
-		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
-}
 protected void consumeConstructorHeaderName() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
@@ -311,19 +295,19 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}
 }
-protected void consumeMethodHeaderName() {
+protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
-	super.consumeMethodHeaderName();
+	super.consumeMethodHeaderName(isAnnotationMethod);
 	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }
-protected void consumeMethodHeaderNameWithTypeParameters() {
+protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMethod) {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
-	super.consumeMethodHeaderNameWithTypeParameters();
+	super.consumeMethodHeaderNameWithTypeParameters(isAnnotationMethod);
 	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }

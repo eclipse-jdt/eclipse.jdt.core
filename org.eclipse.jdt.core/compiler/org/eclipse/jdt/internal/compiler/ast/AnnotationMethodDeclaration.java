@@ -36,11 +36,63 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
 	
+	public boolean isAnnotationMethod() {
+
+		return true;
+	}
+	
+	public boolean isMethod() {
+
+		return false;
+	}
+	
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		// nothing to do
 		// annotation type member declaration don't have any body
 	}
+	
+	public StringBuffer print(int tab, StringBuffer output) {
 
+		printIndent(tab, output);
+		printModifiers(this.modifiers, output);
+		
+		TypeParameter[] typeParams = typeParameters();
+		if (typeParams != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeParams.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeParams[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeParams[max].print(0, output);
+			output.append('>');
+		}
+		
+		printReturnType(0, output).append(this.selector).append('(');
+		if (this.arguments != null) {
+			for (int i = 0; i < this.arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				this.arguments[i].print(0, output);
+			}
+		}
+		output.append(')');
+		if (this.thrownExceptions != null) {
+			output.append(" throws "); //$NON-NLS-1$
+			for (int i = 0; i < this.thrownExceptions.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				this.thrownExceptions[i].print(0, output);
+			}
+		}
+		
+		if (this.defaultValue != null) {
+			output.append(" default "); //$NON-NLS-1$
+			this.defaultValue.print(0, output);
+		}
+		
+		printBody(tab + 1, output);
+		return output;
+	}
+	
 	public void resolveStatements() {
 
 		super.resolveStatements();
