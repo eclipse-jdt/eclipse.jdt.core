@@ -258,7 +258,8 @@ public void testResolveImport() throws JavaModelException {
 		elements[0] instanceof IType);	
 }
 /**
- * Resolve constructor call */
+ * Resolve constructor call
+ */
 public void testResolveConstructorCallOfMemberType() throws JavaModelException {
 	IClassFile cf = getClassFile("Resolve", "class-folder", "", "ResolveConstructorCallOfMemberType.class");
 	

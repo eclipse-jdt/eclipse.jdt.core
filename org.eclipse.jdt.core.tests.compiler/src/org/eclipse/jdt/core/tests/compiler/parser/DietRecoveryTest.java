@@ -4330,7 +4330,9 @@ public void test75() {
 		"  public A() {\n" + 
 		"  }\n" + 
 		"  A foo(int i) {\n" + 
-		"  }\n" +		"  clone() {\n" +		"  }\n" + 
+		"  }\n" +
+		"  clone() {\n" +
+		"  }\n" + 
 		"  int bar() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -5798,7 +5800,9 @@ public void test104() {
 		"  }\n" +
 		"  public void setP;\n" +
 		"  public P() {\n" +
-		"  }\n" +		"  A(String P) {\n" +		"  }\n" +
+		"  }\n" +
+		"  A(String P) {\n" +
+		"  }\n" +
 		"}\n";
 
 	String expectedDietPlusBodyUnitToString = 

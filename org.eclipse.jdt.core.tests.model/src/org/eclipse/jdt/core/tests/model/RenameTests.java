@@ -141,10 +141,19 @@ public void setUp() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, "bin");
 	this.createFile(
 		"/P/src/X.java",
-		"public class X {\n" +		"  boolean other;\n" +
+		"public class X {\n" +
+		"  boolean other;\n" +
 		"  int bar;\n" +
-		"  {\n" +		"    bar = 1;\n" +		"  }\n" +
-		"  X(int i) {\n" +		"  }\n" +		"  void otherMethod(String s) {\n" +		"  }\n" +		"  void foo(String s) {\n" +		"  }\n" +		"}"
+		"  {\n" +
+		"    bar = 1;\n" +
+		"  }\n" +
+		"  X(int i) {\n" +
+		"  }\n" +
+		"  void otherMethod(String s) {\n" +
+		"  }\n" +
+		"  void foo(String s) {\n" +
+		"  }\n" +
+		"}"
 	);
 	this.cu = getCompilationUnit("/P/src/X.java");
 	
@@ -493,7 +502,8 @@ public void testRenameMainTypes() throws CoreException {
 	this.createFile(
 		"/P/src/Y.java",
 		"public class Y {\n" +
-		"  public Y() {\n" +		"  }\n" +
+		"  public Y() {\n" +
+		"  }\n" +
 		"}"
 	);
 	ICompilationUnit cu2 = getCompilationUnit("/P/src/Y.java");
@@ -607,7 +617,9 @@ public void testRenamePF() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
 	this.createFile(
 		"/P/src/x/y/z/A.java",
-		"package x.y.z;\n" +		"public class A {\n" +		"}"
+		"package x.y.z;\n" +
+		"public class A {\n" +
+		"}"
 	);
 
 	IPackageFragment frag = getPackage("/P/src/x/y/z");
@@ -711,7 +723,9 @@ public void testRenamePFWithSubPackages() throws CoreException {
 public void testRenameSyntaxErrorMethod() throws CoreException {
 	this.createFile(
 		"/P/src/Y.java",
-		"public class Y {\n" +		"  void foo( {\n" + // syntax error		"  }\n" +
+		"public class Y {\n" +
+		"  void foo( {\n" + // syntax error
+		"  }\n" +
 		"}"
 	);
 	IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("foo", null);;

@@ -1465,7 +1465,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i = 0; i < 10; i++)  // for 1\n" +			"	        for (int j = 0; j < 10; j++)  // for 2\n" +			"	            if (true) { }";
+		String expectedSource = "for (int i = 0; i < 10; i++)  // for 1\n" +
+			"	        for (int j = 0; j < 10; j++)  // for 2\n" +
+			"	            if (true) { }";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int j = 0; j < 10; j++)  // for 2\n" +
@@ -1491,7 +1493,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int x= 10; x < 20; x++)\n" +			"			main();";
+		String expectedSource = "for (int x= 10; x < 20; x++)\n" +
+			"			main();";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "main();";
@@ -1511,7 +1514,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+			"			for (int z= 10; z < 10; z++)\n" +			"				foo();";
+		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
+			"			for (int z= 10; z < 10; z++)\n" +
+			"				foo();";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int z= 10; z < 10; z++)\n" +

@@ -88,7 +88,8 @@ public void setUpSuite() throws Exception {
 	this.createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	this.createFolder("/Reconciler/src/p1");
 	this.createFolder("/Reconciler/src/p2");
-	this.createFile(		"/Reconciler/src/p1/X.java", 
+	this.createFile(
+		"/Reconciler/src/p1/X.java", 
 		"package p1;\n" +
 		"import p2.*;\n" +
 		"public class X {\n" +
@@ -309,7 +310,8 @@ public void testChangeMethodVisibility() throws JavaModelException {
 }
 /**
  * Ensures that a reference to a constant with type mismatch doesn't show an error.
- * (regression test for bug 17104 Compiler does not complain but "Quick Fix" ??? complains) */
+ * (regression test for bug 17104 Compiler does not complain but "Quick Fix" ??? complains)
+ */
 public void testConstantReference() throws CoreException {
 	try {
 		this.createFile(

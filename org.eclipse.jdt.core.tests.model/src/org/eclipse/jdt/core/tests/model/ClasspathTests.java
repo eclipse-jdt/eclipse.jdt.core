@@ -349,7 +349,8 @@ public void testClasspathDeleteNestedRoot() throws CoreException {
 	}
 }
 /*
- * Test classpath diamond (23979) */
+ * Test classpath diamond (23979)
+ */
 public void testClasspathDiamond() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[]{""}, "");

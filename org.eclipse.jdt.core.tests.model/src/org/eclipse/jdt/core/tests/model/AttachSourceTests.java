@@ -271,7 +271,11 @@ public void testLibFolder() throws JavaModelException {
 	IClassFile cf = root.getPackageFragment("p").getClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p;\n" +		"public class X {\n" +		"	public void foo() {\n" +		"	}\n" +		"}",
+		"package p;\n" +
+		"public class X {\n" +
+		"	public void foo() {\n" +
+		"	}\n" +
+		"}",
 		cf.getSource());
 }
 /**

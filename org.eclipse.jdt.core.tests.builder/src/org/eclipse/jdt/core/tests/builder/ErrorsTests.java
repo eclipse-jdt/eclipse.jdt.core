@@ -69,7 +69,8 @@ public class ErrorsTests extends Tests {
 	}
 	
 	/*
-	 * Regression test for bug 2857 Renaming .java class with errors to .txt leaves errors in Task list (1GK06R3)	 */
+	 * Regression test for bug 2857 Renaming .java class with errors to .txt leaves errors in Task list (1GK06R3)
+	 */
 	public void testRenameToNonJava() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());

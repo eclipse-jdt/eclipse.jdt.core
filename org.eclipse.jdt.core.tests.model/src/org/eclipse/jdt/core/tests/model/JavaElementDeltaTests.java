@@ -234,13 +234,33 @@ public void testAddDotClasspathFile() throws CoreException {
 		// add Java nature
 		this.editFile(
 			"/P/.project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +			"<projectDescription>\n" +			"	<name>Test</name>\n" +			"	<comment></comment>\n" +			"	<projects>\n" +			"	</projects>\n" +			"	<buildSpec>\n" +			"		<buildCommand>\n" +			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +			"			<arguments>\n" +			"			</arguments>\n" +			"		</buildCommand>\n" +			"	</buildSpec>\n" +			"	<natures>\n" +			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +			"	</natures>\n" +			"</projectDescription>"
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<projectDescription>\n" +
+			"	<name>Test</name>\n" +
+			"	<comment></comment>\n" +
+			"	<projects>\n" +
+			"	</projects>\n" +
+			"	<buildSpec>\n" +
+			"		<buildCommand>\n" +
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+			"			<arguments>\n" +
+			"			</arguments>\n" +
+			"		</buildCommand>\n" +
+			"	</buildSpec>\n" +
+			"	<natures>\n" +
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+			"	</natures>\n" +
+			"</projectDescription>"
 		);
 		
 		this.startDeltas();
 		this.createFile(
 			"P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +			"<classpath>\n" +			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +			"</classpath>"
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
 		);
 		assertDeltas(
 			"Unexpected delta", 
@@ -395,7 +415,8 @@ public void testAddTwoJavaProjectsWithExtraSetClasspath() throws CoreException {
 	}
 }
 /*
- * Batch operation test. */
+ * Batch operation test.
+ */
 public void testBatchOperation() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
@@ -440,7 +461,8 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		this.createJavaProject("P2", new String[] {"src2"}, new String[] {"/P1/bin1"}, "bin2");
 		this.createFile(
 			"/P1/src1/X.java",
-			"public class X {\n" +			"}"
+			"public class X {\n" +
+			"}"
 		);
 		
 		// force opening of project to avoid external jar delta
@@ -463,7 +485,8 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 			"public class X {\n" +
 			"  void foo() {}\n" +
 			"}\n" +
-			"class Y {\n" +			"}"
+			"class Y {\n" +
+			"}"
 		);
 		this.clearDeltas();
 

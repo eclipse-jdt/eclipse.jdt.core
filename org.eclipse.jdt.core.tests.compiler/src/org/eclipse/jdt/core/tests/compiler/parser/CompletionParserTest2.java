@@ -547,8 +547,12 @@ public void test0011(){
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  {\n" +		"    {\n" +		"      Object o = new <CompleteOnType:zzz>();\n" +
-		"    }\n" +		"  }\n" +		"  public X() {\n" + 
+		"  {\n" +
+		"    {\n" +
+		"      Object o = new <CompleteOnType:zzz>();\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -640,7 +644,8 @@ public void test0013(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object o;\n" +		"  <CompleteOnType:zzz>;\n" + 
+		"  Object o;\n" +
+		"  <CompleteOnType:zzz>;\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1585,8 +1590,10 @@ public void test0031(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object o;\n" +		"  {\n" +
-		"  }\n" +		"  public X() {\n" + 
+		"  Object o;\n" +
+		"  {\n" +
+		"  }\n" +
+		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -1645,7 +1652,8 @@ public void test0032(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  {\n" + 		"  }\n" + 
+		"  {\n" + 
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2345,7 +2353,8 @@ public void test0044(){
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  {\n" +		"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+		"  {\n" +
+		"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -2505,8 +2514,11 @@ public void test0047(){
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  {\n" +		"    {\n" +		"      Object[] o = new X[<CompleteOnName:zzz>];\n" + 
-		"    }\n" +		"  }\n" + 
+		"  {\n" +
+		"    {\n" +
+		"      Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+		"    }\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -3126,8 +3138,11 @@ public void test0059(){
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  {\n" +		"    {\n" +		"      Object[] o = <CompleteOnName:zzz>;\n" + 
-		"    }\n" +		"  }\n" + 
+		"  {\n" +
+		"    {\n" +
+		"      Object[] o = <CompleteOnName:zzz>;\n" + 
+		"    }\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -3530,7 +3545,9 @@ public void test0067(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object o;\n" +		"  {\n" +		"  }\n" + 
+		"  Object o;\n" +
+		"  {\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -4219,7 +4236,9 @@ public void test0079(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  int o;\n" +		"  {\n" +		"  }\n" + 
+		"  int o;\n" +
+		"  {\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -4404,7 +4423,9 @@ public void test0082(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  int o;\n" +		"  {\n" +		"  }\n" +
+		"  int o;\n" +
+		"  {\n" +
+		"  }\n" +
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -4596,7 +4617,9 @@ public void test0085(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  X o;\n" +		"  {\n" +		"  }\n" + 
+		"  X o;\n" +
+		"  {\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -4780,7 +4803,9 @@ public void test0088(){
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  X o;\n" +		"  {\n" +		"  }\n" + 
+		"  X o;\n" +
+		"  {\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -5268,7 +5293,8 @@ public void test0096(){
 		"    {\n" +
 		"      Object o;\n" +
 		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" +		"  }\n" + 
+		"    }\n" +
+		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -5350,7 +5376,8 @@ public void test0098(){
 		"package p;\n" +  
 		"public class X {\n" +
 		"  void foo(){\n" + 
-		"    Object o;\n" +		"    o = zzz;\n" + 
+		"    Object o;\n" +
+		"    o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -5534,7 +5561,8 @@ public void test0101(){
 		"public class X {\n" +
 		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = yyy;\n" +		"    zzz\n" + 
+		"    o = yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -5596,7 +5624,8 @@ public void test0102(){
 		"public class X {\n" +
 		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = yyy;\n" +		"    zzz\n" + 
+		"    o = yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
 

@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
-import java.io.File;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;

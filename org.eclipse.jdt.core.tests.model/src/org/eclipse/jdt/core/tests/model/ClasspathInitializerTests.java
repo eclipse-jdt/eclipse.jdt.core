@@ -397,7 +397,8 @@ public void testVariableInitializer4() throws CoreException {
 		});
 		this.createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 		assertEquals(
-			"Initializing TEST_LIB\n" +			"Setting variable TEST_LIB to test_lib\n",
+			"Initializing TEST_LIB\n" +
+			"Setting variable TEST_LIB to test_lib\n",
 			buffer.toString());
 	} finally {
 		this.deleteProject("P");

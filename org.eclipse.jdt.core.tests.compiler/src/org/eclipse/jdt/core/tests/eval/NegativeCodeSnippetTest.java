@@ -123,7 +123,8 @@ public void testExtraSemiColonInExpression() {
  */
 public void testInvalidField() {
 	evaluateWithExpectedProblem(
-		("String s = \"\";\n" +		"s.length").toCharArray(), 
+		("String s = \"\";\n" +
+		"s.length").toCharArray(), 
 		"s.length cannot be resolved or is not a field\n"); 
 }
 /**

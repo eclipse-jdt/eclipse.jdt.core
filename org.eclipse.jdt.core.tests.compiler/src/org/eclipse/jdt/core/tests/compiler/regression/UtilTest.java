@@ -229,7 +229,8 @@ public void test38() {
 }
 
 /*
- * From Ant pattern set examples */
+ * From Ant pattern set examples
+ */
 public void test39() {
 
 	assertTrue("Path pattern matching failure-1",

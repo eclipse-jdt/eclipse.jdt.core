@@ -172,7 +172,8 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	public void foo() {\n" +
 				"		System.out.println(bar());\n" +
 				"	}\n" +
-				"}";			compileAndDeploy(sourceA003, "A003");
+				"}";
+			compileAndDeploy(sourceA003, "A003");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A003.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 3, methodInfos.length);
@@ -199,7 +200,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test004() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   && !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   && !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -235,7 +245,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test005() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   && true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   && true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -267,7 +285,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test006() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   && false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   && false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -295,7 +321,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test007() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   && !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   && !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -327,7 +361,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test008() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   && !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   && !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -355,7 +397,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test009() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   || !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   || !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -391,7 +442,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test010() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   || true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   || true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -421,7 +480,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test011() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   || false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   || false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -453,7 +520,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test012() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   || !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   || !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -483,7 +558,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test013() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   || !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   || !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -515,7 +598,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test014() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   == !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   == !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -551,7 +643,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test015() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   == true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   == true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -583,7 +683,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test016() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   == false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   == false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -615,7 +723,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test017() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   == !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   == !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -647,7 +763,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test018() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   == !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   == !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -680,7 +804,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test019() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 5)\n" +				"			? b : !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 5)\n" +
+				"			? b : !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -716,7 +849,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test020() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			>= 5) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			>= 5) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -750,7 +891,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test021() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			>= 0) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			>= 0) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -782,7 +931,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test022() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (0\n" +				"			>= i) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (0\n" +
+				"			>= i) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -814,7 +971,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test023() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			> 0) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			> 0) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -846,7 +1011,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test024() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (0\n" +				"			> i) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (0\n" +
+				"			> i) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -878,7 +1051,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test025() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			> 5) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			> 5) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -913,7 +1094,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test026() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			< 0) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			< 0) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -946,7 +1135,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test027() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (0\n" +				"			< i) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (0\n" +
+				"			< i) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -978,7 +1175,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test028() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			< 5) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			< 5) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1012,7 +1217,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test029() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			<= 0) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			<= 0) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1045,7 +1258,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test030() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (0\n" +				"			<= i) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (0\n" +
+				"			<= i) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1077,7 +1298,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test031() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			<= 5) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			<= 5) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1111,7 +1340,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test032() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if (i\n" +				"			<= 5) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if (i\n" +
+				"			<= 5) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1145,7 +1382,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test033() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   & !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   & !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1181,7 +1427,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test034() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   & true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   & true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1213,7 +1467,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test035() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   & false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   & false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1241,7 +1503,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test036() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   & !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   & !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1273,7 +1543,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test037() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   & !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   & !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1301,7 +1579,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test038() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   | !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   | !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1337,7 +1624,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test039() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   | true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   | true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1367,7 +1662,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test040() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   | false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   | false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1399,7 +1702,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test041() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   | !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   | !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1429,7 +1740,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test042() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   | !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   | !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1461,7 +1780,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test043() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   ^ !b) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   ^ !b) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1497,7 +1825,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test044() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   ^ true) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   ^ true) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1529,7 +1865,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test045() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		int i = 6;\n" +				"		if ((i == 6) \n" +				"		   ^ false) {   	\n" +				"		   	System.out.println(i);\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int i = 6;\n" +
+				"		if ((i == 6) \n" +
+				"		   ^ false) {   	\n" +
+				"		   	System.out.println(i);\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1561,7 +1905,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test046() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (true\n" +				"		   ^ !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (true\n" +
+				"		   ^ !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
@@ -1593,7 +1945,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public void test047() {
 		try {
 			String sourceA =
-				"public class A {\n" +				"	public static void main(String[] args) {\n" +				"		boolean b = false;\n" +				"		if (false\n" +				"		   ^ !b) {   	\n" +				"		   	System.out.println();\n" +				"		   }\n" +				"	}\n" +				"}";
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		boolean b = false;\n" +
+				"		if (false\n" +
+				"		   ^ !b) {   	\n" +
+				"		   	System.out.println();\n" +
+				"		   }\n" +
+				"	}\n" +
+				"}";
 			compileAndDeploy(sourceA, "A");
 			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
 			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();

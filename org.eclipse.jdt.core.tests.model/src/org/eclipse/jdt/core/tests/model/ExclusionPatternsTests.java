@@ -173,7 +173,8 @@ public void testAddToExcludedFolder() throws CoreException {
 }
 /*
  * Ensure that creating an excluded compilation unit 
- * doesn't make it appear as a child of its package but it is a non-java resource. */
+ * doesn't make it appear as a child of its package but it is a non-java resource.
+ */
 public void testCreateExcludedCompilationUnit() throws CoreException {
 	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
@@ -182,7 +183,9 @@ public void testCreateExcludedCompilationUnit() throws CoreException {
 	clearDeltas();
 	pkg.createCompilationUnit(
 		"A.java",
-		"package p;\n" +		"public class A {\n" +		"}",
+		"package p;\n" +
+		"public class A {\n" +
+		"}",
 		false,
 		null);
 	
@@ -709,7 +712,8 @@ public void testRemoveExclusionOnPackage() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"\n" + // default package		"p",
+		"\n" + // default package
+		"p",
 		root.getChildren());
 		
 	assertResourcesEqual(

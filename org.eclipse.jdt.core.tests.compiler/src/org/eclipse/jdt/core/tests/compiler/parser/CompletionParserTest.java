@@ -2876,7 +2876,8 @@ public void testK_1() {
 //		"public class K {\n" + 
 //		"	void foo() {\n" + 
 //		"		new X(\"c:abc.txt\"); \n" + 
-//		"		O" +//		"   }\n" + 
+//		"		O" +
+//		"   }\n" + 
 //		"}\n";
 
 	String testName = "<complete on corrupted local variable declaration>";
@@ -8238,7 +8239,9 @@ public void test006(){
 		"public class X {\n" +
 		"  <CompleteOnType:clon>;\n" + 
 		"  public X() {\n" +
-		"  }\n" +		"  foo() {\n" +		"  }\n" +
+		"  }\n" +
+		"  foo() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(

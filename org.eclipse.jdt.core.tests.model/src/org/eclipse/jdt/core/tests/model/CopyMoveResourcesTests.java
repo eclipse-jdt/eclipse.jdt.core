@@ -215,7 +215,8 @@ public void testCopyCU() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +		"public class X {\n" +
+		"package p1;\n" +
+		"public class X {\n" +
 		"}"
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");

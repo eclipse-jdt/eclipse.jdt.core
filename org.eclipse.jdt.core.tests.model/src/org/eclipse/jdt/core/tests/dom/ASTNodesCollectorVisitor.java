@@ -12,7 +12,9 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	private Set detachedAstNodes;
 	
 	/**
-	 * 	 * @see java.lang.Object#Object()	 */
+	 * 
+	 * @see java.lang.Object#Object()
+	 */
 	ASTNodesCollectorVisitor() {
 		this.detachedAstNodes = new HashSet();
 	}

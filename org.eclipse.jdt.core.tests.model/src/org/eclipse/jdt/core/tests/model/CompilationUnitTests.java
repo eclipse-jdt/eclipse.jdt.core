@@ -29,14 +29,32 @@ public void setUpSuite() throws Exception {
 	this.createFolder("/P/src/p");
 	this.createFile(
 		"/P/src/p/X.java",
-		"/* some comment */" +		"package p;\n" +
-		"import p2.*;\n" +		"import p3.Z;\n" +		"public class X implements Runnable {\n" +		"  public int f1;\n" +		"  /** @deprecated\n */" +
-		"  protected Object f2;\n" +		"  private X f3;\n" +		"  java.lang.String f4;\n" +		"  public class Inner {\n" +		"    class InnerInner {\n" +		"    }\n" +		"  }\n" +		"  public void foo(Y y) throws IOException {\n" +		"  }\n" +		"  protected static Object bar() {\n" +
+		"/* some comment */" +
+		"package p;\n" +
+		"import p2.*;\n" +
+		"import p3.Z;\n" +
+		"public class X implements Runnable {\n" +
+		"  public int f1;\n" +
+		"  /** @deprecated\n */" +
+		"  protected Object f2;\n" +
+		"  private X f3;\n" +
+		"  java.lang.String f4;\n" +
+		"  public class Inner {\n" +
+		"    class InnerInner {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public void foo(Y y) throws IOException {\n" +
+		"  }\n" +
+		"  protected static Object bar() {\n" +
 		"  }\n" +
 		"  /** @deprecated\n */" +
 		"  private int fred() {\n" +
 		"  }\n" +
-		"}\n" +		"/** @deprecated\n */" +		"interface I {\n" +		"  int run();\n" +		"}");
+		"}\n" +
+		"/** @deprecated\n */" +
+		"interface I {\n" +
+		"  int run();\n" +
+		"}");
 	this.cu = this.getCompilationUnit("/P/src/p/X.java");
 }
 public static Test suite() {
@@ -68,7 +86,8 @@ public void testCommit() throws JavaModelException {
 }
 /*
  * Ensure that the deprecated flags is correctly reported
- * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work) */
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
 public void testDeprecatedFlag() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	assertTrue("Type X should not be deprecated", !Flags.isDeprecated(type.getFlags()));

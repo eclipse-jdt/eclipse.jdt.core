@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
-import junit.framework.Test;
+
+import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
 

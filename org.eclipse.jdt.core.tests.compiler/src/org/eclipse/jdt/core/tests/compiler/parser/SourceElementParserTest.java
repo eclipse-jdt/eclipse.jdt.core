@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
-import java.util.Locale;
+
+import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -225,7 +226,8 @@ public void enterConstructor(
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
 	char[][] exceptionTypes) {
-	currentType.addMethod(
+
+	currentType.addMethod(
 		currentMethod = 
 			new SourceMethod(
 				declarationStart, 
@@ -1023,7 +1025,8 @@ public void test09() {
 			+ "	void truc(){								\n"
 			+ " }											\n"
 			+ "}											\n"; 
- 
+
+ 
 	String expectedUnitToString = 
 			"public class X {\n"
 			+ "\tjava.lang.Object(0)\n"

@@ -28,7 +28,10 @@ public void setUpSuite() throws Exception {
 	this.createFile(
 		"/BinaryProject/src/X.java",
 		"public class X {\n" +
-		"  int bar;\n" +		"  public void foo() {\n" +		"  }\n" +		"}"
+		"  int bar;\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
 	);
 	project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 }
@@ -88,7 +91,8 @@ public void testCopyConstructor() throws CoreException {
 		"/P/src/X.java",
 		"public class X {\n" +
 		"  X(String s) {\n" +
-		"  }\n" +		"}"
+		"  }\n" +
+		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 	IMethod methodSource = typeSource.getMethod("X", new String[] {"QString;"});
@@ -360,7 +364,8 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 		"/P/src/X.java",
 		"public class X {\n" +
 		"  int foo;\n" +
-		"  Object bar;\n" +		"  char[] fred;\n" +
+		"  Object bar;\n" +
+		"  char[] fred;\n" +
 		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
@@ -824,7 +829,9 @@ public void testCopyInnerTypeWithPositioningInDifferentProject() throws CoreExce
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +			"  class Inner {\n" +			"  }" +			
+			"public class X {\n" +
+			"  class Inner {\n" +
+			"  }" +			
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X").getType("Inner");
@@ -833,7 +840,8 @@ public void testCopyInnerTypeWithPositioningInDifferentProject() throws CoreExce
 		this.createFile(
 			"/P2/src/Y.java",
 			"public class Y {\n" +
-			"  void foo() {\n" +			"  }\n" +
+			"  void foo() {\n" +
+			"  }\n" +
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
@@ -896,7 +904,8 @@ public void testCopyMethod() throws CoreException{
 	this.createFile(
 		"/P/src/X.java",
 		"public class X {\n" +
-		"  void foo(String s) {\n" +		"  }\n" +
+		"  void foo(String s) {\n" +
+		"  }\n" +
 		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
@@ -1235,7 +1244,8 @@ public void testCopyMethodWithPositioningInDifferentProject() throws CoreExcepti
 		this.createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
-			"  int foo(String s) {\n" +			"  }\n" +
+			"  int foo(String s) {\n" +
+			"  }\n" +
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
@@ -1245,7 +1255,8 @@ public void testCopyMethodWithPositioningInDifferentProject() throws CoreExcepti
 		this.createFile(
 			"/P2/src/Y.java",
 			"public class Y {\n" +
-			"  boolean bar() {\n" +			"  }\n" +
+			"  boolean bar() {\n" +
+			"  }\n" +
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
@@ -1262,7 +1273,8 @@ public void testCopyMoveWithInvalidRenamings() throws CoreException {
 	this.createFile(
 		"/P/src/X.java",
 		"public class X {\n" +
-		"  public void foo() {\n" +		"  }\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
 		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
@@ -1334,7 +1346,9 @@ public void testCopyType() throws CoreException {
 	this.createFile(
 		"/P/src/X.java",
 		"public class X {\n" +
-		"}\n" +		"class Z {\n" +		"}"
+		"}\n" +
+		"class Z {\n" +
+		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("Z");
 
@@ -1409,7 +1423,8 @@ public void testMoveConstructor() throws CoreException {
 	this.createFile(
 		"/P/src/X.java",
 		"public class X {\n" +
-		"  X(String s) {\n" +		"  }\n" +
+		"  X(String s) {\n" +
+		"  }\n" +
 		"}"
 	);
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
