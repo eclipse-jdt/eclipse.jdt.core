@@ -32,16 +32,7 @@ public abstract class Annotation extends Expression {
 		}
 		return output;
 	}
-	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// do nothing by default
-		// subclasses will override it
-	}
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		// do nothing by default
-		// subclasses will override it
-	}
-	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
-		// do nothing by default
-		// subclasses will override it
-	}
+	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
+	public abstract void traverse(ASTVisitor visitor, ClassScope scope);
+	public abstract void traverse(ASTVisitor visitor, CompilationUnitScope scope);
 }
