@@ -1873,18 +1873,12 @@ class ASTConverter {
 			} else {
 				ifStatement.setThenStatement(convert(statement.thenStatement));
 			}
-			if (!(ifStatement.getThenStatement() instanceof Block) && elseStatement == null) {
-				retrieveSemiColonPosition(ifStatement);
-			}				
 		}
 		if (elseStatement != null) {
 			if (elseStatement == org.eclipse.jdt.internal.compiler.ast.Block.None) {
 				ifStatement.setElseStatement(this.ast.newEmptyStatement());
 			} else {
 				ifStatement.setElseStatement(convert(elseStatement));
-				if (!(ifStatement.getElseStatement() instanceof Block)) {
-					retrieveSemiColonPosition(ifStatement);
-				}
 			}
 		}
 		return ifStatement;
