@@ -244,7 +244,9 @@ public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
 	
 	private void endVisit(AstNode astNode) {
 		if(result && parent == null && astNode != searchedNode) {
-			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == searchedNode)) {
+			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == searchedNode)
+				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == searchedNode)
+				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == searchedNode)) {
 				parent = astNode;	
 			}
 		}

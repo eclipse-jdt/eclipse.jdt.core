@@ -50,6 +50,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_UNARY_OPERATOR = COMPLETION_PARSER + 15;
 	protected static final int K_BINARY_OPERATOR = COMPLETION_PARSER + 16;
 	protected static final int K_ASSISGNMENT_OPERATOR = COMPLETION_PARSER + 17;
+	protected static final int K_CONDITIONAL_OPERATOR = COMPLETION_PARSER + 18;
 
 	/* public fields */
 
@@ -64,6 +65,9 @@ public class CompletionParser extends AssistParser {
 	static final int NAME_RECEIVER = -3;
 	static final int ALLOCATION = -4;
 	static final int QUALIFIED_ALLOCATION = -5;
+	
+	static final int QUESTION = 1;
+	static final int COLON = 2;
 
 	// the type of the current invocation (one of the invocation type constants)
 	int invocationType;
@@ -403,6 +407,27 @@ private void buildMoreCompletionContext(Expression expression) {
 						);
 					}
 					assistNodeParent = assignment;
+				}
+				break nextElement;
+			case K_CONDITIONAL_OPERATOR :
+				if(info == QUESTION) {
+					if(expressionPtr > 0) {
+						expressionPtr--;
+						expressionLengthPtr--;
+						expressionStack[expressionPtr] = expressionStack[expressionPtr+1];
+						popElement(K_CONDITIONAL_OPERATOR);
+						buildMoreCompletionContext(expression);
+						return;
+					}
+				} else {
+					if(expressionPtr > 1) {
+						expressionPtr = expressionPtr - 2;
+						expressionLengthPtr = expressionLengthPtr - 2;
+						expressionStack[expressionPtr] = expressionStack[expressionPtr+2];
+						popElement(K_CONDITIONAL_OPERATOR);
+						buildMoreCompletionContext(expression);
+						return;
+					}
 				}
 				break nextElement;
 				
@@ -876,6 +901,10 @@ protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeClassTypeElt();
 	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+}
+protected void consumeConditionalExpression(int op) {
+	popElement(K_CONDITIONAL_OPERATOR);
+	super.consumeConditionalExpression(op);
 }
 protected void consumeConstructorBody() {
 	popElement(K_BLOCK_DELIMITER);
@@ -1421,6 +1450,17 @@ protected void consumeToken(int token) {
 			case TokenNameinstanceof:
 				pushOnElementStack(K_BINARY_OPERATOR, INSTANCEOF);
 				break;
+			case TokenNameQUESTION:
+				pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
+				break;
+			case TokenNameCOLON:
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONDITIONAL_OPERATOR
+					&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == QUESTION) {
+					popElement(K_CONDITIONAL_OPERATOR);
+					pushOnElementStack(K_CONDITIONAL_OPERATOR, COLON);
+				}
+				break;
+			
 		}
 	}
 }

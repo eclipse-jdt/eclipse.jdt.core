@@ -170,7 +170,9 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionBinaryOperator2"));
 	suite.addTest(new CompletionTests("testCompletionBinaryOperator3"));
 	suite.addTest(new CompletionTests("testCompletionInstanceofOperator1"));
-	
+	suite.addTest(new CompletionTests("testCompletionConditionalExpression1"));
+	suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
+	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
 	return suite;
 }
 /**
@@ -2417,6 +2419,54 @@ public void testCompletionInstanceofOperator1() throws JavaModelException {
 			"element:ZZZCompletionInstanceof2    completion:ZZZCompletionInstanceof2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
 			"element:ZZZCompletionInstanceof3    completion:ZZZCompletionInstanceof3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
 			"element:ZZZCompletionInstanceof4    completion:ZZZCompletionInstanceof4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionConditionalExpression1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConditionalExpression1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var4    completion:var4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionConditionalExpression2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConditionalExpression2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var4    completion:var4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionConditionalExpression3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConditionalExpression3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var4    completion:var4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }
