@@ -967,20 +967,16 @@ public class JavaProject
 				// put the info now, because computing the roots requires it
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				IWorkspaceRoot wRoot = workspace.getRoot();
-				// request marker refresh on project opening (so as to diagnose unbound variables on startup)
-				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, !workspace.isTreeLocked()  /*refresh CP markers*/);
-
-				// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
+				// compute the pkg fragment roots
 				updatePackageFragmentRoots();				
 	
 				// remember the timestamps of external libraries the first time they are looked up
+				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
 				for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
 					IClasspathEntry entry = resolvedClasspath[i];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 						IPath path = entry.getPath();
-						Object target = JavaModel.getTarget(wRoot, path, true);
+						Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 						if (target instanceof java.io.File) {
 							Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
 							if (externalTimeStamps.get(path) == null) {
