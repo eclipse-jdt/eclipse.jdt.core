@@ -438,7 +438,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 	if (referenceBinding instanceof UnresolvedReferenceBinding)
 		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this);
 
-	// compoundName refers to a nested type incorrectly (i.e. package1.A$B)
+	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
 	else

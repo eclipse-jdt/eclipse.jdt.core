@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <p>
  * Note that java model operations that manipulate an <code>IBuffer</code> (e.g. 
  * <code>IType.createMethod(...)</code>) ensures that the same line delimiter 
- * (i.e. either <code>"\n"</code> or <code>"\r"</code> or <code>"\r\n"</code>) is 
+ * (either <code>"\n"</code> or <code>"\r"</code> or <code>"\r\n"</code>) is 
  * used across the whole buffer. Thus these operations may change the line delimiter(s) 
  * included in the string to be append, or replaced.
  * However implementers of this interface should be aware that other clients of <code>IBuffer</code>

@@ -956,7 +956,7 @@ public void completionIdentifierCheck(){
 	 	e.g.  int.[cursor]
 	 	This is because the grammar does not allow any (empty) identifier to follow
 	 	a base type. We thus have to manually force the identifier to be consumed
-	 	(i.e. pushed).
+	 	(that is, pushed).
 	 */
 	if (assistIdentifier() == null && this.currentToken == TokenNameIdentifier) { // Test below copied from CompletionScanner.getCurrentIdentifierSource()
 		if (cursorLocation < this.scanner.startPosition && this.scanner.currentPosition == this.scanner.startPosition){ // fake empty identifier got issued
@@ -2369,7 +2369,7 @@ protected boolean resumeAfterRecovery() {
 			&& (!(referenceContext instanceof CompilationUnitDeclaration) 
 				|| isIndirectlyInsideFieldInitialization())) {
 
-			/*	disabled since does not handle possible field/message refs, i.e. Obj[ASSIST HERE]ect.registerNatives()		    
+			/*	disabled since does not handle possible field/message refs, that is, Obj[ASSIST HERE]ect.registerNatives()		    
 			// consume extra tokens which were part of the qualified reference
 			//   so that the replaced source comprises them as well 
 			if (this.assistNode instanceof NameReference){

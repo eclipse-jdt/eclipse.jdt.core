@@ -21,8 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * A this reference inside a code snippet denotes a remote
- * receiver object (i.e.&nbsp;the one of the context in the stack
- * frame)
+ * receiver object (that is, the receiver of the context in the stack frame)
  */
 public class CodeSnippetThisReference extends ThisReference implements EvaluationConstants, InvocationSite {
 	EvaluationContext evaluationContext;

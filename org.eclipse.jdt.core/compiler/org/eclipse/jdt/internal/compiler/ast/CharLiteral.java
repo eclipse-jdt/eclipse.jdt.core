@@ -61,7 +61,7 @@ private void computeValue() {
 		case '\\' :
 			value = '\\';
 			break;
-		default : //octal (welled formed, i.e. ended by a ' )
+		default : //octal (well-formed: ended by a ' )
 			int number = Character.getNumericValue(digit);
 			if ((digit = source[3]) != '\'')
 				number = (number * 8) + Character.getNumericValue(digit);

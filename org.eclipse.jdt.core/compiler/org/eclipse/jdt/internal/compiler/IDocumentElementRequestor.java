@@ -233,12 +233,12 @@ void enterConstructor(
  * @param type - the name of the field type
  * @param typeStart - a source position corresponding to the start of the fields type
  * @param typeEnd - a source position corresponding to the end of the fields type
- * @param typeDimensionCount - the array dimension indicated on the type, i.e. int[] v
+ * @param typeDimensionCount - the array dimension indicated on the type (for example, 'int[] v')
  * @param name - the name of this constructor
  * @param nameStart - a source position corresponding to the first character of the name
  * @param nameEnd - a source position corresponding to the last character of the name
  * @param extendedTypeDimensionCount - the array dimension indicated on the variable,
- *  i.e. int v[]
+ *  (for example, 'int v[]')
  * @param extendedTypeDimnesionEnd - a source position corresponding to the end of
  *  the extened type dimension. This position should be -1 in case there is no extended
  *  dimension for the type.
@@ -313,7 +313,7 @@ void enterInterface(
  * @param returnTypeEnd - a source position corresponding to the last character
  *  of the return type
  * @param returnTypeDimensionCount - the array dimension count as supplied on the
- *  return type, i.e. public int[] foo() {}
+ *  return type (for example, 'public int[] foo() {}')
  * @param name - the name of this constructor
  * @param nameStart - a source position corresponding to the first character of the name
  * @param nameEnd - a source position corresponding to the last character of the name
@@ -326,7 +326,7 @@ void enterInterface(
  * @param parametersEnd - a source position corresponding to the last character of the
  *  parameter list
  * @param extendedReturnTypeDimensionCount - the array dimension count as supplied on the
- *  end of the parameter list, i.e. public int foo()[] {}
+ *  end of the parameter list (for example, 'public int foo()[] {}')
  * @param extendedReturnTypeDimensionEnd - a source position corresponding to the last character
  *  of the extended return type dimension. This position should be -1 in case there is no extended
  *  dimension for the type.

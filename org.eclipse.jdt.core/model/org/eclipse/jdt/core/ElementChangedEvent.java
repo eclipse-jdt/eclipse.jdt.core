@@ -51,9 +51,9 @@ public class ElementChangedEvent extends EventObject {
 	 *
 	 * Note: this notification occurs during the corresponding PRE_AUTO_BUILD
 	 * resource change notification. The delta, which is notified here, only contains
-	 * information relative to the previous JavaModel operations (i.e. ignores the
-	 * possible resources which have changed outside Java operations). In
-	 * particular, it is possible that the JavaModel be inconsistent with respect to
+	 * information relative to the previous JavaModel operations (in other words, 
+	 * it ignores the possible resources which have changed outside Java operations). 
+	 * In particular, it is possible that the JavaModel be inconsistent with respect to
 	 * resources, which got modified outside JavaModel operations (it will only be
 	 * fully consistent once the POST_CHANGE notification has occurred).
 	 * 

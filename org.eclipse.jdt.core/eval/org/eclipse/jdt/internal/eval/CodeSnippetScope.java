@@ -728,7 +728,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 				// found a valid method in the 'immediate' scope (ie. not inherited)
 				// OR the receiverType implemented a method with the correct name
 				if (foundMethod == null) {
-					// return the methodBinding if it is not declared in a superclass of the scope's binding (i.e. "inherited")
+					// return the methodBinding if it is not declared in a superclass of the scope's binding (it is inherited)
 					if (fuzzyProblem != null)
 						return fuzzyProblem;
 					if (insideProblem != null)

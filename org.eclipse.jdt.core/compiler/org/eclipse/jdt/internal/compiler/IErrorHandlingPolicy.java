@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.compiler;
  * Handler policy is responsible to answer the 2 following
  * questions:
  * 1. should the handler stop on first problem which appears
- *	to be a real error (i.e. not a warning),
+ *	to be a real error (that is, not a warning),
  * 2. should it proceed once it has gathered all problems
  *
  * The intent is that one can supply its own policy to implement 

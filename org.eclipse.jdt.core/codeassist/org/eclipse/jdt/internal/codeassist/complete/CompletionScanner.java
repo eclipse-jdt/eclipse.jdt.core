@@ -32,7 +32,7 @@ public class CompletionScanner extends Scanner {
 		
 	/* Source positions of the completedIdentifier
 	 * if inside actual identifier, end goes to the actual identifier 
-	 * end, i.e. beyond cursor location
+	 * end, in other words, beyond cursor location
 	 */
 	public int completedIdentifierStart = 0;
 	public int completedIdentifierEnd = -1;

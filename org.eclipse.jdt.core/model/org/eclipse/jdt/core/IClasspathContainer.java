@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.IPath;
  * Interface of a classpath container.
  * A classpath container provides a way to indirectly reference a set of classpath entries through
  * a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
- * be used to describe a complex library composed of multiple JARs or projects,
- * considering also that containers can map to different set of entries on each project, i.e. several 
+ * be used to describe a complex library composed of multiple JARs or projects, considering also 
+ * that containers can map to different set of entries on each project, in other words, several 
  * projects can reference the same generic container path, but have each of them actually bound 
  * to a different container object.
  * <p>

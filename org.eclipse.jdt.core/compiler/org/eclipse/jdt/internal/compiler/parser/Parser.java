@@ -6661,7 +6661,7 @@ protected void markInitializersWithLocalType(TypeDeclaration type) {
 /*
  * Move checkpoint location (current implementation is moving it by one token)
  *
- * Answers true if successfully moved checkpoint (i.e. did not attempt to move it
+ * Answers true if successfully moved checkpoint (in other words, it did not attempt to move it
  * beyond end of file).
  */
 protected boolean moveRecoveryCheckpoint() {

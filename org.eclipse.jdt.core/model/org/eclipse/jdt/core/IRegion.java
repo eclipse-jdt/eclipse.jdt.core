@@ -57,7 +57,7 @@ public interface IRegion {
 	 * Removes the specified element from the region and returns
 	 * <code>true</code> if successful, <code>false</code> if the remove
 	 * fails. If an ancestor of the given element is included, the
-	 * remove fails (i.e. not possible to selectively
+	 * remove fails (in other words, it is not possible to selectively
 	 * exclude descendants of included ancestors).
 	 * 
 	 * @param element the given element

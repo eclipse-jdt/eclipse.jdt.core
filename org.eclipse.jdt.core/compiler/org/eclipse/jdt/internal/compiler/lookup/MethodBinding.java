@@ -260,7 +260,7 @@ public final boolean isFinal() {
 }
 
 /* Answer true if the receiver is implementing another method
- * i.e. is overriding and is concrete and overriden is abstract
+ * in other words, it is overriding and concrete, and overriden method is abstract
  * Only set for source methods
 */
 public final boolean isImplementing() {

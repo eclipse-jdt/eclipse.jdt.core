@@ -37,8 +37,8 @@ public class Initializer extends FieldDeclaration {
 	}
 
 	/**
-	 * Code generation for a non-static initializer.
-	 *	i.e.&nbsp;normal block code gen
+	 * Code generation for a non-static initializer: 
+	 *    standard block code gen
 	 *
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream

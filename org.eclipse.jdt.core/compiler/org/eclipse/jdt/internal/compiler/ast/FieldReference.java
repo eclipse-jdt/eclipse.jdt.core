@@ -307,7 +307,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		//if ref==null then indexInQualification==0 AND implicitReceiver == false. This case is a 
 		//degenerated case where a fake reference field (null) 
 		//is associted to a real FieldBinding in order 
-		//to allow its constant computation using the regular path (i.e. find the fieldDeclaration
+		//to allow its constant computation using the regular path (in other words, find the fieldDeclaration
 		//and proceed to its type resolution). As implicitReceiver is false, no error reporting
 		//against ref will be used ==> no nullPointerException risk .... 
 

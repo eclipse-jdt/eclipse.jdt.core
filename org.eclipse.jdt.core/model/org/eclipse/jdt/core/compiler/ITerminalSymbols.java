@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.compiler;
  * 
  * Disclaimer : These constant values are generated automatically using a Java 
  * grammar, therefore their actual values are subject to change if new keywords 
- * were added to the language (i.e. 'assert' keyword in 1.4).
+ * were added to the language (for instance, 'assert' is a keyword in 1.4).
  * 
  * @see IScanner
  * @since 2.0

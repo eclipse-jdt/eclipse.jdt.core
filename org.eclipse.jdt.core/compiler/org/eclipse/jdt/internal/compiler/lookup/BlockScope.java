@@ -143,7 +143,7 @@ public class BlockScope extends Scope {
 
 	/* Answer true if the receiver is suitable for assigning final blank fields.
 	 *
-	 * i.e. is inside an initializer, a constructor or a clinit 
+	 * in other words, it is inside an initializer, a constructor or a clinit 
 	 */
 	public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 
@@ -691,11 +691,11 @@ public class BlockScope extends Scope {
 											invocationSite.setDepth(depth);
 											invocationSite.setActualReceiverType(enclosingType);
 										}
-										// return the fieldBinding if it is not declared in a superclass of the scope's binding (i.e. "inherited")
+										// return the fieldBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
 										return insideProblem == null ? fieldBinding : insideProblem;
 									}
 									if (foundField.isValidBinding())
-										// if a valid field was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
+										// if a valid field was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
 										if (foundField.declaringClass != fieldBinding.declaringClass)
 											// ie. have we found the same field - do not trust field identity yet
 											return new ProblemFieldBinding(
@@ -1129,14 +1129,14 @@ public class BlockScope extends Scope {
 										invocationSite.setDepth(depth);
 										invocationSite.setActualReceiverType(receiverType);
 									}
-									// return the methodBinding if it is not declared in a superclass of the scope's binding (i.e. "inherited")
+									// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
 									if (fuzzyProblem != null)
 										return fuzzyProblem;
 									if (insideProblem != null)
 										return insideProblem;
 									return methodBinding;
 								}
-								// if a method was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
+								// if a method was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
 								// NOTE: Unlike fields, a non visible method hides a visible method
 								if (foundMethod.declaringClass != methodBinding.declaringClass)
 									// ie. have we found the same method - do not trust field identity yet
@@ -1290,7 +1290,7 @@ public class BlockScope extends Scope {
 
 	/* Answer the reference type of this scope.
 	 *
-	 * i.e. the nearest enclosing type of this scope.
+	 * It is the nearest enclosing type of this scope.
 	 */
 	public TypeDeclaration referenceType() {
 

@@ -31,8 +31,8 @@ import org.eclipse.core.runtime.IPath;
  * <p>
  * Multiple classpath containers can be registered, each of them declares
  * the container ID they can handle, so as to narrow the set of containers they
- * can resolve, i.e. a container initializer is guaranteed to only be activated to 
- * resolve containers which match the ID they registered onto.
+ * can resolve, in other words, a container initializer is guaranteed to only be 
+ * activated to resolve containers which match the ID they registered onto.
  * <p>
  * In case multiple container initializers collide on the same container ID, the first
  * registered one will be invoked.

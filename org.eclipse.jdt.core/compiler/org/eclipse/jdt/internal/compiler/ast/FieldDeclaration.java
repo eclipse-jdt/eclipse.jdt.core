@@ -85,7 +85,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 	/**
 	 * Code generation for a field declaration:
-	 *	i.e.&nbsp;normal assignment to a field 
+	 *	   standard assignment to a field 
 	 *
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream

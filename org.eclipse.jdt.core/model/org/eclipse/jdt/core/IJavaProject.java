@@ -226,7 +226,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	
 	/**
 	 * Returns the table of the current custom options for this project. Projects remember their custom options,
-	 * i.e. only the options different from the the JavaCore global options for the workspace.
+	 * in other words, only the options different from the the JavaCore global options for the workspace.
 	 * A boolean argument allows to directly merge the project options with global ones from <code>JavaCore</code>.
 	 * <p>
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.

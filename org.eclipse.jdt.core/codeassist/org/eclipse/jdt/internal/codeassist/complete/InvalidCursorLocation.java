@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 /**
  * Thrown whenever cursor location is not inside a consistent token
- * i.e. inside a string, number, unicode, comments etc...
+ * for example: inside a string, number, unicode, comments etc...
  */
 public class InvalidCursorLocation extends RuntimeException {
 

@@ -2498,7 +2498,7 @@ public class ClassFile
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a code attribute.
-	 * - the index inside the constant pool for the attribute name (i.e.&nbsp;Code)
+	 * - the index inside the constant pool for the attribute name ("Code")
 	 * - leave some space for attribute_length(4), max_stack(2), max_locals(2), code_length(4).
 	 */
 	public void generateCodeAttributeHeader() {

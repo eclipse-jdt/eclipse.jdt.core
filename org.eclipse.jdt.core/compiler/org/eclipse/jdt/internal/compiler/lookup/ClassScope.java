@@ -859,8 +859,7 @@ public class ClassScope extends Scope {
 	}
 
 	/* Answer the reference type of this scope.
-	*
-	* i.e. the nearest enclosing type of this scope.
+	* It is the nearest enclosing type of this scope.
 	*/
 	public TypeDeclaration referenceType() {
 		return referenceContext;

@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 /*
  * Implementors are valid compilation contexts from which we can
  * escape in case of error:
- *	i.e. method | type | compilation unit
+ *	For example: method, type or compilation unit.
  */
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;

@@ -224,7 +224,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return binding == null ? null : binding.returnType;
 	}
 	if (!binding.isStatic()) {
-		// the "receiver" must not be a type, i.e. a NameReference that the TC has bound to a Type
+		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
 		if (receiver instanceof NameReference 
 				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);

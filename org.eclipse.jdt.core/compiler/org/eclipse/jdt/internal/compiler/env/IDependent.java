@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 /**
- * This represents the target (i.e.&nbsp;the file) of a type dependency.
+ * This represents the target file of a type dependency.
  *
  * All implementors of this interface are containers for types or types
  * themselves which must be able to identify their source file name

@@ -82,7 +82,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * Returns all of the class files in this package fragment.
 	 *
 	 * <p>Note: it is possible that a package fragment contains only
-	 * compilation units (i.e. its kind is <code>K_SOURCE</code>), in
+	 * compilation units (in other words, its kind is <code>K_SOURCE</code>), in
 	 * which case this method returns an empty collection.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -104,7 +104,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * Returns all of the compilation units in this package fragment.
 	 *
 	 * <p>Note: it is possible that a package fragment contains only
-	 * class files (i.e. its kind is <code>K_BINARY</code>), in which
+	 * class files (in other words, its kind is <code>K_BINARY</code>), in which
 	 * case this method returns an empty collection.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an

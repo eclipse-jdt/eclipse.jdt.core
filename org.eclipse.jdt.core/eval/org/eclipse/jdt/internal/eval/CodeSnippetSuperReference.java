@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * A super reference inside a code snippet denotes a reference to the super type of 
- * the remote receiver object (i.e.&nbsp;the one of the context in the stack frame). This is 
+ * the remote receiver object (that is, the receiver of the context in the stack frame). This is 
  * used to report an error through JavaModelException according to the fact that super
  * reference are not supported in code snippet.
  */

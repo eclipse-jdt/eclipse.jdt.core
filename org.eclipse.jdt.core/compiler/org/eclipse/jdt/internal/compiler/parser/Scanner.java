@@ -411,7 +411,7 @@ public final int[] getLineEnds() {
  * Line numbers are 1-based, and relative to the scanner initialPosition. 
  * Character positions are 0-based.
  *
- * e.g.	getLineStart(1) --> 0	i.e. first line starts at character 0.
+ * e.g.	getLineStart(1) --> 0	indicates that the first line starts at character 0.
  *
  * In case the given line number is inconsistent, answers -1.
  */
@@ -2800,8 +2800,8 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 }
 public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 
-	//when entering this method the currentCharacter is the firt
-	//digit of the number , i.e. it may be preceeded by a . when
+	//when entering this method the currentCharacter is the first
+	//digit of the number. It may be preceeded by a '.' when
 	//dotPrefix is true
 
 	boolean floating = dotPrefix;

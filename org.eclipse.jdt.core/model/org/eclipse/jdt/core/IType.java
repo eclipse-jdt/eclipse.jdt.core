@@ -282,7 +282,7 @@ public interface IType extends IMember, IParent {
 	/**
 	 * Returns the initializer with the specified position relative to
 	 * the order they are defined in the source.
-	 * Numbering starts at 1 (i.e. the first occurrence is occurrence 1, not occurrence 0).
+	 * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).
 	 * This is a handle-only method.  The initializer may or may not be present.
 	 * 
 	 * @param occurrenceCount the specified position

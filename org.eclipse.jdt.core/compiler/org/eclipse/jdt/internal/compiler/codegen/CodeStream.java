@@ -1869,7 +1869,7 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 			} else {
 				Object[] emulationPath = currentScope.getEmulationPath(
 					syntheticArgType, 
-					false /*not only exact match (i.e. allow compatible)*/,
+					false /*not only exact match (that is, allow compatible)*/,
 					targetType.isAnonymousType());
 				this.generateOuterAccess(emulationPath, invocationSite, syntheticArgType, currentScope);
 			}

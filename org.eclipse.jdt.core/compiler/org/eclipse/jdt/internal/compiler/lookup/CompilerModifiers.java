@@ -23,7 +23,7 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	final int AccIsConstantValue = 0x80000;	 // bit20
 	final int AccDefaultAbstract = 0x80000; // bit20
 	// bit21 - IConstants.AccDeprecated
-	final int AccDeprecatedImplicitly = 0x200000; // bit22 ie. is deprecated itself or contained by a deprecated type
+	final int AccDeprecatedImplicitly = 0x200000; // bit22 to record whether deprecated itself or contained by a deprecated type
 	final int AccAlternateModifierProblem = 0x400000; // bit23
 	final int AccModifierProblem = 0x800000; // bit24
 	final int AccSemicolonBody = 0x1000000; // bit25
@@ -34,5 +34,5 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	final int AccVisibilityMASK = AccPublic | AccProtected | AccPrivate;
 	
 	final int AccOverriding = 0x10000000; // bit29 to record fact a method overrides another one
-	final int AccImplementing = 0x20000000; // bit30 to record fact a method implements another one (i.e. is concrete and overrides an abstract one)
+	final int AccImplementing = 0x20000000; // bit30 to record fact a method implements another one (it is concrete and overrides an abstract one)
 }

@@ -445,7 +445,7 @@ public class MethodScope extends BlockScope {
 
 	/* Answer the reference type of this scope.
 	*
-	* i.e. the nearest enclosing type of this scope.
+	* It is the nearest enclosing type of this scope.
 	*/
 	public TypeDeclaration referenceType() {
 

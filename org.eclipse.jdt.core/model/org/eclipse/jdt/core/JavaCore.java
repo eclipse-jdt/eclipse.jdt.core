@@ -1122,7 +1122,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "generate"
 	 *    
 	 * COMPILER / Preserving Unused Local Variables
-	 *    Unless requested to preserve unused local variables (i.e. never read), the 
+	 *    Unless requested to preserve unused local variables (that is, never read), the 
 	 *    compiler will optimize them out, potentially altering debugging
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.unusedLocal"
 	 *     - possible values:   { "preserve", "optimize out" }
