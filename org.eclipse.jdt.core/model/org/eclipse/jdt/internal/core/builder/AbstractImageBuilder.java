@@ -269,6 +269,18 @@ protected Compiler newCompiler() {
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 }
 
+protected boolean isExcludedFromProject(IPath childPath) throws JavaModelException {
+	// answer whether the folder should be ignored when walking the project as a source folder
+	if (childPath.segmentCount() > 2) return false; // is a subfolder of a package
+
+	for (int j = 0, k = sourceLocations.length; j < k; j++) {
+		if (childPath.equals(sourceLocations[j].binaryFolder.getFullPath())) return true;
+		if (childPath.equals(sourceLocations[j].sourceFolder.getFullPath())) return true;
+	}
+	// skip default output folder which may not be used by any source folder
+	return childPath.equals(javaBuilder.javaProject.getOutputLocation());
+}
+
 /**
  * Creates a marker from each problem and adds it to the resource.
  * The marker is as follows:

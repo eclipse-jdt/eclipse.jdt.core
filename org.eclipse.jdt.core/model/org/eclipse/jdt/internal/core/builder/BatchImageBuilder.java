@@ -64,6 +64,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 	for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 		sourceLocation.sourceFolder.accept(
 			new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
@@ -72,13 +73,16 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 						resource = proxy.requestResource();
 						if (Util.isExcluded(resource, exclusionPatterns)) return false;
 					}
-					if (proxy.getType() == IResource.FILE) {
-						if (Util.isJavaFileName(proxy.getName())) {
-							if (resource == null)
-								resource = proxy.requestResource();
-							sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
-						}
-						return false;
+					switch(proxy.getType()) {
+						case IResource.FILE :
+							if (Util.isJavaFileName(proxy.getName())) {
+								if (resource == null)
+									resource = proxy.requestResource();
+								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
+							}
+							return false;
+						case IResource.FOLDER :
+							if (isAlsoProject && isExcludedFromProject(proxy.requestFullPath())) return false;
 					}
 					return true;
 				}
@@ -162,6 +166,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
+	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 	sourceLocation.sourceFolder.accept(
 		new IResourceProxyVisitor() {
 			public boolean visit(IResourceProxy proxy) throws CoreException {
@@ -189,12 +194,13 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						return false;
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
-						if (resource.equals(outputFolder)) return false;
 						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 							return false;
 
-						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+						IPath folderPath = resource.getFullPath();
+						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
+						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;
 			}
@@ -207,6 +213,7 @@ protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreE
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
+	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 	sourceLocation.sourceFolder.accept(
 		new IResourceProxyVisitor() {
 			public boolean visit(IResourceProxy proxy) throws CoreException {
@@ -215,12 +222,13 @@ protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreE
 						return false;
 					case IResource.FOLDER :
 						IResource resource = proxy.requestResource();
-						if (resource.equals(outputFolder)) return false;
 						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 							return false;
 
-						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+						IPath folderPath = resource.getFullPath();
+						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
+						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;
 			}

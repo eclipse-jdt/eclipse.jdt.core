@@ -239,7 +239,6 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 	// one on the folder & one on the class file
 	IResource resource = binaryDelta.getResource();
 	switch(resource.getType()) {
-		case IResource.PROJECT :
 		case IResource.FOLDER :
 			switch (binaryDelta.getKind()) {
 				case IResourceDelta.ADDED :
@@ -299,19 +298,29 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		ClasspathMultiDirectory md = sourceLocations[i];
-		IResourceDelta sourceDelta = delta.findMember(md.sourceFolder.getProjectRelativePath());
-		if (sourceDelta != null) {
-			if (sourceDelta.getKind() == IResourceDelta.REMOVED) {
-				if (JavaBuilder.DEBUG)
-					System.out.println("ABORTING incremental build... found removed source folder"); //$NON-NLS-1$
-				return false; // removed source folder should not make it here, but handle anyways (ADDED is supported)
-			}
-			int segmentCount = sourceDelta.getFullPath().segmentCount();
-			IResourceDelta[] children = sourceDelta.getAffectedChildren();
+		if (md.sourceFolder.equals(javaBuilder.currentProject)) {
+			// skip nested source & output folders when the project is a source folder
+			int segmentCount = delta.getFullPath().segmentCount();
+			IResourceDelta[] children = delta.getAffectedChildren();
 			for (int j = 0, m = children.length; j < m; j++)
-				findSourceFiles(children[j], md, segmentCount);
-			notifier.checkCancel();
+				if (!isExcludedFromProject(children[i].getFullPath()))
+					findSourceFiles(children[j], md, segmentCount);
+		} else {
+			IResourceDelta sourceDelta = delta.findMember(md.sourceFolder.getProjectRelativePath());
+
+			if (sourceDelta != null) {
+				if (sourceDelta.getKind() == IResourceDelta.REMOVED) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("ABORTING incremental build... found removed source folder"); //$NON-NLS-1$
+					return false; // removed source folder should not make it here, but handle anyways (ADDED is supported)
+				}
+				int segmentCount = sourceDelta.getFullPath().segmentCount();
+				IResourceDelta[] children = sourceDelta.getAffectedChildren();
+				for (int j = 0, m = children.length; j < m; j++)
+					findSourceFiles(children[j], md, segmentCount);
+			}
 		}
+		notifier.checkCancel();
 	}
 	return true;
 }
@@ -321,9 +330,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 	// one on the folder & one on the source file
 	IResource resource = sourceDelta.getResource();
 	if (md.exclusionPatterns != null && Util.isExcluded(resource, md.exclusionPatterns)) return;
-	if (md.binaryFolder.equals(resource)) return; // skip nested output folder when the project is a source folder
 	switch(resource.getType()) {
-		case IResource.PROJECT :
 		case IResource.FOLDER :
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
