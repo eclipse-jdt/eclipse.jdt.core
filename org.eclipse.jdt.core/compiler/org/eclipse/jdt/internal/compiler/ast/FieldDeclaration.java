@@ -169,7 +169,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 						checkLocal = false; // already found a matching field
 					}
 				}
-				if (checkLocal) {
+				if (checkLocal && declaringType.enclosingType() != null) {
 					Scope outerScope = classScope.parent;
 					// only corner case is: lookup of outer field through static declaringType, which isn't detected by #getBinding as lookup starts
 					// from outer scope. Subsequent static contexts are detected for free.

@@ -323,8 +323,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"Method cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-
-	public void test010() { // 76174
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76174
+	public void test010() { 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -345,8 +345,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"The method arraycopy(Object, int, Object, int, int) in the type System is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
-
-	public void test011() { // 76360
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76360
+	public void test011() { 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -420,8 +420,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 //			""
 //		);
 	}
-
-	public void test013() { // 77955
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77955
+	public void test013() { 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -503,8 +503,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"----------\n"
 		);
 	}
-
-	public void test014() { // 78056
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78056
+	public void test014() { 
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -519,8 +519,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 			""
 		);
 	}
-
-	public void test015() { // 78075
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78075
+	public void test015() { 
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -550,8 +550,8 @@ public class StaticImportTest extends AbstractComparisonTest {
 			""
 		);
 	}
-
-	public void test016() { // 77630
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77630
+	public void test016() { 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -566,4 +566,29 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"----------\n"
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724
+	public void test017() {
+		this.runConformTest(
+			new String[] {
+				"bug/A.java",
+				"package bug;\n" +
+				"import static bug.C.*;\n" +
+				"public class A {\n" +
+				"   private B b;\n" +
+				"}\n",
+				"bug/B.java",
+				"package bug;\n" +
+				"import static bug.C.*;\n" +
+				"public class B {\n" +
+				"}\n",
+				"bug/C.java",
+				"package bug;\n" +
+				"public class C {\n" +
+				"   private B b;\n" +
+				"}\n",
+			},
+			""
+		);
+	}	
 }
