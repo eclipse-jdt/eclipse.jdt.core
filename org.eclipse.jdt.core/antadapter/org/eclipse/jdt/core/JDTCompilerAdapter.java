@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.Util;
  * For more information on Ant check out the website at http://jakarta.apache.org/ant/ .
  * </p>
  * 
- * @since 2.0.1
+ * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
