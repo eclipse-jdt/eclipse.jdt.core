@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -114,7 +113,7 @@ public static Test suite() {
  * Add an entry to the classpath for a non-existent root. Then create
  * the root and ensure that it comes alive.
  */
-public void testClasspathAddRoot() throws JavaModelException, CoreException, IOException {
+public void testClasspathAddRoot() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
@@ -302,7 +301,7 @@ public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 /**
  * Tests the cross project classpath setting
  */
-public void testClasspathCrossProject() throws JavaModelException, CoreException {
+public void testClasspathCrossProject() throws CoreException {
 	IJavaProject project = this.createJavaProject("P1", new String[] {""}, "");
 	this.createJavaProject("P2", new String[] {}, "");
 	try {
@@ -329,7 +328,7 @@ public void testClasspathCrossProject() throws JavaModelException, CoreException
 /**
  * Delete a root and ensure the classpath is not updated (i.e. entry isn't removed).
  */
-public void testClasspathDeleteNestedRoot() throws JavaModelException, CoreException, IOException {
+public void testClasspathDeleteNestedRoot() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
@@ -373,7 +372,7 @@ public void testClasspathDiamond() throws CoreException {
  * Delete a nested root's parent folder and ensure the classpath is
  * not updated (i.e. entry isn't removed).
  */
-public void testClasspathDeleteNestedRootParent() throws JavaModelException, CoreException, IOException {
+public void testClasspathDeleteNestedRootParent() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
@@ -427,7 +426,7 @@ public void testClasspathExternalize() throws CoreException {
 /**
  * Move a root and ensure the classpath is not updated (i.e. entry not renamed).
  */
-public void testClasspathMoveNestedRoot() throws JavaModelException, CoreException, IOException {
+public void testClasspathMoveNestedRoot() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
@@ -468,7 +467,7 @@ public void testClasspathMoveNestedRoot() throws JavaModelException, CoreExcepti
 /**
  * Move a parent of a nested root and ensure the classpath is not updated (i.e. entry not renamed).
  */
-public void testClasspathMoveNestedRootParent() throws JavaModelException, CoreException, IOException {
+public void testClasspathMoveNestedRootParent() throws CoreException {
 	try {
 		IJavaProject project =this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
 		IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
@@ -496,7 +495,7 @@ public void testClasspathMoveNestedRootParent() throws JavaModelException, CoreE
 /**
  * Tests that nothing occurs when setting to the same classpath
  */
-public void testClasspathNoChanges() throws JavaModelException, CoreException {
+public void testClasspathNoChanges() throws CoreException {
 	try {
 		IJavaProject classFileProject= this.createJavaProject("P", new String[] {""}, "");
 		IClasspathEntry[] oldClasspath= classFileProject.getRawClasspath();
@@ -820,7 +819,7 @@ public void testClasspathWithNonExistentSourceEntry() throws CoreException {
 /**
  * Ensure that cycle are properly reported.
  */
-public void testCycleReport() throws JavaModelException, CoreException, IOException {
+public void testCycleReport() throws CoreException {
 
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
@@ -885,6 +884,7 @@ public void testDefaultClasspathAndOutputLocation() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+
 /**
  * Setting the classpath to empty should result in no entries,
  * and a delta with removed roots.
@@ -952,7 +952,7 @@ public void testExportContainer() throws CoreException {
 /**
  * Test IJavaProject.hasClasspathCycle(IClasspathEntry[]).
  */
-public void testHasClasspathCycle() throws JavaModelException, CoreException, IOException {
+public void testHasClasspathCycle() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {""}, "");

@@ -97,6 +97,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testCloseJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testAddTwoJavaProjects"));
 	suite.addTest(new JavaElementDeltaTests("testAddTwoJavaProjectsWithExtraSetClasspath"));
+	suite.addTest(new JavaElementDeltaTests("testDeleteProjectSetCPAnotherProject"));
 
 	suite.addTest(new JavaElementDeltaTests("testRenameJavaProject"));
 
@@ -416,6 +417,43 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that deleting a project and setting the classpath on another project
+ * in an IWorkspaceRunnable doesn't throw a NullPointerException
+ * (regression test for bug 25197 NPE importing external plugins)
+ */
+public void testDeleteProjectSetCPAnotherProject() throws CoreException {
+	final IJavaProject project = this.createJavaProject("P1", new String[] {"src"}, "bin");
+	this.createJavaProject("P2", new String[] {}, "");
+
+	try {
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteProject("P2");
+					project.setRawClasspath(
+						new IClasspathEntry[] {
+							JavaCore.newSourceEntry(project.getPath())
+						},
+						null);
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected deltas",
+			"P1[*]: {CHILDREN}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]\n" + 
+			"P2[-]: {}"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 
