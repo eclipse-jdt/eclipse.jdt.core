@@ -395,7 +395,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			return;
 		}
 		if (!isDefaultConstructor && (this.binding.modifiers & AccPublic) != 0) {
-			this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd);
+			this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 		}
 	}	
 

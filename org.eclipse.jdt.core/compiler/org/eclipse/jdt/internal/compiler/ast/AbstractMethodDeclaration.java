@@ -367,7 +367,7 @@ public abstract class AbstractMethodDeclaration
 				return;
 		}
 		if (this.binding.isPublic()) {
-			this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd);
+			this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 		}
 	}
 

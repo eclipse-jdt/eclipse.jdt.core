@@ -854,7 +854,7 @@ public class TypeDeclaration
 				this.annotation.resolve(this.scope);
 			} else {
 				if ((this.modifiers & AccPublic) != 0) {
-					this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd);
+					this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 				}
 			}
 			

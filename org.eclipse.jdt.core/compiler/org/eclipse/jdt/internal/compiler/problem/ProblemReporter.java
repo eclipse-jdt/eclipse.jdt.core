@@ -166,7 +166,7 @@ public void annotationInvalidThrowsClassName(TypeReference typeReference, boolea
 		typeReference.sourceStart,
 		typeReference.sourceEnd);
 }
-public void annotationMissingForPublic(int sourceStart, int sourceEnd){
+public void annotationMissing(int sourceStart, int sourceEnd){
 	this.handle(IProblem.AnnotationMissing, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationMissingParamName(int sourceStart, int sourceEnd){
