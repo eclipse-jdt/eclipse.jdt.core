@@ -4807,7 +4807,8 @@ public int flushAnnotationsDefinedPriorTo(int position) {
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=10557
 	char[] source = scanner.source;
 	
-	if ((source[position] == '\r')
+	if ((position < source.length)
+		&& (source[position] == '\r')
 	    && ((position + 1) < source.length)
 	    && (source[position + 1] == '\n')) {
 		position++;
