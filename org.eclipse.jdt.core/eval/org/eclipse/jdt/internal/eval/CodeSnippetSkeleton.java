@@ -96,6 +96,9 @@ public char[] getEnclosingTypeName() {
 public IBinaryField[] getFields() {
 	return null;
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+ */
 public char[] getFileName() {
 	return CharOperation.concat(CODE_SNIPPET_NAME, SuffixConstants.SUFFIX_java); //$NON-NLS-1$
 }

@@ -312,8 +312,7 @@ public IBinaryField[] getFields() {
 	return this.fields;
 }
 /**
- * Answer the file name which defines the type.
- * The format is unspecified.
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
 public char[] getFileName() {
 	return this.classFileName;

@@ -636,6 +636,9 @@ public String getElementName() {
 public int getElementType() {
 	return COMPILATION_UNIT;
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+ */
 public char[] getFileName(){
 	return getElementName().toCharArray();
 }

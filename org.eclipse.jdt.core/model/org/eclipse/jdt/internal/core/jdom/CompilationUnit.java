@@ -39,6 +39,9 @@ public CompilationUnit(char[] contents, char[] filename) {
 public char[] getContents() {
 	return fContents;
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+ */
 public char[] getFileName() {
 	return fFileName;
 }

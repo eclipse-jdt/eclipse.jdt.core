@@ -113,7 +113,7 @@ public ISourceField[] getFields() {
 	return fields;
 }
 /**
- * @see ISourceType
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
 public char[] getFileName() {
 	return this.sourceFileName;

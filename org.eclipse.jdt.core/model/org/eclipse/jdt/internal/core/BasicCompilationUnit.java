@@ -108,6 +108,9 @@ public char[] getContents() {
 	}
 	return CharOperation.NO_CHAR;
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+ */
 public char[] getFileName() {
 	return this.fileName;
 }

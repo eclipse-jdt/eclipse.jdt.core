@@ -78,8 +78,8 @@ public class HierarchyResolver implements ITypeRequestor {
 			this.simpleName = simpleName;
 		}
 	
-		/*
-		 * @see IDependent#getFileName()
+		/**
+		 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
 		 */
 		public char[] getFileName() {
 			return null;
