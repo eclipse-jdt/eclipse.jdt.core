@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -58,11 +57,6 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 */
 	protected char[] packageName;
 
-	/**
-	 * The infos of the imports in this type's compilation unit
-	 */
-	private ISourceImport[] imports;
-	
 	/**
 	 * Backpointer to my type handle - useful for translation
 	 * from info to handle.
@@ -133,29 +127,6 @@ public char[] getFileName() {
  */
 public IType getHandle() {
 	return this.handle;
-}
-/**
- * @see ISourceType
- */
-public ISourceImport[] getImports() {
-	if (this.imports == null) {
-		try {
-			IImportDeclaration[] importDeclarations = this.handle.getCompilationUnit().getImports();
-			int length = importDeclarations.length;
-			if (length == 0) {
-				this.imports = NO_IMPORTS;
-			} else {
-				ISourceImport[] sourceImports = new ISourceImport[length];
-				for (int i = 0; i < length; i++) {
-					sourceImports[i] = (ImportDeclarationElementInfo)((ImportDeclaration)importDeclarations[i]).getElementInfo();
-				}
-				this.imports = sourceImports; // only commit at the end, once completed (bug 36854)
-			}
-		} catch (JavaModelException e) {
-			this.imports = NO_IMPORTS;
-		}
-	}
-	return this.imports;
 }
 /*
  * Returns the InitializerElementInfos for this type.

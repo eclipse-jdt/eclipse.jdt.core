@@ -29,17 +29,4 @@ int getDeclarationSourceStart();
  * Since Java 1.5, static imports can be defined.
  */ 
 int getModifiers();
-
-/**
- * Answer the name of the import.
- * A name is a simple name or a qualified, dot separated name.
- * For example, Hashtable or java.util.Hashtable.
- */
-char[] getName();	
-
-/**
- * Answer whether the import is on demand or not
- * On demand import names have no trailing star
- */
-boolean onDemand();
 }

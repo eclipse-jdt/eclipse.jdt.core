@@ -132,23 +132,14 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 		this.newElements.put(importContainer, this.importContainerInfo);
 	}
 	
-	// tack on the '.*' if it is onDemand
-	String importName;
-	if (onDemand) {
-		importName= new String(name) + ".*"; //$NON-NLS-1$
-	} else {
-		importName= new String(name);
-	}
-	
-	ImportDeclaration handle = new ImportDeclaration(importContainer, importName);
+	String elementName = new String(name);
+	ImportDeclaration handle = new ImportDeclaration(importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 	
 	ImportDeclarationElementInfo info = new ImportDeclarationElementInfo();
 	info.setSourceRangeStart(declarationStart);
 	info.setSourceRangeEnd(declarationEnd);
 	info.setFlags(modifiers);
-	info.name  = name; // no trailing * if onDemand
-	info.setOnDemand(onDemand);
 
 	this.importContainerInfo.addChild(handle);
 	this.newElements.put(handle, info);

@@ -654,7 +654,7 @@ protected char getHandleMementoDelimiter() {
  * @see ICompilationUnit#getImport(String)
  */
 public IImportDeclaration getImport(String importName) {
-	return new ImportDeclaration((ImportContainer)getImportContainer(), importName);
+	return getImportContainer().getImport(importName);
 }
 /**
  * @see ICompilationUnit#getImportContainer()

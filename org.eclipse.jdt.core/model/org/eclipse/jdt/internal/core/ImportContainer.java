@@ -64,7 +64,11 @@ protected char getHandleMementoDelimiter() {
  * @see IImportContainer
  */
 public IImportDeclaration getImport(String importName) {
-	return new ImportDeclaration(this, importName);
+	int index = importName.indexOf(".*"); ///$NON-NLS-1$
+	boolean isOnDemand = index != -1;
+	if (isOnDemand)
+		importName = importName.substring(0, index);
+	return new ImportDeclaration(this, importName, isOnDemand);
 }
 /*
  * @see JavaElement#getPrimaryElement(boolean)

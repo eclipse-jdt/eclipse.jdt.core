@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -141,16 +142,17 @@ public class SourceTypeConverter implements CompilerModifiers {
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
 				createImportReference(topLevelTypeInfo.getPackageName(), start, end, false, AccDefault);
-		ISourceImport[]  sourceImports = topLevelTypeInfo.getImports();
-		int importCount = sourceImports.length;
+		IImportDeclaration[] importDeclarations = topLevelTypeInfo.getHandle().getCompilationUnit().getImports();
+		int importCount = importDeclarations.length;
 		this.unit.imports = new ImportReference[importCount];
 		for (int i = 0; i < importCount; i++) {
-			ISourceImport sourceImport = sourceImports[i];
+			ImportDeclaration importDeclaration = (ImportDeclaration) importDeclarations[i];
+			ISourceImport sourceImport = (ISourceImport) importDeclaration.getElementInfo();
 			this.unit.imports[i] = createImportReference(
-				sourceImport.getName(), 
+				importDeclaration.getNameWithoutStar().toCharArray(), 
 				sourceImport.getDeclarationSourceStart(),
 				sourceImport.getDeclarationSourceEnd(),
-				sourceImport.onDemand(),
+				importDeclaration.isOnDemand(),
 				sourceImport.getModifiers());
 		}
 		/* convert type(s) */

@@ -36,16 +36,6 @@ ISourceType getEnclosingType();
 ISourceField[] getFields();
 
 /**
- * Answer the receiver's imports.
- *
- * An import is a qualified, dot separated name.
- * For example, java.util.Hashtable or java.lang.*.
- * A static import used 'static.' as its first fragment, for
- * example: static.java.util.Hashtable.*
- */
-ISourceImport[] getImports();
-
-/**
  * Answer the unresolved names of the receiver's interfaces
  * or null if the array is empty.
  *
