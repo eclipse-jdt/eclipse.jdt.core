@@ -48,9 +48,9 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
  * see SearchPattern.findMatches
  */
 public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-	IIndexSearchRequestor orCombiner = (IIndexSearchRequestor) new OrPathCombiner(requestor);
+	// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
 	for (int i = 0, length = this.patterns.length; i < length; i++)
-		this.patterns[i].findIndexMatches(input, orCombiner, progressMonitor, scope);
+		this.patterns[i].findIndexMatches(input, requestor, progressMonitor, scope);
 }
 /**
  * see SearchPattern.isPolymorphicSearch
