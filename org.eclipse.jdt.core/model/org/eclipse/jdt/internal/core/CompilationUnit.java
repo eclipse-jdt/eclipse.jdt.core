@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 /**
  * @see ICompilationUnit
  */
@@ -399,10 +400,8 @@ public char[] getContents() {
 	try {
 		IBuffer buffer = this.getBuffer();
 		return buffer == null ? null : buffer.getCharacters();
-	} catch (NullPointerException e) { // buffer could be null
-		return new char[0];
 	} catch (JavaModelException e) {
-		return new char[0];
+		return CharOperation.NO_CHAR;
 	}
 }
 /**
