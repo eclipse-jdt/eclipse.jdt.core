@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 
 /**
  * These test ensure that modifications in Java projects are correctly reported as
- * IJavaEllementDeltas.
+ * IJavaElementDeltas.
  */
 public class JavaElementDeltaTests extends ModifyingResourceTests {
 	
