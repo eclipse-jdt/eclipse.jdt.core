@@ -124,7 +124,17 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.isExported = isExported;
 	}
-	
+	/*
+	 * Returns a char based representation of the exclusions patterns.	 */
+	public char[][] charBasedExclusionPatterns() {
+		int length = exclusionPatterns == null ? 0 : exclusionPatterns.length;
+		if (length == 0) return null;
+		char[][] result = new char[length][];
+		for (int i = 0; i < length; i++) {
+			result[i] = exclusionPatterns[i].toCharArray();
+		}
+		return result;
+	}
 	/**
 	 * Returns true if the given object is a classpath entry
 	 * with equivalent attributes.
@@ -290,6 +300,17 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append("[isExported:"); //$NON-NLS-1$
 		buffer.append(this.isExported);
 		buffer.append(']');
+		String[] patterns = getExclusionPatterns();
+		if (patterns != null) {
+			buffer.append("[excluding:"); //$NON-NLS-1$
+			for (int i = 0, length = patterns.length; i < length; i++) {
+				buffer.append(patterns[i]);
+				if (i != length-1) {
+					buffer.append('|');
+				}
+			}
+			buffer.append(']');
+		}
 		return buffer.toString();
 	}
 	
