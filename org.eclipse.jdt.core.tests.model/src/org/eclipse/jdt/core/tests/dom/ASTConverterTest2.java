@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0467"));			
+		suite.addTest(new ASTConverterTest2("test0469"));			
 		return suite;
 	}
 	/**
@@ -1778,6 +1778,21 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			JavaCore.setOptions(options);
 		}
 	}	
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36895
+	 */
+	public void test0469() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0469", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 2, 0);
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("No node", node);
+		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		ASTNode parent = node.getParent();
+		assertNotNull(parent);
+		assertTrue("not a block", parent.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+	}	
 }
 
