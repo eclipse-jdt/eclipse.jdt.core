@@ -87,7 +87,7 @@ private void checkPackageDeclaration(ICompilationUnit cu)
  */
 protected void executeOperation() throws JavaModelException {
 	beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
-	ICompilationUnit copy = getCompilationUnit();
+	WorkingCopy copy = (WorkingCopy)getCompilationUnit();
 	ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
 
 	
@@ -110,7 +110,8 @@ protected void executeOperation() throws JavaModelException {
 		throw e;
 	}
 	// make sure working copy is in sync
-	copy.restore();
+	copy.updateTimeStamp((CompilationUnit)original);
+	copy.makeConsistent(this);
 	worked(1);
 
 	// build the deltas

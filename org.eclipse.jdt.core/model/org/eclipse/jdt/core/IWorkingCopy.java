@@ -104,6 +104,8 @@ IJavaElement getWorkingCopy() throws JavaModelException;
  * the buffer, or this element if this element is a working copy.
  * Note that this factory will be used for the life time of this working copy, i.e. if the 
  * working copy is closed then reopened, this factory will be used.
+ * The buffer will be automatically initialized with the original's compilation unit content
+ * upon creation.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
  *                 or <code>null</code> if no progress should be reported 

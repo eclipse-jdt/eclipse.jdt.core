@@ -32,7 +32,7 @@ public class WorkingCopy extends CompilationUnit {
 	 * never true if this compilation unit is not a working
 	 * copy.
 	 */
-	protected boolean fDestroyed= false;
+	protected boolean isDestroyed= false;
 /**
  */
 protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory) {
@@ -66,7 +66,7 @@ public void destroy() {
 	} catch (JavaModelException e) {
 		// do nothing
 	}
-	fDestroyed= true;
+	isDestroyed= true;
 }
 /**
  * Working copies must be identical to be equal.
@@ -200,7 +200,7 @@ public boolean isBasedOn(IResource resource) {
 	if (resource.getType() != IResource.FILE) {
 		return false;
 	}
-	if (fDestroyed) {
+	if (isDestroyed) {
 		return false;
 	}
 	try {
@@ -225,7 +225,7 @@ public boolean isWorkingCopy() {
  * 	or if this is a working copy being opened after it has been destroyed.
  */
 public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-	if (fDestroyed) {
+	if (isDestroyed) {
 		throw newNotPresentException();
 	} else {
 		super.open(pm, buffer);
@@ -243,6 +243,8 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (buffer == null && this.bufferFactory != null) {
 		buffer = this.bufferFactory.createBuffer(this);
+		CompilationUnit original = (CompilationUnit) getOriginalElement();
+		buffer.setContents(original.getContents());
 	}
 	super.openWhenClosed(pm, buffer);
 }
@@ -310,17 +312,11 @@ public IMarker[] reconcile() throws JavaModelException {
  * @see IWorkingCopy
  */
 public void restore() throws JavaModelException {
-	if (!fDestroyed) {
+	if (!isDestroyed) {
 		CompilationUnit original = (CompilationUnit) getOriginalElement();
 		getBuffer().setContents(original.getContents());
 
-		long timeStamp =
-			((IFile) original.getUnderlyingResource()).getModificationStamp();
-		if (timeStamp == IResource.NULL_STAMP) {
-			throw new JavaModelException(
-				new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
-		}
-		((CompilationUnitElementInfo) getElementInfo()).fTimestamp = timeStamp;
+		updateTimeStamp(original);
 		makeConsistent(null);
 	}
 }
@@ -350,6 +346,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 							// one iteration of deltas).
 	}
 }
+
 /**
  * @private Debugging purposes
  */
@@ -357,5 +354,14 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	buffer.append("[Working copy] "); //$NON-NLS-1$
 	super.toStringInfo(0, buffer, info);
+}
+protected void updateTimeStamp(CompilationUnit original) throws JavaModelException {
+	long timeStamp =
+		((IFile) original.getUnderlyingResource()).getModificationStamp();
+	if (timeStamp == IResource.NULL_STAMP) {
+		throw new JavaModelException(
+			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
+	}
+	((CompilationUnitElementInfo) getElementInfo()).fTimestamp = timeStamp;
 }
 }

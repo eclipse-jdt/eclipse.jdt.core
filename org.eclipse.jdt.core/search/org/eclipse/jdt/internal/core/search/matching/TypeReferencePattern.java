@@ -100,7 +100,7 @@ protected boolean hasNextQuery() {
 		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
 		if (this.segments.length > 2) {
 			// if package has more than 2 segments, don't look at the first 2 since they are mostly
-			// redundant (eg. in 'org.eclipse.jdt.core.*', 'com.ibm' is used all the time)
+			// redundant (eg. in 'org.eclipse.jdt.core.*', 'org.eclipse is used all the time)
 			return --this.currentSegment >= 2;
 		} else {
 			return --this.currentSegment >= 0;
@@ -228,7 +228,20 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 		}
 	} 
 	if (tokens == null) {
-		tokens = qNameRef.tokens;
+		if (binding == null || binding instanceof ProblemBinding) {
+			tokens = new char[][] {this.simpleName};
+		} else {
+			tokens = qNameRef.tokens;
+		}
+		if (!this.isCaseSensitive) {
+			int length = tokens.length;
+			char[][] lowerCaseTokens = new char[length][];
+			for (int i = 0; i < length; i++) {
+				char[] token = tokens[i];
+				lowerCaseTokens[i] = CharOperation.toLowerCase(token);
+			}
+			tokens = lowerCaseTokens;
+		}
 	}
 	locator.reportAccurateReference(qNameRef.sourceStart, qNameRef.sourceEnd, tokens, element, accuracy);
 }
@@ -260,7 +273,20 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 		}
 	}
 	if (tokens == null) {
-		tokens = qTypeRef.tokens;
+		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding) {
+			tokens = new char[][] {this.simpleName};
+		} else {
+			tokens = qTypeRef.tokens;
+		}
+		if (!this.isCaseSensitive) {
+			int length = tokens.length;
+			char[][] lowerCaseTokens = new char[length][];
+			for (int i = 0; i < length; i++) {
+				char[] token = tokens[i];
+				lowerCaseTokens[i] = CharOperation.toLowerCase(token);
+			}
+			tokens = lowerCaseTokens;
+		}
 	}
 	locator.reportAccurateReference(qTypeRef.sourceStart, qTypeRef.sourceEnd, tokens, element, accuracy);
 }
@@ -382,7 +408,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 		}
 	} else {
 		Binding binding = nameRef.binding;
-		if (binding == null) {
+		if (binding == null || binding instanceof ProblemBinding) {
 			return INACCURATE_MATCH;
 		} else {
 			if (nameRef instanceof SingleNameReference) {
@@ -470,6 +496,7 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 			return INACCURATE_MATCH;
 		} else {
 			if (typeBinding instanceof ArrayBinding) typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+			if (typeBinding instanceof ProblemReferenceBinding) return INACCURATE_MATCH;
 			if (typeRef instanceof SingleTypeReference){
 				return this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			} else { // QualifiedTypeReference

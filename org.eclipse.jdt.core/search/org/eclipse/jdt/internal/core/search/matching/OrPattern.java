@@ -30,6 +30,8 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	this.leftPattern = leftPattern;
 	this.rightPattern = rightPattern;
 
+	this.matchMode = Math.min(leftPattern.matchMode, rightPattern.matchMode);
+	this.isCaseSensitive = leftPattern.isCaseSensitive || rightPattern.isCaseSensitive;
 	this.needsResolve = leftPattern.needsResolve || rightPattern.needsResolve;
 }
 /**

@@ -800,7 +800,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < tokenNumber
-					&& !(equals = CharOperation.equals(qualifiedName[i++], currentTokenSource))) {
+					&& !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource))) {
 				}
 				if (equals && (previousValid == -1 || previousValid == i - 2)) {
 					previousValid = i - 1;
@@ -867,7 +867,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < length
-					&& !(equals = CharOperation.equals(tokens[i++], currentTokenSource))) {
+					&& !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource))) {
 				}
 				if (equals && (previousValid == -1 || previousValid == i - 2)) {
 					previousValid = i - 1;
