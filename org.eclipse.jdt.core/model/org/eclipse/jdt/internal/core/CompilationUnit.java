@@ -33,9 +33,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
-    // TODO (jerome) remove
-	public static final boolean USE_LOCAL_ELEMENTS = true;
-	
 	public WorkingCopyOwner owner;
 
 /**
@@ -115,7 +112,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		requestor, 
 		problemFactory, 
 		new CompilerOptions(getJavaProject().getOptions(true)),
-		USE_LOCAL_ELEMENTS/*report local declarations*/);
+		true/*report local declarations*/);
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
@@ -130,7 +127,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			public char[] getFileName() {
 				return CompilationUnit.this.getFileName();
 			}
-		}, USE_LOCAL_ELEMENTS /*full parse if use local elements only*/);
+		}, true /*full parse to find local elements*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
