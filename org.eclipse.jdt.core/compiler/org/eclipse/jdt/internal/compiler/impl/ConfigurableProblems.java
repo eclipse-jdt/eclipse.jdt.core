@@ -9,7 +9,6 @@ import org.eclipse.jdt.internal.compiler.*;
 
 public interface ConfigurableProblems {
 	final int UnreachableCode = 0x100;
-	final int ParsingOptionalError = 0x200;
 	final int ImportProblem = 0x400;
 	final int MethodWithConstructorName = 0x1000;
 	final int OverriddenPackageDefaultMethod = 0x2000;
