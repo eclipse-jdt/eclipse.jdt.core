@@ -1007,13 +1007,11 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns a handle to the package fragment root identified by the given path.
+	 * @return A handle to the package fragment root identified by the given path.
 	 * This method is handle-only and the element may or may not exist. Returns
 	 * <code>null</code> if unable to generate a handle from the path (for example,
 	 * an absolute path that has less than 2 segments. The path may be relative or
 	 * absolute.
-	 *
-	 * @private
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IPath path) {
 		Object target = JavaModel.getTarget(getProject().getWorkspace().getRoot(), path, false);

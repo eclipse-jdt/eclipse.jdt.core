@@ -120,10 +120,10 @@ protected abstract boolean close(LRUCacheEntry entry);
 		return (fCurrentSpace + fOverflow) * 100.0 / fSpaceLimit;
 	}
 	/**
+	 * For internal testing only.
 	 * This method exposed only for testing purposes!
 	 *
 	 * @return Hashtable of entries
-	 * @private - for internal testing only
 	 */
 	public java.util.Hashtable getEntryTable() {
 		return fEntryTable;
@@ -142,44 +142,44 @@ public double getLoadFactor() {
 	public int getOverflow() {
 		return fOverflow;
 	}
-/**
- * Ensures there is the specified amount of free space in the receiver,
- * by removing old entries if necessary.  Returns true if the requested space was
- * made available, false otherwise.  May not be able to free enough space
- * since some elements cannot be removed until they are saved.
- *
- * @param space Amount of space to free up
- */
-protected boolean makeSpace(int space) {
-
-	int limit = fSpaceLimit;
-	if (fOverflow == 0) {
-		/* if space is already available */
+	/**
+	 * Ensures there is the specified amount of free space in the receiver,
+	 * by removing old entries if necessary.  Returns true if the requested space was
+	 * made available, false otherwise.  May not be able to free enough space
+	 * since some elements cannot be removed until they are saved.
+	 *
+	 * @param space Amount of space to free up
+	 */
+	protected boolean makeSpace(int space) {
+	
+		int limit = fSpaceLimit;
+		if (fOverflow == 0) {
+			/* if space is already available */
+			if (fCurrentSpace + space <= limit) {
+				return true;
+			}
+		}
+	
+		/* Free up space by removing oldest entries */
+		int spaceNeeded = (int)((1 - fLoadFactor) * fSpaceLimit);
+		spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
+		LRUCacheEntry entry = fEntryQueueTail;
+	
+		while (fCurrentSpace + spaceNeeded > limit && entry != null) {
+			this.privateRemoveEntry(entry, false, false);
+			entry = entry._fPrevious;
+		}
+	
+		/* check again, since we may have aquired enough space */
 		if (fCurrentSpace + space <= limit) {
+			fOverflow = 0;
 			return true;
 		}
+	
+		/* update fOverflow */
+		fOverflow = fCurrentSpace + space - limit;
+		return false;
 	}
-
-	/* Free up space by removing oldest entries */
-	int spaceNeeded = (int)((1 - fLoadFactor) * fSpaceLimit);
-	spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
-	LRUCacheEntry entry = fEntryQueueTail;
-
-	while (fCurrentSpace + spaceNeeded > limit && entry != null) {
-		this.privateRemoveEntry(entry, false, false);
-		entry = entry._fPrevious;
-	}
-
-	/* check again, since we may have aquired enough space */
-	if (fCurrentSpace + space <= limit) {
-		fOverflow = 0;
-		return true;
-	}
-
-	/* update fOverflow */
-	fOverflow = fCurrentSpace + space - limit;
-	return false;
-}
 	/**
 	 * Returns a new instance of the reciever.
 	 */
@@ -199,7 +199,7 @@ protected boolean makeSpace(int space) {
 		return entry._fValue;
 	}
 /**
- * @private	For testing purposes only
+ * For testing purposes only
  */
 public void printStats() {
 	int forwardListLength = 0;

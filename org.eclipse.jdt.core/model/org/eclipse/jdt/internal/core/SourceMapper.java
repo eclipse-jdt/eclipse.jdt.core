@@ -33,8 +33,7 @@ import java.util.zip.ZipEntry;
  * with children in a binary type. A SourceMapper is associated
  * with a JarPackageFragment by an AttachSourceOperation.
  *
- * @see AttachSourceOperation
- * @see JarPackageFragment
+ * @see org.eclipse.jdt.internal.core.JarPackageFragment
  */
 public class SourceMapper
 	extends ReferenceInfoAdapter

@@ -134,7 +134,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 	return computeChildren(info, underlyingResource);
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#getClassFile(String)
  */
 public IClassFile getClassFile(String name) {
 	return new ClassFile(this, name);
@@ -144,8 +144,8 @@ public IClassFile getClassFile(String name) {
  * that has its kind set to <code>IPackageFragmentRoot.K_Source</code> does not
  * recognize class files.
  *
- * @see IPackageFragment
- * @see JarPackageFragment
+ * @see IPackageFragment#getClassFiles()
+ * @see JarPackageFragment#getClassFiles()
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_SOURCE) {
@@ -158,13 +158,13 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 	return array;
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#getCompilationUnit(String)
  */
 public ICompilationUnit getCompilationUnit(String name) {
 	return new CompilationUnit(this, name);
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#getCompilationUnits()
  */
 public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_BINARY) {
@@ -177,13 +177,13 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 	return array;
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMementoDelimiter()
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEFRAGMENT;
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#getKind()
  */
 public int getKind() throws JavaModelException {
 	return ((IPackageFragmentRoot)getParent()).getKind();
@@ -199,8 +199,8 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getUnderlyingResource());
 	}
 }
-/*
- * @see IJavaElement
+/**
+ * @see IJavaElement#getPath()
  */
 public IPath getPath() {
 	PackageFragmentRoot root = this.getPackageFragmentRoot();
@@ -210,8 +210,8 @@ public IPath getPath() {
 		return root.getPath().append(this.getElementName().replace('.', '/'));
 	}
 }
-/*
- * @see IJavaElement
+/**
+ * @see IJavaElement#getResource()
  */
 public IResource getResource() {
 	PackageFragmentRoot root = this.getPackageFragmentRoot();
@@ -227,7 +227,7 @@ public IResource getResource() {
 	}
 }
 /**
- * @see IJavaElement
+ * @see IJavaElement#getUnderlyingResource()
  */
 public IResource getUnderlyingResource() throws JavaModelException {
 	IResource rootResource = fParent.getUnderlyingResource();
@@ -253,7 +253,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	}
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#hasSubpackages()
  */
 public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
@@ -269,13 +269,13 @@ public boolean hasSubpackages() throws JavaModelException {
 	return false;
 }
 /**
- * @see IPackageFragment
+ * @see IPackageFragment#isDefaultPackage()
  */
 public boolean isDefaultPackage() {
 	return this.getElementName().length() == 0;
 }
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
@@ -306,7 +306,7 @@ public void refreshChildren() {
 	}
 }
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
 public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (name == null) {
@@ -327,7 +327,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 			fName);
 }
 /**
- * @private Debugging purposes
+ * Debugging purposes
  */
 protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 	if (tab == 0) {
@@ -335,7 +335,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 	}
 }
 /**
- * @private Debugging purposes
+ * Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));

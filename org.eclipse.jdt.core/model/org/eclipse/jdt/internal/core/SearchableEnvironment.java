@@ -89,7 +89,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see SearchableBuilderEnvironment
+	 * @see ISearchableNameEnvironment#findPackages(char[], ISearchRequestor)
 	 */
 	public void findPackages(char[] prefix, ISearchRequestor requestor) {
 		this.nameLookup.seekPackageFragments(
@@ -99,7 +99,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment
+	 * @see INameEnvironment#findType(char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		if (compoundTypeName == null) return null;
@@ -120,7 +120,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment
+	 * @see INameEnvironment#findType(char[], char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
 		if (name == null) return null;
@@ -131,7 +131,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see ISearchableNameEnvironment
+	 * @see ISearchableNameEnvironment#findTypes(char[], ISearchRequestor)
 	 */
 	public void findTypes(char[] prefix, final ISearchRequestor storage) {
 
@@ -270,7 +270,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see SearchableBuilderEnvironment
+	 * @see INameEnvironment#isPackage(char[][], char[])
 	 */
 	public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
 		if (subPackageName == null || CharOperation.contains('.', subPackageName))
@@ -285,9 +285,6 @@ public class SearchableEnvironment
 		return this.nameLookup.findPackageFragments(packageName, false) != null;
 	}
 
-	/**
-	 * @see SearchableBuilderEnvironment
-	 */
 	public boolean isTopLevelPackage(char[] packageName) {
 		return packageName != null &&
 			!CharOperation.contains('.', packageName) &&
