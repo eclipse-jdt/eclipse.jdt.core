@@ -1955,7 +1955,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		
 		final Statement action = doStatement.action;
 		if (action != null) {
-			action.traverse(this, scope);
+			if (action instanceof Block) {
+				action.traverse(this, scope);
+			} else {
+				this.scribe.printNewLine();
+				this.scribe.indent();
+				action.traverse(this, scope);
+				this.scribe.unIndent();
+			}
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
@@ -2227,7 +2234,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 					 */
 					 formatGuardClauseBlock((Block) thenStatement, scope);
 				} else {
-					thenStatement.traverse(this, scope);
+					if (thenStatement instanceof Block) {
+						thenStatement.traverse(this, scope);
+					} else {
+						this.scribe.printNewLine();
+						this.scribe.indent();
+						thenStatement.traverse(this, scope);
+						this.scribe.unIndent();
+					}
 					if (elseStatement == null || this.preferences.insert_new_line_in_control_statements) {
 						this.scribe.printTrailingComment();
 					}
@@ -3199,7 +3213,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		
 		final Statement action = whileStatement.action;
 		if (action != null) {
-			action.traverse(this, scope);
+			if (action instanceof Block) {
+				action.traverse(this, scope);
+			} else {
+				this.scribe.printNewLine();
+				this.scribe.indent();
+				action.traverse(this, scope);
+				this.scribe.unIndent();
+			}
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();

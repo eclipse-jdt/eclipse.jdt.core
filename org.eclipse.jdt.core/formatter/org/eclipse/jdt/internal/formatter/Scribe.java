@@ -702,6 +702,7 @@ public class Scribe {
 		this.buffer.replace(location.outputOffset, this.buffer.length(), "");	//$NON-NLS-1$
 		this.indentationLevel = location.outputIndentationLevel;
 		this.lastNumberOfNewLines = location.lastNumberOfNewLines;
+		this.needSpace = location.needSpace;
 	}
 
 	public void setLineSeparatorAndIdentationLevel(FormattingPreferences preferences) {
