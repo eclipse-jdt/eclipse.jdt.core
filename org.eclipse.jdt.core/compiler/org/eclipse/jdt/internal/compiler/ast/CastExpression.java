@@ -225,9 +225,31 @@ public class CastExpression extends Expression {
 	
 		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
-		TypeBinding[] parameterTypes = binding.parameters;
 		int length = argumentTypes.length;
 		
+		// iterate over arguments, and retrieve original argument types (before cast)
+		TypeBinding[] rawArgumentTypes = argumentTypes;
+		for (int i = 0; i < length; i++) {
+			Expression argument = arguments[i];
+			if (argument instanceof CastExpression) {
+				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+				// obvious identity cast
+				if (castedExpressionType == argumentTypes[i]) { 
+					scope.problemReporter().unnecessaryCast((CastExpression)argument);
+				} else {
+					if (rawArgumentTypes == argumentTypes) {
+						System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
+					}
+					// retain original argument type
+					rawArgumentTypes[i] = castedExpressionType; 
+				}
+			}				
+		}
+		// perform alternate lookup with original types
+		if (rawArgumentTypes != argumentTypes) {
+			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
+		}
+/* alternate implementation performing 2 passes of alternate lookup, once for widening casts, once for narrowing casts
 		// first iteration, questionning widening cast
 		TypeBinding[] rawArgumentTypes = argumentTypes;
 		for (int i = 0; i < length; i++) {
@@ -235,7 +257,7 @@ public class CastExpression extends Expression {
 			if ((argument.bits & UnnecessaryCastMask) != 0) {
 				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
 				// obvious identity cast
-				if (castedExpressionType == parameterTypes[i]) { 
+				if (castedExpressionType == argumentTypes[i]) { 
 					scope.problemReporter().unnecessaryCast((CastExpression)argument);
 				// widening cast, will need to check later whether it would affect method lookup
 				} else {
@@ -267,6 +289,7 @@ public class CastExpression extends Expression {
 		if (rawArgumentTypes != argumentTypes) {
 			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
 		}
+*/
 	}
 
 	/**
