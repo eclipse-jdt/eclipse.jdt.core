@@ -196,7 +196,7 @@ public abstract class Scope
 		return noProblems;
 	}
 	
-	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Object declaringElement) {
+	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
 
 		PackageBinding unitPackage = compilationUnitScope().fPackage;
 		

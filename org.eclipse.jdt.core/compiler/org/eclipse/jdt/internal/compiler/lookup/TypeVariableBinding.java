@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 public class TypeVariableBinding extends ReferenceBinding {
 
-	public Object declaringElement; // binding of declaring type or method 
+	public Binding declaringElement; // binding of declaring type or method 
 	public int rank; // declaration rank, can be used to match variable in parameterized type
 
 	/**
@@ -33,7 +33,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces; 
 	public char[] genericTypeSignature;
 
-	public TypeVariableBinding(char[] sourceName, Object declaringElement, int rank) {
+	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank) {
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
