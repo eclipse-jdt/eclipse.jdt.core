@@ -43,8 +43,7 @@ String getElementName();
  * @see Flags
  * @since 3.0
  */
-// TODO 1.5 feature disabled for now, will re-enable at a later stage
-//int getFlags() throws JavaModelException;
+int getFlags() throws JavaModelException;
 
 /**
  * Returns whether the import is on-demand. An import is on-demand if it ends
