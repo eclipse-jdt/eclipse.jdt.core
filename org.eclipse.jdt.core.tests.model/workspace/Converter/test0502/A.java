@@ -15,5 +15,11 @@ public class A {
 		} else {
 			int j = 3;
 		}
+		new Object() {
+		};
+		class B {
+		}
+		new Object() {
+		};
 	}
 }

@@ -12,6 +12,10 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -31,6 +35,7 @@ class TypeBinding implements ITypeBinding {
 	
 	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private BindingResolver resolver;
+	private String key;
 	
 	public TypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding) {
 		this.binding = binding;
@@ -384,21 +389,70 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
-		if (isLocal()) {
-			return null;
+		if (this.key == null) {
+			if (isLocal()) {
+				StringBuffer buffer = new StringBuffer();
+				
+				// declaring method or type
+				SourceTypeBinding sourceBinding = (SourceTypeBinding) this.binding; // per construction, a local type can only be defined in source
+				ClassScope scope = sourceBinding.scope;
+				ReferenceContext referenceContext;
+				if (isAnonymous()) {
+					ClassScope classScope = scope.enclosingClassScope();
+					referenceContext = classScope.referenceContext;
+				} else {
+					MethodScope methodScope = scope.enclosingMethodScope();
+					referenceContext = methodScope.referenceContext;
+				}
+				if (referenceContext instanceof AbstractMethodDeclaration) {
+					org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
+					IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
+					if (methodBinding != null) {
+						buffer.append(methodBinding.getKey());
+					}
+				} else if (referenceContext instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+					org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) referenceContext).binding;
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
+					if (typeBinding != null) {
+						buffer.append(typeBinding.getKey());
+					}
+				}
+	
+				if (isAnonymous()) {
+					buffer.append('$');
+					CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
+					CompilationUnitDeclaration compilationUnitDeclaration = compilationUnitScope.referenceContext;
+					LocalTypeBinding[] localTypeBindings = compilationUnitDeclaration.localTypes;
+					for (int i = 0, max = compilationUnitDeclaration.localTypeCount; i < max; i++) {
+						if (localTypeBindings[i] == sourceBinding) {
+							buffer.append(i+1);
+							break;
+						}
+					}
+				} else {
+					// type name
+					buffer.append('/');
+					buffer.append(getName());
+				}
+				
+				this.key = buffer.toString();
+			} else {
+				if (this.binding.isClass() || this.binding.isInterface()) {
+					StringBuffer buffer = new StringBuffer();
+					buffer
+						.append(getPackage().getName())
+						.append('/')
+						.append(getName());
+					this.key = buffer.toString();
+				} else if (this.binding.isArrayType()) {
+					this.key = this.getElementType().getKey() + this.getDimensions();
+				} else {
+					// this is a primitive type
+					this.key = this.getName();
+				}
+			}
 		}
-		if (this.binding.isClass() || this.binding.isInterface()) {
-			StringBuffer buffer = new StringBuffer();
-			buffer
-				.append(getPackage().getName())
-				.append('.')
-				.append(getName());
-			return buffer.toString();
-		} else if (this.binding.isArrayType()) {
-			return this.getElementType().getKey() + this.getDimensions();
-		}
-		// this is a primitive type
-		return this.getName();
+		return this.key;
 	}
 
 	/**

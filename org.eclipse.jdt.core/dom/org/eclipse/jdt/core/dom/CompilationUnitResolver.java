@@ -212,7 +212,8 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}	
 	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement)
+		ICompilationUnit unitElement,
+		boolean cleanUp)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
@@ -247,7 +248,7 @@ class CompilationUnitResolver extends Compiler {
 					true); // generate code
 			return unit;
 		} finally {
-			if (unit != null) {
+			if (cleanUp && unit != null) {
 				unit.cleanUp();
 			}
 		}
@@ -340,7 +341,8 @@ class CompilationUnitResolver extends Compiler {
 	public static CompilationUnitDeclaration resolve(
 		char[] source,
 		String unitName,
-		IJavaProject javaProject)
+		IJavaProject javaProject,
+		boolean cleanUp)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
@@ -367,7 +369,7 @@ class CompilationUnitResolver extends Compiler {
 					true); // generate code
 			return unit;
 		} finally {
-			if (unit != null) {
+			if (cleanUp && unit != null) {
 				unit.cleanUp();
 			}
 		}
@@ -375,7 +377,8 @@ class CompilationUnitResolver extends Compiler {
 
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
-		NodeSearcher nodeSearcher)
+		NodeSearcher nodeSearcher,
+		boolean cleanUp)
 		throws JavaModelException {
 
 		CompilationUnitDeclaration unit = null;
@@ -410,7 +413,7 @@ class CompilationUnitResolver extends Compiler {
 				true); // generate code
 			return unit;
 		} finally {
-			if (unit != null) {
+			if (cleanUp && unit != null) {
 				unit.cleanUp();
 			}
 		}
@@ -420,7 +423,8 @@ class CompilationUnitResolver extends Compiler {
 		char[] source,
 		char[][] packageName,
 		String unitName,
-		IJavaProject javaProject)
+		IJavaProject javaProject,
+		boolean cleanUp)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
@@ -447,7 +451,7 @@ class CompilationUnitResolver extends Compiler {
 					true); // generate code					
 			return unit;
 		} finally {
-			if (unit != null) {
+			if (cleanUp && unit != null) {
 				unit.cleanUp();
 			}
 		}

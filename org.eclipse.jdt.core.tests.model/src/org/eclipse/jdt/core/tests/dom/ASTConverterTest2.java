@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0502"));
+		suite.addTest(new ASTConverterTest2("test0502f"));
 		return suite;
 	}
 	/**
@@ -1347,9 +1347,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a nested type", typeBinding.isNested());
 		ASTNode astNode = unit.findDeclaringNode(typeBinding);
 		assertEquals("Wrong type", ASTNode.ANONYMOUS_CLASS_DECLARATION, astNode.getNodeType());
-		assertNull("Got a key", typeBinding.getKey());
+		assertNotNull("Didn't get a key", typeBinding.getKey());
 		astNode = unit.findDeclaringNode(typeBinding.getKey());
-		assertNull("Got a declaring node", astNode);
+		assertNotNull("Didn't get a declaring node", astNode);
 		
 		ITypeBinding typeBinding3 = classInstanceCreation.resolveTypeBinding();
 		assertEquals("wrong binding", typeBinding, typeBinding3);
@@ -2813,52 +2813,122 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
 	 */
-	public void test0502() throws JavaModelException {
+	public void test0502a() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
 		
-		// test0502.A/0/i
+		// 'i' in initializer
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 0, 0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		ASTNode declaringNode = unit.findDeclaringNode(localBinding.getKey());
-		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+		assertEquals("Unexpected key", "test0502/A/0/i", localBinding.getKey()); //$NON-NLS-1$
+	}	
 
-		// test0502.A/0/0/j
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502b() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'j' in 'then' block in initializer
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 0, 1);
 		Block block = (Block)ifStatement.getThenStatement();
-		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
-		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
-		localBinding = fragment.resolveBinding();
-		declaringNode = unit.findDeclaringNode(localBinding.getKey());
-		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		IVariableBinding localBinding = fragment.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/0/0/j", localBinding.getKey()); //$NON-NLS-1$
+	}	
 
-		// test0502.A/foo()/i
-		variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
-		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
-		localBinding = fragment.resolveBinding();
-		declaringNode = unit.findDeclaringNode(localBinding.getKey());
-		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502c() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'i' in 'foo()'
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		IVariableBinding localBinding = fragment.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/i", localBinding.getKey()); //$NON-NLS-1$
+	}	
 
-		// test0502.A/foo()/0/j
-		ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
-		block = (Block)ifStatement.getThenStatement();
-		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
-		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
-		localBinding = fragment.resolveBinding();
-		declaringNode = unit.findDeclaringNode(localBinding.getKey());
-		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502d() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'j' in 'then' block in 'foo()'
+		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
+		Block block = (Block)ifStatement.getThenStatement();
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		IVariableBinding localBinding = fragment.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/0/j", localBinding.getKey()); //$NON-NLS-1$
+	}	
 
-		// test0502.A/foo()/1/j
-		ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
-		block = (Block)ifStatement.getElseStatement();
-		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
-		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
-		localBinding = fragment.resolveBinding();
-		declaringNode = unit.findDeclaringNode(localBinding.getKey());
-		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
-
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502e() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'j' in 'else' block in 'foo()'
+		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
+		Block block = (Block)ifStatement.getElseStatement();
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		IVariableBinding localBinding = fragment.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/1/j", localBinding.getKey()); //$NON-NLS-1$
 	}
 	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502f() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// first 'new Object(){...}' in 'foo()'
+		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 2);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A$1", typeBinding.getKey()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502g() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'B' in 'foo()'
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/B", typeBinding.getKey()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502h() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// second 'new Object(){...}' in 'foo()'
+		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 4);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A$3", typeBinding.getKey()); //$NON-NLS-1$
+	}	
+
 }
 
