@@ -242,6 +242,7 @@ public final class AST {
 		
 		ASTConverter converter = new ASTConverter(options, true, monitor);
 		AST ast = AST.newAST(level);
+		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 		ast.setBindingResolver(resolver);
@@ -250,6 +251,7 @@ public final class AST {
 		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
 		cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
 		resolver.storeModificationCount(ast.modificationCount());
+		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		return cu;
 	}
 
