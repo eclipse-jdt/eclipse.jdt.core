@@ -206,7 +206,7 @@ public void test0005() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^^^^^\n" + 
+		"	         ^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemLog =
@@ -216,7 +216,7 @@ public void test0005() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^^^^^\n" + 
+		"	         ^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	
@@ -631,7 +631,7 @@ public void test0016() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^^^^^\n" + 
+		"	         ^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
@@ -646,7 +646,7 @@ public void test0016() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^^^^^\n" + 
+		"	         ^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 

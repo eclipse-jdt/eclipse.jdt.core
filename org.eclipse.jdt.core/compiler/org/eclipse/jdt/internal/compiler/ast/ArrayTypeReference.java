@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
+	public int originalSourceEnd;
 
 	/**
 	 * ArrayTypeReference constructor comment.
@@ -29,6 +30,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 	public ArrayTypeReference(char[] source, int dimensions, long pos) {
 		
 		super(source, pos);
+		this.originalSourceEnd = this.sourceEnd;
 		this.dimensions = dimensions ;
 	}
 	
