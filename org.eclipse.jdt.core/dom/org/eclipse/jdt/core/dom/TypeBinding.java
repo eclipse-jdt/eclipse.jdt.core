@@ -493,10 +493,7 @@ class TypeBinding implements ITypeBinding {
 			} else {
 				if (this.binding.isClass() || this.binding.isInterface()) {
 					StringBuffer buffer = new StringBuffer();
-					buffer
-						.append(getPackage().getName())
-						.append('/')
-						.append(getName());
+					buffer.append(this.binding.constantPoolName());
 					this.key = buffer.toString();
 				} else if (this.binding.isArrayType()) {
 					if (this.getElementType() != null) {
