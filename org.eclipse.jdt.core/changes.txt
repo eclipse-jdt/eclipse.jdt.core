@@ -109,9 +109,11 @@ STREAM: 2.0
   What's new in this drop
   ================================================================================
   * Project references are maintained by the JavaCore, in parallel with build path.
+  * Resurrected deprecated APIs from 0.9 which were discarded previously.
   
   PRs Fixed in this Release
   ================================================================================
+  5430      Must resurrect 0.9 deprecated APIs   
   4923      IJavaProject.getPackageFragmentRoots returns roots from other projects
   3308      Projects not build in correct order after load (1GF60TN)
   3435      keeping the project references and required project in synch (1GL0L34) 
