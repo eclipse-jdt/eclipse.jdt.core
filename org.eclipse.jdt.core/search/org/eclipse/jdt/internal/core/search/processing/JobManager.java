@@ -99,7 +99,7 @@ public abstract class JobManager implements Runnable {
 				currentJob.cancel();
 			
 				// wait until current active job has finished
-				while (processingThread != null && executing){
+				while (this.processingThread != null && executing){
 					try {
 						if (VERBOSE)
 							JobManager.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$ //$NON-NLS-2$
@@ -235,15 +235,15 @@ public abstract class JobManager implements Runnable {
 						subProgress.beginTask("", totalWork); //$NON-NLS-1$
 						concurrentJobWork = concurrentJobWork / 2;
 					}
-					int originalPriority = this.processingThread.getPriority();
+					// use local variable to avoid potential NPE (see bug 20435 NPE when searching java method
+					// and bug 42760 NullPointerException in JobManager when searching)
+					Thread t = this.processingThread;
+					int originalPriority = t == null ? -1 : t.getPriority();
 					try {
+						if (t != null) {
+							t.setPriority(Thread.currentThread().getPriority());
+						}
 						synchronized(this) {
-							
-							// use local variable to avoid potential NPE (see Bug 20435 NPE when searching java method)
-							Thread t = this.processingThread;
-							if (t != null) {
-								t.setPriority(Thread.currentThread().getPriority());
-							}
 							this.awaitingClients++;
 						}
 						while ((awaitingWork = awaitingJobsCount()) > 0) {
@@ -270,12 +270,9 @@ public abstract class JobManager implements Runnable {
 					} finally {
 						synchronized(this) {
 							this.awaitingClients--;
-							
-							// use local variable to avoid potential NPE (see Bug 20435 NPE when searching java method)
-							Thread t = this.processingThread;
-							if (t != null) {
-								t.setPriority(originalPriority);
-							}
+						}
+						if (t != null) {
+							t.setPriority(originalPriority);
 						}
 					}
 					if (subProgress != null) {
@@ -326,7 +323,7 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			JobManager.verbose("Reset"); //$NON-NLS-1$
 
-		if (processingThread != null) {
+		if (this.processingThread != null) {
 			discardJobs(null); // discard all jobs
 		} else {
 			/* initiate background processing */
