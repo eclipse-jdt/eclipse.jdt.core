@@ -670,7 +670,11 @@ public abstract class AbstractCommentParser {
 						this.currentTokenType = -1; // do not update line end
 						if (readToken() == TerminalTokens.TokenNameStringLiteral) {
 							this.currentTokenType = -1; // do not update line end
-							if (readToken() == TerminalTokens.TokenNameGREATER) {
+							// Skip all characters after string literal until closing '>' (see bug 68726)
+							while (this.index <= this.lineEnd && readToken() != TerminalTokens.TokenNameGREATER) {
+								this.currentTokenType = -1; // do not update line end
+							}
+							if (this.currentTokenType == TerminalTokens.TokenNameGREATER) {
 								consumeToken(); // update line end as new lines are allowed in URL description
 								while (readToken() != TerminalTokens.TokenNameLESS) {
 									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@') {

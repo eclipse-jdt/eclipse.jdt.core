@@ -2125,4 +2125,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug69302() throws JavaModelException {
 		verifyComments("testBug69302");
 	}
+
+	/**
+	 * Test fix for bug 68726: [Javadoc] Target attribute in @see link triggers warning
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
+	 */
+	public void testBug68726() throws JavaModelException {
+		verifyComments("testBug68726");
+	}
 }

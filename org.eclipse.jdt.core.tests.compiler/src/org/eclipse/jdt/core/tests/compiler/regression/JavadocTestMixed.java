@@ -3528,4 +3528,203 @@ public class JavadocTestMixed extends JavadocTest {
 				"----------\n"
 		);
 	}
+
+	/**
+	 * Test fix for bug 68726: [Javadoc] Target attribute in @see link triggers warning
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
+	 */
+	public void testBug68726conform1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@see Object <a href=\"http://www.eclipse.org\" target=\"_top\">Eclipse</a>\n" + 
+					"	 */\n" + 
+					"	void foo1() {}\n" + 
+					"	/**@see Object <a href=\"http://www.eclipse.org\" target=\"_top\" target1=\"_top1\" target2=\"_top2\">Eclipse</a>*/\n" + 
+					"	void foo2() {}\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug68726conform2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* 			</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			</a>\n" + 
+					"	* @see Object\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug68726negative1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Invalid URL link references\n" + 
+					"	 *\n" + 
+					"	 * @see <a href=\"invalid\" target\n" + 
+					"	 * @see <a href=\"invalid\" target=\n" + 
+					"	 * @see <a href=\"invalid\" target=\"\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\"\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @see <a href=\"invalid\" target\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @see <a href=\"invalid\" target=\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @see <a href=\"invalid\" target=\"\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\"\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 11)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 12)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 13)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 14)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 15)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 16)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug68726negative2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page<\n" + 
+					"	* 			/a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			\n" + 
+					"	* @see Unknown\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"	*          IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"	*          IBM Home Page<\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"	*\n" + 
+				"	*          IBM\n" + 
+				"	*\n" + 
+				"	*          Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 16)\n" + 
+				"	* @see Unknown\n" + 
+				"	       ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
 }
