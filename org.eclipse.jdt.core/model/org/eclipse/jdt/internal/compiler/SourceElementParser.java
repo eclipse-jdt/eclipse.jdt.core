@@ -1035,16 +1035,18 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
 		}
 		if (isInRange){
-			requestor.enterConstructor(
-				methodDeclaration.declarationSourceStart, 
-				methodDeclaration.modifiers, 
-				methodDeclaration.selector, 
-				methodDeclaration.sourceStart, 
-				selectorSourceEnd, 
-				argumentTypes, 
-				argumentNames, 
-				thrownExceptionTypes);
-			notifySourceElementRequestor(methodDeclaration.typeParameters());			
+			ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
+			methodInfo.isConstructor = true;
+			methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
+			methodInfo.modifiers = methodDeclaration.modifiers;
+			methodInfo.name = methodDeclaration.selector;
+			methodInfo.nameSourceStart = methodDeclaration.sourceStart;
+			methodInfo.nameSourceEnd = selectorSourceEnd;
+			methodInfo.parameterTypes = argumentTypes;
+			methodInfo.parameterNames = argumentNames;
+			methodInfo.exceptionTypes = thrownExceptionTypes;
+			methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
+			requestor.enterConstructor(methodInfo);
 		}
 		if (reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -1082,32 +1084,21 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		if (isVarArgs)
 			currentModifiers |= AccVarargs;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-		if (methodDeclaration instanceof MethodDeclaration) {
-			TypeReference returnType = ((MethodDeclaration) methodDeclaration).returnType;
-			requestor.enterMethod(
-				methodDeclaration.declarationSourceStart, 
-				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
-				methodDeclaration.selector, 
-				methodDeclaration.sourceStart, 
-				selectorSourceEnd, 
-				argumentTypes, 
-				argumentNames, 
-				thrownExceptionTypes);
-		} else {
-			TypeReference returnType = ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
-			requestor.enterMethod(
-				methodDeclaration.declarationSourceStart, 
-				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
-				methodDeclaration.selector, 
-				methodDeclaration.sourceStart, 
-				selectorSourceEnd, 
-				argumentTypes, 
-				argumentNames, 
-				thrownExceptionTypes);
-		}
-		notifySourceElementRequestor(methodDeclaration.typeParameters());			
+		TypeReference returnType = methodDeclaration instanceof MethodDeclaration
+			? ((MethodDeclaration) methodDeclaration).returnType
+			: ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
+		ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
+		methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
+		methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+		methodInfo.returnType = returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.');
+		methodInfo.name = methodDeclaration.selector;
+		methodInfo.nameSourceStart = methodDeclaration.sourceStart;
+		methodInfo.nameSourceEnd = selectorSourceEnd;
+		methodInfo.parameterTypes = argumentTypes;
+		methodInfo.parameterNames = argumentNames;
+		methodInfo.exceptionTypes = thrownExceptionTypes;
+		methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
+		requestor.enterMethod(methodInfo);
 	}		
 		
 	this.visitIfNeeded(methodDeclaration);
@@ -1116,37 +1107,39 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		requestor.exitMethod(methodDeclaration.declarationSourceEnd);
 	}
 }
-private void notifySourceElementRequestor(TypeParameter[] typeParameters) {
-	if (typeParameters != null) {
-		int typeParametersLength = typeParameters.length;
-		for (int i = 0; i < typeParametersLength; i++) {
-			TypeParameter typeParameter = typeParameters[i];
-			TypeReference firstBound = typeParameter.type;
-			TypeReference[] otherBounds = typeParameter.bounds;
-			char[][] typeParameterBounds = null;
-			if (firstBound != null) {
-				if (otherBounds != null) {
-					int otherBoundsLength = otherBounds.length;
-					char[][] boundNames = new char[otherBoundsLength+1][];
-					boundNames[0] = CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.');
-					for (int j = 0; j < otherBoundsLength; j++) {
-						boundNames[j+1] = 
-							CharOperation.concatWith(otherBounds[j].getParameterizedTypeName(), '.'); 
-					}
-					typeParameterBounds = boundNames;
-				} else {
-					typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
+private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {
+	if (typeParameters == null) return null;
+	int typeParametersLength = typeParameters.length;
+	ISourceElementRequestor.TypeParameterInfo[] result = new ISourceElementRequestor.TypeParameterInfo[typeParametersLength];
+	for (int i = 0; i < typeParametersLength; i++) {
+		TypeParameter typeParameter = typeParameters[i];
+		TypeReference firstBound = typeParameter.type;
+		TypeReference[] otherBounds = typeParameter.bounds;
+		char[][] typeParameterBounds = null;
+		if (firstBound != null) {
+			if (otherBounds != null) {
+				int otherBoundsLength = otherBounds.length;
+				char[][] boundNames = new char[otherBoundsLength+1][];
+				boundNames[0] = CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.');
+				for (int j = 0; j < otherBoundsLength; j++) {
+					boundNames[j+1] = 
+						CharOperation.concatWith(otherBounds[j].getParameterizedTypeName(), '.'); 
 				}
+				typeParameterBounds = boundNames;
+			} else {
+				typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
 			}
-			requestor.enterTypeParameter(
-				typeParameter.declarationSourceStart, 
-				typeParameter.name, 
-				typeParameter.sourceStart, 
-				typeParameter.sourceEnd,
-				typeParameterBounds);
-			requestor.exitTypeParameter(typeParameter.declarationSourceEnd);
 		}
+		ISourceElementRequestor.TypeParameterInfo typeParameterInfo = new ISourceElementRequestor.TypeParameterInfo();
+		typeParameterInfo.declarationStart = typeParameter.declarationSourceStart;
+		typeParameterInfo.declarationEnd = typeParameter.declarationSourceEnd;
+		typeParameterInfo.name = typeParameter.name;
+		typeParameterInfo.nameSourceStart = typeParameter.sourceStart;
+		typeParameterInfo.nameSourceEnd = typeParameter.sourceEnd;
+		typeParameterInfo.typeParameterBounds = typeParameterBounds;
+		result[i] = typeParameterInfo;
 	}
+	return result;
 }
 
 /*
@@ -1182,13 +1175,14 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 					// regular field
 					typeName = CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
 				}
-				requestor.enterField(
-					fieldDeclaration.declarationSourceStart, 
-					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-					typeName,
-					fieldDeclaration.name, 
-					fieldDeclaration.sourceStart, 
-					fieldDeclaration.sourceEnd); 
+				ISourceElementRequestor.FieldInfo fieldInfo = new ISourceElementRequestor.FieldInfo();
+				fieldInfo.declarationStart = fieldDeclaration.declarationSourceStart;
+				fieldInfo.name = fieldDeclaration.name;
+				fieldInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+				fieldInfo.type = typeName;
+				fieldInfo.nameSourceStart = fieldDeclaration.sourceStart;
+				fieldInfo.nameSourceEnd = fieldDeclaration.sourceEnd;
+				requestor.enterField(fieldInfo);
 			}
 			this.visitIfNeeded(fieldDeclaration, declaringType);
 			if (isInRange){
@@ -1280,7 +1274,8 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
                CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
          }
       }
-      switch (typeDeclaration.getKind()) {
+      int kind = typeDeclaration.getKind();
+      switch (kind) {
          case IGenericType.CLASS :
          case IGenericType.ANNOTATION_TYPE :
             TypeReference superclass = typeDeclaration.superclass;
@@ -1290,28 +1285,33 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
  					boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
  					if (isEnumInit)
  						flags |= AccEnum;
-					requestor.enterClass(
-						typeDeclaration.declarationSourceStart, 
-						flags, 
-						typeDeclaration.name, 
-						typeDeclaration.sourceStart, 
-						sourceEnd(typeDeclaration), 
-						isEnumInit ? declaringType.name : null, 
-						interfaceNames);
+ 					ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
+ 					typeInfo.kind = kind;
+ 					typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+ 					typeInfo.modifiers = flags;
+ 					typeInfo.name = typeDeclaration.name;
+ 					typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+ 					typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
+ 					typeInfo.superclass = isEnumInit ? declaringType.name : null;
+ 					typeInfo.superinterfaces = interfaceNames;
+ 					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+					requestor.enterClass(typeInfo);
                }
             } else {
                if (isInRange) {
-                  requestor.enterClass(
-                     typeDeclaration.declarationSourceStart, 
-                     typeDeclaration.modifiers, 
-                     typeDeclaration.name, 
-                     typeDeclaration.sourceStart, 
-                     sourceEnd(typeDeclaration), 
-                     CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
-                     interfaceNames);
+					ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
+ 					typeInfo.kind = kind;
+ 					typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+ 					typeInfo.modifiers = typeDeclaration.modifiers;
+ 					typeInfo.name = typeDeclaration.name;
+ 					typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+ 					typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
+ 					typeInfo.superclass = CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
+ 					typeInfo.superinterfaces = interfaceNames;
+ 					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+					requestor.enterClass(typeInfo);
                }
             }
-            notifySourceElementRequestor(typeDeclaration.typeParameters);         
             if (nestedTypeIndex == typeNames.length) {
                // need a resize
                System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
@@ -1325,15 +1325,17 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
             if (isInRange){
                int currentModifiers = typeDeclaration.modifiers;
                boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-               requestor.enterInterface(
-                  typeDeclaration.declarationSourceStart, 
-                  deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-                  typeDeclaration.name, 
-                  typeDeclaration.sourceStart, 
-                  sourceEnd(typeDeclaration), 
-                  interfaceNames);
+				ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
+				typeInfo.kind = kind;
+				typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+				typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+				typeInfo.name = typeDeclaration.name;
+				typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
+				typeInfo.superinterfaces = interfaceNames;
+				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+				requestor.enterInterface(typeInfo);
             }
-            notifySourceElementRequestor(typeDeclaration.typeParameters);         
             if (nestedTypeIndex == typeNames.length) {
                // need a resize
                System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
@@ -1348,15 +1350,17 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
             if (isInRange){
                int currentModifiers = typeDeclaration.modifiers;
                boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-               requestor.enterEnum(
-                  typeDeclaration.declarationSourceStart, 
-                  deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-                  typeDeclaration.name, 
-                  typeDeclaration.sourceStart, 
-                  sourceEnd(typeDeclaration), 
-                  interfaceNames);
+				ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
+				typeInfo.kind = kind;
+				typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+				typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+				typeInfo.name = typeDeclaration.name;
+				typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
+				typeInfo.superinterfaces = interfaceNames;
+				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+				requestor.enterEnum(typeInfo);
             }
-            notifySourceElementRequestor(typeDeclaration.typeParameters);         
             if (nestedTypeIndex == typeNames.length) {
                // need a resize
                System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);

@@ -36,6 +36,50 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 public interface ISourceElementRequestor {
 	
+	public static class TypeInfo {
+		public int kind;
+		public int declarationStart;
+		public int modifiers;
+		public char[] name;
+		public int nameSourceStart;
+		public int nameSourceEnd;
+		public char[] superclass;
+		public char[][] superinterfaces;
+		public TypeParameterInfo[] typeParameters;
+	}
+	
+	public static class TypeParameterInfo {
+		public int declarationStart;
+		public int declarationEnd;
+		public char[] name;
+		public int nameSourceStart;
+		public int nameSourceEnd;
+		public char[][] typeParameterBounds;
+	}
+	
+	public static class MethodInfo {
+		public boolean isConstructor;
+		public int declarationStart;
+		public int modifiers;
+		public char[] returnType;
+		public char[] name;
+		public int nameSourceStart;
+		public int nameSourceEnd;
+		public char[][] parameterTypes;
+		public char[][] parameterNames;
+		public char[][] exceptionTypes;
+		public TypeParameterInfo[] typeParameters;
+	}
+	
+	public static class FieldInfo {
+		public int declarationStart;
+		public int modifiers;
+		public char[] type;
+		public char[] name;
+		public int nameSourceStart; 
+		public int nameSourceEnd;
+	}
+	
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);
 	
 	void acceptFieldReference(char[] fieldName, int sourcePosition);
@@ -80,25 +124,21 @@ public interface ISourceElementRequestor {
 
 	void acceptUnknownReference(char[] name, int sourcePosition);
 
-	void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces);
+	void enterClass(TypeInfo typeInfo);
 
 	void enterCompilationUnit();
 
-	void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes);
+	void enterConstructor(MethodInfo methodInfo);
 
-	void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces);
+	void enterEnum(TypeInfo typeInfo);
 
-	void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd);
+	void enterField(FieldInfo fieldInfo);
 	
 	void enterInitializer(int declarationStart, int modifiers);
 	
-	void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces);
+	void enterInterface(TypeInfo typeInfo);
 	
-	void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes);
-	
-	void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds);
+	void enterMethod(MethodInfo methodInfo);
 	
 	void exitClass(int declarationEnd);
 	
@@ -119,6 +159,4 @@ public interface ISourceElementRequestor {
 	void exitInterface(int declarationEnd);
 	
 	void exitMethod(int declarationEnd);
-	
-	void exitTypeParameter(int declarationEnd);
 }

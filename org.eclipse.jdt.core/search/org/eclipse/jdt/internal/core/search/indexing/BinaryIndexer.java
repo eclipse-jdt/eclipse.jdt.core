@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -474,6 +475,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					System.arraycopy(fullEnclosingName, packageNameIndex + 1, enclosingTypeName, 0, nameLength);
 				}
 			}
+			// type parameters
+			char[][] typeParameterSignatures = null;
+			char[] genericSignature = reader.getGenericSignature();
+			if (genericSignature != null) {
+				CharOperation.replace(genericSignature, '/', '.');
+				typeParameterSignatures = Signature.getTypeParameters(genericSignature);
+			}
+			
 			// eliminate invalid innerclasses (1G4KCF7)
 			if (name == null) return;
 			
@@ -482,10 +491,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			switch (reader.getKind()) {
 				case IGenericType.CLASS :
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
-					addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
+					addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures);
 					break;
 				case IGenericType.INTERFACE :
-					addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
+					addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures);
 					break;
 				case IGenericType.ENUM :
 					addEnumDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);

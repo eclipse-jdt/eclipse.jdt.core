@@ -28,6 +28,7 @@ public char[] simpleName;
 public char[] enclosingTypeName;
 public char classOrInterface;
 public int modifiers;
+public char[][] typeParameterSignatures;
 
 protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
 
@@ -38,6 +39,7 @@ public static char[] createIndexKey(
 	char[] packageName,
 	char[] typeName,
 	char[][] enclosingTypeNames,
+	char[][] typeParameterSignatures,
 	char classOrInterface,
 	char[] superTypeName,
 	char superClassOrInterface) {
@@ -72,14 +74,31 @@ public static char[] createIndexKey(
 	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
 	if (superQualification != null && CharOperation.equals(superQualification, packageName))
 		packageName = ONE_ZERO; // save some space
+	
+	char[] typeParameters = CharOperation.NO_CHAR;
+	int typeParametersLength = 0;
+	if (typeParameterSignatures != null) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = typeParameterSignatures.length; i < length; i++) {
+			char[] typeParameter = typeParameterSignatures[i];
+			buffer.append(typeParameter);
+			typeParametersLength += typeParameter.length;
+			if (i != length-1) {
+				buffer.append(',');
+				typeParametersLength++;
+			}
+		}
+		typeParameters = new char[typeParametersLength];
+		buffer.getChars(0, typeParametersLength, typeParameters, 0);
+	}
 
-	// superSimpleName / superQualification / simpleName / enclosingTypeName / packageName / superClassOrInterface classOrInterface modifiers
+	// superSimpleName / superQualification / simpleName / enclosingTypeName / typeParameters / packageName / superClassOrInterface classOrInterface modifiers
 	int superLength = superSimpleName == null ? 0 : superSimpleName.length;
 	int superQLength = superQualification == null ? 0 : superQualification.length;
 	int simpleLength = simpleName == null ? 0 : simpleName.length;
 	int enclosingLength = enclosingTypeName == null ? 0 : enclosingTypeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
-	char[] result = new char[superLength + superQLength + simpleLength + enclosingLength + packageLength + 8];
+	char[] result = new char[superLength + superQLength + simpleLength + enclosingLength + typeParametersLength + packageLength + 9];
 	int pos = 0;
 	if (superLength > 0) {
 		System.arraycopy(superSimpleName, 0, result, pos, superLength);
@@ -99,6 +118,11 @@ public static char[] createIndexKey(
 	if (enclosingLength > 0) {
 		System.arraycopy(enclosingTypeName, 0, result, pos, enclosingLength);
 		pos += enclosingLength;
+	}
+	result[pos++] = SEPARATOR;
+	if (typeParametersLength > 0) {
+		System.arraycopy(typeParameters, 0, result, pos, typeParametersLength);
+		pos += typeParametersLength;
 	}
 	result[pos++] = SEPARATOR;
 	if (packageLength > 0) {
@@ -129,7 +153,7 @@ SuperTypeReferencePattern(int matchRule) {
 	super(SUPER_REF_PATTERN, matchRule);
 }
 /*
- * superSimpleName / superQualification / simpleName / enclosingTypeName / pkgName / superClassOrInterface classOrInterface modifiers
+ * superSimpleName / superQualification / simpleName / enclosingTypeName / typeParameters / pkgName / superClassOrInterface classOrInterface modifiers
  */
 public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
@@ -149,6 +173,14 @@ public void decodeIndexKey(char[] key) {
 	} else {
 		char[] names = CharOperation.subarray(key, start, slash);
 		this.enclosingTypeName = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO : names;
+	}
+
+	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
+	if (slash == start) {
+		this.typeParameterSignatures = null;
+	} else {
+		char[] names = CharOperation.subarray(key, start, slash);
+		this.typeParameterSignatures = CharOperation.splitOn(',', names);
 	}
 
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);

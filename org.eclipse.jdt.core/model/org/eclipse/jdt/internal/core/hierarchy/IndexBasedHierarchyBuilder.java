@@ -451,7 +451,7 @@ public static void searchAllPossibleSubTypes(
 							typeName = Util.localTypeName(documentPath, lastDollar, suffix).toCharArray();
 						}
 					}
-					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.classOrInterface);
+					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.typeParameterSignatures, record.classOrInterface);
 					binariesFromIndexMatches.put(documentPath, binaryType);
 				}
 				binaryType.recordSuperType(record.superSimpleName, record.superQualification, record.superClassOrInterface);

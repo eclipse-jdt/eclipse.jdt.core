@@ -23,7 +23,14 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public AbstractIndexer(SearchDocument document) {
 		this.document = document;
 	}
-	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
+	public void addClassDeclaration(
+			int modifiers, 
+			char[] packageName,
+			char[] name, 
+			char[][] enclosingTypeNames, 
+			char[] superclass, 
+			char[][] superinterfaces,
+			char[][] typeParameterSignatures) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, CLASS_SUFFIX));
 
 		if (superclass != null) {
@@ -33,7 +40,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
-				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
+				modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
 				char[] superinterface = erasure(superinterfaces[i]);
@@ -41,7 +48,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
 			}
 		}
 	}
@@ -72,7 +79,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
-				modifiers, packageName, name, enclosingTypeNames, ENUM_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ENUM, '.'), CLASS_SUFFIX));
+				modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ENUM, '.'), CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
 				char[] superinterface = erasure(superinterfaces[i]);
@@ -80,7 +87,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, ENUM_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
 			}
 		}
 	}	
@@ -94,7 +101,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	protected void addIndexEntry(char[] category, char[] key) {
 		this.document.addIndexEntry(category, key);
 	}
-	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
+	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces, char[][] typeParameterSignatures) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, INTERFACE_SUFFIX));
 
 		if (superinterfaces != null) {
@@ -104,7 +111,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
 			}
 		}
 	}

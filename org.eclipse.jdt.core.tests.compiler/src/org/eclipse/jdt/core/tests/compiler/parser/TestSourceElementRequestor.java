@@ -67,7 +67,7 @@ public void acceptUnknownReference(char[] name, int sourcePosition) {}
 /**
  * enterClass method comment.
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {}
+public void enterClass(TypeInfo typeInfo) {}
 /**
  * enterCompilationUnit method comment.
  */
@@ -75,24 +75,23 @@ public void enterCompilationUnit() {}
 /**
  * enterConstructor method comment.
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
+public void enterConstructor(MethodInfo methodInfo) {}
 /**
  * enterEnum method comment.
  */
-public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {}
+public void enterEnum(TypeInfo typeInfos) {}
 /**
  * enterField method comment.
  */
-public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd) {}
+public void enterField(FieldInfo fieldInfo) {}
 /**
  * enterInterface method comment.
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {}
+public void enterInterface(TypeInfo typeInfo) {}
 /**
  * enterMethod method comment.
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
-public void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {}
+public void enterMethod(MethodInfo methodInfo) {}
 /**
  * exitClass method comment.
  */
@@ -133,7 +132,5 @@ public void enterInitializer(int sourceStart, int sourceEnd) {
  */
 public void exitInitializer(int sourceEnd) {
 }
-
-public void exitTypeParameter(int declarationEnd) {}
 
 }

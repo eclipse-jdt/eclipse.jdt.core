@@ -169,27 +169,20 @@ public static String displayModifiers(int modifiers) {
 /**
  * enterClass method comment.
  */
-public void enterClass(
-	int declarationStart, 
-	int modifiers, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd, 
-	char[] superclass, 
-	char[][] superinterfaces) {
+public void enterClass(TypeInfo typeInfo) {
 
 	if (currentType == null) {
 		// top level type
 		currentType = 
 			new SourceType(
 				null, 
-				declarationStart, 
-				modifiers, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
-				superclass, 
-				superinterfaces, 
+				typeInfo.declarationStart, 
+				typeInfo.modifiers, 
+				typeInfo.name, 
+				typeInfo.nameSourceStart, 
+				typeInfo.nameSourceEnd, 
+				typeInfo.superclass, 
+				typeInfo.superinterfaces, 
 				source); 
 		currentType.setPackage(currentPackage);
 		setImports();
@@ -200,13 +193,13 @@ public void enterClass(
 			memberType = 
 				new SourceType(
 					currentType.getName(), 
-					declarationStart, 
-					modifiers, 
-					name, 
-					nameSourceStart, 
-					nameSourceEnd, 
-					superclass, 
-					superinterfaces, 
+					typeInfo.declarationStart, 
+					typeInfo.modifiers, 
+					typeInfo.name, 
+					typeInfo.nameSourceStart, 
+					typeInfo.nameSourceEnd, 
+					typeInfo.superclass, 
+					typeInfo.superinterfaces, 
 					source)); 
 		memberType.parent = currentType;
 		currentType = memberType;
@@ -219,76 +212,62 @@ public void enterCompilationUnit() {}
 /**
  * enterConstructor method comment.
  */
-public void enterConstructor(
-	int declarationStart, 
-	int modifiers, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd, 
-	char[][] parameterTypes, 
-	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+public void enterConstructor(MethodInfo methodInfo) {
 
 	currentType.addMethod(
 		currentMethod = 
 			new SourceMethod(
-				declarationStart, 
-				modifiers, 
+				methodInfo.declarationStart, 
+				methodInfo.modifiers, 
 				null, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
-				parameterTypes, 
-				parameterNames, 
-				exceptionTypes,
+				methodInfo.name, 
+				methodInfo.nameSourceStart, 
+				methodInfo.nameSourceEnd, 
+				methodInfo.parameterTypes, 
+				methodInfo.parameterNames, 
+				methodInfo.exceptionTypes,
 				source)); 
+	if (methodInfo.typeParameters != null) {
+		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+			addTypeParameter(typeParameterInfo);
+		}
+	}
 }
 /**
  * enterField method comment.
  */
-public void enterField(
-	int declarationStart, 
-	int modifiers, 
-	char[] type, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd) {
+public void enterField(FieldInfo fieldInfo) {
 
 	currentType.addField(
 		currentField = 
 			new SourceField(
-				declarationStart, 
-				modifiers, 
-				type, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
+				fieldInfo.declarationStart, 
+				fieldInfo.modifiers, 
+				fieldInfo.type, 
+				fieldInfo.name, 
+				fieldInfo.nameSourceStart, 
+				fieldInfo.nameSourceEnd, 
 				source)); 
 
 }
 /**
  * enterEnum method comment.
  */
-public void enterEnum(
-	int declarationStart, 
-	int modifiers, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd, 
-	char[][] superinterfaces) {
+public void enterEnum(TypeInfo typeInfo) {
 
 	if (currentType == null) {
 		// top level type
 		currentType = 
 			new SourceType(
 				null, 
-				declarationStart, 
-				modifiers, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
+				typeInfo.declarationStart, 
+				typeInfo.modifiers, 
+				typeInfo.name, 
+				typeInfo.nameSourceStart, 
+				typeInfo.nameSourceEnd, 
 				null, 
-				superinterfaces, 
+				typeInfo.superinterfaces, 
 				source); 
 		currentType.setPackage(currentPackage);
 		setImports();
@@ -299,13 +278,13 @@ public void enterEnum(
 			memberType = 
 				new SourceType(
 					currentType.getName(), 
-					declarationStart, 
-					modifiers, 
-					name, 
-					nameSourceStart, 
-					nameSourceEnd, 
+					typeInfo.declarationStart, 
+					typeInfo.modifiers, 
+					typeInfo.name, 
+					typeInfo.nameSourceStart, 
+					typeInfo.nameSourceEnd, 
 					null, 
-					superinterfaces, 
+					typeInfo.superinterfaces, 
 					source)); 
 		memberType.parent = currentType;
 		currentType = memberType;
@@ -331,26 +310,20 @@ public void exitInitializer(int declarationSourceEnd) {
 /**
  * enterInterface method comment.
  */
-public void enterInterface(
-	int declarationStart, 
-	int modifiers, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd, 
-	char[][] superinterfaces) {
+public void enterInterface(TypeInfo typeInfo) {
 
 	if (currentType == null) {
 		// top level type
 		currentType = 
 			new SourceType(
 				null, 
-				declarationStart, 
-				modifiers, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
+				typeInfo.declarationStart, 
+				typeInfo.modifiers, 
+				typeInfo.name, 
+				typeInfo.nameSourceStart, 
+				typeInfo.nameSourceEnd, 
 				null, 
-				superinterfaces, 
+				typeInfo.superinterfaces, 
 				source); 
 		currentType.setPackage(currentPackage);
 		setImports();
@@ -361,57 +334,60 @@ public void enterInterface(
 			memberType = 
 				new SourceType(
 					currentType.getName(), 
-					declarationStart, 
-					modifiers, 
-					name, 
-					nameSourceStart, 
-					nameSourceEnd, 
+					typeInfo.declarationStart, 
+					typeInfo.modifiers, 
+					typeInfo.name, 
+					typeInfo.nameSourceStart, 
+					typeInfo.nameSourceEnd, 
 					null, 
-					superinterfaces, 
+					typeInfo.superinterfaces, 
 					source)); 
 		memberType.parent = currentType;
 		currentType = memberType;
+	}
+	if (typeInfo.typeParameters != null) {
+		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+			addTypeParameter(typeParameterInfo);
+		}
 	}
 }
 /**
  * enterMethod method comment.
  */
-public void enterMethod(
-	int declarationStart, 
-	int modifiers, 
-	char[] returnType, 
-	char[] name, 
-	int nameSourceStart, 
-	int nameSourceEnd, 
-	char[][] parameterTypes, 
-	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+public void enterMethod(MethodInfo methodInfo) {
 
 	currentType.addMethod(
 		currentMethod = 
 			new SourceMethod(
-				declarationStart, 
-				modifiers, 
-				returnType, 
-				name, 
-				nameSourceStart, 
-				nameSourceEnd, 
-				parameterTypes, 
-				parameterNames, 
-				exceptionTypes,
+				methodInfo.declarationStart, 
+				methodInfo.modifiers, 
+				methodInfo.returnType, 
+				methodInfo.name, 
+				methodInfo.nameSourceStart, 
+				methodInfo.nameSourceEnd, 
+				methodInfo.parameterTypes, 
+				methodInfo.parameterNames, 
+				methodInfo.exceptionTypes,
 				source)); 
+	
+	if (methodInfo.typeParameters != null) {
+		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+			addTypeParameter(typeParameterInfo);
+		}
+	}
 }
-public void enterTypeParameter(int declarationStart, char[] name,
-		int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 	if (currentMethod.typeParameterNames == null) {
-		currentMethod.typeParameterNames = new char[][] {name};
-		currentMethod.typeParameterBounds = new char[][][] {typeParameterBounds};
+		currentMethod.typeParameterNames = new char[][] {typeParameterInfo.name};
+		currentMethod.typeParameterBounds = new char[][][] {typeParameterInfo.typeParameterBounds};
 	} else {
 		int length = currentMethod.typeParameterNames.length;
 		System.arraycopy(currentMethod.typeParameterNames, 0, currentMethod.typeParameterNames = new char[length+1][],0, length);
-		currentMethod.typeParameterNames[length] = name;
+		currentMethod.typeParameterNames[length] = typeParameterInfo.name;
 		System.arraycopy(currentMethod.typeParameterBounds, 0, currentMethod.typeParameterBounds = new char[length+1][][],0, length);
-		currentMethod.typeParameterBounds[length] = typeParameterBounds;
+		currentMethod.typeParameterBounds[length] = typeParameterInfo.typeParameterBounds;
 	}
 }
 /**
@@ -463,8 +439,6 @@ public void exitInterface(int declarationEnd) {
  */
 public void exitMethod(int declarationEnd) {
 	currentMethod.setDeclarationSourceEnd(declarationEnd);
-}
-public void exitTypeParameter(int declarationEnd) {
 }
 public void fullParse(String s, String testName) {
 

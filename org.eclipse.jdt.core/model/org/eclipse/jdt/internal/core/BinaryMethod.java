@@ -30,39 +30,22 @@ import org.eclipse.jdt.internal.core.util.Util;
 	class DecodeParametersNames extends SourceElementRequestorAdapter {
 			String[] parametersNames;
 		
-			public void enterMethod(
-				int declarationStart,
-				int modifiers,
-				char[] returnTypeName,
-				char[] selector,
-				int nameSourceStart,
-				int nameSourceEnd,
-				char[][] paramTypes,
-				char[][] paramNames,
-				char[][] exceptions) {
-					if (paramNames != null) {
-						int length = paramNames.length;
+			public void enterMethod(MethodInfo methodInfo) {
+					if (methodInfo.parameterNames != null) {
+						int length = methodInfo.parameterNames.length;
 						this.parametersNames = new String[length];
 						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(paramNames[i]);
+							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
 						}
 					}
 				}
 				
-			public void enterConstructor(
-				int declarationStart,
-				int modifiers,
-				char[] selector,
-				int nameSourceStart,
-				int nameSourceEnd,
-				char[][] paramTypes,
-				char[][] paramNames,
-				char[][] exceptions) {
-					if (paramNames != null) {
-						int length = paramNames.length;
+			public void enterConstructor(MethodInfo methodInfo) {
+					if (methodInfo.parameterNames != null) {
+						int length = methodInfo.parameterNames.length;
 						this.parametersNames = new String[length];
 						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(paramNames[i]);
+							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
 						}
 					}
 				}

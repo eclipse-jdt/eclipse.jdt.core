@@ -214,16 +214,9 @@ public void acceptProblem(IProblem problem) {
 /**
  * @see ISourceElementRequestor
  */
-public void enterClass(
-	int declarationStart,
-	int modifiers,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[] superclass,
-	char[][] superinterfaces) {
+public void enterClass(TypeInfo typeInfo) {
 
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces);
+	enterType(typeInfo);
 
 }
 /**
@@ -238,50 +231,26 @@ public void enterCompilationUnit() {
 /**
  * @see ISourceElementRequestor
  */
-public void enterConstructor(
-	int declarationStart,
-	int modifiers,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[][] parameterTypes,
-	char[][] parameterNames,
-	char[][] exceptionTypes) {
-
-		enterMethod(declarationStart, modifiers, null, name, nameSourceStart,
-			nameSourceEnd,	parameterTypes, parameterNames, exceptionTypes, true);
+public void enterConstructor(MethodInfo methodInfo) {
+	enterMethod(methodInfo);
 }
 /**
  * @see ISourceElementRequestor
  */
-public void enterEnum(
-	int declarationStart,
-	int modifiers,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[][] superinterfaces) {
-
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces);
-
+public void enterEnum(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 /**
  * @see ISourceElementRequestor
  */
-public void enterField(
-	int declarationStart,
-	int modifiers,
-	char[] type,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd) {
+public void enterField(FieldInfo fieldInfo) {
 
 		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 		SourceField handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new SourceField(parentHandle, new String(name));
+			handle = new SourceField(parentHandle, new String(fieldInfo.name));
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -289,12 +258,12 @@ public void enterField(
 		resolveDuplicates(handle);
 		
 		SourceFieldElementInfo info = new SourceFieldElementInfo();
-		info.fieldName = name;
-		info.setNameSourceStart(nameSourceStart);
-		info.setNameSourceEnd(nameSourceEnd);
-		info.setSourceRangeStart(declarationStart);
-		info.setFlags(modifiers);
-		info.setTypeName(type);
+		info.fieldName = fieldInfo.name;
+		info.setNameSourceStart(fieldInfo.nameSourceStart);
+		info.setNameSourceEnd(fieldInfo.nameSourceEnd);
+		info.setSourceRangeStart(fieldInfo.declarationStart);
+		info.setFlags(fieldInfo.modifiers);
+		info.setTypeName(fieldInfo.type);
 
 		parentInfo.addChild(handle);
 		this.newElements.put(handle, info);
@@ -333,135 +302,109 @@ public void enterInitializer(
 /**
  * @see ISourceElementRequestor
  */
-public void enterInterface(
-	int declarationStart,
-	int modifiers,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[][] superinterfaces) {
-
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces);
-
+public void enterInterface(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 /**
  * @see ISourceElementRequestor
  */
-public void enterMethod(
-	int declarationStart,
-	int modifiers,
-	char[] returnType,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[][] parameterTypes,
-	char[][] parameterNames,
-	char[][] exceptionTypes) {
+public void enterMethod(MethodInfo methodInfo) {
 
-		enterMethod(declarationStart, modifiers, returnType, name, nameSourceStart,
-			nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, false);
-}
-/**
- * @see ISourceElementRequestor
- */
-protected void enterMethod(
-	int declarationStart,
-	int modifiers,
-	char[] returnType,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[][] parameterTypes,
-	char[][] parameterNames,
-	char[][] exceptionTypes,
-	boolean isConstructor) {
+	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
+	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
+	SourceMethod handle = null;
 
-		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
-		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		SourceMethod handle = null;
+	// translate nulls to empty arrays
+	if (methodInfo.parameterTypes == null) {
+		methodInfo.parameterTypes= CharOperation.NO_CHAR_CHAR;
+	}
+	if (methodInfo.parameterNames == null) {
+		methodInfo.parameterNames= CharOperation.NO_CHAR_CHAR;
+	}
+	if (methodInfo.exceptionTypes == null) {
+		methodInfo.exceptionTypes= CharOperation.NO_CHAR_CHAR;
+	}
+	
+	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
+	if (parentHandle.getElementType() == IJavaElement.TYPE) {
+		handle = new SourceMethod(parentHandle, new String(methodInfo.name), parameterTypeSigs);
+	}
+	else {
+		Assert.isTrue(false); // Should not happen
+	}
+	resolveDuplicates(handle);
+	
+	SourceMethodElementInfo info = new SourceMethodElementInfo();
+	info.setSourceRangeStart(methodInfo.declarationStart);
+	int flags = methodInfo.modifiers;
+	info.selector = methodInfo.name;
+	info.setNameSourceStart(methodInfo.nameSourceStart);
+	info.setNameSourceEnd(methodInfo.nameSourceEnd);
+	info.setConstructor(methodInfo.isConstructor);
+	info.setFlags(flags);
+	info.setArgumentNames(methodInfo.parameterNames);
+	info.setArgumentTypeNames(methodInfo.parameterTypes);
+	info.setReturnType(methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType);
+	info.setExceptionTypeNames(methodInfo.exceptionTypes);
+	parentInfo.addChild(handle);
+	this.newElements.put(handle, info);
+	this.infoStack.push(info);
+	this.handleStack.push(handle);
 
-		// translate nulls to empty arrays
-		if (parameterTypes == null) {
-			parameterTypes= CharOperation.NO_CHAR_CHAR;
+	if (methodInfo.typeParameters != null) {
+		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+			enterTypeParameter(typeParameterInfo);
+			exitMember(typeParameterInfo.declarationEnd);
 		}
-		if (parameterNames == null) {
-			parameterNames= CharOperation.NO_CHAR_CHAR;
-		}
-		if (exceptionTypes == null) {
-			exceptionTypes= CharOperation.NO_CHAR_CHAR;
-		}
-		
-		String[] parameterTypeSigs = convertTypeNamesToSigs(parameterTypes);
-		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new SourceMethod(parentHandle, new String(name), parameterTypeSigs);
-		}
-		else {
-			Assert.isTrue(false); // Should not happen
-		}
-		resolveDuplicates(handle);
-		
-		SourceMethodElementInfo info = new SourceMethodElementInfo();
-		info.setSourceRangeStart(declarationStart);
-		int flags = modifiers;
-		info.selector = name;
-		info.setNameSourceStart(nameSourceStart);
-		info.setNameSourceEnd(nameSourceEnd);
-		info.setConstructor(isConstructor);
-		info.setFlags(flags);
-		info.setArgumentNames(parameterNames);
-		info.setArgumentTypeNames(parameterTypes);
-		info.setReturnType(returnType == null ? new char[]{'v', 'o','i', 'd'} : returnType);
-		info.setExceptionTypeNames(exceptionTypes);
-		parentInfo.addChild(handle);
-		this.newElements.put(handle, info);
-		this.infoStack.push(info);
-		this.handleStack.push(handle);
+	}
 }
 /**
  * Common processing for classes and interfaces.
  */
-protected void enterType(
-	int declarationStart,
-	int modifiers,
-	char[] name,
-	int nameSourceStart,
-	int nameSourceEnd,
-	char[] superclass,
-	char[][] superinterfaces) {
+protected void enterType(TypeInfo typeInfo) {
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	String nameString= new String(name);
+	String nameString= new String(typeInfo.name);
 	SourceType handle = handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	SourceTypeElementInfo info = new SourceTypeElementInfo();
 	info.setHandle(handle);
-	info.setSourceRangeStart(declarationStart);
-	info.setFlags(modifiers);
-	info.setNameSourceStart(nameSourceStart);
-	info.setNameSourceEnd(nameSourceEnd);
-	info.setSuperclassName(superclass);
-	info.setSuperInterfaceNames(superinterfaces);
+	info.setSourceRangeStart(typeInfo.declarationStart);
+	info.setFlags(typeInfo.modifiers);
+	info.setNameSourceStart(typeInfo.nameSourceStart);
+	info.setNameSourceEnd(typeInfo.nameSourceEnd);
+	info.setSuperclassName(typeInfo.superclass);
+	info.setSuperInterfaceNames(typeInfo.superinterfaces);
 	info.setSourceFileName(this.sourceFileName);
 	info.setPackageName(this.packageName);
 	parentInfo.addChild(handle);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
+	
+	if (typeInfo.typeParameters != null) {
+		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+			enterTypeParameter(typeParameterInfo);
+			exitMember(typeParameterInfo.declarationEnd);
+		}
+	}
 }
-public void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
-	String nameString = new String(name);
+	String nameString = new String(typeParameterInfo.name);
 	TypeParameter handle = handle = new TypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	TypeParameterElementInfo info = new TypeParameterElementInfo();
-	info.setSourceRangeStart(declarationStart);
-	info.nameStart = nameSourceStart;
-	info.nameEnd = nameSourceEnd;
-	info.bounds = typeParameterBounds;
+	info.setSourceRangeStart(typeParameterInfo.declarationStart);
+	info.nameStart = typeParameterInfo.nameSourceStart;
+	info.nameEnd = typeParameterInfo.nameSourceEnd;
+	info.bounds = typeParameterInfo.typeParameterBounds;
 	if (parentInfo instanceof SourceTypeElementInfo) {
 		SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) parentInfo;
 		ITypeParameter[] typeParameters = elementInfo.typeParameters;
@@ -557,12 +500,6 @@ protected void exitMember(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitMethod(int declarationEnd) {
-	exitMember(declarationEnd);
-}
-/**
- * @see ISourceElementRequestor
- */
-public void exitTypeParameter(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

@@ -497,14 +497,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterClass(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[] superclass,
-		char[][] superinterfaces) {
+	public void enterClass(TypeInfo typeInfo) {
 
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
@@ -557,19 +550,19 @@ public class SourceMapper
 				0,
 				this.typeDepth);					
 		}
-		if (name.length == 0) {
+		if (typeInfo.name.length == 0) {
 			this.anonymousCounter++;
 			if (this.anonymousCounter == this.anonymousClassName) {
 				this.types[typeDepth] = this.getType(this.binaryType.getElementName());
 			} else {
-				this.types[typeDepth] = this.getType(new String(name));				
+				this.types[typeDepth] = this.getType(new String(typeInfo.name));				
 			}
 		} else {
-			this.types[typeDepth] = this.getType(new String(name));
+			this.types[typeDepth] = this.getType(new String(typeInfo.name));
 		}
 		this.typeNameRanges[typeDepth] =
-			new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
-		this.typeDeclarationStarts[typeDepth] = declarationStart;
+			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
+		this.typeDeclarationStarts[typeDepth] = typeInfo.declarationStart;
 	}
 	
 	/**
@@ -582,56 +575,26 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterConstructor(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] parameterTypes,
-		char[][] parameterNames,
-		char[][] exceptionTypes) {
-		enterMethod(
-			declarationStart,
-			modifiers,
-			null,
-			name,
-			nameSourceStart,
-			nameSourceEnd,
-			parameterTypes,
-			parameterNames,
-			exceptionTypes);
+	public void enterConstructor(MethodInfo methodInfo) {
+		enterMethod(methodInfo);
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(int, int, char[], int, int, char[][])
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(TypeInfo)
 	 */
-	public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
-		enterClass(
-			declarationStart,
-			modifiers,
-			name,
-			nameSourceStart,
-			nameSourceEnd,
-			null,
-			superinterfaces);
+	public void enterEnum(TypeInfo typeInfo) {
+		enterClass(typeInfo);
 	}
 	
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterField(
-		int declarationStart,
-		int modifiers,
-		char[] type,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd) {
+	public void enterField(FieldInfo fieldInfo) {
 		if (typeDepth >= 0) {
-			fMemberDeclarationStart[typeDepth] = declarationStart;
+			fMemberDeclarationStart[typeDepth] = fieldInfo.declarationStart;
 			fMemberNameRange[typeDepth] =
-				new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
-			fMemberName[typeDepth] = new String(name);
+				new SourceRange(fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd - fieldInfo.nameSourceStart + 1);
+			fMemberName[typeDepth] = new String(fieldInfo.name);
 		}
 	}
 	
@@ -647,50 +610,23 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterInterface(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] superinterfaces) {
-		enterClass(
-			declarationStart,
-			modifiers,
-			name,
-			nameSourceStart,
-			nameSourceEnd,
-			null,
-			superinterfaces);
+	public void enterInterface(TypeInfo typeInfo) {
+		enterClass(typeInfo);
 	}
 	
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterMethod(
-		int declarationStart,
-		int modifiers,
-		char[] returnType,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] parameterTypes,
-		char[][] parameterNames,
-		char[][] exceptionTypes) {
+	public void enterMethod(MethodInfo methodInfo) {
 		
 		if (typeDepth >= 0) {
-			fMemberName[typeDepth] = new String(name);
+			fMemberName[typeDepth] = new String(methodInfo.name);
 			fMemberNameRange[typeDepth] =
-				new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
-			fMemberDeclarationStart[typeDepth] = declarationStart;
-			fMethodParameterTypes[typeDepth] = parameterTypes;
-			fMethodParameterNames[typeDepth] = parameterNames;
+				new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
+			fMemberDeclarationStart[typeDepth] = methodInfo.declarationStart;
+			fMethodParameterTypes[typeDepth] = methodInfo.parameterTypes;
+			fMethodParameterNames[typeDepth] =methodInfo. parameterNames;
 		}
-	}
-	
-	public void enterTypeParameter(int declarationStart, char[] name,
-			int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
-		// TODO (jerome) should the type parameters be mapped as well ?
 	}
 	
 	/**
@@ -780,10 +716,6 @@ public class SourceMapper
 				method,
 				fMethodParameterNames[typeDepth]);
 		}
-	}
-	
-	public void exitTypeParameter(int declarationEnd) {
-		// TODO (jerome) should the type parameters be mapped as well ?
 	}
 	
 	/**

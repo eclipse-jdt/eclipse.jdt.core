@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 /**
@@ -67,68 +68,54 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
 }
 /**
  * Creates a new DOMMethod and inizializes.
- *
- * @param declarationStart - a source position corresponding to the first character 
- *		of this constructor declaration
- * @param modifiers - the modifiers for this constructor converted to a flag
- * @param returnType - the name of the return type
- * @param name - the name of this constructor
- * @param nameStart - a source position corresponding to the first character of the name
- * @param nameEnd - a source position corresponding to the last character of the name
- * @param parameterTypes - a list of parameter type names
- * @param parameterNames - a list of the names of the parameters
- * @param exceptionTypes - a list of the exception types
  */
-protected void enterAbstractMethod(int declarationStart, int modifiers,
-	char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes,
-	char[][] parameterNames, char[][] exceptionTypes, boolean isConstructor) {
+protected void enterAbstractMethod(MethodInfo methodInfo) {
 		
-	int[] sourceRange = {declarationStart, -1}; // will be fixed up on exit
-	int[] nameRange = {nameStart, nameEnd};
-	fNode = new DOMMethod(fDocument, sourceRange, CharOperation.charToString(name), nameRange, modifiers, 
-		isConstructor, CharOperation.charToString(returnType),
-		CharOperation.charArrayToStringArray(parameterTypes),
-		CharOperation.charArrayToStringArray(parameterNames), 
-		CharOperation.charArrayToStringArray(exceptionTypes));
+	int[] sourceRange = {methodInfo.declarationStart, -1}; // will be fixed up on exit
+	int[] nameRange = {methodInfo.nameSourceStart, methodInfo.nameSourceEnd};
+	fNode = new DOMMethod(fDocument, sourceRange, CharOperation.charToString(methodInfo.name), nameRange, methodInfo.modifiers, 
+		methodInfo.isConstructor, CharOperation.charToString(methodInfo.returnType),
+		CharOperation.charArrayToStringArray(methodInfo.parameterTypes),
+		CharOperation.charArrayToStringArray(methodInfo.parameterNames), 
+		CharOperation.charArrayToStringArray(methodInfo.exceptionTypes));
 	addChild(fNode);
 	fStack.push(fNode);
+	
+	// type parameters not supported by JDOM
 }
 /**
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces) {
-	enterType(declarationStart, modifiers, name, nameStart, nameEnd, superclass,
-		superinterfaces, true);
+public void enterClass(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 /**
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
+public void enterConstructor(MethodInfo methodInfo) {
 	/* see 1FVIIQZ */
-	String nameString = new String(fDocument, nameStart, nameEnd - nameStart);
+	String nameString = new String(fDocument, methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart);
 	int openParenPosition = nameString.indexOf('(');
 	if (openParenPosition > -1)
-		nameEnd = nameStart + openParenPosition - 1;
+		methodInfo.nameSourceEnd = methodInfo.nameSourceStart + openParenPosition - 1;
 
-	enterAbstractMethod(declarationStart, modifiers, 
-		null, name, nameStart, nameEnd, parameterTypes,
-		parameterNames, exceptionTypes,true);
+	enterAbstractMethod(methodInfo);
 }
 /**
  */
-public void enterEnum(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
-	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null, superinterfaces, false);
+public void enterEnum(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 /**
  */
-public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameStart, int nameEnd) {
+public void enterField(FieldInfo fieldInfo) {
 
-	int[] sourceRange = {declarationStart, -1};
-	int[] nameRange = {nameStart, nameEnd};
+	int[] sourceRange = {fieldInfo.declarationStart, -1};
+	int[] nameRange = {fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd};
 	boolean isSecondary= false;
 	if (fNode instanceof DOMField) {
-		isSecondary = declarationStart == fNode.fSourceRange[0];
+		isSecondary = fieldInfo.declarationStart == fNode.fSourceRange[0];
 	}
-	fNode = new DOMField(fDocument, sourceRange, CharOperation.charToString(name), nameRange, 
-		modifiers, CharOperation.charToString(type), isSecondary);
+	fNode = new DOMField(fDocument, sourceRange, CharOperation.charToString(fieldInfo.name), nameRange, 
+		fieldInfo.modifiers, CharOperation.charToString(fieldInfo.type), isSecondary);
 	addChild(fNode);
 	fStack.push(fNode);
 }
@@ -143,33 +130,27 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 /**
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
-	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null,
-		superinterfaces, false);
+public void enterInterface(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 /**
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
-	enterAbstractMethod(declarationStart, modifiers, 
-		returnType, name, nameStart, nameEnd, parameterTypes,
-		parameterNames, exceptionTypes,false);
+public void enterMethod(MethodInfo methodInfo) {
+	enterAbstractMethod(methodInfo);
 }
 /**
  */
-protected void enterType(int declarationStart, int modifiers, char[] name, 
-	int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces, boolean isClass) {
+protected void enterType(TypeInfo typeInfo) {
 	if (fBuildingType) {
-		int[] sourceRange = {declarationStart, -1}; // will be fixed in the exit
-		int[] nameRange = new int[] {nameStart, nameEnd};
-		fNode = new DOMType(fDocument, sourceRange, new String(name), nameRange,
-			modifiers, CharOperation.charArrayToStringArray(superinterfaces), isClass);
+		int[] sourceRange = {typeInfo.declarationStart, -1}; // will be fixed in the exit
+		int[] nameRange = new int[] {typeInfo.nameSourceStart, typeInfo.nameSourceEnd};
+		fNode = new DOMType(fDocument, sourceRange, new String(typeInfo.name), nameRange,
+			typeInfo.modifiers, CharOperation.charArrayToStringArray(typeInfo.superinterfaces), typeInfo.kind == IGenericType.CLASS); // TODO (jerome) should pass in kind
 		addChild(fNode);
 		fStack.push(fNode);
+		
+		// type parameters not supported by JDOM
 	}
-}
-public void enterTypeParameter(int declarationStart, char[] name,
-		int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
-	// type parameters not supported by JDOM
 }
 /**
  * Finishes the configuration of the class DOM object which
@@ -236,9 +217,6 @@ public void exitMethod(int declarationEnd) {
  */
 protected void exitType(int declarationEnd) {
 	exitType(declarationEnd, declarationEnd);
-}
-public void exitTypeParameter(int declarationEnd) {
-	// type parameters not supported by JDOM
 }
 /**
  * Creates a new parser.

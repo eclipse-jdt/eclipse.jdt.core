@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -26,8 +27,10 @@ public class HierarchyBinaryType implements IBinaryType {
 	private char[] enclosingTypeName;
 	private char[] superclass;
 	private char[][] superInterfaces = NoInterface;
+	private char[][] typeParameterSignatures;
+	private char[] genericSignature;
 	
-public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName, char[] enclosingTypeName, char typeSuffix){
+public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName, char[] enclosingTypeName, char[][] typeParameterSignatures, char typeSuffix){
 
 	this.modifiers = modifiers;
 	switch(typeSuffix) {
@@ -51,6 +54,7 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName,
 		this.enclosingTypeName = CharOperation.concat(qualification, enclosingTypeName,'/');
 		CharOperation.replace(this.enclosingTypeName, '.', '/');
 	}
+	this.typeParameterSignatures = typeParameterSignatures;
 	CharOperation.replace(this.name, '.', '/');
 }
 /**
@@ -76,7 +80,26 @@ public char[] getFileName() {
 	return null;
 }
 public char[] getGenericSignature() {
-	return null;
+	if (this.typeParameterSignatures != null && this.genericSignature == null) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append('<');
+		for (int i = 0, length = this.typeParameterSignatures.length; i < length; i++) {
+			buffer.append(this.typeParameterSignatures[i]);
+			if (i != length-1)
+				buffer.append(',');
+		}
+		buffer.append('>');
+		if (this.superclass == null)
+			buffer.append(Signature.createTypeSignature("java.lang.Object", true/*resolved*/)); //$NON-NLS-1$
+		else
+			buffer.append(Signature.createTypeSignature(this.superclass, true/*resolved*/));
+		if (this.superInterfaces != null) 
+			for (int i = 0, length = this.superInterfaces.length; i < length; i++)
+				buffer.append(Signature.createTypeSignature(this.superInterfaces[i], true/*resolved*/));
+		this.genericSignature = buffer.toString().toCharArray();
+		CharOperation.replace(this.genericSignature, '.', '/');
+	}
+	return this.genericSignature;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
