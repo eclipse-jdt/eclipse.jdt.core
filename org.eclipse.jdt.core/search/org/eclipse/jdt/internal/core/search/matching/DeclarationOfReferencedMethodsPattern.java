@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodReferencePattern {
 	ObjectSet knownMethods;
+	
 public DeclarationOfReferencedMethodsPattern(
 	char[] selector, 
 	int matchMode, 
@@ -34,7 +35,8 @@ public DeclarationOfReferencedMethodsPattern(
 	char[] returnQualification, 
 	char[] returnSimpleName,
 	char[][] parameterQualifications, 
-	char[][] parameterSimpleNames) {
+	char[][] parameterSimpleNames,
+	IType declaringType) {
 		
 	super(
 		selector, 
@@ -45,7 +47,8 @@ public DeclarationOfReferencedMethodsPattern(
 		returnQualification,
 		returnSimpleName,
 		parameterQualifications,
-		parameterSimpleNames);
+		parameterSimpleNames,
+		declaringType);
 	this.needsResolve = true;
 	this.knownMethods = new ObjectSet();
 }

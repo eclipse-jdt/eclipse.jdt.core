@@ -618,6 +618,7 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 			null, 
 			null,
 			null,  
+			null,
 			null);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = enclosingElement.getUnderlyingResource();

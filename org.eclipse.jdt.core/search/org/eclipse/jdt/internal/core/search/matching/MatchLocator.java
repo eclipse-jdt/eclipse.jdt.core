@@ -355,6 +355,8 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		if (this.handleFactory == null) {
 			this.handleFactory = new HandleFactory(workspace);
 		}
+		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
+
 		JavaProject previousJavaProject = null;
 		int length = filePaths.length;
 		double increment = 100.0 / length;
@@ -938,7 +940,6 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
 		this.parsedUnits = new HashtableOfObject(10);
-		this.pattern.initializePolymorphicSearch(this, project, this.collector.getProgressMonitor());
 		this.nameLookup = project.getNameLookup();
 	}
 

@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -21,6 +23,7 @@ import org.eclipse.jdt.internal.core.search.*;
 import java.io.*;
 
 public class MethodReferencePattern extends MethodPattern {
+	IType declaringType;
 	public char[][][] allSuperDeclaringTypeNames;
 
 public MethodReferencePattern(
@@ -32,7 +35,8 @@ public MethodReferencePattern(
 	char[] returnQualification, 
 	char[] returnSimpleName,
 	char[][] parameterQualifications, 
-	char[][] parameterSimpleNames) {
+	char[][] parameterSimpleNames,
+	IType declaringType) {
 
 	super(matchMode, isCaseSensitive);
 	
@@ -49,7 +53,7 @@ public MethodReferencePattern(
 			this.parameterSimpleNames[i] = isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
 		}
 	}
-
+	this.declaringType = declaringType;
 	this.needsResolve = this.needsResolve();
 }
 public void decodeIndexEntry(IEntryResult entryResult){
@@ -94,13 +98,17 @@ protected int matchContainer() {
 	return METHOD | FIELD;
 }
 
-public void initializePolymorphicSearch(MatchLocator locator, IJavaProject project, IProgressMonitor progressMonitor) {
-	this.allSuperDeclaringTypeNames = 
-		new SuperTypeNamesCollector(
-			this, 
-			locator, 
-			project, 
-			progressMonitor).collect();
+public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
+	try {
+		this.allSuperDeclaringTypeNames = 
+			new SuperTypeNamesCollector(
+				this, 
+				locator.handleFactory,
+				this.declaringType, 
+				progressMonitor).collect();
+	} catch (JavaModelException e) {
+		// inaccurate matches will be found
+	}
 }
 
 /**

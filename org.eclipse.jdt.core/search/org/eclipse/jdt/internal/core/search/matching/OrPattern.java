@@ -110,10 +110,10 @@ public String toString(){
 /**
  * see SearchPattern.initializePolymorphicSearch
  */
-public void initializePolymorphicSearch(MatchLocator locator, IJavaProject project, IProgressMonitor progressMonitor) {
+public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
 
-	this.leftPattern.initializePolymorphicSearch(locator, project, progressMonitor);
-	this.rightPattern.initializePolymorphicSearch(locator, project, progressMonitor);
+	this.leftPattern.initializePolymorphicSearch(locator, progressMonitor);
+	this.rightPattern.initializePolymorphicSearch(locator, progressMonitor);
 }
 
 /**
