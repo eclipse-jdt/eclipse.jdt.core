@@ -197,12 +197,28 @@ public final class Signature {
 	public static final char C_TYPE_VARIABLE	= 'T';
 	
 	/**
-	 * Character constant indicating a wildcard type argument 
+	 * Character constant indicating an unbound wildcard type argument 
 	 * in a signature.
 	 * Value is <code>'&ast;'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_STAR	= '*';
+	
+	/**
+	 * Character constant indicating a bound wildcard type argument 
+	 * in a signature with extends clause.
+	 * Value is <code>'+'</code>.
+	 * @since 3.1
+	 */
+	public static final char C_EXTENDS	= '+';
+	
+	/**
+	 * Character constant indicating a bound wildcard type argument 
+	 * in a signature with super clause.
+	 * Value is <code>'-'</code>.
+	 * @since 3.1
+	 */
+	public static final char C_SUPER	= '-';
 	
 	/** 
 	 * Character constant indicating the dot in a signature. 
@@ -348,15 +364,17 @@ public final class Signature {
 	 */
 	public static int ARRAY_TYPE_SIGNATURE = 4;
 
-	private static final char[] BOOLEAN = {'b', 'o', 'o', 'l', 'e', 'a', 'n'};
-	private static final char[] BYTE = {'b', 'y', 't', 'e'};
-	private static final char[] CHAR = {'c', 'h', 'a', 'r'};
-	private static final char[] DOUBLE = {'d', 'o', 'u', 'b', 'l', 'e'};
-	private static final char[] FLOAT = {'f', 'l', 'o', 'a', 't'};
-	private static final char[] INT = {'i', 'n', 't'};
-	private static final char[] LONG = {'l', 'o', 'n', 'g'};
-	private static final char[] SHORT = {'s', 'h', 'o', 'r', 't'};
-	private static final char[] VOID = {'v', 'o', 'i', 'd'};
+	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
+	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1
+	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1
+	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1
+	private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1
+	private static final char[] INT = "int".toCharArray(); //$NON-NLS-1
+	private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1
+	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1
+	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1
+	private static final char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1
+	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1
 	
 	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 		
@@ -364,12 +382,26 @@ private Signature() {
 	// Not instantiable
 }
 
-private static boolean checkPrimitiveType(char[] primitiveTypeName, char[] typeName) {
-	return CharOperation.fragmentEquals(primitiveTypeName, typeName, 0, true) &&
-		(typeName.length == primitiveTypeName.length
-		 || Character.isWhitespace(typeName[primitiveTypeName.length])
-		 || typeName[primitiveTypeName.length] == C_ARRAY
-		 || typeName[primitiveTypeName.length] == C_DOT);
+private static int checkName(char[] name, char[] typeName, int pos, int length) {
+    if (CharOperation.fragmentEquals(name, typeName, pos, true)) {
+        pos += name.length;
+        if (pos == length) return pos;
+        char currentChar = typeName[pos];
+        switch (currentChar) {
+            case ' ' :
+            case '.' :
+            case '<' :
+            case '>' :
+            case '[' :
+            case ',' :
+                return pos;
+			default:
+			    if (Character.isWhitespace(currentChar))
+			    	return pos;
+			    
+        }
+    }
+    return -1;
 }
 
 /**
@@ -476,10 +508,10 @@ public static String createMethodSignature(String[] parameterTypes, String retur
 public static String createTypeSignature(char[] typeName, boolean isResolved) {
 	return new String(createCharArrayTypeSignature(typeName, isResolved));
 }
+
 /**
  * Creates a new type signature from the given type name encoded as a character
- * array. The type name may contain primitive types or array types. However,
- * parameterized types are not supported.
+ * array. The type name may contain primitive types or array types. 
  * This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved).toCharArray()</code>,
  * although more efficient for callers with character arrays rather than strings.
@@ -499,129 +531,224 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(new String(typeName));
+	StringBuffer buffer = new StringBuffer(5);
+	int pos = encodeTypeSignature(typeName, 0, isResolved, length, buffer);
+	pos = consumeWhitespace(typeName, pos, length);
+	if (pos < length) throw new IllegalArgumentException(new String(typeName));
+	char[] result = new char[length = buffer.length()];
+	buffer.getChars(0, length, result, 0);
+	return result;	
+}
+private static int consumeWhitespace(char[] typeName, int pos, int length) {
+    while (pos < length) {
+        char currentChar = typeName[pos];
+        if (currentChar != ' ' && !CharOperation.isWhitespace(currentChar)) {
+            break;
+        }
+        pos++;
+    }
+    return pos;
+}
+private static int encodeQualifiedName(char[] typeName, int pos, int length, StringBuffer buffer) {
+    int count = 0;
+    char lastAppendedChar = 0;
+    nameLoop: while (pos < length) {
+	    char currentChar = typeName[pos];
+		switch (currentChar) {
+		    case '<' :
+		    case '>' :
+		    case '[' :
+		    case ',' :
+		        break nameLoop;
+			case '.' :
+			    buffer.append(C_DOT);
+				lastAppendedChar = C_DOT;
+			    count++;
+			    break;
+			default:
+			    if (currentChar == ' ' || Character.isWhitespace(currentChar)) {
+			        if (lastAppendedChar == C_DOT) { // allow spaces after a dot
+			            pos = consumeWhitespace(typeName, pos, length) - 1; // will be incremented
+			            break; 
+			        }
+			        // allow spaces before a dot
+				    int checkPos = checkNextChar(typeName, '.', pos, length, true);
+				    if (checkPos > 0) {
+				        buffer.append(C_DOT);			// process dot immediately to avoid one iteration
+				        lastAppendedChar = C_DOT;
+				        count++;
+				        pos = checkPos;
+				        break;
+				    }
+				    break nameLoop;
+			    }
+			    buffer.append(currentChar);
+			    lastAppendedChar = currentChar;
+				count++;
+			    break;
+		}
+	    pos++;
+    }
+    if (count == 0) throw new IllegalArgumentException(new String(typeName));
+	return pos;
+}
 
-	int arrayCount = CharOperation.occurencesOf('[', typeName);
-	char[] sig;
-	
-	switch (typeName[0]) {
+private static int encodeArrayDimension(char[] typeName, int pos, int length, StringBuffer buffer) {
+    int checkPos;
+    while (pos < length && (checkPos = checkNextChar(typeName, '[', pos, length, true)) > 0) {
+        pos = checkNextChar(typeName, ']', checkPos, length, false);
+        buffer.append(C_ARRAY);
+    }
+    return pos;
+}
+private static int checkArrayDimension(char[] typeName, int pos, int length) {
+    int genericBalance = 0;
+    while (pos < length) {
+		switch(typeName[pos]) {
+		    case '<' :
+		        genericBalance++;
+		        break;
+			case '>':
+			    genericBalance--;
+		        break;
+			case '[':
+			    if (genericBalance == 0) {
+			        return pos;
+			    }
+		}
+		pos++;
+    }
+    return -1;
+}
+private static int checkNextChar(char[] typeName, char expectedChar, int pos, int length, boolean isOptional) {
+    pos = consumeWhitespace(typeName, pos, length);
+    if (pos < length && typeName[pos] == expectedChar) 
+        return pos + 1;
+    if (!isOptional) throw new IllegalArgumentException(new String(typeName));
+    return -1;
+}
+
+private static int encodeTypeSignature(char[] typeName, int start, boolean isResolved, int length, StringBuffer buffer) {
+    int pos = start;
+    pos = consumeWhitespace(typeName, pos, length);
+    if (pos >= length) throw new IllegalArgumentException(new String(typeName));
+    int checkPos;
+    char currentChar = typeName[pos];
+    switch (currentChar) {
 		// primitive type?
 		case 'b' :
-			if (checkPrimitiveType(BOOLEAN, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_BOOLEAN;
-				break;
-			} else if (checkPrimitiveType(BYTE, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_BYTE;
-				break;
+		    checkPos = checkName(BOOLEAN, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_BOOLEAN);
+			    return pos;
+			} 
+		    checkPos = checkName(BYTE, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_BYTE);
+			    return pos;
 			}
+		    break;
 		case 'c':
-			if (checkPrimitiveType(CHAR, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_CHAR;
-				break;
-			}
+		    checkPos = checkName(CHAR, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_CHAR);
+			    return pos;
+			} 
+		    break;
 		case 'd':
-			if (checkPrimitiveType(DOUBLE, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_DOUBLE;
-				break;
-			}
+		    checkPos = checkName(DOUBLE, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_DOUBLE);
+			    return pos;
+			} 
+		    break;
 		case 'f':
-			if (checkPrimitiveType(FLOAT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_FLOAT;
-				break;
-			}
+		    checkPos = checkName(FLOAT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_FLOAT);
+			    return pos;
+			} 
+		    break;
 		case 'i':
-			if (checkPrimitiveType(INT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_INT;
-				break;
-			}
+		    checkPos = checkName(INT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_INT);
+			    return pos;
+			} 
+		    break;
 		case 'l':
-			if (checkPrimitiveType(LONG, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_LONG;
-				break;
-			}
+		    checkPos = checkName(LONG, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_LONG);
+			    return pos;
+			} 
+		    break;
 		case 's':
-			if (checkPrimitiveType(SHORT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_SHORT;
-				break;
-			}
+		    checkPos = checkName(SHORT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_SHORT);
+			    return pos;
+			} 
+		    break;
 		case 'v':
-			if (checkPrimitiveType(VOID, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_VOID;
-				break;
+		    checkPos = checkName(VOID, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_VOID);
+			    return pos;
 			}
-		default:
-			// non primitive type
-			int sigLength = arrayCount + 1 + length + 1; // for example '[[[Ljava.lang.String;'
-			sig = new char[sigLength];
-			int sigIndex = arrayCount+1; // index in sig
-			int startID = 0; // start of current ID in typeName
-			int index = 0; // index in typeName
-			while (index < length) {
-				char currentChar = typeName[index];
-				switch (currentChar) {
-					case '.':
-						if (startID == -1) throw new IllegalArgumentException(new String(typeName));
-						if (startID < index) {
-							sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-							sigIndex += index-startID;
-						}
-						sig[sigIndex++] = C_DOT;
-						index++;
-						startID = index;
-						break;
-					case '[':
-						if (startID != -1) {
-							if (startID < index) {
-								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-								sigIndex += index-startID;
-							}
-							startID = -1; // no more id after []
-						}
-						index++;
-						break;
-					default :
-						if (startID != -1 && CharOperation.isWhitespace(currentChar)) {
-							if (startID < index) {
-								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-								sigIndex += index-startID;
-							}
-							startID = index+1;
-						}
-						index++;
-						break;
-				}
+		    break;
+		case '?':
+			// wildcard
+			pos = consumeWhitespace(typeName, pos+1, length);
+			checkPos = checkName(EXTENDS, typeName, pos, length);
+			if (checkPos > 0) {
+				buffer.append(C_EXTENDS);
+				pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+				return pos;
 			}
-			// last id
-			if (startID != -1 && startID < index) {
-				sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-				sigIndex += index-startID;
+			checkPos = checkName(SUPER, typeName, pos, length);
+			if (checkPos > 0) {
+				buffer.append(C_SUPER);
+				pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+				return pos;
 			}
-			
-			// add L (or Q) at the beginning and ; at the end
-			sig[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
-			sig[sigIndex++] = C_NAME_END;
-			
-			// resize if needed
-			if (sigLength > sigIndex) {
-				System.arraycopy(sig, 0, sig = new char[sigIndex], 0, sigIndex);
-			}
+			buffer.append(C_STAR);
+			return pos;
+    }		    
+    // non primitive type
+    checkPos = checkArrayDimension(typeName, pos, length);
+	int end;
+	if (checkPos > 0) {
+	    end = encodeArrayDimension(typeName, checkPos, length, buffer);
+	} else {
+	    end = -1;
 	}
-
-	// add array info
-	for (int i = 0; i < arrayCount; i++) {
-		sig[i] = C_ARRAY;
+	buffer.append(isResolved ? C_RESOLVED : C_UNRESOLVED);
+    pos = encodeQualifiedName(typeName, pos, length, buffer);
+	checkPos = checkNextChar(typeName, '<', pos, length, true);
+	if (checkPos > 0) {
+		buffer.append(C_GENERIC_START);
+	    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+	    while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+		    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+	    }
+	    pos = checkNextChar(typeName, '>', pos, length, false);
+		buffer.append(C_GENERIC_END);
 	}
-	
-	return sig;
+	buffer.append(C_NAME_END);
+	if (end > 0) pos = end; // skip array dimension which were preprocessed
+    return pos;
 }
+
 /**
  * Creates a new type signature from the given type name. If the type name is qualified,
  * then it is expected to be dot-based. The type name may contain primitive

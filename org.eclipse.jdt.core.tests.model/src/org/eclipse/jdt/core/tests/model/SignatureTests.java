@@ -102,6 +102,12 @@ public void testCreateTypeSignature() {
 			Signature.createTypeSignature("floattest.MyData".toCharArray(), true));
 	assertEquals("Signature#createTypeSignature is not correct17", "Lvoidtest.MyData;",
 			Signature.createTypeSignature("voidtest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct18", "QList<QList<QString;>;>;",
+			Signature.createTypeSignature("List<List<String>>".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct19", "QList<QList<I>;>;",
+			Signature.createTypeSignature("List<List<int>>".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct20", "[QList<QList<[I>;>;",
+			Signature.createTypeSignature("List<List<int[]>>[]".toCharArray(), false));
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.

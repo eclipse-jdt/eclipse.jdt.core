@@ -1675,7 +1675,7 @@ public class Util {
 	 * e.g. "QString;", "[int", "[[Qjava.util.Vector;"
 	 */
 	public static String typeSignature(TypeReference type) {
-		char[][] compoundName = type.getTypeName();
+		char[][] compoundName = type.getParameterizedTypeName();
 		char[] typeName =CharOperation.concatWith(compoundName, '.');
 		String signature = Signature.createTypeSignature(typeName, false/*don't resolve*/);
 		int dimensions = type.dimensions();

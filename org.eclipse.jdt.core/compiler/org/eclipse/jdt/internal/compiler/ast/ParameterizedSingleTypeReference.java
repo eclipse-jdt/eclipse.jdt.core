@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -35,7 +36,20 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return this;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		StringBuffer buffer = new StringBuffer(5);
+		buffer.append(this.token).append('<');
+		for (int i = 0, length = this.typeArguments.length; i < length; i++) {
+			if (i > 0) buffer.append(',');
+			buffer.append(CharOperation.concatWith(this.typeArguments[i].getParameterizedTypeName(), '.'));
+		}
+		buffer.append('>');
+		return new char[][]{ buffer.toString().toCharArray() };
+	}	
+	/**
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
      */
     protected TypeBinding getTypeBinding(Scope scope) {

@@ -81,6 +81,12 @@ public abstract TypeReference copyDims(int dim);
 public int dimensions() {
 	return 0;
 }
+/**
+ * @return char[][]
+ */
+public char [][] getParameterizedTypeName(){
+	return getTypeName();
+}
 protected abstract TypeBinding getTypeBinding(Scope scope);
 /**
  * @return char[][]
