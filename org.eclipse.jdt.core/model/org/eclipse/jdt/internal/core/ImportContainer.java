@@ -28,15 +28,8 @@ protected ImportContainer(ICompilationUnit parent) {
 /**
  * @see JavaElement#getHandleMemento()
  */
-public String getHandleMemento(){
-	return ((JavaElement)getParent()).getHandleMemento();
-}
-/**
- * @see JavaElement#getHandleMemento()
- */
 protected char getHandleMementoDelimiter() {
-	Assert.isTrue(false, "Should not be called"); //$NON-NLS-1$
-	return 0;
+	return JavaElement.JEM_IMPORTDECLARATION;
 }
 /**
  * @see IImportContainer

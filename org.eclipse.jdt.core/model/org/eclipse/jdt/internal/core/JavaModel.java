@@ -258,9 +258,14 @@ protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPac
 	}
 	end = memento.indexOf(JavaElement.JEM_IMPORTDECLARATION, oldEnd);
 	if (end != -1) {
-		//import declaration
 		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end));
-		return cu.getImport(memento.substring(end + 1));
+		if (memento.length() == end + 1) {
+			// import container
+			return cu.getImportContainer();
+		} else {
+			//import declaration with container
+			return cu.getImport(memento.substring(end + 1));
+		}
 	}
 	int typeStart = memento.indexOf(JavaElement.JEM_TYPE, oldEnd);
 	if (typeStart == -1) {

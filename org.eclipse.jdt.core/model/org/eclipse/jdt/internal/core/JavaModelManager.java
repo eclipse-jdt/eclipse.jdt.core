@@ -696,10 +696,10 @@ public class JavaModelManager implements ISaveParticipant {
 		if (root == null)
 			return null;
 
-		int end= memento.indexOf(JavaElement.JEM_COMPILATIONUNIT, rootEnd);
-		if (end == -1) {
-			end= memento.indexOf(JavaElement.JEM_CLASSFILE, rootEnd);
-			if (end == -1) {
+		int unitEnd= memento.indexOf(JavaElement.JEM_COMPILATIONUNIT, rootEnd);
+		if (unitEnd == -1) {
+			unitEnd = memento.indexOf(JavaElement.JEM_CLASSFILE, rootEnd);
+			if (unitEnd == -1) {
 				if (rootEnd + 1 == memento.length()) {
 					return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
 				} else {
@@ -707,11 +707,11 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			}
 			//deal with class file and binary members
-			return this.javaModel.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, end);
+			return this.javaModel.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, unitEnd);
 		}
 
 		//deal with compilation units and source members
-		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
+		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, unitEnd);
 	}
 	public IndexManager getIndexManager() {
 		return this.deltaProcessor.indexManager;

@@ -43,12 +43,22 @@ public int getFlags() throws JavaModelException {
 	ImportDeclarationElementInfo info = (ImportDeclarationElementInfo)getElementInfo();
 	return info.getModifiers();
 }
-
+/**
+ * @see JavaElement#getHandleMemento()
+ * For import declarations, the handle delimiter is associated to the import container already
+ */
+public String getHandleMemento(){
+	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+	buff.append(getElementName());
+	return buff.toString();
+}
 /**
  * @see JavaElement#getHandleMemento()
  */
 protected char getHandleMementoDelimiter() {
-	return JavaElement.JEM_IMPORTDECLARATION;
+	// For import declarations, the handle delimiter is associated to the import container already
+	Assert.isTrue(false, "Should not be called"); //$NON-NLS-1$
+	return 0;
 }
 /**
  * Returns true if the import is on-demand (ends with ".*")
