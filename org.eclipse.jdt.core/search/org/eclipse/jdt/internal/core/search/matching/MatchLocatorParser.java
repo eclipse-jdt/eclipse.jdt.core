@@ -191,6 +191,15 @@ protected void consumePrimaryNoNewArray() {
 	intPtr--;
 	intPtr--;
 }
+
+protected void consumePrimaryNoNewArrayWithName() {
+	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	// pop parenthesis positions (and don't update expression positions
+	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
+	intPtr--;
+	intPtr--;
+}
 protected void consumeUnaryExpression(int op, boolean post) {
 	super.consumeUnaryExpression(op, post);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
