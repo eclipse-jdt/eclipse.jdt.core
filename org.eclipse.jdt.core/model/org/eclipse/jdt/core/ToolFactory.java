@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -117,9 +116,9 @@ public class ToolFactory {
 	 * @see ClassFileBytesDisassembler
 	 * @since 2.1
 	 */
-	public static ClassFileBytesDisassembler createDefaultClassFileBytesDisassembler(){
+	/*public static ClassFileBytesDisassembler createDefaultClassFileBytesDisassembler(){
 		return new Disassembler();
-	}
+	}*/
 
 	/**
 	 * Create a default classfile reader, able to expose the internal representation of a given classfile
