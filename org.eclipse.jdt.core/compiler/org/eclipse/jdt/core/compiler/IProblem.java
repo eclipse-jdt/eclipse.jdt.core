@@ -19,7 +19,10 @@
  * 								   TooManyMethods
  * 								   TooManyFields
  * 								   NonBlankFinalLocalAssignment
-***************************************************************************/
+ * 								   ObjectCannotHaveSuperTypes
+ * 								   MissingSemiColon
+ * 								   InvalidExpressionAsName
+ ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -344,6 +347,8 @@ public interface IProblem {
 	int UnmatchedBracket = Syntax + Internal + 220;
 	int NoFieldOnBaseType = FieldRelated + 221;
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;
+	int ExpressionShouldBeAVariable = Syntax + Internal + 223;
+	int MissingSemiColon = Syntax + Internal + 224;
     
 	// scanner errors
 	int EndOfSource = Syntax + Internal + 250;

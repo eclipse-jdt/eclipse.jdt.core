@@ -881,6 +881,14 @@ public void exceptionTypeProblem(SourceTypeBinding type, AbstractMethodDeclarati
 		exceptionType.sourceStart,
 		exceptionType.sourceEnd);
 }
+public void expressionShouldBeAVariable(Expression expression) {
+	this.handle(
+		IProblem.ExpressionShouldBeAVariable,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
 		IProblem.ThisSuperDuringConstructorInvocation,
@@ -2017,6 +2025,14 @@ public void missingReturnType(AbstractMethodDeclaration methodDecl) {
 		NoArgument,
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
+}
+public void missingSemiColon(Expression expression){
+	this.handle(
+		IProblem.MissingSemiColon,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
 }
 public void mustDefineDimensionsOrInitializer(ArrayAllocationExpression expression) {
 	this.handle(

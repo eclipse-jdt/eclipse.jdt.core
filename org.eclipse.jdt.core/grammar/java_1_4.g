@@ -819,7 +819,8 @@ PushRPAREN ::= ')'
 /.$putCase consumeRightParen(); $break ./
 
 Primary -> PrimaryNoNewArray
-Primary -> ArrayCreationExpression
+Primary -> ArrayCreationWithArrayInitializer
+Primary -> ArrayCreationWithoutArrayInitializer
 
 PrimaryNoNewArray -> Literal
 PrimaryNoNewArray ::= 'this'
@@ -886,17 +887,17 @@ ArgumentList ::= Expression
 ArgumentList ::= ArgumentList ',' Expression
 /.$putCase consumeArgumentList(); $break ./
 
---Thess rules are re-written in order to be ll1 
---ArrayCreationExpression ::= 'new' ArrayType ArrayInitializer
---ArrayCreationExpression ::= 'new' PrimitiveType DimExprs Dimsopt 
---ArrayCreationExpression ::= 'new' ClassOrInterfaceType DimExprs Dimsopt
---DimExprs ::= DimExpr
---DimExprs ::= DimExprs DimExpr
+ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
+/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
 
-ArrayCreationExpression ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializeropt
-/.$putCase consumeArrayCreationExpression(); $break ./
-ArrayCreationExpression ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializeropt
-/.$putCase consumeArrayCreationExpression(); $break ./
+ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
+
+ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
+/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
+
+ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
+/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
 
 DimWithOrWithOutExprs ::= DimWithOrWithOutExpr
 DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
@@ -932,6 +933,8 @@ MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 ArrayAccess ::= Name '[' Expression ']'
 /.$putCase consumeArrayAccess(true); $break ./
 ArrayAccess ::= PrimaryNoNewArray '[' Expression ']'
+/.$putCase consumeArrayAccess(false); $break ./
+ArrayAccess ::= ArrayCreationWithArrayInitializer '[' Expression ']'
 /.$putCase consumeArrayAccess(false); $break ./
 
 PostfixExpression -> Primary
@@ -971,13 +974,18 @@ UnaryExpressionNotPlusMinus ::= '!' PushPosition UnaryExpression
 /.$putCase consumeUnaryExpression(OperatorExpression.NOT); $break ./
 UnaryExpressionNotPlusMinus -> CastExpression
 
-CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression
+CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpression(); $break ./
- CastExpression ::= PushLPAREN Name Dims PushRPAREN UnaryExpressionNotPlusMinus
+ CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpression(); $break ./
 -- Expression is here only in order to make the grammar LL1
-CastExpression ::= PushLPAREN Expression PushRPAREN UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Expression PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
+
+InsideCastExpression ::= $empty
+/.$putCase consumeInsideCastExpression(); $break ./
+InsideCastExpressionLL1 ::= $empty
+/.$putCase consumeInsideCastExpressionLL1(); $break ./
 
 MultiplicativeExpression -> UnaryExpression
 MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression
@@ -1046,18 +1054,13 @@ ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' Conditional
 AssignmentExpression -> ConditionalExpression
 AssignmentExpression -> Assignment
 
-Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
 /.$putCase consumeAssignment(); $break ./
 
 -- this rule is added to parse an array initializer in a assigment and then report a syntax error knowing the exact senario
-InvalidArrayInitializerAssignement ::= LeftHandSide AssignmentOperator ArrayInitializer
+InvalidArrayInitializerAssignement ::= PostfixExpression AssignmentOperator ArrayInitializer
 Assignment ::= InvalidArrayInitializerAssignement
 /.$putcase ignoreExpressionAssignment();$break ./
-
-LeftHandSide ::= Name
-/.$putCase consumeLeftHandSide(); $break ./
-LeftHandSide -> FieldAccess
-LeftHandSide -> ArrayAccess
 
 AssignmentOperator ::= '='
 /.$putCase consumeAssignmentOperator(EQUAL); $break ./
@@ -1183,10 +1186,6 @@ Catchesopt ::= $empty
 /. $putCase consumeEmptyCatchesopt(); $break ./
 Catchesopt -> Catches
 
-ArrayInitializeropt ::= $empty
-/. $putCase consumeEmptyArrayInitializeropt(); $break ./
-ArrayInitializeropt -> ArrayInitializer
-
 /.	}
 } ./
 
@@ -1248,5 +1247,3 @@ EQUAL ::=    '='
 
 $end
 -- need a carriage return after the $end
-
-

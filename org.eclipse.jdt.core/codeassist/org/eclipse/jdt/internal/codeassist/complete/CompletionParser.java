@@ -853,8 +853,12 @@ public void completionIdentifierCheck(){
 	} finally {
 	}
 }
-protected void consumeArrayCreationExpression() {
-	super.consumeArrayCreationExpression();
+protected void consumeArrayCreationExpressionWithInitializer() {
+	super.consumeArrayCreationExpressionWithInitializer();
+	popElement(K_ARRAY_CREATION);
+}
+protected void consumeArrayCreationExpressionWithoutInitializer() {
+	super.consumeArrayCreationExpressionWithoutInitializer();
 	popElement(K_ARRAY_CREATION);
 }
 protected void consumeAssignment() {

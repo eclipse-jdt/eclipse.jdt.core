@@ -40,7 +40,7 @@ public class PostfixExpression extends CompoundAssignment {
 		// just a local variable.
 
 		int pc = codeStream.position;
-		lhs.generatePostIncrement(currentScope, codeStream, this, valueRequired);
+		 ((Reference) lhs).generatePostIncrement(currentScope, codeStream, this, valueRequired);
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		}

@@ -18,14 +18,14 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Assignment extends Expression {
 
-	public Reference lhs;
+	public Expression lhs;
 	public Expression expression;
 		
 	public Assignment(Expression lhs, Expression expression, int sourceEnd) {
 		//lhs is always a reference by construction ,
 		//but is build as an expression ==> the checkcast cannot fail
 
-		this.lhs = (Reference) lhs;
+		this.lhs = lhs;
 		lhs.bits |= IsStrictlyAssignedMASK; // tag lhs as assigned
 		
 		this.expression = expression;
@@ -42,7 +42,7 @@ public class Assignment extends Expression {
 		// a field reference, a blank final field reference, a field of an enclosing instance or 
 		// just a local variable.
 
-		return lhs
+		return ((Reference) lhs)
 			.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 			.unconditionalInits();
 	}
@@ -71,7 +71,7 @@ public class Assignment extends Expression {
 				this.expression.generateCode(currentScope, codeStream, true);
 			}
 		} else {
-			lhs.generateAssignment(currentScope, codeStream, this, valueRequired);
+			 ((Reference) lhs).generateAssignment(currentScope, codeStream, this, valueRequired);
 			// variable may have been optimized out
 			// the lhs is responsible to perform the implicitConversion generation for the assignment since optimized for unused local assignment.
 		}
@@ -94,6 +94,9 @@ public class Assignment extends Expression {
 
 		// due to syntax lhs may be only a NameReference, a FieldReference or an ArrayReference
 		constant = NotAConstant;
+		if (!(this.lhs instanceof Reference)) {
+			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
+		}
 		this.resolvedType = lhs.resolveType(scope); // expressionType contains the assignment type (lhs Type)
 		TypeBinding rhsType = expression.resolveType(scope);
 		if (this.resolvedType == null || rhsType == null) {

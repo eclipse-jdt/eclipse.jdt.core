@@ -143,12 +143,27 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		super.classInstanceCreation(alwaysQualified);
 	}
 }
+protected void consumeArrayCreationExpressionWithoutInitializer() {
+	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
+	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 
-protected void consumeArrayCreationExpression() {
-	// ArrayCreationExpression ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializeropt
-	// ArrayCreationExpression ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializeropt
+	super.consumeArrayCreationExpressionWithoutInitializer();
 
-	super.consumeArrayCreationExpression();
+	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
+	if (alloc.type == assistNode){
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
+		this.isOrphanCompletionNode = true;
+	}
+}
+
+protected void consumeArrayCreationExpressionWithInitializer() {
+	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
+
+	super.consumeArrayCreationExpressionWithInitializer();
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){

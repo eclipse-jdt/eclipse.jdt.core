@@ -35,7 +35,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// a field reference, a blank final field reference, a field of an enclosing instance or 
 	// just a local variable.
 
-	return lhs.analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
+	return  ((Reference) lhs).analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
 }
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
@@ -44,7 +44,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// just a local variable.
 
 	int pc = codeStream.position;
-	lhs.generateCompoundAssignment(currentScope, codeStream, expression, operator, assignmentImplicitConversion, valueRequired);
+	 ((Reference) lhs).generateCompoundAssignment(currentScope, codeStream, expression, operator, assignmentImplicitConversion, valueRequired);
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(implicitConversion);
 	}
@@ -79,6 +79,9 @@ public String operatorToString() {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
+	if (!(this.lhs instanceof Reference)) {
+		scope.problemReporter().expressionShouldBeAVariable(this.lhs);
+	}
 	TypeBinding lhsType = lhs.resolveType(scope);
 	TypeBinding expressionType = expression.resolveType(scope);
 	if (lhsType == null || expressionType == null)
