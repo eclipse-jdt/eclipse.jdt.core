@@ -29,7 +29,6 @@ package org.eclipse.jdt.internal.codeassist.select;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SelectionOnSuperReference extends SuperReference {
 

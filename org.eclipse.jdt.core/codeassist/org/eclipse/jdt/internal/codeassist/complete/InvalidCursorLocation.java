@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.codeassist.impl.Engine;
 
 /**
  * Thrown whenever cursor location is not inside a consistent token

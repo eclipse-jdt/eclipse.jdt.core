@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.compiler;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
 
 /*
  * Handler policy is responsible to answer the 2 following

@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.codeassist.complete.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.compiler.impl.*;

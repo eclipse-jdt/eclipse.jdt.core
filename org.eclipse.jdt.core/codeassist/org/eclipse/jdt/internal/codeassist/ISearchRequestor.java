@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.codeassist;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.codeassist.*;
 
 /**
  * This is the internal requestor passed to the searchable name environment

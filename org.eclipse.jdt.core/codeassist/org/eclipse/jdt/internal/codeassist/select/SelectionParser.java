@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 

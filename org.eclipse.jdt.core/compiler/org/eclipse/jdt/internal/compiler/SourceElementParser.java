@@ -22,9 +22,7 @@ package org.eclipse.jdt.internal.compiler;
  *
  * Any (parsing) problem encountered is also provided.
  */
-import java.lang.reflect.Constructor;
 
-import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -34,8 +32,6 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SourceElementParser extends Parser {
 	ISourceElementRequestor requestor;
-	private int fieldCount;
-	private int localIntPtr;
 	private int lastFieldEndPosition;
 	private ISourceType sourceType;
 	private boolean reportReferenceInfo;
@@ -884,53 +880,5 @@ private char[] returnTypeName(TypeReference type) {
 			dimensionsArray); 
 	}
 	return CharOperation.concatWith(type.getTypeName(), '.');
-}
-private TypeReference typeReference(
-	int dim, 
-	int localIdentifierPtr, 
-	int localIdentifierLengthPtr) {
-	/* build a Reference on a variable that may be qualified or not
-	 * This variable is a type reference and dim will be its dimensions.
-	 * We don't have any side effect on the stacks' pointers.
-	 */
-
-	int length;
-	TypeReference ref;
-	if ((length = identifierLengthStack[localIdentifierLengthPtr]) == 1) {
-		// single variable reference
-		if (dim == 0) {
-			ref = 
-				new SingleTypeReference(
-					identifierStack[localIdentifierPtr], 
-					identifierPositionStack[localIdentifierPtr--]); 
-		} else {
-			ref = 
-				new ArrayTypeReference(
-					identifierStack[localIdentifierPtr], 
-					dim, 
-					identifierPositionStack[localIdentifierPtr--]); 
-		}
-	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[localIntPtr--];
-		} else { //Qualified variable reference
-			char[][] tokens = new char[length][];
-			localIdentifierPtr -= length;
-			long[] positions = new long[length];
-			System.arraycopy(identifierStack, localIdentifierPtr + 1, tokens, 0, length);
-			System.arraycopy(
-				identifierPositionStack, 
-				localIdentifierPtr + 1, 
-				positions, 
-				0, 
-				length); 
-			if (dim == 0)
-				ref = new QualifiedTypeReference(tokens, positions);
-			else
-				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
-		}
-	};
-	return ref;
 }
 }
