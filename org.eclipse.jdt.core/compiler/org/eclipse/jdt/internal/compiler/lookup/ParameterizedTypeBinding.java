@@ -538,9 +538,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * parameterized type.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
-		if (originalType == null) {
-		    return null;
-		}
 		if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
 			if (originalType.isTypeVariable()) {
 				TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
