@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -48,14 +50,16 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
 		try {
 			Class c = Class.forName(compilerClass);
-			Method compile = c.getMethod("main", new Class[] { String[].class }); //$NON-NLS-1$
-			compile.invoke(null, new Object[] { cmd.getArguments()});
+			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, Boolean.TYPE});
+			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new Boolean(true)});
+			Method compile = c.getMethod("compile", new Class[] {String[].class});
+			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
+			return ((Boolean) result).booleanValue();
 		} catch (ClassNotFoundException cnfe) {
 			throw new BuildException(Util.bind("ant.jdtadapter.error.missingJDTCompiler")); //$NON-NLS-1$
 		} catch (Exception ex) {
 			throw new BuildException(ex);
 		}
-		return true;
 	}
 	
 	
