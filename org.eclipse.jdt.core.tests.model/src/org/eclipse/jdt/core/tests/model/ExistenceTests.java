@@ -283,11 +283,31 @@ public void testTypeParameter4() throws CoreException {
 			"}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("String");
-		assertTrue("Type parameter should exist", !typeParameter.exists()); 
+		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
 	} finally {
 		this.deleteProject("P");
 	}
-}/*
+}
+/*
+ * Ensure that an ITypeParameter doesn't exist even if a member class with the same name exists in source.
+ * (regression test for bug 73255 [1.5][reconciling] ClassCastException in SourceTypeElementInfo#getTypeParameterBounds)
+ */
+public void testTypeParameter5() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"P/X.java", 
+			"public class X {\n" +
+			"  class T {}\n" +
+			"}"
+		);
+		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
+		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensures that one cannot get the corresponding resource of a non-existing class file.
  */
 public void testCorrespondingResourceNonExistingClassFile() throws CoreException {

@@ -27,6 +27,11 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		this.name = name;
 	}
 
+	public boolean equals(Object o) {
+		if (!(o instanceof TypeParameter)) return false;
+		return super.equals(o);
+	}
+
 	public String[] getBounds() throws JavaModelException {
 		TypeParameterElementInfo info = (TypeParameterElementInfo) getElementInfo();
 		return CharOperation.toStrings(info.bounds);
