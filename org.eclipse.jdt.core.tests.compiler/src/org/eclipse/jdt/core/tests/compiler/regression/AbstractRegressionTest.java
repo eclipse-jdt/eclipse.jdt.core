@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +40,12 @@ import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
+
+	// static variables for subsets tests
+	protected static String[] testsNames = null; // list of test names to perform
+	protected static int[] testsNumbers = null; // list of test numbers to perform
+	protected static int[] testsRange = null; // range of test numbers to perform
+
 
 	protected INameEnvironment javaClassLib;
 	protected String[] classpaths;
@@ -383,7 +391,87 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		this.verifier.shutDown();
 	}
 	public static Test suite(Class evaluationTestClass) {
-		TestSuite suite = new TestSuite(evaluationTestClass);
+		TestSuite suite = new TestSuite(evaluationTestClass.getName());
+		try {
+			Class[] paramTypes = new Class[] { String.class };
+			Constructor constructor = evaluationTestClass.getConstructor(paramTypes);
+			if (testsNames != null) {
+				for (int i = 0; i < testsNames.length; i++) {
+					String meth = "test" + testsNames[i];
+					Object[] params = {meth};
+					suite.addTest((Test)constructor.newInstance(params));
+				}
+			}
+			else if (testsNumbers != null) {
+				for (int i = 0; i < testsNumbers.length; i++) {
+					String meth = "test";
+					int num = testsNumbers[i];
+					if (num < 10) meth += "0";
+					if (num < 100) meth += "0";
+					meth += num;
+					Object[] params = {meth};
+					suite.addTest((Test)constructor.newInstance(params));
+				}
+			}
+			else if (testsRange != null && testsRange.length == 2) {
+				if (testsRange[0]>=0 && testsRange[0]<=testsRange[1]) {
+					for (int i=testsRange[0]; i<=testsRange[1]; i++) {
+						String meth = "test";
+						if (i<10) meth += "0";
+						if (i<100) meth += "0";
+						meth += i;
+						Object[] params = {meth};
+						suite.addTest((Test)constructor.newInstance(params));
+					}
+				} else if (testsRange[0] <0) { // run all tests under a specific test number
+					// Run all tests
+					Method[] methods = evaluationTestClass.getMethods();
+					for (int i = 0, max = methods.length; i < max; i++) {
+						String methodName = methods[i].getName();
+						if (methods[i].getModifiers() == 1 && methodName.startsWith("test")) { //$NON-NLS-1$
+							try {
+								int number = Integer.decode(methodName.substring(4)).intValue();
+								if (number <= testsRange[1]) {
+									Object[] params = {methods[i].getName()};
+									suite.addTest((Test)constructor.newInstance(params));
+								}
+							} catch (NumberFormatException e1) {
+								// do nothing
+							}
+						}
+					}
+				} else if (testsRange[1] <0) { // run all tests over a specific test number
+					// Run all tests
+					Method[] methods = evaluationTestClass.getMethods();
+					for (int i = 0, max = methods.length; i < max; i++) {
+						String methodName = methods[i].getName();
+						if (methods[i].getModifiers() == 1 && methodName.startsWith("test")) { //$NON-NLS-1$
+							try {
+								int number = Integer.parseInt(methodName.substring(4), 10);
+								if (number >= testsRange[0]) {
+									Object[] params = {methods[i].getName()};
+									suite.addTest((Test)constructor.newInstance(params));
+								}
+							} catch (NumberFormatException e1) {
+								// do nothing
+								e1.printStackTrace();							
+							}
+						}
+					}
+				}
+			} else {
+				// Run all tests
+				Method[] methods = evaluationTestClass.getMethods();
+				for (int i = 0, max = methods.length; i < max; i++) {
+					if (methods[i].getModifiers() == 1 && methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+						Object[] params = {methods[i].getName()};
+						suite.addTest((Test)constructor.newInstance(params));
+					}
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		return suite;
 	}
 	protected void tearDown() throws Exception {

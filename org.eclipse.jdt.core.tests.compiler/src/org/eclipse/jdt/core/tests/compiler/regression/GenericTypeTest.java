@@ -45,8 +45,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 		return options;
 	}
+	static {
+		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
+//		testsRange = new int[] { 66, -1 };
+//		testsNumbers = new int[] { 1006 };
+	}
 	public static Test suite() {
-		return setupSuite(testClass());
+		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+			return suite(testClass());
+		} else {
+			return setupSuite(testClass());
+		}
 	}
 
 	/*
@@ -153,16 +162,16 @@ public class GenericTypeTest extends AbstractRegressionTest {
 						cmdLine.append(" -classpath ");
 						cmdLine.append(cp);
 						cmdLine.append(" -source 1.5 -deprecation ");
-						if (dirPath.equals(dirFilePath)) {
+						if (GenericTypeTest.this.dirPath.equals(dirFilePath)) {
 							cmdLine.append("*.java");
 						} else {
-							IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(dirPath.segmentCount());
+							IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(GenericTypeTest.this.dirPath.segmentCount());
 							String subDirName = subDirPath.toString().substring(subDirPath.getDevice().length());
 							cmdLine.append(subDirName);
 						}
 //						System.out.println(testName+": "+cmdLine.toString());
 						// Launch process
-						process = Runtime.getRuntime().exec(cmdLine.toString(), null, dirPath.toFile());
+						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeTest.this.dirPath.toFile());
 						process.waitFor();
 						// Compare compilation results
 						int exitValue = process.exitValue();
@@ -1611,12 +1620,7 @@ public void test057() {
 		"SUCCESS");
 }
 
-	/*##############################
-	 * Tests methods
-	 ###############################*/
-	/*
-	 * Tests of syntax for Parameterized Type Declarations and References.
-	 */
+	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types
 	public void test058() {
 		this.runConformTest(
 			new String[] {
@@ -1632,6 +1636,7 @@ public void test057() {
 			}
 		);
 	}
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more declared than referenced
 	public void test059() {
 		this.runNegativeTest(
 			new String[] {
@@ -1646,12 +1651,14 @@ public void test057() {
 					"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in test\\X.java (at line 7)\n" + 
-			"	X<String, Number, Integer> x;\n" + 
-			"	^\n" + 
-			"Incorrect number of arguments for type X<A1,A2,A3,A4>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
-			"----------\n");
+				"1. ERROR in test\\X.java (at line 7)\n" + 
+				"	X<String, Number, Integer> x;\n" + 
+				"	^\n" + 
+				"Incorrect number of arguments for type X<A1,A2,A3,A4>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
+				"----------\n"
+		);
 	}
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more referenced than declared
 	public void test060() {
 		this.runNegativeTest(
 			new String[] {
@@ -1660,19 +1667,20 @@ public void test057() {
 					"// Valid Parameterized Type Declaration\n" + 
 					"public class X<A1, A2> {\n" + 
 					"}\n" + 
-					"// Invalid Valid Type Syntax (too manyparameters)\n" + 
+					"// Invalid Valid Type Syntax (too many parameters)\n" + 
 					"class Y {\n" + 
 					"	X<String, Number, Integer> x;\n" + 
 					"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in test\\X.java (at line 7)\n" + 
-			"	X<String, Number, Integer> x;\n" + 
-			"	^\n" + 
-			"Incorrect number of arguments for type X<A1,A2>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
-			"----------\n"
+				"1. ERROR in test\\X.java (at line 7)\n" + 
+				"	X<String, Number, Integer> x;\n" + 
+				"	^\n" + 
+				"Incorrect number of arguments for type X<A1,A2>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
+				"----------\n"
 		);
 	}
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: primitive types
 	public void test061() {
 		this.runNegativeTest(
 			new String[] {
@@ -1724,6 +1732,7 @@ public void test057() {
 				"----------\n"
 		);
 	}
+	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types: primitive type arrays
 	// TODO (philippe) reenable once array type arguments are supported
 	public void _test062() {
 		this.runConformTest(
@@ -1838,4 +1847,392 @@ public void test057() {
 		"unchecked warning assigning raw type X to X<IOException>");
 	}
 
+	// JSR14-v10[§2.4]: Valid right-shift symbol
+	// TODO (philippe) seems to be a valid Parameterized type declaration, doesn't it?
+	public void _test066() {
+		this.runConformTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1 extends X2<A2>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X2<A2>{\n" + 
+					"	A2 a2;\n" +
+					"}\n" +
+					"// Valid Type Syntax\n" + 
+					"class Y {\n" + 
+					"	X1<X2<String>> x = new X1<X2<String>>();\n" +
+					"	{\n" +
+					"		x.a1.a2 = \"SUCCESS\";\n" +
+					"		System.out.println(x.a1.a2);\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"SUCCESS"
+		);
+	}
+
+	// JSR14-v10[§2.1,§2.2]: Valid consecutive spaced declaration
+	// TODO (philippe) same as previous test
+	public void _test067() {
+		this.runConformTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1< A1 extends X2	<	A2	>     			> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X2<A2>{\n" + 
+					"	A2 a2;\n" +
+					"}\n" +
+					"// Valid Type Syntax\n" + 
+					"class Y {\n" + 
+					"	X1<X2<String>> x = new X1<X2<String>>();\n" +
+					"	{\n" +
+					"		x.a1.a2 = \"SUCCESS\";\n" +
+					"		System.out.println(x.a1.a2);\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"SUCCESS"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// TODO (david) diagnosis message on error 2 sounds strange, doesn't it?
+	public void test068() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1 extends X2<A2> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Invalid Parameterized Type Declaration\n" + 
+					"class X2<A2 {\n" + 
+					"	A2 a2;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2> {\n" + 
+				"	                                ^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2> {\n" + 
+				"	                                ^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X1.java (at line 7)\n" + 
+				"	class X2<A2 {\n" + 
+				"	         ^^\n" + 
+				"Syntax error on token \"A2\", > expected after this token\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	public void test069() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1 extends X2<A2 {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Invalid Parameterized Type Declaration\n" + 
+					"class X2<A2> {\n" + 
+					"	A2 a2;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2 {\n" + 
+				"	                              ^^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	public void test070() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1>> {\n" + 
+				"	                  ^^\n" + 
+				"Syntax error on token \">>\", > expected\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
+	public void test071() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1 < A1 > > {\n" + 
+					"	A1 a1;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1 < A1 > > {\n" + 
+				"	                       ^\n" + 
+				"Syntax error on token \">\", delete this token\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Consecutive declaration using unary right-shift symbol
+	// TODO (philippe) seems to be a valid Parameterized type declaration, doesn't it?
+	public void _test072() {
+		this.runConformTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration (2 levels)\n" + 
+					"public class X1<A1 extends X2<A2 extends X3<A3>>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"class X2<A2 extends X3<A3>> {\n" + 
+					"	A2 a2;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X3<A3>{\n" + 
+					"	A3 a3;\n" +
+					"}\n" +
+					"// Valid Type Syntax\n" + 
+					"class Y {\n" + 
+					"	X1<X2<X3<String>>> x = new X1<X2<X3<String>>>();\n" +
+					"	{\n" +
+					"		x.a1.a2.a3 = \"SUCCESS\";\n" +
+					"		System.out.println(x.a1.a2.a3);\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"SUCCESS"
+		);
+	}
+
+	// JSR14-V10[§2.1,§2.2]: Consecutive declaration without unary right-shift symbol
+	// TODO (philippe) same as previous test
+	public void _test073() {
+		this.runConformTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration (2 levels)\n" + 
+					"public class X1 < A1 extends X2 < A2 extends X3 < A3 > > >  {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"class X2<A2 extends X3<A3>> {\n" + 
+					"	A2 a2;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X3<A3>{\n" + 
+					"	A3 a3;\n" +
+					"}\n" +
+					"// Valid Type Syntax\n" + 
+					"class Y {\n" + 
+					"	X1<X2<X3<String>>> x = new X1<X2<X3<String>>>();\n" +
+					"	{\n" +
+					"		x.a1.a2.a3 = \"SUCCESS\";\n" +
+					"		System.out.println(x.a1.a2.a3);\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"SUCCESS"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// TODO (david) , should be surrounded by double-quotes
+	// TODO (philippe) same as test066
+	public void test074() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration (2 levels)\n" + 
+					"public class X1<A1 extends X2<A2 extends X3<A3>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"class X2<A2 extends X3<A3>> {\n" + 
+					"	A2 a2;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X3<A3> {\n" + 
+					"	A3 a3;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2 extends X3<A3>> {\n" + 
+				"	                             ^\n" + 
+				"Syntax error on token \"<\", , expected\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X1.java (at line 7)\n" + 
+				"	class X2<A2 extends X3<A3>> {\n" + 
+				"	                       ^^\n" + 
+				"A3 cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// TODO (philippe) same as test066
+	public void test075() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration (2 levels)\n" + 
+					"public class X1<A1 extends X2<A2 extends X3<A3> {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"class X2<A2 extends X3<A3>> {\n" + 
+					"	A2 a2;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X3<A3> {\n" + 
+					"	A3 a3;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2 extends X3<A3> {\n" + 
+				"	                              ^^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X1.java (at line 7)\n" + 
+				"	class X2<A2 extends X3<A3>> {\n" + 
+				"	                       ^^\n" + 
+				"A3 cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// TODO (philippe) same as test066
+	public void test076() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Valid Consecutive Parameterized Type Declaration (2 levels)\n" + 
+					"public class X1<A1 extends X2<A2 extends X3<A3 {\n" + 
+					"	A1 a1;\n" +
+					"}\n" + 
+					"// Valid Consecutive Parameterized Type Declaration\n" + 
+					"class X2<A2 extends X3<A3>> {\n" + 
+					"	A2 a2;\n" +
+					"}\n" + 
+					"// Valid Parameterized Type Declaration\n" + 
+					"class X3<A3> {\n" + 
+					"	A3 a3;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2 extends X3<A3 {\n" + 
+				"	                              ^^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2 extends X3<A3 {\n" + 
+				"	                                            ^^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X1.java (at line 7)\n" + 
+				"	class X2<A2 extends X3<A3>> {\n" + 
+				"	                       ^^\n" + 
+				"A3 cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
+	// TODO (david) surround expected token with (double-)quotes
+	public void test077() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1>>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1>>> {\n" + 
+				"	                  ^^^\n" + 
+				"Syntax error on token \">>>\", > expected\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	// TODO (david) surround expected token with (double-)quotes
+	public void test078() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1<A1 extends X2<A2>>> {\n" + 
+					"	A1 a1;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X1.java (at line 3)\n" + 
+				"	public class X1<A1 extends X2<A2>>> {\n" + 
+				"	                                ^^^\n" + 
+				"Syntax error on token \">>>\", >> expected\n" + 
+				"----------\n"
+		);
+	}
+
+	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
+	public void test079() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X1.java",
+				"package test;\n" +
+					"// Invalid Consecutive Parameterized Type Declaration\n" + 
+					"public class X1 < A1 > > > {\n" + 
+					"	A1 a1;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1 < A1 > > > {\n" + 
+			"	                     ^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n"
+		);
+	}
 }
