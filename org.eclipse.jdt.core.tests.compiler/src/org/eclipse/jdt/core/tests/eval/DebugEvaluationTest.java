@@ -98,7 +98,7 @@ public Map getOptions() {
 	Map options = super.getOptions();
 	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);	
 	return options;
 }
 public void removeTempClass(String className) {
@@ -120,8 +120,8 @@ public static Test suite() {
 	return setupSuite(testClass());
 }
 /*public static Test suite(Class evaluationTestClass) {
-	TestSuite suite = new TestSuite();
-	suite.addTest(new DebugEvaluationTest("test023"));
+	junit.framework.TestSuite suite = new junit.framework.TestSuite();
+	suite.addTest(new DebugEvaluationTest("test018"));
 	return suite;
 }*/
 /**
