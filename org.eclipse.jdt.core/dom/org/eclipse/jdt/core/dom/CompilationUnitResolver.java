@@ -184,7 +184,6 @@ class CompilationUnitResolver extends Compiler {
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
 	public void initializeParser() {
-		// TODO Auto-generated method stub
 		this.parser = createDomParser(this.problemReporter);
 	}
 	/*

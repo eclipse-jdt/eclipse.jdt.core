@@ -326,20 +326,20 @@ class BinaryExpressionFragmentBuilder
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
-		QualifiedSuperReference qualifiedSuperReference,
-		BlockScope scope) {
-		// TODO Auto-generated method stub
-		return super.visit(qualifiedSuperReference, scope);
+			QualifiedSuperReference qualifiedSuperReference,
+			BlockScope scope) {
+		this.fragmentsList.add(qualifiedSuperReference);
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
-		QualifiedThisReference qualifiedThisReference,
-		BlockScope scope) {
-		// TODO Auto-generated method stub
-		return super.visit(qualifiedThisReference, scope);
+			QualifiedThisReference qualifiedThisReference,
+			BlockScope scope) {
+		this.fragmentsList.add(qualifiedThisReference);
+		return false;
 	}
 
 	public boolean visit(
@@ -358,8 +358,8 @@ class BinaryExpressionFragmentBuilder
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SuperReference superReference, BlockScope scope) {
-		// TODO Auto-generated method stub
-		return super.visit(superReference, scope);
+		this.fragmentsList.add(superReference);
+		return false;
 	}
 
 	public boolean visit(ThisReference thisReference, BlockScope scope) {
