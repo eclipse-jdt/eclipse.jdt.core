@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
