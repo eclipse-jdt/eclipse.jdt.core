@@ -497,12 +497,26 @@ public void testClasspathMoveNestedRootParent() throws CoreException {
  */
 public void testClasspathNoChanges() throws CoreException {
 	try {
-		IJavaProject classFileProject= this.createJavaProject("P", new String[] {""}, "");
-		IClasspathEntry[] oldClasspath= classFileProject.getRawClasspath();
+		IJavaProject p = this.createJavaProject("P", new String[] {""}, "");
+		IClasspathEntry[] oldClasspath= p.getRawClasspath();
 		startDeltas();
-		classFileProject.setRawClasspath(oldClasspath, null);
-		assertTrue("No deltas should be generated for the same classpath", 
-			this.deltaListener.deltas.length == 0);
+		p.setRawClasspath(oldClasspath, null);
+
+
+//		try {
+//			java.io.File file = p.getProject().getFile(JavaProject.CLASSPATH_FILENAME).getLocation().toFile();
+//			if (file.exists()){
+//				char[] classpath = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, "UTF-8");
+//				System.out.println(new String(classpath));
+//			}
+//		} catch(java.io.IOException e){
+//		}
+
+		StringBuffer buffer = new StringBuffer(10);
+		for (int i = 0; i < this.deltaListener.deltas.length; i++){
+			buffer.append(this.deltaListener.deltas[i].toString()).append('\n');
+		}
+		assertEquals("No deltas should be generated for the same classpath", "", buffer.toString());
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
