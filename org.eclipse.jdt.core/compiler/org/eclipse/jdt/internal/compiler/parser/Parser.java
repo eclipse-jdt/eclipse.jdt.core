@@ -6757,6 +6757,9 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	typeParameter.type = superType;
 	typeParameter.bounds = bounds;
+	for (int i = 0, max = bounds.length; i < max; i++) {
+		bounds[i].bits |= ASTNode.IsSuperType;
+	}	
 }
 protected void consumeTypeParameterList() {
 	//TypeParameterList ::= TypeParameterList ',' TypeParameter
@@ -6793,6 +6796,9 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	typeParameter.type = superType;
 	typeParameter.bounds = bounds;
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
+	for (int i = 0, max = bounds.length; i < max; i++) {
+		bounds[i].bits |= ASTNode.IsSuperType;
+	}		
 }
 protected void consumeUnaryExpression(int op) {
 	// UnaryExpression ::= '+' PushPosition UnaryExpression
