@@ -4745,9 +4745,7 @@ protected void consumeStatementWhile() {
 			expressionStack[expressionPtr--], 
 			statement, 
 			intStack[intPtr--], 
-			statement instanceof Block // TODO (olivier) why isn't it all the time 'endStatementPosition' ? (similar to FOR loop)
-				? endStatementPosition
-				: endPosition); 
+			endStatementPosition); 
 }
 protected void consumeStaticInitializer() {
 	// StaticInitializer ::=  StaticOnly Block
