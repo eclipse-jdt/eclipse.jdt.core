@@ -1031,7 +1031,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	s = t += b;\n" + 
 			"	    ^^^^^^\n" + 
-			"The operator += is undefined for the argument type(s) , \n" + 
+			"The operator += is undefined for the argument type(s) T, T\n" + 
 			"----------\n");
 	}
 	
@@ -3776,5 +3776,96 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"SUCCESS");
+	}
+	// TODO (philippe) reenable when supported
+	public void _test134() {
+		this.runConformTest(
+			new String[] {
+				"Z.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class Z <T extends List> { \n" + 
+				"    T t;\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        foo(new Z<ArrayList>().set(new ArrayList<String>()));\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    Z<T> set(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"    T get() { \n" + 
+				"        return this.t; \n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static void foo(Z<? super ArrayList> za) {\n" + 
+				"        za.get().isEmpty();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
+	public void test135() {
+		this.runNegativeTest(
+			new String[] {
+				"Z.java",
+				"public class Z <T extends ZA> { \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        foo(new Z<ZA>());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    static void foo(Z<? super String> zs) {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ZA {\n" + 
+				"    void foo() {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ZB extends ZA {\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Z.java (at line 3)\n" + 
+			"	foo(new Z<ZA>());\n" + 
+			"	^^^\n" + 
+			"The method foo(Z<ZA>) is undefined for the type Z<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in Z.java (at line 6)\n" + 
+			"	static void foo(Z<? super String> zs) {\n" + 
+			"	                  ^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: Cannot convert from ? super String to the bounded parameter <T extends ZA> of the type Z<T>\n" + 
+			"----------\n");
+	}
+	public void test136() {
+		this.runNegativeTest(
+			new String[] {
+				"Z.java",
+				"public class Z <T extends ZB> { \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        foo(new Z<ZB>());\n" + 
+				"    }\n" + 
+				"    static void foo(Z<? super ZA> zs) {\n" + 
+				"        zs.foo();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class ZA {\n" + 
+				"}\n" + 
+				"class ZB extends ZA {\n" + 
+				"    void foo() {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Z.java (at line 3)\n" + 
+			"	foo(new Z<ZB>());\n" + 
+			"	^^^\n" + 
+			"The method foo(Z<ZB>) is undefined for the type Z<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in Z.java (at line 5)\n" + 
+			"	static void foo(Z<? super ZA> zs) {\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Type mismatch: Cannot convert from ? super ZA to the bounded parameter <T extends ZB> of the type Z<T>\n" + 
+			"----------\n");
 	}
 }

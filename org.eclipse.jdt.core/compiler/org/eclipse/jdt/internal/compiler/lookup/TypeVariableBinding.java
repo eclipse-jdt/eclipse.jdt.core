@@ -127,6 +127,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isTypeVariable() {
 	    return true;
 	}
+	/**
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#readableName()
+     */
+    public char[] readableName() {
+        return this.sourceName;
+    }
+	/**
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
+     */
+    public char[] shortReadableName() {
+        return this.readableName();
+    }
 	public ReferenceBinding superclass() {
 		return superclass;
 	}
