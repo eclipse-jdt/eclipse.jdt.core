@@ -75,9 +75,18 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 						break;
 					AttachingConnector connector = (AttachingConnector)connectors.get(0);
 					Map args = connector.defaultArguments();
-					((Connector.Argument)args.get("port")).setValue(String.valueOf(debugPort));
-					((Connector.Argument)args.get("hostname")).setValue(launcher.getTargetAddress());
-					((Connector.Argument)args.get("timeout")).setValue("10000");
+					Connector.Argument argument = (Connector.Argument)args.get("port");
+					if (argument != null) {
+						argument.setValue(String.valueOf(debugPort));
+					}
+					argument = (Connector.Argument)args.get("hostname");
+					if (argument != null) {
+						argument.setValue(launcher.getTargetAddress());
+					}
+					argument = (Connector.Argument)args.get("timeout");
+					if (argument != null) {
+						argument.setValue("10000");
+					}
 					this.vm = connector.attach(args);
 
 					// workaround pb with some VMs
