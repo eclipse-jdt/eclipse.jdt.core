@@ -1044,14 +1044,33 @@ public class SourceMapper
 			char currentChar = qualifiedName.charAt(count);
 			if (currentChar == Signature.C_RESOLVED || currentChar == Signature.C_TYPE_VARIABLE) {
 				unqualifiedName.append(Signature.C_UNRESOLVED);
-				String simpleName = toUnqualifiedSimpleName(qualifiedName, count+1);
-				if(!noDollar) {
-					if(!hasDollar && simpleName.indexOf('$') != -1) {
-						hasDollar = true;
+				String simpleName = Signature.getSimpleName(qualifiedName.substring(count+1));
+				int lastDollar = simpleName.lastIndexOf('$');
+				hasDollar |= lastDollar != -1;
+				int start = noDollar ? lastDollar + 1 : 0;
+				boolean sigStart = false;
+				for (int j = start, length = simpleName.length(); j < length; j++) {
+					char current = simpleName.charAt(j);
+					switch (current) {
+						case Signature.C_SUPER:
+						case Signature.C_EXTENDS:
+						case Signature.C_GENERIC_START:
+						case Signature.C_NAME_END:
+							unqualifiedName.append(current);
+							sigStart = true;
+							break;
+						default:
+							if (sigStart) {
+								if (current == Signature.C_TYPE_VARIABLE) {
+									unqualifiedName.append(Signature.C_UNRESOLVED);
+								} else {
+									unqualifiedName.append(current);
+								}
+								sigStart = false;
+							} else {
+								unqualifiedName.append(current);
+							}
 					}
-					unqualifiedName.append(simpleName);
-				} else {
-					unqualifiedName.append(CharOperation.lastSegment(simpleName.toCharArray(), '$'));
 				}
 			} else {
 				unqualifiedName.append(qualifiedName.substring(count, qualifiedName.length()));
@@ -1249,34 +1268,4 @@ public class SourceMapper
 		return false;
 	}	
 	
-	private String toUnqualifiedSimpleName(String qualifiedName, int start) {
-		// TODO (jerome) should not create unnecessary String and StringBuffer
-		String simpleName = Signature.getSimpleName(qualifiedName.substring(start));
-		StringBuffer unqualifiedName = new StringBuffer();
-		boolean sigStart = false;
-		for (int i = 0, length = simpleName.length(); i < length; i++) {
-			char current = simpleName.charAt(i);
-			switch (current) {
-				case Signature.C_SUPER:
-				case Signature.C_EXTENDS:
-				case Signature.C_GENERIC_START:
-				case Signature.C_NAME_END:
-					unqualifiedName.append(current);
-					sigStart = true;
-					break;
-				default:
-					if (sigStart) {
-						if (current == Signature.C_TYPE_VARIABLE) {
-							unqualifiedName.append(Signature.C_UNRESOLVED);
-						} else {
-							unqualifiedName.append(current);
-						}
-						sigStart = false;
-					} else {
-						unqualifiedName.append(current);
-					}
-			}
-		}
-		return unqualifiedName.toString();
-	}
 }
