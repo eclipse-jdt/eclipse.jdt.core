@@ -565,23 +565,15 @@ ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 /.$putCase consumeConstructorHeaderName(); $break ./
 /:$readableName ConstructorHeaderName:/
 
-FormalParameterList -> LastFormalParameter
-FormalParameterList ::= FormalParameters ',' LastFormalParameter
+FormalParameterList -> FormalParameter
+FormalParameterList ::= FormalParameterList ',' FormalParameter
 /.$putCase consumeFormalParameterList(); $break ./
 /:$readableName FormalParameterList:/
 
-FormalParameters -> FormalParameter
-FormalParameters ::= FormalParameters ',' FormalParameter
-/.$putCase consumeFormalParameterList(); $break ./
-/:$readableName FormalParameters:/
-
-LastFormalParameter -> FormalParameter
-LastFormalParameter ::= Modifiersopt Type ... VariableDeclaratorId
-/.$putCase consumeFormalParameter(); $break ./
-/:$readableName FormalParameter:/
-
 --1.1 feature
 FormalParameter ::= Modifiersopt Type VariableDeclaratorId
+/.$putCase consumeFormalParameter(); $break ./
+FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 /.$putCase consumeFormalParameter(); $break ./
 /:$readableName FormalParameter:/
 
