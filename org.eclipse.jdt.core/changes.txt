@@ -13,6 +13,17 @@ STREAM: 2.0
 
   OT
     -> JCK1.4 compliance diagnosing
+	1GK7WCP: ITPJCORE:WIN2000 - JCK 1.4 - the new method is a static (respectively instance) method. 
+	1GK7VXD: ITPJCORE:WIN2000 - JCK 1.4 - the new method is less accessible than the old one
+	1GK7VSN: ITPJCORE:WIN2000 - JCK 1.4 - the new field is a static (respectively instance) field
+	1GK7VMD: ITPJCORE:WIN2000 - JCK 1.4 - the new field is less accessible than the old one
+	1GK7VCA: ITPJCORE:WIN2000 - JCK 1.4 - detection of an IncompatibleClassChangeError 
+	1GK7UGQ: ITPJCORE:WIN2000 - JCK 1.4 - Invoke overriding class methods
+	1GK7U6C: ITPJCORE:WIN2000 - JCK 1.4 - Overriding instance and class methods
+	1GK7MHO: ITPJCORE:WIN2000 - JCK 1.4 - Adding a String field that has the same name as a String field of a superclass
+	1GK7MEQ: ITPJCORE:WIN2000 - JCK 1.4 - null literal in throw statement
+	1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
+	1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump
 
   DA
     -> CodeAssist improvements
