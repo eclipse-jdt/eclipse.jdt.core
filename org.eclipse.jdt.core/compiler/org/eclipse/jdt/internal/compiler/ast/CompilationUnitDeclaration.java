@@ -23,7 +23,6 @@ public class CompilationUnitDeclaration
 	public ImportReference currentPackage;
 	public ImportReference[] imports;
 	public TypeDeclaration[] types;
-	//public char[][] name;
 
 	public boolean ignoreFurtherInvestigation = false;	// once pointless to investigate due to errors
 	public boolean ignoreMethodBodies = false;

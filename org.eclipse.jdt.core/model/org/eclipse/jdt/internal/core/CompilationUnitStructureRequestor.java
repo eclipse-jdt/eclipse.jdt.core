@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -38,12 +39,12 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * The handle to the compilation unit being parsed
 	 */
-	protected ICompilationUnit fUnit;
+	protected ICompilationUnit unit;
 
 	/**
 	 * The info object for the compilation unit being parsed
 	 */
-	protected CompilationUnitElementInfo fUnitInfo;
+	protected CompilationUnitElementInfo unitInfo;
 
 	/**
 	 * The import container info - null until created
@@ -56,7 +57,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * the parser. Keys are handles, values are corresponding
 	 * info objects.
 	 */
-	protected Map fNewElements;
+	protected Map newElements;
 
 	/**
 	 * Stack of parent scope info objects. The info on the
@@ -64,19 +65,19 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * For example, when we locate a method, the parent info object
 	 * will be the type the method is contained in.
 	 */
-	protected Stack fInfoStack;
+	protected Stack infoStack;
 
 	/**
 	 * Stack of parent handles, corresponding to the info stack. We
 	 * keep both, since info objects do not have back pointers to
 	 * handles.
 	 */
-	protected Stack fHandleStack;
+	protected Stack handleStack;
 
 	/**
 	 * The name of the source file being parsed.
 	 */
-	protected char[] fSourceFileName= null;
+	protected char[] sourceFileName= null;
 
 	/**
 	 * The dot-separated name of the package the compilation unit
@@ -84,20 +85,13 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * compilation unit, and initialized by #acceptPackage.
 	 * Initialized to <code>null</code> for the default package.
 	 */
-	protected char[] fPackageName= null;
+	protected char[] packageName= null;
 
 	/**
 	 * The number of references reported thus far. Used to
 	 * expand the arrays of reference kinds and names.
 	 */
-	protected int fRefCount= 0;
-
-	/**
-	 * The initial size of the reference kind and name
-	 * arrays. If the arrays fill, they are doubled in
-	 * size
-	 */
-	protected static int fgReferenceAllocation= 50;
+	protected int referenceCount= 0;
 
 	/**
 	 * Problem requestor which will get notified of discovered problems
@@ -112,11 +106,8 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * Empty collections used for efficient initialization
 	 */
-	protected static String[] fgEmptyStringArray = new String[0];
-	protected static byte[] fgEmptyByte= new byte[]{};
-	protected static char[][] fgEmptyCharChar= new char[][]{};
-	protected static char[] fgEmptyChar= new char[]{};
-
+	protected static String[] NO_STRINGS = new String[0];
+	protected static byte[] NO_BYTES= new byte[]{};
 
 	protected HashtableOfObject fieldRefCache;
 	protected HashtableOfObject messageRefCache;
@@ -124,17 +115,17 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected HashtableOfObject unknownRefCache;
 
 protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) throws JavaModelException {
-	this.fUnit = unit;
-	this.fUnitInfo = unitInfo;
-	this.fNewElements = newElements;
-	this.fSourceFileName= unit.getElementName().toCharArray();
+	this.unit = unit;
+	this.unitInfo = unitInfo;
+	this.newElements = newElements;
+	this.sourceFileName= unit.getElementName().toCharArray();
 } 
 /**
  * @see ISourceElementRequestor
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
-	JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
-	JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+	JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
+	JavaElement parentHandle= (JavaElement)handleStack.peek();
 	if (!(parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT)) {
 		Assert.isTrue(false); // Should not happen
 	}
@@ -146,7 +137,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 		this.importContainerInfo= new JavaElementInfo();
 		this.importContainerInfo.setIsStructureKnown(true);
 		parentInfo.addChild(importContainer);
-		fNewElements.put(importContainer, this.importContainerInfo);
+		newElements.put(importContainer, this.importContainerInfo);
 	}
 	
 	// tack on the '.*' if it is onDemand
@@ -168,7 +159,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	info.setOnDemand(onDemand);
 
 	this.importContainerInfo.addChild(handle);
-	fNewElements.put(handle, info);
+	newElements.put(handle, info);
 }
 /*
  * Table of line separator position. This table is passed once at the end
@@ -183,10 +174,10 @@ public void acceptLineSeparatorPositions(int[] positions) {}
  */
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
 
-		JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
-		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+		JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
+		JavaElement parentHandle= (JavaElement)handleStack.peek();
 		IPackageDeclaration handle = null;
-		fPackageName= name;
+		packageName= name;
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
 			handle = new PackageDeclaration((ICompilationUnit) parentHandle, new String(name));
@@ -201,7 +192,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		info.setSourceRangeEnd(declarationEnd);
 
 		parentInfo.addChild(handle);
-		fNewElements.put(handle, info);
+		newElements.put(handle, info);
 
 }
 public void acceptProblem(IProblem problem) {
@@ -215,10 +206,10 @@ public void acceptProblem(IProblem problem) {
  */
 /* default */ static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	if (typeNames == null)
-		return fgEmptyStringArray;
+		return NO_STRINGS;
 	int n = typeNames.length;
 	if (n == 0)
-		return fgEmptyStringArray;
+		return NO_STRINGS;
 	String[] typeSigs = new String[n];
 	for (int i = 0; i < n; ++i) {
 		typeSigs[i] = Signature.createTypeSignature(typeNames[i], false);
@@ -244,10 +235,10 @@ public void enterClass(
  * @see ISourceElementRequestor
  */
 public void enterCompilationUnit() {
-	fInfoStack = new Stack();
-	fHandleStack= new Stack();
-	fInfoStack.push(fUnitInfo);
-	fHandleStack.push(fUnit);
+	infoStack = new Stack();
+	handleStack= new Stack();
+	infoStack.push(unitInfo);
+	handleStack.push(unit);
 }
 /**
  * @see ISourceElementRequestor
@@ -276,8 +267,8 @@ public void enterField(
 	int nameSourceStart,
 	int nameSourceEnd) {
 
-		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) fInfoStack.peek();
-		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) infoStack.peek();
+		JavaElement parentHandle= (JavaElement)handleStack.peek();
 		IField handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
@@ -297,10 +288,10 @@ public void enterField(
 		info.setTypeName(type);
 
 		parentInfo.addChild(handle);
-		fNewElements.put(handle, info);
+		newElements.put(handle, info);
 
-		fInfoStack.push(info);
-		fHandleStack.push(handle);
+		infoStack.push(info);
+		handleStack.push(handle);
 }
 /**
  * @see ISourceElementRequestor
@@ -308,8 +299,8 @@ public void enterField(
 public void enterInitializer(
 	int declarationSourceStart,
 	int modifiers) {
-		JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
-		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+		JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
+		JavaElement parentHandle= (JavaElement)handleStack.peek();
 		IInitializer handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
@@ -325,10 +316,10 @@ public void enterInitializer(
 		info.setFlags(modifiers);
 
 		parentInfo.addChild(handle);
-		fNewElements.put(handle, info);
+		newElements.put(handle, info);
 
-		fInfoStack.push(info);
-		fHandleStack.push(handle);
+		infoStack.push(info);
+		handleStack.push(handle);
 }
 /**
  * @see ISourceElementRequestor
@@ -376,19 +367,19 @@ protected void enterMethod(
 	char[][] exceptionTypes,
 	boolean isConstructor) {
 
-		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) fInfoStack.peek();
-		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) infoStack.peek();
+		JavaElement parentHandle= (JavaElement)handleStack.peek();
 		IMethod handle = null;
 
 		// translate nulls to empty arrays
 		if (parameterTypes == null) {
-			parameterTypes= fgEmptyCharChar;
+			parameterTypes= CharOperation.NO_CHAR_CHAR;
 		}
 		if (parameterNames == null) {
-			parameterNames= fgEmptyCharChar;
+			parameterNames= CharOperation.NO_CHAR_CHAR;
 		}
 		if (exceptionTypes == null) {
-			exceptionTypes= fgEmptyCharChar;
+			exceptionTypes= CharOperation.NO_CHAR_CHAR;
 		}
 		
 		String[] parameterTypeSigs = convertTypeNamesToSigs(parameterTypes);
@@ -414,9 +405,9 @@ protected void enterMethod(
 		info.setExceptionTypeNames(exceptionTypes);
 
 		parentInfo.addChild(handle);
-		fNewElements.put(handle, info);
-		fInfoStack.push(info);
-		fHandleStack.push(handle);
+		newElements.put(handle, info);
+		infoStack.push(info);
+		handleStack.push(handle);
 }
 /**
  * Common processing for classes and interfaces.
@@ -433,17 +424,17 @@ protected void enterType(
 	char[] enclosingTypeName= null;
 	char[] qualifiedName= null;
 	
-	JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
-	JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+	JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
+	JavaElement parentHandle= (JavaElement)handleStack.peek();
 	IType handle = null;
 	String nameString= new String(name);
 	
 	if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		handle = ((ICompilationUnit) parentHandle).getType(nameString);
-		if (fPackageName == null) {
+		if (packageName == null) {
 			qualifiedName= nameString.toCharArray();
 		} else {
-			qualifiedName= (new String(fPackageName) + "." + nameString).toCharArray(); //$NON-NLS-1$
+			qualifiedName= (new String(packageName) + "." + nameString).toCharArray(); //$NON-NLS-1$
 		}
 	}
 	else if (parentHandle.getElementType() == IJavaElement.TYPE) {
@@ -466,14 +457,14 @@ protected void enterType(
 	info.setSuperclassName(superclass);
 	info.setSuperInterfaceNames(superinterfaces);
 	info.setEnclosingTypeName(enclosingTypeName);
-	info.setSourceFileName(fSourceFileName);
-	info.setPackageName(fPackageName);
+	info.setSourceFileName(sourceFileName);
+	info.setPackageName(packageName);
 	info.setQualifiedName(qualifiedName);
 	parentInfo.addChild(handle);
-	fNewElements.put(handle, info);
+	newElements.put(handle, info);
 
-	fInfoStack.push(info);
-	fHandleStack.push(handle);
+	infoStack.push(info);
+	handleStack.push(handle);
 
 }
 /**
@@ -487,10 +478,10 @@ public void exitClass(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitCompilationUnit(int declarationEnd) {
-	fUnitInfo.setSourceLength(declarationEnd + 1);
+	unitInfo.setSourceLength(declarationEnd + 1);
 
 	// determine if there were any parsing errors
-	fUnitInfo.setIsStructureKnown(!this.hasSyntaxErrors);
+	unitInfo.setIsStructureKnown(!this.hasSyntaxErrors);
 }
 /**
  * @see ISourceElementRequestor
@@ -502,7 +493,7 @@ public void exitConstructor(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
-	SourceFieldElementInfo info = (SourceFieldElementInfo) fInfoStack.pop();
+	SourceFieldElementInfo info = (SourceFieldElementInfo) infoStack.pop();
 	info.setSourceRangeEnd(declarationSourceEnd);
 	
 	// remember initializer source if field is a constant
@@ -510,7 +501,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 		int flags = info.flags;
 		Object typeInfo;
 		if (Flags.isStatic(flags) && Flags.isFinal(flags)
-				|| ((typeInfo = fInfoStack.peek()) instanceof SourceTypeElementInfo
+				|| ((typeInfo = infoStack.peek()) instanceof SourceTypeElementInfo
 					 && (Flags.isInterface(((SourceTypeElementInfo)typeInfo).flags)))) {
 			int length = declarationEnd - initializationStart;
 			if (length > 0) {
@@ -520,7 +511,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 			}
 		}
 	}
-	fHandleStack.pop();
+	handleStack.pop();
 }
 /**
  * @see ISourceElementRequestor
@@ -538,9 +529,9 @@ public void exitInterface(int declarationEnd) {
  * common processing for classes and interfaces
  */
 protected void exitMember(int declarationEnd) {
-	SourceRefElementInfo info = (SourceRefElementInfo) fInfoStack.pop();
+	SourceRefElementInfo info = (SourceRefElementInfo) infoStack.pop();
 	info.setSourceRangeEnd(declarationEnd);
-	fHandleStack.pop();
+	handleStack.pop();
 }
 /**
  * @see ISourceElementRequestor
@@ -553,7 +544,7 @@ public void exitMethod(int declarationEnd) {
  * of the handle being created until there is no conflict.
  */
 protected void resolveDuplicates(IJavaElement handle) {
-	while (fNewElements.containsKey(handle)) {
+	while (newElements.containsKey(handle)) {
 		JavaElement h = (JavaElement) handle;
 		h.setOccurrenceCount(h.getOccurrenceCount() + 1);
 	}
