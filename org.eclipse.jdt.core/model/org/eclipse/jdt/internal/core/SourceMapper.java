@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
@@ -321,7 +322,8 @@ public class SourceMapper
 						int index = entryName.indexOf('/');
 						if (index != -1 && Util.isClassFileName(entryName)) {
 							String firstLevelPackageName = entryName.substring(0, index);
-							if (JavaConventions.validatePackageName(firstLevelPackageName).isOK()) {
+							IStatus status = JavaConventions.validatePackageName(firstLevelPackageName);
+							if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
 								firstLevelPackageNames.add(firstLevelPackageName);
 							}
 						} else if (Util.isClassFileName(entryName)) {

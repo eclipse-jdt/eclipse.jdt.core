@@ -522,5 +522,31 @@ public void testRootPath10() throws JavaModelException {
 	this.attachSource(root, null, null); // detach source
 	root.close();
 }
+/**
+ * Attach a jar with a source attachement that is itself
+ */
+public void testRootPath11() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test4.jar"));
+	this.attachSource(root, "/AttachSourceTests/test4_src.zip", null);
+	
+	IClassFile cf = root.getPackageFragment("P1").getClassFile("D.class");
+	assertSourceEquals(
+		"Unexpected source for class file P1.D",
+		"package P1;\n" +
+		"\n" +
+		"public class D {}",
+		cf.getSource());
+
+	cf = root.getPackageFragment("P1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file P1.p2.A",
+		"package P1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());		
+	this.attachSource(root, null, null); // detach source
+	root.close();
+}
 
 }
