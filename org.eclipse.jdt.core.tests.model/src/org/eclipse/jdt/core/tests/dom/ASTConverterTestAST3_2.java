@@ -5526,4 +5526,386 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("wrong signature", "([[I)[[[[[I", method.getSignature());
 		assertEquals("wrong return type", "[[[[[I", method.getReturnType());
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0583() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\000\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\000', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0584() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\u0020\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", 32, literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0585() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\b\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\b', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0586() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\t\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\t', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0587() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\n\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\n', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0588() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\f\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\f', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0589() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\r\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\r', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0590() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\\"\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\"', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0591() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\'\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\'', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0592() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\\\\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\\', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0593() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\077\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a character literal", ASTNode.CHARACTER_LITERAL, expression.getNodeType());
+			CharacterLiteral literal = (CharacterLiteral) expression;
+			assertEquals("Wrong character", '\077', literal.charValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82616
+	 */
+	public void test0594() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	private char nextChar() {\n" +
+				"		return \'\\777\';\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 1, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertTrue("not malformed", isMalformed(methodDeclaration));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

@@ -35,7 +35,6 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 				case IProblem.ParsingErrorOnKeyword :
 				case IProblem.ParsingError :
 				case IProblem.ParsingErrorNoSuggestion :
-					break;
 				case IProblem.ParsingErrorInsertTokenBefore :
 				case IProblem.ParsingErrorInsertTokenAfter :
 				case IProblem.ParsingErrorDeleteToken :
@@ -49,6 +48,18 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 				case IProblem.ParsingErrorInsertToComplete :
 				case IProblem.ParsingErrorInsertToCompleteScope :
 				case IProblem.ParsingErrorInsertToCompletePhrase :
+				case IProblem.EndOfSource :
+				case IProblem.InvalidHexa :
+				case IProblem.InvalidOctal :
+				case IProblem.InvalidCharacterConstant :
+				case IProblem.InvalidEscape :
+				case IProblem.InvalidInput :
+				case IProblem.InvalidUnicodeEscape :
+				case IProblem.InvalidFloat :
+				case IProblem.NullSourceString :
+				case IProblem.UnterminatedString :
+				case IProblem.UnterminatedComment :
+				case IProblem.InvalidDigit :
 					break;
 				default:
 					continue search;

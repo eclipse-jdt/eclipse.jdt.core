@@ -201,81 +201,86 @@ public class CharacterLiteral extends Expression {
 	 * @exception IllegalArgumentException if the literal value cannot be converted
 	 */ 
 	public char charValue() {
-		String s = getEscapedValue();
-		int len = s.length();
-		if (len < 2 || s.charAt(0) != '\'' || s.charAt(len-1) != '\'' ) {
-			throw new IllegalArgumentException();
+		Scanner scanner = this.ast.scanner;
+		char[] source = escapedValue.toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length);
+		int firstChar = scanner.getNextChar();
+		int secondChar = scanner.getNextChar();
+
+		if (firstChar == -1 || firstChar != '\'') {
+			throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 		}
-		char c = s.charAt(1);
-		if (c == '\'') {
-			throw new IllegalArgumentException();
-		}
-		if (c == '\\') {
-			if (len == 4) {
-				char nextChar = s.charAt(2);
-				switch(nextChar) {
-					case 'b' :
-						return '\b';
-					case 't' :
-						return '\t';
-					case 'n' :
-						return '\n';
-					case 'f' :
-						return '\f';
-					case 'r' :
-						return '\r';
-					case '\"':
-						return '\"';
-					case '\'':
-						return '\'';
-					case '\\':
-						return '\\';
-					case '0' :
-						return '\0';
-					case '1' :
-						return '\1';
-					case '2' :
-						return '\2';
-					case '3' :
-						return '\3';
-					case '4' :
-						return '\4';
-					case '5' :
-						return '\5';
-					case '6' :
-						return '\6';
-					case '7' :
-						return '\7';
-					default:
-						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
-				}
-			} else if (len == 8) {
-				//handle the case of unicode.
-				int currentPosition = 2;
-				int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-				if (s.charAt(currentPosition++) == 'u') {
-					if ((c1 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
-						|| c1 < 0
-						|| (c2 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
-						|| c2 < 0
-						|| (c3 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
-						|| c3 < 0
-						|| (c4 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
-						|| c4 < 0){
-						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+		char value = (char) secondChar;
+		char nextChar = (char) scanner.getNextChar();
+		if (secondChar == '\\') {
+			if (nextChar == -1) {
+				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+			}
+			switch(nextChar) {
+				case 'b' :
+					value = '\b';
+					break;
+				case 't' :
+					value = '\t';
+					break;
+				case 'n' :
+					value = '\n';
+					break;
+				case 'f' :
+					value = '\f';
+					break;
+				case 'r' :
+					value = '\r';
+					break;
+				case '\"':
+					value = '\"';
+					break;
+				case '\'':
+					value = '\'';
+					break;
+				case '\\':
+					value = '\\';
+					break;
+				default : //octal (well-formed: ended by a ' )
+					if (Character.isDigit(nextChar)) {
+						int number = Character.getNumericValue(nextChar);
+						nextChar = (char) scanner.getNextChar();
+						if (nextChar == -1) {
+							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+						}
+						if (nextChar != '\'') {
+							if (!Character.isDigit(nextChar)) {
+								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+							}
+							number = (number * 8) + Character.getNumericValue(nextChar);
+						}
+						nextChar = (char) scanner.getNextChar();
+						if (nextChar == -1) {
+							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+						}
+						if (nextChar != '\'') {
+							if (!Character.isDigit(nextChar)) {
+								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+							}
+							number = (number * 8) + Character.getNumericValue(nextChar);
+						}
+						value = (char) number;
 					} else {
-						return (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					}
-				} else {
-					throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
-				}
-			} else {
+					break;
+			}
+			nextChar = (char) scanner.getNextChar();
+			if (nextChar == -1) {
 				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 			}
 		}
-		return c;
+		if (nextChar == -1 || nextChar != '\'') {
+			throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+		}
+		return value;
 	}
-
 	/**
 	 * Sets the value of this character literal node to the given character. 
 	 * <p>
