@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,16 +71,18 @@ public class SuperConstructorInvocation extends Statement {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(SuperConstructorInvocation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(SuperConstructorInvocation.class, propertyList);
+		addProperty(EXPRESSION_PROPERTY, propertyList);
+		addProperty(ARGUMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 		
-		createPropertyList(SuperConstructorInvocation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		propertyList = new ArrayList(4);
+		createPropertyList(SuperConstructorInvocation.class, propertyList);
+		addProperty(EXPRESSION_PROPERTY, propertyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
+		addProperty(ARGUMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 	}
 
 	/**

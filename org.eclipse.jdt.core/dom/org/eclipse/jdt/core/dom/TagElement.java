@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,10 +58,11 @@ public final class TagElement extends ASTNode implements IDocElement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(TagElement.class);
-		addProperty(TAG_NAME_PROPERTY);
-		addProperty(FRAGMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(TagElement.class, propertyList);
+		addProperty(TAG_NAME_PROPERTY, propertyList);
+		addProperty(FRAGMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

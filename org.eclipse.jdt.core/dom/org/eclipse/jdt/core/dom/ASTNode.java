@@ -1702,51 +1702,47 @@ public abstract class ASTNode {
 	abstract List internalStructuralPropertiesForType(int apiLevel);
 	
 	/**
-	 * Global temp storage. Used in building structural property
-	 * list for AST node types.
-	 */
-	static List tempPDL = null;
-	
-	/**
 	 * Internal helper method that starts the building a list of
 	 * property descriptors for the given node type.
 	 * 
 	 * @param nodeClass the class for a concrete node type
+	 * @param propertyList empty list
 	 */
-	static void createPropertyList(Class nodeClass) {
-		tempPDL = new ArrayList(5);
+	static void createPropertyList(Class nodeClass, List propertyList) {
 		// stuff nodeClass at head of list for future ref
-		tempPDL.add(nodeClass);
+		propertyList.add(nodeClass);
 	}
 	
 	/**
 	 * Internal helper method that adding a property descriptor.
 	 * 
 	 * @param property the structural property descriptor
+	 * @param propertyList list beginning with the AST node class
+	 * followed by accumulated structural property descriptors
 	 */
-	static void addProperty(StructuralPropertyDescriptor property) {
-		Class nodeClass = (Class) tempPDL.get(0);
+	static void addProperty(StructuralPropertyDescriptor property, List propertyList) {
+		Class nodeClass = (Class) propertyList.get(0);
 		if (property.getNodeClass() != nodeClass) {
 			// easily made cut-and-paste mistake
 			throw new RuntimeException("Structural property descriptor has wrong node class!");  //$NON-NLS-1$
 		}
-		tempPDL.add(property);
+		propertyList.add(property);
 	}
-	
+		
 	/**
 	 * Internal helper method that completes the building of
 	 * a node type's structural property descriptor list.
 	 * 
+	 * @param propertyList list beginning with the AST node class
+	 * followed by accumulated structural property descriptors
 	 * @return unmodifiable list of structural property descriptors
 	 * (element type: <code>StructuralPropertyDescriptor</code>)
 	 */
-	static List reapPropertyList() {
-		tempPDL.remove(0); // remove nodeClass
+	static List reapPropertyList(List propertyList) {
+		propertyList.remove(0); // remove nodeClass
 		// compact
-		ArrayList a = new ArrayList(tempPDL.size());
-		a.addAll(tempPDL); 
-		// clear global
-		tempPDL = null;
+		ArrayList a = new ArrayList(propertyList.size());
+		a.addAll(propertyList); 
 		return Collections.unmodifiableList(a);
 	}
 	

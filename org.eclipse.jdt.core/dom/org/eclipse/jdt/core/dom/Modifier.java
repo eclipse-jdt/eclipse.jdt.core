@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -434,9 +435,10 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(Modifier.class);
-		addProperty(KEYWORD_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(2);
+		createPropertyList(Modifier.class, properyList);
+		addProperty(KEYWORD_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,12 +71,13 @@ public class ForStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(ForStatement.class);
-		addProperty(INITIALIZERS_PROPERTY);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(UPDATERS_PROPERTY);
-		addProperty(BODY_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(5);
+		createPropertyList(ForStatement.class, properyList);
+		addProperty(INITIALIZERS_PROPERTY, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(UPDATERS_PROPERTY, properyList);
+		addProperty(BODY_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,8 +34,9 @@ public class EmptyStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(EmptyStatement.class);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(1);
+		createPropertyList(EmptyStatement.class, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

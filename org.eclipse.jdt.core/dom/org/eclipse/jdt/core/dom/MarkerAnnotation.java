@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,9 +48,10 @@ public final class MarkerAnnotation extends Annotation {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(MarkerAnnotation.class);
-		addProperty(TYPE_NAME_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(MarkerAnnotation.class, propertyList);
+		addProperty(TYPE_NAME_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

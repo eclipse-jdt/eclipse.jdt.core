@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -86,13 +87,14 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(AnnotationTypeMemberDeclaration.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS2_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(TYPE_PROPERTY);
-		addProperty(DEFAULT_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(6);
+		createPropertyList(AnnotationTypeMemberDeclaration.class, properyList);
+		addProperty(JAVADOC_PROPERTY, properyList);
+		addProperty(MODIFIERS2_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(DEFAULT_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,9 +41,10 @@ public class TypeLiteral extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(TypeLiteral.class);
-		addProperty(TYPE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(TypeLiteral.class, propertyList);
+		addProperty(TYPE_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

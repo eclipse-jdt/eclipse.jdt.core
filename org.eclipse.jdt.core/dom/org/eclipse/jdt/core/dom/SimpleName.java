@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -46,9 +47,10 @@ public class SimpleName extends Name {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(SimpleName.class);
-		addProperty(IDENTIFIER_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(SimpleName.class, propertyList);
+		addProperty(IDENTIFIER_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

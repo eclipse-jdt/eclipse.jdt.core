@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,17 +71,19 @@ public class Initializer extends BodyDeclaration {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(Initializer.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS_PROPERTY);
-		addProperty(BODY_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(Initializer.class, properyList);
+		addProperty(JAVADOC_PROPERTY, properyList);
+		addProperty(MODIFIERS_PROPERTY, properyList);
+		addProperty(BODY_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(Initializer.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS2_PROPERTY);
-		addProperty(BODY_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(4);
+		createPropertyList(Initializer.class, properyList);
+		addProperty(JAVADOC_PROPERTY, properyList);
+		addProperty(MODIFIERS2_PROPERTY, properyList);
+		addProperty(BODY_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,11 +54,12 @@ public class IfStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(IfStatement.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(THEN_STATEMENT_PROPERTY);
-		addProperty(ELSE_STATEMENT_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(IfStatement.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(THEN_STATEMENT_PROPERTY, properyList);
+		addProperty(ELSE_STATEMENT_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

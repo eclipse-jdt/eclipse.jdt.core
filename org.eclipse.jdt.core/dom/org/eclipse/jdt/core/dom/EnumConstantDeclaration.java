@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,13 +85,14 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(EnumConstantDeclaration.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS2_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		addProperty(BODY_DECLARATIONS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(6);
+		createPropertyList(EnumConstantDeclaration.class, properyList);
+		addProperty(JAVADOC_PROPERTY, properyList);
+		addProperty(MODIFIERS2_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

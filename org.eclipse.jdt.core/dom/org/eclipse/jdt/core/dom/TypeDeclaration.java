@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -163,26 +164,28 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(TypeDeclaration.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS_PROPERTY);
-		addProperty(INTERFACE_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(SUPERCLASS_PROPERTY);
-		addProperty(SUPER_INTERFACES_PROPERTY);
-		addProperty(BODY_DECLARATIONS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List propertyList = new ArrayList(8);
+		createPropertyList(TypeDeclaration.class, propertyList);
+		addProperty(JAVADOC_PROPERTY, propertyList);
+		addProperty(MODIFIERS_PROPERTY, propertyList);
+		addProperty(INTERFACE_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(SUPERCLASS_PROPERTY, propertyList);
+		addProperty(SUPER_INTERFACES_PROPERTY, propertyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 		
-		createPropertyList(TypeDeclaration.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS2_PROPERTY);
-		addProperty(INTERFACE_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(TYPE_PARAMETERS_PROPERTY);
-		addProperty(SUPERCLASS_TYPE_PROPERTY);
-		addProperty(SUPER_INTERFACE_TYPES_PROPERTY);
-		addProperty(BODY_DECLARATIONS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		propertyList = new ArrayList(9);
+		createPropertyList(TypeDeclaration.class, propertyList);
+		addProperty(JAVADOC_PROPERTY, propertyList);
+		addProperty(MODIFIERS2_PROPERTY, propertyList);
+		addProperty(INTERFACE_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
+		addProperty(SUPERCLASS_TYPE_PROPERTY, propertyList);
+		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 	}
 
 	/**

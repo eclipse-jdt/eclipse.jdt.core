@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,14 +63,16 @@ public class ConstructorInvocation extends Statement {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(ConstructorInvocation.class);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(2);
+		createPropertyList(ConstructorInvocation.class, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(ConstructorInvocation.class);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(3);
+		createPropertyList(ConstructorInvocation.class, properyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

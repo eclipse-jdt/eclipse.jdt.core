@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,11 +58,12 @@ public class MethodRef extends ASTNode implements IDocElement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(MethodRef.class);
-		addProperty(QUALIFIER_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(PARAMETERS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(MethodRef.class, properyList);
+		addProperty(QUALIFIER_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(PARAMETERS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,9 +40,10 @@ public class SimpleType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(SimpleType.class);
-		addProperty(NAME_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(SimpleType.class, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

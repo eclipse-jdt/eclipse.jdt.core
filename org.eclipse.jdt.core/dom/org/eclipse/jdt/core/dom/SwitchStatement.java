@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,10 +55,11 @@ public class SwitchStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(SwitchStatement.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(STATEMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(SwitchStatement.class, propertyList);
+		addProperty(EXPRESSION_PROPERTY, propertyList);
+		addProperty(STATEMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

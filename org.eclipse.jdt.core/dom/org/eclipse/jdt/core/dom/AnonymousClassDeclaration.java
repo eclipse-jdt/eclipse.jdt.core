@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +42,10 @@ public class AnonymousClassDeclaration extends ASTNode {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(AnonymousClassDeclaration.class);
-		addProperty(BODY_DECLARATIONS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(2);
+		createPropertyList(AnonymousClassDeclaration.class, properyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,11 +76,12 @@ public class ArrayCreation extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(ArrayCreation.class);
-		addProperty(TYPE_PROPERTY);
-		addProperty(DIMENSIONS_PROPERTY);
-		addProperty(INITIALIZER_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(ArrayCreation.class, properyList);
+		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(DIMENSIONS_PROPERTY, properyList);
+		addProperty(INITIALIZER_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

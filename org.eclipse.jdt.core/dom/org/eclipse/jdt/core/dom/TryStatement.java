@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,11 +57,12 @@ public class TryStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(TryStatement.class);
-		addProperty(BODY_PROPERTY);
-		addProperty(CATCH_CLAUSES_PROPERTY);
-		addProperty(FINALLY_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(4);
+		createPropertyList(TryStatement.class, propertyList);
+		addProperty(BODY_PROPERTY, propertyList);
+		addProperty(CATCH_CLAUSES_PROPERTY, propertyList);
+		addProperty(FINALLY_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

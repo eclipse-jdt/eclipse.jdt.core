@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -61,14 +62,16 @@ public class Javadoc extends Comment {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(Javadoc.class);
-		addProperty(COMMENT_PROPERTY);
-		addProperty(TAGS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(Javadoc.class, properyList);
+		addProperty(COMMENT_PROPERTY, properyList);
+		addProperty(TAGS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(Javadoc.class);
-		addProperty(TAGS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(2);
+		createPropertyList(Javadoc.class, properyList);
+		addProperty(TAGS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

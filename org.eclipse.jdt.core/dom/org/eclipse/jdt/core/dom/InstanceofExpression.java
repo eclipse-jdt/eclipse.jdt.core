@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,10 +47,11 @@ public class InstanceofExpression extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(InstanceofExpression.class);
-		addProperty(LEFT_OPERAND_PROPERTY);
-		addProperty(RIGHT_OPERAND_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(InstanceofExpression.class, properyList);
+		addProperty(LEFT_OPERAND_PROPERTY, properyList);
+		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

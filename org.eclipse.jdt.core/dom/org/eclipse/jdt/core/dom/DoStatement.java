@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,10 +48,11 @@ public class DoStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(DoStatement.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(BODY_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(DoStatement.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(BODY_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

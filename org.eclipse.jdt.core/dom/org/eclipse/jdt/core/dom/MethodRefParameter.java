@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,10 +49,11 @@ public class MethodRefParameter extends ASTNode {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(MethodRefParameter.class);
-		addProperty(TYPE_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(MethodRefParameter.class, properyList);
+		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,11 +55,12 @@ public class ConditionalExpression extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(ConditionalExpression.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(THEN_EXPRESSION_PROPERTY);
-		addProperty(ELSE_EXPRESSION_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(ConditionalExpression.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(THEN_EXPRESSION_PROPERTY, properyList);
+		addProperty(ELSE_EXPRESSION_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**
