@@ -2268,20 +2268,16 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
-		HashSet alreadyVisited = new HashSet();
+		HashSet alreadyTraversed = new HashSet();
 		int length = projects.length;
 		
-		/* alternate implementation for cycle participants computation
-		computeCycleParticipants(projects, cycleParticipants);
-		*/
-
 		// compute cycle participants
-		ArrayList visited = new ArrayList();
+		ArrayList prereqChain = new ArrayList();
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
-			if (!cycleParticipants.contains(project) && !alreadyVisited.contains(project)){
-				visited.clear();
-				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot, alreadyVisited);
+			if (!alreadyTraversed.contains(project)){
+				prereqChain.clear();
+				project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, alreadyTraversed);
 			}
 		}
 		
@@ -2314,17 +2310,17 @@ public class JavaProject
 	}
 
 	/**
-	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
+	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly and indirectly),
 	 * no cycle if the set is empty (and started empty)
 	 */
 	public void updateCycleParticipants(
 			IClasspathEntry[] preferredClasspath, 
-			ArrayList visited, 
+			ArrayList prereqChain, 
 			HashSet cycleParticipants, 
 			IWorkspaceRoot workspaceRoot,
 			HashSet alreadyTraversed){
 				
-		visited.add(this);
+		prereqChain.add(this);
 		try {
 			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
 			for (int i = 0, length = classpath.length; i < length; i++) {
@@ -2335,24 +2331,23 @@ public class JavaProject
 					IResource member = workspaceRoot.findMember(entryPath);
 					if (member != null && member.getType() == IResource.PROJECT){
 						JavaProject project = (JavaProject)JavaCore.create((IProject)member);
-						int index = visited.indexOf(project);
-						if (index == -1 && cycleParticipants.contains(project))
-							index = visited.indexOf(this); // another loop in the cycle exists
-						if (index >= 0) { // only consider direct participants inside the cycle
-							for (int size = visited.size(); index < size; index++)
-								cycleParticipants.add(visited.get(index)); 
+						int index = cycleParticipants.contains(project) ? 0 : prereqChain.indexOf(project);
+						if (index >= 0) { // refer to cycle, or in cycle itself
+							for (int size = prereqChain.size(); index < size; index++) {
+								cycleParticipants.add(prereqChain.get(index)); 
+							}
 						} else {
-//							if (!alreadyTraversed.contains(project)) {
-								project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot, alreadyTraversed);
-//							}
+							if (!alreadyTraversed.contains(project)) {
+								project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, alreadyTraversed);
+							}
 						}
 					}
 				}
 			}
 		} catch(JavaModelException e){
 		}
-		visited.remove(this);
-//		alreadyTraversed.add(this);
+		prereqChain.remove(this);
+		alreadyTraversed.add(this);
 	}
 		
 	/**
