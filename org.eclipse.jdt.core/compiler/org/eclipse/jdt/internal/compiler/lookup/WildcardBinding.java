@@ -218,7 +218,15 @@ public class WildcardBinding extends ReferenceBinding {
     public char[] signature() {
      	// should not be called directly on a wildcard; signature should only be asked on
     	// original methods or type erasures (which cannot denote wildcards at first level)
-		return genericTypeSignature();
+		if (this.signature == null) {
+	        switch (this.kind) {
+	            case Wildcard.EXTENDS :
+	                return this.bound.signature();
+				default: // SUPER | UNBOUND
+				    return this.typeVariable().signature();
+	        }        
+		}
+		return this.signature;
     }
     
     /* (non-Javadoc)
