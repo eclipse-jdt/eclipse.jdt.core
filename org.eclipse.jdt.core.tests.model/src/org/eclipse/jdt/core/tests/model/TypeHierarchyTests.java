@@ -70,7 +70,7 @@ public void testAnonymousType1() throws JavaModelException {
 		"Focus: <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -85,7 +85,7 @@ public void testAnonymousType2() throws JavaModelException {
 		"Focus: <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -100,7 +100,7 @@ public void testAnonymousType3() throws JavaModelException {
 		"Focus: <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -115,7 +115,7 @@ public void testAnonymousType4() throws JavaModelException {
 		"Focus: <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 	type = typeA.getField("field2").getType("", 2);
@@ -124,7 +124,7 @@ public void testAnonymousType4() throws JavaModelException {
 		"Focus: <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -139,7 +139,7 @@ public void testAnonymousType5() throws JavaModelException {
 		"Focus: <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -155,7 +155,7 @@ public void testAnonymousType6() throws JavaModelException {
 		"Focus: <anonymous #1> [in foo() [in X [in X.java [in p8 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p8 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -243,7 +243,7 @@ public  void testBinarySubclass() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: X48459 [in X48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
 		"  <anonymous #1> [in foo [in Z48459 [in Z48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  Y48459 [in Y48459.class [in p48459.p2 [in lib48459 [in TypeHierarchy]]]]\n",
@@ -277,7 +277,7 @@ public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
 		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"    Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
@@ -321,7 +321,7 @@ public void testImplementBinaryInnerInterface() throws JavaModelException {
 		"Focus: Y [in Y.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
 		"  Inner [in X$Inner.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -339,7 +339,7 @@ public void testInnerType1() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -358,7 +358,7 @@ public void testInnerType2() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
 		"  B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
 		hierarchy);
@@ -374,7 +374,7 @@ public void testLocalType1() throws JavaModelException {
 		"Focus: Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
 		"  Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
@@ -389,7 +389,7 @@ public void testLocalType2() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -405,7 +405,7 @@ public void testLocalType3() throws JavaModelException {
 		"Super types:\n" + 
 		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -421,7 +421,7 @@ public void testLocalType4() throws JavaModelException {
 		"Focus: Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
 		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }
@@ -440,7 +440,7 @@ public void testMissingInterface() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
 }

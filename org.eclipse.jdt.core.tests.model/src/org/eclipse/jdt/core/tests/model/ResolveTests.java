@@ -254,7 +254,7 @@ public void testEmptySelection() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "ject", "");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"Object [in Object.class [in java.lang [in " + getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -266,7 +266,7 @@ public void testEmptySelection2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Obj", "");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"Object [in Object.class [in java.lang [in " + getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -365,7 +365,7 @@ public void testInClassFileWithSource() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cf, "Object", "Object");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"Object [in Object.class [in java.lang [in " + getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -861,7 +861,7 @@ public void testPackage() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "lang", "lang");
 	assertElementsEqual(
 		"Unexpected elements",
-		"java.lang [in " + getExternalJCLPath().toString() + " [in Resolve]]",
+		"java.lang [in " + getExternalJCLPathString() + " [in Resolve]]",
 		elements
 	);
 }
@@ -885,7 +885,7 @@ public void testQualifiedType() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "java.lang.Object", "java.lang.Object");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"Object [in Object.class [in java.lang [in " + getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -933,7 +933,7 @@ public void testUnicode() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "java.lang.\\u0053tring", "java.lang.\\u0053tring");
 	assertElementsEqual(
 		"Unexpected elements",
-		"String [in String.class [in java.lang [in " + getExternalJCLPath().toString() + " [in Resolve]]]]",
+		"String [in String.class [in java.lang [in " + getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }

@@ -827,7 +827,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected IPath getExternalJCLSourcePath() {
-		return new Path(EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip");
+		return new Path(getExternalJCLSourcePathString());
+	}
+	/**
+	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
+	 */
+	protected String getExternalJCLSourcePathString() {
+		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip";
 	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));

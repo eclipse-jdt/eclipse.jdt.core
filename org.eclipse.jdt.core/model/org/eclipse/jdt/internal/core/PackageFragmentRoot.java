@@ -839,7 +839,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		if (getJavaProject().getElementName().equals(path.segment(0))) {
 			buffer.append(path.removeFirstSegments(1).makeRelative());
 		} else {
-			buffer.append(path);
+		    if (isExternal()) {
+				buffer.append(path.toOSString());
+		    } else {
+				buffer.append(path);
+		    }
 		}
 	}
 	if (info == null) {
