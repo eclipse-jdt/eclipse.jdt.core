@@ -32,7 +32,9 @@ import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
@@ -807,5 +809,46 @@ public void testSearchPatternCreation29() {
 		searchPattern);
 }
 
+/**
+ * Test pattern creation
+ */
+public void testSearchPatternCreation30() {
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localVar, 
+			IJavaSearchConstants.DECLARATIONS);
+	
+	assertPattern(
+		"LocalVarDeclarationPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		searchPattern);
+}
+
+/**
+ * Test pattern creation
+ */
+public void testSearchPatternCreation31() {
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localVar, 
+			IJavaSearchConstants.REFERENCES);
+	
+	assertPattern(
+		"LocalVarReferencePattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		searchPattern);
+}
+
+/**
+ * Test pattern creation
+ */
+public void testSearchPatternCreation32() {
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localVar, 
+			IJavaSearchConstants.ALL_OCCURRENCES);
+	
+	assertPattern(
+		"LocalVarCombinedPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		searchPattern);
+}
 
 }

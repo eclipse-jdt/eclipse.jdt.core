@@ -381,6 +381,10 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
 	suite.addTest(new JavaSearchTests("testLocalVariableReference2"));
 	
+	// local variable occurrences
+	suite.addTest(new JavaSearchTests("testLocalVariableOccurrences1"));
+	suite.addTest(new JavaSearchTests("testLocalVariableOccurrences2"));
+	
 	// or pattern
 	suite.addTest(new JavaSearchTests("testOrPattern"));
 	
@@ -1351,6 +1355,42 @@ public void testLocalVariableDeclaration2() throws JavaModelException {
 		resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo2().var2 [var2]",
+		resultCollector);
+}
+/*
+ * Local variable occurrences test.
+ * (SingleNameReference)
+ */
+public void testLocalVariableOccurrences1() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		ALL_OCCURRENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java void f1.X.foo1().var1 [var1]\n" + 
+		"src/f1/X.java void f1.X.foo1() [var1]",
+		resultCollector);
+}
+/*
+ * Local variable occurences test.
+ * (QualifiedNameReference)
+ */
+public void testLocalVariableOccurrences2() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		ALL_OCCURRENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java void f1.X.foo2().var2 [var2]\n" + 
+		"src/f1/X.java void f1.X.foo2() [var2]",
 		resultCollector);
 }
 /*

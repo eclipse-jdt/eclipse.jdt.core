@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -742,7 +743,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			}
 			break;
 		case IJavaElement.LOCAL_VARIABLE :
-			ILocalVariable localVar = (ILocalVariable) element;
+			LocalVariable localVar = (LocalVariable) element;
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
 					searchPattern = 

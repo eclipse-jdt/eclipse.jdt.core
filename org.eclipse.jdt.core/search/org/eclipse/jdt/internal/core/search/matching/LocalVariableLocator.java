@@ -34,13 +34,15 @@ public class LocalVariableLocator extends VariableLocator {
 		int declarationsLevel = IMPOSSIBLE_MATCH;
 		if (this.pattern.findDeclarations)
 			if (matchesName(this.pattern.name, node.name)) {
-				LocalVariablePattern localPattern = (LocalVariablePattern) this.pattern;
-				LocalVariable localVariable = (LocalVariable)  localPattern.localVariable;
-				if (node.declarationSourceStart == localVariable.declarationSourceStart)
+				if (node.declarationSourceStart == getLocalVariable().declarationSourceStart)
 					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 			}
 	
 		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
+	}
+
+	private LocalVariable getLocalVariable() {
+		return ((LocalVariablePattern) this.pattern).localVariable;
 	}
 
 	protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
@@ -53,8 +55,7 @@ public class LocalVariableLocator extends VariableLocator {
 			int sourceEnd = (int) sourcePosition;
 			locator.report(sourceStart, sourceEnd, element, accuracy);
 		} else if (reference instanceof LocalDeclaration) {
-			LocalVariablePattern localVarPattern = (LocalVariablePattern) this.pattern;
-			LocalVariable localVariable = (LocalVariable) localVarPattern.localVariable;
+			LocalVariable localVariable = getLocalVariable();
 			locator.report(localVariable.nameStart, localVariable.nameEnd, localVariable, accuracy);
 		}
 	}
@@ -68,9 +69,7 @@ public class LocalVariableLocator extends VariableLocator {
 	
 		if (matchName && !matchesName(this.pattern.name, variable.readableName())) return IMPOSSIBLE_MATCH;
 	
-		LocalVariablePattern localPattern = (LocalVariablePattern) this.pattern;
-		LocalVariable localVariable = (LocalVariable)  localPattern.localVariable;
-		if (variable.declaration.declarationSourceStart != localVariable.declarationSourceStart)
+		if (variable.declaration.declarationSourceStart != getLocalVariable().declarationSourceStart)
 			return IMPOSSIBLE_MATCH;
 		return ACCURATE_MATCH;
 	}

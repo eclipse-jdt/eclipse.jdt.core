@@ -13,21 +13,21 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 
 
 public class LocalVariablePattern extends VariablePattern {
 	
-	ILocalVariable localVariable;
+	LocalVariable localVariable;
 	
 	public LocalVariablePattern(
 		boolean findDeclarations,
 		boolean readAccess,
 		boolean writeAccess,
-		ILocalVariable localVariable,
+		LocalVariable localVariable,
 		int matchMode, 
 		boolean isCaseSensitive) {
 	
@@ -58,6 +58,7 @@ public class LocalVariablePattern extends VariablePattern {
 		} else {
 			buffer.append("LocalVarReferencePattern: "); //$NON-NLS-1$
 		}
+		buffer.append(this.localVariable.toStringWithAncestors());
 		buffer.append(", "); //$NON-NLS-1$
 		switch(this.matchMode){
 			case EXACT_MATCH : 
