@@ -22,10 +22,10 @@ public class VarargTest extends AbstractComparisonTest {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
-//				"		Y y = new Y();\n" +
-//				"		y = new Y(1);\n" +
-//				"		y = new Y(1, 2, (byte) 3, 4);\n" +
-//				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
+				"		Y y = new Y();\n" +
+				"		y = new Y(1);\n" +
+				"		y = new Y(1, 2, (byte) 3, 4);\n" +
+				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
 				"		\n" +
 				"		Y.count();\n" +
 				"		Y.count(1);\n" +
@@ -50,17 +50,16 @@ public class VarargTest extends AbstractComparisonTest {
 				"	}\n" +
 				"}\n",
 			},
-			"0 1 10 10");
-//			"0 1 10 10 0 1 10 10");
+			"0 1 10 10 0 1 10 10");
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
-//				"		Y y = new Y();\n" +
-//				"		y = new Y(1);\n" +
-//				"		y = new Y(1, 2, (byte) 3, 4);\n" +
-//				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
+				"		Y y = new Y();\n" +
+				"		y = new Y(1);\n" +
+				"		y = new Y(1, 2, (byte) 3, 4);\n" +
+				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
 				"		\n" +
 				"		Y.count();\n" +
 				"		Y.count(1);\n" +
@@ -69,8 +68,7 @@ public class VarargTest extends AbstractComparisonTest {
 				"	}\n" +
 				"}\n",
 			},
-			"0 1 10 10",
-//			"0 1 10 10 0 1 10 10",
+			"0 1 10 10 0 1 10 10",
 			null,
 			false,
 			null);
@@ -387,7 +385,7 @@ public class VarargTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 
-	public void _test007() {
+	public void test007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -407,13 +405,13 @@ public class VarargTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method count2(Object[]) from the type Y\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"Inexact parameter for the vararg constructor Y(boolean, Object[])\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
-			"	y = new Y('i', null);\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method count3(int[][]) from the type Y\n" + 
+			"	y = new Y(\'i\', null);\n" + 
+			"	    ^^^^^^^^^^^^^^^^\n" + 
+			"Inexact parameter for the vararg constructor Y(char, int[][])\n" + 
 			"----------\n");
 	}
 }

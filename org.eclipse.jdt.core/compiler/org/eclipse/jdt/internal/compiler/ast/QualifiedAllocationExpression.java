@@ -107,11 +107,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this);
 		}
 		// generate the arguments for constructor
-		if (arguments != null) {
-			for (int i = 0, count = arguments.length; i < count; i++) {
-				arguments[i].generateCode(currentScope, codeStream, true);
-			}
-		}
+		generateArguments(binding, arguments, currentScope, codeStream);
 		// handling innerclass instance allocation - outer local arguments
 		if (allocatedType.isNestedType()) {
 			codeStream.generateSyntheticOuterArgumentValues(
@@ -329,7 +325,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		if (this.arguments != null)
 			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
-		
+		checkInexactParameters(binding, argumentTypes, scope);
+
 		// Update the anonymous inner class : superclass, interface  
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
 		return this.resolvedType = anonymousType.binding; // 1.2 change

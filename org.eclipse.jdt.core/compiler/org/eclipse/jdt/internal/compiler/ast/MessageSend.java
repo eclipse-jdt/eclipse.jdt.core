@@ -92,43 +92,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		receiver.generateCode(currentScope, codeStream, !isStatic);
 	}
 	// generate arguments
-	if (binding.isVarargs()) {
-		// 4 possibilities exist for a call to the vararg method foo(int i, int ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
-		TypeBinding[] params = binding.parameters;
-		int lastIndex = params.length - 1;
-		for (int i = 0; i < lastIndex; i++) {
-			arguments[i].generateCode(currentScope, codeStream, true);
-		}
-
-		ArrayBinding varArgsType = (ArrayBinding) params[lastIndex]; // parameterType has to be an array type
-		int argLength = arguments == null ? 0 : arguments.length;
-		if (lastIndex < argLength) { // vararg argument was provided
-			if (params.length == argLength && varArgsType.dimensions() == arguments[lastIndex].resolvedType.dimensions()) {
-				// called with matching array : foo(1, new int[] {1, 2}
-				arguments[lastIndex].generateCode(currentScope, codeStream, true);
-			} else {
-				// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
-				// need to gen elements into an array, then gen each remaining element into created array
-				codeStream.generateInlinedValue(argLength - lastIndex);
-				codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
-				int elementsTypeID = varArgsType.elementsType().id;
-				for (int i = 0, max = argLength - lastIndex; i < max; i++) {
-					codeStream.dup();
-					codeStream.generateInlinedValue(i);
-					arguments[i + lastIndex].generateCode(currentScope, codeStream, true);
-					codeStream.arrayAtPut(elementsTypeID, false);
-				}
-			}
-		} else {
-			// generate code for an empty array of parameterType
-			codeStream.generateInlinedValue(0);
-			codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
-		}
-	} else if (arguments != null){
-		for (int i = 0, max = arguments.length; i < max; i++){
-			arguments[i].generateCode(currentScope, codeStream, true);
-		}
-	}
+	generateArguments(binding, arguments, currentScope, codeStream);
 	// actual message invocation
 	if (syntheticAccessor == null){
 		if (isStatic){
@@ -389,23 +353,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
-	if (binding.isVarargs() && binding.parameters.length == argumentTypes.length) { // 70056
-		int varargIndex = binding.parameters.length - 1;
-		ArrayBinding varargType = (ArrayBinding) binding.parameters[varargIndex];
-		TypeBinding lastArgType = argumentTypes[varargIndex];
-		if (lastArgType == NullBinding) {
-			if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
-				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
-		} else if (varargType.dimensions <= lastArgType.dimensions()) {
-			int dimensions = lastArgType.dimensions();
-			if (lastArgType.leafComponentType().isBaseType())
-				dimensions--;
-			if (varargType.dimensions < dimensions)
-				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
-			else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
-				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
-		}
-	}
+	checkInexactParameters(binding, argumentTypes, scope);
 
 	return this.resolvedType = this.binding.returnType;
 }

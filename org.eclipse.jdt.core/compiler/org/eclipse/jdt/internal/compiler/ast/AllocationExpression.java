@@ -106,11 +106,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 				this);
 		}
 		// generate the arguments for constructor
-		if (arguments != null) {
-			for (int i = 0, count = arguments.length; i < count; i++) {
-				arguments[i].generateCode(currentScope, codeStream, true);
-			}
-		}
+		generateArguments(binding, arguments, currentScope, codeStream);
 		// handling innerclass instance allocation - outer local arguments
 		if (allocatedType.isNestedType()) {
 			codeStream.generateSyntheticOuterArgumentValues(
@@ -283,6 +279,8 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			scope.problemReporter().deprecatedMethod(binding, this);
 		if (this.arguments != null)
 			checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+		checkInexactParameters(binding, argumentTypes, scope);
+
 		return allocationType;
 	}
 
