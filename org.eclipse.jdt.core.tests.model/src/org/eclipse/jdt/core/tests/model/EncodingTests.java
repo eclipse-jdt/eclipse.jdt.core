@@ -629,7 +629,7 @@ public class EncodingTests extends ModifyingResourceTests {
 							"package  test68585;\n" +
 							"public class X {\n" +
 							"}\n" +
-							"class Yû {}",
+							"class Y\u00F4 {}",
 							encoding);
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
@@ -643,7 +643,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 			search(
-				"Yû", 
+				"Y\u00F4", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
 				scope, 
@@ -653,14 +653,14 @@ public class EncodingTests extends ModifyingResourceTests {
 			// change encoding so that file is readable
 			getFile("/Encoding/src/test68585/X.java").setCharset(encoding, null);
 			search(
-				"Yû", 
+				"Y\u00F4", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
 				scope, 
 				resultCollector);
 			assertSearchResults(
 				"Should have been reindexed", 
-				"src/test68585/X.java test68585.Yû [Yû]",
+				"src/test68585/X.java test68585.Y\u00F4 [Y\u00F4]",
 				resultCollector);
 		} finally {
 			deleteFolder("/Encoding/src/test68585");
