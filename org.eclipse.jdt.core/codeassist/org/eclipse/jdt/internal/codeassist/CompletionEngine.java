@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -40,7 +41,8 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
-import org.eclipse.jdt.internal.core.TypeConverter;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 
 /**
  * This class is the entry point for source completions.
@@ -803,12 +805,28 @@ public final class CompletionEngine
 		
 		CompilationResult compilationResult = new CompilationResult(topLevelType.getParent().getElementName().toCharArray(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 	
-		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
+		CompilationUnitDeclaration compilationUnit = null;
 	
 		try {
 			// TypeConverter is used instead of SourceTypeConverter because the type
 			// to convert can be a binary type or a source type
-			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
+			TypeDeclaration typeDeclaration = null;
+			if (type instanceof SourceType) {
+				SourceType sourceType = (SourceType) type;
+				ISourceType info = (ISourceType) sourceType.getElementInfo();
+				compilationUnit = SourceTypeConverter.buildCompilationUnit(
+					new ISourceType[] {info},//sourceTypes[0] is always toplevel here
+					SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+					| SourceTypeConverter.MEMBER_TYPE, // need member types
+					// no need for field initialization
+					this.problemReporter,
+					compilationResult);
+				if (compilationUnit.types != null)
+					typeDeclaration = compilationUnit.types[0];
+			} else {
+				compilationUnit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
+				typeDeclaration = BinaryTypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
+			}
 		
 			if(typeDeclaration != null) {	
 				// build AST from snippet
@@ -816,9 +834,14 @@ public final class CompletionEngine
 				
 				// merge AST
 				FieldDeclaration[] oldFields = typeDeclaration.fields;
-				FieldDeclaration[] newFields = new FieldDeclaration[oldFields.length + 1];
-				System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
-				newFields[oldFields.length] = fakeInitializer;
+				FieldDeclaration[] newFields = null;
+				if (oldFields != null) {
+					newFields = new FieldDeclaration[oldFields.length + 1];
+					System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
+					newFields[oldFields.length] = fakeInitializer;
+				} else {
+					newFields = new FieldDeclaration[] {fakeInitializer};
+				}
 				typeDeclaration.fields = newFields;
 		
 				if(DEBUG) {

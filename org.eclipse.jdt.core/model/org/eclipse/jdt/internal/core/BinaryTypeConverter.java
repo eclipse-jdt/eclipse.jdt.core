@@ -36,13 +36,12 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * Converter from a type to an AST type declaration.
- * (The converted type can be a binary or a source type)
+ * Converter from a binary type to an AST type declaration.
  */
-public class TypeConverter {
+public class BinaryTypeConverter {
 	
 	/**
-	 * Convert a type into an AST type declaration and put it in the given compilation unit.
+	 * Convert a binary type into an AST type declaration and put it in the given compilation unit.
 	 */
 	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult)  throws JavaModelException {
 		PackageFragment pkg = (PackageFragment) type.getPackageFragment();
@@ -76,7 +75,7 @@ public class TypeConverter {
 		FieldDeclaration fieldDeclaration = new FieldDeclaration();
 
 		fieldDeclaration.name = field.getElementName().toCharArray();
-		fieldDeclaration.type = createTypeReference(Signature.toString(field.getTypeSignature()).toCharArray(), type);
+		fieldDeclaration.type = createTypeReference(Signature.toString(field.getTypeSignature()).toCharArray());
 		fieldDeclaration.modifiers = field.getFlags();
 
 		return fieldDeclaration;
@@ -93,7 +92,7 @@ public class TypeConverter {
 		} else {
 			MethodDeclaration decl = new MethodDeclaration(compilationResult);
 			/* convert return type */
-			decl.returnType = createTypeReference(Signature.toString(method.getReturnType()).toCharArray(), type);
+			decl.returnType = createTypeReference(Signature.toString(method.getReturnType()).toCharArray());
 			methodDeclaration = decl;
 		}
 		methodDeclaration.selector = method.getElementName().toCharArray();
@@ -111,7 +110,7 @@ public class TypeConverter {
 			methodDeclaration.arguments[i] = new Argument(
 				argumentNames[i].toCharArray(),
 				0,
-				createTypeReference(Signature.toString(argumentTypeName).toCharArray(), type),
+				createTypeReference(Signature.toString(argumentTypeName).toCharArray()),
 				CompilerModifiers.AccDefault,
 				isVarargs && i == argumentCount-1);
 			// do not care whether was final or not
@@ -124,7 +123,7 @@ public class TypeConverter {
 			methodDeclaration.thrownExceptions = new TypeReference[exceptionCount];
 			for (int i = 0; i < exceptionCount; i++) {
 				methodDeclaration.thrownExceptions[i] =
-					createTypeReference(Signature.toString(exceptionTypeNames[i]).toCharArray(), type);
+					createTypeReference(Signature.toString(exceptionTypeNames[i]).toCharArray());
 			}
 		}
 		return methodDeclaration;
@@ -143,14 +142,14 @@ public class TypeConverter {
 
 		/* set superclass and superinterfaces */
 		if (type.getSuperclassName() != null) {
-			typeDeclaration.superclass = createTypeReference(type.getSuperclassName().toCharArray(), type);
+			typeDeclaration.superclass = createTypeReference(type.getSuperclassName().toCharArray());
 			typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
 		}
 		String[] interfaceNames = type.getSuperInterfaceNames();
 		int interfaceCount = interfaceNames == null ? 0 : interfaceNames.length;
 		typeDeclaration.superInterfaces = new TypeReference[interfaceCount];
 		for (int i = 0; i < interfaceCount; i++) {
-			typeDeclaration.superInterfaces[i] = createTypeReference(interfaceNames[i].toCharArray(), type);
+			typeDeclaration.superInterfaces[i] = createTypeReference(interfaceNames[i].toCharArray());
 			typeDeclaration.superInterfaces[i].bits |= ASTNode.IsSuperType;
 		}
 		
@@ -204,16 +203,7 @@ public class TypeConverter {
 		return typeDeclaration;
 	}
 	
-	private static TypeReference createTypeReference(char[] type, IType contextType) {
-		try {
-			String[][] resolvedName = contextType.resolveType(new String(type));
-			if(resolvedName != null && resolvedName.length == 1) {
-				type= CharOperation.concat(resolvedName[0][0].toCharArray(), resolvedName[0][1].toCharArray(), '.');
-			}
-		} catch (JavaModelException e) {
-			// ignore
-		}
-		
+	private static TypeReference createTypeReference(char[] type) {
 		/* count identifiers and dimensions */
 		int max = type.length;
 		int dimStart = max;
