@@ -33,6 +33,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	}
 	public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 	
+		boolean isReachable = flowInfo.isReachable();
 		// compound assignment extra work
 		if (isCompound) { // check the variable part is initialized if blank final
 			switch (bits & RestrictiveFlagMASK) {
@@ -53,7 +54,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 						// we could improve error msg here telling "cannot use compound assignment on final local variable"
 					}
-					if (flowInfo.isReachable()) {
+					if (isReachable) {
 						localBinding.useFlag = LocalVariableBinding.USED;
 					} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 						localBinding.useFlag = LocalVariableBinding.FAKE_USED;
@@ -92,7 +93,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				}
 				if (localBinding.isFinal()) {
 					if ((bits & DepthMASK) == 0) {
-						if (isCompound || !localBinding.isBlankFinal()){
+						// tolerate assignment to final local in unreachable code (45674)
+						if ((isReachable && isCompound) || !localBinding.isBlankFinal()){
 							currentScope.problemReporter().cannotAssignToFinalLocal(localBinding, this);
 						} else if (flowInfo.isPotentiallyAssigned(localBinding)) {
 							currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
