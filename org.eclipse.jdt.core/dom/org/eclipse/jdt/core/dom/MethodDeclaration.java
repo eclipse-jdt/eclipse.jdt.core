@@ -195,13 +195,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Returns a list of structural property descriptors for this node type.
 	 * Clients must not modify the result.
 	 * 
-	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @param apiLevel the API level; one of the AST.JLS* constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -288,7 +288,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	MethodDeclaration(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 		}
 	}
@@ -445,12 +445,12 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (this.ast.apiLevel == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.JLS2) {
 			result.setModifiers(getModifiers());
 			result.setReturnType(
 					(Type) ASTNode.copySubtree(target, getReturnType()));
 		}
-		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.JLS3) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.typeParameters().addAll(
 					ASTNode.copySubtrees(target, typeParameters()));
@@ -485,7 +485,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (this.ast.apiLevel == AST.LEVEL_2_0) {
+			if (this.ast.apiLevel == AST.JLS2) {
 				acceptChild(visitor, getReturnType());
 			} else {
 				acceptChildren(visitor, this.modifiers);

@@ -1694,7 +1694,7 @@ public abstract class ASTNode {
 	 * clutter up the API doc.
 	 * </p>
 	 * 
-	 * @param apiLevel the API level; one of the <code>AST.LEVEL_&ast;</code> constants
+	 * @param apiLevel the API level; one of the <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
@@ -1758,7 +1758,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
-	  if (this.ast.apiLevel == AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel == AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1771,7 +1771,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
-	  if (this.ast.apiLevel != AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel != AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation only supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}

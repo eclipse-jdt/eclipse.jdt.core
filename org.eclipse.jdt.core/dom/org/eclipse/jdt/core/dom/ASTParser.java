@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);  // handles JLS2 (J2SE 1.4)
+ * ASTParser parser = ASTParser.newParser(AST.JLS2);  // handles JLS2 (J2SE 1.4)
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
@@ -101,7 +101,7 @@ public class ASTParser {
      * (AST) following the specified set of API rules.
      * <p>
      * <b>NOTE:</b>In Eclipse 3.0, there is no parser support for
-     * AST.LEVEL_3_0. This support is planned for the follow-on release of
+     * AST.JLS3. This support is planned for the follow-on release of
      * Eclipse which includes support for J2SE 1.5.
      * </p>
      *  
@@ -199,8 +199,8 @@ public class ASTParser {
      * declared on <code>AST</code>
 	 */
 	ASTParser(int level) {
-		if ((level != AST.LEVEL_2_0)
-			&& (level != AST.LEVEL_3_0)) {
+		if ((level != AST.JLS2)
+			&& (level != AST.JLS3)) {
 			throw new IllegalArgumentException();
 		}
 		this.apiLevel = level;
@@ -695,7 +695,7 @@ public class ASTParser {
 		AST ast = AST.newAST(this.apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
-		if (AST.LEVEL_2_0 == this.apiLevel) {
+		if (AST.JLS2 == this.apiLevel) {
 			ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
 			if (needToResolveBindings) {
 				resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);

@@ -100,7 +100,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setupConverterJCL();
-		ast = AST.newAST(AST.LEVEL_2_0);
+		ast = AST.newAST(AST.JLS2);
 		setUpJavaProject("Converter"); //$NON-NLS-1$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
@@ -112,14 +112,14 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}	
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(unit);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
@@ -127,7 +127,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(classFile);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
@@ -135,7 +135,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
@@ -143,7 +143,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);

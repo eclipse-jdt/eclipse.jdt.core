@@ -126,13 +126,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -201,7 +201,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	SingleVariableDeclaration(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
 		}
 	}
@@ -309,7 +309,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone0(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.JLS2) {
 			result.setModifiers(getModifiers());
 		} else {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
@@ -338,7 +338,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());

@@ -49,7 +49,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * </p>
  * <pre>
  * Document doc = new Document("import java.util.List;\nclass X {}\n");
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+ * ASTParser parser = ASTParser.newParser(AST.JLS2);
  * parser.setSource(doc.get().toCharArray());
  * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
  * AST ast = cu.getAST();

@@ -76,13 +76,13 @@ public class Javadoc extends Comment {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -175,7 +175,7 @@ public class Javadoc extends Comment {
 	ASTNode clone0(AST target) {
 		Javadoc result = new Javadoc(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.JLS2) {
 			result.setComment(getComment());
 		}
 		result.tags().addAll(ASTNode.copySubtrees(target, tags()));

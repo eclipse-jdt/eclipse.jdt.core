@@ -31,8 +31,8 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.LEVEL_2_0));
-				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.LEVEL_3_0));
+				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS2));
+				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS3));
 			}
 		}
 		return suite;
@@ -261,7 +261,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			if (nodeClass != null) {
 				try {
 					ASTNode node = ast.createInstance(nodeClass);
-					if (ast.apiLevel() == AST.LEVEL_2_0) {
+					if (ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType >= 1) && (nodeType <= 69));
 					} else {
 						assertTrue((nodeType >= 1) && (nodeType <= 83));
@@ -270,7 +270,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 					//ASTNode node2 = ast.createInstance(nodeType);
 					//assertTrue(node2.getNodeType() == nodeType);
 				} catch (RuntimeException e) {
-					if (ast.apiLevel() == AST.LEVEL_2_0) {
+					if (ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType < 1) || (nodeType > 69));
 					} else {
 						assertTrue((nodeType < 1) || (nodeType > 83));

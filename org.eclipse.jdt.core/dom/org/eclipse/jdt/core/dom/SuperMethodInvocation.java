@@ -97,14 +97,14 @@ public class SuperMethodInvocation extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -146,7 +146,7 @@ public class SuperMethodInvocation extends Expression {
 	 */
 	SuperMethodInvocation(AST ast) {
 		super(ast);	
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
 		}
 	}
@@ -211,7 +211,7 @@ public class SuperMethodInvocation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) getName().clone(target));
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
-		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.JLS3) {
 			result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
 		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
@@ -234,7 +234,7 @@ public class SuperMethodInvocation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getQualifier());
-			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChildren(visitor, this.typeArguments);
 			}
 			acceptChild(visitor, getName());

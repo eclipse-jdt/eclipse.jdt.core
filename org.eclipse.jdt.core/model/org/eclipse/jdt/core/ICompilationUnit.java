@@ -513,7 +513,7 @@ boolean isWorkingCopy();
  * API is not supported, or if the working copy was already consistent.
  * </p>
  * <b>NOTE:</b>In Eclipse 3.0, there is no reconciler support for
- * AST.LEVEL_3_0. This support is planned for the follow-on release of
+ * level AST.JLS3. This support is planned for the follow-on release of
  * Eclipse which includes support for J2SE 1.5.
  * </p>
  *

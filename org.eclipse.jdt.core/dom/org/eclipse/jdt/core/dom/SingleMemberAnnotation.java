@@ -66,7 +66,7 @@ public final class SingleMemberAnnotation extends Annotation {
 	 * Returns a list of structural property descriptors for this node type.
 	 * Clients must not modify the result.
 	 * 
-	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @param apiLevel the API level; one of the AST.JLS* constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0

@@ -85,14 +85,14 @@ public class PackageDeclaration extends ASTNode {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -134,7 +134,7 @@ public class PackageDeclaration extends ASTNode {
 	 */
 	PackageDeclaration(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 		}
 	}
@@ -194,7 +194,7 @@ public class PackageDeclaration extends ASTNode {
 	ASTNode clone0(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.JLS3) {
 			result.setJavadoc((Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		}
@@ -216,7 +216,7 @@ public class PackageDeclaration extends ASTNode {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChild(visitor, getJavadoc());
 				acceptChildren(visitor, this.annotations);
 			}

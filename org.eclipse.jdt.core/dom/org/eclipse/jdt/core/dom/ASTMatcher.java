@@ -556,12 +556,12 @@ public class ASTMatcher {
 		}
 		ClassInstanceCreation o = (ClassInstanceCreation) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (!safeSubtreeMatch(node.getName(), o.getName())) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.typeArguments(), o.typeArguments())) {
 				return false;
 			}
@@ -646,7 +646,7 @@ public class ASTMatcher {
 			return false;
 		}
 		ConstructorInvocation o = (ConstructorInvocation) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.typeArguments(), o.typeArguments())) {
 				return false;
 			}
@@ -879,12 +879,12 @@ public class ASTMatcher {
 		}
 		FieldDeclaration o = (FieldDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -965,7 +965,7 @@ public class ASTMatcher {
 			return false;
 		}
 		ImportDeclaration o = (ImportDeclaration) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (node.isStatic() != o.isStatic()) {
 				return false;
 			}
@@ -1053,12 +1053,12 @@ public class ASTMatcher {
 		}
 		Initializer o = (Initializer) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -1113,7 +1113,7 @@ public class ASTMatcher {
 	 * @deprecated mark deprecated to hide deprecated usage
 	 */
 	private boolean compareDeprecatedComment(Javadoc first, Javadoc second) {
-		if (first.getAST().apiLevel == AST.LEVEL_2_0) {
+		if (first.getAST().apiLevel == AST.JLS2) {
 			return safeEquals(first.getComment(), second.getComment());
 		} else {
 			return true;
@@ -1317,7 +1317,7 @@ public class ASTMatcher {
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -1325,7 +1325,7 @@ public class ASTMatcher {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -1366,7 +1366,7 @@ public class ASTMatcher {
 			return false;
 		}
 		MethodInvocation o = (MethodInvocation) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.typeArguments(), o.typeArguments())) {
 				return false;
 			}
@@ -1486,7 +1486,7 @@ public class ASTMatcher {
 			return false;
 		}
 		PackageDeclaration o = (PackageDeclaration) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (!safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())) {
 				return false;
 			}
@@ -1776,12 +1776,12 @@ public class ASTMatcher {
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -1837,7 +1837,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SuperConstructorInvocation o = (SuperConstructorInvocation) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.typeArguments(), o.typeArguments())) {
 				return false;
 			}
@@ -1890,7 +1890,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SuperMethodInvocation o = (SuperMethodInvocation) other;
-		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.typeArguments(), o.typeArguments())) {
 				return false;
 			}
@@ -2108,7 +2108,7 @@ public class ASTMatcher {
 		}
 		TypeDeclaration o = (TypeDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -2119,7 +2119,7 @@ public class ASTMatcher {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -2228,12 +2228,12 @@ public class ASTMatcher {
 		}
 		VariableDeclarationExpression o = (VariableDeclarationExpression) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
@@ -2290,12 +2290,12 @@ public class ASTMatcher {
 		}
 		VariableDeclarationStatement o = (VariableDeclarationStatement) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.LEVEL_2_0) {
+		if (level == AST.JLS2) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
 		}
-		if (level >= AST.LEVEL_3_0) {
+		if (level >= AST.JLS3) {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}

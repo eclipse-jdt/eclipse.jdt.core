@@ -191,7 +191,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);

@@ -30,8 +30,8 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTParserTest(methods[i].getName(), AST.LEVEL_2_0));
-				suite.addTest(new ASTParserTest(methods[i].getName(), AST.LEVEL_3_0));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS2));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS3));
 			}
 		}
 		return suite;

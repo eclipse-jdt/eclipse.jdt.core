@@ -143,7 +143,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 */
 	BodyDeclaration(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.modifiers = new ASTNode.NodeList(internalModifiers2Property());
 		}
 	}

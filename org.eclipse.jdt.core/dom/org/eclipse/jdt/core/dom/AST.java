@@ -56,7 +56,7 @@ import org.eclipse.text.edits.TextEdit;
  * with minimal loss of original formatting. Here is an example:
  * <pre>
  * Document doc = new Document("import java.util.List;\nclass X {}\n");
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
+ * ASTParser parser = ASTParser.newParser(AST.JLS3);
  * parser.setSource(doc.get().toCharArray());
  * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
  * cu.recordModifications();
@@ -82,39 +82,53 @@ import org.eclipse.text.edits.TextEdit;
  */
 public final class AST {
 	/**
-	 * Constant for indicating the AST 2.0 API (handles
-	 * JLS2). The 2.0 API is capable of handling all constructs
+	 * Constant for indicating the AST API that handles JLS2.
+	 * This API is capable of handling all constructs
 	 * in the Java language as described in the Java Language
      * Specification, Second Edition (JLS2).
      * JLS2 is a superset of all earlier versions of the
-     * Java language, and the 2.0 API can be used to manipulate
+     * Java language, and the JLS2 API can be used to manipulate
      * programs written in all versions of the Java language
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
 	 */
 	// TODO (jeem) deprecated Clients should use the level 3 API.
-	public static final int LEVEL_2_0 = 2;
+	public static final int JLS2 = 2;
 	
 	/**
-	 * Constant for indicating the AST 3.0 API (handles JLS3).
-	 * The 3.0 API is capable of handling all constructs in the
+	 * Constant for indicating the AST API that handles JLS3.
+	 * This API is capable of handling all constructs in the
 	 * Java language as described in the Java Language
 	 * Specification, Third Edition (JLS3).
      * JLS3 is a superset of all earlier versions of the
-     * Java language, and the 3.0 API can be used to manipulate
+     * Java language, and the JLS3 API can be used to manipulate
      * programs written in all versions of the Java language
      * up to and including J2SE 1.5.
      * <p>
      * <b>NOTE:</b>In Eclipse 3.0, there is no underlying parser support for
-     * level 3 ASTs. This support is planned for the follow-on release of
+     * JLS3 ASTs. This support is planned for the follow-on release of
      * Eclipse which includes support for J2SE 1.5. Without a parser to create
-     * level 3 ASTs, they are not much use. Use level 2 ASTs instead.
+     * JLS3 ASTs, they are not much use. Use JLS2 ASTs instead.
      * </p>
      *
 	 * @since 3.0
 	 */
-	public static final int LEVEL_3_0 = 3;
+	public static final int JLS3 = 3;
+	
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed {@link #JLS2}.
+	 * // TODO (jeem) - remove after I20040427
+	 */
+	public static final int JLS2_0 = JLS2;
+	
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed {@link #JLS3}.
+	 * // TODO (jeem) - remove after I20040427
+	 */
+	public static final int JLS3_0 = JLS3;
 	
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
@@ -192,8 +206,8 @@ public final class AST {
      * @since 3.0
 	 */
 	private AST(int level) {
-		if ((level != AST.LEVEL_2_0)
-			&& (level != AST.LEVEL_3_0)) {
+		if ((level != AST.JLS2)
+			&& (level != AST.JLS3)) {
 			throw new IllegalArgumentException();
 		}
 		this.apiLevel = level;
@@ -275,7 +289,7 @@ public final class AST {
 	 */
 	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
-		this(LEVEL_2_0);
+		this(JLS2);
 		// override scanner if 1.4 asked for
 		if (JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE))) {
 			this.scanner = new Scanner(
@@ -301,8 +315,8 @@ public final class AST {
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
-		if ((level != AST.LEVEL_2_0)
-			&& (level != AST.LEVEL_3_0)) {
+		if ((level != AST.JLS2)
+			&& (level != AST.JLS3)) {
 			throw new IllegalArgumentException();
 		}
 		return new AST(level);
@@ -340,7 +354,7 @@ public final class AST {
 	/**
 	 * Return the API level supported by this AST.
 	 * 
-	 * @return level the API level; one of the <code>LEVEL_*</code>LEVEL
+	 * @return level the API level; one of the <code>JLS*</code>LEVEL
      * declared on <code>AST</code>; assume this set is open-ended
      * @since 3.0
 	 */
@@ -753,7 +767,7 @@ public final class AST {
 		boolean resolveBindings) {
 
 		try {
-			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser c = ASTParser.newParser(AST.JLS2);
 			c.setSource(unit);
 			c.setResolveBindings(resolveBindings);
 			ASTNode result = c.createAST(null);
@@ -831,7 +845,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		try {
-			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser c = ASTParser.newParser(AST.JLS2);
 			c.setSource(classFile);
 			c.setResolveBindings(resolveBindings);
 			ASTNode result = c.createAST(null);
@@ -915,7 +929,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser c = ASTParser.newParser(AST.JLS2);
 		c.setSource(source);
 		c.setUnitName(unitName);
 		c.setProject(project);
@@ -962,7 +976,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser c = ASTParser.newParser(AST.JLS2);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
@@ -1092,7 +1106,7 @@ public final class AST {
 	 * @since 3.0
      */
 	void unsupportedIn2() {
-	  if (this.apiLevel == AST.LEVEL_2_0) {
+	  if (this.apiLevel == AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1105,7 +1119,7 @@ public final class AST {
 	 * @since 3.0
      */
 	void supportedOnlyIn2() {
-	  if (this.apiLevel != AST.LEVEL_2_0) {
+	  if (this.apiLevel != AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1833,10 +1847,10 @@ public final class AST {
 	public TypeDeclarationStatement 
 			newTypeDeclarationStatement(AbstractTypeDeclaration decl) {
 		TypeDeclarationStatement result = new TypeDeclarationStatement(this);
-		if (this.apiLevel == AST.LEVEL_2_0) {
+		if (this.apiLevel == AST.JLS2) {
 			result.setTypeDeclaration((TypeDeclaration) decl);
 		}
-		if (this.apiLevel >= AST.LEVEL_3_0) {
+		if (this.apiLevel >= AST.JLS3) {
 			result.setDeclaration(decl);
 		}
 		return result;
