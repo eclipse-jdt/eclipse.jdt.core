@@ -62,6 +62,8 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_BETWEEN_CASE_AND_COLON = COMPLETION_PARSER + 26;
 	protected static final int K_BETWEEN_DEFAULT_AND_COLON = COMPLETION_PARSER + 27;
 	protected static final int K_BETWEEN_LEFT_AND_RIGHT_BRACKET = COMPLETION_PARSER + 28;
+	protected static final int K_EXTENDS_KEYWORD = COMPLETION_PARSER + 29;
+	protected static final int K_PARAMETERIZED_METHOD_INVOCATION = COMPLETION_PARSER + 30;
 	
 
 	/* public fields */
@@ -570,9 +572,7 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 							currentElement = currentElement.add(allocationExpression, 0);
 						}
 						break nextElement;
-				}
-				if(info == LESS && node instanceof TypeReference) {
-					if(this.expressionPtr > -1 || (this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0)) {
+					case K_PARAMETERIZED_METHOD_INVOCATION :
 						ParameterizedMessageSend messageSend = new ParameterizedMessageSend();
 						messageSend.selector = "$none".toCharArray(); //$NON-NLS-1$
 						if(this.expressionPtr > -1) {
@@ -584,6 +584,14 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 						messageSend.sourceStart = messageSend.receiver.sourceStart;
 						messageSend.sourceEnd = node.sourceEnd;
 						currentElement = currentElement.add(messageSend, 0);
+						break nextElement;
+				}
+				if(info == LESS && node instanceof TypeReference) {
+					if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
+						this.consumeTypeArguments();
+						TypeReference ref = this.getTypeReference(0);
+						assistNodeParent = ref;
+						currentElement = currentElement.add(ref, 0);
 					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
 						ParameterizedExplicitConstructorCall constructorCall = new ParameterizedExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
 						constructorCall.typeArguments = new TypeReference[]{(TypeReference)node};
@@ -996,7 +1004,7 @@ private boolean checkNameCompletion() {
 	return true;
 }
 private boolean checkParemeterizedType() {
-	if(this.identifierLengthPtr> -1 && this.genericsLengthPtr >-1 && this.genericsIdentifiersLengthPtr > -1) {
+	if(this.identifierLengthPtr > -1 && this.genericsLengthPtr > -1 && this.genericsIdentifiersLengthPtr > -1) {
 		int length = this.identifierLengthStack[this.identifierLengthPtr];
 		int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr];
 		if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
@@ -1075,6 +1083,17 @@ private boolean checkRecoveredType() {
 			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 			this.isOrphanCompletionNode = true;
 			return true;
+		} else {
+			if(recoveredType.typeDeclaration.superclass == null &&
+					this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_EXTENDS_KEYWORD) {
+				this.consumeClassOrInterfaceName();
+				this.pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
+				this.assistNode = this.getTypeReference(0);
+				this.popElement(K_NEXT_TYPEREF_IS_CLASS);
+				this.lastCheckPoint = this.assistNode.sourceEnd + 1;
+				this.isOrphanCompletionNode = true;
+				return true;
+			}
 		}
 	}
 	return false;
@@ -1267,6 +1286,7 @@ protected void consumeClassHeaderExtends() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
 	super.consumeClassHeaderExtends();
 	popElement(K_NEXT_TYPEREF_IS_CLASS);
+	popElement(K_EXTENDS_KEYWORD);
 	
 	if (currentElement != null
 		&& currentToken == TokenNameIdentifier
@@ -1583,6 +1603,10 @@ protected void consumeInterfaceHeaderName1() {
 		}
 	}
 }
+protected void consumeInterfaceHeaderExtends() {
+	super.consumeInterfaceHeaderExtends();
+	popElement(K_EXTENDS_KEYWORD);
+}
 protected void consumeInterfaceType() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_INTERFACE);
 	super.consumeInterfaceType();
@@ -1889,6 +1913,11 @@ protected void consumeToken(int token) {
 		}
 	}
 	super.consumeToken(token);
+	switch(token) {
+		case TokenNameextends:
+			pushOnElementStack(K_EXTENDS_KEYWORD);
+			break;
+	}
 
 	// if in field initializer (directly or not), on the completion identifier and not in recovery mode yet
 	// then position end of file at cursor location (so that we have the same behavior as
@@ -2134,6 +2163,11 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BINARY_OPERATOR, UNSIGNED_RIGHT_SHIFT);
 				break;
 			case TokenNameLESS:
+				switch(previous) {
+					case TokenNameDOT :
+						pushOnElementStack(K_PARAMETERIZED_METHOD_INVOCATION);
+						break;
+				}
 				pushOnElementStack(K_BINARY_OPERATOR, LESS);
 				break;
 			case TokenNameGREATER:
@@ -2227,6 +2261,7 @@ protected void consumeToken(int token) {
 protected void consumeOnlyTypeArguments() {
 	super.consumeOnlyTypeArguments();
 	popElement(K_BINARY_OPERATOR);
+	popElement(K_PARAMETERIZED_METHOD_INVOCATION);
 }
 protected void consumeReferenceType1() {
 	super.consumeReferenceType1();
@@ -2260,6 +2295,22 @@ protected void consumeTypeParameters1() {
 	super.consumeTypeParameter1();
 	popElement(K_BINARY_OPERATOR);
 }
+protected void consumeTypeParameterWithExtends() {
+	super.consumeTypeParameterWithExtends();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeTypeParameterWithExtendsAndBounds() {
+	super.consumeTypeParameterWithExtendsAndBounds();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeTypeParameter1WithExtends() {
+	super.consumeTypeParameter1WithExtends();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeTypeParameter1WithExtendsAndBounds() {
+	super.consumeTypeParameter1WithExtendsAndBounds();
+	popElement(K_EXTENDS_KEYWORD);
+}
 protected void consumeWildcard1() {
 	super.consumeWildcard1();
 	popElement(K_BINARY_OPERATOR);
@@ -2271,6 +2322,22 @@ protected void consumeWildcard2() {
 protected void consumeWildcard3() {
 	super.consumeWildcard3();
 	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeWildcardBoundsExtends() {
+	super.consumeWildcardBoundsExtends();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeWildcardBounds1Extends() {
+	super.consumeWildcardBounds1Extends();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeWildcardBounds2Extends() {
+	super.consumeWildcardBounds2Extends();
+	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeWildcardBounds3Extends() {
+	super.consumeWildcardBounds3Extends();
+	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeUnaryExpression(int op) {
 	super.consumeUnaryExpression(op);

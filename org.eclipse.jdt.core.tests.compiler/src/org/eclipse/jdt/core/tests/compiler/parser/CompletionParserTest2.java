@@ -7782,4 +7782,35 @@ public void test0137(){
 			expectedReplacedSource,
 			"full ast");
 }
+public void test0138(){
+	String str =
+		"public class X  extends Z. #  {\n" +
+		"}";
+
+
+	String completeBehind = "Z.";
+	int cursorLocation = str.indexOf("Z.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnClass:Z.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "Z.";
+	String expectedUnitDisplayString =
+		"public class X extends <CompleteOnClass:Z.> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+		;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

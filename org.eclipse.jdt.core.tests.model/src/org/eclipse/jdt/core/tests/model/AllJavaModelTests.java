@@ -90,6 +90,7 @@ public static Test suite() {
 	suite.addTest(CompletionTests.suite());
 	suite.addTest(CompletionTests2.suite());
 	suite.addTest(SnippetCompletionTests.suite());
+	suite.addTest(CompletionTests_1_5.suite());
 	
 	// Prefix and suffix tests
 	suite.addTest(NamingConventionTests.suite());

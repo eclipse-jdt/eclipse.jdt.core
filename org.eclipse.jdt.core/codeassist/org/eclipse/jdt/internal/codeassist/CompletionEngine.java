@@ -3323,6 +3323,30 @@ public final class CompletionEngine
 			addExpectedType(BaseTypes.ShortBinding);
 			addExpectedType(BaseTypes.IntBinding);
 			addExpectedType(BaseTypes.LongBinding);
+		} else if(parent instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
+			if(typeVariables != null && typeVariables.length >= length) {
+				ReferenceBinding typeVariable = typeVariables[length - 1].superclass;
+				if(typeVariable != scope.getJavaLangObject()) {
+					addExpectedType(typeVariables[length - 1].superclass);
+				}
+			}
+		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeReference[][] arguments = ref.typeArguments;
+			int length = 0;
+			if(arguments != null && arguments[arguments.length - 1] != null) {
+				length = arguments[arguments.length - 1].length;
+			}
+			if(typeVariables != null && typeVariables.length >= length) {
+				ReferenceBinding typeVariable = typeVariables[length - 1].superclass;
+				if(typeVariable != scope.getJavaLangObject()) {
+					addExpectedType(typeVariables[length - 1].superclass);
+				}
+			}
 		}
 		
 		if(expectedTypesPtr + 1 != expectedTypes.length) {
