@@ -87,12 +87,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	/**
 	 * Simple type name requestor: only count classes and interfaces.
 	 */
-	class TypeNameRequestor implements ITypeNameRequestor {
+	class SearchTypeNameRequestor extends TypeNameRequestor {
 		int count = 0;
-		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
-			this.count++;
-		}
-		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
 			this.count++;
 		}
 	}
@@ -201,7 +198,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testPerfSearchAllTypeNames() throws CoreException {
 		tagAsSummary("Search All Type Names", Dimension.CPU_TIME);
-		TypeNameRequestor requestor = new TypeNameRequestor();
+		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 		startMeasuring();
 		new SearchEngine().searchAllTypeNames(
 			null,

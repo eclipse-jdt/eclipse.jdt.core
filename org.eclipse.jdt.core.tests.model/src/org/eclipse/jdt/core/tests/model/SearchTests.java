@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -81,15 +80,9 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		public void worked(int work) {
 		}
 	}
-	public static class TypeNameRequestor implements ITypeNameRequestor {
+	public static class SearchTypeNameRequestor extends TypeNameRequestor {
 		Vector results = new Vector();
-		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
-			acceptType(packageName, simpleTypeName, enclosingTypeNames);
-		}
-		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
-			acceptType(packageName, simpleTypeName, enclosingTypeNames);
-		}
-		private void acceptType(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames) {
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 			char[] typeName = 
 				CharOperation.concat(
 					CharOperation.concatWith(enclosingTypeNames, '$'), 
@@ -159,7 +152,7 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 			SearchEngine.createWorkspaceScope() :
 			SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 	SearchEngine searchEngine = new SearchEngine();
-	TypeNameRequestor requestor = new TypeNameRequestor();
+	SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 	searchEngine.searchAllTypeNames(
 		null,
 		null,

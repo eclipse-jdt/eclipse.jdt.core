@@ -510,22 +510,7 @@ public class BasicSearchEngine {
 							access = access.getViolatedRestriction(path, null);
 						}
 					}
-					switch (record.typeSuffix) {
-						case IIndexConstants.CLASS_SUFFIX :
-							nameRequestor.acceptClass(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
-							break;
-						case IIndexConstants.INTERFACE_SUFFIX :
-							nameRequestor.acceptInterface(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
-							break;
-						case IIndexConstants.ENUM_SUFFIX :
-							// TODO (frederic) hack to get enum while getting all type names...
-							nameRequestor.acceptEnum(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
-							break;
-						case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
-							// TODO (frederic) hack to get annotation while getting all type names...
-							nameRequestor.acceptAnnotation(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
-							break;
-					}
+					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
 				}
 				return true;
 			}
@@ -576,20 +561,7 @@ public class BasicSearchEngine {
 								kind = IGenericType.INTERFACE_DECL;
 							}
 							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
-								switch(kind) {
-									case IGenericType.CLASS_DECL:
-										nameRequestor.acceptClass(packageDeclaration, simpleName, enclosingTypeNames, path, null);
-										break;
-									case IGenericType.INTERFACE_DECL:
-										nameRequestor.acceptInterface(packageDeclaration, simpleName, enclosingTypeNames, path, null);
-										break;
-									case IGenericType.ENUM_DECL:
-										// TODO need support
-										break;
-									case IGenericType.ANNOTATION_TYPE_DECL:
-										// TODO need support
-										break;
-								}
+								nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
 							}
 						}
 					} else {
@@ -619,20 +591,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.kind(), packageDeclaration, typeDeclaration.name)) {
-										switch(typeDeclaration.kind()) {
-											case IGenericType.CLASS_DECL:
-												nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
-												break;
-											case IGenericType.INTERFACE_DECL:
-												nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
-												break;
-											case IGenericType.ENUM_DECL:
-												// TODO need support
-												break;
-											case IGenericType.ANNOTATION_TYPE_DECL:
-												// TODO need support
-												break;
-										}
+										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 									}
 									return true;
 								}
@@ -650,20 +609,7 @@ public class BasicSearchEngine {
 											}
 										}
 										// report
-										switch(memberTypeDeclaration.kind()) {
-											case IGenericType.CLASS_DECL:
-												nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
-												break;
-											case IGenericType.INTERFACE_DECL:
-												nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
-												break;
-											case IGenericType.ENUM_DECL:
-												// TODO need support
-												break;
-											case IGenericType.ANNOTATION_TYPE_DECL:
-												// TODO need support
-												break;
-										}
+										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 									}
 									return true;
 								}

@@ -35,10 +35,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -498,16 +498,26 @@ public class NameLookup implements SuffixConstants {
 	IType findSecondaryType(String typeName, IPackageFragment pkg, boolean partialMatch, final int acceptFlags) {
 		try {
 			final ArrayList paths = new ArrayList();
-			ITypeNameRequestor nameRequestor = new ITypeNameRequestor() {
-				public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
-					if ((acceptFlags & ACCEPT_CLASSES) != 0)
-						if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
-							paths.add(path);
-				}
-				public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
-					if ((acceptFlags & ACCEPT_INTERFACES) != 0)
-						if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
-							paths.add(path);
+			TypeNameRequestor nameRequestor = new TypeNameRequestor() {
+				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+					if (enclosingTypeNames == null || enclosingTypeNames.length == 0) { // accept only top level types
+						int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+						switch (kind) {
+							case IConstants.AccAnnotation:
+							case IConstants.AccAnnotation+IConstants.AccInterface:
+								if ((acceptFlags & ACCEPT_ANNOTATIONS) != 0) paths.add(path);
+								break;
+							case IConstants.AccEnum:
+								if ((acceptFlags & ACCEPT_ENUMS) != 0) paths.add(path);
+								break;
+							case IConstants.AccInterface:
+								if ((acceptFlags & ACCEPT_INTERFACES) != 0) paths.add(path);
+								break;
+							default:
+								if ((acceptFlags & ACCEPT_CLASSES) != 0) paths.add(path);
+								break;
+						}
+					}
 				}
 			};
 

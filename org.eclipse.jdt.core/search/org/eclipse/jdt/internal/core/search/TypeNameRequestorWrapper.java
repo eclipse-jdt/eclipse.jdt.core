@@ -10,58 +10,28 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import org.eclipse.jdt.core.search.ITypeNameRequestor;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 
 /**
- * Wrapper to link previous ITypeNameRequestor and IRestrictedAccessTypeRequestor interfaces.
- * This wrapper is used by {@link org.eclipse.jdt.core.search.SearchEngine#searchAllTypeNames(char[],char[],int,int,org.eclipse.jdt.core.search.IJavaSearchScope,ITypeNameRequestor,int,org.eclipse.core.runtime.IProgressMonitor)}
- * to call {@link BasicSearchEngine#searchAllTypeNames(char[],char[],int,int,org.eclipse.jdt.core.search.IJavaSearchScope,IRestrictedAccessTypeRequestor,int,org.eclipse.core.runtime.IProgressMonitor)}
- * corresponding method.
+ * Wrapper used to link {@link IRestrictedAccessTypeRequestor} with {@link TypeNameRequestor}.
+ * This allow usage of internal method {@link BasicSearchEngine#searchAllTypeNames} 
+ * from  API method {@link org.eclipse.jdt.core.search.SearchEngine#searchAllTypeNames(
+ * 	char[] packageName, 
+ * 	char[] typeName,
+ * 	int matchRule, 
+ * 	int searchFor, 
+ * 	org.eclipse.jdt.core.search.IJavaSearchScope scope, 
+ * 	TypeNameRequestor nameRequestor,
+ * 	int waitingPolicy,
+ * 	org.eclipse.core.runtime.IProgressMonitor monitor) }.
  */
 public class TypeNameRequestorWrapper implements IRestrictedAccessTypeRequestor {
-	ITypeNameRequestor requestor;
-	public TypeNameRequestorWrapper(ITypeNameRequestor requestor) {
+	TypeNameRequestor requestor;
+	public TypeNameRequestorWrapper(TypeNameRequestor requestor) {
 		this.requestor = requestor;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptAnnotation(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
-	 */
-	public void acceptAnnotation (	char[] packageName,
-									char[] simpleTypeName,
-									char[][] enclosingTypeNames,
-									String path,
-									AccessRestriction access) {
-		this.requestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, path);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptClass(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
-	 */
-	public void acceptClass (	char[] packageName,
-								char[] simpleTypeName,
-								char[][] enclosingTypeNames,
-								String path,
-								AccessRestriction access) {
-		this.requestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, path);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptEnum(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
-	 */
-	public void acceptEnum (	char[] packageName,
-								char[] simpleTypeName,
-								char[][] enclosingTypeNames,
-								String path,
-								AccessRestriction access) {
-		this.requestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, path);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptInterface(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
-	 */
-	public void acceptInterface (	char[] packageName,
-									char[] simpleTypeName,
-									char[][] enclosingTypeNames,
-									String path,
-									AccessRestriction access) {
-		this.requestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, path);
+	public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+		this.requestor.acceptType(modifiers, packageName, simpleTypeName, enclosingTypeNames, path);
 	}
 }

@@ -127,7 +127,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		);
 		this.workingCopy.makeConsistent(null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
-		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 			null,
 			null,
@@ -158,7 +158,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"}" 
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
-		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 			null,
 			null,
@@ -194,7 +194,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			wc.makeConsistent(null);
 			
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
-			SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
 				"wc3".toCharArray(),
 				"X".toCharArray(),
@@ -231,7 +231,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			);
 			
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
-			SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
 				"wc3".toCharArray(),
 				"X".toCharArray(),

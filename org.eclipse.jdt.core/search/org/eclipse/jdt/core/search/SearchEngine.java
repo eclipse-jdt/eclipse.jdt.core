@@ -14,6 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
@@ -44,6 +45,7 @@ public class SearchEngine {
 			this.pattern = pattern;
 		}
 	}
+
 	/**
 	 * Internal adapter class.
 	 * @deprecated marking deprecated as it uses deprecated IJavaSearchResultCollector
@@ -76,6 +78,24 @@ public class SearchEngine {
 		 */
 		public void endReporting() {
 			this.resultCollector.done();
+		}
+	}
+
+	/**
+	 * Internal adapter class.
+	 * @deprecated marking deprecated as it uses deprecated ITypeNameRequestor
+	 */
+	class TypeNameRequestorAdapter implements IRestrictedAccessTypeRequestor {
+		ITypeNameRequestor nameRequestor;
+		TypeNameRequestorAdapter(ITypeNameRequestor requestor) {
+			this.nameRequestor = requestor;
+		}
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+			if (Flags.isInterface(modifiers)) {
+				nameRequestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, path);
+			} else {
+				nameRequestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, path);
+			}
 		}
 	}
 		
@@ -563,12 +583,71 @@ public class SearchEngine {
 		final int matchRule, 
 		int searchFor, 
 		IJavaSearchScope scope, 
-		final ITypeNameRequestor nameRequestor,
+		final TypeNameRequestor nameRequestor,
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
 		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
 		this.basicEngine.searchAllTypeNames(packageName, typeName, matchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
+	}
+
+	/**
+	 * Searches for all top-level types and member types in the given scope.
+	 * The search can be selecting specific types (given a package or a type name
+	 * prefix and match modes). 
+	 * 
+	 * @param packageName the full name of the package of the searched types, or a prefix for this
+	 *						package, or a wild-carded string for this package.
+	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
+	 *					the enclosing types if the searched type is a member type), or a prefix
+	 *					for this type, or a wild-carded string for this type.
+	 * @param matchRule one of
+	 * <ul>
+	 *		<li><code>SearchPattern.R_EXACT_MATCH</code> if the package name and type name are the full names
+	 *			of the searched types.</li>
+	 *		<li><code>SearchPattern.R_PREFIX_MATCH</code> if the package name and type name are prefixes of the names
+	 *			of the searched types.</li>
+	 *		<li><code>SearchPattern.R_PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
+	 * </ul>
+	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
+	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
+	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
+	 * @param searchFor one of
+	 * <ul>
+	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
+	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
+	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
+	 * </ul>
+	 * @param scope the scope to search in
+	 * @param nameRequestor the requestor that collects the results of the search
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
+	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.0
+	 *@deprecated Use {@link #searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)} instead
+	 */
+	public void searchAllTypeNames(
+		final char[] packageName, 
+		final char[] typeName,
+		final int matchRule, 
+		int searchFor, 
+		IJavaSearchScope scope, 
+		final ITypeNameRequestor nameRequestor,
+		int waitingPolicy,
+		IProgressMonitor progressMonitor)  throws JavaModelException {
+		
+		this.basicEngine.searchAllTypeNames(packageName, typeName, matchRule, searchFor, scope, new TypeNameRequestorAdapter(nameRequestor), waitingPolicy, progressMonitor);
 	}
 
 	/**

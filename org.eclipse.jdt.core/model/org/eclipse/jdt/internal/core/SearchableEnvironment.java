@@ -29,8 +29,8 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -266,53 +266,27 @@ public class SearchableEnvironment
 				}
 			};
 			IRestrictedAccessTypeRequestor typeRequestor = new IRestrictedAccessTypeRequestor() {
-				public void acceptAnnotation(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path,
-					AccessRestriction access) {
+				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
 					if (excludePath != null && excludePath.equals(path))
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					storage.acceptAnnotation(packageName, simpleTypeName, IConstants.AccPublic, access);
-				}
-				public void acceptClass(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path,
-					AccessRestriction access) {
-					if (excludePath != null && excludePath.equals(path))
-						return;
-					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
-						return; // accept only top level types
-					storage.acceptClass(packageName, simpleTypeName, IConstants.AccPublic, access);
-				}
-				public void acceptEnum(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path,
-					AccessRestriction access) {
-					if (excludePath != null && excludePath.equals(path))
-						return;
-					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
-						return; // accept only top level types
-					storage.acceptEnum(packageName, simpleTypeName, IConstants.AccPublic, access);
-				}
-				public void acceptInterface(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path,
-					AccessRestriction access) {
-					if (excludePath != null && excludePath.equals(path))
-						return;
-					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
-						return; // accept only top level types
-					storage.acceptInterface(packageName, simpleTypeName, IConstants.AccPublic, access);
+					int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+					switch (kind) {
+						case IConstants.AccAnnotation:
+						case IConstants.AccAnnotation+IConstants.AccInterface:
+							storage.acceptAnnotation(packageName, simpleTypeName, modifiers, access);
+							break;
+						case IConstants.AccEnum:
+							storage.acceptEnum(packageName, simpleTypeName, modifiers, access);
+							break;
+						case IConstants.AccInterface:
+							storage.acceptInterface(packageName, simpleTypeName, modifiers, access);
+							break;
+						default:
+							storage.acceptClass(packageName, simpleTypeName, modifiers, access);
+							break;
+					}
 				}
 			};
 			try {

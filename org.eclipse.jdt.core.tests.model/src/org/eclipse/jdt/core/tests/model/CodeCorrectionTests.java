@@ -65,13 +65,9 @@ public void setUpSuite() throws Exception {
 			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 			IJavaSearchConstants.CLASS,
 			scope, 
-			new ITypeNameRequestor() {
-				public void acceptClass(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path) {}
-				public void acceptInterface(
+			new TypeNameRequestor() {
+				public void acceptType(
+					int modifiers,
 					char[] packageName,
 					char[] simpleTypeName,
 					char[][] enclosingTypeNames,

@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.search;
  * <p>
  * This interface may be implemented by clients.
  * </p>
+ * @deprecated Use abstract class {@link TypeNameRequestor} instead.
  */
 public interface ITypeNameRequestor {
 /**

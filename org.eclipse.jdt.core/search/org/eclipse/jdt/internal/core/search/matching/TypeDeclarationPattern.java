@@ -29,10 +29,15 @@ public char[][] enclosingTypeNames;
 // set to ANNOTATION_TYPE_SUFFIX for only matching annotation types
 // set to TYPE_SUFFIX for matching both classes and interfaces
 public char typeSuffix; 
+public int modifiers;
 
 protected static char[][] CATEGORIES = { TYPE_DECL };
 
-public static char[] createIndexKey(char[] typeName, char[] packageName, char[][] enclosingTypeNames, char typeSuffix) {
+/*
+ * Create index key for type declaration pattern:
+ *		key = typeName / packageName / enclosingTypeName / typeSuffix modifiers
+ */
+public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, char typeSuffix) {
 	int typeNameLength = typeName == null ? 0 : typeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
 	int enclosingNamesLength = 0;
@@ -44,7 +49,7 @@ public static char[] createIndexKey(char[] typeName, char[] packageName, char[][
 		}
 	}
 
-	char[] result = new char[typeNameLength + packageLength + enclosingNamesLength + 4];
+	char[] result = new char[typeNameLength + packageLength + enclosingNamesLength + 5];
 	int pos = 0;
 	if (typeNameLength > 0) {
 		System.arraycopy(typeName, 0, result, pos, typeNameLength);
@@ -67,7 +72,8 @@ public static char[] createIndexKey(char[] typeName, char[] packageName, char[][
 		}
 	}
 	result[pos++] = SEPARATOR;
-	result[pos] = typeSuffix;
+	result[pos++] = typeSuffix;
+	result[pos] = (char) modifiers;
 	return result;
 }
 
@@ -119,7 +125,8 @@ public void decodeIndexKey(char[] key) {
 		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
 	}
 
-	this.typeSuffix = key[key.length - 1];
+	this.typeSuffix = key[key.length - 2];
+	this.modifiers = key[key.length - 1]; // implicit cast to int type
 }
 public SearchPattern getBlankPattern() {
 	return new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
