@@ -424,6 +424,60 @@ public class SearchEngine {
 	}
 	
 	/**
+	 * Searches for matches to a given query. Search queries can be created using helper
+	 * methods (from a String pattern or a Java element) and encapsulate the description of what is
+	 * being searched (for example, search method declarations in a case sensitive way).
+	 *
+	 * @param scope the search result has to be limited to the given scope
+	 * @param resultCollector a callback object to which each match is reported
+	 */
+	private void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
+		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+	
+		/* initialize progress monitor */
+		if (monitor != null)
+			monitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+		if (SearchEngine.VERBOSE)
+			System.out.println("Searching for " + this + " in " + scope); //$NON-NLS-1$//$NON-NLS-2$
+	
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		try {
+			requestor.beginReporting();
+			for (int i = 0, l = participants == null ? 0 : participants.length; i < l; i++) {
+				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+	
+				SearchParticipant participant = participants[i];
+				try {
+					participant.beginSearching();
+					requestor.enterParticipant(participant);
+					PathCollector pathCollector = new PathCollector();
+					indexManager.performConcurrentJob(
+						new PatternSearchJob(pattern, participant, scope, pathCollector),
+						IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+						monitor);
+					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+	
+					// locate index matches if any (note that all search matches could have been issued during index querying)
+					String[] indexMatchPaths = pathCollector.getPaths();
+					pathCollector = null; // release
+					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
+					SearchDocument[] indexMatches = new SearchDocument[indexMatchLength];
+					for (int j = 0; j < indexMatchLength; j++)
+						indexMatches[j] = participant.getDocument(indexMatchPaths[j]);
+					SearchDocument[] matches = MatchLocator.addWorkingCopies(pattern, indexMatches, getWorkingCopies(), participant);
+					participant.locateMatches(matches, pattern, scope, requestor, monitor);
+				} finally {		
+					requestor.exitParticipant(participant);
+					participant.doneSearching();
+				}
+			}
+		} finally {
+			requestor.endReporting();
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+	/**
 	 * Returns a new default Java search participant.
 	 * 
 	 * @return a new default Java search participant
@@ -703,7 +757,7 @@ public class SearchEngine {
 	 *@since 3.0
 	 */
 	public void search(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
-		pattern.findMatches(participants, getWorkingCopies(), scope, requestor, monitor);
+		findMatches(pattern, participants, scope, requestor, monitor);
 	}
 
 	/**
@@ -935,7 +989,8 @@ public class SearchEngine {
 					System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 				}
 				SearchParticipant participant = getDefaultSearchParticipant();
-				SearchDocument[] documents = pattern.addWorkingCopies(
+				SearchDocument[] documents = MatchLocator.addWorkingCopies(
+					pattern,
 					new SearchDocument[] {new JavaSearchDocument(enclosingElement.getPath().toString(), participant)},
 					getWorkingCopies(enclosingElement),
 					participant);

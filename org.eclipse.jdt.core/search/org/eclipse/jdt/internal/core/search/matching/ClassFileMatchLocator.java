@@ -66,7 +66,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		locator.reportBinaryMemberDeclaration(null, binaryType, info, SearchMatch.A_ACCURATE);
 
 	int accuracy = SearchMatch.A_ACCURATE;
-	if (pattern.mustResolve) {
+	if (((InternalSearchPattern)pattern).mustResolve) {
 		try {
 			BinaryTypeBinding binding = locator.cacheBinaryType(binaryType);
 			if (binding != null) {
@@ -131,7 +131,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
  * Default is to return false.
  */
 boolean matchBinary(SearchPattern pattern, Object binaryInfo, IBinaryType enclosingBinaryType) {
-	switch (pattern.kind) {
+	switch (((InternalSearchPattern)pattern).kind) {
 		case CONSTRUCTOR_PATTERN :
 			return matchConstructor((ConstructorPattern) pattern, binaryInfo, enclosingBinaryType);
 		case FIELD_PATTERN :

@@ -122,7 +122,7 @@ public SuperTypeReferencePattern(
 
 	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
 	this.superSimpleName = this.isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
-	this.mustResolve = superQualification != null;
+	((InternalSearchPattern)this).mustResolve = superQualification != null;
 	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
 }
 SuperTypeReferencePattern(int matchRule) {
@@ -179,7 +179,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 
 	return matchesName(this.superSimpleName, pattern.superSimpleName);
 }
-public EntryResult[] queryIn(Index index) throws IOException {
+EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.superSimpleName; // can be null
 	int matchRule = getMatchRule();
 

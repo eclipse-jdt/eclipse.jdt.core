@@ -75,7 +75,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	}
 	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return IMPOSSIBLE_MATCH;
 
-	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -88,7 +88,7 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT

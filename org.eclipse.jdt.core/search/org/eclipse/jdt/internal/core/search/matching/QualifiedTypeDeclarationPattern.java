@@ -24,7 +24,7 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
-	this.mustResolve = this.qualification != null;
+	((InternalSearchPattern)this).mustResolve = this.qualification != null;
 }
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);

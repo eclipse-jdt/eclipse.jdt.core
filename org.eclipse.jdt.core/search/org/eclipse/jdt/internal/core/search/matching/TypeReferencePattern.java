@@ -37,7 +37,7 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRu
 	else
 		this.segments = null;
 
-	this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
+	((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
 TypeReferencePattern(int matchRule) {
 	super(TYPE_REF_PATTERN, matchRule);

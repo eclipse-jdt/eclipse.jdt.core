@@ -88,7 +88,7 @@ public MethodPattern(
 	}
 
 	this.declaringType = declaringType;
-	this.mustResolve = mustResolve();
+	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 MethodPattern(int matchRule) {
 	super(METHOD_PATTERN, matchRule);
@@ -110,7 +110,7 @@ public char[][] getMatchCategories() {
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
-public boolean isPolymorphicSearch() {
+boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
@@ -138,7 +138,7 @@ protected boolean mustResolve() {
 			if (parameterQualifications[i] != null) return true;
 	return false;
 }
-public EntryResult[] queryIn(Index index) throws IOException {
+EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.selector; // can be null
 	int matchRule = getMatchRule();
 

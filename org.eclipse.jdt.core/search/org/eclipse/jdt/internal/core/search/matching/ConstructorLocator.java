@@ -35,7 +35,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in Expli
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = this.pattern.findReferences ? matchLevelForReferences(node) : IMPOSSIBLE_MATCH;
@@ -60,7 +60,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -70,7 +70,7 @@ public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 	// need to look for a generated default constructor
-	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
@@ -95,7 +95,7 @@ protected int matchLevelForReferences(ConstructorDeclaration constructor) {
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
-	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 	// constructor name is stored in selector field
@@ -113,7 +113,7 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 				return IMPOSSIBLE_MATCH;
 	}
 
-	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 public int resolveLevel(ASTNode node) {
 	if (this.pattern.findReferences) {

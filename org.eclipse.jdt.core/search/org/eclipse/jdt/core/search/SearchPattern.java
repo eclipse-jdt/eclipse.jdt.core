@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
-import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
 
 /**
  * A search pattern defines how search results are found. Use <code>SearchPattern.createPattern</code>
@@ -86,23 +85,8 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	 * @param rightPattern the right pattern
 	 * @return a "and" pattern
 	 */
-	public static SearchPattern createAndPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
-		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
-			SearchPattern current = leftPattern;
-			public SearchPattern currentPattern() {
-				return current;
-			}
-			protected boolean hasNextQuery() {
-				if (current == leftPattern) {
-					current = rightPattern;
-					return true;
-				}
-				return false; 
-			}
-			protected void resetQuery() {
-				current = leftPattern;
-			}
-		};
+	public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
+		return MatchLocator.createAndPattern(leftPattern, rightPattern);
 	}
 	
 	/**

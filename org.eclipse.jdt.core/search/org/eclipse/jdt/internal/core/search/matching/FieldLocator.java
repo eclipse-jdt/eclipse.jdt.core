@@ -38,14 +38,14 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 		// must be a write only access with an initializer
 		if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
 			if (matchesName(this.pattern.name, node.name))
-				referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				referencesLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findDeclarations)
 		if (node.isField()) // ignore field initializers
 			if (matchesName(this.pattern.name, node.name))
 				if (matchesTypeReference(((FieldPattern)this.pattern).typeSimpleName, node.type))
-					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
@@ -90,7 +90,7 @@ protected int matchField(FieldBinding field, boolean matchName) {
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
 	if (node instanceof FieldReference) {
 		if (matchesName(this.pattern.name, ((FieldReference) node).token))
-			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		return IMPOSSIBLE_MATCH;
 	}
 	return super.matchReference(node, nodeSet, writeOnlyAccess);

@@ -71,7 +71,7 @@ public ConstructorPattern(
 		this.parameterCount = -1;
 	}
 
-	this.mustResolve = mustResolve();
+	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 ConstructorPattern(int matchRule) {
 	super(CONSTRUCTOR_PATTERN, matchRule);
@@ -108,7 +108,7 @@ protected boolean mustResolve() {
 			if (this.parameterQualifications[i] != null) return true;
 	return this.findReferences; // need to check resolved default constructors and explicit constructor calls
 }
-public EntryResult[] queryIn(Index index) throws IOException {
+EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.declaringSimpleName; // can be null
 	int matchRule = getMatchRule();
 

@@ -38,7 +38,7 @@ public static final int ALL_CONTAINER =
 	COMPILATION_UNIT_CONTAINER | CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
 
 public static PatternLocator patternLocator(SearchPattern pattern) {
-	switch (pattern.kind) {
+	switch (((InternalSearchPattern)pattern).kind) {
 		case IIndexConstants.PKG_REF_PATTERN :
 			return new PackageReferenceLocator((PackageReferencePattern) pattern);
 		case IIndexConstants.PKG_DECL_PATTERN :

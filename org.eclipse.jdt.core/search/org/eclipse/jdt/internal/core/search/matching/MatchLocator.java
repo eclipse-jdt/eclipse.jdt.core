@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -36,8 +38,11 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
+import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
-import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
+import org.eclipse.jdt.internal.core.search.IndexSelector;
+import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -119,11 +124,79 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 	}
 }
 
+public static class WorkingCopyDocument extends JavaSearchDocument {
+	public org.eclipse.jdt.core.ICompilationUnit workingCopy;
+	WorkingCopyDocument(org.eclipse.jdt.core.ICompilationUnit workingCopy, SearchParticipant participant) {
+		super(workingCopy.getPath().toString(), participant);
+		this.charContents = ((CompilationUnit)workingCopy).getContents();
+		this.workingCopy = workingCopy;
+	}
+	public String toString() {
+		return "WorkingCopyDocument for " + getPath(); //$NON-NLS-1$
+	}
+}
+	
 public class WrappedCoreException extends RuntimeException {
 	public CoreException coreException;
 	public WrappedCoreException(CoreException coreException) {
 		this.coreException = coreException;
 	}
+}
+
+public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
+	// working copies take precedence over corresponding compilation units
+	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, ((InternalSearchPattern)pattern).isPolymorphicSearch(), participant);
+	SearchDocument[] matches = null;
+	int length = indexMatches.length;
+	for (int i = 0; i < length; i++) {
+		SearchDocument searchDocument = indexMatches[i];
+		if (searchDocument.getParticipant() == participant) {
+			SearchDocument workingCopyDocument = (SearchDocument) workingCopyDocuments.remove(searchDocument.getPath());
+			if (workingCopyDocument != null) {
+				if (matches == null) {
+					System.arraycopy(indexMatches, 0, matches = new SearchDocument[length], 0, length);
+				}
+				matches[i] = workingCopyDocument;
+			}
+		}
+	}
+	if (matches == null) { // no working copy
+		matches = indexMatches;
+	}
+	int remainingWorkingCopiesSize = workingCopyDocuments.size();
+	if (remainingWorkingCopiesSize != 0) {
+		System.arraycopy(matches, 0, matches = new SearchDocument[length+remainingWorkingCopiesSize], 0, length);
+		Iterator iterator = workingCopyDocuments.values().iterator();
+		int index = length;
+		while (iterator.hasNext()) {
+			matches[index++] = (SearchDocument) iterator.next();
+		}
+	}
+	return matches;
+}
+
+/*
+ * Returns the working copies that can see the given focus.
+ */
+private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompilationUnit[] copies, IJavaElement focus, boolean isPolymorphicSearch, SearchParticipant participant) {
+	if (copies == null) return new HashMap();
+	if (focus != null) {
+		while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
+			focus = focus.getParent();
+		}
+	}
+	HashMap result = new HashMap();
+	for (int i=0, length = copies.length; i<length; i++) {
+		org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
+		IPath projectOrJar = IndexSelector.getProjectOrJar(workingCopy).getPath();
+		if (focus == null || IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
+			result.put(
+				workingCopy.getPath().toString(),
+				new WorkingCopyDocument(workingCopy, participant)
+			);
+		}
+	}
+	return result;
 }
 
 public static ClassFileReader classFileReader(IType type) {
@@ -161,6 +234,36 @@ public static ClassFileReader classFileReader(IType type) {
 		// cannot read class file: return null
 	}
 	return null;
+}
+
+public static SearchPattern createAndPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
+	return new AndPattern(0/*no kind*/, 0/*no rule*/) {
+		SearchPattern current = leftPattern;
+		public SearchPattern currentPattern() {
+			return current;
+		}
+		protected boolean hasNextQuery() {
+			if (current == leftPattern) {
+				current = rightPattern;
+				return true;
+			}
+			return false; 
+		}
+		protected void resetQuery() {
+			current = leftPattern;
+		}
+	};
+}
+
+/**
+ * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
+ */
+public static void findIndexMatches(InternalSearchPattern pattern, Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
+	pattern.findIndexMatches(index, requestor, participant, scope, monitor);
+}
+
+public static boolean isPolymorphicSearch(InternalSearchPattern pattern) {
+	return pattern.isPolymorphicSearch();
 }
 
 public MatchLocator(
@@ -668,8 +771,8 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	ArrayList copies = new ArrayList();
 	for (int i = 0, length = searchDocuments.length; i < length; i++) {
 		SearchDocument document = searchDocuments[i];
-		if (document instanceof InternalSearchPattern.WorkingCopyDocument) {
-			copies.add(((InternalSearchPattern.WorkingCopyDocument)document).workingCopy);
+		if (document instanceof WorkingCopyDocument) {
+			copies.add(((WorkingCopyDocument)document).workingCopy);
 		}
 	}
 	int copiesLength = copies.size();
@@ -687,7 +790,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 
 		if (this.progressMonitor != null) {
 			// 1 for file path, 4 for parsing and binding creation, 5 for binding resolution? //$NON-NLS-1$
-			this.progressMonitor.beginTask("", searchDocuments.length * (this.pattern.mustResolve ? 10 : 5)); //$NON-NLS-1$
+			this.progressMonitor.beginTask("", searchDocuments.length * (((InternalSearchPattern)this.pattern).mustResolve ? 10 : 5)); //$NON-NLS-1$
 		}
 
 		// initialize pattern for polymorphic search (ie. method reference pattern)
@@ -711,8 +814,8 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 
 			Openable openable;
 			org.eclipse.jdt.core.ICompilationUnit workingCopy = null;
-			if (searchDocument instanceof InternalSearchPattern.WorkingCopyDocument) {
-				workingCopy = ((InternalSearchPattern.WorkingCopyDocument)searchDocument).workingCopy;
+			if (searchDocument instanceof WorkingCopyDocument) {
+				workingCopy = ((WorkingCopyDocument)searchDocument).workingCopy;
 				openable = (Openable) workingCopy;
 			} else {
 				openable = this.handleFactory.createOpenable(pathString, this.scope);
@@ -970,7 +1073,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 
 		getMethodBodies(unit);
 
-		if (bindingsWereCreated && this.pattern.mustResolve && unit.types != null) {
+		if (bindingsWereCreated && ((InternalSearchPattern)this.pattern).mustResolve && unit.types != null) {
 			if (SearchEngine.VERBOSE)
 				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
@@ -982,7 +1085,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 
 			reportMatching(unit, true);
 		} else {
-			reportMatching(unit, this.pattern.mustResolve);
+			reportMatching(unit, ((InternalSearchPattern)this.pattern).mustResolve);
 		}
 	} catch (AbortCompilation e) {
 		// could not resolve: report innacurate matches

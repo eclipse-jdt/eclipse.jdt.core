@@ -23,6 +23,6 @@ public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
 
 	this.enclosingElement = enclosingElement;
 	this.knownFields = new SimpleSet();
-	this.mustResolve = true;
+	((InternalSearchPattern)this).mustResolve = true;
 }
 }

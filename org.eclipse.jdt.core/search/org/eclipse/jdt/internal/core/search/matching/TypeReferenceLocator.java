@@ -55,7 +55,7 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 	if (!(node instanceof NameReference)) return IMPOSSIBLE_MATCH;
 
 	if (this.pattern.simpleName == null)
-		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleNameReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleNameReference) node).token))
@@ -72,11 +72,11 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeReference node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null)
-		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleTypeReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleTypeReference) node).token))
-			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[][] tokens = ((QualifiedTypeReference) node).tokens;
 		for (int i = 0, max = tokens.length; i < max; i++)

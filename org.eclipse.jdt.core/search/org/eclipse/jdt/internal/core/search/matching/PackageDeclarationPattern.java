@@ -21,7 +21,7 @@ public PackageDeclarationPattern(char[] pkgName, int matchRule) {
 	super(PKG_DECL_PATTERN, matchRule);
 	this.pkgName = pkgName;
 }
-public EntryResult[] queryIn(Index index) {
+EntryResult[] queryIn(Index index) {
 	// package declarations are not indexed
 	return null;
 }

@@ -49,7 +49,7 @@ public FieldPattern(
 	this.typeQualification = this.isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
 	this.typeSimpleName = this.isCaseSensitive ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
-	this.mustResolve = mustResolve();
+	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;

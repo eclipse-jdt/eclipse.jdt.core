@@ -23,7 +23,7 @@ protected SearchPattern[] patterns;
 
 public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	super(OR_PATTERN, Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
-	this.mustResolve = leftPattern.mustResolve || rightPattern.mustResolve;
+	((InternalSearchPattern)this).mustResolve = ((InternalSearchPattern) leftPattern).mustResolve || ((InternalSearchPattern) rightPattern).mustResolve;
 
 	SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
 	SearchPattern[] rightPatterns = rightPattern instanceof OrPattern ? ((OrPattern) rightPattern).patterns : null;
@@ -40,19 +40,19 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
-public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
+void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
 	try {
 		index.startQuery();
 		for (int i = 0, length = this.patterns.length; i < length; i++)
-			this.patterns[i].findIndexMatches(index, requestor, participant, scope, progressMonitor);
+			((InternalSearchPattern)this.patterns[i]).findIndexMatches(index, requestor, participant, scope, progressMonitor);
 	} finally {
 		index.stopQuery();
 	}
 }
-public boolean isPolymorphicSearch() {
+boolean isPolymorphicSearch() {
 	for (int i = 0, length = this.patterns.length; i < length; i++)
-		if (this.patterns[i].isPolymorphicSearch()) return true;
+		if (((InternalSearchPattern) this.patterns[i]).isPolymorphicSearch()) return true;
 	return false;
 }
 public String toString() {
