@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 import junit.framework.Test;
@@ -34,6 +35,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	IJavaProject encodingJavaProject;
 	IFile utf8File;
 	ISourceReference utf8Source;
+	static String systemEncoding = (new InputStreamReader(System.in)).getEncoding();
 
 	public EncodingTests(String name) {
 		super(name);
@@ -55,7 +57,6 @@ public class EncodingTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		getWorkspaceRoot().setDefaultCharset("Cp1252");
 		this.encodingJavaProject = setUpJavaProject("Encoding");
 		this.encodingProject = (IProject) this.encodingJavaProject.getResource();
 		this.utf8File = (IFile) this.encodingProject.findMember("src/testUTF8/Test.java");
@@ -162,7 +163,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get compilation unit source on a file written in UTF-8 charset using UTF-8 encoding for project.
 	 * Verification is done by comparing source with file contents read directly with UTF-8 encoding...
 	 */
-	public void test002() throws JavaModelException, CoreException {
+	public void test002() throws JavaModelException, CoreException, UnsupportedEncodingException {
 
 		// Set project encoding
 		String encoding = "UTF-8";
@@ -175,12 +176,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 
 		// Now compare bytes array
-		byte[] sourceBytes = null;
-		try {
-			sourceBytes = source.getBytes(encoding);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] sourceBytes = source.getBytes(encoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
 		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
@@ -214,7 +210,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get compilation unit and compare source
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, null));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, systemEncoding));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}	
 
@@ -231,7 +227,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get compilation unit and compare source
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, null));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, systemEncoding));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}	
 
@@ -239,39 +235,23 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get compilation unit source on a file written in UTF-8 charset using no specific encoding.
 	 * Verification is done by comparing source with file contents read directly with no specific encoding...
 	 */
-	// TODO (frederic) put back assertions when failure on linux platform will be fixed
-	public void test006() throws JavaModelException, CoreException {
+	public void test006() throws JavaModelException, CoreException, UnsupportedEncodingException {
 
 		// Get compilation unit and compare source
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File));
-		System.out.println("Encoding tests006:");
-		System.out.println("  - file encoding: "+this.utf8File.getCharset());
-		System.out.println("  - project encoding: "+this.encodingProject.getDefaultCharset());
-		System.out.println("  - workspace encoding: "+getWorkspaceRoot().getDefaultCharset());
-		if (encodedContents.equals(source)) {
-			System.out.println("  => SUCCESS: sources are identical");
-		} else {
-//			System.out.println("  => FAIL: Encoded UTF-8 source should have been decoded the same way!");
-		}
-//		assertTrue("Encoded UTF-8 source should have been decoded the same way!", encodedContents.equals(source));
+		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 			
 		// Now compare bytes array
-		byte[] sourceBytes = source.getBytes();
+		byte[] sourceBytes = source.getBytes(systemEncoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
-		if (encodedBytes.length == sourceBytes.length) {
-			System.out.println("  => SUCCESS: bytes arrays have same size");
-		} else {
-//			System.out.println("  => FAIL: Wrong size of encoded string");
-		}
-//		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
-		for (int i = 0, max = sourceBytes.length; i < max; i++) {
-			if (sourceBytes[i] != encodedBytes[i]) {
-//				System.out.println("  => FAIL: Wrong size of encoded character at " + i);
-				break;
+		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
+		// Do not compare arrays contents if system encoding is ASCII (meaningful bytes are destroyed during convertion...)
+		if (!"ASCII".equals(systemEncoding)) {
+			for (int i = 0, max = sourceBytes.length; i < max; i++) {
+				assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 			}
-//			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 		}
 	}
 
@@ -279,7 +259,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file with an associated source written in UTF-8 charset using specific UTF-8 encoding for file.
 	 * Verification is done by comparing source with file contents read directly with UTF-8 encoding...
 	 */
-	public void test007() throws JavaModelException, CoreException {
+	public void test007() throws JavaModelException, CoreException, UnsupportedEncodingException {
 
 		// Set file encoding
 		String encoding = "UTF-8";
@@ -294,12 +274,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 
 		// Now compare bytes array
-		byte[] sourceBytes = null;
-		try {
-			sourceBytes = source.getBytes(encoding);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] sourceBytes = source.getBytes(encoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
 		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
@@ -311,7 +286,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file with an associated source written in UTF-8 charset using specific UTF-8 encoding for project.
 	 * Verification is done by comparing source with file contents read directly with UTF-8 encoding...
 	 */
-	public void test008() throws JavaModelException, CoreException {
+	public void test008() throws JavaModelException, CoreException, UnsupportedEncodingException {
 
 		// Set project encoding
 		String encoding = "UTF-8";
@@ -326,12 +301,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 
 		// Now compare bytes array
-		byte[] sourceBytes = null;
-		try {
-			sourceBytes = source.getBytes(encoding);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] sourceBytes = source.getBytes(encoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
 		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
@@ -343,7 +313,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file with an associated source written in UTF-8 charset using specific ASCII encoding on project.
 	 * Verification is done by comparing source with file contents read directly with ASCII encoding...
 	 */
-	public void test009() throws JavaModelException, CoreException {
+	public void test009() throws JavaModelException, CoreException, UnsupportedEncodingException {
 
 		// Set project encoding
 		String encoding = "ASCII";
@@ -357,33 +327,29 @@ public class EncodingTests extends ModifyingResourceTests {
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 
-		// Cannot compare bytes array as read UTF-8 using ASCII encoding destroy meaningful bytes...
+		// Now compare bytes array
+		byte[] sourceBytes = source.getBytes(systemEncoding);
+		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
+		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
+		// Cannot compare arrays contents as read UTF-8 using ASCII encoding destroy meaningful bytes...
 	}
 
 	/**
 	 * Get class file with an associated source written in UTF-8 charset using no specific encoding.
 	 * Verification is done by comparing source with file contents read directly with ASCII encoding...
 	 */
-	// TODO (frederic) put back assertions when failure on linux platform will be fixed
 	public void test010() throws JavaModelException, CoreException {
+		
+		// Set encoding (be sure to have a different than system one)
+		String encoding = "ASCII".equals(systemEncoding) ? "Cp1252" : "ASCII";
 
 		// Get class file and compare source
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(this.utf8Source);
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, "ASCII"));
-//		assertFalse("Workspace encoding: "+getWorkspaceRoot().getDefaultCharset()+" should be different than ASCII!", "ASCII".equals(getWorkspaceRoot().getDefaultCharset()));
-//		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
-		System.out.println("Encoding tests010:");
-		System.out.println("  - file encoding: "+this.utf8File.getCharset());
-		System.out.println("  - project encoding: "+this.encodingProject.getDefaultCharset());
-		System.out.println("  - workspace encoding: "+getWorkspaceRoot().getDefaultCharset());
-		if (encodedContents.equals(source)) {
-//			System.out.println("  => FAIL: Sources should not be the same as they were decoded with different encoding!");
-		} else {
-			System.out.println("  => SUCCESS: sources are different");
-		}
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
 
 	/**
@@ -432,7 +398,6 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file from jar file with an associated source written in UTF-8 charset using no specific encoding for file.
 	 * Verification is done by comparing source with file contents read directly with no specific encoding...
 	 */
-	// TODO (frederic) put back assertions when failure on linux platform will be fixed
 	public void test013() throws JavaModelException, CoreException {
 
 		// Get class file and compare source
@@ -441,20 +406,9 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull(this.utf8Source);
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, null));
-//		String independentEncodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
-		String independentSource = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
-//		assertEquals("Encoded UTF-8 source should have been decoded the same way!", independentEncodedContents, independentSource);
-//		assertSourceEquals("Encoded UTF-8 source should have been decoded the same way!", source, encodedContents);
-		System.out.println("Encoding tests013:");
-		System.out.println("  - file encoding: "+this.utf8File.getCharset());
-		System.out.println("  - project encoding: "+this.encodingProject.getDefaultCharset());
-		System.out.println("  - workspace encoding: "+getWorkspaceRoot().getDefaultCharset());
-		if (encodedContents.equals(independentSource)) {
-			System.out.println("  => SUCCESS: sources are identical");
-		} else {
-//			System.out.println("  => FAIL: Encoded UTF-8 source should have been decoded the same way!");
-		}
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, systemEncoding));
+		assertFalse("System encoding: "+systemEncoding+" should be different than UTF-8!", "UTF-8".equals(systemEncoding));
+		assertSourceEquals("Encoded UTF-8 source should have been decoded the same way!", source, encodedContents);
 
 		// Cannot compare bytes array without encoding as we're dependent of linux/windows os for new lines delimiter
 	}
@@ -522,8 +476,8 @@ public class EncodingTests extends ModifyingResourceTests {
 			
 			// Modif direct the buffer
 			String firstModif = "/**\n"+
-				" * Caractères exotiques:\n"+
-				" * é|#|è|ç|à|ô|ê|ë|ï|ö|ù§\n"+
+				" * Caract?res exotiques:\n"+
+				" * ?|#|?|?|?|?|?|?|?|?|??\n"+
 				" */\n"+
 				"public class Test {}";
 			cu.getBuffer().setContents(firstModif);
@@ -569,10 +523,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			// Modif using working copy
 			workingCopy = cu.getWorkingCopy(null);
 			String secondModif = "/**\n"+
-				" * Caractères exotiques:\n"+
-				" * é|#|è|ç|à|ô|ê|ë|ï|ö|ù§\n"+
-				" * Autres caractères exotiques:\n"+
-				" * ä|Ä|Ö|Ô|Ë|Ê\n"+
+				" * Caract?res exotiques:\n"+
+				" * ?|#|?|?|?|?|?|?|?|?|??\n"+
+				" * Autres caract?res exotiques:\n"+
+				" * ?|?|?|?|?|?\n"+
 				" */\n"+
 				"public class Test {}";
 			workingCopy.getBuffer().setContents(secondModif);
