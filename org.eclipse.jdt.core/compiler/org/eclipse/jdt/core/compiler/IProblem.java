@@ -39,7 +39,8 @@
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
  *								   BooleanMethodThrowingException
- *								   UnnecessaryCast
+ *								   UnnecessaryWideningCast
+ *								   UnnecessaryNarrowingCast
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -353,8 +354,6 @@ public interface IProblem {
 	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
 				
 	// expressions
-	int UnnecessaryCast = Internal + TypeRelated + 148;
-	int UnnecessaryInstanceof	 = Internal + TypeRelated + 149;
 	int ArrayReferenceRequired = Internal + 150;
 	int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
 	// constant expressions
@@ -400,7 +399,12 @@ public interface IProblem {
 	int PossibleAccidentalBooleanAssignment = Internal + 179;
 	/** @since 3.0 */
 	int SuperfluousSemicolon = Internal + 180;
-	
+	/** @since 3.0 */
+	int UnnecessaryCast = Internal + TypeRelated + 181;
+	/** @since 3.0 */
+	int UnnecessaryArgumentCast = Internal + TypeRelated + 182;
+	/** @since 3.0 */
+	int UnnecessaryInstanceof	 = Internal + TypeRelated + 183;	
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
 	int NeedToEmulateFieldWriteAccess = FieldRelated + 191;

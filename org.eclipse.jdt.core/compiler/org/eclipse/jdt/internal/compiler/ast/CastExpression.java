@@ -229,6 +229,8 @@ public class CastExpression extends Expression {
 		
 		TypeBinding[] parameterTypes = binding.parameters;
 		int length = argumentTypes.length;
+		
+		// first iteration, questionning widening cast
 		TypeBinding[] rawArgumentTypes = argumentTypes;
 		for (int i = 0; i < length; i++) {
 			Expression argument = arguments[i];
@@ -236,7 +238,7 @@ public class CastExpression extends Expression {
 				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
 				// obvious identity cast
 				if (castedExpressionType == parameterTypes[i]) { 
-					scope.problemReporter().unnecessaryCast((CastExpression)argument);
+					scope.problemReporter().unnecessaryCastForArgument((CastExpression)argument, binding.parameters[i]);
 				// widening cast, will need to check later whether it would affect method lookup
 				} else {
 					if (rawArgumentTypes == argumentTypes) {
@@ -247,32 +249,53 @@ public class CastExpression extends Expression {
 				}
 			}
 		}
-		if (rawArgumentTypes == argumentTypes) return; // did not find any unnecessary cast candidate
-	
-		InvocationSite fakeInvocationSite = new InvocationSite(){	
-			public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
-			public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) {}
-			public void setDepth(int depth) {}
-			public void setFieldIndex(int depth){}
-		};	
-		MethodBinding bindingIfNoCast;
-		if (binding.isConstructor()) {
-			bindingIfNoCast = scope.getConstructor(receiverType, rawArgumentTypes, fakeInvocationSite);
-		} else {
-			bindingIfNoCast = receiver.isImplicitThis()
-				? scope.getImplicitMethod(binding.selector, rawArgumentTypes, fakeInvocationSite)
-				: scope.getMethod(receiverType, binding.selector, rawArgumentTypes, fakeInvocationSite); 	
+		// did not find any unnecessary cast candidate
+		if (rawArgumentTypes != argumentTypes) {
+			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
 		}
-		if (bindingIfNoCast == binding) {
-			for (int i = 0; i < length; i++) {
-				if (argumentTypes[i] != rawArgumentTypes[i]) {
-					scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
+		
+		// second attempt questionning narrowing cast
+		rawArgumentTypes = argumentTypes;
+		for (int i = 0; i < length; i++) {
+			Expression argument = arguments[i];
+			if (argument instanceof CastExpression && (argument.bits & UnnecessaryCastMask) == 0) {
+				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+				if (rawArgumentTypes == argumentTypes) {
+					System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
 				}
+				rawArgumentTypes[i] = castedExpressionType; 
 			}
+		}
+		if (rawArgumentTypes != argumentTypes) {
+			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
 		}
 	}
 
+	private static void checkAlternateBinding(BlockScope scope, Expression receiver, ReferenceBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
+
+			InvocationSite fakeInvocationSite = new InvocationSite(){	
+				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
+				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
+				public void setActualReceiverType(ReferenceBinding actualReceiverType) {}
+				public void setDepth(int depth) {}
+				public void setFieldIndex(int depth){}
+			};	
+			MethodBinding bindingIfNoCast;
+			if (binding.isConstructor()) {
+				bindingIfNoCast = scope.getConstructor(receiverType, alternateArgumentTypes, fakeInvocationSite);
+			} else {
+				bindingIfNoCast = receiver.isImplicitThis()
+					? scope.getImplicitMethod(binding.selector, alternateArgumentTypes, fakeInvocationSite)
+					: scope.getMethod(receiverType, binding.selector, alternateArgumentTypes, fakeInvocationSite); 	
+			}
+			if (bindingIfNoCast == binding) {
+				for (int i = 0, length = originalArgumentTypes.length; i < length; i++) {
+					if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
+						scope.problemReporter().unnecessaryCastForArgument((CastExpression)arguments[i], binding.parameters[i]);
+					}
+				}
+			}	
+	}
 	/**
 	 * Cast expression code generation
 	 *

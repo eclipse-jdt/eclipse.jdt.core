@@ -545,6 +545,7 @@ public int computeSeverity(int problemId){
 			return this.options.getSeverity(CompilerOptions.BooleanMethodThrowingException);
 			
 		case IProblem.UnnecessaryCast:
+		case IProblem.UnnecessaryArgumentCast:
 		case IProblem.UnnecessaryInstanceof:
 			return this.options.getSeverity(CompilerOptions.UnnecessaryTypeCheck);
 			
@@ -2917,6 +2918,15 @@ public void unnecessaryCast(CastExpression castExpression) {
 		IProblem.UnnecessaryCast,
 		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
 		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		castExpression.sourceStart,
+		castExpression.sourceEnd);
+}
+public void unnecessaryCastForArgument(CastExpression castExpression, TypeBinding parameterType) {
+	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
+	this.handle(
+		IProblem.UnnecessaryArgumentCast,
+		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName()), new String(parameterType.readableName())},
+		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName()), new String(parameterType.shortReadableName())},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }
