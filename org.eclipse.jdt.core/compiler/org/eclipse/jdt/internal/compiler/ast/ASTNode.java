@@ -331,15 +331,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	/**
 	 * Resolve annotations, and check duplicates
 	 */
-	public void resolveAnnotations(Annotation[] annotations, Scope scope) {
+	public void resolveAnnotations(Annotation[] annotations, BlockScope scope) {
 		if (annotations == null) 
 			return;
 		int length = annotations.length;
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			annotationTypes[i] = scope instanceof ClassScope
-				? annotations[i].resolveType((ClassScope)scope)
-				: annotations[i].resolveType((BlockScope)scope);
+			annotationTypes[i] = annotations[i].resolveType(scope);
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {
