@@ -19,7 +19,7 @@
 		<jar 
 			jarfile="${dest}/jdtcompiler.jar"
 			basedir="bin"
-			includes="**/compiler/**" />
+			includes="org/eclipse/jdt/internal/compiler/**" />
 		
 	
 	</target>
