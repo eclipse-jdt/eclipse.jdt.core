@@ -435,12 +435,10 @@ public class NameLookup {
 			return null;
 		}
 		// Return first found (ignore duplicates).
-//synchronized(JavaModelManager.getJavaModelManager()){	
 		SingleTypeRequestor typeRequestor = new SingleTypeRequestor();
 		seekTypes(name, pkg, partialMatch, acceptFlags, typeRequestor);
 		IType type= typeRequestor.getType();
 		return type;
-//}
 	}
 
 	/**
