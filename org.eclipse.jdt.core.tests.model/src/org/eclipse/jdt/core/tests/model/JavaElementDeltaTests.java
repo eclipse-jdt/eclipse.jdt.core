@@ -86,10 +86,6 @@ public class JavaElementDeltaTests extends ModifyingResourceTests {
 		}
 	}
 
-public JavaElementDeltaTests(String name) {
-	super(name);
-}
-
 
 
 public static Test suite() {
@@ -123,15 +119,20 @@ public static Test suite() {
 	
 	// package fragment roots
 	suite.addTest(new JavaElementDeltaTests("testDeleteInnerJar"));
+	suite.addTest(new JavaElementDeltaTests("testNestedRootParentMove"));
+	suite.addTest(new JavaElementDeltaTests("testPackageFragmentRootRemoveAndAdd"));
 	
 	// packages
 	suite.addTest(new JavaElementDeltaTests("testAddPackageSourceIsBin"));
 	suite.addTest(new JavaElementDeltaTests("testRenameOuterPkgFragment"));
+	suite.addTest(new JavaElementDeltaTests("testPackageFragmentAddAndRemove"));
+	suite.addTest(new JavaElementDeltaTests("testPackageFragmentMove"));
 	
 	// compilation units
 	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg1"));
 	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg2"));
 	suite.addTest(new JavaElementDeltaTests("testMoveCuInEnclosingPkg"));
+	suite.addTest(new JavaElementDeltaTests("testCompilationUnitRemoveAndAdd"));
 	
 	// commit/save working copies
 	suite.addTest(new JavaElementDeltaTests("testModifyMethodBodyAndSave"));
@@ -153,6 +154,8 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testAddFileToNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testDeleteNonJavaFolder"));
 	suite.addTest(new JavaElementDeltaTests("testAddInvalidSubfolder"));
+	suite.addTest(new JavaElementDeltaTests("testCUNotOnClasspath"));
+	suite.addTest(new JavaElementDeltaTests("testNonJavaResourceRemoveAndAdd"));
 	
 	// listeners
 	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
@@ -172,6 +175,7 @@ public static Test suite() {
 	
 	// batch operations
 	suite.addTest(new JavaElementDeltaTests("testBatchOperation"));
+	suite.addTest(new JavaElementDeltaTests("testModifyProjectDescriptionAndRemoveFolder"));
 	
 	// build
 	suite.addTest(new JavaElementDeltaTests("testBuildProjectUsedAsLib"));
@@ -184,6 +188,45 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testChangeCustomOutput"));
 	
 	return suite;
+}
+
+public JavaElementDeltaTests(String name) {
+	super(name);
+}
+/**
+ * Ensures that adding a comment to a working copy and commiting it triggers an empty fine grained
+ * delta with the kind set for PRE_AUTO_BUILD listeners.
+ * (regression test for bug 32937 Kind not set for empty fine-grained delta)
+ */
+public void testAddCommentAndCommit() throws CoreException {
+	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
+	ICompilationUnit copy = null;
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFile("P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
+		copy = (ICompilationUnit)unit.getWorkingCopy(null, null, null);
+		
+		// add comment to working copy
+		copy.getBuffer().setContents(
+			"public class X {\n" +
+			"  // some comment\n" +
+			"}");
+
+		// commit working copy
+		JavaCore.addElementChangedListener(listener, ElementChangedEvent.PRE_AUTO_BUILD);
+		copy.commit(true, null);
+		assertEquals(
+			"Unexpected delta after committing working copy", 
+			"X.java[*]: {CONTENT | FINE GRAINED}",
+			listener.toString());
+	} finally {
+		JavaCore.removeElementChangedListener(listener);
+		if (copy != null) copy.destroy();
+		this.deleteProject("P");
+	}
 }
 
 /*
@@ -228,41 +271,6 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
-		this.deleteProject("P");
-	}
-}
-/**
- * Ensures that adding a comment to a working copy and commiting it triggers an empty fine grained
- * delta with the kind set for PRE_AUTO_BUILD listeners.
- * (regression test for bug 32937 Kind not set for empty fine-grained delta)
- */
-public void testAddCommentAndCommit() throws CoreException {
-	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
-	ICompilationUnit copy = null;
-	try {
-		this.createJavaProject("P", new String[] {""}, "");
-		this.createFile("P/X.java",
-			"public class X {\n" +
-			"}");
-		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getWorkingCopy(null, null, null);
-		
-		// add comment to working copy
-		copy.getBuffer().setContents(
-			"public class X {\n" +
-			"  // some comment\n" +
-			"}");
-
-		// commit working copy
-		JavaCore.addElementChangedListener(listener, ElementChangedEvent.PRE_AUTO_BUILD);
-		copy.commit(true, null);
-		assertEquals(
-			"Unexpected delta after committing working copy", 
-			"X.java[*]: {CONTENT | FINE GRAINED}",
-			listener.toString());
-	} finally {
-		JavaCore.removeElementChangedListener(listener);
-		if (copy != null) copy.destroy();
 		this.deleteProject("P");
 	}
 }
@@ -620,6 +628,117 @@ public void testChangeRootKind() throws CoreException {
 	}
 }
 
+/*
+ * Close a java project.
+ */
+public void testCloseJavaProject() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		IProject project = this.getProject("P");
+		this.startDeltas();
+		project.close(null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[-]: {}\n" + 
+			"ResourceDelta(/P)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+
+/*
+ * Close a non-java project.
+ */
+public void testCloseNonJavaProject() throws CoreException {
+	try {
+		this.createProject("P");
+		IProject project = this.getProject("P");
+		this.startDeltas();
+		project.close(null);
+		assertDeltas(
+			"Unexpected delta", 
+			"ResourceDelta(/P)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+
+/*
+ * Closing a non-java project that contains a jar referenced in another project should produce
+ * a delta on this other project.
+ * (regression test for bug 19058 Closing non-java project doesn't remove root from java project)
+ */
+public void testCloseNonJavaProjectUpdateDependent() throws CoreException {
+	try {
+		this.createProject("SP");
+		this.createFile("/SP/x.jar", "");
+		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/x.jar"}, "");
+		IProject project = this.getProject("SP");
+		this.startDeltas();
+		project.close(null);
+		assertDeltas(
+			"Unexpected delta", 
+			"JP[*]: {CHILDREN}\n" + 
+			"	/SP/x.jar[-]: {}\n" + 
+			"ResourceDelta(/SP)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("SP");
+		this.deleteProject("JP");
+	}
+}
+/**
+ * Test that deltas are generated when a compilation unit is added
+ * and removed from a package via core API.
+ */
+public void testCompilationUnitRemoveAndAdd() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p");
+		IFile file = createFile(
+			"/P/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		// delete cu
+		startDeltas();
+		file.delete(false, null);
+		assertDeltas(
+			"Unexpected delta after deleting /P/p/X.java",
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		p[*]: {CHILDREN}\n" + 
+			"			X.java[-]: {}"
+		);
+		
+		// add cu
+		clearDeltas();
+		createFile(
+			"/P/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		assertDeltas(
+			"Unexpected delta after adding /P/p/X.java",
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		p[*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
 public void testCreateSharedWorkingCopy() throws CoreException {
 	IWorkingCopy copy = null;
 	try {
@@ -664,6 +783,46 @@ public void testCreateWorkingCopy() throws CoreException {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
 		this.deleteProject("P");
+	}
+}
+/**
+ * Test that deltas are generated when a compilation unit not on the classpath is added
+ * and removed from a package via core API.
+ */
+public void testCUNotOnClasspath() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {}, "bin");
+		createFolder("/P/src/p");
+		IFile file = createFile(
+			"/P/src/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		startDeltas();
+		file.delete(false, null);
+		assertDeltas(
+			"Unexpected delta after deletion of /P/src/p/X.java",
+			"P[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P/src)[*]"
+		);
+		
+		clearDeltas();
+		createFile(
+			"/P/src/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		assertDeltas(
+			"Unexpected delta after addition of /P/src/p/X.java",
+			"P[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P/src)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
 	}
 }
 /*
@@ -747,71 +906,6 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 		this.stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-	}
-}
-
-/*
- * Close a java project.
- */
-public void testCloseJavaProject() throws CoreException {
-	try {
-		this.createJavaProject("P", new String[] {""}, "");
-		IProject project = this.getProject("P");
-		this.startDeltas();
-		project.close(null);
-		assertDeltas(
-			"Unexpected delta", 
-			"P[-]: {}\n" + 
-			"ResourceDelta(/P)"
-		);
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("P");
-	}
-}
-
-/*
- * Close a non-java project.
- */
-public void testCloseNonJavaProject() throws CoreException {
-	try {
-		this.createProject("P");
-		IProject project = this.getProject("P");
-		this.startDeltas();
-		project.close(null);
-		assertDeltas(
-			"Unexpected delta", 
-			"ResourceDelta(/P)"
-		);
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("P");
-	}
-}
-
-/*
- * Closing a non-java project that contains a jar referenced in another project should produce
- * a delta on this other project.
- * (regression test for bug 19058 Closing non-java project doesn't remove root from java project)
- */
-public void testCloseNonJavaProjectUpdateDependent() throws CoreException {
-	try {
-		this.createProject("SP");
-		this.createFile("/SP/x.jar", "");
-		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/x.jar"}, "");
-		IProject project = this.getProject("SP");
-		this.startDeltas();
-		project.close(null);
-		assertDeltas(
-			"Unexpected delta", 
-			"JP[*]: {CHILDREN}\n" + 
-			"	/SP/x.jar[-]: {}\n" + 
-			"ResourceDelta(/SP)"
-		);
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("SP");
-		this.deleteProject("JP");
 	}
 }
 public void testDestroySharedWorkingCopy() throws CoreException {
@@ -1212,48 +1306,6 @@ public void testMergeResourceDeltas() throws CoreException {
 
 	
 }
-/*
- * Move a cu from a package to its enclosing package.
- * (regression test for bug 7033 Stale packages view after moving compilation units)
- */
-public void testMoveCuInEnclosingPkg() throws CoreException {
-	try {
-		this.createJavaProject("P", new String[] {""}, "");
-		this.createFolder("P/x/y");
-		this.createFile("P/x/y/A.java",
-			"package x.y;\n" +
-			"public class A {\n" +
-			"}");
-		ICompilationUnit cu = this.getCompilationUnit("P/x/y/A.java"); 
-		IPackageFragment pkg = this.getPackage("P/x");
-		
-		this.startDeltas();
-		cu.move(pkg, null, null, true, null);
-		assertDeltas(
-			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[-]: {MOVED_TO(A.java [in x [in [project root] [in P]]])}\n" +
-			"		x[*]: {CHILDREN}\n" +
-			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}"
-		);
-		assertEquals(
-			"Unexpected children for package x",
-			"x\n" +
-			"  A.java\n" +
-			"    package x\n" +
-			"    class A",
-			this.expandAll(pkg));
-		assertEquals(
-			"Unexpected children for package x.y",
-			"x.y",
-			this.expandAll(this.getPackage("P/x/y")));
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("P");
-	}
-}
 public void testModifyMethodBodyAndSave() throws CoreException {
 	ICompilationUnit workingCopy = null;
 	try {
@@ -1377,6 +1429,81 @@ public void testModifyOutputLocation4() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/**
+ * bug 18953
+ */
+public void testModifyProjectDescriptionAndRemoveFolder() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		final IProject projectFolder = project.getProject();
+		final IFolder folder = createFolder("/P/folder");
+		
+		startDeltas();
+		getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					IProjectDescription desc = projectFolder.getDescription();
+					desc.setComment("A comment");
+					projectFolder.setDescription(desc, null);
+					folder.delete(false, null);
+				}
+			},
+			null);
+			
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT}\n"+
+			"	[project root][*]: {CHILDREN}\n"+
+			"		folder[-]: {}\n"+
+			"	ResourceDelta(/P/.project)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
+ * Move a cu from a package to its enclosing package.
+ * (regression test for bug 7033 Stale packages view after moving compilation units)
+ */
+public void testMoveCuInEnclosingPkg() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFolder("P/x/y");
+		this.createFile("P/x/y/A.java",
+			"package x.y;\n" +
+			"public class A {\n" +
+			"}");
+		ICompilationUnit cu = this.getCompilationUnit("P/x/y/A.java"); 
+		IPackageFragment pkg = this.getPackage("P/x");
+		
+		this.startDeltas();
+		cu.move(pkg, null, null, true, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	[project root][*]: {CHILDREN}\n" +
+			"		x.y[*]: {CHILDREN}\n" +
+			"			A.java[-]: {MOVED_TO(A.java [in x [in [project root] [in P]]])}\n" +
+			"		x[*]: {CHILDREN}\n" +
+			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}"
+		);
+		assertEquals(
+			"Unexpected children for package x",
+			"x\n" +
+			"  A.java\n" +
+			"    package x\n" +
+			"    class A",
+			this.expandAll(pkg));
+		assertEquals(
+			"Unexpected children for package x.y",
+			"x.y",
+			this.expandAll(this.getPackage("P/x/y")));
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
 
 /*
  * Move a non-java resources that is under a dot-named folder.
@@ -1431,6 +1558,63 @@ public void testMoveTwoResInRoot() throws CoreException {
 			"	ResourceDelta(/P/X.java)[-]\n" + 
 			"	ResourceDelta(/P/Y.java)[-]"
 		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/**
+ * Test that deltas are generated when a nested package fragment root is removed
+ * and added via core API.
+ */
+public void testNestedRootParentMove() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"nested2/src", "nested/src"}, "bin");
+		deleteFolder("/P/nested2/src");
+		
+		startDeltas();
+		IFolder folder = getFolder("/P/nested/src");
+		folder.move(new Path("/P/nested2/src"), false, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | CONTENT}\n" + 
+			"	nested/src[-]: {MOVED_TO(nested2/src [in P])}\n" + 
+			"	nested2/src[+]: {MOVED_FROM(nested/src [in P])}\n" + 
+			"	ResourceDelta(/P/nested)[*]\n" + 
+			"	ResourceDelta(/P/nested2)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/**
+ * Test that deltas are generated when a non-java file is
+ * removed and added
+ */
+public void testNonJavaResourceRemoveAndAdd() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, "bin");
+		IFile file = createFile("/P/src/read.txt", "");
+		
+		startDeltas();
+		file.delete(false, null);
+		assertDeltas(
+			"Unexpected delta after deleting /P/src/read.txt",
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CONTENT}\n" + 
+			"		ResourceDelta(/P/src/read.txt)[-]"
+		);
+		
+		clearDeltas();
+		createFile("/P/src/read.txt", "");
+		assertDeltas(
+			"Unexpected delta after creating /P/src/read.txt",
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CONTENT}\n" + 
+			"		ResourceDelta(/P/src/read.txt)[+]"
+		);
+		
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1516,24 +1700,85 @@ public void testOverwriteClasspath() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-
-
-/*
- * Remove the java nature of an existing java project.
+/**
+ * Test that deltas are generated when package fragments are added
+ * and removed from a root via core API.
  */
-public void testRemoveJavaNature() throws CoreException {
+public void testPackageFragmentAddAndRemove() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {""}, "");
-		this.startDeltas();
-		this.removeJavaNature("P");
+		createJavaProject("P", new String[] {"src"}, "bin");
+		
+		startDeltas();
+		IFolder folder = createFolder("/P/src/p");
 		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}\n" + 
-			"ResourceDelta(/P)"
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		p[+]: {}"
+		);
+		
+		clearDeltas();
+		folder.delete(false, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		p[-]: {}"
 		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/**
+ * Test that deltas are generated when a package fragment is moved
+ * via core API.
+ */
+public void testPackageFragmentMove() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, "bin");
+		IFolder folder = createFolder("/P/src/p");
+
+		startDeltas();
+		folder.move(new Path("/P/src/p2"), false, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		p[-]: {MOVED_TO(p2 [in src [in P]])}\n" + 
+			"		p2[+]: {MOVED_FROM(p [in src [in P]])}"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/**
+ * Test that deltas are generated when a package fragment root is removed
+ * and added via core API.
+ */
+public void testPackageFragmentRootRemoveAndAdd() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, "bin");
+		
+		startDeltas();
+		getFolder("/P/src").delete(false, null);
+		assertDeltas(
+			"Unexpected delta after deleting /P/src",
+			"P[*]: {CHILDREN}\n" + 
+			"	src[-]: {}"
+		);
+		
+		clearDeltas();
+		createFolder("/P/src");
+		assertDeltas(
+			"Unexpected delta after creating /P/src",
+			"P[*]: {CHILDREN}\n" + 
+			"	src[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
 	}
 }
 /*
@@ -1694,6 +1939,26 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+
+
+/*
+ * Remove the java nature of an existing java project.
+ */
+public void testRemoveJavaNature() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.startDeltas();
+		this.removeJavaNature("P");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[-]: {}\n" + 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1872,6 +2137,26 @@ public void testRenameMethodAndSave() throws CoreException {
 	}
 }
 /*
+ * Rename a non-java project.
+ * (regression test for bug 30224 No JavaElement delta when renaming non-Java project)
+ */
+public void testRenameNonJavaProject() throws CoreException {
+	try {
+		this.createProject("P");
+		this.startDeltas();
+		this.renameProject("P", "P1");
+		assertDeltas(
+			"Unexpected delta", 
+			"ResourceDelta(/P)\n" + 
+			"ResourceDelta(/P1)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+		this.deleteProject("P1");
+	}
+}
+/*
  * Rename an outer pkg fragment.
  * (regression test for bug 24685 Inner package fragments gets deleted - model out of synch)
  */
@@ -1896,26 +2181,6 @@ public void testRenameOuterPkgFragment() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
-	}
-}
-/*
- * Rename a non-java project.
- * (regression test for bug 30224 No JavaElement delta when renaming non-Java project)
- */
-public void testRenameNonJavaProject() throws CoreException {
-	try {
-		this.createProject("P");
-		this.startDeltas();
-		this.renameProject("P", "P1");
-		assertDeltas(
-			"Unexpected delta", 
-			"ResourceDelta(/P)\n" + 
-			"ResourceDelta(/P1)"
-		);
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("P");
-		this.deleteProject("P1");
 	}
 }
 /**
@@ -1952,6 +2217,43 @@ public void testSaveWorkingCopy() throws CoreException {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
 		this.deleteProject("P");
+	}
+}
+
+
+
+/**
+ * Ensure that a classpath change is detected even on a project which got closed
+ */
+public void testSetClasspathOnFreshProject() throws CoreException {
+	try {
+		this.createProject("LibProj");
+		this.createFile("LibProj/mylib.jar", "");
+		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[] {""}, "bin");
+		this.createFolder("P1/src2");
+
+		p1.getProject().close(null);
+		p1.getProject().open(null);
+
+		this.startDeltas();
+
+		IClasspathEntry[] classpath = 
+			new IClasspathEntry[] {
+				JavaCore.newSourceEntry(new Path("/P1/src2")),
+				JavaCore.newLibraryEntry(new Path("/LibProj/mylib.jar"), null, null)
+			};
+		p1.setRawClasspath(classpath, null);
+		assertDeltas(
+			"Should notice src2 and myLib additions to the classpath", 
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
+			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]");
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("LibProj");
 	}
 }
 /**
@@ -2006,43 +2308,6 @@ public void testSetClasspathVariable2() throws CoreException {
 		this.stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		this.deleteProject("LibProj");
-	}
-}
-
-
-
-/**
- * Ensure that a classpath change is detected even on a project which got closed
- */
-public void testSetClasspathOnFreshProject() throws CoreException {
-	try {
-		this.createProject("LibProj");
-		this.createFile("LibProj/mylib.jar", "");
-		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[] {""}, "bin");
-		this.createFolder("P1/src2");
-
-		p1.getProject().close(null);
-		p1.getProject().open(null);
-
-		this.startDeltas();
-
-		IClasspathEntry[] classpath = 
-			new IClasspathEntry[] {
-				JavaCore.newSourceEntry(new Path("/P1/src2")),
-				JavaCore.newLibraryEntry(new Path("/LibProj/mylib.jar"), null, null)
-			};
-		p1.setRawClasspath(classpath, null);
-		assertDeltas(
-			"Should notice src2 and myLib additions to the classpath", 
-			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
-			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
-			"	ResourceDelta(/P1/.classpath)[*]");
-	} finally {
-		this.stopDeltas();
-		this.deleteProject("P1");
 		this.deleteProject("LibProj");
 	}
 }

@@ -320,7 +320,9 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 					IContainer container = project;
 					for (int j = 0; j < segmentCount; j++) {
 						IFolder folder = container.getFolder(new Path(sourcePath.segment(j)));
-						folder.create(true, true, null);
+						if (!folder.exists()) {
+							folder.create(true, true, null);
+						}
 						container = folder;
 					}
 				}
