@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 
@@ -21,8 +20,6 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
  */
 public abstract class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
 	
-	protected char[] selector;
-
 	/**
 	 * For a source method (that is, a method contained in a compilation unit)
 	 * this is a collection of the names of the parameters for this method,
@@ -32,15 +29,6 @@ public abstract class SourceMethodElementInfo extends MemberElementInfo implemen
 	 * has no parameters.
 	 */
 	protected char[][] argumentNames;
-
-	/**
-	 * Collection of type names for the arguments in this
-	 * method, in the order they are declared. This is an empty
-	 * array for a method with no arguments. A name is a simple
-	 * name or a qualified, dot separated name.
-	 * For example, Hashtable or java.util.Hashtable.
-	 */
-	protected char[][] argumentTypeNames;
 
 	/**
 	 * A collection of type names of the exceptions this
@@ -59,25 +47,11 @@ public abstract class SourceMethodElementInfo extends MemberElementInfo implemen
 public char[][] getArgumentNames() {
 	return this.argumentNames;
 }
-public char[][] getArgumentTypeNames() {
-	return this.argumentTypeNames;
-}
 public char[][] getExceptionTypeNames() {
 	return this.exceptionTypes;
 }
 public abstract char[] getReturnTypeName();
 
-public char[] getSelector() {
-	return this.selector;
-}
-protected String getSignature() {
-
-	String[] paramSignatures = new String[this.argumentTypeNames.length];
-	for (int i = 0; i < this.argumentTypeNames.length; ++i) {
-		paramSignatures[i] = Signature.createTypeSignature(this.argumentTypeNames[i], false);
-	}
-	return Signature.createMethodSignature(paramSignatures, Signature.createTypeSignature(getReturnTypeName(), false));
-}
 public char[][][] getTypeParameterBounds() {
 	int length = this.typeParameters.length;
 	char[][][] typeParameterBounds = new char[length][][];
@@ -104,9 +78,6 @@ public abstract boolean isConstructor();
 public abstract boolean isAnnotationMethod();
 protected void setArgumentNames(char[][] names) {
 	this.argumentNames = names;
-}
-protected void setArgumentTypeNames(char[][] types) {
-	this.argumentTypeNames = types;
 }
 protected void setExceptionTypeNames(char[][] types) {
 	this.exceptionTypes = types;

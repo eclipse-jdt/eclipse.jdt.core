@@ -18,13 +18,6 @@ public interface IGenericMethod {
 // We have added AccDeprecated
 int getModifiers();
 
-/**
- * Answer the name of the method.
- *
- * For a constructor, answer <init> & <clinit> for a clinit method.
- */
-char[] getSelector();
-
 boolean isConstructor();
 
 /**

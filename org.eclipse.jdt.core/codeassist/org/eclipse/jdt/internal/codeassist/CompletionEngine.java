@@ -46,9 +46,12 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
+import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 /**
  * This class is the entry point for source completions.
@@ -3542,22 +3545,38 @@ public final class CompletionEngine
 			}
 			
 			if(sourceType != null) {
-				ISourceMethod[] sourceMethods = sourceType.getMethods();
+				SourceMethod[] sourceMethods = ((SourceTypeElementInfo) sourceType).getMethodHandles();
 				int len = sourceMethods.length;
 				for(int i = 0; i < len ; i++){
-					ISourceMethod sourceMethod = sourceMethods[i];
-					char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
+					SourceMethod sourceMethod = sourceMethods[i];
+					String[] argTypeSignatures = sourceMethod.getParameterTypes();
 
-					if(argTypeNames != null &&
-						CharOperation.equals(method.selector,sourceMethod.getSelector()) &&
-						CharOperation.equals(argTypeNames,parameterTypeNames)){
-						parameterNames = sourceMethod.getArgumentNames();
-						break;
+					if(argTypeSignatures != null &&
+						CharOperation.equals(method.selector,sourceMethod.getElementName().toCharArray()) &&
+						equalSignatures(parameterTypeNames, argTypeSignatures)){
+						try {
+							parameterNames = ((SourceMethodElementInfo) sourceMethod.getElementInfo()).getArgumentNames();
+							break;
+						} catch (JavaModelException e) {
+							// method doesn't exist: ignore
+						}
 					}
 				}
 			}
 		}
 		return parameterNames;
+	}
+	
+	private boolean equalSignatures(char[][] typeNames, String[] typeSignatures) {
+		if (typeNames == null || typeSignatures == null)
+			return false;
+		if (typeNames.length != typeSignatures.length)
+			return false;
+
+		for (int i = typeNames.length; --i >= 0;)
+			if (!CharOperation.equals(typeNames[i], Signature.toCharArray(typeSignatures[i].toCharArray())))
+				return false;
+		return true;
 	}
 	
 	private void findNestedTypes(

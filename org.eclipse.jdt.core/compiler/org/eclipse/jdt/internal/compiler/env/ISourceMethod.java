@@ -13,15 +13,6 @@ package org.eclipse.jdt.internal.compiler.env;
 public interface ISourceMethod extends IGenericMethod {
 
 /**
- * Answer the unresolved names of the argument types
- * or null if the array is empty.
- *
- * A name is a simple name or a qualified, dot separated name.
- * For example, Hashtable or java.util.Hashtable.
- */
-
-char[][] getArgumentTypeNames();
-/**
  * Answer the source end position of the method's declaration.
  */
 

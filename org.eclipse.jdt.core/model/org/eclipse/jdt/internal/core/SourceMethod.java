@@ -176,7 +176,7 @@ public String getReturnType() throws JavaModelException {
  */
 public String getSignature() throws JavaModelException {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
-	return info.getSignature();
+	return Signature.createMethodSignature(fParameterTypes, Signature.createTypeSignature(info.getReturnTypeName(), false));
 }
 /**
  * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()

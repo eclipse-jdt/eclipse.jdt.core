@@ -324,12 +324,10 @@ public void enterMethod(MethodInfo methodInfo) {
 		info = new SourceMethodInfo();
 	info.setSourceRangeStart(methodInfo.declarationStart);
 	int flags = methodInfo.modifiers;
-	info.selector = methodInfo.name;
 	info.setNameSourceStart(methodInfo.nameSourceStart);
 	info.setNameSourceEnd(methodInfo.nameSourceEnd);
 	info.setFlags(flags);
 	info.setArgumentNames(methodInfo.parameterNames);
-	info.setArgumentTypeNames(methodInfo.parameterTypes);
 	info.setReturnType(methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType);
 	info.setExceptionTypeNames(methodInfo.exceptionTypes);
 	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -328,7 +329,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			
 			method = decl;
 		}
-		method.selector = methodInfo.getSelector();
+		method.selector = methodHandle.getElementName().toCharArray();
 		boolean isVarargs = (modifiers & AccVarargs) != 0;
 		method.modifiers = modifiers & ~AccVarargs;
 		method.sourceStart = start;
@@ -340,13 +341,14 @@ public class SourceTypeConverter implements CompilerModifiers {
 		method.annotations = convertAnnotations(methodHandle);
 
 		/* convert arguments */
-		char[][] argumentTypeNames = methodInfo.getArgumentTypeNames();
+		String[] argumentTypeSignatures = methodHandle.getParameterTypes();
 		char[][] argumentNames = methodInfo.getArgumentNames();
-		int argumentCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
+		int argumentCount = argumentTypeSignatures == null ? 0 : argumentTypeSignatures.length;
 		long position = ((long) start << 32) + end;
 		method.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
-			TypeReference typeReference = createTypeReference(argumentTypeNames[i], start, end);
+			char[] typeName = Signature.toCharArray(argumentTypeSignatures[i].toCharArray());
+			TypeReference typeReference = createTypeReference(typeName, start, end);
 			if (isVarargs && i == argumentCount-1) {
 				typeReference.bits |= ASTNode.IsVarArgs;
 			}

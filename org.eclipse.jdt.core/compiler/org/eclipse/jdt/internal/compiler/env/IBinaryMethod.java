@@ -44,6 +44,13 @@ char[] getMethodDescriptor();
 char[] getGenericSignature();
 
 /**
+ * Answer the name of the method.
+ *
+ * For a constructor, answer <init> & <clinit> for a clinit method.
+ */
+char[] getSelector();
+
+/**
  * Answer the tagbits set according to the bits for annotations.
  */
 long getTagBits();
