@@ -489,7 +489,8 @@ public class SearchBasicEngine {
 							nameRequestor.acceptInterface(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
 							break;
 						case IIndexConstants.ENUM_SUFFIX :
-							// TODO (frederic) need support
+							// TODO (frederic) hack to get enum while getting all type names...
+							nameRequestor.acceptClass(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
 							break;
 						case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
 							// TODO (frederic) need support
