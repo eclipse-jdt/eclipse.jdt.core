@@ -1504,13 +1504,28 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public boolean hasClasspathCycle(IClasspathEntry[] entries) {
-		
-		HashSet cycleParticipants = new HashSet();
-		updateCycleParticipants(entries, new ArrayList(), cycleParticipants, getWorkspace().getRoot());
-		return !cycleParticipants.isEmpty();
+	public boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath) {
+		HashSet visited = new HashSet();
+		visited.add(getElementName());
+		return hasClasspathCycle(preferredClasspath, visited, ResourcesPlugin.getWorkspace().getRoot());
 	}
+	private boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath, HashSet visited, IWorkspaceRoot workspaceRoot) {
+		try {
+			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
 	
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry;
+				if ((entry = classpath[i]).getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					String projectName = entry.getPath().lastSegment();
+					if (!visited.add(projectName)) return true;
+					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
+					if (project.hasClasspathCycle(null, visited, workspaceRoot)) return true;
+				}
+			}
+		} catch(JavaModelException e){
+		}
+		return false;
+	}	
 	public boolean hasCycleMarker(){
 		return this.getCycleMarker() != null;
 	}
