@@ -723,9 +723,6 @@ public void reset() {
 	// the code which created it.
 }
 void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
-	// TODO (philippe) maybe we should have each UnresolvedReferenceBinding keep track of all the other TypeBindings
-	// that point at it instead of doing all of these walks... if you agree, I'll do that tomorrow
-
 	// walk all the unique collections & replace the unresolvedType with the resolvedType
 	// must prevent 2 entries, 1 containing the unresolvedType and the other containing the resolvedType
 	nextDimension : for (int i = 0, length = uniqueArrayBindings.length; i < length; i++) {
