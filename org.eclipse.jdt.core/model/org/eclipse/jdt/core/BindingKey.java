@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.util.KeyKind;
 import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
 /**
- * Utility class to decode a binding key.
+ * Utility class to decode or create a binding key.
  * 
  * @see org.eclipse.jdt.core.dom.IBinding#getKey()
  * @since 3.1
@@ -30,6 +30,29 @@ public class BindingKey {
 	 */
 	public BindingKey(String key) {
 		this.key = key;
+	}
+	
+	/**
+	 * Creates a new type binding key from the given type name. The type name must be either 
+	 * a fully qualified name, an array type name or a primitive type name. 
+	 * If the type name is fully qualified, then it is expected to be dot-based. 
+	 * Note that inner types, generic types and parameterized types are not supported.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createTypeBindingKey("int") -> "I"
+	 * createTypeBindingKey("java.lang.String") -> "Ljava/lang/String;"
+	 * createTypeBindingKey("boolean[]") -> "[Z"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param typeName the possibly qualified type name
+	 * @return the encoded type signature
+	 */
+	public static String createTypeBindingKey(String typeName) {
+		return Signature.createTypeSignature(typeName.replace('.', '/'), true/*resolved*/);
 	}
 	
 	/**

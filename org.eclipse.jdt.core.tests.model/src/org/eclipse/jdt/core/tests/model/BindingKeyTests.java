@@ -29,6 +29,12 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		return buildTestSuite(BindingKeyTests.class);
 	}
 	
+	protected void assertBindingKeyEquals(String expected, String key) {
+		if (!(expected.equals(key)))
+			System.out.println(displayString(key, 3) + ",");
+		assertEquals(expected, key);
+	}
+	
 	protected void assertBindingKeySignatureEquals(String expected, String key) {
 		BindingKey bindingKey = new BindingKey(key);
 		String signature = bindingKey.toSignature();
@@ -177,5 +183,34 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X;.foo(Ljava/lang/String;I)Z"
 		);
 	}
+	
+	/*
+	 * Create a type binding key from a fully qualified name
+	 */
+	public void test015() {
+		String key = BindingKey.createTypeBindingKey("java.lang.Object");
+		assertBindingKeyEquals(
+			"Ljava/lang/Object;",
+			key);
+	}
 
+	/*
+	 * Create a type binding key from a primitive type name
+	 */
+	public void test016() {
+		String key = BindingKey.createTypeBindingKey("int");
+		assertBindingKeyEquals(
+			"I",
+			key);
+	}
+
+	/*
+	 * Create a type binding key from an array type name
+	 */
+	public void test017() {
+		String key = BindingKey.createTypeBindingKey("boolean[]");
+		assertBindingKeyEquals(
+			"[Z",
+			key);
+	}
 }
