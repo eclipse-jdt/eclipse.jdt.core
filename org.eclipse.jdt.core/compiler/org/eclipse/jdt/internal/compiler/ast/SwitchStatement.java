@@ -170,18 +170,14 @@ public class SwitchStatement extends Statement {
 					if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statements[i] is a case
 						this.scope.switchCase = cases[caseIndex]; // record entering in a switch case block
 						if (preSwitchInitStateIndex != -1) {
-							codeStream.removeNotDefinitelyAssignedVariables(
-								currentScope,
-								preSwitchInitStateIndex);
+							codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 						}
 						caseIndex++;
 					} else {
 						if (statement == defaultCase) { // statements[i] is a case or a default case
 							this.scope.switchCase = defaultCase; // record entering in a switch case block
 							if (preSwitchInitStateIndex != -1) {
-								codeStream.removeNotDefinitelyAssignedVariables(
-									currentScope,
-									preSwitchInitStateIndex);
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 							}
 						}
 					}
@@ -195,9 +191,7 @@ public class SwitchStatement extends Statement {
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					mergedInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			}
 			if (scope != currentScope) {

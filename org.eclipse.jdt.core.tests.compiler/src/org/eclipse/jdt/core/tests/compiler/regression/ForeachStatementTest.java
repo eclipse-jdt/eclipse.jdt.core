@@ -1346,6 +1346,91 @@ public void test026() {
 		},
 		"SUCCESS");
 }
+// 68863 - missing local variable attribute after foreach statement
+public void test027() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"    Object[] array = {\n" + 
+			"    };\n" + 			
+			"		java.util.ArrayList i;	\n" + 
+			"		for (Object object : array) {\n" + 
+			"			if (args == null) {\n" + 
+			"				i = null;\n" + 
+			"				break;\n" + 
+			"			}\n" + 
+			"			return;\n" + 
+			"		};\n" + 
+			"		System.out.println(\"SUCCESS\");	\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+		
+	String expectedOutput =
+			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  iconst_0\n" + 
+			"     1  anewarray #4 java/lang/Object\n" + 
+			"     4  astore_1\n" + 
+			"     5  aload_1\n" + 
+			"     6  astore 4\n" + 
+			"     8  iconst_0\n" + 
+			"     9  istore_2\n" + 
+			"    10  aload 4\n" + 
+			"    12  arraylength\n" + 
+			"    13  istore_3\n" + 
+			"    14  goto 27\n" + 
+			"    17  aload_0\n" + 
+			"    18  ifnonnull 26\n" + 
+			"    21  aconst_null\n" + 
+			"    22  pop\n" + 
+			"    23  goto 32\n" + 
+			"    26  return\n" + 
+			"    27  iload_2\n" + 
+			"    28  iload_3\n" + 
+			"    29  if_icmplt 17\n" + 
+			"    32  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+			"    35  ldc #23 <String \"SUCCESS\">\n" + 
+			"    37  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+			"    40  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 5, line: 6]\n" + 
+			"        [pc: 17, line: 7]\n" + 
+			"        [pc: 21, line: 8]\n" + 
+			"        [pc: 23, line: 9]\n" + 
+			"        [pc: 26, line: 11]\n" + 
+			"        [pc: 27, line: 6]\n" + 
+			"        [pc: 32, line: 13]\n" + 
+			"        [pc: 40, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 41] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 5, pc: 41] local: array index: 1 type: [Ljava/lang/Object;\n" + 
+			"}";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

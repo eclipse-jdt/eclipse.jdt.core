@@ -246,9 +246,7 @@ public class ConditionalExpression extends OperatorExpression {
 		if (needFalsePart) {
 			internalFalseLabel.place();
 			if (falseInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					falseInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 			}
 			valueIfFalse.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
@@ -258,9 +256,7 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				mergedInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		// no implicit conversion for boolean values
 		codeStream.updateLastRecordedEndPC(codeStream.position);

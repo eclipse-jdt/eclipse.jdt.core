@@ -152,9 +152,8 @@ public class ForeachStatement extends Statement {
 				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0)) {
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					mergedInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);				
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
@@ -255,9 +254,7 @@ public class ForeachStatement extends Statement {
 		// generate the condition
 		conditionLabel.place();
 		if (this.postCollectionInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				postCollectionInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, postCollectionInitStateIndex);
 		}
 		switch(this.kind) {
 			case ARRAY :
@@ -277,9 +274,8 @@ public class ForeachStatement extends Statement {
 		breakLabel.place();
 		codeStream.exitUserScope(scope);
 		if (mergedInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				mergedInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);			
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

@@ -264,9 +264,7 @@ public class TryStatement extends SubRoutineStatement {
 				for (int i = 0; i < maxCatches; i++) {
 					// May loose some local variable initializations : affecting the local variable attributes
 					if (preTryInitStateIndex != -1) {
-						codeStream.removeNotDefinitelyAssignedVariables(
-							currentScope,
-							preTryInitStateIndex);
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, preTryInitStateIndex);
 					}
 					exceptionLabels[i].place();
 					codeStream.incrStackSize(1);
@@ -316,9 +314,7 @@ public class TryStatement extends SubRoutineStatement {
 				
 				if (preTryInitStateIndex != -1) {
 					// reset initialization state, as for a normal catch block
-					codeStream.removeNotDefinitelyAssignedVariables(
-						currentScope,
-						preTryInitStateIndex);
+					codeStream.removeNotDefinitelyAssignedVariables(currentScope, preTryInitStateIndex);
 				}
 
 				codeStream.incrStackSize(1);
@@ -380,9 +376,7 @@ public class TryStatement extends SubRoutineStatement {
 							// May loose some local variable initializations : affecting the local variable attributes
 							// needed since any exception handler got inlined subroutine
 							if (preTryInitStateIndex != -1) {
-								codeStream.removeNotDefinitelyAssignedVariables(
-									currentScope,
-									preTryInitStateIndex);
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, preTryInitStateIndex);
 							}
 							// entire sequence for finally is associated to finally block
 							finallyBlock.generateCode(scope, codeStream);
@@ -404,9 +398,7 @@ public class TryStatement extends SubRoutineStatement {
 		}
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				mergedInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);

@@ -221,9 +221,7 @@ public class ForStatement extends Statement {
 
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (preCondInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				preCondInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
 		}
 
 		// generate the condition
@@ -242,9 +240,8 @@ public class ForStatement extends Statement {
 			codeStream.exitUserScope(scope);
 		}
 		if (mergedInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				mergedInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

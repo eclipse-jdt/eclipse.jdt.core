@@ -152,9 +152,7 @@ public class IfStatement extends Statement {
 				true);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (thenInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					thenInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
 			}
 			// generate then statement
