@@ -388,6 +388,7 @@ public class Tests extends TestCase {
 		suite.addTest(MultiProjectTests.suite());
 		suite.addTest(OutputFolderTests.suite());
 		suite.addTest(PackageTests.suite());
+		suite.addTest(MultiSourceFolderAndOutputFolderTests.suite());
 
 		return suite;
 	}

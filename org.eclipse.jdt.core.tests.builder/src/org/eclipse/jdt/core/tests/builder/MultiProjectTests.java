@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 
@@ -28,7 +29,7 @@ public class MultiProjectTests extends Tests {
 		return suite;
 	}
 	
-	public void testCompileOnlyDependent() {
+	public void testCompileOnlyDependent() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------
@@ -82,7 +83,7 @@ public class MultiProjectTests extends Tests {
 		expectingCompiledClasses(new String[]{"A", "B"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	public void testRemoveField() {
+	public void testRemoveField() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

@@ -14,6 +14,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class IncrementalTests extends Tests {
@@ -26,7 +27,7 @@ public class IncrementalTests extends Tests {
 		return new TestSuite(IncrementalTests.class);
 	}
 
-	public void testDefaultPackage() {
+	public void testDefaultPackage() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
@@ -47,7 +48,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
-	public void testDefaultPackage2() {
+	public void testDefaultPackage2() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
@@ -71,7 +72,7 @@ public class IncrementalTests extends Tests {
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=17329
 	 */
-	public void testRenameMainType() {
+	public void testRenameMainType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -127,7 +128,7 @@ public class IncrementalTests extends Tests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=17807
 	 * case 1
 	 */
-	public void testRemoveSecondaryType() {
+	public void testRemoveSecondaryType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -194,7 +195,7 @@ public class IncrementalTests extends Tests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=17807
 	 * case 2
 	 */
-	public void testRemoveSecondaryType2() {
+	public void testRemoveSecondaryType2() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -257,7 +258,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
-	public void testMoveSecondaryType() {
+	public void testMoveSecondaryType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -310,7 +311,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
-	public void testMoveMemberType() {
+	public void testMoveMemberType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -380,7 +381,7 @@ public class IncrementalTests extends Tests {
 			});
 	}
 
-	public void testMovePackage() {
+	public void testMovePackage() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -405,7 +406,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
-	public void testMemberTypeFromClassFile() {
+	public void testMemberTypeFromClassFile() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -458,7 +459,7 @@ public class IncrementalTests extends Tests {
 	}
 	
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=27658
-	public void testObjectWithSuperInterfaces() {
+	public void testObjectWithSuperInterfaces() throws JavaModelException {
 		try {
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJar(projectPath, Util.getJavaClassLib());

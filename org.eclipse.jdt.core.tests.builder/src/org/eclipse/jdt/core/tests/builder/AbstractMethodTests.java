@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractMethodTests extends Tests {
@@ -27,7 +28,7 @@ public class AbstractMethodTests extends Tests {
 		return suite;
 	}
 
-	public void test001() {
+	public void test001() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageTests extends Tests {
@@ -31,7 +32,7 @@ public class PackageTests extends Tests {
 	/**
 	 * Bugs 6564
 	 */
-	public void testPackageProblem(){
+	public void testPackageProblem() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
@@ -26,7 +27,7 @@ public class ExecutionTests extends Tests {
 		return new TestSuite(ExecutionTests.class);
 	}
 	
-	public void testSuccess() {
+	public void testSuccess() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
@@ -51,7 +52,7 @@ public class ExecutionTests extends Tests {
 		executeClass(projectPath, "p1.Hello", "Hello world\r\n", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
-	public void testFailure() {
+	public void testFailure() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import java.util.*;
@@ -30,7 +31,7 @@ public class ClasspathTests extends Tests {
 		return suite;
 	}
 
-	public void testClosedProject() {
+	public void testClosedProject() throws JavaModelException {
 		IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
 		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0}); //$NON-NLS-1$
@@ -95,7 +96,7 @@ public class ClasspathTests extends Tests {
 		JavaCore.setOptions(options);
 	}
 
-	public void testMissingProject() {
+	public void testMissingProject() throws JavaModelException {
 		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
@@ -150,7 +151,7 @@ public class ClasspathTests extends Tests {
 		JavaCore.setOptions(options);
 	}
 
-	public void testMissingLibrary() {
+	public void testMissingLibrary() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
@@ -26,7 +27,7 @@ public class EfficiencyTests extends Tests {
 		return new TestSuite(EfficiencyTests.class);
 	}
 	
-	public void testEfficiency() {
+	public void testEfficiency() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
@@ -65,7 +66,7 @@ public class EfficiencyTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.Indicted", "p2.Collaborator"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	public void testMethodAddition() {
+	public void testMethodAddition() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -117,7 +118,7 @@ public class EfficiencyTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.X", "p2.Y" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public void testLocalTypeAddition() {
+	public void testLocalTypeAddition() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -169,7 +170,7 @@ public class EfficiencyTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.X", "p1.X$1" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public void testLocalTypeAddition2() {
+	public void testLocalTypeAddition2() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -227,7 +228,7 @@ public class EfficiencyTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.X", "p1.X$1", "p1.X$2" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	public void testLocalTypeRemoval() {
+	public void testLocalTypeRemoval() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -279,7 +280,7 @@ public class EfficiencyTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.X" }); //$NON-NLS-1$
 	}
 
-	public void testLocalTypeRemoval2() {
+	public void testLocalTypeRemoval2() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class CompilationUnitLocationTests extends Tests {
@@ -32,7 +33,7 @@ public class CompilationUnitLocationTests extends Tests {
 	/**
 	 * Bugs 6461 
 	 */
-	public void testWrongCompilationUnitLocation() {
+	public void testWrongCompilationUnitLocation() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

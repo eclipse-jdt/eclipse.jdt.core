@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
@@ -29,7 +30,7 @@ public class BasicBuildTests extends Tests {
 		return new TestSuite(BasicBuildTests.class);
 	}
 	
-	public void testBuild() {
+	public void testBuild() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
@@ -55,7 +56,7 @@ public class BasicBuildTests extends Tests {
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23894
 	 */
-	public void testToDoMarker() {
+	public void testToDoMarker() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo"); //$NON-NLS-1$

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
@@ -31,7 +32,7 @@ public class OutputFolderTests extends Tests {
 		return suite;
 	}
 
-	public void testChangeOutputFolder() {
+	public void testChangeOutputFolder() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -56,7 +57,7 @@ public class OutputFolderTests extends Tests {
 		expectingPresenceOf(bin2.append("p/Test.class")); //$NON-NLS-1$
 	}
 
-	public void testDeleteOutputFolder() {
+	public void testDeleteOutputFolder() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
@@ -84,7 +85,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testSimpleProject() {
+	public void testSimpleProject() throws JavaModelException {
 		IPath projectPath = env.addProject("P1"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -105,7 +106,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWithBin() {
+	public void testProjectWithBin() throws JavaModelException {
 		IPath projectPath = env.addProject("P2"); //$NON-NLS-1$
 		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
@@ -127,7 +128,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWithSrcBin() {
+	public void testProjectWithSrcBin() throws JavaModelException {
 		IPath projectPath = env.addProject("P3"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -150,7 +151,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWith2SrcBin() {
+	public void testProjectWith2SrcBin() throws JavaModelException {
 		IPath projectPath = env.addProject("P4"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
@@ -174,7 +175,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWith2SrcAsBin() {
+	public void testProjectWith2SrcAsBin() throws JavaModelException {
 		IPath projectPath = env.addProject("P5"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
@@ -198,7 +199,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWith2Src2Bin() {
+	public void testProjectWith2Src2Bin() throws JavaModelException {
 		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
@@ -222,7 +223,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void testProjectWith3Src2Bin() {
+	public void testProjectWith3Src2Bin() throws JavaModelException {
 		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
@@ -251,7 +252,7 @@ public class OutputFolderTests extends Tests {
 		});
 	}
 
-	public void test2ProjectWith1Bin() {
+	public void test2ProjectWith1Bin() throws JavaModelException {
 		IPath projectPath = env.addProject("P7"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$

@@ -124,7 +124,7 @@ public class TestingEnvironment {
 		return path;
 	}
 
-	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) {
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) throws JavaModelException {
 		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null); //$NON-NLS-1$
 	}
 
@@ -133,7 +133,7 @@ public class TestingEnvironment {
 	 * exists, it is not replaced.  A workspace must be open.
 	 * Returns the path of the added package fragment root.
 	 */
-	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] exclusionPatterns, String specificOutputLocation) {
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] exclusionPatterns, String specificOutputLocation) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath path = getPackageFragmentRootPath(projectPath, sourceFolderName);
 		createFolder(path);
@@ -153,29 +153,29 @@ public class TestingEnvironment {
 		return project.getFullPath();
 	}
 
-	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath) {
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath) throws JavaModelException {
 		addRequiredProject(projectPath, requiredProjectPath, false);
 	}
 	
 	/** Adds a project to the classpath of a project.
 	 */
-	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, boolean isExported) {
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, boolean isExported) throws JavaModelException {
 		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, isExported));
 	}
 
-	public void addExternalJar(IPath projectPath, String jar) {
+	public void addExternalJar(IPath projectPath, String jar) throws JavaModelException {
 		addExternalJar(projectPath, jar, false);
 	}
 	
 	/** Adds an external jar to the classpath of a project.
 	 */
-	public void addExternalJar(IPath projectPath, String jar, boolean isExported) {
+	public void addExternalJar(IPath projectPath, String jar, boolean isExported) throws JavaModelException {
 		checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
 	}
 	
-	private void addEntry(IPath projectPath, IClasspathEntry entryPath) {
+	private void addEntry(IPath projectPath, IClasspathEntry entryPath) throws JavaModelException {
 		IClasspathEntry[] classpath = getClasspath(projectPath);
 		IClasspathEntry[] newClaspath = new IClasspathEntry[classpath.length + 1];
 		System.arraycopy(classpath, 0, newClaspath, 0, classpath.length);
@@ -206,7 +206,7 @@ public class TestingEnvironment {
 		return folderPath;
 	}
 
-	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents) {
+	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents) throws JavaModelException {
 		return addInternalJar(projectPath, zipName, contents, false);
 	}
 
@@ -216,7 +216,7 @@ public class TestingEnvironment {
 	 * zip name must end with ".zip" or ".jar".  Returns the path of
 	 * the added jar.
 	 */
-	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents, boolean isExported) {
+	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents, boolean isExported) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		IPath path = projectPath.append(zipName);
@@ -662,7 +662,7 @@ public class TestingEnvironment {
 	/** Removes the given package fragment root from the
 	 * the workspace.  A workspace must be open.
 	 */
-	public void removePackageFragmentRoot(IPath projectPath, String packageFragmentRootName) {
+	public void removePackageFragmentRoot(IPath projectPath, String packageFragmentRootName) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		if (packageFragmentRootName.length() > 0) {
 			IFolder folder = getProject(projectPath).getFolder(packageFragmentRootName);
@@ -698,7 +698,7 @@ public class TestingEnvironment {
 	
 	/** Remove a required project from the classpath
 	 */
-	public void removeRequiredProject(IPath projectPath, IPath requiredProject){
+	public void removeRequiredProject(IPath projectPath, IPath requiredProject) throws JavaModelException {
 		removeEntry(projectPath, requiredProject);
 	}
 	
@@ -717,7 +717,7 @@ public class TestingEnvironment {
 	/** Removes the given internal jar from the workspace.
 	 * A workspace must be open.
 	 */
-	public void removeInternalJar(IPath projectPath, String zipName) {
+	public void removeInternalJar(IPath projectPath, String zipName) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -743,12 +743,12 @@ public class TestingEnvironment {
 	/**
 	 * Remove an external jar from the classpath.
 	 */
-	public void removeExternalJar(IPath projectPath, IPath jarPath) {
+	public void removeExternalJar(IPath projectPath, IPath jarPath) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		removeEntry(projectPath, jarPath);
 	}
 	
-	private void removeEntry(IPath projectPath, IPath entryPath) {
+	private void removeEntry(IPath projectPath, IPath entryPath) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IClasspathEntry[] oldEntries = getClasspath(projectPath);
 		for (int i = 0; i < oldEntries.length; ++i) {
@@ -812,15 +812,10 @@ public class TestingEnvironment {
 //		}
 //	}
 
-	public void setClasspath(IPath projectPath, IClasspathEntry[] entries) {
-		try {
-			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-			IJavaProject javaProject = JavaCore.create(getProject(projectPath));
-			javaProject.setRawClasspath(entries, null);
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-			checkAssertion("JavaModelException", false); //$NON-NLS-1$
-		}
+	public void setClasspath(IPath projectPath, IClasspathEntry[] entries) throws JavaModelException {
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		IJavaProject javaProject = JavaCore.create(getProject(projectPath));
+		javaProject.setRawClasspath(entries, null);
 	}
 	
 	public IPath setExternalOutputFolder(IPath projectPath, String name, IPath externalOutputLocation){
