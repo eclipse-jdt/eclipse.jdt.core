@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -57,7 +58,8 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		System.out.print("}");
 	 */
 	static final byte[] EMPTY_JAR = {80, 75, 3, 4, 20, 0, 8, 0, 8, 0, 106, -100, 116, 46, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 4, 0, 77, 69, 84, 65, 45, 73, 78, 70, 47, 77, 65, 78, 73, 70, 69, 83, 84, 46, 77, 70, -2, -54, 0, 0, -29, -27, 2, 0, 80, 75, 7, 8, -84, -123, -94, 20, 4, 0, 0, 0, 2, 0, 0, 0, 80, 75, 1, 2, 20, 0, 20, 0, 8, 0, 8, 0, 106, -100, 116, 46, -84, -123, -94, 20, 4, 0, 0, 0, 2, 0, 0, 0, 20, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 77, 69, 84, 65, 45, 73, 78, 70, 47, 77, 65, 78, 73, 70, 69, 83, 84, 46, 77, 70, -2, -54, 0, 0, 80, 75, 5, 6, 0, 0, 0, 0, 1, 0, 1, 0, 70, 0, 0, 0, 74, 0, 0, 0, 0, 0, };
-	class WaitUntilReadyMonitor extends WaitingJob implements IProgressMonitor {
+	class WaitUntilReadyMonitor implements IProgressMonitor {
+		public Semaphore sem = new Semaphore();
 		public void beginTask(String name, int totalWork) {
 		}
 		public void internalWorked(double work) {
@@ -73,7 +75,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 		public void subTask(String name) {
 			// concurrent job is signaling it is working
-			this.resume();
+			this.sem.release();
 		}
 		public void worked(int work) {
 		}
@@ -111,54 +113,24 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 	}
 	class WaitingJob implements IJob {
 		static final int MAX_WAIT = 30000; // wait 30s max
-		boolean isResumed;
-		boolean isRunning;
+		Semaphore startingSem = new Semaphore();
+		Semaphore runningSem = new Semaphore();
 		public boolean belongsTo(String jobFamily) {
 			return false;
 		}
 		public void cancel() {
 		}
 		public boolean execute(IProgressMonitor progress) {
-			startJob();
-			suspend();
+			this.startingSem.release();
+			try {
+				this.runningSem.acquire(MAX_WAIT);
+			} catch (TimeOutException e) {
+				e.printStackTrace();
+			}
 			return true;
 		}
 		public boolean isReadyToRun() {
 			return true;
-		}
-		public synchronized void resume() {
-			this.isResumed = true;
-			notifyAll();
-		}
-		public synchronized void startJob() {
-			this.isRunning = true;
-			notifyAll();
-		}
-		public synchronized void suspend() {
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (this.isResumed) return;
-				try {
-					long timeToWait = MAX_WAIT - (System.currentTimeMillis() - start);
-					if (timeToWait <= 0) break;
-					wait(timeToWait);
-				} catch (InterruptedException e) {
-					continue;
-				}
-			}
-		}
-		public synchronized void waitForJobToStart() {
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (this.isRunning) return;
-				try {
-					long timeToWait = MAX_WAIT - (System.currentTimeMillis() - start);
-					if (timeToWait <= 0) break;
-					wait(timeToWait);
-				} catch (InterruptedException e) {
-					continue;
-				}
-			}
 		}
 	}
 public static Test suite() {
@@ -245,7 +217,7 @@ public void tearDownSuite() throws Exception {
  * Ensure that changing the classpath in the middle of reindexing
  * a project causes another request to reindex.
  */
-public void testChangeClasspath() throws CoreException {
+public void testChangeClasspath() throws CoreException, TimeOutException {
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
@@ -265,7 +237,7 @@ public void testChangeClasspath() throws CoreException {
 		// add waiting job and wait for it to be executed
 		indexManager.request(job);
 		indexManager.enable();
-		job.waitForJobToStart(); // job is suspended here
+		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
 		
 		// remove source folder from classpath
 		IJavaProject project = getJavaProject("P1");
@@ -274,7 +246,7 @@ public void testChangeClasspath() throws CoreException {
 			null);
 			
 		// resume waiting job
-		job.resume();
+		job.runningSem.release();
 		
 		assertAllTypes(
 			"Unexpected all types after removing source folder",
@@ -282,7 +254,7 @@ public void testChangeClasspath() throws CoreException {
 			""
 		);
 	} finally {
-		job.resume();
+		job.runningSem.release();
 		deleteProject("P1");
 		indexManager.enable();
 	}
@@ -291,7 +263,7 @@ public void testChangeClasspath() throws CoreException {
  * Ensure that performing a concurrent job while indexing a jar doesn't use the old index.
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
-public void testConcurrentJob() throws CoreException, InterruptedException, IOException {
+public void testConcurrentJob() throws CoreException, InterruptedException, IOException, TimeOutException {
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
@@ -307,7 +279,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		// add waiting job and wait for it to be executed
 		indexManager.request(job);
 		indexManager.enable();
-		job.waitForJobToStart(); // job is suspended here
+		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
 				
 		final IJavaProject project = getJavaProject("P1");
 			
@@ -344,13 +316,13 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		thread.start();
 			
 		// wait for concurrent job to start
-		monitor.suspend();
+		monitor.sem.acquire(30000); // wait 30s max
 
 		// change jar contents
 		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
 			
 		// resume waiting job
-		job.resume();
+		job.runningSem.release();
 		
 		// wait for concurrent job to finish
 		thread.join(10000); // 10s max
@@ -358,7 +330,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		assertTrue("Failed to get all types", success[0]);
 				
 	} finally {
-		job.resume();
+		job.runningSem.release();
 		deleteProject("P1");
 		indexManager.enable();
 	}
@@ -368,7 +340,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
  * waiting policy doesn't throw a NullPointerException but an OperationCanceledException.
  * (regression test for bug 33571 SearchEngine.searchAllTypeNames: NPE when passing null as progress monitor)
  */
- public void testNullProgressMonitor() throws CoreException {
+ public void testNullProgressMonitor() throws CoreException, TimeOutException {
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 	WaitingJob job = new WaitingJob();
  	try {
@@ -376,7 +348,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		indexManager.disable();
 		indexManager.request(job);
 		indexManager.enable();
-		job.waitForJobToStart(); // job is suspended here
+		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
 		
 		// query all type names with a null progress monitor
 		boolean operationCanceled = false;
@@ -391,7 +363,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		}
 		assertTrue("Should throw an OperationCanceledException", operationCanceled);
  	} finally {
- 		job.resume();
+ 		job.runningSem.release();
  	}
  }
 /*

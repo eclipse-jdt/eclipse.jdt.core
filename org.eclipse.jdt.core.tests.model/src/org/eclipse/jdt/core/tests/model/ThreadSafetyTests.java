@@ -26,35 +26,6 @@ import junit.framework.*;
  */
 public class ThreadSafetyTests extends ModifyingResourceTests {
 
-	public class Semaphore {
-		
-		private String name = null;
-		private int permissions = 0;
-		
-		public Semaphore(int initialPermisions) {
-			this(null, initialPermisions);
-		}
-		public Semaphore(String name, int initialPermissions) {
-			this.name = name;
-			this.permissions = initialPermissions;
-		}
-		public synchronized void acquire() {
-			while (this.permissions <= 0){
-				try {
-					if (this.name != null) System.out.println(Thread.currentThread() + " - waiting to acquire: " + this.name); //$NON-NLS-1$
-					wait();
-				} catch(InterruptedException e){
-				}
-			}
-			this.permissions--;
-			if (this.name != null) System.out.println(Thread.currentThread() + " - acquired: " + this.name); //$NON-NLS-1$
-		}
-		public synchronized void release() {
-			if (this.name != null) System.out.println(Thread.currentThread() + " - releasing: " + this.name); //$NON-NLS-1$
-			if (++this.permissions > 0) notifyAll();
-		}
-	}
-
 public ThreadSafetyTests(String name) {
 	super(name);
 }
