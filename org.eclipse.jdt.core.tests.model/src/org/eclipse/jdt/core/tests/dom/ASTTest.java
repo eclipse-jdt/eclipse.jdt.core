@@ -1359,6 +1359,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("foo".equals(x.getIdentifier())); //$NON-NLS-1$
+		assertTrue("foo".equals(x.getFullyQualifiedName())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_NAME);
 		assertTrue(x.isDeclaration() == false);
 		assertTrue(x.structuralPropertiesForType() == SimpleName.propertyDescriptors(ast.apiLevel()));
@@ -1369,6 +1370,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.setIdentifier("bar"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue("bar".equals(x.getIdentifier())); //$NON-NLS-1$
+		assertTrue("bar".equals(x.getFullyQualifiedName())); //$NON-NLS-1$
 
 		// check that property cannot be set to null
 		try {
@@ -1472,6 +1474,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == false);
 		assertTrue(x.getNodeType() == ASTNode.QUALIFIED_NAME);
+		assertTrue("q.i".equals(x.getFullyQualifiedName())); //$NON-NLS-1$
 		assertTrue(x.structuralPropertiesForType() == QualifiedName.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
@@ -1517,6 +1520,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				x.setName((SimpleName) value);
 			}
 		});
+		
+		// test fullyQualifiedName on nested names
+		Name q0 = ast.newName(new String[] {"a", "bb", "ccc", "dddd", "eeeee", "ffffff"});
+		assertTrue("a.bb.ccc.dddd.eeeee.ffffff".equals(q0.getFullyQualifiedName())); //$NON-NLS-1$
+
 	}		
 
 	public void testNullLiteral() {

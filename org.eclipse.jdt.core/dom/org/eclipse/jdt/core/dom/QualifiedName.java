@@ -240,6 +240,15 @@ public class QualifiedName extends Name {
 	}
 	
 	/* (omit javadoc for this method)
+	 * Method declared on Name.
+	 */
+	void appendName(StringBuffer buffer) {
+		getQualifier().appendName(buffer);
+		buffer.append('.');
+		getName().appendName(buffer);
+	}
+
+	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {

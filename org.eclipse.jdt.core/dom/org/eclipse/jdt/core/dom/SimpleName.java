@@ -261,6 +261,13 @@ public class SimpleName extends Name {
 	}
 		
 	/* (omit javadoc for this method)
+	 * Method declared on Name.
+	 */
+	void appendName(StringBuffer buffer) {
+		buffer.append(getIdentifier());
+	}
+
+	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
