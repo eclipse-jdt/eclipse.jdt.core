@@ -176,12 +176,12 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 
 		if (TypeHierarchy.DEBUG) {
 			System.out.println(
-				"Connecting: " + ((JavaElement) typeHandle).toStringWithAncestors());
+				"Connecting: " + ((JavaElement) typeHandle).toStringWithAncestors()); //$NON-NLS-1$
 			//$NON-NLS-1$
 			System.out.println(
-				"  to superclass: "
+				"  to superclass: " //$NON-NLS-1$
 					+ (superHandle == null
-						? "<None>"
+						? "<None>" //$NON-NLS-1$
 						: ((JavaElement) superHandle).toStringWithAncestors()));
 			//$NON-NLS-1$ //$NON-NLS-2$
 			System.out.print("  and superinterfaces:"); //$NON-NLS-1$
@@ -191,7 +191,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				System.out.println();
 				for (int i = 0, length = interfaceHandles.length; i < length; i++) {
 					System.out.println(
-						"    " + ((JavaElement) interfaceHandles[i]).toStringWithAncestors());
+						"    " + ((JavaElement) interfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
 					//$NON-NLS-1$
 				}
 			}

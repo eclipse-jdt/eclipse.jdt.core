@@ -337,7 +337,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
-	buffer.append("[Working copy] ");
+	buffer.append("[Working copy] "); //$NON-NLS-1$
 	super.toStringInfo(0, buffer, info);
 }
 }

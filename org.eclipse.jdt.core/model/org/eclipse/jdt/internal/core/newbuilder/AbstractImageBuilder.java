@@ -110,7 +110,7 @@ public void acceptResult(CompilationResult result) {
 						if (duplicateTypeNames == null)
 							duplicateTypeNames = new ArrayList();
 						duplicateTypeNames.add(compoundName);
-						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName)));
+						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName))); //$NON-NLS-1$
 						continue;
 					}
 					newState.locationForType(qualifiedTypeName, sourceLocation);
@@ -121,7 +121,7 @@ public void acceptResult(CompilationResult result) {
 			finishedWith(sourceLocation, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
-			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile"));
+			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile")); //$NON-NLS-1$
 		}
 	}
 }

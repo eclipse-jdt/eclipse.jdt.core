@@ -112,12 +112,12 @@ public class JavaProject
 			return null;
 
 		if (JavaModelManager.VERBOSE) {
-			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString());
+			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString()); //$NON-NLS-1$
 		}
 
 		if (IS_CASE_SENSITIVE) {
 			if (JavaModelManager.VERBOSE) {
-				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)");
+				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)"); //$NON-NLS-1$
 			}
 			return externalPath;
 		}
@@ -126,7 +126,7 @@ public class JavaProject
 		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath)
 			!= null) {
 			if (JavaModelManager.VERBOSE) {
-				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)");
+				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)"); //$NON-NLS-1$
 			}
 			return externalPath;
 		}
@@ -138,7 +138,7 @@ public class JavaProject
 		} catch (IOException e) {
 			// default to original path
 			if (JavaModelManager.VERBOSE) {
-				System.out.println("JAVA MODEL - Canonical path is original path (IOException)");
+				System.out.println("JAVA MODEL - Canonical path is original path (IOException)"); //$NON-NLS-1$
 			}
 			return externalPath;
 		}
@@ -148,7 +148,7 @@ public class JavaProject
 		if (canonicalLength == 0) {
 			// the java.io.File canonicalization failed
 			if (JavaModelManager.VERBOSE) {
-				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)");
+				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)"); //$NON-NLS-1$
 			}
 			return externalPath;
 		} else if (externalPath.isAbsolute()) {
@@ -161,7 +161,7 @@ public class JavaProject
 				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
 			} else {
 				if (JavaModelManager.VERBOSE) {
-					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")");
+					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				return externalPath;
 			}
@@ -172,7 +172,7 @@ public class JavaProject
 			result = result.setDevice(null);
 		} 
 		if (JavaModelManager.VERBOSE) {
-			System.out.println("JAVA MODEL - Canonical path is " + result.toString());
+			System.out.println("JAVA MODEL - Canonical path is " + result.toString()); //$NON-NLS-1$
 		}
 		return result;
 	}

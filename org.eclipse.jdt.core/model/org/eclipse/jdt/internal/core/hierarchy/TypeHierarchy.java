@@ -339,7 +339,7 @@ protected void fireChange() {
 		return;
 	}
 	if (DEBUG) {
-		System.out.println("FIRING hierarchy change ["+Thread.currentThread()+"]");
+		System.out.println("FIRING hierarchy change ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.type != null) {
 			System.out.println("    for hierarchy focused on " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
 		}
@@ -1217,7 +1217,7 @@ public String toString() {
 			}
 		}
 		if (this.rootClasses.size > 1) {
-			buffer.append("Root classes:\n");
+			buffer.append("Root classes:\n"); //$NON-NLS-1$
 			IType[] roots = this.getRootClasses();
 			for (int i = 0, length = roots.length; i < length; i++) {
 				IType type = roots[i];

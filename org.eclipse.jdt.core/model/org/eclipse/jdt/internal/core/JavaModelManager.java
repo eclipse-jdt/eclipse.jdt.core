@@ -698,7 +698,7 @@ public void doneSaving(ISaveContext context){
 			info.triedRead= true;
 			try {
 				if (monitor != null)
-					monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName())); //$NON-NLS-1$
+					monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
 				state = readState2(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
