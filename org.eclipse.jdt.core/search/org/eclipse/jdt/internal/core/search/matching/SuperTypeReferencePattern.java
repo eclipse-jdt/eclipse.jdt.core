@@ -31,8 +31,6 @@ public int modifiers;
 
 protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
 
-private static final EntryResult[] NO_ENTRY_RESULT = new EntryResult[0];
-
 protected static char[][] CATEGORIES = { SUPER_REF };
 
 public static char[] createIndexKey(

@@ -677,13 +677,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				tx1.setText("Spec."); //$NON-NLS-1$
 				tg0.fragments().add(tx1);
 				TagElement tg1 = localAst.newTagElement();
-				tg1.setTagName("@deprecated");
+				tg1.setTagName(TagElement.TAG_DEPRECATED);
 				jd.tags().add(tg1);
 				TextElement tx2 = localAst.newTextElement();
 				tx2.setText("Use "); //$NON-NLS-1$
 				tg1.fragments().add(tx2);
 				TagElement tg2 = localAst.newTagElement();
-				tg2.setTagName("@link");
+				tg2.setTagName(TagElement.TAG_LINK);
 				tg1.fragments().add(tg2);
 				MethodRef mr1 = localAst.newMethodRef();
 				mr1.setName(localAst.newSimpleName("foo"));
@@ -2496,6 +2496,25 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAlternateRoot() == null);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
+		
+		// check the constants
+		assertTrue(TagElement.TAG_AUTHOR.equals("@author")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_DEPRECATED.equals("@deprecated")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_DOCROOT.equals("@docRoot")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_EXCEPTION.equals("@exception")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_INHERITDOC.equals("@inheritDoc")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_LINK.equals("@link")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_LINKPLAIN.equals("@linkplain")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_PARAM.equals("@param")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_RETURN.equals("@return")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_SEE.equals("@see")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_SERIAL.equals("@serial")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_SERIALDATA.equals("@serialData")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_SERIALFIELD.equals("@serialField")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_SINCE.equals("@since")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_THROWS.equals("@throws")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_VALUE.equals("@value")); //$NON-NLS-1$
+		assertTrue(TagElement.TAG_VERSION.equals("@version")); //$NON-NLS-1$
 
 		final String[] samples =
 			{ 

@@ -175,11 +175,11 @@ void close() throws IOException {
 private String[] computeDocumentNames(String[] onDiskNames, int[] positions, SimpleLookupTable indexedDocuments, MemoryIndex memoryIndex) {
 	int onDiskLength = onDiskNames.length;
 	Object[] docNames = memoryIndex.docsToReferences.keyTable;
-	Object[] categoryTables = memoryIndex.docsToReferences.valueTable;
+	Object[] categories = memoryIndex.docsToReferences.valueTable;
 	if (onDiskLength == 0) {
 		// disk index was empty, so add every indexed document
-		for (int i = 0, l = categoryTables.length; i < l; i++)
-			if (categoryTables[i] != null)
+		for (int i = 0, l = categories.length; i < l; i++)
+			if (categories[i] != null)
 				indexedDocuments.put(docNames[i], null); // remember each new document
 
 		String[] newDocNames = new String[indexedDocuments.elementSize];
@@ -206,7 +206,7 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 		if (docName != null) {
 			for (int j = 0; j < onDiskLength; j++) {
 				if (docName.equals(onDiskNames[j])) {
-					if (categoryTables[i] == null) {
+					if (categories[i] == null) {
 						positions[j] = DELETED;
 						numDeletedDocNames++;
 					} else {
@@ -216,7 +216,7 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 					continue nextPath;
 				}
 			}
-			if (categoryTables[i] != null)
+			if (categories[i] != null)
 				indexedDocuments.put(docName, null); // remember each new document, skip deleted documents which were never saved
 		}
 	}
@@ -297,19 +297,19 @@ File getIndexFile() {
 	return new File(this.fileName);
 }
 void initialize(boolean reuseExistingFile) throws IOException {
-	File file = getIndexFile();
-	if (file.exists()) {
+	File indexFile = getIndexFile();
+	if (indexFile.exists()) {
 		if (reuseExistingFile) {
 			checkSignature();
 			return;
 		}
-		if (!file.delete()) {
+		if (!indexFile.delete()) {
 			if (DEBUG)
 				System.out.println("initialize - Failed to delete index " + this.fileName); //$NON-NLS-1$
 			throw new IOException("Failed to delete index " + this.fileName); //$NON-NLS-1$
 		}
 	}
-	if (file.createNewFile()) {
+	if (indexFile.createNewFile()) {
 		this.file = new SafeRandomAccessFile(this.fileName, "rw"); //$NON-NLS-1$ $NON-NLS-2$
 		this.file.writeUTF(SIGNATURE);
 		this.file.writeInt(this.categoryOffset);
@@ -371,10 +371,10 @@ private void mergeCategories(DiskIndex onDisk, int[] positions) throws IOExcepti
 	int[] tablePositions = writeCategoryNames(categoryNames);
 	for (int i = 0, l = categoryNames.length; i < l; i++) {
 		char[] categoryName = categoryNames[i];
-		mergeCategory(categoryName, onDisk, tablePositions[i], positions, file);
+		mergeCategory(categoryName, onDisk, tablePositions[i], positions);
 	}
 }
-private void mergeCategory(char[] categoryName, DiskIndex onDisk, int tableOffset, int[] positions, SafeRandomAccessFile file) throws IOException {
+private void mergeCategory(char[] categoryName, DiskIndex onDisk, int tableOffset, int[] positions) throws IOException {
 	HashtableOfObject wordsToDocs = (HashtableOfObject) this.categoryTables.get(categoryName);
 	if (wordsToDocs == null)
 		wordsToDocs = new HashtableOfObject(3);
@@ -650,7 +650,6 @@ private void writeAllDocumentNames(String[] sortedDocNames) throws IOException {
 			this.file.writeInt(0); // will replace with the actual position
 	}
 
-	int index = 0;
 	int lastIndex = this.numberOfChunks - 1;
 	for (int i = 0; i < this.numberOfChunks; i++) {
 		int chunkSize = i == lastIndex ? this.sizeOfLastChunk : CHUNK_SIZE;
