@@ -13,29 +13,20 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
-import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 	public ComplianceDiagnoseTest(String name) {
 		super(name);
 	}
-	// Use this static initializer to specify subset for tests
+	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 3, 7, 10, 21 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		testsRange = new int[] { 21, 50 };
-//		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
-//		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
-	}
+//	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_RANGE = new int[] { 21, 50 };
+//	}
 	public static Test suite() {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
-		}
-		return setupSuite(testClass());
+		return buildTestSuite(testClass());
 	}
 public static Class testClass() {
 	return ComplianceDiagnoseTest.class;

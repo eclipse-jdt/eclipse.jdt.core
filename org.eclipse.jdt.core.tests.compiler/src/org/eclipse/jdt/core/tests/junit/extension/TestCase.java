@@ -103,7 +103,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 	Method[] methods = evaluationTestClass.getDeclaredMethods();
 	nextMethod: for (int m = 0, max = methods.length; m < max; m++) {
 		try {
-			if (Flags.isPublic(methods[m].getModifiers()) &&
+			int modifiers = methods[m].getModifiers();
+			if (Flags.isPublic(modifiers) && !Flags.isStatic(modifiers) &&
 				methods[m].getName().startsWith("test")) {
 				String methName = methods[m].getName();
 				Object[] params = {methName};

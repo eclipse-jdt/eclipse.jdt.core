@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -26,7 +30,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	static boolean debug = false;
 
 	static {
-		allTestClasses = new ArrayList(6);
+		allTestClasses = new ArrayList();
 		allTestClasses.add(JavadocTestForMethod.class);
 		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestForClass.class);
@@ -48,12 +52,31 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(JavadocTest.class.getName());
-		for (int i=0; i<allTestClasses.size(); i++) {
-			suite.addTest(buildTestSuite((Class) allTestClasses.get(i)));
+		TestSuite ts = new TestSuite(JavadocTest.class.getName());
+	
+		// Reset forgotten subsets of tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS = null;
+		TestCase.TESTS_RANGE = null;
+	
+		for (int i = 0, l=allTestClasses.size(); i < l; i++) {
+			Class testClass = (Class) allTestClasses.get(i);
+	
+			// call the suite() method and add the resulting suite to the suite
+			try {
+				Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
+				Test suite = (Test)suiteMethod.invoke(null, new Object[0]);
+				ts.addTest(suite);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.getTargetException().printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
 		}
-//		suite.addTest(buildTestSuite());
-		return suite;
+		return ts;
 	}
 	
 	public JavadocTest(String name) {

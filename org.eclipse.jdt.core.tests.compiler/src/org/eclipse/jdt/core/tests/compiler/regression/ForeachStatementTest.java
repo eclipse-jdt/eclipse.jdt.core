@@ -39,22 +39,16 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 	return options;
 }
-static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "Bug51529a", "Bug51529b" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 22 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	TESTS_RANGE = new int[] { 21, 50 };
-//	TESTS_RANGE = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
-//	TESTS_RANGE = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
-}
-public static Test suite() {
-	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-		return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
+	// Static initializer to specify tests subset using TESTS_* static variables
+	// All specified tests which does not belong to the class are skipped...
+//	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_RANGE = new int[] { 21, 50 };
+//	}
+	public static Test suite() {
+		return buildTestSuite(testClass());
 	}
-	return setupSuite(testClass());
-}
 public void test001() {
 	this.runConformTest(
 		new String[] {

@@ -421,16 +421,18 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		return suite;
 	}
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		return buildTestSuite(evaluationTestClass, "test"); //$NON-NLS-1$
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
-		List tests = buildTestsList(evaluationTestClass);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			suite.addTest((Test)tests.get(index));
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
+			String complianceLevel = highestComplianceLevels();
+			TestSuite suite = new TestSuite(complianceLevel);
+			List tests = buildTestsList(evaluationTestClass);
+			for (int index=0, size=tests.size(); index<size; index++) {
+				suite.addTest((Test)tests.get(index));
+			}
+			TestSuite test = new TestSuite(evaluationTestClass.getName());
+			test.addTest(new RegressionTestSetup(suite, complianceLevel));
+			return test;
 		}
-		return suite;
+		return setupSuite(evaluationTestClass);
 	}
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {

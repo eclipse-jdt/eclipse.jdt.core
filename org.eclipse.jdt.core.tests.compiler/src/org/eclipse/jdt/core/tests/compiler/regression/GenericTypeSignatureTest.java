@@ -65,16 +65,16 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean RunJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
-	static {
-		// Use this static to specify a subset of tests using TESTS_NAMES, testNumbers or TESTS_RANGE arrays
-//		TESTS_RANGE = new int[] { 66, -1 };
-//		TESTS_NUMBERS = new int[] { 6, 7 };
-	}
+
+	// Static initializer to specify tests subset using TESTS_* static variables
+	// All specified tests which does not belong to the class are skipped...
+//	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_RANGE = new int[] { 21, 50 };
+//	}
 	public static Test suite() {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
-		}
-		return setupSuite(testClass());
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {
