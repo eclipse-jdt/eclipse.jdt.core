@@ -979,7 +979,8 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 		try {
 			collector.addChange(cu, delta);
 		} catch (JavaModelException e) {
-			e.printStackTrace();
+			if (DEBUG)
+				e.printStackTrace();
 		}
 		if (cu.isWorkingCopy()) {
 			// changes to working copies are batched
@@ -1445,7 +1446,8 @@ boolean subtypesIncludeSupertypeOf(IType type) {
 	try {
 		interfaceNames = type.getSuperInterfaceNames();
 	} catch (JavaModelException e) {
-		e.printStackTrace();
+		if (DEBUG)
+			e.printStackTrace();
 		return false;
 	}
 	for (int i = 0, length = interfaceNames.length; i < length; i++) {
