@@ -701,9 +701,8 @@ public class JavaModelManager implements ISaveParticipant {
 					}
 					
 					// remove working copy from the shared working copy cache if needed
-					// TODO backward compatibility for #getSharedWorkingCopies support
 					// In order to be shared, working copies have to denote the same compilation unit 
-					// AND use the same buffer factory.
+					// AND use the same owner.
 					// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 					Map perFactoryWorkingCopies = (Map) this.sharedWorkingCopies.get(workingCopy.owner);
 					if (perFactoryWorkingCopies != null){

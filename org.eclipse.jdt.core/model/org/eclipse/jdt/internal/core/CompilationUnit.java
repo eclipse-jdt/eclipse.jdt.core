@@ -517,7 +517,7 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
 
 	// In order to be shared, working copies have to denote the same compilation unit 
-	// AND use the same buffer factory.
+	// AND use the same owner.
 	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 	Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
 	
@@ -846,19 +846,62 @@ public IResource getUnderlyingResource() throws JavaModelException {
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	
-	if (isWorkingCopy()) return this;
-	
 	// if factory is null, default factory must be used
 	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
-
+	
+	return getWorkingCopy(new BufferFactoryWrapper(factory), problemRequestor, pm);
+}
+/**
+ * @see IWorkingCopy#getWorkingCopy()
+ * @deprecated
+ */
+public IJavaElement getWorkingCopy() throws JavaModelException {
+	return getWorkingCopy(null);
+}
+/**
+ * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
+ */
+public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
+	if (isWorkingCopy()) return this;
+	
+	CompilationUnit workingCopy = 
+		new CompilationUnit(
+			(IPackageFragment)getParent(), 
+			getElementName(), 
+			new DefaultWorkingCopyOwner());
+	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null, null);
+	runOperation(op, monitor);
+	return workingCopy;
+}
+/**
+ * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
+ * @deprecated
+ */
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+	if (isWorkingCopy()) return this;
+	
+	CompilationUnit workingCopy = 
+		new CompilationUnit(
+			(IPackageFragment)getParent(), 
+			getElementName(), 
+			new BufferFactoryWrapper(factory));
+	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null, problemRequestor);
+	runOperation(op, monitor);
+	return workingCopy;
+}
+/**
+ * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+ */
+public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
+	if (isWorkingCopy()) return this;
+	
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	
 	// In order to be shared, working copies have to denote the same compilation unit 
-	// AND use the same buffer factory.
+	// AND use the same owner.
 	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
 	
-	WorkingCopyOwner workingCopyOwner = new BufferFactoryWrapper(factory);
 	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(workingCopyOwner);
 	if (perOwnerWorkingCopies == null){
 		perOwnerWorkingCopies = new HashMap();
@@ -866,7 +909,8 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	}
 	CompilationUnit workingCopy = (CompilationUnit)perOwnerWorkingCopies.get(this);
 	if (workingCopy != null) {
-		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*not used since don't create*/);
+		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
+			manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*not used since don't create*/);
 		if (perWorkingCopyInfo != null) {
 
 			if (SHARED_WC_VERBOSE) {
@@ -878,41 +922,6 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	} 
 	workingCopy = new CompilationUnit((IPackageFragment)getParent(), getElementName(), workingCopyOwner);
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, perOwnerWorkingCopies, problemRequestor);
-	runOperation(op, pm);
-	return workingCopy;
-}
-/**
- * @see IWorkingCopy#getWorkingCopy()
- * @deprecated
- */
-public IJavaElement getWorkingCopy() throws JavaModelException {
-	return getWorkingCopy(new DefaultWorkingCopyOwner(), null, null);
-}
-/**
- * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
- */
-public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
-	return getWorkingCopy(new DefaultWorkingCopyOwner(), null, monitor);
-}
-/**
- * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
- * @deprecated
- */
-public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
-	return getWorkingCopy(new BufferFactoryWrapper(factory), problemRequestor, monitor);
-}
-/**
- * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
- */
-public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
-	if (isWorkingCopy()) return this;
-	
-	CompilationUnit workingCopy = 
-		new CompilationUnit(
-			(IPackageFragment)getParent(), 
-			getElementName(), 
-			workingCopyOwner);
-	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null, problemRequestor);
 	runOperation(op, monitor);
 	return workingCopy;
 }
