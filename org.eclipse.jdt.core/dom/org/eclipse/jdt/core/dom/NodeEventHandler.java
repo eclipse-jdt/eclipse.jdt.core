@@ -31,6 +31,7 @@ class NodeEventHandler {
 	
 	/**
 	 * Reports that the given node is about to lose a child.
+	 * The default implementation does nothing.
 	 * 
 	 * @param node the node about to be modified
 	 * @param child the node about to be removed
@@ -43,7 +44,41 @@ class NodeEventHandler {
 	}
 	
 	/**
+	 * Reports that the given node is about to have a child replaced.
+	 * The first half of an event pair.
+	 * The default implementation does nothing.
+	 * 
+	 * @param node the node about to be modified
+	 * @param child the node about to be replaced
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @see #preReplaceChildEvent(ASTNode, ASTNode, ASTNode, StructuralPropertyDescriptor)
+	 * @since 3.0
+	 */
+	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		// do nothing
+		// System.out.println("RP1 " + property); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Reports that the given node has had its child replaced. The second half
+	 * of an event pair. The default implementation does nothing.
+	 * 
+	 * @param node the node that was modified
+	 * @param child the node that was replaced
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @see #postReplaceChildEvent(ASTNode, ASTNode, ASTNode, StructuralPropertyDescriptor)
+	 * @since 3.0
+	 */
+	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		// do nothing
+		// System.out.println("RP2 " + property); //$NON-NLS-1$
+	}
+	
+	/**
 	 * Reports that the given node has just gained a child.
+	 * The default implementation does nothing.
 	 * 
 	 * @param node the node that was modified
 	 * @param child the node that was added as a child
@@ -57,7 +92,7 @@ class NodeEventHandler {
 	
 	/**
 	 * Reports that the given node has just changed the value of a
-	 * non-child property.
+	 * non-child property. The default implementation does nothing.
 	 * 
 	 * @param node the node that was modified
 	 * @param property the property descriptor

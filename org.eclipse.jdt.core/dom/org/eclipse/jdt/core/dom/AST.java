@@ -381,6 +381,56 @@ public final class AST {
 	}
 	
 	/**
+	 * Reports that the given node is about have a child replaced.
+	 * 
+	 * @param node the node about to be modified
+	 * @param child the child node about to be removed
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preReplaceChildEvent(node, child, newChild, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node has just had a child replaced.
+	 * 
+	 * @param node the node modified
+	 * @param child the child removed
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postReplaceChildEvent(node, child, newChild, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
 	 * Reports that the given node has just gained a child.
 	 * 
 	 * @param node the node that was modified
