@@ -1,0 +1,14 @@
+bin/
+*~
+*.rej
+*.bak
+*.patch
+javacore.*
+heapdump.*
+core.*
+Snap.*
+target/
+bin-resources/
+binext/
+binprocessors/
+antbin/

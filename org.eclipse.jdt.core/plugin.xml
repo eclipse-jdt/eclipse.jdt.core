@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<plugin
+    name = "Java Development Tools Core"
+    id = "org.eclipse.jdt.core"
+    version = "0.9"
+    vendor-name = "Object Technology International, Inc."
+    class="org.eclipse.jdt.core.JavaCore">
+
+
+<!-- =========================================================================== -->
+<!-- The Java Development Tools Core Plugin                                                        -->
+<!-- {purpose goes here}                                                         -->
+<!-- =========================================================================== -->
+
+<requires>
+    <import plugin="org.eclipse.core.resources"/>
+    <import plugin="org.apache.xerces"/>
+</requires>
+	
+<runtime>
+  <library name="jdtcore.jar">  
+     <export name = "*"/>
+  </library> 
+</runtime>
+
+<extension 
+	point="org.eclipse.core.resources.natures" 
+	id="javanature"
+	name="Java Nature">
+	<runtime>
+		<run class="org.eclipse.jdt.internal.core.JavaProject">
+		</run>
+	</runtime>
+</extension>
+
+<extension 
+	point="org.eclipse.core.resources.builders" 
+	id="javabuilder"
+	name="Java Builder">
+	<builder>
+		<run class="org.eclipse.jdt.internal.core.builder.impl.JavaBuilder">
+			<!-- Debug Information. Local variable attribute. Generate|Do not generate -->
+			<parameter name="compilerOption1" value="0"/>
+
+			<!-- Debug Information. Line number attribute. Generate|Do not generate -->
+			<parameter name="compilerOption2" value="0"/>
+
+			<!-- Debug Information. Source file attribute. Generate|Do not generate -->
+			<parameter name="compilerOption3" value="0"/>
+
+			<!-- Code Generation. Preserve unused locals. Preserve|Optimize out -->
+			<parameter name="compilerOption4" value="0"/>
+
+			<!-- Optional Warnings. Unused local variable. Warn|Ignore -->
+			<parameter name="compilerOption11" value="1"/>
+
+			<!-- Optional Warnings. Unused parameter. Warn|Ignore -->
+			<parameter name="compilerOption12" value="1"/>
+		</run>
+	</builder>
+</extension>
+
+<extension id="problem" point="org.eclipse.core.resources.markers" name="Java Problem">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+	<attribute name="id"/>
+	<attribute name="flags"/>
+</extension>   
+<extension id="transient_problem" point="org.eclipse.core.resources.markers" name="Transient Java Problem">
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="false"/>
+	<attribute name="id"/>
+	<attribute name="flags"/>
+	<attribute name="cycleDetected"/>	
+</extension>
+    
+</plugin>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="Eclipse Java Evaluation"/>
+    <classpathentry kind="src" path="Eclipse Java Compiler"/>
+    <classpathentry kind="src" path="Eclipse Java Code Assist"/>
+    <classpathentry kind="src" path="Eclipse Java Model"/>
+    <classpathentry kind="src" path="Eclipse Java Formatter"/>
+    <classpathentry kind="src" path="Eclipse Java Core Search"/>
+    <classpathentry kind="src" path="Eclipse Java Batch Compiler"/>
+    <classpathentry kind="lib" path="/org.eclipse.core.resources/resources.jar"/>
+    <classpathentry kind="lib" path="/org.apache.xerces/xerces.jar"/>
+    <classpathentry kind="lib" path="/org.eclipse.core.runtime/runtime.jar"/>
+    <classpathentry kind="var" path="JRE_LIB"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-description>
+	<nature id="org.eclipse.jdt.core.javanature"/>
+	<reference project-name="org.apache.xerces"/>
+	<reference project-name="org.eclipse.core.resources"/>
+	<builder name="org.eclipse.jdt.core.javabuilder">
+	</builder>
+</project-description>
