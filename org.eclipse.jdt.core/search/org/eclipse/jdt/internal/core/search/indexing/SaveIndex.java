@@ -21,31 +21,27 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  * Save the index of a project.
  */
 public class SaveIndex extends IndexRequest {
-
+	IPath indexPath;
 	IndexManager manager;
-	IPath path;
-	
-	public SaveIndex(IPath projectPath, IndexManager manager) {
-		this.manager = manager;
-		this.path = projectPath;
-	}
-	
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.path.segment(0));
-	}
 
+	public SaveIndex(IPath indexPath, IndexManager manager) {
+		this.indexPath = indexPath;
+		this.manager = manager;
+	}
+	public boolean belongsTo(String jobFamily) {
+		return jobFamily.equals(this.indexPath.segment(0));
+	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 		
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
 		
 		try {
-			IIndex index = this.manager.getIndex(this.path, true /*reuse index file*/, false /*don't create if none*/);
 			/* ensure no concurrent write access to index */
-			if (index == null)
-				return COMPLETE;
+			IIndex index = this.manager.getIndex(this.indexPath, true /*reuse index file*/, false /*don't create if none*/);
+			if (index == null) return true;
 			ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
-			if (monitor == null)
-				return COMPLETE; // index got deleted since acquired
+			if (monitor == null) return true; // index got deleted since acquired
+
 			try {
 				monitor.enterWrite(); // ask permission to write
 				index.save();
@@ -54,15 +50,14 @@ public class SaveIndex extends IndexRequest {
 			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to save index " + this.path + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				JobManager.verbose("-> failed to save index " + this.indexPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			return FAILED;
+			return false;
 		}
-		return COMPLETE;
+		return true;
 	}
 	public String toString() {
-		return "saving index for " + this.path; //$NON-NLS-1$
-	}	
-
+		return "saving index for " + this.indexPath; //$NON-NLS-1$
+	}
 }

@@ -14,75 +14,29 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
-class AddCompilationUnitToIndex extends IndexRequest {
-	IFile resource;
-	IndexManager manager;
-	IPath indexedContainer;
+class AddCompilationUnitToIndex extends AddFileToIndex {
 	char[] contents;
-	public AddCompilationUnitToIndex(
-		IFile resource,
-		IndexManager manager,
-		IPath indexedContainer) {
-		this.resource = resource;
-		this.manager = manager;
-		this.indexedContainer = indexedContainer;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexedContainer.segment(0));
-	}
-	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
-		try {
-			IIndex index = manager.getIndex(this.indexedContainer, true /*reuse index file*/, true /*create if none*/);
-
-			/* ensure no concurrent write access to index */
-			if (index == null)
-				return COMPLETE;
-			ReadWriteMonitor monitor = manager.getMonitorFor(index);
-			if (monitor == null)
-				return COMPLETE; // index got deleted since acquired
+	public AddCompilationUnitToIndex(IFile resource, IPath indexedContainer, IndexManager manager) {
+		super(resource, indexedContainer, manager);
+	}
+	protected boolean indexDocument(IIndex index) throws IOException {
+		if (!initializeContents()) return false;
+		index.add(new IFileDocument(resource, this.contents), new SourceIndexer(resource));
+		return true;
+	}
+	public boolean initializeContents() {
+		if (this.contents == null) {
 			try {
-				monitor.enterWrite(); // ask permission to write
-				char[] contents = this.getContents();
-				if (contents == null)
-					return FAILED;
-				index.add(new IFileDocument(resource, contents), new SourceIndexer(resource));
-			} finally {
-				monitor.exitWrite(); // free write lock
+				IPath location = resource.getLocation();
+				if (location != null)
+					this.contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
+			} catch (IOException e) {
 			}
-		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to index " + this.resource + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
-			return FAILED;
 		}
-		return COMPLETE;
-	}
-	private char[] getContents() {
-		if (this.contents == null)
-			this.initializeContents();
-		return contents;
-	}
-	public void initializeContents() {
-
-		try {
-			IPath location = resource.getLocation();
-			if (location != null) {
-				this.contents =
-					org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(
-						location.toFile(), null);
-			}
-		} catch (IOException e) {
-		}
-	}
-	public String toString() {
-		return "indexing " + resource.getFullPath(); //$NON-NLS-1$
+		return this.contents != null;
 	}
 }

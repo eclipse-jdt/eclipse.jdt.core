@@ -87,9 +87,10 @@ public void activateProcessing() {
  */
 public void addSource(IFile resource, IPath indexedContainer){
 	if (JavaCore.getPlugin() == null) return;	
-	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this, indexedContainer);
+	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, indexedContainer, this);
 	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
-		job.initializeContents();
+		// reduces the chance that the file is open later on, preventing it from being deleted
+		if (!job.initializeContents()) return;
 	}
 	request(job);
 }
@@ -99,9 +100,10 @@ public void addSource(IFile resource, IPath indexedContainer){
  */
 public void addBinary(IFile resource, IPath indexedContainer){
 	if (JavaCore.getPlugin() == null) return;	
-	AddClassFileToIndex job = new AddClassFileToIndex(resource, this, indexedContainer);
+	AddClassFileToIndex job = new AddClassFileToIndex(resource, indexedContainer, this);
 	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
-		job.initializeContents();
+		// reduces the chance that the file is open later on, preventing it from being deleted
+		if (!job.initializeContents()) return;
 	}
 	request(job);
 }

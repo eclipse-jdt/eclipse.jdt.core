@@ -15,37 +15,32 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
-class RemoveFromIndex implements IJob {
+class RemoveFromIndex extends IndexRequest {
 	String resourceName;
-	IPath indexedContainer;
+	IPath indexPath;
 	IndexManager manager;
-	public RemoveFromIndex(
-		String resourceName,
-		IPath indexedContainer,
-		IndexManager manager) {
+
+	public RemoveFromIndex(String resourceName, IPath indexPath, IndexManager manager) {
 		this.resourceName = resourceName;
-		this.indexedContainer = indexedContainer;
+		this.indexPath = indexPath;
 		this.manager = manager;
 	}
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(indexedContainer.segment(0));
+		return jobFamily.equals(this.indexPath.segment(0));
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
-		
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
-		
-		try {
-			IIndex index = manager.getIndex(this.indexedContainer, true /*reuse index file*/, true /*create if none*/);
-			if (index == null)
-				return COMPLETE;
 
+		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+
+		try {
 			/* ensure no concurrent write access to index */
+			IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
+			if (index == null) return true;
 			ReadWriteMonitor monitor = manager.getMonitorFor(index);
-			if (monitor == null)
-				return COMPLETE; // index got deleted since acquired
+			if (monitor == null) return true; // index got deleted since acquired
+
 			try {
 				monitor.enterWrite(); // ask permission to write
 				index.remove(resourceName);
@@ -57,17 +52,11 @@ class RemoveFromIndex implements IJob {
 				JobManager.verbose("-> failed to remove " + this.resourceName + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			return FAILED;
+			return false;
 		}
-		return COMPLETE;
+		return true;
 	}
 	public String toString() {
-		return "removing from index " + resourceName; //$NON-NLS-1$
+		return "removing " + this.resourceName + " from index " + this.indexPath; //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	/*
-	 * @see IJob#cancel()
-	 */
-	public void cancel() {
-	}
-
 }

@@ -10,12 +10,13 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import java.io.IOException;
+
+import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public abstract class IndexRequest implements IJob {
-	
-
-	
 	protected boolean isCancelled = false;
 
 	/*
@@ -24,5 +25,18 @@ public abstract class IndexRequest implements IJob {
 	public void cancel() {
 		this.isCancelled = true;
 	}
-
+	protected void saveIfNecessary(IIndex index, ReadWriteMonitor monitor) throws IOException {
+		/* if index has changed, commit these before querying */
+		if (index.hasChanged()) {
+			try {
+				monitor.exitRead(); // free read lock
+				monitor.enterWrite(); // ask permission to write
+				if (IndexManager.VERBOSE)
+					JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
+				index.save();
+			} finally {
+				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
+			}
+		}
+	}
 }

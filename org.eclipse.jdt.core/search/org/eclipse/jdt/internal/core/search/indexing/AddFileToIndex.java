@@ -12,19 +12,19 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
-class RemoveFolderFromIndex extends IndexRequest {
-	String folderPath;
+abstract class AddFileToIndex extends IndexRequest {
+	IFile resource;
 	IPath indexPath;
 	IndexManager manager;
 
-	public RemoveFolderFromIndex(String folderPath, IPath indexPath, IndexManager manager) {
-		this.folderPath = folderPath;
+	public AddFileToIndex(IFile resource, IPath indexPath, IndexManager manager) {
+		this.resource = resource;
 		this.indexPath = indexPath;
 		this.manager = manager;
 	}
@@ -43,24 +43,22 @@ class RemoveFolderFromIndex extends IndexRequest {
 			if (monitor == null) return true; // index got deleted since acquired
 
 			try {
-				monitor.enterRead(); // ask permission to read
-				IQueryResult[] results = index.queryInDocumentNames(this.folderPath);
-				// all file names belonging to the folder or its subfolders
-				for (int i = 0, max = results == null ? 0 : results.length; i < max; i++)
-					manager.remove(results[i].getPath(), this.indexPath); // write lock will be acquired by the remove operation
+				monitor.enterWrite(); // ask permission to write
+				if (!indexDocument(index)) return false;
 			} finally {
-				monitor.exitRead(); // free read lock
+				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to remove " + this.folderPath + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				JobManager.verbose("-> failed to index " + this.resource + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			return false;
 		}
 		return true;
 	}
+	protected abstract boolean indexDocument(IIndex index) throws IOException;
 	public String toString() {
-		return "removing " + this.folderPath + " from index " + this.indexPath; //$NON-NLS-1$ //$NON-NLS-2$
+		return "indexing " + this.resource.getFullPath(); //$NON-NLS-1$
 	}
 }
