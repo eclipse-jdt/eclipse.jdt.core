@@ -497,22 +497,18 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
 			"    Code attribute:\n" + 
-			"       0  bipush 6\n" + 
-			"       2  istore_1\n" + 
-			"       3  iload_1\n" + 
-			"       4  bipush 6\n" + 
-			"       6  if_icmpne 9\n" + 
-			"       9  return\n" + 
+			"      0  bipush 6\n" + 
+			"      2  istore_1\n" + 
+			"      3  return\n" + 
 			"\n" + 
 			"    Line number attribute:\n" + 
 			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"      [pc: 9, line: 8]\n" + 
+			"      [pc: 3, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 10] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 10] local: i index: 1 type: int\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 4] local: i index: 1 type: int\n" + 
 			"  \n" + 
 			"}";
 		checkClassFile("A", source, expectedOutput);
