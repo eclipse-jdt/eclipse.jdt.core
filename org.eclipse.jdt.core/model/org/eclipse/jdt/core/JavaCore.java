@@ -993,9 +993,31 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (count > 1) {
 			resolvedPath = resolvedPath.append(variablePath.removeFirstSegments(1));
 		}
-		return resolvedPath;
+		return resolvedPath; 
 	}
 
+	/**
+	 * Answers the shared working copies currently registered for this buffer factory. 
+	 * Working copies can be shared by several clients using the same buffer factory,see 
+	 * <code>IWorkingCopy##getSharedWorkingCopy</code>.
+	 * 
+	 * @return the list of shared working copies for a given buffer factory
+	 * @see IWorkingCopy
+	 * @since 2.0
+	 */
+	public IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
+		// if factory is null, default factory must be used
+		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
+		Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
+		
+		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(factory);
+		if (perFactoryWorkingCopies == null) return JavaModelManager.NoWorkingCopy;
+		Collection copies = perFactoryWorkingCopies.values();
+		IWorkingCopy[] result = new IWorkingCopy[copies.size()];
+		copies.toArray(result);
+		return result;
+	}
+	
 	/**
 	 * Initializes the default preferences settings for this plug-in.
 	 */

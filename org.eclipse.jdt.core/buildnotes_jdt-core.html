@@ -11,6 +11,26 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
+Eclipse SDK Build 200205? - ?th May 2002 
+<br>Project org.eclipse.jdt.core v_245
+<h2>
+What's new in this drop</h2>
+<ul>
+	<li> Added <code>JavaCore#getSharedWorkingCopies(IBufferFactory)</code> allowing to retrieve all registered working
+		copies for a given buffer factory. </li>
+	<li> JavaBuilder no longer build projects for which prerequisite projects aborted the build process. This considerably
+		reduces the number of secondary errors when dealing with workspace setup problems.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15175">15175</a>
+Need API to retrieve all shared working copies for a buffer factory
+
+<h3>Problem Reports Closed</h3>
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
 Eclipse SDK Build 20020506 - 6th May 2002 -  M6 stream / MILESTONE 5 patch''
 <br>Project org.eclipse.jdt.core v_244b
 <h2>

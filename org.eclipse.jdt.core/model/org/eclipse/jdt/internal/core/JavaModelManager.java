@@ -87,6 +87,8 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	private static final String SHARED_WC_DEBUG = JavaCore.PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
+	public final static IWorkingCopy[] NoWorkingCopy = new IWorkingCopy[0];
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -401,7 +403,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * A map from ICompilationUnit to IWorkingCopy
 	 * of the shared working copies.
 	 */
-	protected Map sharedWorkingCopies = new HashMap();
+	public Map sharedWorkingCopies = new HashMap();
 	
 	/**
 	 * A weak set of the known scopes.
