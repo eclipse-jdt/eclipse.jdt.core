@@ -77,17 +77,17 @@ public void accept(ICompilationUnit sourceUnit) {
 			.toString());
 }
 /**
- * Add an additional source type
+ * Add additional source types
  */
 
-public void accept(ISourceType sourceType, PackageBinding packageBinding) {
-	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1);
+public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
 	CompilationUnitDeclaration unit =
-		SourceTypeConverter.buildCompilationUnit(sourceType, false, true, lookupEnvironment.problemReporter, result);
+		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, lookupEnvironment.problemReporter, result);
 
 	if (unit != null) {
 		lookupEnvironment.buildTypeBindings(unit);
-		rememberWithMemberTypes(sourceType, unit.types[0].binding);
+		rememberWithMemberTypes(sourceTypes[0], unit.types[0].binding);
 
 		lookupEnvironment.completeTypeBindings(unit, false);
 	}
@@ -242,7 +242,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
 				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength);
-				units[++count] = SourceTypeConverter.buildCompilationUnit(topLevelType, false, true, lookupEnvironment.problemReporter, result);
+				units[++count] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 
 				if (units[count] == null) {
 					count--;
@@ -299,7 +299,7 @@ public void resolve(IGenericType suppliedType) {
 				topLevelType = topLevelType.getEnclosingType();
 			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1);
 			CompilationUnitDeclaration unit =
-				SourceTypeConverter.buildCompilationUnit(topLevelType, false, true, lookupEnvironment.problemReporter, result);
+				SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 
 			if (unit != null) {
 				lookupEnvironment.buildTypeBindings(unit);

@@ -254,7 +254,7 @@ public ICompilationUnit getCompilationUnit() {
  *
  * @exception JavaModelException if the element is not present or not accessible
  */
-protected JavaElementInfo getElementInfo() throws JavaModelException {
+public JavaElementInfo getElementInfo() throws JavaModelException {
 	synchronized(fgJavaModelManager){
 		Object info = fgJavaModelManager.getInfo(this);
 		if (info == null) {

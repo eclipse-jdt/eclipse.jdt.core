@@ -366,11 +366,12 @@ public void selectType(ISourceType sourceType, char[] typeName) {
 		// compute parse tree for this most outer type
 		CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1);
 		CompilationUnitDeclaration parsedUnit = 
-			SourceTypeConverter.buildCompilationUnit(
-				outerType,
+			SourceTypeConverter.buildCompilationUnit(  
+				new ISourceType[]{outerType}, 
 				false, // don't need field and methods
+				true, // by default get member types
 				this.parser.problemReporter(),
-				result);
+				result); 
 
 		if (parsedUnit != null && parsedUnit.types != null) {
 			// find the type declaration that corresponds to the original source type

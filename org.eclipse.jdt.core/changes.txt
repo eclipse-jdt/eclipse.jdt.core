@@ -1,15 +1,20 @@
-What's new in this drop
+STREAM: 2.0
+
+What's new in this drop (since 0.9)
 ==================================================================================
-  *   JCK1.3a compliant. 
-  *  All messages have been externalized. 
-  *  Added 2 new APIs on JavaConventions: 
+  * JCK1.3a compliant. 
+  * All messages have been externalized. 
+  * Added 2 new APIs on JavaConventions: 
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
+ * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
 
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
-1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
+1GCZ9VM: ITPJCORE:WIN2000 - DCR - Compiler - Batch compiler should be API
+1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return type is secondary one
+1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
 1GH2R62: ITPJCORE:WIN2000 - Typo in progress message
 1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
 1GDFJK0: IVJIDT:WIN2000 - Using 'synchronized' produces invalid exception table values in class, causes "Illegal exception table range" exception, VAJ 3.5+ 
@@ -28,6 +33,8 @@ PRs Fixed in this Release (since 1.0NL stream)
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
+1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
+1GH3218: ITPJUI:WIN - mnuemonic problems
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
 1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
 1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
@@ -48,7 +55,7 @@ PRs Fixed in 1.0NL stream (since 0.9)
 1GF9Y01: ITPCORE:WIN2000 - NPE when deleting everything in a java file and saving it. 
 1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatu
 1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
-1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP 
+1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP
 
 
 PRs Closed in this Release
@@ -166,3 +173,7 @@ PRs Closed in this Release
 1FRKC3T: ITPJCORE:ALL - JM - Incremental Reconciler 
 1FRK6S7: ITPJCORE:ALL - JM - hook for builder to get/put binary types 
 1FPCMAN: ITPJCORE:ALL - JM - Validating Save Operation 
+1GFBCOU: ITPJCORE:WINNT - CodeCompletion - Code assist fails in a method with an incorrect return type
+1GF1VHY: ITPJCORE:ALL - JM - validateFieldName/PackageName should warn if uppercase
+1GEMNE8: ITPJCORE:WIN2000 - JM - JDT DeltaProcessor is very eager
+1FVXJPZ: ITPJCORE:WIN2000 - minor- review error messages
