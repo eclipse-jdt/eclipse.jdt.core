@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * This class provides static methods and constants only; it is not intended to be
  * instantiated or subclassed by clients.
  * </p>
+ * 
+ * @since 2.1
  */
 public final class NamingConventions {
 	private static final char[] GETTER_BOOL_NAME = "is".toCharArray(); //$NON-NLS-1$
@@ -321,6 +323,11 @@ public final class NamingConventions {
 				int length = tempName.length;
 				if (tempName[length-1] == 's'){
 					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
+					tempName[length] = 'e';
+					tempName[length+1] = 's';
+				} else if(tempName[length-1] == 'y') {
+					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
+					tempName[length-1] = 'i';
 					tempName[length] = 'e';
 					tempName[length+1] = 's';
 				} else {
