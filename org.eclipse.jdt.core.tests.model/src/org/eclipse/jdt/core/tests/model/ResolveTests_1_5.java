@@ -272,4 +272,22 @@ public void test0014() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71852
+ */
+public void test0015() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0015", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in foo() [in Test [in Test.java [in test0015 [in src2 [in Resolve]]]]]]",
+		elements
+	);
+}
 }

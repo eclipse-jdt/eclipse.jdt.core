@@ -252,6 +252,30 @@ public class HandleFactory {
 				}
 				// don't pop local/anonymous types (used to count how many occurrences are in the initializer)
 			}
+			
+			public boolean visit(EnumDeclaration node, BlockScope scope) {
+			    push(node);
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(EnumDeclaration node, BlockScope scope) {
+				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
+				    pop(node);
+				}
+				// don't pop local/anonymous types (used to count how many occurrences are in the method)
+			}
+			
+			public boolean visit(EnumDeclaration node, ClassScope scope) {
+			    push(node);
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(EnumDeclaration node, ClassScope scope) {
+				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
+				    pop(node);
+				}
+				// don't pop local/anonymous types (used to count how many occurrences are in the initializer)
+			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
 			    push(node);
@@ -268,6 +292,24 @@ public class HandleFactory {
 				return true;
 			}
 			public void endVisit(TypeDeclaration node, CompilationUnitScope scope) {
+				pop(node);
+			}
+			
+			public boolean visit(EnumDeclaration node, CompilationUnitScope scope) {
+			    push(node);
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(EnumDeclaration node, CompilationUnitScope scope) {
+				pop(node);
+			}
+			
+			public boolean visit(EnumConstant node, ClassScope scope) {
+			    push(node);
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(EnumConstant node, ClassScope scope) {
 				pop(node);
 			}
 
