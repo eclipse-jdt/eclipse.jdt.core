@@ -75,7 +75,7 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) thr
 
 	// error detection
 	IProblemRequestor problemRequestor = this.getProblemRequestor();
-	if (problemRequestor != null){
+	if (problemRequestor != null && problemRequestor.isActive()){
 		problemRequestor.beginReporting();
 		CompilationUnitProblemFinder.resolve(this, problemRequestor);
 		problemRequestor.endReporting();

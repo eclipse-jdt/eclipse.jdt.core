@@ -25,7 +25,6 @@ public interface IProblemRequestor {
 	/**
 	 * Notification of a Java problem.
 	 * 
-	 * @return void - Nothing is answered back to the operation which discovered the problem.
 	 * @param problem IProblem - The discovered Java problem.
 	 */	
 	void acceptProblem(IProblem problem);
@@ -43,5 +42,14 @@ public interface IProblemRequestor {
 	 */
 	void endReporting();
 
-
+	/**
+	 * Predicate allowing the problem requestor to signal whether or not it is currently
+	 * interested by problem reports. When answering <code>false</false>, problem will
+	 * not be discovered any more until the next iteration.
+	 * 
+	 * This  predicate will be invoked once prior to each problem detection iteration.
+	 * 
+	 * @return boolean - indicates whether the requestor is currently interested by problems.
+	 */
+	boolean isActive();
 }
