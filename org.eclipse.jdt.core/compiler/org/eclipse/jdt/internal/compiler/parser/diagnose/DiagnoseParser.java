@@ -2175,12 +2175,12 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			res.append('\'');
 			res.append(',');
 		}
-		res.append("\nbuffer:kind= {");//$NON-NLS-1
+		res.append("\nbuffer:kind= {");//$NON-NLS-1$
 		for (int i = 0; i < buffer.length; i++) {
 			res.append(lexStream.kind(buffer[i]));
 			res.append(',');
 		}
-		res.append("}\n");//$NON-NLS-1
+		res.append("}\n");//$NON-NLS-1$
 		
 		String source = new String(parser.scanner.source);
 		if(currentToken <= 0) {
