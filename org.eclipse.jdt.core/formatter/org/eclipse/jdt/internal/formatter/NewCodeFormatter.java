@@ -88,8 +88,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	
 	private static CompilationUnitDeclaration parse(char[] source, Map settings) {
 		
-		if (source == null) throw new IllegalArgumentException();
-
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		Parser parser =
 			new Parser(
@@ -117,8 +118,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		parser.scanner.setSource(source);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
-			for (int i = types.length; --i >= 0;)
+			for (int i = types.length; --i >= 0;) {
 				types[i].parseMethod(parser, compilationUnitDeclaration);
+			}
 		}
 		return compilationUnitDeclaration;
 	}
@@ -294,7 +296,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			if(optionID.equals(JavaCore.FORMATTER_LINE_SPLIT)){
 				try {
 					int val = Integer.parseInt(optionValue);
-					if (val >= 0) formattingPreferences.page_width = val;
+					if (val >= 0) {
+						formattingPreferences.page_width = val;
+					}
 				} catch(NumberFormatException e){
 				}
 			}
@@ -317,7 +321,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			if(optionID.equals(JavaCore.FORMATTER_TAB_SIZE)){
 				try {
 					int val = Integer.parseInt(optionValue);
-					if (val > 0) formattingPreferences.tab_size = val;
+					if (val > 0) {
+						formattingPreferences.tab_size = val;
+					}
 				} catch(NumberFormatException e){
 				}
 			}
@@ -346,8 +352,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 
 		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
 
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(binaryExpression, numberOfParens);
-			
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(binaryExpression, numberOfParens);
+		}	
 		BinaryExpressionFragmentBuilder builder = buildFragments(binaryExpression, scope);
 		final int fragmentsSize = builder.size();
 		
@@ -383,7 +390,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			}
 			binaryExpression.right.traverse(this, scope);
 		}	
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(binaryExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(binaryExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -430,15 +439,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	private void format(FieldDeclaration fieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
 		
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) this.scribe.printNewLines(newLineBeforeChunk);
-
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
 		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
-		if (newLinesBeforeField > 0) this.scribe.printNewLines(newLinesBeforeField);
-
+		if (newLinesBeforeField > 0) {
+			this.scribe.printNewLines(newLinesBeforeField);
+		}
 		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
 
-		if (fieldDeclaration.modifiers != NO_MODIFIERS) this.scribe.printModifiers();
-
+		if (fieldDeclaration.modifiers != NO_MODIFIERS) {
+			this.scribe.printModifiers();
+		}
 		/*
 		 * Field type
 		 */
@@ -495,15 +507,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	private void format(MultiFieldDeclaration multiFieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
 
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) this.scribe.printNewLines(newLineBeforeChunk);
-
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
 		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
-		if (newLinesBeforeField > 0) this.scribe.printNewLines(newLinesBeforeField);
-
+		if (newLinesBeforeField > 0) {
+			this.scribe.printNewLines(newLinesBeforeField);
+		}
 		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
 
-		if (multiFieldDeclaration.declarations[0].modifiers != NO_MODIFIERS) this.scribe.printModifiers();
-
+		if (multiFieldDeclaration.declarations[0].modifiers != NO_MODIFIERS) {
+			this.scribe.printModifiers();
+		}
 		this.scribe.alignFragment(fieldAlignment, 0);
 
 		multiFieldDeclaration.declarations[0].type.traverse(this, scope);
@@ -655,8 +670,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	
 	private void format(TypeDeclaration typeDeclaration){
 
-		if (typeDeclaration.modifiers != NO_MODIFIERS) this.scribe.printModifiers();
-		
+		if (typeDeclaration.modifiers != NO_MODIFIERS) {
+			this.scribe.printModifiers();
+		}
 		/*
 		 * Type name
 		 */
@@ -788,11 +804,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			boolean ok = false;
 			do {
 				try {
-					if (spaceBeforeFirstArgument) this.scribe.space();
+					if (spaceBeforeFirstArgument) {
+						this.scribe.space();
+					}
 					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, spaceBeforeComma);
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, spaceBeforeComma);
+						}
 						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && spaceAfterComma) this.scribe.space();
+						if (i > 0 && spaceAfterComma) {
+							this.scribe.space();
+						}
 						arguments[i].traverse(this, methodDeclaration.scope);
 					}
 					ok = true;
@@ -814,11 +836,13 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		boolean isChunkStart) {
 
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) this.scribe.printNewLines(newLineBeforeChunk);
-
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
 		final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
-		if (newLinesBeforeMember > 0) this.scribe.printNewLines(newLinesBeforeMember);
-
+		if (newLinesBeforeMember > 0) {
+			this.scribe.printNewLines(newLinesBeforeMember);
+		}
 		memberTypeDeclaration.traverse(this, scope);
 	}
 
@@ -828,11 +852,13 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		boolean isChunkStart) {
 
 		final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) this.scribe.printNewLines(newLineBeforeChunk);
-
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
 		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
-		if (newLinesBeforeMethod > 0) this.scribe.printNewLines(newLinesBeforeMethod);
-
+		if (newLinesBeforeMethod > 0) {
+			this.scribe.printNewLines(newLinesBeforeMethod);
+		}
 		methodDeclaration.traverse(this, scope);
 	}
 
@@ -860,11 +886,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) this.scribe.space();
+					if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
+					}
 					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+						}
 						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) this.scribe.space();
+						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+							this.scribe.space();
+						}
 						arguments[i].traverse(this, scope);
 					}
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
@@ -1173,8 +1205,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		// 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 		final int numberOfParens = (allocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(allocationExpression, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(allocationExpression, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamenew);
 		this.scribe.space();
 		allocationExpression.type.traverse(this, scope);
@@ -1193,11 +1226,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) this.scribe.space();
+					if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
+					}
 					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+						}
 						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) this.scribe.space();
+						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) {
+							this.scribe.space();
+						}
 						arguments[i].traverse(this, scope);
 					}
 					ok = true;
@@ -1211,7 +1250,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(allocationExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(allocationExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1298,8 +1339,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 			final int numberOfParens = (arrayAllocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-			if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayAllocationExpression, numberOfParens);
-
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(arrayAllocationExpression, numberOfParens);
+			}
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamenew);
 			this.scribe.space();
 			arrayAllocationExpression.type.traverse(this, scope);
@@ -1318,7 +1360,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 				initializer.traverse(this, scope);
 			}
 
-			if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayAllocationExpression, numberOfParens);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(arrayAllocationExpression, numberOfParens);
+			}
 			return false;
 	}
 
@@ -1328,8 +1372,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
 
 		final int numberOfParens = (arrayInitializer.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE);
 		
 		final Expression[] expressions = arrayInitializer.expressions;
@@ -1385,7 +1430,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer);
 		}
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayInitializer, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(arrayInitializer, numberOfParens);
+		}
 		return false;
 	}
 	
@@ -1397,8 +1444,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 			final int numberOfParens = (arrayQualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-			if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
-
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
@@ -1407,7 +1455,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
 				}
 			}
-			if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			return false;
 	}
 
@@ -1419,8 +1469,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		ClassScope scope) {
 
 			final int numberOfParens = (arrayQualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-			if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
-
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
@@ -1429,7 +1480,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
 				}
 			}
-			if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			return false;
 	}
 
@@ -1440,14 +1493,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
 
 		final int numberOfParens = (arrayReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(arrayReference, numberOfParens);
+		}
 		arrayReference.receiver.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
 		arrayReference.position.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(arrayReference, numberOfParens);
+		}
 		return false;
 	}
 	
@@ -1459,20 +1515,27 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (arrayTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
+		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS, false, true);
 		
 		int dimensions = getExtraDimension();
 		if (dimensions != 0) {
-			if (this.preferences.insert_space_before_bracket_in_array_type_reference) this.scribe.space();
+			if (this.preferences.insert_space_before_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
 			for (int i = 0; i < dimensions; i++) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-				if (this.preferences.insert_space_between_brackets_in_array_type_reference) this.scribe.space();
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
 			}
 		}
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1484,19 +1547,26 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		ClassScope scope) {
 
 		final int numberOfParens = (arrayTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
-
+		if (numberOfParens > 0) { 
+			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
+		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS, false, true);
 		int dimensions = getExtraDimension();
 		if (dimensions != 0) {
-			if (this.preferences.insert_space_before_bracket_in_array_type_reference) this.scribe.space();
+			if (this.preferences.insert_space_before_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
 			for (int i = 0; i < dimensions; i++) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-				if (this.preferences.insert_space_between_brackets_in_array_type_reference) this.scribe.space();
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
 			}
 		}
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1511,7 +1581,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		
 		if (assertStatement.exceptionArgument != null) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_assert);
-			if (this.preferences.insert_space_after_colon_in_assert) this.scribe.space();
+			if (this.preferences.insert_space_after_colon_in_assert) {
+				this.scribe.space();
+			}
 			assertStatement.exceptionArgument.traverse(this, scope);
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);		
@@ -1524,8 +1596,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(Assignment assignment, BlockScope scope) {
 
 		final int numberOfParens = (assignment.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(assignment, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(assignment, numberOfParens);
+		}
 		assignment.lhs.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 		if (this.preferences.insert_space_after_assignment_operators) {
@@ -1533,7 +1606,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		}
 		assignment.expression.traverse(this, scope);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(assignment, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(assignment, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1642,18 +1717,24 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
 
 		final int numberOfParens = (castExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(castExpression, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(castExpression, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN);
-		if (this.preferences.insert_space_after_opening_paren_in_cast) this.scribe.space();
+		if (this.preferences.insert_space_after_opening_paren_in_cast) {
+			this.scribe.space();
+		}
 		castExpression.type.traverse(this, scope);
 
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_cast);
-		if (this.preferences.insert_space_after_closing_paren_in_cast) this.scribe.space();
-		
+		if (this.preferences.insert_space_after_closing_paren_in_cast) {
+			this.scribe.space();
+		}
 		castExpression.expression.traverse(this, scope);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(castExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(castExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1663,11 +1744,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(CharLiteral charLiteral, BlockScope scope) {
 
 		final int numberOfParens = (charLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(charLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(charLiteral, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameCharacterLiteral);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(charLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(charLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1678,13 +1762,16 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(ClassLiteralAccess classLiteral, BlockScope scope) {
 
 		final int numberOfParens = (classLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(classLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(classLiteral, numberOfParens);
+		}
 		classLiteral.type.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameclass);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(classLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(classLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1765,8 +1852,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 			
 		final int numberOfParens = (compoundAssignment.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(compoundAssignment, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(compoundAssignment, numberOfParens);
+		}
 		compoundAssignment.lhs.traverse(this, scope);
 		
 		/*
@@ -1809,11 +1897,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		}
 		
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_assignment_operators);
-		if (this.preferences.insert_space_after_assignment_operators) this.scribe.space();
-
+		if (this.preferences.insert_space_after_assignment_operators) {
+			this.scribe.space();
+		}
 		compoundAssignment.expression.traverse(this, scope);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(compoundAssignment, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(compoundAssignment, numberOfParens);
+		}
 		return false;
 	}
 
@@ -1825,8 +1916,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (conditionalExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(conditionalExpression, numberOfParens);
-	
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(conditionalExpression, numberOfParens);
+		}
 		conditionalExpression.condition.traverse(this, scope);
 
 		Alignment conditionalExpressionAlignment =this.scribe.createAlignment(
@@ -1862,7 +1954,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		} while (!ok);
 		this.scribe.exitAlignment(conditionalExpressionAlignment, true);
 			
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(conditionalExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(conditionalExpression, numberOfParens);
+		}
 		return false;	
 	}
 
@@ -1887,8 +1981,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		ConstructorDeclaration constructorDeclaration,
 		ClassScope scope) {
 			
-		if (constructorDeclaration.modifiers != NO_MODIFIERS) this.scribe.printModifiers();
-	
+		if (constructorDeclaration.modifiers != NO_MODIFIERS) {
+			this.scribe.printModifiers();
+		}
 		/*
 		 * Print the method name
 		 */	
@@ -1998,15 +2093,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
 
 		final int numberOfParens = (doubleLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(doubleLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(doubleLiteral, numberOfParens);
+		}
 		Constant constant = doubleLiteral.constant;
 		if (constant != null && constant.doubleValue() < 0) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameDoubleLiteral);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(doubleLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(doubleLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2025,11 +2123,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
 
 		final int numberOfParens = (falseLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamefalse);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(falseLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(falseLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2039,13 +2140,16 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(FieldReference fieldReference, BlockScope scope) {
 
 		final int numberOfParens = (fieldReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
+		}
 		fieldReference.receiver.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(fieldReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(fieldReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2057,8 +2161,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamefor);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
 		
-		if (this.preferences.insert_space_in_for_parens) this.scribe.space();
-
+		if (this.preferences.insert_space_in_for_parens) {
+			this.scribe.space();
+		}
 		final Statement[] initializations = forStatement.initializations;
 		if (initializations != null) {
 			int length = initializations.length;
@@ -2171,11 +2276,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) this.scribe.space();
+					if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
+					}
 					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_explicitconstructorcall_arguments);
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_explicitconstructorcall_arguments);
+						}
 						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_explicitconstructorcall_arguments) this.scribe.space();
+						if (i > 0 && this.preferences.insert_space_after_comma_in_explicitconstructorcall_arguments) {
+							this.scribe.space();
+						}
 						arguments[i].traverse(this, scope);
 					}
 					ok = true;
@@ -2197,15 +2308,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
 
 		final int numberOfParens = (floatLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(floatLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(floatLiteral, numberOfParens);
+		}
 		Constant constant = floatLiteral.constant;
 		if (constant != null && floatLiteral.constant.floatValue() < 0) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameFloatingPointLiteral);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(floatLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(floatLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2217,7 +2331,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameif);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_if_condition);
-		if (this.preferences.insert_space_in_if_condition) this.scribe.space();
+		if (this.preferences.insert_space_in_if_condition) {
+			this.scribe.space();
+		}
 		ifStatement.condition.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_if_condition);
 
@@ -2367,14 +2483,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (instanceOfExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(instanceOfExpression, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(instanceOfExpression, numberOfParens);
+		}
 		instanceOfExpression.expression.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameinstanceof, true);
 		this.scribe.space();
 		instanceOfExpression.type.traverse(this, scope);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(instanceOfExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(instanceOfExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2384,15 +2503,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
 
 		final int numberOfParens = (intLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(intLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(intLiteral, numberOfParens);
+		}
 		Constant constant = intLiteral.constant;
 		if (constant != null && constant.intValue() < 0) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameIntegerLiteral);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(intLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(intLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2481,15 +2603,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 
 		final int numberOfParens = (longLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(longLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(longLiteral, numberOfParens);
+		}
 		Constant constant = longLiteral.constant;
 		if (constant != null && constant.longValue() < 0) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLongLiteral);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(longLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(longLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2509,8 +2634,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
 
 		final int numberOfParens = (messageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(messageSend, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(messageSend, numberOfParens);
+		}
 		Alignment messageAlignment = null;
 		if (!messageSend.receiver.isImplicitThis()) {
 			messageSend.receiver.traverse(this, scope);
@@ -2533,7 +2659,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		} else {
 			formatMessageSend(messageSend, scope, null);			
 		}
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(messageSend, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(messageSend, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2555,8 +2683,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		final TypeReference returnType = methodDeclaration.returnType;
 		final MethodScope methodDeclarationScope = methodDeclaration.scope;
 		
-		if (returnType != null) returnType.traverse(this, methodDeclarationScope);
-	
+		if (returnType != null) {
+			returnType.traverse(this, methodDeclarationScope);
+		}
 		/*
 		 * Print the method name		 */
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
@@ -2623,11 +2752,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
 
 		final int numberOfParens = (nullLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(nullLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(nullLiteral, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamenull);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(nullLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(nullLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2648,15 +2780,19 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (postfixExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(postfixExpression, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(postfixExpression, numberOfParens);
+		}
 		postfixExpression.lhs.traverse(this, scope);
 		int operator = postfixExpression.operator == OperatorIds.PLUS 
 			? ITerminalSymbols.TokenNamePLUS_PLUS : ITerminalSymbols.TokenNameMINUS_MINUS;
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_postfix_operator);
-		if (this.preferences.insert_space_after_postfix_operator) this.scribe.space();
-		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(postfixExpression, numberOfParens);
+		if (this.preferences.insert_space_after_postfix_operator) {
+			this.scribe.space();
+		}
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(postfixExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2666,15 +2802,19 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(PrefixExpression prefixExpression, BlockScope scope) {
 
 		final int numberOfParens = (prefixExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(prefixExpression, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(prefixExpression, numberOfParens);
+		}
 		int operator = prefixExpression.operator == OperatorIds.PLUS 
 			? ITerminalSymbols.TokenNamePLUS_PLUS : ITerminalSymbols.TokenNameMINUS_MINUS;
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_prefix_operator);
 		prefixExpression.lhs.traverse(this, scope);
-		if (this.preferences.insert_space_after_prefix_operator) this.scribe.space();
-
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(prefixExpression, numberOfParens);
+		if (this.preferences.insert_space_after_prefix_operator) {
+			this.scribe.space();
+		}
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(prefixExpression, numberOfParens);
+		}
 		return false;
 	}
 	
@@ -2686,8 +2826,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 			
 		final int numberOfParens = (qualifiedAllocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedAllocationExpression, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(qualifiedAllocationExpression, numberOfParens);
+		}
 		final Expression enclosingInstance = qualifiedAllocationExpression.enclosingInstance;
 		if (enclosingInstance != null) {
 			enclosingInstance.traverse(this, scope);
@@ -2711,11 +2852,17 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) this.scribe.space();
+					if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
+					}
 					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+						}
 						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) this.scribe.space();
+						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) {
+							this.scribe.space();
+						}
 						arguments[i].traverse(this, scope);
 					}
 					ok = true;
@@ -2729,9 +2876,12 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
 		final AnonymousLocalTypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
-		if (anonymousType != null) anonymousType.traverse(this, scope);
-		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedAllocationExpression, numberOfParens);
+		if (anonymousType != null) {
+			anonymousType.traverse(this, scope);
+		}
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(qualifiedAllocationExpression, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2743,11 +2893,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (qualifiedNameReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedNameReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(qualifiedNameReference, numberOfParens);
+		}
 		this.scribe.printQualifiedReference(qualifiedNameReference.sourceEnd);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedNameReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(qualifiedNameReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2759,13 +2912,16 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (qualifiedSuperReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedSuperReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(qualifiedSuperReference, numberOfParens);
+		}
 		qualifiedSuperReference.qualification.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamesuper);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedSuperReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(qualifiedSuperReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2777,13 +2933,16 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (qualifiedThisReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedThisReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(qualifiedThisReference, numberOfParens);
+		}
 		qualifiedThisReference.qualification.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamethis);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedThisReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(qualifiedThisReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2795,11 +2954,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (qualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+		}
 		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2811,11 +2973,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		ClassScope scope) {
 
 			final int numberOfParens = (qualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-			if (numberOfParens > 0) manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
-			
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+			}
 			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
 			
-			if (numberOfParens > 0) manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
+			}
 			return false;
 	}
 
@@ -2843,11 +3008,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(SingleNameReference singleNameReference, BlockScope scope) {
 
 		final int numberOfParens = (singleNameReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(singleNameReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(singleNameReference, numberOfParens);
+		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS, false, true);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(singleNameReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(singleNameReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2859,12 +3027,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		BlockScope scope) {
 
 		final int numberOfParens = (singleTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
+		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS, false, true);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(singleTypeReference, numberOfParens);
-		
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(singleTypeReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2876,11 +3046,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		ClassScope scope) {
 
 		final int numberOfParens = (singleTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
+		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS, false, true);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(singleTypeReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(singleTypeReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2890,11 +3063,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 
 		final int numberOfParens = (stringLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameStringLiteral);
 		
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(stringLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(stringLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2904,11 +3080,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(SuperReference superReference, BlockScope scope) {
 
 		final int numberOfParens = (superReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(superReference, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(superReference, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamesuper);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(superReference, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(superReference, numberOfParens);
+		}
 		return false;
 	}
 
@@ -2931,8 +3110,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		String switch_brace = this.preferences.switch_brace_position;
 		formatOpeningBrace(switch_brace, this.preferences.insert_space_before_switch_open_brace, true);
 
-		if (preferences.indent_switchstatements_compare_to_switch) this.scribe.indent();
-
+		if (preferences.indent_switchstatements_compare_to_switch) {
+			this.scribe.indent();
+		}
 		final Statement[] statements = switchStatement.statements;
 		if (statements != null) {
 			int statementsLength = statements.length;
@@ -3040,7 +3220,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 			}
 		}		
 		
-		if (preferences.indent_switchstatements_compare_to_switch) this.scribe.unIndent();
+		if (preferences.indent_switchstatements_compare_to_switch) {
+			this.scribe.unIndent();
+		}
 		this.scribe.printNewLine();
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
@@ -3060,7 +3242,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamesynchronized);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_synchronized_condition);
 		
-		if (this.preferences.insert_space_in_synchronized_condition) this.scribe.space();
+		if (this.preferences.insert_space_in_synchronized_condition) {
+			this.scribe.space();
+		}
 		synchronizedStatement.expression.traverse(this, scope);
 	
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_synchronized_condition);
@@ -3076,11 +3260,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
 
 		final int numberOfParens = (trueLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
-
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNametrue);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(trueLiteral, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(trueLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -3101,11 +3288,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		
 		if (!thisReference.isImplicitThis()) {
 			final int numberOfParens = (thisReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-			if (numberOfParens > 0) manageOpeningParenthesizedExpression(thisReference, numberOfParens);
-
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(thisReference, numberOfParens);
+			}
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamethis);
 			
-			if (numberOfParens > 0) manageClosingParenthesizedExpression(thisReference, numberOfParens);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(thisReference, numberOfParens);
+			}
 		}
 		return false;
 	}
@@ -3212,7 +3402,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		this.scribe.printNextToken(ITerminalSymbols.TokenNamewhile);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
 		
-		if (this.preferences.insert_space_in_while_condition) this.scribe.space();
+		if (this.preferences.insert_space_in_while_condition) {
+			this.scribe.space();
+		}
 		whileStatement.condition.traverse(this, scope);
 		
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_while_condition);
