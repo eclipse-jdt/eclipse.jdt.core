@@ -1833,7 +1833,7 @@ public abstract class ASTNode {
      */
 	final void supportedOnlyIn2() {
 	  if (this.ast.apiLevel != AST.LEVEL_2_0) {
-	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  	throw new UnsupportedOperationException("Operation only supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
 
