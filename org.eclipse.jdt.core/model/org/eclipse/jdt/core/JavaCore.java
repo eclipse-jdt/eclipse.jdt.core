@@ -593,7 +593,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * their possible constant values.
 	 * 
 	 * Note: more options might be added in further releases.
-	 * </pre>
+	 * <pre>
 	 * RECOGNIZED OPTIONS:
 	 *  COMPILER / Generating Local Variable Debug Attribute
  	 *    When generated, this attribute will enable local variable names 

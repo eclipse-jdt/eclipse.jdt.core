@@ -213,6 +213,7 @@ public class ToolFactory {
 	 * Here is a typical scanning loop:
 	 * 
 	 * <code>
+	 * <pre>
 	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
@@ -220,6 +221,7 @@ public class ToolFactory {
 	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
 	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
 	 *   }
+	 * </pre>
 	 * </code>
 	 * 
 	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
