@@ -626,6 +626,9 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 /**
  * Sets the list of working copies that will take precedence over their original 
  * compilation units in the subsequent search operations on this search engine.
+ * <p>
+ * Note that passing an empty working copy will be as if the orignal compilation
+ * unit had been deleted.
  */
 public void setWorkingCopies(IWorkingCopy[] workingCopies) {
 	this.workingCopies = workingCopies;

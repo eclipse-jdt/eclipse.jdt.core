@@ -22,11 +22,20 @@ as of JCK 1.4 2001-10-01 update. When in 1.3 mode (default), it is JCK 1.3a comp
 <li> By default, when toggled into 1.4 mode, the batch compiler will enable assertion support (e.g. -source 1.4). It can still manually
 be toggled for 1.3 source level compatibility (-source 1.3).
 </li>
+<li> Added <code>SearchEngine.setWorkingCopies(IWorkingCopy[])</code>
+     which sets the list of working copies that will take precedence 
+     over their original compilation units in the subsequent search 
+     operations on this search engine.
+     <br>
+     Note that this functionality is still under development and some
+     parts may not work as expected. Feedback is welcome.
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8575">8575</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8536">8536</a>
+Bug on "Open type hierarchy"  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8575">8575</a>
 Variable name code completion should handle arrays
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8530">8530</a>
 Internal error using assertions (1.4 feature)

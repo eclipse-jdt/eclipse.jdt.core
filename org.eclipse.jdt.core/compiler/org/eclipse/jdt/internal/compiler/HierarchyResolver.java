@@ -153,9 +153,13 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		
 	// build bindings
 	if (unit != null) {
-		lookupEnvironment.buildTypeBindings(unit);
-		rememberWithMemberTypes(sourceType, unit.types[0].binding);
-		lookupEnvironment.completeTypeBindings(unit, false);
+		try {
+			lookupEnvironment.buildTypeBindings(unit);
+			rememberWithMemberTypes(sourceType, unit.types[0].binding);
+			lookupEnvironment.completeTypeBindings(unit, false);
+		} catch (AbortCompilation e) {
+			// missing 'java.lang' package: ignore
+		}
 	}
 }
 /*
@@ -217,7 +221,7 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 	
 	ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
 	int bindingIndex = 0;
-	int bindingLength = interfaceBindings.length;
+	int bindingLength = interfaceBindings == null ? 0 : interfaceBindings.length;
 	int length = superInterfaceNames == null ? 0 : superInterfaceNames.length;
 	IGenericType[] superinterfaces = new IGenericType[length];
 	next : for (int i = 0; i < length; i++) {
