@@ -906,130 +906,6 @@ public final class CompletionEngine
 		nameEnvironment.findPackages(importName, this);
 		nameEnvironment.findTypes(importName, this);
 	}
-
-	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
-	private void findLocalMethodDeclarations(
-		char[] methodName,
-		MethodBinding[] methods,
-		Scope scope,
-		ObjectVector methodsFound,
-		//	boolean noVoidReturnType, how do you know?
-		boolean onlyStaticMethods,
-		boolean exactMatch,
-		TypeBinding receiverType) {
-
-		// Inherited methods which are hidden by subclasses are filtered out
-		// No visibility checks can be performed without the scope & invocationSite
-		int methodLength = methodName.length;
-		next : for (int f = methods.length; --f >= 0;) {
-
-			MethodBinding method = methods[f];
-			if (method.isConstructor())
-				continue next;
-
-			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic())
-				continue next;
-
-			if (options.checkVisibility()
-				&& !method.canBeSeenBy(receiverType, false, scope))
-				continue next;
-
-			if (exactMatch) {
-				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
-					))
-					continue next;
-
-			} else {
-
-				if (methodLength > method.selector.length)
-					continue next;
-
-				if (!CharOperation.prefixEquals(methodName, method.selector, false
-					/* ignore case */
-					))
-					continue next;
-			}
-
-			for (int i = methodsFound.size; --i >= 0;) {
-
-				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
-				if (method == otherMethod)
-					continue next;
-
-				if (CharOperation.equals(method.selector, otherMethod.selector, true)
-					&& method.areParametersEqual(otherMethod)) {
-
-					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
-						continue next;
-
-					if (otherMethod.declaringClass.isInterface())
-						if (method
-							.declaringClass
-							.implementsInterface(otherMethod.declaringClass, true))
-							continue next;
-				}
-			}
-
-			methodsFound.add(method);
-			
-			int length = method.parameters.length;
-			char[][] parameterPackageNames = new char[length][];
-			char[][] parameterTypeNames = new char[length][];
-			
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterTypeNames[i] = type.qualifiedSourceName();
-			}
-
-			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
-			// default parameters name
-			if(parameterNames == null) {
-				parameterNames = new char[length][];
-				for (int i = 0; i < length; i++) {
-					parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-				}
-			}
-			
-			StringBuffer completion = new StringBuffer(10);
-			// flush uninteresting modifiers
-			int insertedModifiers = method.modifiers & ~(CompilerModifiers.AccNative | CompilerModifiers.AccAbstract);
-
-			if (!exactMatch) {
-				if(insertedModifiers != CompilerModifiers.AccDefault){
-					completion.append(AstNode.modifiersString(insertedModifiers));
-				}
-				completion.append(method.returnType.sourceName());
-				completion.append(' ');
-				completion.append(method.selector);
-				completion.append('(');
-
-				for(int i = 0; i < length ; i++){
-					completion.append(parameterTypeNames[i]);
-					completion.append(' ');
-					completion.append(parameterNames[i]);
-					if(i != (length - 1))
-						completion.append(',');	
-				}
-				completion.append(')');
-			}
-
-			requestor.acceptMethodDeclaration(
-				method.declaringClass.qualifiedPackageName(),
-				method.declaringClass.qualifiedSourceName(),
-				method.selector,
-				parameterPackageNames,
-				parameterTypeNames,
-				parameterNames,
-				method.returnType.qualifiedPackageName(),
-				method.returnType.qualifiedSourceName(),
-				completion.toString().toCharArray(),
-				method.modifiers,
-				startPosition,
-				endPosition);
-		}
-	}
 	
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
@@ -1368,6 +1244,130 @@ public final class CompletionEngine
 				method.returnType.qualifiedPackageName(),
 				method.returnType.qualifiedSourceName(),
 				completion,
+				method.modifiers,
+				startPosition,
+				endPosition);
+		}
+	}
+
+	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
+	private void findLocalMethodDeclarations(
+		char[] methodName,
+		MethodBinding[] methods,
+		Scope scope,
+		ObjectVector methodsFound,
+		//	boolean noVoidReturnType, how do you know?
+		boolean onlyStaticMethods,
+		boolean exactMatch,
+		TypeBinding receiverType) {
+
+		// Inherited methods which are hidden by subclasses are filtered out
+		// No visibility checks can be performed without the scope & invocationSite
+		int methodLength = methodName.length;
+		next : for (int f = methods.length; --f >= 0;) {
+
+			MethodBinding method = methods[f];
+			if (method.isConstructor())
+				continue next;
+
+			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
+			if (onlyStaticMethods && !method.isStatic())
+				continue next;
+
+			if (options.checkVisibility()
+				&& !method.canBeSeenBy(receiverType, false, scope))
+				continue next;
+
+			if (exactMatch) {
+				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
+					))
+					continue next;
+
+			} else {
+
+				if (methodLength > method.selector.length)
+					continue next;
+
+				if (!CharOperation.prefixEquals(methodName, method.selector, false
+					/* ignore case */
+					))
+					continue next;
+			}
+
+			for (int i = methodsFound.size; --i >= 0;) {
+
+				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
+				if (method == otherMethod)
+					continue next;
+
+				if (CharOperation.equals(method.selector, otherMethod.selector, true)
+					&& method.areParametersEqual(otherMethod)) {
+
+					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
+						continue next;
+
+					if (otherMethod.declaringClass.isInterface())
+						if (method
+							.declaringClass
+							.implementsInterface(otherMethod.declaringClass, true))
+							continue next;
+				}
+			}
+
+			methodsFound.add(method);
+			
+			int length = method.parameters.length;
+			char[][] parameterPackageNames = new char[length][];
+			char[][] parameterTypeNames = new char[length][];
+			
+			for (int i = 0; i < length; i++) {
+				TypeBinding type = method.parameters[i];
+				parameterPackageNames[i] = type.qualifiedPackageName();
+				parameterTypeNames[i] = type.qualifiedSourceName();
+			}
+
+			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+			// default parameters name
+			if(parameterNames == null) {
+				parameterNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+				}
+			}
+			
+			StringBuffer completion = new StringBuffer(10);
+			// flush uninteresting modifiers
+			int insertedModifiers = method.modifiers & ~(CompilerModifiers.AccNative | CompilerModifiers.AccAbstract);
+
+			if (!exactMatch) {
+				if(insertedModifiers != CompilerModifiers.AccDefault){
+					completion.append(AstNode.modifiersString(insertedModifiers));
+				}
+				completion.append(method.returnType.sourceName());
+				completion.append(' ');
+				completion.append(method.selector);
+				completion.append('(');
+
+				for(int i = 0; i < length ; i++){
+					completion.append(parameterTypeNames[i]);
+					completion.append(' ');
+					completion.append(parameterNames[i]);
+					if(i != (length - 1))
+						completion.append(',');	
+				}
+				completion.append(')');
+			}
+
+			requestor.acceptMethodDeclaration(
+				method.declaringClass.qualifiedPackageName(),
+				method.declaringClass.qualifiedSourceName(),
+				method.selector,
+				parameterPackageNames,
+				parameterTypeNames,
+				parameterNames,
+				method.returnType.qualifiedPackageName(),
+				method.returnType.qualifiedSourceName(),
+				completion.toString().toCharArray(),
 				method.modifiers,
 				startPosition,
 				endPosition);

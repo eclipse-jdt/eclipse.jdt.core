@@ -71,6 +71,10 @@ public class CompletionParser extends AssistParser {
 	int blockInvocationPtr;
 	int[] blockInvocationStack = new int[StackIncrement];
 	
+	// last modifiers info
+	int lastModifiers = AccDefault;
+	int lastModifiersStart = -1;
+	
 /** @deprecated - should use constructor with assertMode */
 public CompletionParser(ProblemReporter problemReporter) {
 	this(problemReporter, false/*no assertion by default*/);
@@ -94,8 +98,13 @@ protected void attachOrphanCompletionNode(){
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
 					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan);
-					//fieldDeclaration.modifiersSourceStart = intStack[intPtr-1];
-					//fieldDeclaration.modifiers = intStack[intPtr-2];
+
+					// retrieve available modifiers if any
+					if (intPtr >= 2 && intStack[intPtr-1] == this.lastModifiersStart && intStack[intPtr-2] == this.lastModifiers){
+						fieldDeclaration.modifiersSourceStart = intStack[intPtr-1];
+						fieldDeclaration.modifiers = intStack[intPtr-2];
+					}
+
 					currentElement = currentElement.add(fieldDeclaration, 0);
 					return;
 				}
@@ -605,6 +614,12 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
 	this.labelCounterPtr--;
+}
+protected void consumeModifiers() {
+	super.consumeModifiers();
+	// save from stack values
+	this.lastModifiersStart = intStack[intPtr];
+	this.lastModifiers = 	intStack[intPtr-1];
 }
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
