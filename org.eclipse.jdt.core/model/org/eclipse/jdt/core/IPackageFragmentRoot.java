@@ -334,6 +334,9 @@ public interface IPackageFragmentRoot
 	/**
 	 * Returns whether this package fragment root's underlying
 	 * resource is a binary archive (a JAR or zip file).
+	 * <p>
+	 * This is a handle-only method.
+	 * </p>
 	 * 
 	 * @return true if this package fragment root's underlying resource is a binary archive, false otherwise
 	 */
@@ -343,6 +346,9 @@ public interface IPackageFragmentRoot
 	 * Returns whether this package fragment root is external
 	 * to the workbench (that is, a local file), and has no
 	 * underlying resource.
+	 * <p>
+	 * This is a handle-only method.
+	 * </p>
 	 * 
 	 * @return true if this package fragment root is external
 	 * to the workbench (that is, a local file), and has no
