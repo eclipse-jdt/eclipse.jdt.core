@@ -1863,5 +1863,26 @@ public class EnumTest extends AbstractComparableTest {
 			"	         ^\n" + 
 			"Cannot instantiate the type X\n" + 
 			"----------\n");
-	}			
+	}
+    
+    /**
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83860
+     */
+    public void test066() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+                "enum X {\n" +
+                "    SUCCESS (0) {};\n" +
+                "    private X(int i) {}\n" +
+                "    public static void main(String[] args) {\n" +
+                "       for (X x : values()) {\n" +
+                "           System.out.print(x);\n" +
+                "       }\n" +
+                "    }\n" +
+                "}",
+            },
+            "SUCCESS");
+    }
+    
 }
