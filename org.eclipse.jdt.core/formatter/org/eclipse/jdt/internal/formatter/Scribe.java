@@ -412,7 +412,7 @@ public class Scribe {
 		printComment(false);
 		try {
 			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getCurrentTokenSource();
+			char[] currentTokenSource = this.scanner.getRawTokenSource();
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
