@@ -281,6 +281,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected void startBuild(Hashtable options) throws IOException, CoreException {
 		if (DEBUG) System.out.print("\tstart build...");
+		// ensure that all resources are in synch
+		ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 		JavaCore.setOptions(options);
 		startMeasuring();
 		env.fullBuild();
