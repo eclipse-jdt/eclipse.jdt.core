@@ -138,7 +138,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testInvalidClasspath1"));
+		suite.addTest(new ClasspathTests("testReplaceProject"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -2528,6 +2528,29 @@ public void testOutputFolder1() throws CoreException {
 			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
+	}
+}
+
+/**
+ * Ensure classpath is refreshed when project is replaced (43670)
+ */
+public void testReplaceProject() throws CoreException {
+	try {
+		final IJavaProject[] javaProjects = new IJavaProject[1];
+		javaProjects[0] = createJavaProject("P", new String[] {"src"}, "bin");
+
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteProject("P");
+					javaProjects[0] = createJavaProject("P", new String[] {"src2"}, "bin2");
+				}
+			},
+			null);
+		IClasspathEntry[] classpath = javaProjects[0].getRawClasspath();
+		assertEquals("classpath should have been refreshed", new Path("/P/src2"), classpath[0].getPath());
+	} finally {
+		deleteProject("P");
 	}
 }
 }
