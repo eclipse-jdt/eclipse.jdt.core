@@ -495,6 +495,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0415() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0415", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
@@ -509,7 +510,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a switch case (default)", statement.getNodeType() == ASTNode.SWITCH_CASE); //$NON-NLS-1$
 		SwitchCase defaultCase = (SwitchCase) statement;
 		assertTrue("not a default case", defaultCase.isDefault());
-		assertEquals("wrong toString()", "default : ", defaultCase.toString());
+		checkSourceRange(defaultCase, "default:", source);
 	}
 	
 	/**
