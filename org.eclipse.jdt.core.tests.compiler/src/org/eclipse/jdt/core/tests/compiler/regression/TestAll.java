@@ -51,17 +51,19 @@ public static Test suite() {
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-		standardTests.add(Compliance_1_3.class);
-		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, standardTests));
+	    ArrayList tests_1_3 = (ArrayList)standardTests.clone();
+		tests_1_3.add(Compliance_1_3.class);
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-		standardTests.remove(Compliance_1_3.class);
-		standardTests.add(AssertionTest.class);
-		standardTests.add(Compliance_1_4.class);	
-		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, standardTests));
+	    ArrayList tests_1_4 = (ArrayList)standardTests.clone();
+		tests_1_4.add(AssertionTest.class);
+		tests_1_4.add(Compliance_1_4.class);
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, standardTests));
+	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 	return all;
 }
