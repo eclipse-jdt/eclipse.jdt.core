@@ -226,7 +226,7 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 
 		// update new resource content
 		try {
-			if (newContent != null){
+			if (!destFile.isReadOnly() && newContent != null){
 				destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
 			}
 		} catch (CoreException e) {
