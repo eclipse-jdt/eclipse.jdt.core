@@ -925,11 +925,12 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 				EXACT_MATCH, 
 				CASE_SENSITIVE);
 		case IJavaSearchConstants.IMPLEMENTORS : 
-			return new SuperInterfaceReferencePattern(
+			return new SuperTypeReferencePattern(
 				CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 				simpleName, 
 				EXACT_MATCH, 
-				CASE_SENSITIVE);
+				CASE_SENSITIVE,
+				true);
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
 				new TypeDeclarationPattern(
@@ -1006,7 +1007,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 		case IJavaSearchConstants.REFERENCES :
 			return new TypeReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive);
 		case IJavaSearchConstants.IMPLEMENTORS : 
-			return new SuperInterfaceReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive);
+			return new SuperTypeReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive, true);
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
 				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, TYPE_SUFFIX, matchMode, isCaseSensitive),// cannot search for explicit member types
