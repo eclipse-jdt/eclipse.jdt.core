@@ -104,7 +104,7 @@ public class ToolFactory {
 		
 		ICodeFormatter codeFormatter;
 		if (JavaCore.ENABLED.equals(newFormatterActivation)) {
-			codeFormatter = new DefaultCodeFormatter();
+			codeFormatter = new DefaultCodeFormatter(options);
 		} else {
 			if (options == null) options = JavaCore.getOptions();
 			codeFormatter = new CodeFormatter(options);

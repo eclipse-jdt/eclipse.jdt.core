@@ -198,6 +198,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			int indentationLevel,
 			String lineSeparator) {
 
+		if (offset < 0 || length < 0 || length > source.length()) {
+			throw new IllegalArgumentException();
+		}
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
 				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, offset, length);
@@ -256,7 +259,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -313,7 +316,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
 		
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
@@ -324,18 +327,26 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
 		
 		return this.newCodeFormatter.format(source, expression);
 	}
 	
+	private CodeFormatterVisitor createCodeFormatterVisitor(int offset, int length, String source) {
+		if (source.length() == length) {
+			return new CodeFormatterVisitor(this.preferences, options, -1, length);
+		} else {
+			return new CodeFormatterVisitor(this.preferences, options, offset, length);
+		}
+	}
+
 	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
 		
 		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}

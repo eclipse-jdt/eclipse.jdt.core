@@ -78,13 +78,17 @@ public class Scribe {
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
-		this.textRegionEnd = offset + length - 1; 
+		if (offset >= 0) {
+			this.textRegionEnd = offset + length - 1; 
+		} else {
+			this.textRegionEnd = length - 1; 
+		}
 		reset();
 	}
 	
 	private final void addDeleteEdit(int start, int end) {
 		if (end < start) return;
-		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
+		if (this.textRegionStart < start && end <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();
@@ -94,7 +98,7 @@ public class Scribe {
 	}
 	
 	private final void addInsertEdit(int insertPosition, String insertedString) {
-		if (this.textRegionStart <= insertPosition && insertPosition <= this.textRegionEnd) {
+		if (this.textRegionStart < insertPosition && insertPosition <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();
@@ -166,7 +170,7 @@ public class Scribe {
 	
 	private final void addReplaceEdit(int start, int end, String replacement) {
 		if (end < start) return;
-		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
+		if (this.textRegionStart < start && end <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();
@@ -295,10 +299,12 @@ public class Scribe {
 	}	
 
 	public TextEdit getRootEdit() {
-		if (CodeFormatterVisitor.DEBUG) {
-			// sanity check
+		MultiTextEdit edit = null;
+		if (this.textRegionStart < 0) {
+			edit = new MultiTextEdit(0, this.textRegionEnd + 1);
+		} else {
+			edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
 		}
-		MultiTextEdit edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
 		for (int i= 0, max = this.editsIndex; i < max; i++) {
 			OptimizedReplaceEdit currentEdit = edits[i];
 			edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
