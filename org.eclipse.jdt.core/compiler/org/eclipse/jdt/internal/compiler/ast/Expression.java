@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -378,11 +380,11 @@ public abstract class Expression extends Statement {
 				tagAsNeedCheckCast();
 				return checkUnsafeCast(scope, castType, expressionType, match, true);
 			}  else {
-				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
+				MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
 				MethodBinding[] expressionTypeMethods =
-					((ReferenceBinding) expressionType).methods();
+					getAllInheritedMethods((ReferenceBinding) expressionType);
 				int exprMethodsLength = expressionTypeMethods.length;
-				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
+				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
 					for (int j = 0; j < exprMethodsLength; j++) {
 						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
 								&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
@@ -392,12 +394,31 @@ public abstract class Expression extends Statement {
 
 						}
 					}
+				}
 			}
 		}
 		tagAsNeedCheckCast();
 		return true;
 	}	
 	
+	private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
+		ArrayList collector = new ArrayList();
+		getAllInheritedMethods0(binding, collector);
+		return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
+	}
+	
+	private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
+		if (!binding.isInterface()) return;
+		MethodBinding[] methodBindings = binding.methods();
+		for (int i = 0, max = methodBindings.length; i < max; i++) {
+			collector.add(methodBindings[i]);
+		}
+		ReferenceBinding[] superInterfaces = binding.superInterfaces();
+		for (int i = 0, max = superInterfaces.length; i < max; i++) {
+			getAllInheritedMethods0(superInterfaces[i], collector);
+		}
+	}
+
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (match == castType) {
 			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
