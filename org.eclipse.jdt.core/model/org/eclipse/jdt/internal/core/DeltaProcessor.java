@@ -1708,7 +1708,8 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						break;
 					case IResourceDelta.REMOVED:
 						// the jar was physically removed: remove the index
-						indexManager.removeIndex(jarPath);
+						this.indexManager.discardJobs(jarPath.toString());
+						this.indexManager.removeIndex(jarPath);
 						break;
 				}
 				break;

@@ -43,8 +43,9 @@ class AddJarFileToIndex extends IndexRequest {
 		this.manager = manager;
 		this.projectName = projectName;
 	}
+	// can be found either by project name or JAR path name
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(projectName);
+		return jobFamily.equals(projectName) || this.path.toString().equals(jobFamily);
 	}
 public boolean equals(Object o) {
 	if (!(o instanceof AddJarFileToIndex)) return false;
