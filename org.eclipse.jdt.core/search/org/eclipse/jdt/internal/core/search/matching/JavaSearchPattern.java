@@ -54,11 +54,6 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	public static final int MATCH_COMPATIBILITY_MASK = R_ERASURE_MATCH + R_EQUIVALENT_MATCH + R_FULL_MATCH;
 
-	/**
-	 * Mask used on match rule for indexing.
-	 */
-	public static final int MATCH_RULE_INDEX_MASK = MATCH_MODE_MASK + R_CASE_SENSITIVE;
-
 	// Signatures and arguments for parameterized types search
 	char[][] typeSignatures;
 	private char[][][] typeArguments;

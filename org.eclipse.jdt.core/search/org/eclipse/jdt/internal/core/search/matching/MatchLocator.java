@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -856,7 +857,9 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 		: (INameEnvironment) new JavaSearchNameEnvironment(project, this.workingCopies);
 
 	// create lookup environment
-	this.options = new CompilerOptions(project.getOptions(true));
+	Map map = project.getOptions(true);
+	map.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
+	this.options = new CompilerOptions(map);
 	ProblemReporter problemReporter =
 		new ProblemReporter(
 			DefaultErrorHandlingPolicies.proceedWithAllProblems(),

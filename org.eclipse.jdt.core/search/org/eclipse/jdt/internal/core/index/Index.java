@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
-import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 
 /**
  * An <code>Index</code> maps document names to their referenced words in various categories.
@@ -36,6 +35,15 @@ public ReadWriteMonitor monitor;
 
 protected DiskIndex diskIndex;
 protected MemoryIndex memoryIndex;
+
+/**
+ * Mask used on match rule for indexing.
+ */
+static final int MATCH_RULE_INDEX_MASK = SearchPattern.R_EXACT_MATCH + 
+	SearchPattern.R_PREFIX_MATCH +
+	SearchPattern.R_PATTERN_MATCH +
+	SearchPattern.R_REGEXP_MATCH +
+	SearchPattern.R_CASE_SENSITIVE;
 
 /**
  * Returns the path represented by pathString converted back to a path relative to the local file system.
@@ -71,7 +79,7 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
 
 	// need to mask some bits of pattern rule (bug 79790)
-	switch(matchRule & JavaSearchPattern.MATCH_RULE_INDEX_MASK) {
+	switch(matchRule & MATCH_RULE_INDEX_MASK) {
 		case SearchPattern.R_EXACT_MATCH :
 			return CharOperation.equals(pattern, word, false);
 		case SearchPattern.R_PREFIX_MATCH :
@@ -127,11 +135,12 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 	}
 
 	HashtableOfObject results;
+	int rule = matchRule & MATCH_RULE_INDEX_MASK;
 	if (this.memoryIndex.hasChanged()) {
-		results = this.diskIndex.addQueryResults(categories, key, matchRule, this.memoryIndex);
-		this.memoryIndex.addQueryResults(categories, key, matchRule, results);
+		results = this.diskIndex.addQueryResults(categories, key, rule, this.memoryIndex);
+		this.memoryIndex.addQueryResults(categories, key, rule, results);
 	} else {
-		results = this.diskIndex.addQueryResults(categories, key, matchRule, null);
+		results = this.diskIndex.addQueryResults(categories, key, rule, null);
 	}
 	if (results.elementSize == 0) return null;
 
