@@ -72,6 +72,7 @@ public class PatternSearchJob implements IJob {
 		return true;
 	}
 	public void cancel() {
+		// search job is cancelled through progress 
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 

@@ -75,6 +75,7 @@ public class ToolFactory {
 								return (ICodeFormatter)execExt;
 							}
 						} catch(CoreException e){
+							// unable to instantiate extension, will answer default formatter instead
 						}
 					}
 				}	
@@ -119,7 +120,9 @@ public class ToolFactory {
 	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead 
 	 */
 	public static org.eclipse.jdt.core.util.IClassFileDisassembler createDefaultClassFileDisassembler(){
-		class DeprecatedDisassembler extends Disassembler implements org.eclipse.jdt.core.util.IClassFileDisassembler {}
+		class DeprecatedDisassembler extends Disassembler implements org.eclipse.jdt.core.util.IClassFileDisassembler {
+			// for backward compatibility, defines a disassembler which implements IClassFileDisassembler
+		}
 		return new DeprecatedDisassembler();
 	}
 	
@@ -194,6 +197,7 @@ public class ToolFactory {
 					return createDefaultClassFileReader(location.toOSString(), decodingFlag);
 				}
 			} catch(CoreException e){
+				// unable to read
 			}
 		}
 		return null;
