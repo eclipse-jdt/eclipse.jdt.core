@@ -304,8 +304,7 @@ public class JavaProject
 		projectDelta.added(this);
 		JavaElementInfo jmi = model.getElementInfo();
 		jmi.addChild(this);
-		manager.registerResourceDelta(projectDelta);
-		manager.fire();
+		manager.registerJavaModelDelta(projectDelta);
 	}
 
 	/**
@@ -323,6 +322,16 @@ public class JavaProject
 
 		// deregister Java builder
 		removeFromBuildSpec(JavaCore.BUILDER_ID);
+		
+		// notify Java delta (Java project removed) 
+		JavaModelManager manager =
+			(JavaModelManager) JavaModelManager.getJavaModelManager();
+		JavaModel model = (JavaModel) getJavaModel();
+		JavaElementDelta projectDelta = new JavaElementDelta(model);
+		projectDelta.removed(this);
+		JavaElementInfo jmi = model.getElementInfo();
+		jmi.removeChild(this);
+		manager.registerJavaModelDelta(projectDelta);
 	}
 
 	/**

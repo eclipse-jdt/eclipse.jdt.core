@@ -484,37 +484,36 @@ public void doneSaving(ISaveContext context){
 			throw new CoreException(new JavaModelStatus(IJavaModelStatusConstants.NO_LOCAL_CONTENTS, resource.getFullPath()));
 		}
 	}
+	private void fire(ArrayList deltas) {
+		Iterator iterator = deltas.iterator();
+		while (iterator.hasNext()) {
+			IJavaElementDelta delta= (IJavaElementDelta) iterator.next();
+			if (DeltaProcessor.VERBOSE){
+				System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
+			}
+			ElementChangedEvent event= new ElementChangedEvent(delta);
+			// Clone the listeners since they could remove themselves when told about the event 
+			// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
+			ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
+			for (int i= 0; i < listeners.size(); i++) {
+				IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
+				listener.elementChanged(event);
+			}
+		}
+	}
+	
 	/**
-	 * Merges resource deltas and Java Model deltas, and fires the
-	 * result, flushing all deltas. If the firing mode has been 
-	 * turned off, this has no effect. 
+	 * Fire Java Model deltas, flushing them after the fact. 
+	 * If the firing mode has been turned off, this has no effect. 
 	 */
 	public void fire() {
 		if (fFire) {
-			Iterator deltas= null;
-			if (fJavaModelDeltas.isEmpty()) {
-				deltas= fResourceDeltas.iterator();
-			} else {
-				deltas= fJavaModelDeltas.iterator();
-			}
+			this.mergeDeltas();
 			try {
-				while (deltas.hasNext()) {
-					IJavaElementDelta delta= (IJavaElementDelta) deltas.next();
-					if (DeltaProcessor.VERBOSE){
-						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
-					}
-					ElementChangedEvent event= new ElementChangedEvent(delta);
-					// Clone the listeners since they could remove themselves when told about the event 
-					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
-					ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
-					for (int i= 0; i < listeners.size(); i++) {
-						IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
-						listener.elementChanged(event);
-					}
-				}
+				this.fire(fJavaModelDeltas);
 			} finally {
-				// empty the queues
-				flush();
+				// empty the queue
+				fJavaModelDeltas= new ArrayList();
 			}
 		}
 	}
@@ -853,41 +852,35 @@ public void doneSaving(ISaveContext context){
  * Merged all awaiting deltas.
  */
 public void mergeDeltas() {
-	Iterator deltas = null;
-	if (fJavaModelDeltas.isEmpty()) {
-		//deltas = fResourceDeltas.elements();
-		return;
-	} else {
-		deltas = fJavaModelDeltas.iterator();
-	}	
-	if (deltas != null) {
-		JavaElementDelta rootDelta = new JavaElementDelta(getJavaModel());
-		boolean insertedTree = false;
-		while (deltas.hasNext()) {
-			IJavaElementDelta delta = (IJavaElementDelta)deltas.next();
-			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int j = 0; j < children.length; j++) {
-				JavaElementDelta projectDelta = (JavaElementDelta) children[j];
-				rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
-				insertedTree = true;
-			}
+	if (fJavaModelDeltas.size() <= 1) return;
+	
+	Iterator deltas = fJavaModelDeltas.iterator();
+	JavaElementDelta rootDelta = new JavaElementDelta(getJavaModel());
+	boolean insertedTree = false;
+	while (deltas.hasNext()) {
+		IJavaElementDelta delta = (IJavaElementDelta)deltas.next();
+		IJavaElementDelta[] children = delta.getAffectedChildren();
+		for (int j = 0; j < children.length; j++) {
+			JavaElementDelta projectDelta = (JavaElementDelta) children[j];
+			rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+			insertedTree = true;
 		}
-		if (insertedTree){
-			if (fJavaModelDeltas.isEmpty()) {
-				fResourceDeltas = new ArrayList(1);
-				fResourceDeltas.add(rootDelta);
-			} else {
-				fJavaModelDeltas = new ArrayList(1);
-				fJavaModelDeltas.add(rootDelta);
-			}	
-		}
-		else {
-			if (fJavaModelDeltas.isEmpty()) {
-				fResourceDeltas = new ArrayList(0);
-			} else {
-				fJavaModelDeltas = new ArrayList(0);
-			}	
-		}
+	}
+	if (insertedTree){
+		if (fJavaModelDeltas.isEmpty()) {
+			fResourceDeltas = new ArrayList(1);
+			fResourceDeltas.add(rootDelta);
+		} else {
+			fJavaModelDeltas = new ArrayList(1);
+			fJavaModelDeltas.add(rootDelta);
+		}	
+	}
+	else {
+		if (fJavaModelDeltas.isEmpty()) {
+			fResourceDeltas = new ArrayList(0);
+		} else {
+			fJavaModelDeltas = new ArrayList(0);
+		}	
 	}
 }	
 	/**
@@ -1100,7 +1093,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 							IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta);
 							if (translatedDeltas.length > 0) {
 								for (int i= 0; i < translatedDeltas.length; i++) {
-									registerResourceDelta(translatedDeltas[i]);
+									registerJavaModelDelta(translatedDeltas[i]);
 								}
 							}
 							fire();
@@ -1124,15 +1117,22 @@ public void rollback(ISaveContext context){
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-
-		boolean wasFiring = isFiring();
-		try {
-			if (wasFiring) stopDeltas();
-			if (operation.isReadOnly()) {
-				operation.run(monitor);
+		try {
+			if (operation.isReadOnly() || operation instanceof SetClasspathOperation) {
+				boolean wasFiring = isFiring();
+				try {
+					if (wasFiring) stopDeltas();
+					operation.run(monitor);
+				} finally {
+					if (wasFiring) {
+						startDeltas();
+						fire();
+					}
+				}
 			} else {
 				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
 				this.getJavaModel().getWorkspace().run(operation, monitor);
+				 // NB: deltas are fired while processing the resource delta
 			}
 		} catch (CoreException ce) {
 			if (ce instanceof JavaModelException) {
@@ -1145,12 +1145,6 @@ public void rollback(ISaveContext context){
 					}
 				}
 				throw new JavaModelException(ce);
-			}
-		} finally {
-			// fire any registered deltas
-			if (wasFiring){
-				startDeltas();
-				fire();
 			}
 		}
 	}

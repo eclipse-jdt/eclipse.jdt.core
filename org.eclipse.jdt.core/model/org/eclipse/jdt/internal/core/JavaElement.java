@@ -65,6 +65,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected static JavaModelManager fgJavaModelManager = JavaModelManager.getJavaModelManager();
 	
+	protected static final Object NO_INFO = new Object();
+	
 /**
  * Constructs a handle for a java element of the specified type, with
  * the given parent element and name.
@@ -532,8 +534,7 @@ protected String tabString(int tab) {
  */
 public String toDebugString() {
 	StringBuffer buffer = new StringBuffer();
-	Object info = fgJavaModelManager.getInfo(this);
-	this.toStringInfo(0, buffer, info);
+	this.toStringInfo(0, buffer, NO_INFO);
 	return buffer.toString();
 }
 /**
