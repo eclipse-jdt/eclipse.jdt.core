@@ -45,6 +45,18 @@
 	  <code>ICompilationUnit</code> when a working copy is needed.
 	  </p>
 </li>
+<li>(in progress) Factory methods that create <code>IWorkingCopies</code> now return
+	  an <code>IWorkingCopy</code> instead of an <code>IJavaElement</code>.
+	  <p>
+	  Working copies were initialy designed to be editable elements on any <code>IJavaElement</code>.
+	  Pratice showed that they were used only to edit <code>ICompilationUnit</code>. To avoid 
+	  downcasting to <code>IWorkingCopy</code>, the factory methods now return an
+	  <code>IWorkingCopy</code>.
+	  </p>
+	  <p>
+	  Clients using factory methods to create working copies can now remove the cast from 
+	  <code>IJavaElement</code> to <code>IWorkingCopy</code>.
+	  </p></li>
 </ul>
 
 </body>
