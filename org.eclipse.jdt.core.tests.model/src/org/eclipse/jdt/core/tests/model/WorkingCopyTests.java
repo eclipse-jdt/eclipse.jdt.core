@@ -297,7 +297,7 @@ public void testContents() throws CoreException {
 	String originalSource = this.cu.getSource();
 	IType type = this.cu.getType("A");
 	assertDeletion(type);
-	assertTrue("source code of copy should still be original", this.copy.getSource().equals(originalSource));
+	assertSourceEquals("source code of copy should still be original", originalSource, this.copy.getSource());
 }
 
 /**
