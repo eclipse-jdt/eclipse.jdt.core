@@ -126,34 +126,34 @@ public Object getWrappedConstantValue() throws ClassFormatException {
 
 	if (this.wrappedConstantValue == null) {
 		if (hasConstant()) {
-			Constant constant = getConstant();
-			switch (constant.typeID()) {
+			Constant fieldConstant = getConstant();
+			switch (fieldConstant.typeID()) {
 				case T_int :
-					this.wrappedConstantValue = new Integer(constant.intValue());
+					this.wrappedConstantValue = new Integer(fieldConstant.intValue());
 					break;
 				case T_byte :
-					this.wrappedConstantValue = new Byte(constant.byteValue());
+					this.wrappedConstantValue = new Byte(fieldConstant.byteValue());
 					break;
 				case T_short :
-					this.wrappedConstantValue = new Short(constant.shortValue());
+					this.wrappedConstantValue = new Short(fieldConstant.shortValue());
 					break;
 				case T_char :
-					this.wrappedConstantValue = new Character(constant.charValue());
+					this.wrappedConstantValue = new Character(fieldConstant.charValue());
 					break;
 				case T_float :
-					this.wrappedConstantValue = new Float(constant.floatValue());
+					this.wrappedConstantValue = new Float(fieldConstant.floatValue());
 					break;
 				case T_double :
-					this.wrappedConstantValue = new Double(constant.doubleValue());
+					this.wrappedConstantValue = new Double(fieldConstant.doubleValue());
 					break;
 				case T_boolean :
-					this.wrappedConstantValue = new Boolean(constant.booleanValue());
+					this.wrappedConstantValue = new Boolean(fieldConstant.booleanValue());
 					break;
 				case T_long :
-					this.wrappedConstantValue = new Long(constant.longValue());
+					this.wrappedConstantValue = new Long(fieldConstant.longValue());
 					break;
 				case T_String :
-					this.wrappedConstantValue = constant.stringValue();
+					this.wrappedConstantValue = fieldConstant.stringValue();
 			}
 		}
 	}
