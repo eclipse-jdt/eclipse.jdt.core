@@ -125,8 +125,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		char [] oldIdent = this.assistIdentifier();
 		this.setAssistIdentifier(null);			
 		if (alwaysQualified) {
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnAstLengthStack(0);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsLengthStack(0);
 		}
 		alloc.type = getTypeReference(0);
 		
@@ -243,8 +243,8 @@ protected void consumeEnterAnonymousClassBodySimpleName() {
 		super.consumeEnterAnonymousClassBodySimpleName();
 		return;
 	}
-	pushOnAstLengthStack(0);
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsLengthStack(0);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
@@ -698,8 +698,8 @@ protected NameReference getUnspecifiedReference() {
 			// discard 'super' from identifier stacks
 			identifierLengthStack[identifierLengthPtr] = completionIndex;
 			int ptr = identifierPtr -= (length - completionIndex);
-			pushOnAstLengthStack(0);
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsLengthStack(0);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			reference = 
 				new SelectionOnQualifiedSuperReference(
 					getTypeReference(0), 
