@@ -78,7 +78,7 @@ public void test02() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private int value;								\n" + 
 		"	            ^^^^^\n" + 
-		"The private field A.value is never used locally\n" + 
+		"The private field A.value is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 6)\n" + 
 		"	value = 2;								\n" + 
@@ -208,7 +208,7 @@ public void test06() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private static String success = \"SUCCESS\";	\n" + 
 		"	                      ^^^^^^^\n" + 
-		"The private field A.success is never used locally\n" + 
+		"The private field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
@@ -302,7 +302,7 @@ public void test09() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private String success = \"SUCCESS\";			\n" + 
 		"	               ^^^^^^^\n" + 
-		"The private field A.success is never used locally\n" + 
+		"The private field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
@@ -338,7 +338,7 @@ public void test10() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private String success = \"SUCCESS\";			\n" + 
 		"	               ^^^^^^^\n" + 
-		"The private field A.success is never used locally\n" + 
+		"The private field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(A.success);}\n" + 
