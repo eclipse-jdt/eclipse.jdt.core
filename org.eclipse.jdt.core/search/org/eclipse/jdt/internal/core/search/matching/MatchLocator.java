@@ -14,18 +14,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
@@ -37,11 +29,8 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -71,19 +60,24 @@ public class MatchLocator implements ITypeRequestor {
 	private MatchingOpenable currentMatchingOpenable;
 	public HandleFactory handleFactory;
 	public IWorkingCopy[] workingCopies;
+	
+	public IProgressMonitor progressMonitor;
 
 	final static char[] EMPTY_FILE_NAME = CharOperation.NO_CHAR;
+	boolean compilationAborted;
 
 	public MatchLocator(
 		SearchPattern pattern,
 		int detailLevel,
 		IJavaSearchResultCollector collector,
-		IJavaSearchScope scope) {
+		IJavaSearchScope scope,
+		IProgressMonitor progressMonitor) {
 
 		this.pattern = pattern;
 		this.detailLevel = detailLevel;
 		this.collector = collector;
 		this.scope = scope;
+		this.progressMonitor = progressMonitor;
 	}
 	
 	/**
@@ -155,7 +149,7 @@ public class MatchLocator implements ITypeRequestor {
  * Parse the given compiation unit and build its type bindings.
  * Remember the parsed unit.
  */
-public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
+public void buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
 	final IFile file = 
 		compilationUnit.isWorkingCopy() ?
 			(IFile)compilationUnit.getOriginalElement().getResource() :
@@ -170,7 +164,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	// find out if unit is already known
 	char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 	unit = (CompilationUnitDeclaration)this.parsedUnits.get(qualifiedName);
-	if (unit != null) return unit;
+	if (unit != null) return;
 
 	// source unit
 	IBuffer buffer;
@@ -200,7 +194,6 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		this.lookupEnvironment.completeTypeBindings(unit, true);
 		this.parsedUnits.put(qualifiedName, unit);
 	}
-	return unit;
 }
 
 	/**
@@ -444,8 +437,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	public void locateMatches(
 		String[] filePaths, 
 		IWorkspace workspace,
-		IWorkingCopy[] workingCopies, 
-		IProgressMonitor progressMonitor)
+		IWorkingCopy[] workingCopies)
 		throws JavaModelException {
 			
 		if (SearchEngine.VERBOSE) {
@@ -547,7 +539,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 						// locate matches in previous project
 						if (previousJavaProject != null) {
 							try {
-								this.locateMatches(previousJavaProject, progressMonitor);
+								this.locateMatches(previousJavaProject);
 							} catch (JavaModelException e) {
 								if (e.getException() instanceof CoreException) {
 									throw e;
@@ -589,7 +581,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			// last project
 			if (previousJavaProject != null) {
 				try {
-					this.locateMatches(previousJavaProject, progressMonitor);
+					this.locateMatches(previousJavaProject);
 				} catch (JavaModelException e) {
 					if (e.getException() instanceof CoreException) {
 						throw e;
@@ -1251,32 +1243,13 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 	/**
 	 * Locate the matches amongst the matching openables.
 	 */
-	private void locateMatches(JavaProject javaProject, IProgressMonitor progressMonitor) throws JavaModelException {
+	private void locateMatches(JavaProject javaProject) throws JavaModelException {
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
 	
-		boolean compilationAborted = false;
+		this.compilationAborted = false;
 
 		if (this.pattern.needsResolve) {
-			// binding creation
-			for (int i = 0, length = openables.length; i < length; i++) { 
-				openables[i].buildTypeBindings();
-				if (progressMonitor != null) {
-					if (progressMonitor.isCanceled()) {
-						throw new OperationCanceledException();
-					} else {
-						progressMonitor.worked(6);
-					}
-				}
-			}
-	
-			// binding resolution
-			try {
-				this.lookupEnvironment.completeTypeBindings();
-			} catch (AbortCompilation e) {
-				// problem with class path: it could not find base classes
-				// continue reporting innacurate matches (since bindings will be null)
-				compilationAborted = true;
-			}
+			this.createAndResolveBindings(openables);
 		}
 
 		// matching openable resolution
@@ -1289,7 +1262,6 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 				this.currentMatchingOpenable = openables[i];
 				
 				if (!this.currentMatchingOpenable.hasAlreadyDefinedType()) {
-					this.currentMatchingOpenable.shouldResolve = !compilationAborted;
 					this.currentMatchingOpenable.locateMatches();
 				} // else skip type has it is hidden so not visible
 			} catch (AbortCompilation e) {
@@ -1313,5 +1285,28 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 			}
 		}
 		this.currentMatchingOpenable = null;
+	}
+
+	void createAndResolveBindings(MatchingOpenable[] openables) {
+		// binding creation
+		for (int i = 0, length = openables.length; i < length; i++) { 
+			openables[i].buildTypeBindings();
+			if (this.progressMonitor != null) {
+				if (this.progressMonitor.isCanceled()) {
+					throw new OperationCanceledException();
+				} else {
+					this.progressMonitor.worked(6);
+				}
+			}
+		}
+		
+		// binding resolution
+		try {
+			this.lookupEnvironment.completeTypeBindings();
+		} catch (AbortCompilation e) {
+			// problem with class path: it could not find base classes
+			// continue reporting innacurate matches (since bindings will be null)
+			this.compilationAborted = true;
+		}
 	}
 }

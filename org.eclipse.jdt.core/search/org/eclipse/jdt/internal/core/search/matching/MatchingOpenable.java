@@ -13,41 +13,29 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
-import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.WorkingCopy;
+import org.eclipse.jdt.internal.core.*;
  
 public class MatchingOpenable {
+	static final CompilationUnitDeclaration ALREADY_RESOLVED = new CompilationUnitDeclaration(null, null, 0);
 	private MatchLocator locator;
 	public IResource resource;
 	public Openable openable;
 	private CompilationUnitDeclaration parsedUnit;
 	private char[] source;
 	private MatchSet matchSet;
-	public boolean shouldResolve = true;
+
 public MatchingOpenable(MatchLocator locator, IResource resource, Openable openable) {
 	this.locator = locator;
 	this.resource = resource;
@@ -67,28 +55,15 @@ public MatchingOpenable(
 }
 public void buildTypeBindings() {
 	
-	// if a parsed unit exits, its bindings have already been built
-	if (this.parsedUnit != null) return;
-	
-	char[] source = this.getSource();
-	if (source == null) return;
-	this.buildTypeBindings(source);
-			
-	if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		// try to use the main type's class file as the openable
-		TypeDeclaration[] types = this.parsedUnit.types;
-		if (types != null) {
-			String classFileName = openable.getElementName();
-			for (int i = 0, length = types.length; i < length; i++) {
-				TypeDeclaration typeDeclaration = types[i];
-				String simpleTypeName = new String(typeDeclaration.name);
-				if (classFileName.startsWith(simpleTypeName)) {
-					IPackageFragment parent = (IPackageFragment)openable.getParent();
-					this.openable = (Openable)parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
-					break;
-				}
-			} 
-		}
+	if (this.parsedUnit == null) {
+		char[] source = this.getSource();
+		if (source == null) return;
+		this.buildTypeBindings(source);
+	} else {
+		// if a parsed unit's scope is set, its bindings have already been built
+		if (this.parsedUnit.scope != null) return;
+		
+		this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
 	}
 }
 private void buildTypeBindings(final char[] source) {
@@ -109,13 +84,19 @@ private void buildTypeBindings(final char[] source) {
 			
 			// initial type binding creation
 			this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
-		} else {
-			// free memory
-			this.locator.parsedUnits.put(qualifiedName, null);
-		}
+		} 
+
+		// free memory and remember that this unit as already been resolved 
+		// (case of 2 matching openables on a binary type and its member type) 
+		this.locator.parsedUnits.put(qualifiedName, ALREADY_RESOLVED);
+
 	} finally {
 		this.locator.parser.matchSet = null;
 	}
+}
+public boolean equals(Object obj) {
+	if (!(obj instanceof MatchingOpenable)) return false;
+	return this.openable.equals(((MatchingOpenable)obj).openable);
 }
 private char[] getQualifiedName() {
 	if (this.openable instanceof CompilationUnit) {
@@ -128,7 +109,16 @@ private char[] getQualifiedName() {
 	} else {
 		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
 		try {
-			return classFile.getType().getFullyQualifiedName().toCharArray();
+			// find the outer most declaring type
+			IType type = classFile.getType();
+			IType declaringType = type.getDeclaringType();
+			while (declaringType != null) {
+				type = declaringType;
+				declaringType = type.getDeclaringType();
+			}
+			
+			// return qualified name of outer most declaring type
+			return type.getFullyQualifiedName().toCharArray();
 		} catch (JavaModelException e) {
 			return null; // nothing we can do here
 		}
@@ -150,6 +140,9 @@ public char[] getSource() {
 	} catch (JavaModelException e) {
 	}
 	return this.source;
+}
+public int hashCode() {
+	return this.openable.hashCode();
 }
 public boolean hasAlreadyDefinedType() {
 	if (this.parsedUnit == null) return false;
@@ -312,38 +305,36 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 			this.matchSet.reportMatching(parsedUnit);
 			
 			// resolve if needed
-			if (this.matchSet.needsResolve()) {
-				if (this.parsedUnit.types != null) {
-					if (this.shouldResolve) {
-						try {
-							if (this.parsedUnit.scope == null) {
-								// bindings were not created (case of a FieldReferencePattern that doesn't need resolve, 
-								// but we need to resolve because of a SingleNameReference being a potential match)
-								this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
-								this.locator.lookupEnvironment.completeTypeBindings(this.parsedUnit, true);
-							}
-							if (this.parsedUnit.scope != null) {
-								this.parsedUnit.scope.faultInTypes();
-								this.parsedUnit.resolve();
-							}
-							// report matches that needed resolve
-							this.matchSet.cuHasBeenResolved = true;
-							this.matchSet.reportMatching(this.parsedUnit);
-						} catch (AbortCompilation e) {
-							// could not resolve: report innacurate matches
-							this.matchSet.cuHasBeenResolved = true;
-							this.matchSet.reportMatching(this.parsedUnit);
-							if (!(e instanceof AbortCompilationUnit)) {
-								// problem with class path
-								throw e;
-							}
+			if (this.matchSet.needsResolve() && this.parsedUnit.types != null) {
+				if (!this.locator.compilationAborted) {
+					try {
+						if (this.parsedUnit.scope == null) {
+							// bindings were not created (case of a FieldReferencePattern that doesn't need resolve, 
+							// but we need to resolve because of a SingleNameReference being a potential match)
+							MatchingOpenable[] openables = this.locator.matchingOpenables.getMatchingOpenables(this.openable.getJavaProject().getPackageFragmentRoots());
+							this.locator.createAndResolveBindings(openables);
 						}
-					} else {
-						// problem ocured while completing the bindings for the base classes
-						// -> report innacurate matches
+						if (this.parsedUnit.scope != null) {
+							this.parsedUnit.scope.faultInTypes();
+							this.parsedUnit.resolve();
+						}
+						// report matches that needed resolve
 						this.matchSet.cuHasBeenResolved = true;
 						this.matchSet.reportMatching(this.parsedUnit);
+					} catch (AbortCompilation e) {
+						// could not resolve: report innacurate matches
+						this.matchSet.cuHasBeenResolved = true;
+						this.matchSet.reportMatching(this.parsedUnit);
+						if (!(e instanceof AbortCompilationUnit)) {
+							// problem with class path
+							throw e;
+						}
 					}
+				} else {
+					// problem ocured while completing the bindings for the base classes
+					// -> report innacurate matches
+					this.matchSet.cuHasBeenResolved = true;
+					this.matchSet.reportMatching(this.parsedUnit);
 				}
 			}
 		} finally {

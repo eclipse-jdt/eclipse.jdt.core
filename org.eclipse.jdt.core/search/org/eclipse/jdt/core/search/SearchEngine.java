@@ -394,7 +394,14 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
-		MatchLocator matchLocator = new MatchLocator((SearchPattern)searchPattern, detailLevel, resultCollector, scope);
+		MatchLocator matchLocator = 
+			new MatchLocator(
+				(SearchPattern)searchPattern, 
+				detailLevel, 
+				resultCollector, 
+				scope,
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 95)
+		);
 
 		indexManager.performConcurrentJob(
 			new PatternSearchJob(
@@ -411,8 +418,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		matchLocator.locateMatches(
 			pathCollector.getPaths(), 
 			workspace,
-			this.workingCopies,
-			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 95)
+			this.workingCopies
 		);
 		
 
@@ -580,12 +586,12 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
-			scope);
+			scope,
+			resultCollector.getProgressMonitor());
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement),
-			resultCollector.getProgressMonitor());
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -638,12 +644,12 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
-			scope);
+			scope,
+			resultCollector.getProgressMonitor());
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement),
-			resultCollector.getProgressMonitor());
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -699,12 +705,12 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
-			scope);
+			scope,
+			resultCollector.getProgressMonitor());
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement),
-			resultCollector.getProgressMonitor());
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
