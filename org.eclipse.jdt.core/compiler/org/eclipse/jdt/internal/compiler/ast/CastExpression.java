@@ -295,34 +295,41 @@ public class CastExpression extends Expression {
 	/**
 	 * Check binary operator casted arguments 
 	 */
-	public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, Expression right, int rightTypeId) {
+	public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, boolean leftIsCast, Expression right, int rightTypeId, boolean rightIsCast) {
 
 		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
-		// check need for operand cast
-		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
-		int alternateLeftTypeId = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType.id : leftTypeId;
-		if (unnecessaryLeftCast && alternateLeftTypeId == leftTypeId) {
-			// obvious identity cast
-			scope.problemReporter().unnecessaryCast((CastExpression)left); 
-			unnecessaryLeftCast = false;
+		// check need for left operand cast
+		int alternateLeftTypeId;
+		if (leftIsCast) {
+			alternateLeftTypeId = ((CastExpression)left).expression.resolvedType.id;
+			if (alternateLeftTypeId == leftTypeId) { // obvious identity cast
+				scope.problemReporter().unnecessaryCast((CastExpression)left); 
+				leftIsCast = false;
+			}	
+		} else {
+			alternateLeftTypeId = leftTypeId;
 		}
-		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
-		int alternateRightTypeId = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType.id : rightTypeId;
-		if (unnecessaryRightCast && alternateRightTypeId == rightTypeId) {
-			// obvious identity cast
-			scope.problemReporter().unnecessaryCast((CastExpression)right); 
-			unnecessaryRightCast = false;
+		// check need for right operand cast
+		int alternateRightTypeId;
+		if (rightIsCast) {
+			alternateRightTypeId = ((CastExpression)right).expression.resolvedType.id;
+			if (alternateRightTypeId == rightTypeId) { // obvious identity cast
+				scope.problemReporter().unnecessaryCast((CastExpression)right); 
+				rightIsCast = false;
+			}	
+		} else {
+			alternateRightTypeId = rightTypeId;
 		}
-		if (unnecessaryLeftCast || unnecessaryRightCast) {
+		if (leftIsCast || rightIsCast) {
 			int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
 			// (cast)  left   Op (cast)  right --> result
 			//  1111   0000       1111   0000     1111
 			//  <<16   <<12       <<8    <<4       <<0
 			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
 			if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result
-				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)left,  TypeBinding.wellKnownType(scope, left.implicitConversion >> 4)); 
-				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)right, TypeBinding.wellKnownType(scope,  right.implicitConversion >> 4));
+				if (leftIsCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)left,  TypeBinding.wellKnownType(scope, left.implicitConversion >> 4)); 
+				if (rightIsCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)right, TypeBinding.wellKnownType(scope,  right.implicitConversion >> 4));
 			}
 		}
 	}

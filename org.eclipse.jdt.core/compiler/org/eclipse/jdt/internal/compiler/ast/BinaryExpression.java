@@ -1658,17 +1658,11 @@ public class BinaryExpression extends OperatorExpression {
 		
 	public TypeBinding resolveType(BlockScope scope) {
 
-		boolean argsContainCast = false;
-		if (left instanceof CastExpression) {
-			left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			argsContainCast = true;
-		}
+		boolean leftIsCast, rightIsCast;
+		if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		TypeBinding leftType = left.resolveType(scope);
 
-		if (right instanceof CastExpression) {
-			right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			argsContainCast = true;
-		}
+		if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		TypeBinding rightType = right.resolveType(scope);
 
 		// use the id of the type to navigate into the table
@@ -1748,8 +1742,8 @@ public class BinaryExpression extends OperatorExpression {
 		}
 
 		// check need for operand cast
-		if (argsContainCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, operator, operatorSignature, left, leftTypeId, right, rightTypeId);
+		if (leftIsCast || rightIsCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, operator, operatorSignature, left, leftTypeId, leftIsCast, right, rightTypeId, rightIsCast);
 		}
 		// compute the constant when valid
 		computeConstant(scope, leftTypeId, rightTypeId);

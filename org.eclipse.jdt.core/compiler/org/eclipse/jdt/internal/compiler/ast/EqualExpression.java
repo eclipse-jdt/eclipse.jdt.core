@@ -499,17 +499,11 @@ public boolean isCompactableOperation() {
 }
 public TypeBinding resolveType(BlockScope scope) {
 
-		boolean argsContainCast = false;
-		if (left instanceof CastExpression) {
-			left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			argsContainCast = true;
-		}
+		boolean leftIsCast, rightIsCast;
+		if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		TypeBinding leftType = left.resolveType(scope);
 
-		if (right instanceof CastExpression) {
-			right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			argsContainCast = true;
-		}
+		if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		TypeBinding rightType = right.resolveType(scope);
 
 	// always return BooleanBinding
@@ -534,9 +528,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 		// check need for operand cast
-		if (argsContainCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, EQUAL_EQUAL, operatorSignature, left, leftType.id, right, rightType.id);
-		}	
+		if (leftIsCast || rightIsCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, EQUAL_EQUAL, operatorSignature, left, leftType.id, leftIsCast, right, rightType.id, rightIsCast);
+		}
 		computeConstant(leftType, rightType);
 		return this.resolvedType = BooleanBinding;
 	}
