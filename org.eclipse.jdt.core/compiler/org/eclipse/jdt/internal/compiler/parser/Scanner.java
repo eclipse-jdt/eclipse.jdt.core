@@ -792,8 +792,22 @@ public int getNextToken() throws InvalidInputException {
 			int offset = 0;
 			do {
 				startPosition = currentPosition;
-				if (((currentCharacter = source[currentPosition++]) == '\\')
-					&& (source[currentPosition] == 'u')) {
+				boolean checkIfUnicode = false;
+				try {
+					checkIfUnicode = ((currentCharacter = source[currentPosition++]) == '\\')
+					&& (source[currentPosition] == 'u');
+				} catch(IndexOutOfBoundsException e) {
+					if (tokenizeWhiteSpace && (whiteStart != currentPosition - 1)) {
+						// reposition scanner in case we are interested by spaces as tokens
+						currentPosition--;
+						startPosition = whiteStart;
+						return TokenNameWHITESPACE;
+					}
+					if (currentPosition >= eofPosition)
+						return TokenNameEOF;
+					throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+				}
+				if (checkIfUnicode) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 					offset = 6;
 				} else {
@@ -976,8 +990,16 @@ public int getNextToken() throws InvalidInputException {
 						scanEscapeCharacter();
 					else { // consume next character
 						unicodeAsBackSlash = false;
-						if (((currentCharacter = source[currentPosition++]) == '\\')
-							&& (source[currentPosition] == 'u')) {
+						boolean checkIfUnicode = false;
+						try {
+							checkIfUnicode = ((currentCharacter = source[currentPosition++]) == '\\')
+							&& (source[currentPosition] == 'u');
+						} catch(IndexOutOfBoundsException e) {
+							if (currentPosition >= eofPosition)
+								return TokenNameEOF;
+							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+						}
+						if (checkIfUnicode) {
 							getNextUnicodeChar();
 						} else {
 							if (withoutUnicodePtr != 0) {
@@ -1222,37 +1244,37 @@ public int getNextToken() throws InvalidInputException {
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment
-							boolean isJavadoc = false, star = false;
-							boolean isUnicode = false;
-							// consume next character
-							unicodeAsBackSlash = false;
-							if (((currentCharacter = source[currentPosition++]) == '\\')
-								&& (source[currentPosition] == 'u')) {
-								getNextUnicodeChar();
-								isUnicode = true;
-							} else {
-								isUnicode = false;
-								if (withoutUnicodePtr != 0) {
-									withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
-								}
-							}
-
-							if (currentCharacter == '*') {
-								isJavadoc = true;
-								star = true;
-							}
-							if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
-								checkNonExternalizeString();
-								if (recordLineSeparator) {
-									if (!isUnicode) {
-										pushLineSeparator();
-									}
+							try { //get the next char
+								boolean isJavadoc = false, star = false;
+								boolean isUnicode = false;
+								// consume next character
+								unicodeAsBackSlash = false;
+								if (((currentCharacter = source[currentPosition++]) == '\\')
+									&& (source[currentPosition] == 'u')) {
+									getNextUnicodeChar();
+									isUnicode = true;
 								} else {
-									currentLine = null;
+									isUnicode = false;
+									if (withoutUnicodePtr != 0) {
+										withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+									}
 								}
-							}
-							isUnicode = false;
-							try { //get the next char 
+	
+								if (currentCharacter == '*') {
+									isJavadoc = true;
+									star = true;
+								}
+								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+									checkNonExternalizeString();
+									if (recordLineSeparator) {
+										if (!isUnicode) {
+											pushLineSeparator();
+										}
+									} else {
+										currentLine = null;
+									}
+								}
+								isUnicode = false;
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
@@ -2949,6 +2971,7 @@ public final void setSource(char[] source){
 		this.source = source;
 	}
 	startPosition = -1;
+	eofPosition = source.length;
 	initialPosition = currentPosition = 0;
 	containsAssertKeyword = false;
 	withoutUnicodeBuffer = new char[this.source.length];
