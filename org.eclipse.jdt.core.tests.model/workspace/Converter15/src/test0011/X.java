@@ -1,4 +1,4 @@
-package test0010;
+package test0011;
 
 @interface Foo {
 }
