@@ -34,12 +34,12 @@ public class MergeFactory {
 	/**
 	 * Files removed from oldIndex. 
 	 */
-	protected Hashtable removedInOld;
+	protected Map removedInOld;
 
 	/**
 	 * Files removed from addsIndex. 
 	 */
-	protected Hashtable removedInAdds;
+	protected Map removedInAdds;
 	protected int[] mappingOld;
 	protected int[] mappingAdds;
 	public static final int ADDS_INDEX= 0;
@@ -48,7 +48,7 @@ public class MergeFactory {
 	 * MergeFactory constructor comment.
 	 * @param directory java.io.File
 	 */
-	public MergeFactory(IndexInput oldIndexInput, IndexInput addsIndexInput, BlocksIndexOutput mergeIndexOutput, Hashtable removedInOld, Hashtable removedInAdds) {
+	public MergeFactory(IndexInput oldIndexInput, IndexInput addsIndexInput, BlocksIndexOutput mergeIndexOutput, Map removedInOld, Map removedInAdds) {
 		oldInput= oldIndexInput;
 		addsInput= addsIndexInput;
 		mergeOutput= mergeIndexOutput;

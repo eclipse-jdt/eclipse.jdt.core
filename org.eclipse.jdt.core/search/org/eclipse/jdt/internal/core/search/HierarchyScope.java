@@ -24,7 +24,7 @@ public class HierarchyScope
 
 	private ITypeHierarchy fHierarchy;
 	private IType[] fTypes;
-	private Hashtable resourcePaths = new Hashtable();
+	private HashSet resourcePaths = new HashSet();
 	private IPath[] enclosingProjectsAndJars;
 
 	/**
@@ -35,8 +35,8 @@ public class HierarchyScope
 		buildResourceVector();
 	}
 	private void buildResourceVector() throws JavaModelException {
-		Hashtable resources = new Hashtable();
-		Hashtable paths = new Hashtable();
+		HashMap resources = new HashMap();
+		HashMap paths = new HashMap();
 		fTypes = fHierarchy.getAllTypes();
 		for (int i = 0; i < fTypes.length; i++) {
 			IType type = fTypes[i];
@@ -72,7 +72,7 @@ public class HierarchyScope
 						+ type.getFullyQualifiedName().replace('.', '/')
 						+ ".class";//$NON-NLS-1$
 				
-				this.resourcePaths.put(resourcePath, resourcePath);
+				this.resourcePaths.add(resourcePath);
 				paths.put(jar.getPath(), type);
 			} else {
 				// type is a project
@@ -81,8 +81,8 @@ public class HierarchyScope
 		}
 		this.enclosingProjectsAndJars = new IPath[paths.size()];
 		int i = 0;
-		for (Enumeration e = paths.keys(); e.hasMoreElements();) {
-			this.enclosingProjectsAndJars[i++] = (IPath) e.nextElement();
+		for (Iterator iter = paths.keySet().iterator(); iter.hasNext();) {
+			this.enclosingProjectsAndJars[i++] = (IPath) iter.next();
 		}
 	}
 	/* (non-Javadoc)
@@ -91,7 +91,7 @@ public class HierarchyScope
 	public boolean encloses(String resourcePath) {
 		int separatorIndex = resourcePath.indexOf(JAR_FILE_ENTRY_SEPARATOR);
 		if (separatorIndex != -1) {
-			return this.resourcePaths.get(resourcePath) != null;
+			return this.resourcePaths.contains(resourcePath);
 		} else {
 			for (int i = 0; i < this.elementCount; i++) {
 				if (resourcePath.startsWith(this.elements[i].getFullPath().toString())) {

@@ -120,7 +120,7 @@ public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
  */
 public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
 	JavaSearchScope scope = new JavaSearchScope();
-	Hashtable visitedProjects = new Hashtable(2);
+	HashSet visitedProjects = new HashSet(2);
 	for (int i = 0, length = elements.length; i < length; i++) {
 		IJavaElement element = elements[i];
 		if (element != null) {

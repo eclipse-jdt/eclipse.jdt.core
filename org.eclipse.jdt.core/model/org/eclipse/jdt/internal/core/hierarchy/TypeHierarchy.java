@@ -121,7 +121,7 @@ public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes
 protected void activate() {
 
 	// determine my file, package, root, & project regions.
-	this.files = new Hashtable(5);
+	this.files = new HashMap(5);
 	fProjectRegion = new Region();
 	fPackageRegion = new Region();
 	fRootRegion = new Region();

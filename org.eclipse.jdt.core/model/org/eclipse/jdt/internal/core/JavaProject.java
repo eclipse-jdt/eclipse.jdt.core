@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.eval.EvaluationContext;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 

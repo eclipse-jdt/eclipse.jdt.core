@@ -143,7 +143,7 @@ try {
 	/**
 	 * Table from IProject to PerProjectInfo.
 	 */
-	protected Hashtable perProjectInfo = new Hashtable(5);
+	protected Map perProjectInfo = new HashMap(5);
 
 
 	static class PerProjectInfo {
@@ -902,8 +902,8 @@ public void rollback(ISaveContext context){
 		if (!JavaBuilder.SAVE_ENABLED)
 			return;
 		ArrayList vStats= null; // lazy initialized
-		for (Enumeration enum= perProjectInfo.elements(); enum.hasMoreElements();) {
-			PerProjectInfo info= (PerProjectInfo) enum.nextElement();
+		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
+			PerProjectInfo info= (PerProjectInfo) iter.next();
 			try {
 				saveStateIfNecessary(info);
 			} catch (CoreException e) {
@@ -1013,7 +1013,7 @@ public void saving(ISaveContext context) throws CoreException {
 		} else {
 			// remove projects which are already mentionned in java builder order
 			int javaCount = javaBuildOrder.length;
-			Hashtable newSet = new Hashtable(javaCount); // create a set for fast check
+			HashMap newSet = new HashMap(javaCount); // create a set for fast check
 			for (int i = 0; i < javaCount; i++){
 				newSet.put(javaBuildOrder[i], javaBuildOrder[i]);
 			}

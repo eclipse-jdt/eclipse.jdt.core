@@ -20,7 +20,7 @@ import java.util.*;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
-	Hashtable inputs = new Hashtable(5);
+	Map inputs = new HashMap(5);
 public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
 	super(pattern, scope, detailLevel, requestor, indexManager);
 }
@@ -29,9 +29,9 @@ public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElem
 }
 public void closeAll(){
 
-	Enumeration openedInputs = inputs.elements();
-	while (openedInputs.hasMoreElements()){
-		IndexInput input = (IndexInput) openedInputs.nextElement();
+	Iterator openedInputs = inputs.values().iterator();
+	while (openedInputs.hasNext()){
+		IndexInput input = (IndexInput) openedInputs.next();
 		try {
 			input.close();
 		} catch(IOException e){

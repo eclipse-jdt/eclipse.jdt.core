@@ -18,7 +18,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -57,11 +58,11 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) thr
 
 	// remove existing (old) infos
 	removeInfo();
-	Hashtable newElements = new Hashtable(11);
+	HashMap newElements = new HashMap(11);
 	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
-	for (Enumeration e = newElements.keys(); e.hasMoreElements();) {
-		IJavaElement key = (IJavaElement) e.nextElement();
+	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
+		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
 		fgJavaModelManager.putInfo(key, value);
 	}

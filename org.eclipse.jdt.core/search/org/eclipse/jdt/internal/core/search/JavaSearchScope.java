@@ -43,10 +43,9 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject javaProject, boolean includesPrereqProjects, Hashtable visitedProjects) throws JavaModelException {
+public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSet visitedProjects) throws JavaModelException {
 	IProject project = javaProject.getProject();
-	if (!project.isAccessible() || visitedProjects.get(project) != null) return;
-	visitedProjects.put(project, project);
+	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
 	this.addEnclosingProjectOrJar(project.getFullPath());
 
@@ -75,7 +74,7 @@ public void add(IJavaProject javaProject, boolean includesPrereqProjects, Hashta
 public void add(IJavaElement element) throws JavaModelException {
 	IPackageFragmentRoot root = null;
 	if (element instanceof IJavaProject) {
-		this.add((IJavaProject)element, true, new Hashtable(2));
+		this.add((IJavaProject)element, true, new HashSet(2));
 	} else if (element instanceof IPackageFragmentRoot) {
 		root = (IPackageFragmentRoot)element;
 		this.add(root.getPath(), true);

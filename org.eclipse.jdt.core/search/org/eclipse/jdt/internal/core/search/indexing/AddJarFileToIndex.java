@@ -87,7 +87,7 @@ class AddJarFileToIndex implements IJob {
 					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$//$NON-NLS-2$
 				long initialTime = System.currentTimeMillis();
 
-				final Hashtable indexedFileNames = new Hashtable(100);
+				final HashSet indexedFileNames = new HashSet(100);
 				IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
 				int resultLength = results == null ? 0 : results.length;
 				if (resultLength != 0) {
@@ -98,7 +98,7 @@ class AddJarFileToIndex implements IJob {
 					 */
 					for (int i = 0; i < resultLength; i++) {
 						String fileName = results[i].getPath();
-						indexedFileNames.put(fileName, fileName);
+						indexedFileNames.add(fileName);
 					}
 					boolean needToReindex = false;
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
@@ -107,7 +107,7 @@ class AddJarFileToIndex implements IJob {
 						if (Util.isClassFileName(ze.getName())) {
 							JarFileEntryDocument entryDocument =
 								new JarFileEntryDocument(ze, null, zipFilePath);
-							if (indexedFileNames.remove(entryDocument.getName()) == null) {
+							if (!indexedFileNames.remove(entryDocument.getName())) {
 								needToReindex = true;
 								break;
 							}

@@ -32,10 +32,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public IWorkspace workspace;
 
 	/* indexes */
-	Hashtable indexes = new Hashtable(5);
+	Map indexes = new HashMap(5);
 
 	/* read write monitors */
-	private Hashtable monitors = new Hashtable(5);
+	private Map monitors = new HashMap(5);
 
 	/* need to save ? */
 	private boolean needToSave = false;
@@ -313,8 +313,8 @@ public void reset(){
 
 	super.reset();
 	if (indexes != null){
-		indexes = new Hashtable(5);
-		monitors = new Hashtable(5);
+		indexes = new HashMap(5);
+		monitors = new HashMap(5);
 	}
 	javaPluginLocation = null;
 }
@@ -322,9 +322,17 @@ public void reset(){
  * Commit all index memory changes to disk
  */
 public void saveIndexes(){
-	Enumeration indexList = indexes.elements();
-	while (indexList.hasMoreElements()){
-		IIndex index = (IIndex)indexList.nextElement();
+
+	ArrayList indexList = new ArrayList();
+	synchronized(this){
+		IIndex[] indexArray = new IIndex[indexes.size()];
+		for (Iterator iter = indexes.values().iterator(); iter.hasNext();){
+			indexList.add(iter.next());
+		}
+	}
+
+	for (Iterator iter = indexList.iterator(); iter.hasNext();){		
+		IIndex index = (IIndex)iter.next();
 		if (index == null) continue; // index got deleted since acquired
 		ReadWriteMonitor monitor = getMonitorFor(index);
 		if (monitor == null) continue; // index got deleted since acquired

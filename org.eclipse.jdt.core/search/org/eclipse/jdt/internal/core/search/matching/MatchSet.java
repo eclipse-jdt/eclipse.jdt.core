@@ -31,13 +31,13 @@ public class MatchSet {
 	/**
 	 * Set of matching ast nodes that don't need to be resolved.
 	 */
-	private Hashtable matchingNodes = new Hashtable(5);
+	private Map matchingNodes = new HashMap(5);
 
 	/**
 	 * Set of potential matching ast nodes. They need to be resolved
 	 * to determine if they really match the search pattern.
 	 */
-	private Hashtable potentialMatchingNodes = new Hashtable(5);
+	private Map potentialMatchingNodes = new HashMap(5);
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -110,11 +110,11 @@ public boolean needsResolve() {
 /**
  * Returns the matching nodes that are in the given range in the source order.
  */
-private AstNode[] nodesInRange(int start, int end, Hashtable set) {
+private AstNode[] nodesInRange(int start, int end, Map set) {
 	// collect nodes in the given range
 	ArrayList nodes = new ArrayList();
-	for (Enumeration keys = set.keys(); keys.hasMoreElements();) {
-		AstNode node = (AstNode)keys.nextElement();
+	for (Iterator keys = set.keySet().iterator(); keys.hasNext();) {
+		AstNode node = (AstNode)keys.next();
 		if (start <= node.sourceStart && node.sourceEnd <= end) {
 			nodes.add(node);
 		}
@@ -192,14 +192,14 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
 public void reportMatching(CompilationUnitDeclaration unit) throws CoreException {
 	if (this.cuHasBeenResolved) {
 		// move the potential matching nodes that exactly match the search pattern to the matching nodes set
-		for (Enumeration potentialMatches = this.potentialMatchingNodes.keys(); potentialMatches.hasMoreElements();) {
-			AstNode node = (AstNode) potentialMatches.nextElement();
+		for (Iterator potentialMatches = this.potentialMatchingNodes.keySet().iterator(); potentialMatches.hasNext();) {
+			AstNode node = (AstNode) potentialMatches.next();
 			int level = this.locator.pattern.matchLevel(node, true);
 			if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
 				this.matchingNodes.put(node, new Integer(level));
 			}
 		}
-		this.potentialMatchingNodes = new Hashtable();
+		this.potentialMatchingNodes = new HashMap();
 	}
 	
 	// package declaration
@@ -404,9 +404,9 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 public String toString() {
 	StringBuffer result = new StringBuffer();
 	result.append("Exact matches:"); //$NON-NLS-1$
-	for (Enumeration enum = this.matchingNodes.keys(); enum.hasMoreElements();) {
+	for (Iterator iter = this.matchingNodes.keySet().iterator(); iter.hasNext();) {
 		result.append("\n"); //$NON-NLS-1$
-		AstNode node = (AstNode)enum.nextElement();
+		AstNode node = (AstNode)iter.next();
 		Object value = this.matchingNodes.get(node);
 		if (value instanceof Integer) {
 			result.append('\t');
@@ -429,9 +429,9 @@ public String toString() {
 		result.append(node.toString(0));
 	}
 	result.append("\nPotential matches:"); //$NON-NLS-1$
-	for (Enumeration enum = this.potentialMatchingNodes.keys(); enum.hasMoreElements();) {
+	for (Iterator iter = this.potentialMatchingNodes.keySet().iterator(); iter.hasNext();) {
 		result.append("\n"); //$NON-NLS-1$
-		AstNode node = (AstNode)enum.nextElement();
+		AstNode node = (AstNode)iter.next();
 		Object value = this.potentialMatchingNodes.get(node);
 		if (value instanceof Integer) {
 			result.append("\t"); //$NON-NLS-1$

@@ -26,7 +26,7 @@ public JavaWorkspaceScope() {
 		IProject project = projects[i];
 		if (project.isAccessible()) {
 			try {
-				this.add(javaCore.create(project), false, new Hashtable(2));
+				this.add(javaCore.create(project), false, new HashSet(2));
 			} catch (JavaModelException e) {
 			}
 		}
