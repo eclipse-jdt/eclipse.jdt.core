@@ -116,6 +116,7 @@ void buildTypeBindings() {
 		if (typeBinding != null && !(typeBinding instanceof UnresolvedReferenceBinding)) {
 			// if a type exists, it must be a valid type - cannot be a NotFound problem type
 			// unless its an unresolved type which is now being defined
+			recordSimpleReference(typeDecl.name);
 			problemReporter().duplicateTypes(referenceContext, typeDecl);
 			continue nextType;
 		}
