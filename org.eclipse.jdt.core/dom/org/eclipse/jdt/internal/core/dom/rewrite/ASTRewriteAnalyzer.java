@@ -679,7 +679,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 		}
-		return doVisit(parent, property, offset);
+		int pos= doVisit(parent, property, offset);
+		if (endPos != -1) {
+			return endPos;
+		}
+		return pos;
 	}
 	
 	private int rewriteOptionalQualifier(ASTNode parent, StructuralPropertyDescriptor property, int startPos) {
