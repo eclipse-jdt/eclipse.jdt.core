@@ -15,7 +15,7 @@ import java.util.Vector;
 /**
  * This is a new vm launcher to support sidecar settings
  */
-public class SideCarVMLauncher extends StandardVMLauncher {
+public class SideCarJ9VMLauncher extends StandardVMLauncher {
 /**
  * @see LocalVMLauncher#getCommandLine
  */
@@ -49,8 +49,13 @@ public String[] getCommandLine() {
 			"-Xrunjdwp:transport=dt_socket,address=" +
 			this.debugPort +
 			",server=y,suspend=n");
+	} else {
+		commandLine.addElement("-Xdebug");
 	}
-	
+
+	commandLine.addElement("-Xj9");
+	commandLine.addElement("-Xprod");
+
 	// regular classpath
 	commandLine.addElement("-classpath");
 	commandLine.addElement(buildClassPath());

@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.runtime;
 import java.io.*;
 import java.util.*;
 
+import org.eclipse.jdt.core.tests.util.Util;
+
 /**
  * The root of the VM launchers that launch VMs on the same machine.
  * <p>
@@ -52,10 +54,17 @@ public static LocalVMLauncher getLauncher() {
 	final String vmName = System.getProperty("java.vm.name");
 	if ("J9".equals(vmName)) {
 		return new J9VMLauncher();
-	} else if ("IBM J9SE VM".equals(vmName)) {
-		return new SideCarVMLauncher();
-	} else  {
-		return new StandardVMLauncher();
+	} else {
+		File file = new File(Util.getJREDirectory() + "/lib/rt.jar");
+		if (file.exists()) {
+			return new StandardVMLauncher();
+		} else {
+			if ("IBM J9SE VM".equals(vmName)) {
+				return new SideCarJ9VMLauncher();
+			} else {
+				return new SideCarVMLauncher();
+			}
+		}
 	}
 }
 /**

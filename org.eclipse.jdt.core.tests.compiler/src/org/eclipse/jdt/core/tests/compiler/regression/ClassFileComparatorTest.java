@@ -81,7 +81,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY)
 			.append("\" -nowarn -g -classpath \"")
-			.append(Util.getJREDirectory() + "/lib/rt.jar;")
+			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());

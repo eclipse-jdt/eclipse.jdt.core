@@ -333,16 +333,19 @@ public static String[] getJavaClassLibs() {
 		final String vmName = System.getProperty("java.vm.name");
 		if ("J9".equals(vmName)) {
 			return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip")};
-		} else if ("IBM J9SE VM".equals(vmName)) {
-			return new String[] { 
-				toNativePath(jreDir + "/lib/core.jar"),
-				toNativePath(jreDir + "/lib/security.jar"),
-				toNativePath(jreDir + "/lib/graphics.jar")
-			};				
 		} else {
-			return new String[] {
-				toNativePath(jreDir + "/lib/rt.jar")
-			};				
+			File file = new File(jreDir + "/lib/rt.jar");
+			if (file.exists()) {
+				return new String[] {
+					toNativePath(jreDir + "/lib/rt.jar")
+				};				
+			} else {				
+				return new String[] { 
+					toNativePath(jreDir + "/lib/core.jar"),
+					toNativePath(jreDir + "/lib/security.jar"),
+					toNativePath(jreDir + "/lib/graphics.jar")
+				};
+			}
 		}
 	}
 }

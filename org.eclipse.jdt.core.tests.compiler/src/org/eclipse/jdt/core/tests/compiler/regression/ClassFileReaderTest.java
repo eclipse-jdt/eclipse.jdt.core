@@ -91,7 +91,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY)
 			.append("\" -preserveAllLocals -nowarn -g -classpath \"")
-			.append(Util.getJREDirectory() + "/lib/rt.jar;")
+			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
