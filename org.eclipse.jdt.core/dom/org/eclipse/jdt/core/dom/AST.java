@@ -76,19 +76,25 @@ import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
  */
 public final class AST {
 	/**
-	 * Kind used to parse an expression
+	 * Kind used to parse an expression.
+	 * 
+	 * @see #parse
 	 * @since 3.0
 	 */
 	public static final int K_EXPRESSION = 0x01;
 
 	/**
-	 * Kind used to parse a set of statements
+	 * Kind used to parse a set of statements.
+	 * 
+	 * @see #parse
 	 * @since 3.0
 	 */
 	public static final int K_STATEMENTS = 0x02;
 	
 	/**
-	 * Kind used to parse a set of class body declarations
+	 * Kind used to parse a set of class body declarations.
+	 * 
+	 * @see #parse
 	 * @since 3.0
 	 */
 	public static final int K_CLASS_BODY_DECLARATIONS = 0x04;
@@ -206,16 +212,17 @@ public final class AST {
 	 * Parses the given source between the bounds specified by the given offset (inclusive)
 	 * and the given length and creates and returns a corresponding abstract syntax tree.
 	 * <p>
-	 * The root node of the new AST depends on the given kind.
+	 * The type of result is a function of the given kind:
 	 * <ul>
-	 * <li>org.eclipse.jdt.core.dom.AST.K_CLASS_BODY_DECLARATIONS: The root node is an instance of
-	 * <code>org.eclipse.jdt.core.dom.TypeDeclaration</code>. The type declaration itself doesn't contain any information.
-	 * It is simply used to return all class body declarations inside the bodyDeclaratins() collection.</li>
-	 * <li>org.eclipse.jdt.core.dom.AST.K_STATEMENTS: The root node is an instance of
-	 * <code>org.eclipse.jdt.core.dom.Block</code>. The block itself doesn't contain any information.
-	 * It is simply used to return all the statements.</li>
-	 * <li>org.eclipse.jdt.core.dom.AST.K_EXPRESSION: The root node is an instance of a subclass of
-	 * <code>org.eclipse.jdt.core.dom.Expression</code>.</li>
+	 * <li>{@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS}: The result node
+	 * is a {@link TypeDeclaration TypeDeclaration} whose
+	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
+	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
+	 * <li>{@link #K_STATEMENTS K_STATEMENTS}: The result node is a
+	 * {@link Block Block} whose {@link Block#statements() statements}
+	 * are the new trees. Other aspects of the block are unspecified.</li>
+	 * <li>{@link #K_EXPRESSION K_EXPRESSION}: The result node is a subclass of
+	 * {@link Expression Expression}. Other aspects of the expression are unspecified.</li>
 	 * </ul>
 	 * </p>
 	 * 
@@ -227,7 +234,7 @@ public final class AST {
 	 * included. The source range usually extends through the last character of
 	 * the last token corresponding to the node; trailing whitespace and
 	 * comments are <b>not</b> included. There are a handful of exceptions
-	 * (including compilation units and the various body declarations); the
+	 * (including the various body declarations); the
 	 * specification for these node type spells out the details.
 	 * Source ranges nest properly: the source range for a child is always
 	 * within the source range of its parent, and the source ranges of sibling
@@ -243,24 +250,31 @@ public final class AST {
 	 * <li>If the given source doesn't correspond to the given kind.</li>
 	 * </ol>
 	 * </p>
+	 * TODO (jeem) revise spec
+	 * - always return non-null
+	 * - promise that node.getRoot() is a CompilationUnit
+	 * - compilation unit carries problems, and possibly line table, and comment table
+	 * - if things are very wrong, the call may return CompilationUnit
+	 * - nodes between compilation unit and result are unspec'd
+	 * - rationalize use of progress monitor, and null ness
 	 * 
-	 * @param kind the given kind to parse
-	 * @param source the string to be parsed
-	 * @param offset the given offset
-	 * @param length the given length
-	 * @param options the given options. If null, <code>JavaCore.getOptions()</code> is used.
+	 * @param kind the kind of construct to parse: one of 
+	 * {@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS},
+	 * {@link #K_EXPRESSION K_EXPRESSION},
+	 * {@link #K_STATEMENTS K_STATEMENTS}
+	 * @param source the source string to be parsed
+	 * @param offset the starting offset
+	 * @param length the length
+	 * @param options the options; if null, <code>JavaCore.getOptions()</code> is used
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
-	 * 
 	 * @return ASTNode
 	 * @see ASTNode#getStartPosition()
 	 * @see ASTNode#getLength()
-	 * @see AST#K_CLASS_BODY_DECLARATIONS
-	 * @see AST#K_EXPRESSION
-	 * @see AST#K_STATEMENTS
 	 * @see JavaCore#getOptions()
 	 * @since 3.0
 	 */
 	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options, IProgressMonitor monitor) {
+		// TODO add argument checking
 		if (options == null) {
 			options = JavaCore.getOptions();
 		}
@@ -1146,7 +1160,7 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
-	 * @return CompilationUnit
+	 * @return the compilation unit node
 	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
 	 * @see ASTNode#getStartPosition()
@@ -1190,7 +1204,7 @@ public final class AST {
 	 * @param source the string to be parsed as a Java compilation unit
 	 * @param options options to use while parsing the file. If null, <code>JavaCore.getOptions()</code> is used.
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
-	 * @return CompilationUnit
+	 * @return the compilation unit node
 	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
 	 * @see ASTNode#getStartPosition()
@@ -1309,6 +1323,7 @@ public final class AST {
 	 * @see ASTNode#getStartPosition()
 	 * @see ASTNode#getLength()
 	 * @since 3.0
+	 * TODO (jerome) remove after 3.0 M7
 	 */
 	public static CompilationUnit parsePartialCompilationUnit(
 		ICompilationUnit unit,
@@ -1903,7 +1918,7 @@ public final class AST {
 	/**
 	 * Creates an unparented class declaration node owned by this AST.
 	 * The name of the class is an unspecified, but legal, name; 
-	 * no modifiers; no Javadoc comment; no superclass or superinterfaces; 
+	 * no modifiers; no doc comment; no superclass or superinterfaces; 
 	 * and an empty class body.
 	 * <p>
 	 * To create an interface, use this method and then call
@@ -1921,7 +1936,7 @@ public final class AST {
 	/**
 	 * Creates an unparented method declaration node owned by this AST.
 	 * By default, the declaration is for a method of an unspecified, but 
-	 * legal, name; no modifiers; no Javadoc comment; no parameters; return
+	 * legal, name; no modifiers; no doc comment; no parameters; return
 	 * type void; no extra array dimensions; no thrown exceptions; and no
 	 * body (as opposed to an empty body).
 	 * <p>
@@ -1975,14 +1990,138 @@ public final class AST {
 		return result;
 	}
 
+	//=============================== COMMENTS ===========================
+
 	/**
-	 * Creates and returns a new Javadoc comment node.
-	 * Initially the new node has an unspecified, but legal, Javadoc comment.
+	 * Creates and returns a new block comment placeholder node.
+	 * <p>
+	 * Note that this node type is used to recording the source
+	 * range where a comment was found in the source string.
+	 * These comment nodes are normally found (only) in 
+	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * the comment table} for parsed compilation units.
+	 * </p>
 	 * 
-	 * @return a new unparented Javadoc comment node
+	 * @return a new unparented block comment node
+	 * @since 3.0
+	 */
+	public BlockComment newBlockComment() {
+		BlockComment result = new BlockComment(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new line comment placeholder node.
+	 * <p>
+	 * Note that this node type is used to recording the source
+	 * range where a comment was found in the source string.
+	 * These comment nodes are normally found (only) in 
+	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * the comment table} for parsed compilation units.
+	 * </p>
+	 * 
+	 * @return a new unparented line comment node
+	 * @since 3.0
+	 */
+	public LineComment newLineComment() {
+		LineComment result = new LineComment(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new doc comment node.
+	 * Initially the new node has an empty list of fragments
+	 * (and, for backwards compatability, an unspecified, but legal,
+	 * doc comment string)
+	 * 
+	 * @return a new unparented doc comment node
 	 */
 	public Javadoc newJavadoc() {
 		Javadoc result = new Javadoc(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new tag element node.
+	 * Initially the new node has no tag name and an empty list of fragments.
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc Javadoc}).
+	 * </p>
+	 * 
+	 * @return a new unparented tag element node
+	 * @since 3.0
+	 */
+	public TagElement newTagElement() {
+		TagElement result = new TagElement(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new text element node.
+	 * Initially the new node has an empty text string.
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc Javadoc}).
+	 * </p>
+	 * 
+	 * @return a new unparented text element node
+	 * @since 3.0
+	 */
+	public TextElement newTextElement() {
+		TextElement result = new TextElement(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new member reference node.
+	 * Initially the new node has no qualifier name and 
+	 * an unspecified, but legal, member name.
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc Javadoc}).
+	 * </p>
+	 * 
+	 * @return a new unparented member reference node
+	 * @since 3.0
+	 */
+	public MemberRef newMemberRef() {
+		MemberRef result = new MemberRef(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new method reference node.
+	 * Initially the new node has no qualifier name, 
+	 * an unspecified, but legal, method name, and an
+	 * empty parameter list. 
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc Javadoc}).
+	 * </p>
+	 * 
+	 * @return a new unparented method reference node
+	 * @since 3.0
+	 */
+	public MethodRef newMethodRef() {
+		MethodRef result = new MethodRef(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new method reference node.
+	 * Initially the new node has an unspecified, but legal,
+	 * type, and no parameter name. 
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc Javadoc}).
+	 * </p>
+	 * 
+	 * @return a new unparented method reference parameter node
+	 * @since 3.0
+	 */
+	public MethodRefParameter newMethodRefParameter() {
+		MethodRefParameter result = new MethodRefParameter(this);
 		return result;
 	}
 	
@@ -2437,7 +2576,7 @@ public final class AST {
 	/**
 	 * Creates a new unparented field declaration node owned by this AST, 
 	 * for the given variable declaration fragment. By default, there are no
-	 * modifiers, no javadoc comment, and the base type is unspecified 
+	 * modifiers, no doc comment, and the base type is unspecified 
 	 * (but legal).
 	 * <p>
 	 * This method can be used to wrap a variable declaration fragment

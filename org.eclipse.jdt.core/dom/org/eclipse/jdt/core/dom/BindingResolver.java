@@ -440,6 +440,48 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves the given reference and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MemberRef.resolveBinding</code> forwards to
+	 * this method. How the name resolves is often a function of the context
+	 * in which the name node is embedded as well as the name itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param ref the reference of interest
+	 * @return the binding for the reference, or <code>null</code> if no binding is
+	 *    available
+	 * @since 3.0
+	 */
+	IBinding resolveReference(MemberRef ref) {
+		return null;
+	}
+
+	/**
+	 * Resolves the given reference and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MethodRef.resolveBinding</code> forwards to
+	 * this method. How the name resolves is often a function of the context
+	 * in which the name node is embedded as well as the name itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param ref the reference of interest
+	 * @return the binding for the reference, or <code>null</code> if no binding is
+	 *    available
+	 * @since 3.0
+	 */
+	IBinding resolveReference(MethodRef ref) {
+		return null;
+	}
+
+	/**
 	 * Finds the corresponding AST node from which the given binding originated.
 	 * Returns <code>null</code> if the binding does not correspond to any node
 	 * in the compilation unit.

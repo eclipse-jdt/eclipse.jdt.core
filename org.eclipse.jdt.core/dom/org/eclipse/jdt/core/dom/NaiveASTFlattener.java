@@ -217,6 +217,15 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(BlockComment)
+	 * @since 3.0
+	 */
+	public boolean visit(BlockComment node) {
+		this.buffer.append("/* */");//$NON-NLS-1$
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(BooleanLiteral)
 	 */
 	public boolean visit(BooleanLiteral node) {
@@ -507,7 +516,13 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(Javadoc)
 	 */
 	public boolean visit(Javadoc node) {
-		this.buffer.append(node.getComment());
+		// ignore deprecated node.getComment()
+		this.buffer.append("/** ");//$NON-NLS-1$
+		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
+			ASTNode e = (ASTNode) it.next();
+			e.accept(this);
+		}
+		this.buffer.append("\n */");//$NON-NLS-1$
 		return false;
 	}
 
@@ -521,6 +536,63 @@ class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	/*
+	 * @see ASTVisitor#visit(LineComment)
+	 * @since 3.0
+	 */
+	public boolean visit(LineComment node) {
+		this.buffer.append("//\n");//$NON-NLS-1$
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(MemberRef)
+	 * @since 3.0
+	 */
+	public boolean visit(MemberRef node) {
+		if (node.getQualifier() != null) {
+			node.getQualifier().accept(this);
+		}
+		this.buffer.append("#");//$NON-NLS-1$
+		node.getName().accept(this);
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(MethodRef)
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRef node) {
+		if (node.getQualifier() != null) {
+			node.getQualifier().accept(this);
+		}
+		this.buffer.append("#");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append("(");//$NON-NLS-1$
+		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
+			MethodRefParameter e = (MethodRefParameter) it.next();
+			e.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		this.buffer.append(")");//$NON-NLS-1$
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(MethodRefParameter)
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRefParameter node) {
+		node.getType().accept(this);
+		if (node.getName() != null) {
+			this.buffer.append(" ");//$NON-NLS-1$
+			node.getName().accept(this);
+		}
+		return false;
+	}
+	
 	/*
 	 * @see ASTVisitor#visit(MethodDeclaration)
 	 */
@@ -802,6 +874,41 @@ class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	/*
+	 * @see ASTVisitor#visit(TagElement)
+	 * @since 3.0
+	 */
+	public boolean visit(TagElement node) {
+		if (node.isNested()) {
+			// nested tags are always enclosed in braces
+			this.buffer.append("{");//$NON-NLS-1$
+		} else {
+			// top-level tags always begin on a new line
+			this.buffer.append("\n * ");//$NON-NLS-1$
+		}
+		if (node.getTagName() != null) {
+			this.buffer.append(node.getTagName());
+			this.buffer.append(" ");//$NON-NLS-1$
+		}
+		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
+			ASTNode e = (ASTNode) it.next();
+			e.accept(this);
+		}
+		if (node.isNested()) {
+			this.buffer.append("}");//$NON-NLS-1$
+		}
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(TextElement)
+	 * @since 3.0
+	 */
+	public boolean visit(TextElement node) {
+		this.buffer.append(node.getText());
+		return false;
+	}
+	
 	/*
 	 * @see ASTVisitor#visit(ThisExpression)
 	 */

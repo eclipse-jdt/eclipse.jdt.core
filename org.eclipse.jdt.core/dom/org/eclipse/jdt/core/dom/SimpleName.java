@@ -184,11 +184,9 @@ public class SimpleName extends Name {
 	 */
 	int memSize() {
 		int size = BASE_NAME_NODE_SIZE + 1 * 4;
-		if (identifier != null) {
-			// Strings usually have 4 instance fields, one of which is a char[]
-			size += HEADERS + 4 * 4;
-			// char[] has 2 bytes per character
-			size += HEADERS + 2 * identifier.length();
+		if (identifier != MISSING_IDENTIFIER) {
+			// everything but our missing id costs
+			size += stringSize(identifier);
 		}
 		return size;
 	}

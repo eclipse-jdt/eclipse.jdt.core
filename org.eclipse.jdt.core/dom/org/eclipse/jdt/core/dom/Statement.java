@@ -173,11 +173,7 @@ public abstract class Statement extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4;
-		String s = getLeadingComment();
-		if (s != null) {
-			size += HEADERS + 2 * 4 + HEADERS + 2 * s.length();
-		}
+		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(getLeadingComment());
 		return size;
 	}
 }	

@@ -34,6 +34,15 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 		
 	/**
+	 * @see ASTVisitor#visit(Javadoc)
+	 * @since 3.0
+	 */
+	public boolean visit(Javadoc node) {
+		// explicitly ask to visit inside doc comments
+		return true;
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.AnonymousClassDeclaration)
 	 */
 	public void endVisit(AnonymousClassDeclaration node) {
@@ -81,6 +90,13 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.Block)
 	 */
 	public void endVisit(Block node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(BlockComment)
+	 * @since 3.0
+	 */
+	public void endVisit(BlockComment node) {
 	}
 
 	private void detachedListElement(List list) {
@@ -236,6 +252,21 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
+	 * @see ASTVisitor#endVisit(LineComment)
+	 * @since 3.0
+	 */
+	public void endVisit(LineComment node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MemberRef)
+	 * @since 3.0
+	 */
+	public void endVisit(MemberRef node) {
+		add(node);
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.MethodDeclaration)
 	 */
 	public void endVisit(MethodDeclaration node) {
@@ -248,6 +279,21 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	public void endVisit(MethodInvocation node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MethodRef)
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRef node) {
+		add(node);
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MethodRefParameter)
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRefParameter node) {
 	}
 
 	/**
@@ -382,6 +428,20 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SynchronizedStatement)
 	 */
 	public void endVisit(SynchronizedStatement node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(TagElement)
+	 * @since 3.0
+	 */
+	public void endVisit(TagElement node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(TextElement)
+	 * @since 3.0
+	 */
+	public void endVisit(TextElement node) {
 	}
 
 	/**

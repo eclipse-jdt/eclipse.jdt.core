@@ -74,6 +74,20 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String TD2S;
 	Javadoc JD1;
 	String JD1S;
+	TagElement TAG1;
+	String TAG1S;
+	TextElement TEXT1;
+	String TEXT1S;
+	MemberRef MBREF1;
+	String MBREF1S;
+	MethodRef MTHREF1;
+	String MTHREF1S;
+	MethodRefParameter MPARM1;
+	String MPARM1S;
+	LineComment LC1;
+	String LC1S;
+	BlockComment BC1;
+	String BC1S;
 	Javadoc JD2;
 	String JD2S;
 	AnonymousClassDeclaration ACD1;
@@ -85,6 +99,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		super(name);
 	}
 	
+	/**
+	 * @deprecated (not really - just suppressing the warnings
+	 * that come from testing Javadoc.getComment())
+	 *
+	 */
 	protected void setUp() {
 		ast = new AST();
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
@@ -158,6 +177,32 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		JD2 = ast.newJavadoc();
 		JD2.setComment("/**Y*/"); //$NON-NLS-1$
 		JD2S = "[(JD/**Y*//**Y*/JD)]"; //$NON-NLS-1$
+		
+		LC1 = ast.newLineComment();
+		LC1S = "[(//*//)]"; //$NON-NLS-1$
+
+		BC1 = ast.newBlockComment();
+		BC1S = "[(/**/)]"; //$NON-NLS-1$
+		
+		TAG1 = ast.newTagElement();
+		TAG1.setTagName("@foo"); //$NON-NLS-1$
+		TAG1S = "[(TG@foo@fooTG)]";;  //$NON-NLS-1$
+
+		TEXT1 = ast.newTextElement();
+		TEXT1.setText("foo"); //$NON-NLS-1$
+		TEXT1S = "[(TXfoofooTX)]";  //$NON-NLS-1$
+
+		MBREF1 = ast.newMemberRef();
+		MBREF1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
+		MBREF1S = "[(MBREF[(nSppnS)]MBREF)]";  //$NON-NLS-1$
+
+		MTHREF1 = ast.newMethodRef();
+		MTHREF1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
+		MTHREF1S = "[(MTHREF[(nSppnS)]MTHREF)]";  //$NON-NLS-1$
+
+		MPARM1 = ast.newMethodRefParameter();
+		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
+		MPARM1S = "[(MPARM[(tPcharchartP)]MPARM)]";  //$NON-NLS-1$
 
 	}
 	
@@ -457,14 +502,89 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.append("IN)"); //$NON-NLS-1$
 		}
 
+		/**
+		 * @deprecated (not really - just suppressing the warnings
+		 * that come from testing Javadoc.getComment())
+		 *
+		 */
 		public boolean visit(Javadoc node) {
 			b.append("(JD"); //$NON-NLS-1$
 			b.append(node.getComment());
+			
+			// verify that children of Javadoc nodes are not visited automatically
+			assertTrue(super.visit(node) == false);
+
 			return isVisitingChildren();
 		}
+
+		/**
+		 * @deprecated (not really - just suppressing the warnings
+		 * that come from testing Javadoc.getComment())
+		 *
+		 */
 		public void endVisit(Javadoc node) {
 			b.append(node.getComment());
 			b.append("JD)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(BlockComment node) {
+			b.append("(/*"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(BlockComment node) {
+			b.append("*/)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(LineComment node) {
+			b.append("(//"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(LineComment node) {
+			b.append("//)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(TagElement node) {
+			b.append("(TG"); //$NON-NLS-1$
+			b.append(node.getTagName());
+			return isVisitingChildren();
+		}
+		public void endVisit(TagElement node) {
+			b.append(node.getTagName());
+			b.append("TG)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(TextElement node) {
+			b.append("(TX"); //$NON-NLS-1$
+			b.append(node.getText());
+			return isVisitingChildren();
+		}
+		public void endVisit(TextElement node) {
+			b.append(node.getText());
+			b.append("TX)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(MemberRef node) {
+			b.append("(MBREF"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(MemberRef node) {
+			b.append("MBREF)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(MethodRef node) {
+			b.append("(MTHREF"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(MethodRef node) {
+			b.append("MTHREF)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(MethodRefParameter node) {
+			b.append("(MPARM"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(MethodRefParameter node) {
+			b.append("MPARM)"); //$NON-NLS-1$
 		}
 
 		public boolean visit(LabeledStatement node) {
@@ -829,6 +949,16 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		result = b.toString();
 		assertTrue(result.equals("[(sBsB)]")); //$NON-NLS-1$
 	}
+
+	public void testBlockComment() {
+		BlockComment x1 = ast.newBlockComment();
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue("[(/**/)]".equals(result)); //$NON-NLS-1$
+	}
+
 	public void testBooleanLiteral() {
 		BooleanLiteral x1 = ast.newBooleanLiteral(true);
 		TestVisitor v1 = new TestVisitor();
@@ -1060,14 +1190,21 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(IN"+JD1S+B1S+"IN)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/**
+	 * @deprecated (not really - just suppressing the warnings
+	 * that come from testing Javadoc.getComment())
+	 *
+	 */
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
 		x1.setComment("/**?*/"); //$NON-NLS-1$
+		x1.fragments().add(TAG1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue("[(JD/**?*//**?*/JD)]".equals(result)); //$NON-NLS-1$
+		assertTrue(("[(JD/**?*/"+TAG1S+"/**?*/JD)]").equals(result)); //$NON-NLS-1$
 	}
 
 	public void testLabeledStatement() {
@@ -1080,6 +1217,27 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(sLA"+N1S+S1S+"sLA)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	public void testLineComment() {
+		LineComment x1 = ast.newLineComment();
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue("[(////)]".equals(result)); //$NON-NLS-1$
+	}
+
+	public void testMemberRef() {
+		MemberRef x1 = ast.newMemberRef();
+		x1.setQualifier(N1);
+		x1.setName(N2);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(MBREF"+N1S+N2S+"MBREF)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
@@ -1108,6 +1266,30 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(eMI"+N1S+N2S+E1S+E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	public void testMethodRef() {
+		MethodRef x1 = ast.newMethodRef();
+		x1.setQualifier(N1);
+		x1.setName(N2);
+		x1.parameters().add(MPARM1);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(MTHREF"+N1S+N2S+MPARM1S+"MTHREF)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void testMethodRefParameter() {
+		MethodRefParameter x1 = ast.newMethodRefParameter();
+		x1.setType(T1);
+		x1.setName(N1);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(MPARM"+T1S+N1S+"MPARM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testNullLiteral() {
 		NullLiteral x1 = ast.newNullLiteral();
 		TestVisitor v1 = new TestVisitor();
@@ -1243,6 +1425,28 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(sSY"+E1S+B1S+"sSY)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	public void testTagElement() {
+		TagElement x1 = ast.newTagElement();
+		x1.setTagName("x"); //$NON-NLS-1$
+		x1.fragments().add(TAG1);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(("[(TGx"+TAG1S+"xTG)]").equals(result)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void testTextElement() {
+		TextElement x1 = ast.newTextElement();
+		x1.setText("x"); //$NON-NLS-1$
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue("[(TXxxTX)]".equals(result)); //$NON-NLS-1$
+	}
+
 	public void testThisExpression() {
 		ThisExpression x1 = ast.newThisExpression();
 		x1.setQualifier(N1);

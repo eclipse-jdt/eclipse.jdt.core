@@ -549,6 +549,62 @@ public abstract class ASTNode {
 	public static final int INSTANCEOF_EXPRESSION = 62;
 
 	/**
+	 * Node type constant indicating a node of type 
+	 * <code>LineComment</code>.
+	 * @see LineComment
+	 * @since 3.0
+	 */
+	public static final int LINE_COMMENT = 63;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>BlockComment</code>.
+	 * @see BlockComment
+	 * @since 3.0
+	 */
+	public static final int BLOCK_COMMENT = 64;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>TagElement</code>.
+	 * @see TagElement
+	 * @since 3.0
+	 */
+	public static final int TAG_ELEMENT = 65;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>TextElement</code>.
+	 * @see TextElement
+	 * @since 3.0
+	 */
+	public static final int TEXT_ELEMENT = 66;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MemberRef</code>.
+	 * @see MemberRef
+	 * @since 3.0
+	 */
+	public static final int MEMBER_REF = 67;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MethodRef</code>.
+	 * @see MethodRef
+	 * @since 3.0
+	 */
+	public static final int METHOD_REF = 68;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MethodRefParameter</code>.
+	 * @see MethodRefParameter
+	 * @since 3.0
+	 */
+	public static final int METHOD_REF_PARAMETER = 69;
+
+	/**
 	 * Owning AST.
 	 */
 	private final AST owner;
@@ -1559,6 +1615,26 @@ public abstract class ASTNode {
 	 * That is, HEADERS + (# instance vars in ASTNode)*4.
 	 */
 	static final int BASE_NODE_SIZE = HEADERS + 7 * 4;
+	
+	/**
+	 * Returns an estimate of the memory footprint, in bytes,
+	 * of the given string.
+	 * 
+	 * @param string the string to measure, or <code>null</code>
+	 * @return the size of this string object in bytes, or
+	 *   0 if the string is <code>null</code>
+     * @since 3.0
+	 */
+	static int stringSize(String string) {
+		int size = 0;
+		if (string != null) {
+			// Strings usually have 4 instance fields, one of which is a char[]
+			size += HEADERS + 4 * 4;
+			// char[] has 2 bytes per character
+			size += HEADERS + 2 * string.length();
+		}
+		return size;
+	}
 	
 	/**
 	 * Returns an estimate of the memory footprint in bytes of the entire 

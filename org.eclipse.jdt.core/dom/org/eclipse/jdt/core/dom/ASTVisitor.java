@@ -22,8 +22,10 @@ package org.eclipse.jdt.core.dom;
  * is returned, the given node's child nodes will be visited next; however,
  * if <code>false</code> is returned, the given node's child nodes will 
  * not be visited. The default implementation provided by this class does
- * nothing and returns <code>true</code>. Subclasses may reimplement
- * this method as needed.</li>
+ * nothing and returns <code>true</code> (with the exception of 
+ * {@link #visit(Javadoc) ASTVisitor.visit(Javadoc)} which returns
+ * <code>true</code> for backward compatibility).
+ * Subclasses may reimplement this method as needed.</li>
  * <li><code>public void endVisit(<it>T</it> node)</code> - Visits
  * the given node to perform some arbitrary operation. When used in the
  * conventional way, this method is called after all of the given node's
@@ -147,6 +149,13 @@ public abstract class ASTVisitor {
 	public boolean visit(Block node) {
 		return true;
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(BlockComment node) {
+		return true;
+	}
 	public boolean visit(BooleanLiteral node) {
 		return true;
 	}
@@ -210,12 +219,59 @@ public abstract class ASTVisitor {
 	public boolean visit(Initializer node) {
 		return true;
 	}
+
+	/**
+	 * Visits the given AST node.
+	 * <p>
+	 * Unlike other node types, the default implementation returns 
+	 * <code>false</code>. This means that, by default, the subtree
+	 * under the given doc commment is not visited (for backward
+	 * compatibility).  Subclasses may reimplement; returning
+	 * <code>true</code> ensures that the doc elements parented by
+	 * the given doc comment will be visited in turn.
+	 * </p>
+	 * 
+	 * @param node the node to visit
+	 * @return <code>true</code> to visit the children of the given
+	 *   node, and <code>false</code> to skip the children
+	 */
 	public boolean visit(Javadoc node) {
-		return true;
+		// do not visit fragments inside doc comments by default
+		return false;
 	}
+	
 	public boolean visit(LabeledStatement node) {
 		return true;
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(LineComment node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MemberRef node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRef node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRefParameter node) {
+		return true;
+	}
+	
 	public boolean visit(MethodDeclaration node) {
 		return true;
 	}
@@ -276,6 +332,21 @@ public abstract class ASTVisitor {
 	public boolean visit(SynchronizedStatement node) {
 		return true;
 	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(TagElement node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(TextElement node) {
+		return true;
+	}
+
 	public boolean visit(ThisExpression node) {
 		return true;
 	}
@@ -334,6 +405,14 @@ public abstract class ASTVisitor {
 	public void endVisit(Block node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(BlockComment node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(BooleanLiteral node) {
 		// default implementation: do nothing
 	}
@@ -403,6 +482,35 @@ public abstract class ASTVisitor {
 	public void endVisit(LabeledStatement node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(LineComment node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MemberRef node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRef node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRefParameter node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(MethodDeclaration node) {
 		// default implementation: do nothing
 	}
@@ -463,6 +571,21 @@ public abstract class ASTVisitor {
 	public void endVisit(SynchronizedStatement node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(TagElement node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(TextElement node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(ThisExpression node) {
 		// default implementation: do nothing
 	}

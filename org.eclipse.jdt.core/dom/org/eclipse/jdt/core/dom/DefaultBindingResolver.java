@@ -946,4 +946,23 @@ class DefaultBindingResolver extends BindingResolver {
 	void recordScope(ASTNode astNode, BlockScope blockScope) {
 		this.astNodesToBlockScope.put(astNode, blockScope);
 	}
+	
+	/* (non-Javadoc)
+	 * @see BindingResolver#resolveReference(MemberRef)
+     * @since 3.0
+	 */
+	IBinding resolveReference(MemberRef ref) {
+		// TODO (frederic) missing implementation
+		throw new RuntimeException("Missing implementation");
+	}
+
+	/* (non-Javadoc)
+	 * @see BindingResolver#resolveReference(MethodRef)
+     * @since 3.0
+	 */
+	IBinding resolveReference(MethodRef ref) {
+		// TODO (frederic) missing implementation
+		throw new RuntimeException("Missing implementation");
+	}
+
 }

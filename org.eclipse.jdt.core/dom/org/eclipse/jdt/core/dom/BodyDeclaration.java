@@ -33,8 +33,8 @@ package org.eclipse.jdt.core.dom;
  * <p>
  * All types of body declarations carry modifiers, although they differ in
  * which modifiers are allowed. Most types of body declarations can carry a
- * Javadoc comment; Initializer is the only ones that does not. The source range
- * for body declarations always includes the Javadoc comment if present.
+ * doc comment; Initializer is the only ones that does not. The source range
+ * for body declarations always includes the doc comment if present.
  * </p>
  * 
  * @since 2.0
@@ -42,10 +42,10 @@ package org.eclipse.jdt.core.dom;
 public abstract class BodyDeclaration extends ASTNode {
 	
 	/**
-	 * The Javadoc comment, or <code>null</code> if none.
+	 * The doc comment, or <code>null</code> if none.
 	 * Defaults to none.
 	 */
-	private Javadoc optionalJavadoc = null;
+	private Javadoc optionalDocComment = null;
 
 	/**
 	 * The modifiers; bit-wise or of Modifier flags.
@@ -69,23 +69,23 @@ public abstract class BodyDeclaration extends ASTNode {
 	}
 	
 	/**
-	 * Returns the Javadoc comment node.
+	 * Returns the doc comment node.
 	 * 
-	 * @return the javadoc comment node, or <code>null</code> if none
+	 * @return the doc comment node, or <code>null</code> if none
 	 */
 	public Javadoc getJavadoc() {
-		return optionalJavadoc;
+		return optionalDocComment;
 	}
 
 	/**
-	 * Sets or clears the Javadoc comment node.
+	 * Sets or clears the doc comment node.
 	 * 
-	 * @param javadoc the javadoc comment node, or <code>null</code> if none
-	 * @exception IllegalArgumentException if the Java comment string is invalid
+	 * @param docComment the doc comment node, or <code>null</code> if none
+	 * @exception IllegalArgumentException if the doc comment string is invalid
 	 */
-	public void setJavadoc(Javadoc javadoc) {
-		replaceChild(this.optionalJavadoc, javadoc, false);
-		this.optionalJavadoc = javadoc;
+	public void setJavadoc(Javadoc docComment) {
+		replaceChild(this.optionalDocComment, docComment, false);
+		this.optionalDocComment = docComment;
 	}
 
 	/**
