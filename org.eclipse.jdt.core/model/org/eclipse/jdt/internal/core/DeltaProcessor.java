@@ -555,10 +555,10 @@ protected IClasspathEntry newClasspathEntry(IJavaProject project, IClasspathEntr
 	IClasspathEntry newEntry = null;
 	switch (oldEntry.getEntryKind()) {
 		case IClasspathEntry.CPE_LIBRARY :
-			newEntry = JavaCore.newLibraryEntry(to, oldEntry.getSourceAttachmentPath(), oldEntry.getSourceAttachmentRootPath());
+			newEntry = JavaCore.newLibraryEntry(to, oldEntry.getSourceAttachmentPath(), oldEntry.getSourceAttachmentRootPath(), oldEntry.isExported());
 			break;
 		case IClasspathEntry.CPE_PROJECT :
-			newEntry = JavaCore.newProjectEntry(to);
+			newEntry = JavaCore.newProjectEntry(to, oldEntry.isExported());
 			break;
 		case IClasspathEntry.CPE_SOURCE :
 			newEntry = JavaCore.newSourceEntry(to);
