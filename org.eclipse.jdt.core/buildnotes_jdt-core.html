@@ -43,6 +43,11 @@ Eclipse SDK 3.0M5 Build - ?th October 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> The warning level of the batch compiler can now be configured more easily using <code>-warn:+...</code> or <code>-warn:-...</code> command line
+argument (as opposed to only existing <code>-warn:...</code> command line argument). 
+<code>-warn:+...</code> will not reset override default warning level, but simply enable
+a few more specific warnings. Similarily, <code>-warn:-...</code> will only disable specific warnings.
+</li>
 <li>Code select (i.e. <code>ICodeAssit.codeSelect(...)</code>) now returns an <code>ILocalVariable</code>
      element when a local variable or an argument is selected. 
      <br>Note that <code>ILocalVariable</code>s are pseudo-elements:
