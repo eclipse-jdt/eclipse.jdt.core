@@ -43,7 +43,7 @@ Eclipse SDK 3.0M8 Build - ?th March 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added new global option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
+<li>Added new global JavaCore.COMPILER_DOC_COMMENT_SUPPORT option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
 <pre>
 	 * COMPILER / Javadoc Comment Support
 	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
@@ -55,10 +55,32 @@ What's new in this drop</h2>
 </pre>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>.
 </li>
+<li>Added new JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE option to allow user to inline subroutine code instead of generating JSR instructions. By default, this option is disabled.
+<pre>
+	 * COMPILER / Inline JSR Bytecode Instruction
+	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
+	 *    subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
+	 *    get bigger, but will load faster on virtual machines since the verification process is then much simpler. 
+	 *    This mode is anticipating support for the Java Specification Request 202.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
+</pre>
+Corresponding command line compiler option <code>-noJSR</code> has been changed to:
+<pre>
+    <code>-inlineJSR</code> : inline JSR bytecode
+</pre>
+Which means that JSR bytecode is used when this option will be specified in batch compiler command line.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53357">53357</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53757">53757</a>
+Javadoc tag @transient  ignored
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=530757">53075</a>
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53357">53357</a>
 Java AST creation error
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>
 Need a global preference to enable Javadoc support
