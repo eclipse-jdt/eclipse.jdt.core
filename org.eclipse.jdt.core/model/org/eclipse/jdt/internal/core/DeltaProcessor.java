@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import java.io.IOException;
@@ -46,6 +47,8 @@ public class DeltaProcessor {
 
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
+		
+	ObjectSet projectsToUpdate = new ObjectSet();
 
 	public static boolean VERBOSE = false;
 
@@ -84,8 +87,7 @@ public class DeltaProcessor {
 			switch (element.getElementType()) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
-					JavaProject project = (JavaProject) element.getJavaProject();
-					project.updatePackageFragmentRoots();
+					this.projectsToUpdate.add(element.getJavaProject());
 					//updateProject(project);
 					//try {
 					//	project.getJavaProjectElementInfo().setNameLookup(null);
@@ -94,7 +96,7 @@ public class DeltaProcessor {
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
 					addToParentInfo(element);
-					project = (JavaProject) element.getJavaProject();
+					JavaProject project = (JavaProject) element.getJavaProject();
 					try {
 						project.getJavaProjectElementInfo().setNameLookup(null);
 					} catch (JavaModelException e) {
@@ -418,12 +420,11 @@ public class DeltaProcessor {
 					(JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-				JavaProject project = (JavaProject) element.getJavaProject();
-				project.updatePackageFragmentRoots();
+				this.projectsToUpdate.add(element.getJavaProject());
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
-				project = (JavaProject) element.getJavaProject();
+				JavaProject project = (JavaProject) element.getJavaProject();
 				try {
 					project.getJavaProjectElementInfo().setNameLookup(null);
 				} catch (JavaModelException e) {
@@ -544,21 +545,32 @@ public class DeltaProcessor {
 	 */
 	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes) {
 
-		// get the workspace delta, and start processing there.
-		IResourceDelta[] deltas = changes.getAffectedChildren();
-		IJavaElementDelta[] translatedDeltas = new JavaElementDelta[deltas.length];
-		for (int i = 0; i < deltas.length; i++) {
-			IResourceDelta delta = deltas[i];
-			JavaModel model =
-				JavaModelManager.getJavaModel(delta.getResource().getWorkspace());
-			if (model != null) {
-				fCurrentDelta = new JavaElementDelta(model);
-				traverseDelta(delta, UNKNOWN_CLASSPATH); // traverse delta
-				translatedDeltas[i] = fCurrentDelta;
+		try {
+			// get the workspace delta, and start processing there.
+			IResourceDelta[] deltas = changes.getAffectedChildren();
+			IJavaElementDelta[] translatedDeltas = new JavaElementDelta[deltas.length];
+			for (int i = 0; i < deltas.length; i++) {
+				IResourceDelta delta = deltas[i];
+				JavaModel model =
+					JavaModelManager.getJavaModel(delta.getResource().getWorkspace());
+				if (model != null) {
+					fCurrentDelta = new JavaElementDelta(model);
+					traverseDelta(delta, UNKNOWN_CLASSPATH); // traverse delta
+					translatedDeltas[i] = fCurrentDelta;
+				}
 			}
+			
+			// update package fragment roots of projects that were affected
+			Enumeration elements = this.projectsToUpdate.elements();
+			while (elements.hasMoreElements()) {
+				JavaProject project = (JavaProject)elements.nextElement();
+				project.updatePackageFragmentRoots();
+			}
+	
+			return filterRealDeltas(translatedDeltas);
+		} finally {
+			this.projectsToUpdate = new ObjectSet();
 		}
-
-		return filterRealDeltas(translatedDeltas);
 	}
 	
 /*
