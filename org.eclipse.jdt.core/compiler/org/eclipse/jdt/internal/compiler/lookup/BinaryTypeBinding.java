@@ -315,6 +315,16 @@ private MethodBinding createMethod(IBinaryMethod method) {
 			} while (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^');
 			exceptions = new ReferenceBinding[types.size()];
 			types.toArray(exceptions);
+		} else { // get the exceptions the old way
+			char[][] exceptionTypes = method.getExceptionTypeNames();
+			if (exceptionTypes != null) {
+				int size = exceptionTypes.length;
+				if (size > 0) {
+					exceptions = new ReferenceBinding[size];
+					for (int i = 0; i < size; i++)
+						exceptions[i] = environment.getTypeFromConstantPoolName(exceptionTypes[i], 0, -1);
+				}
+			}
 		}
 	}
 

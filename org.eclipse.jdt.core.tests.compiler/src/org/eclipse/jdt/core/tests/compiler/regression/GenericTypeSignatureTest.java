@@ -211,7 +211,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 		try {
 			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
-			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(classFileReader.getSignature()));
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(classFileReader.getGenericSignature()));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -640,19 +640,19 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 		try {
 			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
-			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getSignature()));
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getGenericSignature()));
 			
 			IBinaryField[] fields = classFileReader.getFields();
 			assertNotNull("No fields", fields);
 			assertEquals("Wrong size", 2, fields.length);
 			assertEquals("Wrong name", "field", new String(fields[1].getName()));
-			assertEquals("Wrong signature", "TT;", new String(fields[1].getSignature()));
+			assertEquals("Wrong signature", "TT;", new String(fields[1].getGenericSignature()));
 
 			IBinaryMethod[] methods = classFileReader.getMethods();
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "(TT;)TT;", new String(methods[1].getSignature()));
+			assertEquals("Wrong signature", "(TT;)TT;", new String(methods[1].getGenericSignature()));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -683,19 +683,19 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 		try {
 			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
-			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getSignature()));
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getGenericSignature()));
 			
 			IBinaryField[] fields = classFileReader.getFields();
 			assertNotNull("No fields", fields);
 			assertEquals("Wrong size", 2, fields.length);
 			assertEquals("Wrong name", "field", new String(fields[1].getName()));
-			assertEquals("Wrong signature", "LX<TT;>;", new String(fields[1].getSignature()));
+			assertEquals("Wrong signature", "LX<TT;>;", new String(fields[1].getGenericSignature()));
 
 			IBinaryMethod[] methods = classFileReader.getMethods();
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "(LX<TT;>;)TT;", new String(methods[1].getSignature()));
+			assertEquals("Wrong signature", "(LX<TT;>;)TT;", new String(methods[1].getGenericSignature()));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -725,7 +725,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "newInstance", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "()TT;", new String(methods[1].getSignature()));
+			assertEquals("Wrong signature", "()TT;", new String(methods[1].getGenericSignature()));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
