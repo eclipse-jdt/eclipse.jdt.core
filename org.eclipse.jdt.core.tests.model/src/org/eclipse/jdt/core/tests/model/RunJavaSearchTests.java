@@ -8,45 +8,41 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.dom;
+package org.eclipse.jdt.core.tests.model;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RunConverterTests extends TestCase {
-public RunConverterTests(String name) {
+public class RunJavaSearchTests extends TestCase {
+public RunJavaSearchTests(String name) {
 	super(name);
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
-		ASTConverterTest.class,		
-		ASTConverterTest2.class,
-		ASTConverterJavadocTest.class,
-		ASTConverter15Test.class,
-		ASTConverterAST3Test.class,
-		ASTConverterTestAST3_2.class,
-		ASTConverterBindingsTest.class
+		JavaSearchTests.class,
+		JavaSearchGenericTypeTests.class,
+		JavaSearchGenericFieldTests.class,
+		WorkingCopySearchTests.class,
+		JavaSearchJavadocTests.class
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunConverterTests.class.getName());
+	TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
 
-	ConverterTestSetup.testSuites = new ArrayList(Arrays.asList(getAllTestClasses()));
+	JavaSearchTests.testSuites = new ArrayList(Arrays.asList(getAllTestClasses()));
 	// Reset forgotten subsets of tests
 	AbstractJavaModelTests.testsPrefix = null;
 	AbstractJavaModelTests.testsNames = null;
 	AbstractJavaModelTests.testsNumbers = null;
 	AbstractJavaModelTests.testsRange = null;
 
-	for (int i = 0, l=ConverterTestSetup.testSuites.size(); i < l; i++) {
-		Class testClass = (Class) ConverterTestSetup.testSuites.get(i);
+	for (int i = 0, l=JavaSearchTests.testSuites.size(); i < l; i++) {
+		Class testClass = (Class) JavaSearchTests.testSuites.get(i);
 
 		// call the suite() method and add the resulting suite to the suite
 		try {

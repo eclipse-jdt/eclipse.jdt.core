@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Path;
@@ -24,6 +25,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	protected AST ast;
+	static List testSuites = null;
+	static boolean setupProject = false;
 
 	protected ConverterTestSetup(String name) {
 		super(name);
@@ -46,8 +49,16 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		ast = null;
-		this.deleteProject("Converter"); //$NON-NLS-1$
-		this.deleteProject("Converter15"); //$NON-NLS-1$
+		if (testSuites == null) {
+			this.deleteProject("Converter"); //$NON-NLS-1$
+			this.deleteProject("Converter15"); //$NON-NLS-1$
+		} else {
+			testSuites.remove(getClass());
+			if (testSuites.size() == 0) {
+				this.deleteProject("Converter"); //$NON-NLS-1$
+				this.deleteProject("Converter15"); //$NON-NLS-1$
+			}
+		}
 		
 		super.tearDown();
 	}	
@@ -58,17 +69,20 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		// ensure variables are set
-		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
-			setupExternalJCL("converterJclMin");
-			JavaCore.setClasspathVariables(
-				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				new Path[] {new Path(getConverterJCLPath()), new Path(getConverterJCLSourcePath()), new Path(getConverterJCLRootSourcePath())},
-				null);
-		}		
-
-		setUpJavaProject("Converter"); //$NON-NLS-1$
-		setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!setupProject) {
+			// ensure variables are set
+			if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
+				setupExternalJCL("converterJclMin");
+				JavaCore.setClasspathVariables(
+					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					new Path[] {new Path(getConverterJCLPath()), new Path(getConverterJCLSourcePath()), new Path(getConverterJCLRootSourcePath())},
+					null);
+			}		
+	
+			setUpJavaProject("Converter"); //$NON-NLS-1$
+			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+			setupProject = true;
+		}
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {

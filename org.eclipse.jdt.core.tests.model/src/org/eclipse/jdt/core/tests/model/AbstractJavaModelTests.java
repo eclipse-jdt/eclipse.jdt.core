@@ -40,6 +40,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static String EXTERNAL_JAR_DIR_PATH;
 	
 	// static variables for subsets tests
+	public static String testsPrefix = null; // prefix of test names to perform
 	public static String[] testsNames = null; // list of test names to perform
 	public static int[] testsNumbers = null; // list of test numbers to perform
 	public static int[] testsRange = null; // range of test numbers to perform
@@ -148,14 +149,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		return buildTestSuite(evaluationTestClass, null, null); //$NON-NLS-1$
+		return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		return buildTestSuite(evaluationTestClass, null, suiteName); //$NON-NLS-1$
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, String testPrefix, String suiteName) {
 		// Init suite with class name
 		TestSuite suite = new Suite(suiteName==null?evaluationTestClass.getName():suiteName);
 		List tests = new ArrayList();
@@ -179,13 +176,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
 					// no prefix, no subsets => add method
-					if (testPrefix == null && testsNames == null && testsNumbers == null && testsRange == null) {
+					if (testsPrefix == null && testsNames == null && testsNumbers == null && testsRange == null) {
 						suite.addTest((Test)constructor.newInstance(params));
 						continue nextMethod;
 					}
 					// no prefix or method matches prefix
-					if (testPrefix == null || methName.startsWith(testPrefix)) {
-						int numStart = testPrefix==null ? 4 /* test */ : testPrefix.length();
+					if (testsPrefix == null || methName.startsWith(testsPrefix)) {
+						int numStart = testsPrefix==null ? 4 /* test */ : testsPrefix.length();
 						// tests names subset
 						if (testsNames != null) {
 							for (int i = 0, imax= testsNames.length; i<imax; i++) {

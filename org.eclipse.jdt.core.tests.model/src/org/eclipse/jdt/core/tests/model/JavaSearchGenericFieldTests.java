@@ -25,12 +25,13 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		super(name);
 	}
 	public static Test suite() {
-//		return buildTestSuite(JavaSearchGenericFieldTests.class, "testGenericFieldReference", null);
 		return buildTestSuite(JavaSearchGenericFieldTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
+		// Prefix for names of tests to run
+//		testsPrefix =  "testGenericFieldReference";
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] { "testGenericFieldReferenceAC04" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array

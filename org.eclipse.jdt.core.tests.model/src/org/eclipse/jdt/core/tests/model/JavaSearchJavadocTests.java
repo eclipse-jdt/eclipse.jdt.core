@@ -39,8 +39,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.originalOptions = this.javaProject.getOptions(true);
-		this.javaProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+		this.originalOptions = javaProject.getOptions(true);
+		javaProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 		this.resultCollector.showAccuracy = true;
 		this.resultCollector.showInsideDoc = true;
 	}
@@ -48,15 +48,15 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
 	 */
 	public void tearDown() throws Exception {
-		this.javaProject.setOptions(originalOptions);
+		javaProject.setOptions(originalOptions);
 		super.tearDown();
 	}
 	private void setJavadocOptions() {
-		this.javaProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
-		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
+		javaProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+		javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
 	}
 	private void disableJavadocOptions() {
-		this.javaProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+		javaProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
 	}
 	public static Test suite() {
 //		return buildTestSuite(JavaSearchJavadocTests.class, "testJavadocMethod", null);

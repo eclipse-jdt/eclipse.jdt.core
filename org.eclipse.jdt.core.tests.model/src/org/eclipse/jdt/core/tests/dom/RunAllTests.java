@@ -32,7 +32,7 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.dom.ASTParserTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTModelBridgeTests.class,
 		org.eclipse.jdt.core.tests.dom.BatchASTCreationTests.class,
-		org.eclipse.jdt.core.tests.dom.BindingEqualityTest.class,
+//		org.eclipse.jdt.core.tests.dom.BindingEqualityTest.class,
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 	};
@@ -42,6 +42,7 @@ public static Test suite() {
 
 	Class[] testClasses = getAllTestClasses();
 	// Reset forgotten subsets of tests
+	AbstractJavaModelTests.testsPrefix = null;
 	AbstractJavaModelTests.testsNames = null;
 	AbstractJavaModelTests.testsNumbers = null;
 	AbstractJavaModelTests.testsRange = null;

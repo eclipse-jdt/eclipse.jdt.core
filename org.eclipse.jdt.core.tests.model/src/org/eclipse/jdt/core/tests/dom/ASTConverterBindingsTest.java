@@ -76,7 +76,7 @@ import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class BindingEqualityTest extends ConverterTestSetup {
+public class ASTConverterBindingsTest extends ConverterTestSetup {
 	private static final boolean DEBUG = false;
 
 	static class BindingsCollector extends ASTVisitor {
@@ -477,15 +477,15 @@ public class BindingEqualityTest extends ConverterTestSetup {
 		this.ast = AST.newAST(AST.JLS3);
 	}
 
-	public BindingEqualityTest(String name) {
+	public ASTConverterBindingsTest(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
 		if (true) {
-			return new Suite(BindingEqualityTest.class);		
+			return new Suite(ASTConverterBindingsTest.class);		
 		}
-		TestSuite suite = new Suite(BindingEqualityTest.class.getName());
+		TestSuite suite = new Suite(ASTConverterBindingsTest.class.getName());
 		return suite;
 	}
 

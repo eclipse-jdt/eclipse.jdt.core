@@ -28,12 +28,13 @@ static Class[] getAllTestClasses() {
 		JavaProjectTests.class,
 		CompilationUnitTests.class,
 		AttachSourceTests.class,
-		JavaSearchTests.class,
-		JavaSearchGenericTypeTests.class,
-		JavaSearchGenericFieldTests.class,
+		RunJavaSearchTests.class,
+//		JavaSearchTests.class,
+//		JavaSearchGenericTypeTests.class,
+//		JavaSearchGenericFieldTests.class,
+//		WorkingCopySearchTests.class,
+//		JavaSearchJavadocTests.class,
 		JavaSearchMultipleProjectsTests.class,
-		WorkingCopySearchTests.class,
-		JavaSearchJavadocTests.class,
 		SearchTests.class,
 		WorkingCopyTests.class,
 		WorkingCopyNotInClasspathTests.class,
@@ -92,6 +93,7 @@ public static Test suite() {
 	getAllTestClasses();
 
 	// Reset forgotten subsets of tests
+	AbstractJavaModelTests.testsPrefix = null;
 	AbstractJavaModelTests.testsNames = null;
 	AbstractJavaModelTests.testsNumbers = null;
 	AbstractJavaModelTests.testsRange = null;
@@ -112,12 +114,13 @@ public static Test suite() {
 	suite.addTest(AttachSourceTests.suite());
 	
 	// Java search tests
-	suite.addTest(JavaSearchTests.suite());
-	suite.addTest(JavaSearchGenericTypeTests.suite());
-	suite.addTest(JavaSearchGenericFieldTests.suite());
+	suite.addTest(RunJavaSearchTests.suite());
+//	suite.addTest(JavaSearchTests.suite());
+//	suite.addTest(JavaSearchGenericTypeTests.suite());
+//	suite.addTest(JavaSearchGenericFieldTests.suite());
+//	suite.addTest(WorkingCopySearchTests.suite());
+//	suite.addTest(JavaSearchJavadocTests.suite());
 	suite.addTest(JavaSearchMultipleProjectsTests.suite());
-	suite.addTest(WorkingCopySearchTests.suite());
-	suite.addTest(JavaSearchJavadocTests.suite());
 	suite.addTest(SearchTests.suite());
 		
 	// Working copy tests

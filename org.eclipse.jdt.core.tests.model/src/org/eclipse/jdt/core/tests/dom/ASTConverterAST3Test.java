@@ -16,7 +16,6 @@ import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.jdom.*;
@@ -5420,7 +5419,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	 * Test the removal of a IField inside a CU that has an initializer
 	 */
 	public void test0236() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0236", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0236", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IType type = sourceUnit.getType("Test"); //$NON-NLS-1$
 		assertNotNull("No type", type); //$NON-NLS-1$
 		IField field = type.getField("i"); //$NON-NLS-1$
@@ -8330,20 +8329,29 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=16132
 	 */
 	public void test0344() throws JavaModelException {
-		Preferences preferences = null;
+//		Preferences preferences = null;
+		IJavaProject project = null;
 		String pb_assert = null;
 		String compiler_source = null;
 		String compiler_compliance = null;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			preferences = JavaCore.getPlugin().getPluginPreferences();
-			pb_assert = preferences.getString(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
-			compiler_source = preferences.getString(JavaCore.COMPILER_SOURCE);
-			compiler_compliance = preferences.getString(JavaCore.COMPILER_COMPLIANCE);
+//			preferences = JavaCore.getPluginPreferences();
+//			pb_assert = preferences.getString(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
+//			compiler_source = preferences.getString(JavaCore.COMPILER_SOURCE);
+//			compiler_compliance = preferences.getString(JavaCore.COMPILER_COMPLIANCE);
+			project = sourceUnit.getJavaProject();
+			pb_assert = project.getOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, true);
+			compiler_source = project.getOption(JavaCore.COMPILER_SOURCE, true);
+			compiler_compliance = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			
-			preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR); 
-			preferences.setValue(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-			preferences.setValue(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4); 
+//			preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR); 
+//			preferences.setValue(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+//			preferences.setValue(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+			project.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR); 
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+
 			
 			ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 			assertNotNull("No compilation unit", result); //$NON-NLS-1$
@@ -8351,10 +8359,15 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		} finally {
-			if (preferences != null) {
-				preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert); 
-				preferences.setValue(JavaCore.COMPILER_SOURCE, compiler_source); 
-				preferences.setValue(JavaCore.COMPILER_COMPLIANCE, compiler_compliance); 
+//			if (preferences != null) {
+//				preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert); 
+//				preferences.setValue(JavaCore.COMPILER_SOURCE, compiler_source); 
+//				preferences.setValue(JavaCore.COMPILER_COMPLIANCE, compiler_compliance); 
+//			}
+			if (project != null) {
+				project.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert); 
+				project.setOption(JavaCore.COMPILER_SOURCE, compiler_source); 
+				project.setOption(JavaCore.COMPILER_COMPLIANCE, compiler_compliance); 
 			}
 		}
 	}
