@@ -151,19 +151,20 @@ protected void consumeRule(int act) {
   switch ( act ) {
 ./
 
-
-
 Goal ::= '++' CompilationUnit
 Goal ::= '--' MethodBody
 Goal ::= '==' ConstructorBody
+
 -- Initializer
 Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
+
 -- error recovery
 Goal ::= '>>>' Headers
 Goal ::= '*' BlockStatements
 Goal ::= '*' MethodPushModifiersHeader
 Goal ::= '*' CatchHeader
+
 -- JDOM
 Goal ::= '&&' FieldDeclaration
 Goal ::= '||' ImportDeclaration
@@ -171,8 +172,10 @@ Goal ::= '?' PackageDeclaration
 Goal ::= '+' TypeDeclaration
 Goal ::= '/' GenericMethodDeclaration
 Goal ::= '&' ClassBodyDeclaration
+
 -- code snippet
 Goal ::= '%' Expression
+
 -- completion parser
 Goal ::= '!' ConstructorBlockStatementsopt
 Goal ::= '~' BlockStatementsopt
@@ -215,6 +218,58 @@ ReferenceType ::= ClassOrInterfaceType
 ReferenceType -> ArrayType -- here a push of dimensions is done, that explains the two previous push 0
 
 ClassOrInterfaceType -> Name
+-- 1.5 feature
+ClassOrInterfaceType ::= Name '<' ReferenceTypeList1
+
+-- BEGIN-1.5 : Additional rules to address 1.5 generics
+-- These rules are dealing with the fact that nested type parameters may use sequences
+-- of '>' which would be tokenized as distinct tokens ('>>' is right shift operator, '>>>' is unsigned right shift operator).
+
+TypeVariable -> 'Identifier'
+
+ReferenceTypeList -> ReferenceType
+ReferenceTypeList ::= ReferenceTypeList ',' ReferenceType
+
+ReferenceTypeList1 -> ReferenceType1
+ReferenceTypeList1 ::= ReferenceTypeList ',' ReferenceType1
+
+ReferenceType1 ::= ReferenceType '>'
+ReferenceType1 ::= Name '<' ReferenceTypeList2
+
+ReferenceTypeList2 -> ReferenceType2
+ReferenceTypeList2 ::= ReferenceTypeList ',' ReferenceType2
+
+ReferenceType2 ::= ReferenceType '>>'
+ReferenceType2 ::= Name '<' ReferenceTypeList3
+
+ReferenceTypeList3 -> ReferenceType3
+ReferenceTypeList3 ::= ReferenceTypeList ',' ReferenceType3
+
+ReferenceType3 ::= ReferenceType '>>>'
+
+TypeParameters ::= '<' TypeParameterList1
+
+TypeParameterList -> TypeParameter
+TypeParameterList ::= TypeParameterList ',' TypeParameter
+
+TypeParameterList1 -> TypeParameter1
+TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
+
+TypeParameter1 ::= TypeParameter '>'
+TypeParameter1 ::= TypeVariable 'extends' ReferenceType2
+-- following isn't supported
+-- TypeParameter1 ::= TypeVariable 'implements' ReferenceType2
+
+TypeParameter ::= TypeVariable TypeBoundopt
+
+TypeBound ::= 'extends' ClassOrInterfaceType AdditionalBoundListopt
+
+AdditionalBoundList -> AdditionalBound
+AdditionalBoundList ::= AdditionalBoundList ',' AdditionalBound
+
+AdditionalBound ::= '&' InterfaceType
+
+-- END-1.5 : Additional rules to address 1.5 generics
 
 --
 -- These rules have been rewritten to avoid some conflicts introduced
@@ -328,11 +383,14 @@ Modifier -> 'strictfp'
 ClassDeclaration ::= ClassHeader ClassBody
 /.$putCase consumeClassDeclaration(); $break ./
 
-ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
+ClassHeader ::= ClassHeaderName ClassHeaderParametersopt ClassHeaderExtendsopt ClassHeaderImplementsopt
 /.$putCase consumeClassHeader(); $break ./
 
 ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 /.$putCase consumeClassHeaderName(); $break ./
+
+ClassHeaderParameters -> TypeParameters
+/.$putCase consumeClassHeaderParameters(); $break ./
 
 ClassHeaderExtends ::= 'extends' ClassType
 /.$putCase consumeClassHeaderExtends(); $break ./
@@ -566,7 +624,7 @@ ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 InterfaceDeclaration ::= InterfaceHeader InterfaceBody
 /.$putCase consumeInterfaceDeclaration(); $break ./
 
-InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
+InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderParametersopt InterfaceHeaderExtendsopt
 /.$putCase consumeInterfaceHeader(); $break ./
 
 InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
@@ -574,6 +632,10 @@ InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 
 -- This rule will be used to accept inner local interface and then report a relevant error message
 InvalidInterfaceDeclaration -> InterfaceHeader InterfaceBody
+
+-- 1.5 feature
+InterfaceHeaderParameters -> TypeParameters
+/.$putCase consumeInterfaceHeaderParameters(); $break ./
 
 InterfaceHeaderExtends ::= 'extends' InterfaceTypeList
 /.$putCase consumeInterfaceHeaderExtends(); $break ./
@@ -1116,6 +1178,34 @@ Expressionopt -> Expression
 
 ,opt -> $empty
 ,opt -> ,
+
+-- 1.5 feature
+TypeBoundopt  ::= $empty
+/.$putCase consumeEmptyTypeBoundopt(); $break ./
+-- 1.5 feature
+TypeBoundopt ::= TypeBound
+/.$putCase consumeTypeBoundopt(); $break ./
+
+-- 1.5 feature
+AdditionalBoundListopt  ::= $empty
+/.$putCase consumeEmptyAdditionalBoundListopt(); $break ./
+-- 1.5 feature
+AdditionalBoundListopt ::= AdditionalBoundList
+/.$putCase consumeAdditionalBoundListopt(); $break ./
+
+-- 1.5 feature
+ClassHeaderParametersopt  ::= $empty
+/.$putCase consumeEmptyClassHeaderParametersopt(); $break ./
+-- 1.5 feature
+ClassHeaderParametersopt ::= ClassHeaderParameters
+/.$putCase consumeClassHeaderParametersopt(); $break ./
+
+-- 1.5 feature
+InterfaceHeaderParametersopt  ::= $empty
+/.$putCase consumeEmptyInterfaceHeaderParametersopt(); $break ./
+-- 1.5 feature
+InterfaceHeaderParametersopt ::= InterfaceHeaderParameters
+/.$putCase consumeInterfaceHeaderParametersopt(); $break ./
 
 ImportDeclarationsopt ::= $empty
 /.$putCase consumeEmptyImportDeclarationsopt(); $break ./
