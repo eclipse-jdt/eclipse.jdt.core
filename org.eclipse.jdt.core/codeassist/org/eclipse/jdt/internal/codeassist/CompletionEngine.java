@@ -3471,7 +3471,7 @@ public final class CompletionEngine
 				done: for (int i = 0; i < iLength; i++) {
 					int jLength = arguments[i] == null ? 0 : arguments[i].length;
 					for (int j = 0; j < jLength; j++) {
-						if(arguments[i][j] == node && typeVariables.length >= j) {
+						if(arguments[i][j] == node && typeVariables.length > j) {
 							addExpectedType(typeVariables[j].firstBound);
 							break done;
 						}
