@@ -379,13 +379,14 @@ public class SearchEngine {
 	 *
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
-	 * @deprecated Use {@link SearchPattern#createPattern(String, int, int, int, boolean)} instead.
+	 * @deprecated Use {@link SearchPattern#createPattern(String, int, int, int)} instead.
 	 */
 	public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
 		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
-		return  new SearchPatternAdapter(SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive));
+		int matchRule = isCaseSensitive ? matchMode | SearchPattern.R_CASE_SENSITIVE : matchMode;
+		return  new SearchPatternAdapter(SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchRule));
 	}
 	
 	/**
@@ -663,7 +664,7 @@ public class SearchEngine {
 				? SearchPattern.R_PATTERN_MATCH
 				: SearchPattern.R_EXACT_MATCH;
 			search(
-				SearchPattern.createPattern(patternString, searchFor, limitTo, matchMode, true), 
+				SearchPattern.createPattern(patternString, searchFor, limitTo, matchMode | SearchPattern.R_CASE_SENSITIVE), 
 				new SearchParticipant[] {getDefaultSearchParticipant()}, 
 				scope, 
 				new ResultCollectorAdapter(resultCollector), 
