@@ -2887,8 +2887,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(ForStatement forStatement, BlockScope scope) {
 	
 		this.scribe.printNextToken(TerminalTokens.TokenNamefor);
-        final int line = scribe.line;
-        this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
+	    final int line = scribe.line;
+	    this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
 		
 		if (this.preferences.insert_space_in_for_parens) {
 			this.scribe.space();
@@ -2911,19 +2911,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon_in_for);
-		if (this.preferences.insert_space_after_semicolon_in_for) {
-			this.scribe.space();
-		}
 		final Expression condition = forStatement.condition;
 		if (condition != null) {
+			if (this.preferences.insert_space_after_semicolon_in_for) {
+				this.scribe.space();
+			}
 			condition.traverse(this, scope);
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon_in_for);
-		if (this.preferences.insert_space_after_semicolon_in_for) {
-			this.scribe.space();
-		}
 		final Statement[] increments = forStatement.increments;
 		if (increments != null) {
+			if (this.preferences.insert_space_after_semicolon_in_for) {
+				this.scribe.space();
+			}
 			for (int i = 0, length = increments.length; i < length; i++) {
 				increments[i].traverse(this, scope);
 				if (i != length - 1) {
@@ -2939,7 +2939,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement action = forStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
-                formatLeftCurlyBrace(line, this.preferences.block_brace_position);
+	            formatLeftCurlyBrace(line, this.preferences.block_brace_position);
 				action.traverse(this, scope);
 			} else if (action instanceof EmptyStatement && !this.preferences.put_empty_statement_on_new_line) {
 				action.traverse(this, scope);
