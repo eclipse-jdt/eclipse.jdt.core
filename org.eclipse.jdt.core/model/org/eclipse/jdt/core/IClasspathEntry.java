@@ -28,9 +28,9 @@ import org.eclipse.core.runtime.IPath;
  * 		the project is built. The classpath entry must specify the
  *		absolute path to the root folder. Entries of this kind are 
  *		associated with the <code>CPE_SOURCE</code> constant.
- *      Source classpath entries can carry patterns to exclude selected files.
- *      Excluded <code>.java</code> source files do not appear as compilation
- *      units and are not compiled when the project is built.
+ *      Source classpath entries can carry inclusion and exclusion patterns for
+ *      selecting which <code>.java</code> source files appear as compilation
+ *      units and get compiled when the project is built.
  *  </li>
  * 
  *	<li>A binary library in the current project, in another project, or in the external
@@ -190,6 +190,9 @@ public interface IClasspathEntry {
 	 * to this source entry's path. File patterns are case-sensitive. A file
 	 * matched by one or more of these patterns is excluded from the 
 	 * corresponding package fragment root.
+	 * Exclusion patterns have higher precedence than inclusion patterns;
+	 * in other words, exclusion patterns can remove files for the ones that 
+	 * are to be included, not the other way around.
 	 * </p>
 	 * <p>
 	 * Note that there is no need to supply a pattern to exclude ".class" files
@@ -258,79 +261,50 @@ public interface IClasspathEntry {
 	 */
 	IPath[] getExclusionPatterns();
 	
-	/** TODO (philippe) fixup spec for inclusion patterns
-	 * Returns the set of patterns used to exclude resources associated with
-	 * this source entry.
+	/**
+	 * Returns the set of patterns used to explicitly define resources to be
+	 * included with this source entry.
 	 * <p>
-	 * Exclusion patterns allow specified portions of the resource tree rooted
-	 * at this source entry's path to be filtered out. If no exclusion patterns
-	 * are specified, this source entry includes all relevent files. Each path
-	 * specified must be a relative path, and will be interpreted relative
-	 * to this source entry's path. File patterns are case-sensitive. A file
-	 * matched by one or more of these patterns is excluded from the 
-	 * corresponding package fragment root.
+	 * When no inclusion patterns are specified, the source entry includes all
+	 * relevent files in the resource tree rooted at this source entry's path.
+	 * Specifying one or more inclusion patterns only the specified portions
+	 * of the resource tree to be included. Each path specified must be a
+	 * relative path, and will be interpreted relative to this source entry's
+	 * path. File patterns are case-sensitive. A file matched by one or more of
+	 * these patterns is included in the corresponding package fragment root
+	 * unless it is excluded by one or more of this entrie's exclusion patterns.
+	 * Exclusion patterns have higher precedence than inclusion patterns; in
+	 * other words, exclusion patterns can remove files for the ones that are
+	 * to be included, not the other way around.
 	 * </p>
 	 * <p>
-	 * Note that there is no need to supply a pattern to exclude ".class" files
-	 * because a source entry filters these out automatically.
-	 * </p>
-	 * <p>
-	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
-	 * a relative path. The path segments can be regular file or folder names or simple patterns
-	 * involving standard wildcard characters.
-	 * </p>
-	 * <p>
-	 * '*' matches 0 or more characters within a segment. So
-	 * <code>*.java</code> matches <code>.java</code>, <code>a.java</code>
-	 * and <code>Foo.java</code>, but not <code>Foo.properties</code>
-	 * (does not end with <code>.java</code>).
-	 * </p>
-	 * <p>
-	 * '?' matches 1 character within a segment. So <code>?.java</code> 
-	 * matches <code>a.java</code>, <code>A.java</code>, 
-	 * but not <code>.java</code> or <code>xyz.java</code> (neither have
-	 * just one character before <code>.java</code>).
-	 * </p>
-	 * <p>
-	 * Combinations of *'s and ?'s are allowed.
-	 * </p>
-	 * <p>
-	 * The special pattern '**' matches zero or more segments. A path 
-	 * like <code>tests/</code> that ends in a trailing separator is interpreted
-	 * as <code>tests/&#42;&#42;</code>, and would match all files under the 
-	 * the folder named <code>tests</code>.
+	 * See {@link #getExclusionPatterns()} for a discussion of the syntax and
+	 * semantics of path patterns. The absence of any inclusion patterns is
+	 * semantically equivalent to the explicit inclusion pattern
+	 * <code>&#42;&#42;</code>.
 	 * </p>
 	 * <p>
 	 * Examples:
 	 * <ul>
 	 * <li>
-	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
-	 * matches all files under a root folder
-	 * named <code>tests</code>. This includes <code>tests/Foo.java</code>
-	 * and <code>tests/com/example/Foo.java</code>, but not 
-	 * <code>com/example/tests/Foo.java</code> (not under a root folder named
-	 * <code>tests</code>).
+	 * The inclusion pattern <code>src/&#42;&#42;</code> by itself includes all
+	 * files under a root folder named <code>src</code>.
 	 * </li>
 	 * <li>
-	 * <code>tests/&#42;</code> matches all files directly below a root 
-	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>
-	 * and <code>tests/FooHelp.java</code>
-	 * but not <code>tests/com/example/Foo.java</code> (not directly under
-	 * a folder named <code>tests</code>) or 
-	 * <code>com/Foo.java</code> (not under a folder named <code>tests</code>).
+	 * The inclusion patterns <code>src/&#42;&#42;</code> and
+	 * <code>tests/&#42;&#42;</code> includes all files under the root folders
+	 * named <code>src</code> and <code>tests</code>.
 	 * </li>
 	 * <li>
-	 * <code>&#42;&#42;/tests/&#42;&#42;</code> matches all files under any
-	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>,
-	 * <code>com/examples/tests/Foo.java</code>, and 
-	 * <code>com/examples/tests/unit/Foo.java</code>, but not 
-	 * <code>com/example/Foo.java</code> (not under a folder named
-	 * <code>tests</code>).
+	 * The inclusion pattern <code>src/&#42;&#42;</code> together with the
+	 * exclusion pattern <code>src/&#42;&#42;/Foo.java</code> includes all
+	 * files under a root folder named <code>src</code> except for ones
+	 * named <code>Foo.java</code>.
 	 * </li>
 	 * </ul>
 	 * </p>
 	 * 
-	 * @return the possibly empty list of resource exclusion patterns 
+	 * @return the possibly empty list of resource inclusion patterns 
 	 *   associated with this source entry, and <code>null</code> for other
 	 *   kinds of classpath entries
 	 * @since 3.0

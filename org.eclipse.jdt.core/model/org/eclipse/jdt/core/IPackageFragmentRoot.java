@@ -265,7 +265,7 @@ public interface IPackageFragmentRoot
 	 * Non-Java resources includes other files and folders located in the same
 	 * directories as the compilation units or class files under this package
 	 * fragment root. Resources excluded from this package fragment root
-	 * by one or more inclusion/exclusion patterns on the corresponding source classpath
+	 * by virtue of inclusion/exclusion patterns on the corresponding source classpath
 	 * entry are considered non-Java resources and will appear in the result
 	 * (possibly in a folder). Thus when a nested source folder is excluded, it will appear
 	 * in the non-Java resources of the outer folder.
