@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.DeltaProcessor;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -207,7 +207,7 @@ public void testAddCommentAndCommit() throws CoreException {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getWorkingCopy(null);
+		copy = unit.getWorkingCopy(null);
 		
 		// add comment to working copy
 		copy.getBuffer().setContents(
@@ -2051,10 +2051,10 @@ public void testRemoveNonJavaProjectUpdateDependent3() throws CoreException {
 		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/x.jar"}, "");
 		
 		// simulate start-up state of DeltaProcessor
-		DeltaProcessor deltaProcessor = JavaModelManager.getJavaModelManager().deltaProcessor;
-		deltaProcessor.oldRoots = null;
-		deltaProcessor.roots = null;
-		deltaProcessor.rootsAreStale = true;
+		DeltaProcessingState deltaState = JavaModelManager.getJavaModelManager().deltaState;
+		deltaState.oldRoots = null;
+		deltaState.roots = null;
+		deltaState.rootsAreStale = true;
 		
 		this.startDeltas();
 		JavaCore.run(
@@ -2195,7 +2195,7 @@ public void testSaveWorkingCopy() throws CoreException {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getWorkingCopy(null);
+		copy = unit.getWorkingCopy(null);
 		copy.getType("X").createMethod("void foo() {}", null, true, null);
 		this.startDeltas();
 		copy.save(null, true);

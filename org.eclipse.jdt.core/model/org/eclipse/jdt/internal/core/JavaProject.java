@@ -226,7 +226,7 @@ public class JavaProject
 				IPath path = entry.getPath();
 				Object target = JavaModel.getTarget(wRoot, path, true);
 				if (target instanceof java.io.File) {
-					Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
+					Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.externalTimeStamps;
 					if (externalTimeStamps.get(path) == null) {
 						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
 						externalTimeStamps.put(path, new Long(timestamp));							
@@ -2367,7 +2367,7 @@ public class JavaProject
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
-			manager.deltaProcessor.flush();
+			manager.getDeltaProcessor().flush();
 			throw e;
 		}
 	}

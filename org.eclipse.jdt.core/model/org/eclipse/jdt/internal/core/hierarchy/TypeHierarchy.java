@@ -351,7 +351,7 @@ public boolean contains(IType type) {
  * Deactivates this hierarchy for change listeners
  */
 protected void deactivate() {
-	JavaModelManager.getJavaModelManager().removeElementChangedListener(this);
+	JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(this);
 	this.files= null;
 	this.packageRegion= null;
 	this.rootRegion= null;
@@ -377,7 +377,7 @@ protected void destroy() {
 	this.typeFlags = new HashMap(1);
 	this.typeToSuperInterfaces = new HashMap(1);
 	this.missingTypes = new ArrayList(4);
-	JavaModelManager.getJavaModelManager().removeElementChangedListener(this);
+	JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(this);
 }
 /**
  * Determines if the change effects this hierarchy, and fires

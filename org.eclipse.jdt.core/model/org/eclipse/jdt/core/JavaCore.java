@@ -736,7 +736,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener, int eventMask) {
-		JavaModelManager.getJavaModelManager().addElementChangedListener(listener, eventMask);
+		JavaModelManager.getJavaModelManager().deltaState.addElementChangedListener(listener, eventMask);
 	}
 
 	/**
@@ -2870,7 +2870,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param listener the listener
 	 */
 	public static void removeElementChangedListener(IElementChangedListener listener) {
-		JavaModelManager.getJavaModelManager().removeElementChangedListener(listener);
+		JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(listener);
 	}
 	/**
 	 * Runs the given action as an atomic Java model operation.
@@ -3208,7 +3208,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		savePluginPreferences();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaProcessor);
+		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
 		workspace.removeSaveParticipant(this);
 
 		JavaModelManager.getJavaModelManager().shutdown();
@@ -3246,7 +3246,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
-				manager.deltaProcessor,
+				manager.deltaState,
 				IResourceChangeEvent.PRE_AUTO_BUILD
 					| IResourceChangeEvent.POST_AUTO_BUILD
 					| IResourceChangeEvent.POST_CHANGE

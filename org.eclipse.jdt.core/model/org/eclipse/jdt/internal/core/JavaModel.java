@@ -457,7 +457,7 @@ public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonit
 	if (elementsScope == null){
 		elementsScope = new IJavaElement[] { this };
 	}
-	JavaModelManager.getJavaModelManager().deltaProcessor.checkExternalArchiveChanges(elementsScope, monitor);
+	JavaModelManager.getJavaModelManager().getDeltaProcessor().checkExternalArchiveChanges(elementsScope, monitor);
 }
 
 /**

@@ -242,7 +242,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			if (this.newRawPath != ReuseClasspath){
 				updateClasspath();
 				project.updatePackageFragmentRoots();
-				JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(project);
+				JavaModelManager.getJavaModelManager().getDeltaProcessor().addForRefresh(project);
 			}
 
 		} catch(JavaModelException e){
@@ -286,7 +286,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		} else {
 			Map allRemovedRoots ;
-			if ((allRemovedRoots = manager.deltaProcessor.removedRoots) != null) {
+			if ((allRemovedRoots = manager.getDeltaProcessor().removedRoots) != null) {
 		 		roots = (IPackageFragmentRoot[]) allRemovedRoots.get(project);
 			}
 		}
@@ -357,13 +357,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 							REMOVEALL_APPEND);
 							break;
 						case IClasspathEntry.CPE_LIBRARY:
-							final DeltaProcessor deltaProcessor = manager.deltaProcessor;
+							final DeltaProcessingState deltaState = manager.deltaState;
 							postAction(new IPostAction() {
 								public String getID() {
 									return path.toString();
 								}
 								public void run() throws JavaModelException {
-									if (deltaProcessor.otherRoots.get(path) == null) { // if root was not shared
+									if (deltaState.otherRoots.get(path) == null) { // if root was not shared
 										indexManager.discardJobs(path.toString());
 										indexManager.removeIndex(path);
 										// TODO: (kent) we could just remove the in-memory index and have the indexing check for timestamps

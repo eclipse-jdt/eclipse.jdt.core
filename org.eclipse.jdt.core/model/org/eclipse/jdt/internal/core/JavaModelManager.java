@@ -113,32 +113,6 @@ public class JavaModelManager implements ISaveParticipant {
 
 	public final static ICompilationUnit[] NoWorkingCopy = new ICompilationUnit[0];
 	
-	/*
-	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
-	 * any of the other (for example, if it deregisters itself).
-	 */
-	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
-		for (int i = 0; i < this.elementChangedListenerCount; i++){
-			if (this.elementChangedListeners[i].equals(listener)){
-				
-				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
-				// any event mask of another listeners (yet not notified).
-				int cloneLength = this.elementChangedListenerMasks.length;
-				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
-				this.elementChangedListenerMasks[i] = eventMask; // could be different
-				return;
-			}
-		}
-		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
-		int length;
-		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
-			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
-			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
-		}
-		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
-		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
-		this.elementChangedListenerCount++;
-	}
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -468,17 +442,12 @@ public class JavaModelManager implements ISaveParticipant {
 	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
 	
 	/**
-	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
+	 * Holds the state used for delta processing.
 	 */
-	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
+	public final DeltaProcessingState deltaState = new DeltaProcessingState();
 
-	/**
-	 * Collection of listeners for Java element deltas
-	 */
-	public IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
-	public int[] elementChangedListenerMasks = new int[5];
-	public int elementChangedListenerCount = 0;
-
+	public IndexManager indexManager = new IndexManager();
+	
 	/**
 	 * Workaround for bug 15168 circular errors not reported  
 	 * This is a cache of the projects before any project addition/deletion has started.
@@ -737,7 +706,9 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 	
-
+	public DeltaProcessor getDeltaProcessor() {
+		return this.deltaState.getDeltaProcessor();
+	}
 	
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
@@ -798,7 +769,7 @@ public class JavaModelManager implements ISaveParticipant {
 		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, unitEnd, owner);
 	}
 	public IndexManager getIndexManager() {
-		return this.deltaProcessor.indexManager;
+		return this.indexManager;
 	}
 
 	/**
@@ -1283,36 +1254,6 @@ public class JavaModelManager implements ISaveParticipant {
 		this.searchScopes.put(scope, null); 
 	}
 	
-	public void removeElementChangedListener(IElementChangedListener listener) {
-		
-		for (int i = 0; i < this.elementChangedListenerCount; i++){
-			
-			if (this.elementChangedListeners[i].equals(listener)){
-				
-				// need to clone defensively since we might be in the middle of listener notifications (#fire)
-				int length = this.elementChangedListeners.length;
-				IElementChangedListener[] newListeners = new IElementChangedListener[length];
-				System.arraycopy(this.elementChangedListeners, 0, newListeners, 0, i);
-				int[] newMasks = new int[length];
-				System.arraycopy(this.elementChangedListenerMasks, 0, newMasks, 0, i);
-				
-				// copy trailing listeners
-				int trailingLength = this.elementChangedListenerCount - i - 1;
-				if (trailingLength > 0){
-					System.arraycopy(this.elementChangedListeners, i+1, newListeners, i, trailingLength);
-					System.arraycopy(this.elementChangedListenerMasks, i+1, newMasks, i, trailingLength);
-				}
-				
-				// update manager listener state (#fire need to iterate over original listeners through a local variable to hold onto
-				// the original ones)
-				this.elementChangedListeners = newListeners;
-				this.elementChangedListenerMasks = newMasks;
-				this.elementChangedListenerCount--;
-				return;
-			}
-		}
-	}
-
 	/*
 	 * Removes all cached info for the given element (including all children)
 	 * from the cache.
@@ -1525,8 +1466,8 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	public void shutdown () {
-		if (this.deltaProcessor.indexManager != null){ // no more indexing
-			this.deltaProcessor.indexManager.shutdown();
+		if (this.indexManager != null){ // no more indexing
+			this.indexManager.shutdown();
 		}
 		try {
 			IJavaModel model = this.getJavaModel();

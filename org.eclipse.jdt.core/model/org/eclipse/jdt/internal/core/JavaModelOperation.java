@@ -164,13 +164,13 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Registers the given delta with the Java Model Manager.
 	 */
 	protected void addDelta(IJavaElementDelta delta) {
-		JavaModelManager.getJavaModelManager().deltaProcessor.registerJavaModelDelta(delta);
+		JavaModelManager.getJavaModelManager().getDeltaProcessor().registerJavaModelDelta(delta);
 	}
 	/*
 	 * Registers the given reconcile delta with the Java Model Manager.
 	 */
 	protected void addReconcileDelta(ICompilationUnit workingCopy, IJavaElementDelta delta) {
-		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas;
+		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().getDeltaProcessor().reconcileDeltas;
 		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
 		if (previousDelta != null) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
@@ -186,7 +186,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Deregister the reconcile delta for the given working copy
 	 */
 	protected void removeReconcileDelta(ICompilationUnit workingCopy) {
-		JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas.remove(workingCopy);		
+		JavaModelManager.getJavaModelManager().getDeltaProcessor().reconcileDeltas.remove(workingCopy);		
 	}
 	/**
 	 * @see IProgressMonitor
@@ -357,9 +357,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IJavaModelStatus status= verify();
 		if (status.isOK()) {
 			// if first time here, computes the root infos before executing the operation
-			DeltaProcessor deltaProcessor = JavaModelManager.getJavaModelManager().deltaProcessor;
-			if (deltaProcessor.roots == null) {
-				deltaProcessor.initializeRoots();
+			DeltaProcessingState deltaState = JavaModelManager.getJavaModelManager().deltaState;
+			if (deltaState.roots == null) {
+				deltaState.initializeRoots();
 			}
 
 			executeOperation();
@@ -695,7 +695,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	public void run(IProgressMonitor monitor) throws CoreException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		DeltaProcessor deltaProcessor = manager.deltaProcessor;
+		DeltaProcessor deltaProcessor = manager.getDeltaProcessor();
 		int previousDeltaCount = deltaProcessor.javaModelDeltas.size();
 		try {
 			fMonitor = monitor;
