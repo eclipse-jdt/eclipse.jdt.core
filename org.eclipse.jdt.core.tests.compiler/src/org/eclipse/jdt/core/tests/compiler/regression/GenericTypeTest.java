@@ -1198,7 +1198,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"                new Object() {\n" + 
 				"                    void run() {\n" + 
 				"                        X x = t;\n" + 
-				"				        System.out.println(\"SUCCESS:\"+x);\n" + 
+				"				        System.out.println(\"SUCCESS\");\n" + 
 				"                    }\n" + 
 				"                }.run();\n" + 
 				"            }\n" + 
@@ -1231,7 +1231,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"public class X extends Super {\n" + 
 				"	class N <T extends M> {}\n" + 
 				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(\"SUCCESS:\");\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
 				"	}\n" + 
 				"}\n", 
 			},
@@ -1243,7 +1243,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"X.java",
 				"public class X <T> extends p.A<T> {\n" + 
 				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(\"SUCCESS:\");\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
 				"	}\n" + 
 				"}\n", 
 				"p/A.java",
@@ -1281,7 +1281,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"package p; \n" +
 				"public class A<P> {\n" + 
 				"    protected void print(P p) {\n" + 
-				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n", 
 			},
@@ -1315,7 +1315,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"package p; \n" +
 				"public class A<P> {\n" + 
 				"    protected void print(P p) {\n" + 
-				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n", 
 			},
@@ -1350,7 +1350,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"       this.p = p; \n" +
 				"    } \n" +
 				"    protected void print(P p) {\n" + 
-				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n", 
 			},
@@ -1380,7 +1380,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"       this.p = p; \n" +
 				"    } \n" +
 				"    protected void print(P p) {\n" + 
-				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n", 
 			},
@@ -1421,7 +1421,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"       this.p = p; \n" +
 				"    } \n" +
 				"    protected void print(P p) {\n" + 
-				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n", 
 			},
