@@ -446,6 +446,10 @@ public class TestingEnvironment {
 			markers = resource.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			for (int i = 0; i < markers.length; i++)
 				problems.add(new Problem(markers[i]));
+			
+			markers = resource.findMarkers(IJavaModelMarker.TASK_MARKER, true, IResource.DEPTH_INFINITE);
+			for (int i = 0; i < markers.length; i++)
+				problems.add(new Problem(markers[i]));
 
 			Problem[] result = new Problem[problems.size()];
 			problems.toArray(result);
