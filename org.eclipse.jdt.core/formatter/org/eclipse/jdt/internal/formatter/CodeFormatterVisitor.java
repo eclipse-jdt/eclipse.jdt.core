@@ -2119,9 +2119,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
 					this.scribe.space();
 				}
+		} else {
+			this.scribe.space();
 		}
 
-		this.scribe.space();
 		allocationExpression.type.traverse(this, scope);
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
@@ -4355,10 +4356,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
 					this.scribe.space();
 				}
+		} else {
+			this.scribe.space();
 		}
 
 		final int line = this.scribe.line;
-		this.scribe.space();
 		qualifiedAllocationExpression.type.traverse(this, scope);
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
