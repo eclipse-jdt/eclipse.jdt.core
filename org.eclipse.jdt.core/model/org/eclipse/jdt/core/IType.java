@@ -416,6 +416,17 @@ public interface IType extends IMember {
 	String getFullyQualifiedName(char enclosingTypeSeparator);
 	
 	/**
+	 * Returns this type's fully qualified name followed by its type parameters between angle brakets if it is a generic type.
+	 * For example, "p.X<T>", "java.util.Map<java.lang.String, p.X>"
+	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *      exception occurs while accessing its corresponding resource.
+	 * @return the fully qualified parameterized representation of this type
+	 * @since 3.1
+	 */
+	String getFullyQualifiedParameterizedName() throws JavaModelException;
+
+	/**
 	 * Returns the initializer with the specified position relative to
 	 * the order they are defined in the source.
 	 * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).

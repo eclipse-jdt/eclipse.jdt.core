@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 /**
  * Handle representing a source type that is parameterized.
  * The uniqueKey contains the genericTypeSignature of the parameterized type.
@@ -24,6 +28,10 @@ public class ParameterizedSourceType extends SourceType {
 	public ParameterizedSourceType(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
+	}
+	
+	public String getFullyQualifiedParameterizedName() throws JavaModelException {
+		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
 	}
 	
 	/**

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.JavaModelException;
+
 /**
  * Handle representing a binary type that is parameterized.
  * The uniqueKey contains the genericTypeSignature of the parameterized type.
@@ -26,6 +28,10 @@ public class ParameterizedBinaryType extends BinaryType {
 		this.uniqueKey = uniqueKey;
 	}
 
+	public String getFullyQualifiedParameterizedName() throws JavaModelException {
+		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
+	}
+	
 	/**
 	 * @private Debugging purposes
 	 */

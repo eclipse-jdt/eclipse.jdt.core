@@ -283,6 +283,16 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	}
 	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
+
+/*
+ * @see IType#getFullyQualifiedParameterizedName()
+ */
+public String getFullyQualifiedParameterizedName() throws JavaModelException {
+	ITypeParameter[] typeParameters = getTypeParameters();
+	if (typeParameters.length == 0) return getFullyQualifiedName();
+	return getFullyQualifiedName() + getTypeParameters(typeParameters);
+}
+
 /*
  * @see JavaElement
  */
