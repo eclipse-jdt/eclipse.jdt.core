@@ -1285,7 +1285,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends U, U> {\n" + 
-			"	^\n" + 
+			"	                ^\n" + 
 			"Illegal forward reference to type variable U\n" + 
 			"----------\n");
 	}	
