@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -38,6 +39,18 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 			String source = ((org.eclipse.jdt.internal.core.ClassFile)openable).getSource();
 			if (source != null) {
 				this.buildTypeBindings(source.toCharArray());
+				
+				// try to use the main type's class file as the openable
+				TypeDeclaration[] types = this.parsedUnit.types;
+				if (types != null && types.length > 0) {
+					String simpleTypeName = new String(types[0].name);
+					IPackageFragment parent = (IPackageFragment)openable.getParent();
+					org.eclipse.jdt.core.IClassFile classFile = 
+						parent.getClassFile(simpleTypeName + ".class");
+					if (classFile.exists()) {
+						this.openable = (Openable)classFile;
+					} 
+				}
 			}
 		} catch (JavaModelException e) {
 		}

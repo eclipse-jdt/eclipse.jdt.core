@@ -283,11 +283,7 @@ public class MatchLocator implements ITypeRequestor {
 			return unit.getType(new String(simpleTypeName));
 		} else {
 			try {
-				org.eclipse.jdt.core.IClassFile classFile = ((IPackageFragment)currentOpenable.getParent()).getClassFile(new String(simpleTypeName) + ".class");
-				if (!classFile.exists()) {
-					classFile = (org.eclipse.jdt.internal.core.ClassFile)currentOpenable;
-				} 
-				return classFile.getType();
+				return ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
 			} catch (JavaModelException e) {
 				return null;
 			}
@@ -301,6 +297,14 @@ public class MatchLocator implements ITypeRequestor {
 	}
 	protected IResource getCurrentResource() {
 		return this.potentialMatches[this.potentialMatchesIndex].resource;
+	}
+	protected boolean includesPotentialMatch(PotentialMatch potentialMatch) {
+		for (int i = 0; i < this.potentialMatchesLength; i++) {
+			if (potentialMatch.openable.equals(this.potentialMatches[i].openable)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	protected Scanner getScanner() {
 		return this.parser == null ? null : this.parser.scanner;
@@ -796,8 +800,10 @@ public class MatchLocator implements ITypeRequestor {
 					0,
 					this.potentialMatchesLength);
 			}
-			this.potentialMatches[this.potentialMatchesLength++] =
-				new PotentialMatch(this, resource, openable);
+			PotentialMatch potentialMatch = new PotentialMatch(this, resource, openable);
+			if (!this.includesPotentialMatch(potentialMatch)) {
+				this.potentialMatches[this.potentialMatchesLength++] = potentialMatch;
+			}
 		} catch (AbortCompilation e) {
 			// problem with class path: it could not find base classes
 			throw new JavaModelException(
