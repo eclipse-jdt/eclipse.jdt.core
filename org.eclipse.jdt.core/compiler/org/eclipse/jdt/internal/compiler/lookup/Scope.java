@@ -2821,12 +2821,8 @@ public abstract class Scope
 			if (!method.isStatic()) previous = method; // no ambiguity for static methods
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
-				if (compatibleMethod == null || !compatibleMethod.isValidBinding()) {
-					if (problemMethod == null)
-						problemMethod = compatibleMethod;
+				if (!visible[j].areParametersCompatibleWith(method.parameters))
 					continue nextVisible;
-				}
 			}
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			return method;
@@ -2871,12 +2867,8 @@ public abstract class Scope
 			MethodBinding method = visible[i];
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
-				if (compatibleMethod == null || !compatibleMethod.isValidBinding()) {
-					if (problemMethod == null)
-						problemMethod = compatibleMethod;
+				if (!visible[j].areParametersCompatibleWith(method.parameters))
 					continue nextVisible;
-				}
 			}
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			return method;
@@ -2894,7 +2886,7 @@ public abstract class Scope
 					MethodBinding[] temp = new MethodBinding[visibleSize];
 					int newSize = 0;
 					for (int j = 0; j < visibleSize; j++)
-						if (!visible[j].isVarargs() || computeCompatibleMethod(visible[j], argumentTypes, invocationSite, false) != null)
+						if (!visible[j].isVarargs() || visible[j].areParametersCompatibleWith(argumentTypes))
 							temp[newSize++] = visible[j];
 					visible = temp;
 					visibleSize = newSize;
@@ -2907,6 +2899,7 @@ public abstract class Scope
 				method = visible[i];
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j) continue;
+					// tiebkreak generic methods using variant where type params are substituted by their erasures
 					if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters))
 						continue nextVisible;
 				}
