@@ -96,7 +96,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0540"));
+		suite.addTest(new ASTConverterTest2("test0541"));
 		return suite;
 	}
 	/**
@@ -4402,5 +4402,36 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertEquals("Wrong package", "test0540", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue("Not an interface", typeBinding.isClass()); //$NON-NLS-1$
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=56697
+	 */
+	public void test0541() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0541", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		class Change14FieldAccessASTVisitor extends ASTVisitor {
+			int counter;
+			Change14FieldAccessASTVisitor() {
+				counter = 0;
+			}
+			public void endVisit(QualifiedName qualifiedName) {
+				IBinding i_binding = qualifiedName.getQualifier().resolveBinding();						
+				ITypeBinding type_binding = qualifiedName.getQualifier().resolveTypeBinding();
+				if (i_binding == null || type_binding == null) {
+					counter++;
+				}
+			}
+		}
+		Change14FieldAccessASTVisitor visitor = new Change14FieldAccessASTVisitor();
+		unit.accept(visitor);
+		assertEquals("Missing binding", 0, visitor.counter);
+	}
 }
