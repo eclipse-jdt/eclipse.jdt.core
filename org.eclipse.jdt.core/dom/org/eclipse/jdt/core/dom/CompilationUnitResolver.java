@@ -237,7 +237,8 @@ class CompilationUnitResolver extends Compiler {
 				source, 
 				"", //$NON-NLS-1$
 				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
+		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
 		
 		if (compilationUnitDeclaration.ignoreMethodBodies) {
 			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
@@ -273,7 +274,7 @@ class CompilationUnitResolver extends Compiler {
 		} else {
 			//fill the methods bodies in order for the code to be generated
 			//real parse of the method....
-			parser.scanner.setSource(source);
+			parser.scanner.setSource(compilationResult);
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 			if (types != null) {
 				for (int i = types.length; --i >= 0;)

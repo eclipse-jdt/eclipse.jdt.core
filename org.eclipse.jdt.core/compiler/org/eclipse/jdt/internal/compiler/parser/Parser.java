@@ -7489,20 +7489,17 @@ public int[] getJavaDocPositions() {
 		if ((unit.bits & ASTNode.HasAllMethodBodies) != 0)
 			return; //work already done ...
 
-		//real parse of the method....
-		char[] contents = unit.compilationResult.compilationUnit.getContents();
-		this.scanner.setSource(contents);
-		
 		// save existing values to restore them at the end of the parsing process
 		// see bug 47079 for more details
 		int[] oldLineEnds = this.scanner.lineEnds;
 		int oldLinePtr = this.scanner.linePtr;
 
-		final int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
-		this.scanner.lineEnds = lineSeparatorPositions;
-		this.scanner.linePtr = lineSeparatorPositions.length - 1;
-
+		//real parse of the method....
+		CompilationResult compilationResult = unit.compilationResult;
+		this.scanner.setSource(compilationResult);
+		
 		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
+			char[] contents = compilationResult.compilationUnit.getContents();
 			this.javadocParser.scanner.setSource(contents);
 		}
 		if (unit.types != null) {
@@ -7730,7 +7727,6 @@ public void goForCompilationUnit(){
 	//tells the scanner to go for compilation unit parsing
 
 	this.firstToken = TokenNamePLUS_PLUS ;
-	this.scanner.linePtr = -1;	
 	this.scanner.foundTaskCount = 0;
 	this.scanner.recordLineSeparator = true;
 	this.scanner.currentLine= null;

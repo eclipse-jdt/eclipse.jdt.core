@@ -44,5 +44,25 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		assertEquals("Wrong token type", TerminalTokens.TokenNameEOF, token);
 		assertEquals("Wrong comment start", 0,  scanner.commentStarts[0]);
 		assertEquals("Wrong comment start", -9, scanner.commentStops[0]);
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=73762
+	 */
+	public void test002() throws InvalidInputException {
+		Scanner scanner = new Scanner();
+		scanner.recordLineSeparator = true;
+		scanner.setSource("a\nb\nc\n".toCharArray());
+		int token = 0;
+		while (token !=  TerminalTokens.TokenNameEOF) {
+			token = scanner.getNextToken();
+		}
+		scanner.setSource("a\nb\n".toCharArray());
+		token = 0;
+		while (token !=  TerminalTokens.TokenNameEOF) {
+			token = scanner.getNextToken();
+		}
+		assertEquals("Wrong number of line ends", 2, scanner.getLineEnds().length);
 	}					
+
 }

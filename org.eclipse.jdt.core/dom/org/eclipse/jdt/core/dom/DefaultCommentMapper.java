@@ -224,7 +224,6 @@ class DefaultCommentMapper {
 		
 		// Init scanner and start ranges computing
 		this.scanner = sc;
-		this.scanner.linePtr = this.scanner.lineEnds.length-1;
 		this.scanner.tokenizeWhiteSpace = true;
 		
 		// Start unit visit

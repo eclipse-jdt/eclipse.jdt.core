@@ -651,15 +651,11 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 	int oldLinePtr = this.parser.scanner.linePtr;
 	
 	try {
-		char[] contents = unit.compilationResult.compilationUnit.getContents();
-		this.parser.scanner.setSource(contents);
-
-		// inline old setLineEnds
-		final int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
-		this.parser.scanner.lineEnds = lineSeparatorPositions;
-		this.parser.scanner.linePtr = lineSeparatorPositions.length - 1;
+		CompilationResult compilationResult = unit.compilationResult;
+		this.parser.scanner.setSource(compilationResult);
 
 		if (this.parser.javadocParser.checkDocComment) {
+			char[] contents = compilationResult.compilationUnit.getContents();
 			this.parser.javadocParser.scanner.setSource(contents);
 		}
 		this.parser.nodeSet = this.currentPossibleMatch.nodeSet;

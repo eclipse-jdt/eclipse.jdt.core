@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -3217,6 +3218,21 @@ public final void setSource(char[] sourceString){
 	this.eofPosition = sourceLength;
 	this.initialPosition = this.currentPosition = 0;
 	this.containsAssertKeyword = false;
+	this.linePtr = -1;	
+}
+
+/*
+ * Should be used if a parse (usually a diet parse) has already been performed on the unit, 
+ * so as to get the already computed line end positions.
+ */
+public final void setSource(CompilationResult compilationResult) {
+	char[] contents = compilationResult.compilationUnit.getContents();
+	setSource(contents);
+	int[] lineSeparatorPositions = compilationResult.lineSeparatorPositions;
+	if (lineSeparatorPositions != null) {
+		this.lineEnds = lineSeparatorPositions;
+		this.linePtr = lineSeparatorPositions.length - 1;
+	}
 }
 
 public String toString() {

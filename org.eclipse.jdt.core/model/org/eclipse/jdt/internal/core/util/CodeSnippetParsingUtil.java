@@ -112,7 +112,7 @@ public class CodeSnippetParsingUtil {
 		
 		//fill the methods bodies in order for the code to be generated
 		//real parse of the method....
-		parser.scanner.setSource(source);
+		parser.scanner.setSource(compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
 			for (int i = types.length; --i >= 0;) {
@@ -188,7 +188,7 @@ public class CodeSnippetParsingUtil {
 		constructorDeclaration.bodyStart = offset;
 		constructorDeclaration.bodyEnd = offset + length - 1;
 		
-		parser.scanner.setSource(source);
+		parser.scanner.setSource(compilationResult);
 		parser.scanner.resetTo(offset, offset + length);
 		parser.parse(constructorDeclaration, compilationUnitDeclaration, true);
 		

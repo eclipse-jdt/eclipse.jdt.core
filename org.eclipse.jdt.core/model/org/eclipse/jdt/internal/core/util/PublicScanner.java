@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.NLSLine;
@@ -36,6 +37,9 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 
+	
+	// 1.5 feature
+	public boolean useEnumAsAnIndentifier = false;
 	
 	public boolean recordLineSeparator = false;
 	public char currentCharacter;
@@ -134,7 +138,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
-	NLSLine currentLine= null;
+	public NLSLine currentLine= null;
 	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
 	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
 	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
@@ -1488,12 +1492,8 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					if (Character.isJavaIdentifierStart(this.currentCharacter))
 						return scanIdentifierOrKeyword();
-					if (Character.isDigit(this.currentCharacter)) {
-						if (isDigit(this.currentCharacter)) {
-							return scanNumber(false);
-						} else {
-							throw new InvalidInputException(INVALID_FLOAT);
-						}
+					if (isDigit(this.currentCharacter)) {
+						return scanNumber(false);
 					}						
 					return TokenNameERROR;
 			}
@@ -2456,6 +2456,7 @@ public int scanIdentifierOrKeyword() {
 	//keywors with the same length AND the same first char, then do another
 	//dispatch on the second char 
 	this.useAssertAsAnIndentifier = false;
+	this.useEnumAsAnIndentifier = false;
 	while (getNextCharAsJavaIdentifierPart()){/*empty*/}
 
 	int index, length;
@@ -2633,6 +2634,7 @@ public int scanIdentifierOrKeyword() {
 							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
 								return TokenNameenum;
 							} else {
+								this.useEnumAsAnIndentifier = true;
 								return TokenNameIdentifier;								
 							}
 						} else {
@@ -3213,6 +3215,21 @@ public final void setSource(char[] sourceString){
 	this.eofPosition = sourceLength;
 	this.initialPosition = this.currentPosition = 0;
 	this.containsAssertKeyword = false;
+	this.linePtr = -1;	
+}
+
+/*
+ * Should be used if a parse (usually a diet parse) has already been performed on the unit, 
+ * so as to get the already computed line end positions.
+ */
+public final void setSource(CompilationResult compilationResult) {
+	char[] contents = compilationResult.compilationUnit.getContents();
+	setSource(contents);
+	int[] lineSeparatorPositions = compilationResult.lineSeparatorPositions;
+	if (lineSeparatorPositions != null) {
+		this.lineEnds = lineSeparatorPositions;
+		this.linePtr = lineSeparatorPositions.length - 1;
+	}
 }
 
 public String toString() {
