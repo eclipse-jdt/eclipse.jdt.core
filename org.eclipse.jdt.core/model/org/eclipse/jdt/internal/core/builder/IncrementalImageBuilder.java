@@ -366,6 +366,14 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 						if (definedTypeNames == null) { // defined a single type matching typePath
 							removeClassFile(typePath);
+							if ((sourceDelta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+								// remove problems and tasks for a compilation unit that is being moved (to another package or renamed)
+								// if the target file is a compilation unit, the new cu will be recompiled
+								// if the target file is a non-java resource, then markers are removed 
+								// see bug 2857 Renaming .java class with errors to .txt leaves errors in Task list (1GK06R3)  
+								IResource movedToRes = resource.getWorkspace().getRoot().getFile(sourceDelta.getMovedToPath());
+								JavaBuilder.removeProblemsAndTasksFor(movedToRes); 
+							}
 						} else {
 							if (JavaBuilder.DEBUG)
 								System.out.println("Add dependents of removed source file " + typePath.toString()); //$NON-NLS-1$

@@ -66,4 +66,33 @@ public class ErrorsTests extends Tests {
 		expectingOnlyProblemsFor(collaboratorPath);
 		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method Indicted.foo()", collaboratorPath));
 	}
+	
+	/*
+	 * Regression test for bug 2857 Renaming .java class with errors to .txt leaves errors in Task list (1GK06R3)	 */
+	public void testRenameToNonJava() {
+		IPath projectPath = env.addProject("Project");
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,"");
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+		
+		IPath cuPath = env.addClass(root, "p1", "X",
+			"package p1;\n"+
+			"public class X extends Y {\n"+
+			"}\n"
+			);
+			
+		fullBuild(projectPath);
+		expectingOnlyProblemsFor(cuPath);
+		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved or is not a valid superclass", cuPath));
+		
+		
+		env.renameCU(root.append("p1"), "X.java", "X.txt");
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 }

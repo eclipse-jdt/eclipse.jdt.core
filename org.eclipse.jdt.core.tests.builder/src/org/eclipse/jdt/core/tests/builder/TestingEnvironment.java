@@ -606,6 +606,19 @@ public class TestingEnvironment {
 		}
 	}
 
+	/** Renames a compilation unit int the given package in the workspace.
+	 * A workspace must be open.
+	 */
+	public void renameCU(IPath packagePath, String cuName, String newName) {
+		checkAssertion("a workspace must be open", fIsOpen);
+		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
+		try {
+			packageFolder.getFile(cuName).move(packageFolder.getFile(newName).getFullPath(), true, null);
+		} catch (CoreException e) {
+			handle(e);
+		}
+	}
+
 	/** Removes a binary class from the given package in
 	 * the workspace.  A workspace must be open, and the
 	 * given class name must not end with ".class".
