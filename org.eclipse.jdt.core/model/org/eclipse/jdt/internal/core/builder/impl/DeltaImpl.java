@@ -99,7 +99,7 @@ class DeltaImpl implements IDelta {
 			fNewState = (StateImpl)newState;
 			fOldState = (StateImpl)oldState;
 		} catch (ClassCastException cce) {
-			Assert.isTrue(false, Util.bind("build.invalidStates"/*nonNLS*/));
+			Assert.isTrue(false, "Internal Error - Invalid states"/*nonNLS*/);
 		}
 		fStatus = CHANGED;
 		fName = fgImage;
@@ -396,8 +396,6 @@ protected int compareTypes(IType handle) {
 		for (Enumeration e = toRemove.elements(); e.hasMoreElements();) {
 			pkgs.removeElement(e.nextElement());
 		}
-
-		Assert.isTrue(vInfo.size() == pkgs.size(), Util.bind("build.sanityCheck"/*nonNLS*/));
 		
 		/* convert info vector to array */
 		PackageInfo[] infos = new PackageInfo[vInfo.size()];

@@ -195,7 +195,7 @@ protected Vector getBuildListeners() {
 	}
 public IState getCurrentState() throws NotPresentException {
 	if (fCurrentState == null) {
-		throw new NotPresentException(Util.bind("build.noState"/*nonNLS*/));
+		throw new NotPresentException("Internal Error - No current state"/*nonNLS*/);
 	}
 	return fCurrentState;
 }

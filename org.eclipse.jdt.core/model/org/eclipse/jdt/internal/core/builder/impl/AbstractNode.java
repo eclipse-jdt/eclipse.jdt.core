@@ -169,7 +169,7 @@ public void dump(Dumper dumper) {
 	 * Make sure equality tests are never carried out on nodes
 	 */
 	public boolean equals(Object o) {
-		Assert.isTrue(false, Util.bind("build.noEqualityForNodes"/*nonNLS*/));
+		Assert.isTrue(false, "Internal Error - Equality not defined for dependency graph nodes"/*nonNLS*/);
 		return false;
 	}
 	/**

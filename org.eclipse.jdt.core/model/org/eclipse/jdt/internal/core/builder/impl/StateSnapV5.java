@@ -75,7 +75,7 @@ protected void addDependencyGraphToPool(StateImpl state, StateSnapConstantPool p
 				pool.add(((ZipNode)node).getZipFile());
 				break;
 			default:
-				Assert.isTrue(false, Util.bind("build.unexpectedNode"/*nonNLS*/));
+				Assert.isTrue(false, "Unexpected kind of node"/*nonNLS*/);
 		}
 		// Don't need to process node dependents here, since they're nodes as well
 		// and will have their info added to the pool above.
@@ -153,7 +153,7 @@ protected void addTypeStructureEntryToPool(TypeStructureEntry tsEntry, StateSnap
 	pool.add(tsEntry.getType());
 }
 protected void badFormat() throws IOException {
-	throw new IOException(Util.bind("build.formatError"/*nonNLS*/));
+	throw new IOException("Error in format"/*nonNLS*/);
 }
 /**
  * Check that the next section has the given name.

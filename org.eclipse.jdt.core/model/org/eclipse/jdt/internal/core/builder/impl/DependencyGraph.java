@@ -106,7 +106,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
 		}
 		catch (CloneNotSupportedException e) {
 			// Should not happen since we implement Cloneable
-			Assert.isTrue(false, Util.bind("build.cloneException"/*nonNLS*/));
+			Assert.isTrue(false, "Unexpected clone exception in DependencyGraph.clone()"/*nonNLS*/);
 			return null;
 		}
 	}
@@ -186,7 +186,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
 				value = fZips.remove(((ZipNode)toRemove).getZipFile());
 				break;
 			default:
-				Assert.isTrue(false, Util.bind("build.errorDeletingNode"/*nonNLS*/));
+				Assert.isTrue(false, "Attempt to delete unknown node type from dependency graph"/*nonNLS*/);
 		}
 		return (INode)value;
 	}
@@ -312,7 +312,7 @@ public Enumeration getJCUNodes() {
 			return getNodeFor((IPath)o, create);
 		}
 		else {
-			Assert.isTrue(false, Util.bind("build.unknownNode"/*nonNLS*/));
+			Assert.isTrue(false, "Unknown kind of node"/*nonNLS*/);
 			return null;
 		}
 	}
@@ -477,7 +477,7 @@ public Vector getUnusedNamespaceNodes() {
 	 * For debugging only -- asserts graph integrity
 	 */
 	public void integrityCheck(Dictionary table) {
-		String msg = Util.bind("build.graphCorrupt"/*nonNLS*/);
+		String msg = "Internal Error: the dependency graph is corrupt, do a full build to workaround error"/*nonNLS*/;
 		for (Enumeration e = table.elements(); e.hasMoreElements();) {
 			AbstractNode node = (AbstractNode) e.nextElement();
 

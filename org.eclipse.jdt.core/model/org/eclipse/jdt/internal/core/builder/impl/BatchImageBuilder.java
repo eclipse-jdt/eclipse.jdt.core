@@ -105,7 +105,7 @@ public IDelta getImageDelta(IImageContext imageContext) {
 public void lazyBuild(PackageElement unit) {
 	//		String msg = "Attempt to lazy build " + unit.getPackage().getName() + "." + unit.getFileName();
 	//		System.err.println(msg + ". " + "Lazy building has been disabled.");
-	Assert.isTrue(false, Util.bind("build.lazyBuildDisabled"/*nonNLS*/));
+	Assert.isTrue(false, "Internal Error - Lazy building has been disabled"/*nonNLS*/);
 }
 /**
  * Returns a string describe the builder

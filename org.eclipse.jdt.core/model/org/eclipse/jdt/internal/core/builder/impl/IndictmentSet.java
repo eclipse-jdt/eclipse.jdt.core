@@ -71,7 +71,7 @@ public class IndictmentSet {
 					fAbstractMethodTable.put(i.getKey(), i);
 					break;
 				default:
-					Assert.isTrue(false, Util.bind("build.unknownIndictment"/*nonNLS*/));
+					Assert.isTrue(false, "Internal Error - Unexpected kind of indictment"/*nonNLS*/);
 					break;
 			}
 		}
