@@ -31,6 +31,7 @@ String getElementName();
 /**
  * Returns the modifier flags for this import. The flags can be examined using class
  * <code>Flags</code>. Only the static flag is meaningful for import declarations.
+ *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  * @return the modifier flags for this import
