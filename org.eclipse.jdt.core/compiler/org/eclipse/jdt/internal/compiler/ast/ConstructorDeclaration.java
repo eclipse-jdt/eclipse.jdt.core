@@ -141,7 +141,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				return; // Handle methods with invalid signature or duplicates
 			int problemsLength;
 			IProblem[] problems =
-				scope.referenceCompilationUnit().compilationResult.getAllProblems();
+				scope.referenceCompilationUnit().compilationResult.getProblems();
 			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 			classFile.addProblemConstructor(this, binding, problemsCopy);
