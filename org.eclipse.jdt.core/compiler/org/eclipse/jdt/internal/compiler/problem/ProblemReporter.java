@@ -1845,6 +1845,14 @@ public void invalidOperator(UnaryExpression expression, TypeBinding type) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void invalidParenthesizedExpression(AstNode reference) {
+	this.handle(
+		IProblem.InvalidParenthesizedExpression,
+		NoArgument,
+		NoArgument,
+		reference.sourceStart,
+		reference.sourceEnd);
+}
 public void invalidSuperclass(SourceTypeBinding type, TypeReference superclassRef, ReferenceBinding expectedType) {
 	int problemId = expectedType.problemId();
 	int id;
@@ -2358,7 +2366,6 @@ public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
 }
-
 public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
 
 	this.handle(

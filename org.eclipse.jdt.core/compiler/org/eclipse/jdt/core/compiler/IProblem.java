@@ -22,6 +22,7 @@
  * 								   ObjectCannotHaveSuperTypes
  * 								   MissingSemiColon
  * 								   InvalidExpressionAsName
+ *								   InvalidParenthesizedExpression
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -349,6 +350,7 @@ public interface IProblem {
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;
 	int ExpressionShouldBeAVariable = Syntax + Internal + 223;
 	int MissingSemiColon = Syntax + Internal + 224;
+	int InvalidParenthesizedExpression = Syntax + Internal + 225;
     
 	// scanner errors
 	int EndOfSource = Syntax + Internal + 250;

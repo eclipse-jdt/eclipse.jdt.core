@@ -31,6 +31,10 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
+		if ((this.bits & ParenthesizedMASK) != 0) {
+			scope.problemReporter().invalidParenthesizedExpression(this);
+			return null;
+		}
 		super.resolveType(scope);
 		if (currentCompatibleType == null)
 			return null; // error case
