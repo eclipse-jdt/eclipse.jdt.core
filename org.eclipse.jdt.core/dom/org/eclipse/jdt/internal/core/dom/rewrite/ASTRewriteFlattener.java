@@ -1313,7 +1313,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('?');
 		ASTNode bound = getChildNode(node, WildcardType.BOUND_PROPERTY);
 		if (bound != null) {
-			if (getBooleanAttribute(node, WildcardType.BOUND_PROPERTY)) {
+			if (getBooleanAttribute(node, WildcardType.UPPER_BOUND_PROPERTY)) {
 				this.result.append(" extends ");//$NON-NLS-1$
 			} else {
 				this.result.append(" super ");//$NON-NLS-1$
