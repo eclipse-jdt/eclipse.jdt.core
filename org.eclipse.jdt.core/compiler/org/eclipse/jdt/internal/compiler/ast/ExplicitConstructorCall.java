@@ -76,8 +76,8 @@ public class ExplicitConstructorCall
 					flowInfo,
 					currentScope);
 			}
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
-			manageSyntheticAccessIfNecessary(currentScope);
+			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
+			manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 			return flowInfo;
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
@@ -165,9 +165,10 @@ public class ExplicitConstructorCall
 	 * types, since by the time we reach them, we might not yet know their
 	 * exact need.
 	 */
-	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		ReferenceBinding superType;
 
+		if (!flowInfo.isReachable()) return;
 		// perform some emulation work in case there is some and we are inside a local type only
 		if ((superType = binding.declaringClass).isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
@@ -181,8 +182,9 @@ public class ExplicitConstructorCall
 		}
 	}
 
-	public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (binding.isPrivate() && (accessMode != This)) {
 

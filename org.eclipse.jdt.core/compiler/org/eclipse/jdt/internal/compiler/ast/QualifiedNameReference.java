@@ -48,7 +48,7 @@ public class QualifiedNameReference extends NameReference {
 			case FIELD : // reading a field
 				lastFieldBinding = (FieldBinding) binding;
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0);
+					manageSyntheticReadAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
 				}				// check if final blank field
 				if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
@@ -75,7 +75,7 @@ public class QualifiedNameReference extends NameReference {
 		}
 		
 		if (needValue) {
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
+			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 			// only for first binding
 		}
 		// all intermediate field accesses are read accesses
@@ -90,7 +90,8 @@ public class QualifiedNameReference extends NameReference {
 						i == 0 
 							? ((VariableBinding)binding).type
 							: otherBindings[i-1].type,
-						i + 1);
+						i + 1, 
+						flowInfo);
 				}
 			}
 			lastFieldBinding = otherBindings[otherBindingsCount-1];
@@ -119,7 +120,8 @@ public class QualifiedNameReference extends NameReference {
 				lastReceiverType,
 				lastFieldBinding == binding
 					? 0 
-					: otherBindingsCount);
+					: otherBindingsCount, 
+				flowInfo);
 		}
 		
 		if (assignment.expression != null) {
@@ -159,7 +161,7 @@ public class QualifiedNameReference extends NameReference {
 		} else {
 			lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
 		}
-		manageSyntheticWriteAccessIfNecessary(currentScope, lastFieldBinding, lastReceiverType);
+		manageSyntheticWriteAccessIfNecessary(currentScope, lastFieldBinding, lastReceiverType, flowInfo);
 
 		return flowInfo;
 	}
@@ -185,7 +187,7 @@ public class QualifiedNameReference extends NameReference {
 		switch (bits & RestrictiveFlagMASK) {
 			case FIELD : // reading a field
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0);
+					manageSyntheticReadAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
 				// check if reading a final blank field
 				FieldBinding fieldBinding;
@@ -210,7 +212,7 @@ public class QualifiedNameReference extends NameReference {
 				}
 		}
 		if (needValue) {
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
+			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 			// only for first binding
 		}
 		if (otherBindings != null) {
@@ -223,7 +225,8 @@ public class QualifiedNameReference extends NameReference {
 						i == 0 
 							? ((VariableBinding)binding).type
 							: otherBindings[i-1].type,
-						i + 1);
+						i + 1,
+						flowInfo);
 				}
 			}
 		}
@@ -580,7 +583,8 @@ public class QualifiedNameReference extends NameReference {
 		setDepth(firstDepth);
 		return (otherBindings[otherBindingsLength - 1]).type;
 	}
-	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+		if (!flowInfo.isReachable()) return;
 		//If inlinable field, forget the access emulation, the code gen will directly target it
 		if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) {
 			return;
@@ -590,10 +594,12 @@ public class QualifiedNameReference extends NameReference {
 		}
 	}
 	public void manageSyntheticReadAccessIfNecessary(
-		BlockScope currentScope,
-		FieldBinding fieldBinding,
-		TypeBinding lastReceiverType,
-		int index) {
+			BlockScope currentScope,
+			FieldBinding fieldBinding,
+			TypeBinding lastReceiverType,
+			int index,
+			FlowInfo flowInfo) {
+		if (!flowInfo.isReachable()) return;
 		// index == 0 denotes the first fieldBinding, index > 0 denotes one of the 'otherBindings'
 		if (fieldBinding.constant != NotAConstant)
 			return;
@@ -655,9 +661,11 @@ public class QualifiedNameReference extends NameReference {
 	 * No need to emulate access to protected fields since not implicitly accessed
 	 */
 	public void manageSyntheticWriteAccessIfNecessary(
-		BlockScope currentScope,
-		FieldBinding fieldBinding,
-		TypeBinding lastReceiverType) {
+			BlockScope currentScope,
+			FieldBinding fieldBinding,
+			TypeBinding lastReceiverType,
+			FlowInfo flowInfo) {
+		if (!flowInfo.isReachable()) return;
 		if (fieldBinding.isPrivate()) {
 			if (fieldBinding.declaringClass != currentScope.enclosingSourceType()) {
 				syntheticWriteAccessor = ((SourceTypeBinding) fieldBinding.declaringClass)

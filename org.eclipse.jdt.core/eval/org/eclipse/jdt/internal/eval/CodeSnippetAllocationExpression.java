@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -106,10 +107,10 @@ public void generateCode(
  * types, since by the time we reach them, we might not yet know their
  * exact need.
  */
-public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	// not supported yet
 }
-public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

@@ -73,7 +73,7 @@ public class AssertStatement extends Statement {
 		}
 		
 		// add the assert support in the clinit
-		manageSyntheticAccessIfNecessary(currentScope);
+		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		if (isOptimizedFalseAssertion) {
 			return flowInfo; // if assertions are enabled, the following code will be unreachable
 		} else {
@@ -139,8 +139,10 @@ public class AssertStatement extends Statement {
 		visitor.endVisit(this, scope);
 	}	
 	
-	public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
+		
 		// need assertion flag: $assertionsDisabled on outer most source clas
 		// (in case of static member of interface, will use the outermost static member - bug 22334)
 		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();

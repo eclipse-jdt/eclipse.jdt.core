@@ -52,7 +52,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				currentScope.problemReporter().uninitializedBlankFinalField(binding, this);
 				// we could improve error msg here telling "cannot use compound assignment on final blank field"
 			}
-			manageSyntheticReadAccessIfNecessary(currentScope);
+			manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
 		}
 		flowInfo =
 			receiver
@@ -65,7 +65,7 @@ public class FieldReference extends Reference implements InvocationSite {
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
 		}
-		manageSyntheticWriteAccessIfNecessary(currentScope);
+		manageSyntheticWriteAccessIfNecessary(currentScope, flowInfo);
 
 		// check if assigning a final field 
 		if (binding.isFinal()) {
@@ -108,7 +108,7 @@ public class FieldReference extends Reference implements InvocationSite {
 
 		receiver.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic());
 		if (valueRequired) {
-			manageSyntheticReadAccessIfNecessary(currentScope);
+			manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
 		}
 		return flowInfo;
 	}
@@ -360,8 +360,9 @@ public class FieldReference extends Reference implements InvocationSite {
 	/*
 	 * No need to emulate access to protected fields since not implicitly accessed
 	 */
-	public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope) {
+	public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		if (binding.isPrivate()) {
 			if ((currentScope.enclosingSourceType() != binding.declaringClass)
 				&& (binding.constant == NotAConstant)) {
@@ -417,8 +418,9 @@ public class FieldReference extends Reference implements InvocationSite {
 	/*
 	 * No need to emulate access to protected fields since not implicitly accessed
 	 */
-	public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope) {
+	public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		if (binding.isPrivate()) {
 			if (currentScope.enclosingSourceType() != binding.declaringClass) {
 				syntheticWriteAccessor =

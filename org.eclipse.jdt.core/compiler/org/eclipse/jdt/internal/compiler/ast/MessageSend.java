@@ -45,7 +45,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// must verify that exceptions potentially thrown by this expression are caught in the method
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
 	}
-	manageSyntheticAccessIfNecessary(currentScope);	
+	manageSyntheticAccessIfNecessary(currentScope, flowInfo);	
 	return flowInfo;
 }
 /**
@@ -119,8 +119,9 @@ public boolean isSuperAccess() {
 public boolean isTypeAccess() {	
 	return receiver != null && receiver.isTypeReference();
 }
-public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
+public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 
+	if (!flowInfo.isReachable()) return;
 	if (binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		

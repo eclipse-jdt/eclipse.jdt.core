@@ -116,12 +116,12 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return flowInfo;
 		try {
-			bits |= IsReachableMASK;
-			LocalTypeBinding localType = (LocalTypeBinding) binding;
-			
-			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
-			
+			if (flowInfo.isReachable()) {
+				bits |= IsReachableMASK;
+				LocalTypeBinding localType = (LocalTypeBinding) binding;
+				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
+			}
+			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 			updateMaxFieldCount(); // propagate down the max field count
 			internalAnalyseCode(flowContext, flowInfo); 
 		} catch (AbortType e) {
@@ -159,12 +159,12 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
-			bits |= IsReachableMASK;
-			LocalTypeBinding localType = (LocalTypeBinding) binding;
-
-			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
-			
+			if (flowInfo.isReachable()) {
+				bits |= IsReachableMASK;
+				LocalTypeBinding localType = (LocalTypeBinding) binding;
+				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
+			}
+			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 			updateMaxFieldCount(); // propagate down the max field count
 			internalAnalyseCode(flowContext, flowInfo);
 		} catch (AbortType e) {
@@ -635,8 +635,9 @@ public class TypeDeclaration
 	 * with an enclosing instance.
 	 * 15.9.2
 	 */
-	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
 		
 		MethodScope methodScope = currentScope.methodScope();
@@ -666,8 +667,9 @@ public class TypeDeclaration
 	 * 
 	 * Local member cannot be static.
 	 */
-	public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope) {
+	public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
 		nestedType.addSyntheticArgumentAndField(binding.enclosingType());
 	}	

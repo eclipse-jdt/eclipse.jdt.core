@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -487,7 +488,11 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 		BlockScope currentScope,
 		FieldBinding fieldBinding,
 		TypeBinding lastReceiverType,
-		int index) {
+		int index,
+		FlowInfo flowInfo) {
+
+		if (!flowInfo.isReachable()) return;
+	
 
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
@@ -522,8 +527,11 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 	public void manageSyntheticWriteAccessIfNecessary(
 		BlockScope currentScope,
 		FieldBinding fieldBinding,
-		TypeBinding lastReceiverType) {
+		TypeBinding lastReceiverType,
+		FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
+	
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type

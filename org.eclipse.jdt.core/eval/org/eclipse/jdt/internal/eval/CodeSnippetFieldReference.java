@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -279,9 +280,11 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 /*
  * No need to emulate access to protected fields since not implicitly accessed
  */
-public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
+public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 	// The private access will be managed through the code generation
 
+	if (!flowInfo.isReachable()) return;
+	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
@@ -298,9 +301,11 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
 /*
  * No need to emulate access to protected fields since not implicitly accessed
  */
-public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope){
+public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 	// The private access will be managed through the code generation
 
+	if (!flowInfo.isReachable()) return;
+	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type

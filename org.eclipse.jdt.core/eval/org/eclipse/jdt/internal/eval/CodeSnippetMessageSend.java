@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.eval;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
@@ -155,10 +156,12 @@ public void generateCode(
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 }
-public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+	if (!flowInfo.isReachable()) return;
+	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type

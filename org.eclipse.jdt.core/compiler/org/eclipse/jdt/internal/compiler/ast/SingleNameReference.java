@@ -42,7 +42,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
 				}
-				manageSyntheticReadAccessIfNecessary(currentScope);
+				manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
 				break;
 			case LOCAL : // reading a local variable
 				// check if assigning a final blank field
@@ -63,7 +63,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 	}
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			manageSyntheticWriteAccessIfNecessary(currentScope);
+			manageSyntheticWriteAccessIfNecessary(currentScope, flowInfo);
 
 			// check if assigning a final field
 			FieldBinding fieldBinding;
@@ -103,7 +103,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			flowInfo.markAsDefinitelyAssigned(localBinding);
 	}
-	manageEnclosingInstanceAccessIfNecessary(currentScope);
+	manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 	return flowInfo;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -114,7 +114,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // reading a field
 			if (valueRequired) {
-				manageSyntheticReadAccessIfNecessary(currentScope);
+				manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
 			}
 			// check if reading a final blank field
 			FieldBinding fieldBinding;
@@ -137,7 +137,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 	}
 	if (valueRequired) {
-		manageEnclosingInstanceAccessIfNecessary(currentScope);
+		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 	}
 	return flowInfo;
 }
@@ -515,8 +515,9 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 public void generateReceiver(CodeStream codeStream) {
 	codeStream.aload_0();
 }
-public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+	if (!flowInfo.isReachable()) return;
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) return;
 
@@ -524,7 +525,9 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 		currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 	}
 }
-public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope) {
+public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+
+	if (!flowInfo.isReachable()) return;
 
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (constant != NotAConstant)
@@ -562,8 +565,9 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope) {
 		}
 	}
 }
-public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope) {
+public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+	if (!flowInfo.isReachable()) return;
 	if ((bits & FIELD) != 0) {
 		FieldBinding fieldBinding = (FieldBinding) binding;
 		if (((bits & DepthMASK) != 0) 

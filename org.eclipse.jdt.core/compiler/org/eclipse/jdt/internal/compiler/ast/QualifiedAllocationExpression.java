@@ -70,8 +70,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				flowInfo,
 				currentScope);
 		}
-		manageEnclosingInstanceAccessIfNecessary(currentScope);
-		manageSyntheticAccessIfNecessary(currentScope);
+		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
+		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		return flowInfo;
 	}
 
@@ -149,8 +149,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	 * types, since by the time we reach them, we might not yet know their
 	 * exact need.
 	 */
-	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		ReferenceBinding allocatedType;
 
 		// perform some emulation work in case there is some and we are inside a local type only
