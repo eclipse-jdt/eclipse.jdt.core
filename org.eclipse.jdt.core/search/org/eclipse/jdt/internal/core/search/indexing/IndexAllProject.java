@@ -37,9 +37,6 @@ public class IndexAllProject extends IndexRequest {
 		super(project.getFullPath(), manager);
 		this.project = project;
 	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.project.getName());
-	}
 	public boolean equals(Object o) {
 		if (o instanceof IndexAllProject)
 			return this.project.equals(((IndexAllProject) o).project);

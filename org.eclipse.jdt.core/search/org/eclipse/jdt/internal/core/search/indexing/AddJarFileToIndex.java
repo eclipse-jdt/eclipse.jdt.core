@@ -29,22 +29,20 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 class AddJarFileToIndex extends IndexRequest {
 	IFile resource;
-	String projectName;
 
-	public AddJarFileToIndex(IFile resource, IndexManager manager, String projectName) {
+	public AddJarFileToIndex(IFile resource, IndexManager manager) {
 		super(resource.getFullPath(), manager);
 		this.resource = resource;
-		this.projectName = projectName;
 	}
-	public AddJarFileToIndex(IPath indexPath, IndexManager manager, String projectName) {
+	public AddJarFileToIndex(IPath indexPath, IndexManager manager) {
 		// external JAR scenario - no resource
 		super(indexPath, manager);
-		this.projectName = projectName;
 	}
-	public boolean belongsTo(String jobFamily) {
+	public boolean belongsTo(String projectNameOrJarPath) {
 		// used to remove pending jobs because the project was deleted... not to delete index files
 		// can be found either by project name or JAR path name
-		return jobFamily.equals(projectName) || this.indexPath.toString().equals(jobFamily);
+		return super.belongsTo(projectNameOrJarPath)
+			|| projectNameOrJarPath.equals(this.indexPath.toString());
 	}
 	public boolean equals(Object o) {
 		if (o instanceof AddJarFileToIndex) {

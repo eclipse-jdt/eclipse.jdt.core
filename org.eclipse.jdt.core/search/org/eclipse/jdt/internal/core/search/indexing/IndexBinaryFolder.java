@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -29,15 +28,10 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
-	IProject project;
 
-	public IndexBinaryFolder(IFolder folder, IndexManager manager, IProject project) {
+	public IndexBinaryFolder(IFolder folder, IndexManager manager) {
 		super(folder.getFullPath(), manager);
 		this.folder = folder;
-		this.project = project;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return this.project != null && jobFamily.equals(this.project.getName());
 	}
 	public boolean equals(Object o) {
 		if (o instanceof IndexBinaryFolder)

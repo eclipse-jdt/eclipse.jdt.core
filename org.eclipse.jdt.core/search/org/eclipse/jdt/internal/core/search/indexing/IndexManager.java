@@ -243,17 +243,18 @@ public void indexAll(IProject project) {
  * Trigger addition of a library to an index
  * Note: the actual operation is performed in background
  */
-public void indexLibrary(IPath path, IProject referingProject) {
+public void indexLibrary(IPath path, IProject requestingProject) {
+	// requestingProject is no longer used to cancel jobs but leave it here just in case
 	if (JavaCore.getPlugin() == null) return;
 
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	IndexRequest request = null;
 	if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
+		request = new AddJarFileToIndex((IFile)target, this);
 	} else if (target instanceof java.io.File) {
-		request = new AddJarFileToIndex(path, this, referingProject.getName());
+		request = new AddJarFileToIndex(path, this);
 	} else if (target instanceof IFolder) {
-		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
+		request = new IndexBinaryFolder((IFolder)target, this);
 	} else {
 		return;
 	}
@@ -335,12 +336,11 @@ private void rebuildIndex(String indexName, IPath path) {
 		if (JavaProject.hasJavaNature(p))
 			request = new IndexAllProject(p, this);
 	} else if (target instanceof IFolder) {
-		IFolder folder = (IFolder) target;
-		request = new IndexBinaryFolder(folder, this, folder.getProject());
+		request = new IndexBinaryFolder((IFolder) target, this);
 	} else if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile) target, this, ""); //$NON-NLS-1$
+		request = new AddJarFileToIndex((IFile) target, this);
 	} else if (target instanceof java.io.File) {
-		request = new AddJarFileToIndex(path, this, ""); //$NON-NLS-1$
+		request = new AddJarFileToIndex(path, this);
 	}
 	if (request != null)
 		request(request);

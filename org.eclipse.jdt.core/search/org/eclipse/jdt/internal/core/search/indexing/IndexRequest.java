@@ -25,8 +25,8 @@ public abstract class IndexRequest implements IJob {
 		this.indexPath = indexPath;
 		this.manager = manager;
 	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexPath.segment(0));
+	public boolean belongsTo(String projectName) {
+		return projectName.equals(this.indexPath.segment(0));
 	}
 	public void cancel() {
 		this.isCancelled = true;
