@@ -208,6 +208,7 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 	if (this.foundTaskCount > 0 && this.foundTaskPositions[this.foundTaskCount-1][0] >= commentStart) {
 		return;
 	}
+	int foundTaskIndex = this.foundTaskCount;
 	nextChar: for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
 
 		int nextPos = -1;
@@ -226,55 +227,73 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 				if (this.source[i+t] != tag[t]) continue nextTag;
 			}
 			nextPos = i + tagLength;
-			break;
-		}
-		if (nextPos < 0) continue nextChar;
 
-		// extract message
-		char c = this.source[nextPos];
-		int start = i; 
-		int msgStart = nextPos;
-		int end = -1;
-		for (int j = nextPos; j < commentEnd; j++){
-			if ((c = this.source[j]) == '\n' || c == '\r'){
-				end = j - 1;
-				i = j+1;
-				break;
+			if (this.foundTaskTags == null){
+				this.foundTaskTags = new char[5][];
+				this.foundTaskMessages = new char[5][];
+				this.foundTaskPriorities = new char[5][];
+				this.foundTaskPositions = new int[5][];
+			} else if (this.foundTaskCount == this.foundTaskTags.length) {
+				System.arraycopy(this.foundTaskTags, 0, this.foundTaskTags = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskMessages, 0, this.foundTaskMessages = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskPriorities, 0, this.foundTaskPriorities = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskPositions, 0, this.foundTaskPositions = new int[this.foundTaskCount*2][], 0, this.foundTaskCount);
 			}
+			this.foundTaskTags[this.foundTaskCount] = tag;
+			this.foundTaskPriorities[this.foundTaskCount] = priority;
+			this.foundTaskPositions[this.foundTaskCount] = new int[]{ i, -1 };
+			this.foundTaskCount++;
+			
+			i = nextPos;
 		}
-		if (end < 0){
-			for (int j = commentEnd-1; j >= nextPos; j--){
+	}
+	
+	for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
+		// retrieve message start and end positions
+		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
+		int end;
+		char c;
+		if (i + 1 < this.foundTaskCount) {
+			end = this.foundTaskPositions[i + 1][0] - 1;
+			for (int j = end; j >= msgStart; j--){
 				if ((c = this.source[j]) == '*') {
 					end = j-1;
 					break;
 				}
 			}
-			if (end < 0) end =commentEnd-1;
+		} else {
+			end = -1;
+			for (int j = msgStart; j < commentEnd; j++){
+				if ((c = this.source[j]) == '\n' || c == '\r'){
+					end = j - 1;
+					break;
+				}
+			}
+			if (end < 0){
+				for (int j = commentEnd-1; j >= msgStart; j--){
+					if ((c = this.source[j]) == '*') {
+						end = j-1;
+						break;
+					}
+				}
+				if (end < 0) end = commentEnd-1;
+			}
 		}
+
 		
-		// trim message
-		while (CharOperation.isWhitespace(source[msgStart]) && msgStart <= end) msgStart++;
+		// trim the message
 		while (CharOperation.isWhitespace(source[end]) && msgStart <= end) end--;
+		while (CharOperation.isWhitespace(source[msgStart]) && msgStart <= end) msgStart++;
+
+		// update the end position of the task
+		this.foundTaskPositions[i][1] = end;
 		
-		char[] message = new char[end-msgStart+1];
-		System.arraycopy(source, msgStart, message, 0, end-msgStart+1);
-				
-		if (this.foundTaskTags == null){
-			this.foundTaskTags = new char[5][];
-			this.foundTaskMessages = new char[5][];
-			this.foundTaskPriorities = new char[5][];
-			this.foundTaskPositions = new int[5][];
-		} else if (this.foundTaskCount == this.foundTaskTags.length) {
-			System.arraycopy(this.foundTaskTags, 0, this.foundTaskTags = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-			System.arraycopy(this.foundTaskMessages, 0, this.foundTaskMessages = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-			System.arraycopy(this.foundTaskPriorities, 0, this.foundTaskPriorities = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-			System.arraycopy(this.foundTaskPositions, 0, this.foundTaskPositions = new int[this.foundTaskCount*2][], 0, this.foundTaskCount);
-		}
-		this.foundTaskTags[this.foundTaskCount] = tag;
-		this.foundTaskMessages[this.foundTaskCount] = message;
-		this.foundTaskPriorities[this.foundTaskCount] = priority;
-		this.foundTaskPositions[this.foundTaskCount] = new int[]{ start, end };
-		this.foundTaskCount++;
+		// get the message source
+		final int messageLength = end-msgStart+1;
+		char[] message = new char[messageLength];
+
+		System.arraycopy(source, msgStart, message, 0, messageLength);
+		this.foundTaskMessages[i] = message;
 	}
 }
 
