@@ -3571,4 +3571,60 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Type safety: The method getSuperclass() belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
     }            
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
+    public void _test112() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Annot {\n" + 
+				"  String foo1() default \"\";\n" + 
+				"}\n" + 
+				"@Annot(foo1=zzz)\n" + 
+				"public class X {\n" + 
+				"  static final String zzz =  \"\";\n" + 
+				"}\n",
+            },
+			"zzz undefined");
+    }          
+    public void test113() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Annot {\n" + 
+				"	String foo();\n" + 
+				"}\n" + 
+				"@Annot( foo = new String(){} )\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@Annot( foo = new String(){} )\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"The value for annotation attribute Annot.foo must be a constant expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	@Annot( foo = new String(){} )\n" + 
+			"	                  ^^^^^^\n" + 
+			"An anonymous class cannot subclass the final class String\n" + 
+			"----------\n");
+    }     	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
+    public void _test114() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Annot {\n" + 
+				"	Class foo();\n" + 
+				"}\n" + 
+				"@Annot( foo = M.class )\n" + 
+				"public class X {\n" + 
+				"	class M {}\n" + 
+				"	\n" + 
+				"}\n",
+            },
+			"M undefined");
+    }  	
 }
