@@ -157,7 +157,7 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (node instanceof QualifiedTypeReference) {
 			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
-			if (qualifiedTypeReference.binding == null || !qualifiedTypeReference.binding.isValidBinding()) {
+			if (qualifiedTypeReference.binding == null) {
 				return null;
 			}
 			if (index == 0) {
@@ -173,13 +173,13 @@ class DefaultBindingResolver extends BindingResolver {
 					} else {
 						binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
 					}
-					if (binding != null && binding.isValidBinding()) {
-						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-							return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-						} else {
-							// it is a type
-							return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
-						}
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+						return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+						// it is a type
+						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					} else {
+						return null;
 					}
 				}
 			}
@@ -189,12 +189,14 @@ class DefaultBindingResolver extends BindingResolver {
 			int indexInImportReference = importReferenceLength - index; // one-based
 			if (indexInImportReference >= 0) {
 				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, indexInImportReference));
-				if (binding != null && binding.isValidBinding()) {
+				if (binding != null) {
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 						return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-					} else {
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 						// it is a type
 						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					} else {
+						return null;
 					}
 				}
 			}
