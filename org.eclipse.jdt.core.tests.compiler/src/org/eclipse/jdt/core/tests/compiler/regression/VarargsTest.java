@@ -719,6 +719,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"1");
+	}
+
+	public void test014() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -735,6 +738,9 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"11"
 		);
+	}
+
+	public void test015() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -750,6 +756,9 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+
+	public void test016() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest( // but this call is ambiguous
 			new String[] {
 				"X.java",
@@ -776,6 +785,9 @@ public class VarargsTest extends AbstractComparableTest {
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n"
 		);
+	}
+
+	public void test017() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -810,4 +822,83 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590
+	public void test018() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String[][] x = {{\"X\"}, {\"Y\"}};\n" + 
+				"		List l = Arrays.asList(x);\n" + 
+				"		System.out.println(l.size() + \" \" + l.get(0).getClass().getName());\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"2 [Ljava.lang.String;");
+	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
+	public void test019() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String[][] x = {{\"X\"}, {\"Y\"}};\n" + 
+				"		System.out.println(asList(x[0], x[1]).get(1).getClass().getName());\n" + 
+				"	}\n" + 
+				"	static <U> List<U> asList(U u1, U... us) {\n" + 
+				"		List<U> result = new ArrayList<U>();\n" + 
+				"		result.add(u1);\n" + 
+				"		result.add(us[0]);\n" + 
+				"		return result;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"java.lang.String");
+	}		
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
+	public void test020() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String[][] x = {{\"X\"}, {\"Y\"}};\n" + 
+				"		System.out.println(asList(x[0], x).get(1).getClass().getName());\n" + 
+				"	}\n" + 
+				"	static <U> List<U> asList(U u1, U... us) {\n" + 
+				"		List<U> result = new ArrayList<U>();\n" + 
+				"		result.add(u1);\n" + 
+				"		result.add(us[0]);\n" + 
+				"		return result;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[Ljava.lang.String;");
+	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81911
+	public void test021() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"      String[][] arr = new String[][] { args };\n" + 
+				"      ArrayList<String[]> al = new ArrayList<String[]>(Arrays.asList(arr));\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"");
+	}			
 }

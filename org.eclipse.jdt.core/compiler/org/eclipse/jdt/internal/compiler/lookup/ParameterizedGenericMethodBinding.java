@@ -118,8 +118,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				if (minArgLength < argLength) {
 					TypeBinding varargType = parameters[minArgLength]; // last arg type - as is ?
 					if (paramLength != argLength // argument is passed as is ?
-							||  (arguments[minArgLength] != NullBinding
-									&& (arguments[minArgLength].dimensions() != varargType.dimensions()))) { 
+							/*||  (arguments[minArgLength] != NullBinding
+									&& (arguments[minArgLength].dimensions() != varargType.dimensions()))*/) { 
 						varargType = ((ArrayBinding)varargType).elementsType(); // eliminate one array dimension
 					}
 					for (int i = minArgLength; i < argLength; i++)
