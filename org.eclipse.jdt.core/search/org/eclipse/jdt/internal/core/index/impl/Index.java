@@ -18,9 +18,9 @@ import org.eclipse.jdt.internal.core.index.*;
 
 public class Index implements IIndex {
 	/**
-	 * Maximum size of the index
+	 * Maximum size of the index in memory.
 	 */
-	public static final int MAX_FOOTPRINT= 2500000;
+	public static final int MAX_FOOTPRINT= 10000000;
 
 	/**
 	 * Index in memory, who is merged with mainIndex each times it 

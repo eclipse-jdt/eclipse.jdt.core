@@ -32,7 +32,7 @@ public class IndexedFile implements IQueryResult {
 		if (fileNum < 1)
 			throw new IllegalArgumentException();
 		this.fileNumber= fileNum;
-		properties= new Hashtable();
+		this.properties= null; // initialized when needed
 		int dp= pathOrInfo.indexOf(INFO_BEGIN);
 		if (dp == -1)
 			path= pathOrInfo;
@@ -56,7 +56,7 @@ public class IndexedFile implements IQueryResult {
 			throw new IllegalArgumentException();
 		this.path= document.getName();
 		this.fileNumber= fileNum;
-		properties= new Hashtable();
+		this.properties= null; // initialized when needed
 		computeProperties(document);
 	}
 	protected void computeProperties(IDocument document) {
@@ -119,16 +119,18 @@ public class IndexedFile implements IQueryResult {
 		return path;
 	}
 	public String getProperty(String propertyName) {
+		if (properties == null) return null;
 		return (String) properties.get(propertyName);
 	}
 	/**
 	 * getPropertyNames method comment.
 	 */
 	public Enumeration getPropertyNames() {
+		if (properties == null) return new Hashtable().keys();
 		return properties.keys();
 	}
 	public String propertiesToString() {
-		if (properties.isEmpty())
+		if (properties == null || properties.isEmpty())
 			return ""; //$NON-NLS-1$
 		StringBuffer prop= new StringBuffer(INFO_BEGIN);
 		for (Enumeration e= getPropertyNames(); e.hasMoreElements();) {
@@ -153,6 +155,7 @@ public class IndexedFile implements IQueryResult {
 	 * getPropertyNames method comment.
 	 */
 	public void setProperty(String propertyName, String value) {
+		properties = new Hashtable();
 		propertiesSize += (INFO_SEPARATOR.length() + propertyName.length() + INFO_VALUE_SEPARATOR.length() + value.length()) * 2;
 		if (propertiesSize < MAX_PROPERTIES_SIZE)
 			properties.put(propertyName, value);
