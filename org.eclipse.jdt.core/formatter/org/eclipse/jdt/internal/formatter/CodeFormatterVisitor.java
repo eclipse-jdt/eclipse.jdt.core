@@ -2738,8 +2738,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/* 
 		 * Package declaration
 		 */
-		if (compilationUnitDeclaration.currentPackage != null) {
+		final boolean hasPackage = compilationUnitDeclaration.currentPackage != null;
+		int numberOfEmptyLineToPreserve = this.preferences.number_of_empty_lines_to_preserve;
+		this.preferences.number_of_empty_lines_to_preserve = 0;
+		if (hasPackage) {
 			if (hasComments()) {
+				this.preferences.number_of_empty_lines_to_preserve = numberOfEmptyLineToPreserve;
 				this.scribe.printComment();
 			}
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
@@ -2756,23 +2760,25 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 			int blankLinesAfterPackage = this.preferences.blank_lines_after_package;
+			this.preferences.number_of_empty_lines_to_preserve = numberOfEmptyLineToPreserve;
 			if (blankLinesAfterPackage > 0) {
 				this.scribe.printEmptyLines(blankLinesAfterPackage);
 			} else {
 				this.scribe.printNewLine();
-			}			
+			}
 		} else {
 			this.scribe.printComment();
 		}
-		
 		/*
 		 * Import statements
 		 */
 		final ImportReference[] imports = compilationUnitDeclaration.imports;
 		if (imports != null) {
-			int blankLinesBeforeImports = this.preferences.blank_lines_before_imports;
-			if (blankLinesBeforeImports > 0) {
-				this.scribe.printEmptyLines(blankLinesBeforeImports);
+			if (hasPackage) {
+				int blankLinesBeforeImports = this.preferences.blank_lines_before_imports;
+				if (blankLinesBeforeImports > 0) {
+					this.scribe.printEmptyLines(blankLinesBeforeImports);
+				}
 			}
 			int importLength = imports.length;
 			for (int i = 0; i < importLength; i++) {
@@ -2784,7 +2790,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printEmptyLines(blankLinesAfterImports);
 			}
 		}
-
+	
+		this.preferences.number_of_empty_lines_to_preserve = numberOfEmptyLineToPreserve;
 		formatEmptyTypeDeclaration(true);
 		
 		int blankLineBetweenTypeDeclarations = this.preferences.blank_lines_between_type_declarations;
