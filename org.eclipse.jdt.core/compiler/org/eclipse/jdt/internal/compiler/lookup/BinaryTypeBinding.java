@@ -253,6 +253,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 	int methodModifiers = method.getModifiers() | AccUnresolved;
 	ReferenceBinding[] exceptions = NoExceptions;
 	TypeBinding[] parameters = NoParameters;
+	TypeVariableBinding[] staticVariables = NoTypeVariables;
 	TypeBinding returnType = null;
 
 	char[] methodSignature = checkGenericSignatures ? method.getGenericSignature() : null;
@@ -302,7 +303,6 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 	} else {
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
 		SignatureWrapper wrapper = new SignatureWrapper(methodSignature);
-		TypeVariableBinding[] staticVariables = NoTypeVariables;
 		if (wrapper.signature[wrapper.start] == '<') {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;
 			// ParameterPart = '<' ParameterSignature(s) '>'
@@ -359,9 +359,11 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 		}
 	}
 
-	return method.isConstructor()
+	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
+	result.typeVariables = staticVariables;
+	return result;
 }
 /**
  * Create method bindings for binary type, filtering out <clinit> and synthetics
