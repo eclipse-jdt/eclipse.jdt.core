@@ -210,9 +210,11 @@ public abstract class Scope
 
 		TypeBinding[] genericTypeArguments = invocationSite.genericTypeArguments();
 		TypeBinding[] parameters = method.parameters;
+		TypeVariableBinding[] typeVariables = method.typeVariables;
 		if (parameters == arguments
 			&& (method.returnType.tagBits & HasTypeVariable) == 0 
-			&& genericTypeArguments == null)
+			&& genericTypeArguments == null
+			&& typeVariables == NoTypeVariables)
 				return method;
 
 		int argLength = arguments.length;
@@ -222,7 +224,6 @@ public abstract class Scope
 			if (!isVarArgs || argLength < paramLength - 1)
 				return null; // incompatible
 
-		TypeVariableBinding[] typeVariables = method.typeVariables;
 		if (typeVariables != NoTypeVariables) { // generic method
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
