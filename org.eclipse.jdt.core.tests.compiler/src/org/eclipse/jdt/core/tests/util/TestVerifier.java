@@ -41,6 +41,7 @@ private boolean checkBuffers(String errorString, String outputString, String sou
 	}
 	//System.out.println(Util.displayString(outputString, 2));
 	if (expectedSuccessOutputString != null && outputString.indexOf(expectedSuccessOutputString) == -1) {
+		System.out.println(Util.displayString(outputString, 2));
 		this.failureReason =
 			"Unexpected output running resulting class file for "
 				+ sourceFileName
