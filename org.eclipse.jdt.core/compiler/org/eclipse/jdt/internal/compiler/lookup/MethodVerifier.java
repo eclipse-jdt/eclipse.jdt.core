@@ -264,6 +264,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		}
 	}
 }
+// TODO: (kent) should rename into checkNonVisibleAbstractMethod(...) - default abstract means something else.
 private void checkDefaultAbstractMethod(MethodBinding abstractMethod) {
 	ReferenceBinding superType = this.type.superclass();
 	char[] selector = abstractMethod.selector;
