@@ -755,7 +755,7 @@ public MethodBinding[] methods() {
 	return methods;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
-	if (field.type != null)
+	if ((field.modifiers & AccUnresolved) == 0)
 		return field;
 
 	FieldDeclaration[] fieldDecls = scope.referenceContext.fields;
@@ -764,6 +764,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 			continue;
 
 		field.type = fieldDecls[f].getTypeBinding(scope);
+		field.modifiers ^= AccUnresolved;
 		if (!field.type.isValidBinding()) {
 			scope.problemReporter().fieldTypeProblem(this, fieldDecls[f], field.type);
 			//scope.problemReporter().invalidType(fieldDecls[f].type, field.type);

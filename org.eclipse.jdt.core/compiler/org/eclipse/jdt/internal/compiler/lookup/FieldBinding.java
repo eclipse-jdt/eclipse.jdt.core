@@ -30,8 +30,8 @@ public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBindi
 		if (this.declaringClass.isViewedAsDeprecated() && !isDeprecated())
 			this.modifiers |= AccDeprecatedImplicitly;
 }
-public FieldBinding(FieldDeclaration field, TypeBinding type, ReferenceBinding declaringClass) {
-	this(field.name, type, field.modifiers, declaringClass, null);
+public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, ReferenceBinding declaringClass) {
+	this(field.name, type, modifiers, declaringClass, null);
 	field.binding = this; // record binding in declaration
 }
 // special API used to change field declaring class for runtime visibility check

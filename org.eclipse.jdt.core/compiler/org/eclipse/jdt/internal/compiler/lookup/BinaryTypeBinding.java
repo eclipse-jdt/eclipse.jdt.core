@@ -165,7 +165,7 @@ private void createFields(IBinaryField[] iFields) {
 					new FieldBinding(
 						field.getName(),
 						environment.getTypeFromSignature(field.getTypeName(), 0, -1),
-						field.getModifiers(),
+						field.getModifiers() | AccUnresolved,
 						this,
 						field.getConstant());
 			}
@@ -408,7 +408,10 @@ TypeBinding resolveType(TypeBinding type) {
 	return type;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
-	field.type = resolveType(field.type);
+	if ((field.modifiers & AccUnresolved) != 0) {
+		field.type = resolveType(field.type);
+		field.modifiers ^= AccUnresolved;
+	}
 	return field;
 }
 private MethodBinding resolveTypesFor(MethodBinding method) {
