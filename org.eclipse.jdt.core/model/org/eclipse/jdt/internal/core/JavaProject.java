@@ -10,28 +10,69 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.*;
-import java.util.*; 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xml.serialize.Method;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.Serializer;
-import org.apache.xml.serialize.SerializerFactory;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IRegion;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -770,41 +811,31 @@ public class JavaProject
 	/**
 	 * Returns the XML String encoding of the class path.
 	 */
-	protected String encodeClasspath(IClasspathEntry[] classpath, IPath outputLocation, boolean useLineSeparator) throws JavaModelException {
-
-		Document document = new DocumentImpl();
-		Element cpElement = document.createElement("classpath"); //$NON-NLS-1$
-		document.appendChild(cpElement);
-
-		for (int i = 0; i < classpath.length; ++i) {
-			cpElement.appendChild(((ClasspathEntry)classpath[i]).elementEncode(document, getProject().getFullPath()));
-		}
-
-		if (outputLocation != null) {
-			outputLocation = outputLocation.removeFirstSegments(1);
-			outputLocation = outputLocation.makeRelative();
-			Element oElement = document.createElement("classpathentry"); //$NON-NLS-1$
-			oElement.setAttribute("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
-			oElement.setAttribute("path", outputLocation.toString()); //$NON-NLS-1$
-			cpElement.appendChild(oElement);
-		}
-
-		// produce a String output
+	protected String encodeClasspath(IClasspathEntry[] classpath, IPath outputLocation, boolean indent) throws JavaModelException {
 		try {
 			ByteArrayOutputStream s = new ByteArrayOutputStream();
-			OutputFormat format = new OutputFormat();
-			if (useLineSeparator) {
-				format.setIndenting(true);
-				format.setLineSeparator(System.getProperty("line.separator"));  //$NON-NLS-1$
-			} else {
-				format.setPreserveSpace(true);
-			}			
-			Serializer serializer =
-				SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(
-					new OutputStreamWriter(s, "UTF8"), //$NON-NLS-1$
-					format);
-			serializer.asDOMSerializer().serialize(document);
-			return s.toString("UTF8"); //$NON-NLS-1$
+			OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
+			XMLWriter xmlWriter = new XMLWriter(writer);
+			
+			xmlWriter.startTag("classpath", indent); //$NON-NLS-1$
+			for (int i = 0; i < classpath.length; ++i) {
+				((ClasspathEntry)classpath[i]).elementEncode(xmlWriter, getProject().getFullPath(), indent, true);
+			}
+	
+			if (outputLocation != null) {
+				outputLocation = outputLocation.removeFirstSegments(1);
+				outputLocation = outputLocation.makeRelative();
+				HashMap parameters = new HashMap();
+				parameters.put("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));//$NON-NLS-1$
+				parameters.put("path", String.valueOf(outputLocation));//$NON-NLS-1$
+				xmlWriter.printTag("classpathentry", parameters, indent, true, true);//$NON-NLS-1$
+			}
+	
+			xmlWriter.endTag("classpath", indent);//$NON-NLS-1$
+			writer.flush();
+			writer.close();
+			System.out.println(s.toString("UTF8"));//$NON-NLS-1$
+			return s.toString("UTF8");//$NON-NLS-1$
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
@@ -2127,7 +2158,6 @@ public class JavaProject
 		runOperation(op, monitor);
 		return op.getResult();
 	}
-
 	public String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
 			

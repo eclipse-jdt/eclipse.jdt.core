@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IProject;
@@ -226,6 +227,66 @@ public class ClasspathEntry implements IClasspathEntry {
 			element.setAttribute("output", outputLocation.toString()); //$NON-NLS-1$ 
 		}
 		return element;
+	}
+	
+	/**
+	 * Returns the XML encoding of the class path.
+	 */
+	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine) {
+		HashMap parameters = new HashMap();
+		
+		parameters.put("kind", ClasspathEntry.kindToString(this.entryKind));//$NON-NLS-1$
+		
+		IPath xmlPath = this.path;
+		if (this.entryKind != IClasspathEntry.CPE_VARIABLE && this.entryKind != IClasspathEntry.CPE_CONTAINER) {
+			// translate to project relative from absolute (unless a device path)
+			if (xmlPath.isAbsolute()) {
+				if (projectPath != null && projectPath.isPrefixOf(xmlPath)) {
+					if (xmlPath.segment(0).equals(projectPath.segment(0))) {
+						xmlPath = xmlPath.removeFirstSegments(1);
+						xmlPath = xmlPath.makeRelative();
+					} else {
+						xmlPath = xmlPath.makeAbsolute();
+					}
+				}
+			}
+		}
+		parameters.put("path", String.valueOf(xmlPath));//$NON-NLS-1$
+		
+		if (this.sourceAttachmentPath != null) {
+			xmlPath = this.sourceAttachmentPath;
+			// translate to project relative from absolute 
+			if (this.entryKind != IClasspathEntry.CPE_VARIABLE && projectPath != null && projectPath.isPrefixOf(xmlPath)) {
+				if (xmlPath.segment(0).equals(projectPath.segment(0))) {
+					xmlPath = xmlPath.removeFirstSegments(1);
+					xmlPath = xmlPath.makeRelative();
+				}
+			}
+			parameters.put("sourcepath", String.valueOf(xmlPath));//$NON-NLS-1$
+		}
+		if (this.sourceAttachmentRootPath != null) {
+			parameters.put("rootpath", String.valueOf(this.sourceAttachmentRootPath));//$NON-NLS-1$
+		}
+		if (this.isExported) {
+			parameters.put("exported", "true");//$NON-NLS-1$//$NON-NLS-2$
+		}
+		
+		if (this.exclusionPatterns.length > 0) {
+			StringBuffer excludeRule = new StringBuffer(10);
+			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
+				if (i > 0) excludeRule.append('|');
+				excludeRule.append(this.exclusionPatterns[i]);
+			}
+			parameters.put("excluding", String.valueOf(excludeRule));//$NON-NLS-1$
+		}
+		
+		if (this.specificOutputLocation != null) {
+			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
+			outputLocation = outputLocation.makeRelative();
+			parameters.put("output", String.valueOf(outputLocation));//$NON-NLS-1$
+		}
+
+		writer.printTag("classpathentry", parameters, indent, newLine, true);//$NON-NLS-1$
 	}
 	
 	public static IClasspathEntry elementDecode(Element element, IJavaProject project) {

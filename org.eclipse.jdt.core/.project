@@ -4,7 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>org.apache.ant</project>
-		<project>org.apache.xerces</project>
 		<project>org.eclipse.core.resources</project>
 		<project>org.eclipse.core.runtime</project>
 		<project>org.eclipse.text</project>
