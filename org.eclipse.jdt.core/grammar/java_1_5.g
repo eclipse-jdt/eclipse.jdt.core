@@ -625,41 +625,41 @@ ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= TypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
 
 ExplicitConstructorInvocation ::= TypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
 
 ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
 
 ExplicitConstructorInvocation ::= Name '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.This); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
-/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
+/.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.This); $break ./
 /:$readableName ExplicitConstructorInvocation:/
 
 /:$readableName ExplicitConstructorInvocation:/
@@ -1143,16 +1143,16 @@ MethodInvocation ::= Name '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationName(); $break ./
 
 MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
-/.$putCase consumeMethodInvocationName(); $break ./
+/.$putCase consumeMethodInvocationNameWithTypeArguments(); $break ./
 
 MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
-/.$putCase consumeMethodInvocationPrimary(); $break ./
+/.$putCase consumeMethodInvocationPrimaryWithTypeArguments(); $break ./
 
 MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimary(); $break ./
 
 MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
-/.$putCase consumeMethodInvocationSuper(); $break ./
+/.$putCase consumeMethodInvocationSuperWithTypeArguments(); $break ./
 
 MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationSuper(); $break ./
@@ -1560,7 +1560,8 @@ TypeArgumentList ::= TypeArgumentList ',' TypeArgument
 /.$putCase consumeTypeArgumentList(); $break ./
 /:$readableName TypeArgumentList:/
 
-TypeArgument -> ReferenceType
+TypeArgument ::= ReferenceType
+/.$putCase consumeReferenceType(); $break ./
 TypeArgument -> Wildcard
 /:$readableName TypeArgument:/
 
