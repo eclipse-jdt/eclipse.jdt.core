@@ -10,7 +10,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class AnnotationTest extends AbstractRegressionTest {
 	
-boolean useLibrary = true;
+boolean useLibrary = false;
 static String zipFile = "/TestAnnotationVisibility.zip";
 public static ArrayList allTestClasses = null;
 
