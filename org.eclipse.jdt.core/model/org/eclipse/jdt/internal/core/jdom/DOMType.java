@@ -15,12 +15,12 @@ import java.util.Enumeration;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.CharArrayOps;
@@ -475,11 +475,11 @@ void normalize(ILineStartFinder finder) {
 	
 	try {
 		int currentToken = scanner.getNextToken();
-		while(currentToken != ITerminalSymbols.TokenNameLBRACE &&
-				currentToken != ITerminalSymbols.TokenNameEOF) {
+		while(currentToken != TerminalTokens.TokenNameLBRACE &&
+				currentToken != TerminalTokens.TokenNameEOF) {
 			currentToken = scanner.getNextToken();
 		}
-		if(currentToken == ITerminalSymbols.TokenNameLBRACE) {		
+		if(currentToken == TerminalTokens.TokenNameLBRACE) {		
 			openBodyEnd = scanner.currentPosition - 1;
 			openBodyStart = scanner.startPosition;
 		} else {
@@ -509,11 +509,11 @@ void normalize(ILineStartFinder finder) {
 		scanner.resetTo(lastNode.getEndPosition() + 1, fDocument.length);
 		try {
 			int currentToken = scanner.getNextToken();
-			while(currentToken != ITerminalSymbols.TokenNameRBRACE &&
-					currentToken != ITerminalSymbols.TokenNameEOF) {
+			while(currentToken != TerminalTokens.TokenNameRBRACE &&
+					currentToken != TerminalTokens.TokenNameEOF) {
 				currentToken = scanner.getNextToken();
 			}
-			if(currentToken == ITerminalSymbols.TokenNameRBRACE) {		
+			if(currentToken == TerminalTokens.TokenNameRBRACE) {		
 				closeBodyStart = scanner.startPosition;
 				closeBodyEnd = scanner.currentPosition - 1;
 			} else {
@@ -528,11 +528,11 @@ void normalize(ILineStartFinder finder) {
 		scanner.resetTo(openBodyEnd, fDocument.length);
 		try {
 			int currentToken = scanner.getNextToken();
-			while(currentToken != ITerminalSymbols.TokenNameRBRACE &&
-					currentToken != ITerminalSymbols.TokenNameEOF) {
+			while(currentToken != TerminalTokens.TokenNameRBRACE &&
+					currentToken != TerminalTokens.TokenNameEOF) {
 				currentToken = scanner.getNextToken();
 			}
-			if(currentToken == ITerminalSymbols.TokenNameRBRACE) {		
+			if(currentToken == TerminalTokens.TokenNameRBRACE) {		
 				closeBodyStart = scanner.startPosition;
 				closeBodyEnd = scanner.currentPosition - 1;
 			} else {

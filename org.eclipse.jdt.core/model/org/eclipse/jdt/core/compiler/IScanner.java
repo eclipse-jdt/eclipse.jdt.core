@@ -11,6 +11,8 @@ Contributors:
 **********************************************************************/
 
 package org.eclipse.jdt.core.compiler;
+
+import org.eclipse.jdt.core.compiler.InvalidInputException;
  
  /**
   * Definition of a Java scanner, as returned by the <code>ToolFactory</code>.

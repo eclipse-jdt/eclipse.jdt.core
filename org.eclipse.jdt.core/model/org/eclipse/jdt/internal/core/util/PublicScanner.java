@@ -8,23 +8,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.jdt.internal.compiler.parser;
+package org.eclipse.jdt.internal.core.util;
 
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.parser.NLSLine;
 
-/**
- * IMPORTANT NOTE: Internal Scanner implementation. It is mirrored in 
- * org.eclipse.jdt.core.compiler public package where it is API. 
- * The mirror implementation is using the backward compatible ITerminalSymbols constant 
- * definitions (stable with 2.0), whereas the internal implementation uses TerminalTokens 
- * which constant values reflect the latest parser generation state.
- */
-public class Scanner implements IScanner, TerminalTokens {
+public class PublicScanner implements IScanner, ITerminalSymbols {
 
 	/* APIs ares
 	 - getNextToken() which return the current type of the token
@@ -167,10 +161,10 @@ public class Scanner implements IScanner, TerminalTokens {
 	public static final int CurlyBracket = 2;	
 	public static final int BracketKinds = 3;
 
-public Scanner() {
+public PublicScanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null/*taskTag*/, null/*taskPriorities*/);
 }
-public Scanner(
+public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
 	boolean checkNonExternalizedStringLiterals, 
@@ -1200,7 +1194,8 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								/*
-								 * We need to completely consume the line break								 */
+								 * We need to completely consume the line break
+								 */
 								if (currentCharacter == '\r'
 								   && source.length > currentPosition) {
 								   	if (source[currentPosition] == '\n') {

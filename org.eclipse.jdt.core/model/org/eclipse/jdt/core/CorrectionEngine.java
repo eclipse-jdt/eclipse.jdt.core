@@ -264,7 +264,7 @@ public class CorrectionEngine implements ProblemReasons {
 			// search last segment position
 			while(true) {
 				token = scanner.getNextToken();
-				if (token == ITerminalSymbols.TokenNameEOF) return;
+				if (token == TerminalTokens.TokenNameEOF) return;
 				
 				char[] tokenSource = scanner.getCurrentTokenSource();
 				

@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -36,7 +35,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.BlocksIndexInput;
@@ -91,13 +92,13 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != ITerminalSymbols.TokenNameEOF){
+	while (token != TerminalTokens.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideName :
 				switch (token) {
-					case ITerminalSymbols.TokenNameDOT:
+					case TerminalTokens.TokenNameDOT:
 						if (declaringQualification == null){
 							if (typeName == null) return null;
 							declaringQualification = typeName;
@@ -107,7 +108,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						}
 						typeName = null;
 						break;
-					case ITerminalSymbols.TokenNameLPAREN:
+					case TerminalTokens.TokenNameLPAREN:
 						parameterTypes = new String[5];
 						parameterCount = 0;
 						mode = InsideParameter;
@@ -127,7 +128,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case ITerminalSymbols.TokenNameCOMMA:
+					case TerminalTokens.TokenNameCOMMA:
 						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
@@ -135,7 +136,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						parameterTypes[parameterCount++] = parameterType;
 						parameterType = null;
 						break;
-					case ITerminalSymbols.TokenNameRPAREN:
+					case TerminalTokens.TokenNameRPAREN:
 						foundClosingParenthesis = true;
 						if (parameterType != null){
 							if (parameterTypes.length == parameterCount){
@@ -261,13 +262,13 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != ITerminalSymbols.TokenNameEOF){
+	while (token != TerminalTokens.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
 				switch (token) {
-					case ITerminalSymbols.TokenNameDOT:
+					case TerminalTokens.TokenNameDOT:
 						if (declaringType == null){
 							if (fieldName == null) return null;
 							declaringType = fieldName;
@@ -279,7 +280,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						if (!(Scanner.TokenNameWHITESPACE == lastToken 
-							|| ITerminalSymbols.TokenNameDOT == lastToken)){
+							|| TerminalTokens.TokenNameDOT == lastToken)){
 							mode = InsideType;
 						}
 						break;
@@ -457,13 +458,13 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != ITerminalSymbols.TokenNameEOF){
+	while (token != TerminalTokens.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideSelector :
 				switch (token) {
-					case ITerminalSymbols.TokenNameDOT:
+					case TerminalTokens.TokenNameDOT:
 						if (declaringType == null){
 							if (selector == null) return null;
 							declaringType = selector;
@@ -473,14 +474,14 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						}
 						selector = null;
 						break;
-					case ITerminalSymbols.TokenNameLPAREN:
+					case TerminalTokens.TokenNameLPAREN:
 						parameterTypes = new String[5];
 						parameterCount = 0;
 						mode = InsideParameter;
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						if (!(Scanner.TokenNameWHITESPACE == lastToken 
-							|| ITerminalSymbols.TokenNameDOT == lastToken)){
+							|| TerminalTokens.TokenNameDOT == lastToken)){
 							mode = InsideReturnType;
 						}
 						break;
@@ -498,7 +499,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case ITerminalSymbols.TokenNameCOMMA:
+					case TerminalTokens.TokenNameCOMMA:
 						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
@@ -506,7 +507,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						parameterTypes[parameterCount++] = parameterType;
 						parameterType = null;
 						break;
-					case ITerminalSymbols.TokenNameRPAREN:
+					case TerminalTokens.TokenNameRPAREN:
 						foundClosingParenthesis = true;
 						if (parameterType != null){
 							if (parameterTypes.length == parameterCount){
@@ -1049,7 +1050,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != ITerminalSymbols.TokenNameEOF){
+	while (token != TerminalTokens.TokenNameEOF){
 		switch (token) {
 			case Scanner.TokenNameWHITESPACE:
 				break;

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -2953,7 +2954,7 @@ private boolean isKeyword(char[] tokenSource) {
 			return false;
 		}
 		int nextToken= scanner.getNextToken();
-		if (nextToken == ITerminalSymbols.TokenNameEOF
+		if (nextToken == TerminalTokens.TokenNameEOF
 			&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 															     // while reading the last token
 			switch(token) {

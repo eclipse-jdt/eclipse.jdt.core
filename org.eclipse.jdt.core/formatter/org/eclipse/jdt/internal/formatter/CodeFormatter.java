@@ -19,10 +19,11 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
 import org.eclipse.jdt.internal.formatter.impl.SplitLine;
 
@@ -32,14 +33,14 @@ import org.eclipse.jdt.internal.formatter.impl.SplitLine;
  * on this instance to format <code>aString</code>.
  * It will return the formatted string.</ul>
 */
-public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
+public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 
 	public FormatterOptions options;
 
 	/** 
 	 * Represents a block in the <code>constructions</code> stack.
 	 */
-	public static final int BLOCK = ITerminalSymbols.TokenNameLBRACE;
+	public static final int BLOCK = TerminalTokens.TokenNameLBRACE;
 
 	/** 
 	 * Represents a block following a control statement in the <code>constructions</code> stack.
@@ -351,7 +352,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 					
 					// Patch for line comment
 					// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
-					if (token == ITerminalSymbols.TokenNameCOMMENT_LINE) {
+					if (token == TerminalTokens.TokenNameCOMMENT_LINE) {
 						int length = scanner.currentPosition;
 						loop: for (int index = length - 1; index >= 0; index--) {
 							switch(scanner.source[index]) {

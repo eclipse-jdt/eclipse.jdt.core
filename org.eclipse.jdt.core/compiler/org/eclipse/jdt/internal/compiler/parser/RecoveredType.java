@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -28,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
  * Internal type structure for parsing recovery 
  */
 
-public class RecoveredType extends RecoveredStatement implements ITerminalSymbols, CompilerModifiers {
+public class RecoveredType extends RecoveredStatement implements TerminalTokens, CompilerModifiers {
 	public TypeDeclaration typeDeclaration;
 
 	public RecoveredType[] memberTypes;

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.io.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -28,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class Parser implements BindingIds, ParserBasicInformation, ITerminalSymbols, CompilerModifiers, OperatorIds, TypeIds {
+public class Parser implements BindingIds, ParserBasicInformation, TerminalTokens, CompilerModifiers, OperatorIds, TypeIds {
 
 	protected ProblemReporter problemReporter;
 	public int firstToken ; // handle for multiple parsing goals
@@ -135,224 +134,224 @@ public class Parser implements BindingIds, ParserBasicInformation, ITerminalSymb
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
 
     public final static String name[] = { null,
-            "++",
-            "--",
-            "==",
-            "<=",
-            ">=",
-            "!=",
-            "<<",
-            ">>",
-            ">>>",
-            "+=",
-            "-=",
-            "*=",
-            "/=",
-            "&=",
-            "|=",
-            "^=",
-            "%=",
-            "<<=",
-            ">>=",
-            ">>>=",
-            "||",
-            "&&",
-            "+",
-            "-",
-            "!",
-            "%",
-            "^",
-            "&",
-            "*",
-            "|",
-            "~",
-            "/",
-            ">",
-            "<",
-            "(",
-            ")",
-            "{",
-            "}",
-            "[",
-            "]",
-            ";",
-            "?",
-            ":",
-            ",",
-            ".",
-            "=",
-            "",
-            "$empty",
-            "Identifier",
-            "abstract",
-            "assert",
-            "boolean",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "class",
-            "continue",
-            "default",
-            "do",
-            "double",
-            "else",
-            "extends",
-            "false",
-            "final",
-            "finally",
-            "float",
-            "for",
-            "if",
-            "implements",
-            "import",
-            "instanceof",
-            "int",
-            "interface",
-            "long",
-            "native",
-            "new",
-            "null",
-            "package",
-            "private",
-            "protected",
-            "public",
-            "return",
-            "short",
-            "static",
-            "strictfp",
-            "super",
-            "switch",
-            "synchronized",
-            "this",
-            "throw",
-            "throws",
-            "transient",
-            "true",
-            "try",
-            "void",
-            "volatile",
-            "while",
-            "IntegerLiteral",
-            "LongLiteral",
-            "FloatingPointLiteral",
-            "DoubleLiteral",
-            "CharacterLiteral",
-            "StringLiteral",
-            UNEXPECTED_EOF,
-            "Invalid Character",
-            "Goal",
-            "MethodBody",
-            "ConstructorBody",
-            "StaticInitializer",
-            "Initializer",
-            "Headers",
-            "BlockStatements",
-            "MethodPushModifiersHeader",
-            "CatchHeader",
-            "FieldDeclaration",
-            "ImportDeclaration",
-            "PackageDeclaration",
-            "TypeDeclaration",
-            "GenericMethodDeclaration",
-            "ClassBodyDeclaration",
-            "Expression",
-            "Type",
-            "PrimitiveType",
-            "ReferenceType",
-            "ClassOrInterfaceType",
-            "ArrayType",
-            "Name",
-            "Dims",
-            "ClassType",
-            "SimpleName",
-            "Header",
-            "ClassHeader",
-            "InterfaceHeader",
-            "MethodHeader",
-            "ConstructorHeader",
-            "FormalParameter",
-            "ImportDeclarations",
-            "TypeDeclarations",
-            "PackageDeclarationName",
-            "SingleTypeImportDeclarationName",
-            "TypeImportOnDemandDeclarationName",
-            "Modifiers",
-            "Modifier",
-            "ClassBody",
-            "ClassHeaderName",
-            "InterfaceTypeList",
-            "InterfaceType",
-            "ClassBodyDeclarations",
-            "Block",
-            "VariableDeclarators",
-            "VariableDeclarator",
-            "VariableDeclaratorId",
-            "VariableInitializer",
-            "ArrayInitializer",
-            "MethodHeaderName",
-            "MethodHeaderParameters",
-            "MethodPushModifiersHeaderName",
-            "ClassTypeList",
-            "ConstructorHeaderName",
-            "FormalParameterList",
-            "ClassTypeElt",
-            "StaticOnly",
-            "ExplicitConstructorInvocation",
-            "Primary",
-            "InterfaceBody",
-            "InterfaceHeaderName",
-            "InterfaceMemberDeclarations",
-            "InterfaceMemberDeclaration",
-            "VariableInitializers",
-            "BlockStatement",
-            "Statement",
-            "LocalVariableDeclaration",
-            "StatementWithoutTrailingSubstatement",
-            "StatementNoShortIf",
-            "StatementExpression",
-            "PostIncrementExpression",
-            "PostDecrementExpression",
-            "MethodInvocation",
-            "ClassInstanceCreationExpression",
-            "SwitchBlock",
-            "SwitchBlockStatements",
-            "SwitchLabels",
-            "SwitchBlockStatement",
-            "SwitchLabel",
-            "ConstantExpression",
-            "StatementExpressionList",
-            "OnlySynchronized",
-            "Catches",
-            "Finally",
-            "CatchClause",
-            "PushLPAREN",
-            "PushRPAREN",
-            "PrimaryNoNewArray",
-            "ArrayCreationWithArrayInitializer",
-            "ClassInstanceCreationExpressionName",
-            "ArgumentList",
-            "DimWithOrWithOutExprs",
-            "DimWithOrWithOutExpr",
-            "DimsLoop",
-            "OneDimLoop",
-            "PostfixExpression",
-            "UnaryExpression",
-            "UnaryExpressionNotPlusMinus",
-            "MultiplicativeExpression",
-            "AdditiveExpression",
-            "ShiftExpression",
-            "RelationalExpression",
-            "EqualityExpression",
-            "AndExpression",
-            "ExclusiveOrExpression",
-            "InclusiveOrExpression",
-            "ConditionalAndExpression",
-            "ConditionalOrExpression",
-            "ConditionalExpression",
-            "AssignmentExpression",
-            "AssignmentOperator"
+            "++", //$NON-NLS-1$
+            "--", //$NON-NLS-1$
+            "==", //$NON-NLS-1$
+            "<=", //$NON-NLS-1$
+            ">=", //$NON-NLS-1$
+            "!=", //$NON-NLS-1$
+            "<<", //$NON-NLS-1$
+            ">>", //$NON-NLS-1$
+            ">>>", //$NON-NLS-1$
+            "+=", //$NON-NLS-1$
+            "-=", //$NON-NLS-1$
+            "*=", //$NON-NLS-1$
+            "/=", //$NON-NLS-1$
+            "&=", //$NON-NLS-1$
+            "|=", //$NON-NLS-1$
+            "^=", //$NON-NLS-1$
+            "%=", //$NON-NLS-1$
+            "<<=", //$NON-NLS-1$
+            ">>=", //$NON-NLS-1$
+            ">>>=", //$NON-NLS-1$
+            "||", //$NON-NLS-1$
+            "&&", //$NON-NLS-1$
+            "+", //$NON-NLS-1$
+            "-", //$NON-NLS-1$ 
+            "!", //$NON-NLS-1$
+            "%", //$NON-NLS-1$
+            "^", //$NON-NLS-1$
+            "&", //$NON-NLS-1$
+            "*", //$NON-NLS-1$
+            "|", //$NON-NLS-1$
+            "~", //$NON-NLS-1$
+            "/", //$NON-NLS-1$
+            ">", //$NON-NLS-1$
+            "<", //$NON-NLS-1$
+            "(", //$NON-NLS-1$
+            ")", //$NON-NLS-1$
+            "{", //$NON-NLS-1$
+            "}", //$NON-NLS-1$
+            "[", //$NON-NLS-1$
+            "]", //$NON-NLS-1$
+            ";", //$NON-NLS-1$
+            "?", //$NON-NLS-1$
+            ":", //$NON-NLS-1$
+            ",", //$NON-NLS-1$
+            ".", //$NON-NLS-1$
+            "=", //$NON-NLS-1$
+            "", //$NON-NLS-1$
+            "$empty", //$NON-NLS-1$
+            "Identifier", //$NON-NLS-1$
+            "abstract", //$NON-NLS-1$
+            "assert", //$NON-NLS-1$
+            "boolean", //$NON-NLS-1$
+            "break", //$NON-NLS-1$
+            "byte", //$NON-NLS-1$
+            "case", //$NON-NLS-1$
+            "catch", //$NON-NLS-1$
+            "char", //$NON-NLS-1$
+            "class", //$NON-NLS-1$
+            "continue", //$NON-NLS-1$
+            "default", //$NON-NLS-1$
+            "do", //$NON-NLS-1$
+            "double", //$NON-NLS-1$
+            "else", //$NON-NLS-1$
+            "extends", //$NON-NLS-1$
+            "false", //$NON-NLS-1$
+            "final", //$NON-NLS-1$
+            "finally", //$NON-NLS-1$
+            "float", //$NON-NLS-1$
+            "for", //$NON-NLS-1$
+            "if", //$NON-NLS-1$
+            "implements", //$NON-NLS-1$
+            "import", //$NON-NLS-1$
+            "instanceof", //$NON-NLS-1$
+            "int", //$NON-NLS-1$
+            "interface", //$NON-NLS-1$
+            "long", //$NON-NLS-1$
+            "native", //$NON-NLS-1$
+            "new", //$NON-NLS-1$
+            "null", //$NON-NLS-1$
+            "package", //$NON-NLS-1$
+            "private", //$NON-NLS-1$
+            "protected", //$NON-NLS-1$
+            "public", //$NON-NLS-1$
+            "return", //$NON-NLS-1$
+            "short", //$NON-NLS-1$
+            "static", //$NON-NLS-1$
+            "strictfp", //$NON-NLS-1$
+            "super", //$NON-NLS-1$
+            "switch", //$NON-NLS-1$
+            "synchronized", //$NON-NLS-1$
+            "this", //$NON-NLS-1$
+            "throw", //$NON-NLS-1$
+            "throws", //$NON-NLS-1$
+            "transient", //$NON-NLS-1$
+            "true", //$NON-NLS-1$
+            "try", //$NON-NLS-1$
+            "void", //$NON-NLS-1$
+            "volatile", //$NON-NLS-1$
+            "while", //$NON-NLS-1$
+            "IntegerLiteral", //$NON-NLS-1$
+            "LongLiteral", //$NON-NLS-1$
+            "FloatingPointLiteral", //$NON-NLS-1$
+            "DoubleLiteral", //$NON-NLS-1$
+            "CharacterLiteral", //$NON-NLS-1$
+            "StringLiteral", //$NON-NLS-1$
+            UNEXPECTED_EOF, 
+            "Invalid Character", //$NON-NLS-1$
+            "Goal", //$NON-NLS-1$
+            "MethodBody", //$NON-NLS-1$
+            "ConstructorBody", //$NON-NLS-1$
+            "StaticInitializer", //$NON-NLS-1$
+            "Initializer", //$NON-NLS-1$
+            "Headers", //$NON-NLS-1$
+            "BlockStatements", //$NON-NLS-1$
+            "MethodPushModifiersHeader", //$NON-NLS-1$
+            "CatchHeader", //$NON-NLS-1$
+            "FieldDeclaration", //$NON-NLS-1$
+            "ImportDeclaration", //$NON-NLS-1$
+            "PackageDeclaration", //$NON-NLS-1$
+            "TypeDeclaration", //$NON-NLS-1$
+            "GenericMethodDeclaration", //$NON-NLS-1$
+            "ClassBodyDeclaration", //$NON-NLS-1$
+            "Expression", //$NON-NLS-1$
+            "Type", //$NON-NLS-1$
+            "PrimitiveType", //$NON-NLS-1$
+            "ReferenceType", //$NON-NLS-1$
+            "ClassOrInterfaceType", //$NON-NLS-1$
+            "ArrayType", //$NON-NLS-1$
+            "Name", //$NON-NLS-1$
+            "Dims", //$NON-NLS-1$
+            "ClassType", //$NON-NLS-1$
+            "SimpleName", //$NON-NLS-1$
+            "Header", //$NON-NLS-1$
+            "ClassHeader", //$NON-NLS-1$
+            "InterfaceHeader", //$NON-NLS-1$
+            "MethodHeader", //$NON-NLS-1$
+            "ConstructorHeader", //$NON-NLS-1$
+            "FormalParameter", //$NON-NLS-1$
+            "ImportDeclarations", //$NON-NLS-1$
+            "TypeDeclarations", //$NON-NLS-1$
+            "PackageDeclarationName", //$NON-NLS-1$
+            "SingleTypeImportDeclarationName", //$NON-NLS-1$
+            "TypeImportOnDemandDeclarationName", //$NON-NLS-1$
+            "Modifiers", //$NON-NLS-1$
+            "Modifier", //$NON-NLS-1$
+            "ClassBody", //$NON-NLS-1$
+            "ClassHeaderName", //$NON-NLS-1$
+            "InterfaceTypeList", //$NON-NLS-1$
+            "InterfaceType", //$NON-NLS-1$
+            "ClassBodyDeclarations", //$NON-NLS-1$
+            "Block", //$NON-NLS-1$
+            "VariableDeclarators", //$NON-NLS-1$
+            "VariableDeclarator", //$NON-NLS-1$
+            "VariableDeclaratorId", //$NON-NLS-1$
+            "VariableInitializer", //$NON-NLS-1$
+            "ArrayInitializer", //$NON-NLS-1$
+            "MethodHeaderName", //$NON-NLS-1$
+            "MethodHeaderParameters", //$NON-NLS-1$
+            "MethodPushModifiersHeaderName", //$NON-NLS-1$
+            "ClassTypeList", //$NON-NLS-1$
+            "ConstructorHeaderName", //$NON-NLS-1$
+            "FormalParameterList", //$NON-NLS-1$
+            "ClassTypeElt", //$NON-NLS-1$
+            "StaticOnly", //$NON-NLS-1$
+            "ExplicitConstructorInvocation",  //$NON-NLS-1$
+            "Primary", //$NON-NLS-1$
+            "InterfaceBody", //$NON-NLS-1$
+            "InterfaceHeaderName", //$NON-NLS-1$
+            "InterfaceMemberDeclarations", //$NON-NLS-1$
+            "InterfaceMemberDeclaration", //$NON-NLS-1$
+            "VariableInitializers", //$NON-NLS-1$
+            "BlockStatement", //$NON-NLS-1$
+            "Statement", //$NON-NLS-1$
+            "LocalVariableDeclaration", //$NON-NLS-1$
+            "StatementWithoutTrailingSubstatement",  //$NON-NLS-1$
+            "StatementNoShortIf",  //$NON-NLS-1$
+            "StatementExpression", //$NON-NLS-1$
+            "PostIncrementExpression", //$NON-NLS-1$
+            "PostDecrementExpression", //$NON-NLS-1$
+            "MethodInvocation", //$NON-NLS-1$
+            "ClassInstanceCreationExpression", //$NON-NLS-1$
+            "SwitchBlock", //$NON-NLS-1$
+            "SwitchBlockStatements", //$NON-NLS-1$
+            "SwitchLabels", //$NON-NLS-1$
+            "SwitchBlockStatement", //$NON-NLS-1$
+            "SwitchLabel", //$NON-NLS-1$
+            "ConstantExpression", //$NON-NLS-1$
+            "StatementExpressionList", //$NON-NLS-1$
+            "OnlySynchronized", //$NON-NLS-1$
+            "Catches", //$NON-NLS-1$
+            "Finally", //$NON-NLS-1$
+            "CatchClause", //$NON-NLS-1$
+            "PushLPAREN", //$NON-NLS-1$
+            "PushRPAREN", //$NON-NLS-1$
+            "PrimaryNoNewArray", //$NON-NLS-1$
+            "ArrayCreationWithArrayInitializer", //$NON-NLS-1$
+            "ClassInstanceCreationExpressionName", //$NON-NLS-1$
+            "ArgumentList", //$NON-NLS-1$
+            "DimWithOrWithOutExprs", //$NON-NLS-1$
+            "DimWithOrWithOutExpr", //$NON-NLS-1$
+            "DimsLoop", //$NON-NLS-1$
+            "OneDimLoop", //$NON-NLS-1$
+            "PostfixExpression", //$NON-NLS-1$
+            "UnaryExpression", //$NON-NLS-1$
+            "UnaryExpressionNotPlusMinus", //$NON-NLS-1$
+            "MultiplicativeExpression", //$NON-NLS-1$
+            "AdditiveExpression", //$NON-NLS-1$
+            "ShiftExpression", //$NON-NLS-1$
+            "RelationalExpression", //$NON-NLS-1$
+            "EqualityExpression", //$NON-NLS-1$
+            "AndExpression", //$NON-NLS-1$
+            "ExclusiveOrExpression", //$NON-NLS-1$
+            "InclusiveOrExpression", //$NON-NLS-1$
+            "ConditionalAndExpression", //$NON-NLS-1$
+            "ConditionalOrExpression", //$NON-NLS-1$
+            "ConditionalExpression", //$NON-NLS-1$
+            "AssignmentExpression", //$NON-NLS-1$
+            "AssignmentOperator",  //$NON-NLS-1$
 	};
     
 	public  static short check_table[] = null;
@@ -7400,30 +7399,30 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 			&& (expectings[1] == "*=") //$NON-NLS-1$
 			&& (expressionPtr > -1)) {
 				switch(currentKind) {
-					case ITerminalSymbols.TokenNameSEMICOLON:
-					case ITerminalSymbols.TokenNamePLUS:
-					case ITerminalSymbols.TokenNameMINUS:
-					case ITerminalSymbols.TokenNameDIVIDE:
-					case ITerminalSymbols.TokenNameREMAINDER:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameLEFT_SHIFT:
-					case ITerminalSymbols.TokenNameRIGHT_SHIFT:
-					case ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT:
-					case ITerminalSymbols.TokenNameLESS:
-					case ITerminalSymbols.TokenNameGREATER:
-					case ITerminalSymbols.TokenNameLESS_EQUAL:
-					case ITerminalSymbols.TokenNameGREATER_EQUAL:
-					case ITerminalSymbols.TokenNameEQUAL_EQUAL:
-					case ITerminalSymbols.TokenNameNOT_EQUAL:
-					case ITerminalSymbols.TokenNameXOR:
-					case ITerminalSymbols.TokenNameAND:
-					case ITerminalSymbols.TokenNameOR:
-					case ITerminalSymbols.TokenNameOR_OR:
-					case ITerminalSymbols.TokenNameAND_AND:
+					case TerminalTokens.TokenNameSEMICOLON:
+					case TerminalTokens.TokenNamePLUS:
+					case TerminalTokens.TokenNameMINUS:
+					case TerminalTokens.TokenNameDIVIDE:
+					case TerminalTokens.TokenNameREMAINDER:
+					case TerminalTokens.TokenNameMULTIPLY:
+					case TerminalTokens.TokenNameLEFT_SHIFT:
+					case TerminalTokens.TokenNameRIGHT_SHIFT:
+					case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+					case TerminalTokens.TokenNameLESS:
+					case TerminalTokens.TokenNameGREATER:
+					case TerminalTokens.TokenNameLESS_EQUAL:
+					case TerminalTokens.TokenNameGREATER_EQUAL:
+					case TerminalTokens.TokenNameEQUAL_EQUAL:
+					case TerminalTokens.TokenNameNOT_EQUAL:
+					case TerminalTokens.TokenNameXOR:
+					case TerminalTokens.TokenNameAND:
+					case TerminalTokens.TokenNameOR:
+					case TerminalTokens.TokenNameOR_OR:
+					case TerminalTokens.TokenNameAND_AND:
 						// the ; is not the expected token ==> it ends a statement when an expression is not ended
 						problemReporter().invalidExpressionAsStatement(expressionStack[expressionPtr]);
 						break;
-					case ITerminalSymbols.TokenNameRBRACE :
+					case TerminalTokens.TokenNameRBRACE :
 						problemReporter().missingSemiColon(expressionStack[expressionPtr]);
 						break;
 					default:

@@ -24,9 +24,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -136,8 +137,8 @@ public final class JavaConventions {
 				return null;
 			}
 			int nextToken= SCANNER.getNextToken();
-			if (token == ITerminalSymbols.TokenNameIdentifier 
-				&& nextToken == ITerminalSymbols.TokenNameEOF
+			if (token == TerminalTokens.TokenNameIdentifier 
+				&& nextToken == TerminalTokens.TokenNameEOF
 				&& SCANNER.startPosition == SCANNER.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 																     // while reading the last token
 				return currentIdentifier;

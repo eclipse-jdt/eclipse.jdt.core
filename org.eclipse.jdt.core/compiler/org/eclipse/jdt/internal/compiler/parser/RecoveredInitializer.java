@@ -14,7 +14,6 @@ package org.eclipse.jdt.internal.compiler.parser;
  * Internal initializer structure for parsing recovery 
  */
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -26,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
-public class RecoveredInitializer extends RecoveredField implements CompilerModifiers, ITerminalSymbols, BaseTypes {
+public class RecoveredInitializer extends RecoveredField implements CompilerModifiers, TerminalTokens, BaseTypes {
 
 	public RecoveredType[] localTypes;
 	public int localTypeCount;

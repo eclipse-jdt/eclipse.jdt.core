@@ -13,8 +13,8 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * AST node for a Javadoc comment.
@@ -106,9 +106,9 @@ public class Javadoc extends ASTNode {
 		try {
 			int token;
 			boolean onlyOneComment = false;
-			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						if (onlyOneComment) {
 							throw new IllegalArgumentException();
 						}

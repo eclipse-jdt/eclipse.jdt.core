@@ -24,14 +24,15 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
+import org.eclipse.jdt.internal.core.util.PublicScanner;
 import org.eclipse.jdt.internal.formatter.CodeFormatter;
 
 /**
@@ -103,11 +104,23 @@ public class ToolFactory {
 	 * 
 	 * @return a classfile bytecode disassembler
 	 * @see IClassFileDisassembler
+	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead (more generic)
 	 */
 	public static IClassFileDisassembler createDefaultClassFileDisassembler(){
 		return new Disassembler();
 	}
 	
+	/**
+	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
+	 * 
+	 * @return a classfile bytecode disassembler
+	 * @see ClassFileBytesDisassembler
+	 * @since 2.1
+	 */
+	public static ClassFileBytesDisassembler createDefaultClassFileBytesDisassembler(){
+		return new Disassembler();
+	}
+
 	/**
 	 * Create a default classfile reader, able to expose the internal representation of a given classfile
 	 * according to the decoding flag used to initialize the reader.
@@ -282,7 +295,7 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator, boolean strictCommentMode){
 
-		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode, strictCommentMode /*strict comment*/, null/*taskTags*/, null/*taskPriorities*/);
+		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode, strictCommentMode /*strict comment*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}

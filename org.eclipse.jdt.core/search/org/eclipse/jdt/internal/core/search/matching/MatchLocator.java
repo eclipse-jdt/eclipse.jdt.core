@@ -18,7 +18,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -35,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -840,9 +840,9 @@ public IType lookupType(TypeBinding typeBinding) {
 					token = scanner.getNextToken();
 				} catch (InvalidInputException e) {
 				}
-			} while (token !=  ITerminalSymbols.TokenNameIdentifier && token !=  ITerminalSymbols.TokenNameEOF);
+			} while (token !=  TerminalTokens.TokenNameIdentifier && token !=  TerminalTokens.TokenNameEOF);
 	
-			if (token != ITerminalSymbols.TokenNameEOF) {
+			if (token != TerminalTokens.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < tokenNumber
@@ -874,7 +874,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				}
 				return;
 			}
-		} while (token != ITerminalSymbols.TokenNameEOF);
+		} while (token != TerminalTokens.TokenNameEOF);
 	
 	}
 	/**
@@ -909,7 +909,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
 			}
-			if (token != ITerminalSymbols.TokenNameEOF) {
+			if (token != TerminalTokens.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < length
@@ -946,7 +946,7 @@ public IType lookupType(TypeBinding typeBinding) {
 			if (accuracyIndex < accuracies.length-1) {
 				accuracyIndex++;
 			}
-		} while (token != ITerminalSymbols.TokenNameEOF);
+		} while (token != TerminalTokens.TokenNameEOF);
 
 	}
 
