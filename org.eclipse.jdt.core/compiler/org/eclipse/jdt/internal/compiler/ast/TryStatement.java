@@ -189,7 +189,6 @@ public class TryStatement extends SubRoutineStatement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
-		this.resetAnyExceptionHandlers(); // could reenter if redoing codegen in wide-mode
 
 		if (tryBlock.isEmptyBlock()) {
 			if (subRoutineStartLabel != null) {
@@ -410,6 +409,7 @@ public class TryStatement extends SubRoutineStatement {
 	}
 
 	public void resetStateForCodeGeneration() {
+		super.resetStateForCodeGeneration();
 		if (this.subRoutineStartLabel != null) {
 			this.subRoutineStartLabel.resetStateForCodeGeneration();
 		}

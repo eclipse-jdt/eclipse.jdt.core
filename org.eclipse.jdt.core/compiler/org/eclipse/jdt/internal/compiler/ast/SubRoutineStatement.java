@@ -63,7 +63,7 @@ public abstract class SubRoutineStatement extends Statement {
 		}	
 	}
 
-	public void resetAnyExceptionHandlers() {
+	public void resetStateForCodeGeneration() {
 		if (this.anyExceptionLabelsCount > 0) {
 			this.anyExceptionLabels = NO_EXCEPTION_HANDLER;
 			this.anyExceptionLabelsCount = 0;

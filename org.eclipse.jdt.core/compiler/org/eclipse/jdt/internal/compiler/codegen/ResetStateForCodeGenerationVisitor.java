@@ -56,6 +56,11 @@ public class ResetStateForCodeGenerationVisitor
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 		tryStatement.resetStateForCodeGeneration();
 		return true;
+	}
+
+	public boolean visit(SynchronizedStatement synchronizedStatement, BlockScope scope) {
+		synchronizedStatement.resetStateForCodeGeneration();
+		return true;
 	}	
 }
 

@@ -73,7 +73,6 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
-		this.resetAnyExceptionHandlers(); // could reenter if redoing codegen in wide-mode
 		int pc = codeStream.position;
 
 		// generate the synchronization expression
