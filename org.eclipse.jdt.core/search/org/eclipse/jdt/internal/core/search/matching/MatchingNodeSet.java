@@ -28,8 +28,8 @@ public class MatchingNodeSet {
  * Map of matching ast nodes that don't need to be resolved to their accuracy level.
  * Each node is removed as it is reported.
  */
-SimpleLookupTable matchingNodes = new SimpleLookupTable(3);
-private HashtableOfLong matchingNodesKeys = new HashtableOfLong(3);
+SimpleLookupTable matchingNodes = new SimpleLookupTable(3); // node -> accuracy
+private HashtableOfLong matchingNodesKeys = new HashtableOfLong(3); // sourceRange -> node
 static Integer EXACT_MATCH = new Integer(SearchMatch.A_ACCURATE);
 static Integer POTENTIAL_MATCH = new Integer(SearchMatch.A_INACCURATE);
 
@@ -138,6 +138,7 @@ public Object removeTrustedMatch(ASTNode node) {
 	return this.matchingNodes.removeKey(node);
 }
 public String toString() {
+	// TODO (jerome) should show both tables
 	StringBuffer result = new StringBuffer();
 	result.append("Exact matches:"); //$NON-NLS-1$
 	Object[] keyTable = this.matchingNodes.keyTable;

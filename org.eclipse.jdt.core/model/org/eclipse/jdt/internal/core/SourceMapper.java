@@ -120,7 +120,7 @@ public class SourceMapper
 	/**
 	 * The unknown source range {-1, 0}
 	 */
-	protected static SourceRange fgUnknownRange = new SourceRange(-1, 0);
+	public static SourceRange fgUnknownRange = new SourceRange(-1, 0);
 
 	/**
 	 * The position within the source of the start of the
@@ -849,27 +849,22 @@ public class SourceMapper
 			 * For example, A.class comes from A.java and p.A.class comes from a file A.java
 			 * in the folder p.
 			 */
-			try {
-				if (type.isMember()) {
-					IType enclosingType = type.getDeclaringType();
-					if (enclosingType == null) return null; // play it safe
-					while (enclosingType.getDeclaringType() != null) {
-						enclosingType = enclosingType.getDeclaringType();
-					}
-					return enclosingType.getElementName() + SUFFIX_STRING_java;
-				} else if (type.isLocal() || type.isAnonymous()){
-					String typeQualifiedName = type.getTypeQualifiedName();
-					return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + SUFFIX_STRING_java;
-				} else {
-					return type.getElementName() + SUFFIX_STRING_java;
+			if (info.isMember()) {
+				IType enclosingType = type.getDeclaringType();
+				if (enclosingType == null) return null; // play it safe
+				while (enclosingType.getDeclaringType() != null) {
+					enclosingType = enclosingType.getDeclaringType();
 				}
-			} catch (JavaModelException e) {
-				// ignore
+				return enclosingType.getElementName() + SUFFIX_STRING_java;
+			} else if (info.isLocal() || info.isAnonymous()){
+				String typeQualifiedName = type.getTypeQualifiedName();
+				return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + SUFFIX_STRING_java;
+			} else {
+				return type.getElementName() + SUFFIX_STRING_java;
 			}
 		} else {
 			return  new String(sourceFileName);
 		}
-		return null;
 	}
 
 	private char[] getSourceForRootPath(String currentRootPath, String name) {

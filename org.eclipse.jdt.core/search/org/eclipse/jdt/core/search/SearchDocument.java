@@ -56,6 +56,12 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 * in case of preprocessing.
 	 * <p>
 	 * This method must be implemented in subclasses.
+	 * </p><p>
+	 * Note: some implementation may choose to cache the contents directly on the
+	 * document for performance reason. However, this could induce scalability issues due
+	 * to the fact that collections of documents are manipulated throughout the search
+	 * operation, and cached contents would then consume lots of memory until they are 
+	 * all released at once in the end.
 	 * </p>
 	 * 
 	 * @return the contents of this document,
@@ -69,6 +75,12 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 * path due to preprocessing.
 	 * <p>
 	 * This method must be implemented in subclasses.
+	 * </p><p>
+	 * Note: some implementation may choose to cache the contents directly on the
+	 * document for performance reason. However, this could induce scalability issues due
+	 * to the fact that collections of documents are manipulated throughout the search
+	 * operation, and cached contents would then consume lots of memory until they are 
+	 * all released at once in the end.
 	 * </p>
 	 * 
 	 * @return the contents of this document,
