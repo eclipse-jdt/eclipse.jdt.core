@@ -512,18 +512,16 @@ public String getJdkLevel() {
 					} finally {
 						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
-				} else if (hasChildren()) { // TODO: (olivier) should not populate the model, but rather walk the filesystem/resources directly
-					IJavaElement[] javaElements = getChildren();
-					for (int i = 0, max = javaElements.length; i < max; i++) {
-						IPackageFragment fragment = (IPackageFragment) javaElements[i];
-						if (fragment.hasChildren()) {
-							IClassFile classFile = fragment.getClassFiles()[0];
-							IFile file = (IFile) classFile.getUnderlyingResource();
-							byte[] bytes = Util.getResourceContentsAsByteArray(file);
-							IPath location = file.getLocation();
-							reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
-							break;
-						}
+				} else {
+					IResource resource = getResource();
+					IFile classFile = null;
+					if (resource.getType() == IResource.FOLDER) {
+						classFile = searchClassFile((IFolder) resource);
+					}
+					if (classFile != null) {
+						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);
+						IPath location = classFile.getLocation();
+						reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
 					}
 				}
 				if (reader != null) {
@@ -540,6 +538,21 @@ public String getJdkLevel() {
 	} catch(JavaModelException e) {
 	} catch(ClassFormatException e) {
 	} catch(IOException e) {
+	}
+	return null;
+}
+private IFile searchClassFile(IFolder folder) {
+	try {
+		IResource[] members = folder.members();
+		for (int i = 0, max = members.length; i < max; i++) {
+			IResource member = members[i];
+			if (member.getType() == IResource.FOLDER) {
+				return searchClassFile((IFolder)member);
+			} else if (Util.isClassFileName(member.getName())) {
+				return (IFile) member;
+			}
+		}
+	} catch (CoreException e) {
 	}
 	return null;
 }
