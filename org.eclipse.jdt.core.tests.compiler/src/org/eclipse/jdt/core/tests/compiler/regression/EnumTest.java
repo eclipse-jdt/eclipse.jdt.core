@@ -1578,7 +1578,7 @@ public class EnumTest extends AbstractComparableTest {
 			""
 		);
 		String expectedOutput = 
-			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
 			"public abstract enum X extends java.lang.Enum {\n"; 
 
@@ -2832,7 +2832,8 @@ public class EnumTest extends AbstractComparableTest {
 			"	  ^^^\n" + 
 			"The method foo() is undefined for the type E\n" + 
 			"----------\n");
-	}			
+	}
+	// check wildcard can extend Enum superclass
 	public void test093() {
 		this.runConformTest(
 			new String[] {
@@ -2851,5 +2852,43 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
+	}		
+	// check super bit is set
+	public void test094() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"}\n",
+			},
+			"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
+			"public enum X extends java.lang.Enum {\n"; 
+			
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
+		}
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
 	}		
 }

@@ -387,7 +387,7 @@ public class ClassFile
 					| AccNative);
 					
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		if (aType.isClass()) {
+		if (!aType.isInterface()) { // class or enum
 			accessFlags |= AccSuper;
 		}
 		
