@@ -92,7 +92,7 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * </td>
  * </tr>
  * </table>
- * 
+ * A default implementation of such a comparator is provided.
  * @since 2.1
  */
 public class CompilationUnitSorter {
