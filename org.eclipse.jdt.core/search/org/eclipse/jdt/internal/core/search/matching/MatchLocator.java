@@ -1378,8 +1378,33 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 					: unit.scope.getTypeOrPackage(importRef.tokens);
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
 			} else {
-				nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
+				if (node instanceof JavadocSingleTypeReference) {
+					// special case for javadoc single type reference
+					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) node;
+					if (singleRef.packageBinding != null) {
+						char[][] tokens = new char[][] { singleRef.token };
+						long[] positions = new long[] { (((long) singleRef.sourceStart) << 32) + singleRef.sourceEnd };
+						int tagStart = singleRef.tagSourceStart;
+						int tagEnd = singleRef.tagSourceEnd;
+						JavadocImportReference importRef = new JavadocImportReference(tokens, positions, tagStart, tagEnd);
+						this.patternLocator.matchLevelAndReportImportRef(importRef, singleRef.packageBinding, this);
+						continue;
+					}
+				} else if (node instanceof JavadocQualifiedTypeReference) {
+					// special case for javadoc qualified type reference
+					JavadocQualifiedTypeReference qualifRef = (JavadocQualifiedTypeReference) node;
+					if (qualifRef.packageBinding != null) {
+						char[][] tokens = qualifRef.tokens;
+						long[] positions = qualifRef.sourcePositions;
+						int tagStart = qualifRef.tagSourceStart;
+						int tagEnd = qualifRef.tagSourceEnd;
+						JavadocImportReference importRef = new JavadocImportReference(tokens, positions, tagStart, tagEnd);
+						this.patternLocator.matchLevelAndReportImportRef(importRef, qualifRef.packageBinding, this);
+						continue;
+					}
+				}
 			}
+			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 	}

@@ -102,16 +102,16 @@ public void checkComment() {
 	if (this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
+		int throwsTagsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsLength; i++) {
 			TypeReference typeRef = thrownExceptions[i];
 			this.patternLocator.match(typeRef, this.nodeSet);
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
 		Expression[] references = this.javadoc.references;
-		int seeTagsNbre = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
+		int seeTagsLength = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsLength; i++) {
 			Expression reference = references[i];
 			if (reference instanceof TypeReference) {
 				TypeReference typeRef = (TypeReference) reference;

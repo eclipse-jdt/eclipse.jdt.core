@@ -82,8 +82,11 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Qua
 }
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeReference node, MatchingNodeSet nodeSet) { // interested in QualifiedTypeReference only
+	if (node instanceof JavadocSingleTypeReference) {
+		char[][] tokens = new char[][] { ((JavadocSingleTypeReference) node).token };
+		return nodeSet.addMatch(node, matchLevelForTokens(tokens));
+	}
 	if (!(node instanceof QualifiedTypeReference)) return IMPOSSIBLE_MATCH;
-
 	return nodeSet.addMatch(node, matchLevelForTokens(((QualifiedTypeReference) node).tokens));
 }
 
@@ -128,6 +131,8 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 				if (pkgBinding != null)
 					last = pkgBinding.compoundName.length;
 			}
+			if (binding instanceof PackageBinding)
+				last = ((PackageBinding) binding).compoundName.length;
 			int start = (int) (positions[0] >>> 32);
 			int end = (int) positions[last - 1];
 			SearchMatch match = locator.newPackageReferenceMatch(element, accuracy, start, end-start+1, importRef);
@@ -211,6 +216,8 @@ public int resolveLevel(Binding binding) {
 	char[][] compoundName = null;
 	if (binding instanceof ImportBinding) {
 		compoundName = ((ImportBinding) binding).compoundName;
+	} else if (binding instanceof PackageBinding) {
+		compoundName = ((PackageBinding) binding).compoundName;
 	} else {
 		if (binding instanceof ArrayBinding)
 			binding = ((ArrayBinding) binding).leafComponentType;

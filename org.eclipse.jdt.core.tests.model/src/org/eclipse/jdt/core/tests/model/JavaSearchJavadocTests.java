@@ -71,16 +71,23 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		// NOTE: cannot use 'new Suite(JavaSearchJavadocTests.class)' as this would include tests from super class
 		TestSuite suite = new Suite(JavaSearchJavadocTests.class.getName());
 
-		if (DOC_COMMENT_SUPPORT == null) {
-			// Default is to test both Doc Comment Support ON and OFF
-			buildSuite(suite, JavaCore.ENABLED);
-			buildSuite(suite, JavaCore.DISABLED);
-		} else {
-			// Test specified with Doc Comment Support
-			String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
-			buildSuite(suite, support);
+		if (true) {
+			if (DOC_COMMENT_SUPPORT == null) {
+				// Default is to test both Doc Comment Support ON and OFF
+				buildSuite(suite, JavaCore.ENABLED);
+				buildSuite(suite, JavaCore.DISABLED);
+			} else {
+				// Test specified with Doc Comment Support
+				String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
+				buildSuite(suite, support);
+			}
+			return suite;
 		}
-		
+
+		// Run test cases subset
+		System.err.println("WARNING: only subset of tests will be executed!!!");
+		suite.addTest(new JavaSearchJavadocTests("testBug54962"));
+		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified"));
 		return suite;
 	}
 
@@ -145,6 +152,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug49994field", support));
 		suite.addTest(new JavaSearchJavadocTests("testBug49994method", support));
 		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug54962"));
+		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified"));
 		
 //		return suite;
 	}
@@ -1073,5 +1082,35 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 //		} finally {
 //			resetProjectOptions();
 //		}
+	}
+
+	/**
+	 * Test fix for bug 54962.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54962">54962</a>
+	 * @throws CoreException
+	 */
+	public void testBug54962() throws CoreException {
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
+		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
+		assertSearchResults(
+			"src/j6/Bug54962.java [j6] EXACT_MATCH\n" + 
+				"src/j6/Bug54962.java j6.Bug54962 [j6] POTENTIAL_MATCH\n" + 
+				"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH",
+			result);
+	}
+	public void testBug54962qualified() throws CoreException {
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962.java").getPackageDeclaration("j7.qua.li.fied");
+		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
+		assertSearchResults(
+			"src/j7/qua/li/fied/Bug54962.java [j7.qua.li.fied] EXACT_MATCH\n" + 
+				"src/j7/qua/li/fied/Bug54962.java j7.qua.li.fied.Bug54962 [j7.qua.li.fied] POTENTIAL_MATCH\n" + 
+				"src/j7/qua/li/fied/Bug54962.java j7.qua.li.fied.Bug54962 [j7.qua.li.fied] EXACT_MATCH",
+			result);
 	}
 }
