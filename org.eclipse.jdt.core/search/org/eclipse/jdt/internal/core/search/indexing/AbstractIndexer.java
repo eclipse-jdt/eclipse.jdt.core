@@ -24,7 +24,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		this.document = document;
 	}
 	public void addAnnotationTypeDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames, ANNOTATION_TYPE_SUFFIX));
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames));
 		
 		addIndexEntry(
 			SUPER_REF, 
@@ -39,7 +39,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			char[] superclass, 
 			char[][] superinterfaces,
 			char[][] typeParameterSignatures) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames, CLASS_SUFFIX));
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames));
 
 		if (superclass != null) {
 			superclass = erasure(superclass);
@@ -82,7 +82,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(simpleTypeName, argCount));
 	}
 	public void addEnumDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames, ENUM_SUFFIX));
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames));
 		
 		addIndexEntry(
 			SUPER_REF, 
@@ -110,7 +110,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		this.document.addIndexEntry(category, key);
 	}
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces, char[][] typeParameterSignatures) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames, INTERFACE_SUFFIX));
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames));
 
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {

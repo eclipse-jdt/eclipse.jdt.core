@@ -75,7 +75,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 
 	/**
 	 * Match rule: The search pattern matches search results as raw/parameterized types/methods with same erasure.
-	 * This mode has no effect on other java elements search.
+	 * This mode has no effect on other java elements search.<br>
 	 * Type search example:
 	 * 	<ul>
 	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
@@ -97,7 +97,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 
 	/**
 	 * Match rule: The search pattern matches search results as raw/parameterized types/methods with equivalent type parameters.
-	 * This mode has no effect on other java elements search.
+	 * This mode has no effect on other java elements search.<br>
 	 * Type search example:
 	 * <ul>
 	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
@@ -144,11 +144,15 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * It can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 * 
-	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
-	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
-	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
-	 * [TODO (frederic) Expand spec for matchRule to allow R_ERASURE_MATCH ?
-     * If yes, we have a problem because getMatchRule() locks in set of existing values.]
+	 * @param matchRule one of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH},
+	 * 	{@link #R_REGEXP_MATCH} combined with one of follwing values: {@link #R_CASE_SENSITIVE}, {@link #R_ERASURE_MATCH}
+	 * 	or {@link #R_EQUIVALENT_MATCH}.
+	 *		e.g. {@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *		{@link #R_PREFIX_MATCH} if a prefix non case sensitive match is requested or {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
+	 *		if a non case sensitive and erasure match is requested.<br>
+	 * 	Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} have no effect
+	 * 	on non-generic types/methods search.<br>
+	 * 	Note also that default behavior for generic types/methods search is to find exact matches.
 	 */
 	public SearchPattern(int matchRule) {
 		this.matchRule = matchRule;
@@ -761,35 +765,47 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @param stringPattern the given pattern
 	 * @param searchFor determines the nature of the searched elements
 	 *	<ul>
-	 * 	<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
-	 *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
-	 * 	<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
-	 *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
-	 *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
-	 *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
-	 *		<li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for both classes and interfaces</li>
+	 *		<li>{@link IJavaSearchConstants#FIELD}: look for fields</li>
+	 *		<li>{@link IJavaSearchConstants#METHOD}: look for methods</li>
+	 *		<li>{@link IJavaSearchConstants#CONSTRUCTOR}: look for constructors</li>
+	 *		<li>{@link IJavaSearchConstants#PACKAGE}: look for packages</li>
 	 *	</ul>
 	 * @param limitTo determines the nature of the expected matches
 	 *	<ul>
-	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
-	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
-	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
-	 *  		above.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 * 	<li>{@link IJavaSearchConstants#DECLARATIONS}: will search declarations matching
+	 * 			with the corresponding element. In case the element is a method, declarations of matching
+	 * 			methods in subtypes will also be found, allowing to find declarations of abstract methods, etc.<br>
+	 * 			Note that additional flags {@link IJavaSearchConstants#IGNORE_DECLARING_TYPE} and
+	 * 			{@link IJavaSearchConstants#IGNORE_RETURN_TYPE} are ignored for string patterns.
+	 * 			This is due to the fact that client may omit to define them in string pattern to have same behavior.
+	 * 	</li>
+	 *		 <li>{@link IJavaSearchConstants#REFERENCES}: will search references to the given element.</li>
+	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
+	 *				references as specified above.
+	 *		</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
+	 *				which implements a given interface.
+	 *		</li>
 	 *	</ul>
-	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
-	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
-	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
+	 * @param matchRule one of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH},
+	 * 	{@link #R_REGEXP_MATCH} combined with one of follwing values: {@link #R_CASE_SENSITIVE}, {@link #R_ERASURE_MATCH}
+	 * 	or {@link #R_EQUIVALENT_MATCH}.
+	 *		e.g. {@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *		{@link #R_PREFIX_MATCH} if a prefix non case sensitive match is requested or {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
+	 *		if a non case sensitive and erasure match is requested.<br>
+	 * 	Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} have no effect
+	 * 	on non-generic types/methods search.<br>
+	 * 	Note also that default behavior for generic types/methods search is to find exact matches.
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
-	 * [TODO (frederic) Expand spec for matchRule to allow R_ERASURE_MATCH ?]
 	 */
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
 		if (stringPattern == null || stringPattern.length() == 0) return null;
+
+		// Ignore additional nature flags
+		limitTo &= ~(IJavaSearchConstants.IGNORE_DECLARING_TYPE+IJavaSearchConstants.IGNORE_RETURN_TYPE);
 	
 		switch (searchFor) {
 			case IJavaSearchConstants.TYPE:
@@ -812,17 +828,40 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *
 	 * @param element the Java element the search pattern is based on
 	 * @param limitTo determines the nature of the expected matches
-	 * 	<ul>
-	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
-	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
-	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
-	 *  		above.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#DECLARATIONS}: will search declarations matching
+	 * 			with the corresponding element. In case the element is a method, declarations of matching
+	 * 			methods in subtypes will also be found, allowing to find declarations of abstract methods, etc.
+	 *				Some additional flags may be specified while searching declaration:
+	 *				<ul>
+	 *					<li>{@link IJavaSearchConstants#IGNORE_DECLARING_TYPE}: declaring type will be ignored
+	 *							during the search.<br>
+	 *							For example using following test case:
+	 *							<pre>
+	 *								class A { A method() { return null; } }
+	 *								class B extends A { B method() { return null; } }
+	 *								class C { A method() { return null; } }
+	 *							</pre>
+	 *							search for <code>method</code> declaration with this flag
+	 *							will return 2 matches: in A and in C
+	 *					</li>
+	 *					<li>{@link IJavaSearchConstants#IGNORE_RETURN_TYPE}: return type will be ignored
+	 *							during the search.<br>
+	 *							Using same example, search for <code>method</code> declaration with this flag
+	 *							will return 2 matches: in A and in B.
+	 *					</li>
+	 *				<ul>
+	 *				Note that these two flags may be combined and both declaring and return types can be ignored
+	 *				during the search. Then, using same example, search for <code>method</code> declaration
+	 *				with these 2 flags will return 3 matches: in A, in B  and in C
+	 * 	</li>
+	 *		 <li>{@link IJavaSearchConstants#REFERENCES}: will search references to the given element.</li>
+	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
+	 *				references as specified above.
+	 *		</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
+	 *				which implements a given interface.
+	 *		</li>
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 */
@@ -836,65 +875,107 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *
 	 * @param element the Java element the search pattern is based on
 	 * @param limitTo determines the nature of the expected matches
-	 * 	<ul>
-	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
-	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
-	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
-	 *  		above.</li>
-	 *
-	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#DECLARATIONS}: will search declarations matching
+	 * 			with the corresponding element. In case the element is a method, declarations of matching
+	 * 			methods in subtypes will also be found, allowing to find declarations of abstract methods, etc.
+	 *				Some additional flags may be specified while searching declaration:
+	 *				<ul>
+	 *					<li>{@link IJavaSearchConstants#IGNORE_DECLARING_TYPE}: declaring type will be ignored
+	 *							during the search.<br>
+	 *							For example using following test case:
+	 *							<pre>
+	 *								class A { A method() { return null; } }
+	 *								class B extends A { B method() { return null; } }
+	 *								class C { A method() { return null; } }
+	 *							</pre>
+	 *							search for <code>method</code> declaration with this flag
+	 *							will return 2 matches: in A and in C
+	 *					</li>
+	 *					<li>{@link IJavaSearchConstants#IGNORE_RETURN_TYPE}: return type will be ignored
+	 *							during the search.<br>
+	 *							Using same example, search for <code>method</code> declaration with this flag
+	 *							will return 2 matches: in A and in B.
+	 *					</li>
+	 *				<ul>
+	 *				Note that these two flags may be combined and both declaring and return types can be ignored
+	 *				during the search. Then, using same example, search for <code>method</code> declaration
+	 *				with these 2 flags will return 3 matches: in A, in B  and in C
+	 * 	</li>
+	 *		 <li>{@link IJavaSearchConstants#REFERENCES}: will search references to the given element.</li>
+	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
+	 *				references as specified above.
+	 *		</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
+	 *				which implements a given interface.
+	 *		</li>
 	 *	</ul>
-	 * @param matchRule Same possible values than those described in method {@link #createPattern(String,int,int,int)} plus another possible
-	 * 	new value {@link #R_ERASURE_MATCH} which can be combined with the others. When match rule includes {@link #R_ERASURE_MATCH},
-	 * 	the search engine finds all types whose erasures match the given pattern erasure.
-	 * 	By default, the search engine only finds exact or compatible matches for generic or parameterized types.
+	 * @param matchRule one of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH},
+	 * 	{@link #R_REGEXP_MATCH} combined with one of follwing values: {@link #R_CASE_SENSITIVE}, {@link #R_ERASURE_MATCH}
+	 * 	or {@link #R_EQUIVALENT_MATCH}.
+	 *		e.g. {@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *		{@link #R_PREFIX_MATCH} if a prefix non case sensitive match is requested or {@link #R_EXACT_MATCH} |{@link #R_ERASURE_MATCH}
+	 *		if a non case sensitive and erasure match is requested.<br>
+	 * 	Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} have no effect on non-generic types
+	 * 	or methods search.<br>
+	 * 	Note also that default behavior for generic types or methods is to find exact matches.
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 * @since 3.1
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo, int matchRule) {
 		SearchPattern searchPattern = null;
 		int lastDot;
+		boolean ignoreDeclaringType = false;
+		boolean ignoreReturnType = false;
+		int maskedLimitTo = limitTo & ~(IJavaSearchConstants.IGNORE_DECLARING_TYPE+IJavaSearchConstants.IGNORE_RETURN_TYPE);
+		if (maskedLimitTo == IJavaSearchConstants.DECLARATIONS || maskedLimitTo == IJavaSearchConstants.ALL_OCCURRENCES) {
+			ignoreDeclaringType = (limitTo & IJavaSearchConstants.IGNORE_DECLARING_TYPE) != 0;
+			ignoreReturnType = (limitTo & IJavaSearchConstants.IGNORE_RETURN_TYPE) != 0;
+		}
+		char[] declaringSimpleName = null;
+		char[] declaringQualification = null;
 		switch (element.getElementType()) {
 			case IJavaElement.FIELD :
 				IField field = (IField) element; 
-				IType declaringClass = field.getDeclaringType();
-				char[] declaringSimpleName = declaringClass.getElementName().toCharArray();
-				char[] declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
-				char[][] enclosingNames = enclosingTypeNames(declaringClass);
-				if (enclosingNames.length > 0)
-					declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
-				char[] name = field.getElementName().toCharArray();
-				char[] typeSimpleName;
-				char[] typeQualification;
-				String typeSignature;
-				try {
-					typeSignature = field.getTypeSignature();
-					char[] signature = typeSignature.toCharArray();
-					char[] typeErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
-					CharOperation.replace(typeErasure, '$', '.');
-					if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
-						typeSimpleName = typeErasure;
-						typeQualification = null;
-					} else {
-						typeSimpleName = CharOperation.subarray(typeErasure, lastDot + 1, typeErasure.length);
-						typeQualification = CharOperation.subarray(typeErasure, 0, lastDot);
-						if (!field.isBinary()) {
-							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							CharOperation.concat(IIndexConstants.ONE_STAR, typeQualification);
-						}
+				if (!ignoreDeclaringType) {
+					IType declaringClass = field.getDeclaringType();
+					declaringSimpleName = declaringClass.getElementName().toCharArray();
+					declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
+					char[][] enclosingNames = enclosingTypeNames(declaringClass);
+					if (enclosingNames.length > 0) {
+						declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
 					}
-				} catch (JavaModelException e) {
-					return null;
+				}
+				char[] name = field.getElementName().toCharArray();
+				char[] typeSimpleName = null;
+				char[] typeQualification = null;
+				String typeSignature = null;
+				if (!ignoreReturnType) {
+					try {
+						typeSignature = field.getTypeSignature();
+						char[] signature = typeSignature.toCharArray();
+						char[] typeErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
+						CharOperation.replace(typeErasure, '$', '.');
+						if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
+							typeSimpleName = typeErasure;
+							typeQualification = null;
+						} else {
+							typeSimpleName = CharOperation.subarray(typeErasure, lastDot + 1, typeErasure.length);
+							typeQualification = CharOperation.subarray(typeErasure, 0, lastDot);
+							if (!field.isBinary()) {
+								// prefix with a '*' as the full qualification could be bigger (because of an import)
+								CharOperation.concat(IIndexConstants.ONE_STAR, typeQualification);
+							}
+						}
+					} catch (JavaModelException e) {
+						return null;
+					}
 				}
 				// Create field pattern
 				boolean findDeclarations = false;
 				boolean readAccess = false;
 				boolean writeAccess = false;
-				switch (limitTo) {
+				switch (maskedLimitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
 						findDeclarations = true;
 						break;
@@ -933,7 +1014,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				if (lastDot == -1) return null; // invalid import declaration
 				IImportDeclaration importDecl = (IImportDeclaration)element;
 				if (importDecl.isOnDemand()) {
-					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, matchRule);
+					searchPattern = createPackagePattern(elementName.substring(0, lastDot), maskedLimitTo, matchRule);
 				} else {
 					searchPattern = 
 						createTypePattern(
@@ -942,7 +1023,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							null,
 							null,
 							null,
-							limitTo,
+							maskedLimitTo,
 							matchRule);
 				}
 				break;
@@ -951,7 +1032,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				boolean findVarDeclarations = false;
 				boolean findVarReadAccess = false;
 				boolean findVarWriteAccess = false;
-				switch (limitTo) {
+				switch (maskedLimitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
 						findVarDeclarations = true;
 						break;
@@ -983,7 +1064,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				ITypeParameter typeParam = (ITypeParameter) element;
 				boolean findParamDeclarations = true;
 				boolean findParamReferences = true;
-				switch (limitTo) {
+				switch (maskedLimitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
 						findParamReferences = false;
 						break;
@@ -1006,34 +1087,39 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				} catch (JavaModelException e) {
 					return null;
 				}
-				declaringClass = method.getDeclaringType();
-				declaringSimpleName = declaringClass.getElementName().toCharArray();
-				declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
-				enclosingNames = enclosingTypeNames(declaringClass);
-				if (enclosingNames.length > 0)
-					declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
-				char[] selector = method.getElementName().toCharArray();
-				char[] returnSimpleName;
-				char[] returnQualification;
-				String returnSignature;
-				try {
-					returnSignature = method.getReturnType();
-					char[] signature = returnSignature.toCharArray();
-					char[] returnErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
-					CharOperation.replace(returnErasure, '$', '.');
-					if ((lastDot = CharOperation.lastIndexOf('.', returnErasure)) == -1) {
-						returnSimpleName = returnErasure;
-						returnQualification = null;
-					} else {
-						returnSimpleName = CharOperation.subarray(returnErasure, lastDot + 1, returnErasure.length);
-						returnQualification = CharOperation.subarray(returnErasure, 0, lastDot);
-						if (!method.isBinary()) {
-							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							CharOperation.concat(IIndexConstants.ONE_STAR, returnQualification);
-						}
+				if (!ignoreDeclaringType) {
+					IType declaringClass = method.getDeclaringType();
+					declaringSimpleName = declaringClass.getElementName().toCharArray();
+					declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
+					char[][] enclosingNames = enclosingTypeNames(declaringClass);
+					if (enclosingNames.length > 0) {
+						declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
 					}
-				} catch (JavaModelException e) {
-					return null;
+				}
+				char[] selector = method.getElementName().toCharArray();
+				char[] returnSimpleName = null;
+				char[] returnQualification = null;
+				String returnSignature = null;
+				if (!ignoreReturnType) {
+					try {
+						returnSignature = method.getReturnType();
+						char[] signature = returnSignature.toCharArray();
+						char[] returnErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
+						CharOperation.replace(returnErasure, '$', '.');
+						if ((lastDot = CharOperation.lastIndexOf('.', returnErasure)) == -1) {
+							returnSimpleName = returnErasure;
+							returnQualification = null;
+						} else {
+							returnSimpleName = CharOperation.subarray(returnErasure, lastDot + 1, returnErasure.length);
+							returnQualification = CharOperation.subarray(returnErasure, 0, lastDot);
+							if (!method.isBinary()) {
+								// prefix with a '*' as the full qualification could be bigger (because of an import)
+								CharOperation.concat(IIndexConstants.ONE_STAR, returnQualification);
+							}
+						}
+					} catch (JavaModelException e) {
+						return null;
+					}
 				}
 				String[] parameterTypes = method.getParameterTypes();
 				int paramCount = parameterTypes.length;
@@ -1061,7 +1147,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				// Create method/constructor pattern
 				boolean findMethodDeclarations = true;
 				boolean findMethodReferences = true;
-				switch (limitTo) {
+				switch (maskedLimitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
 						findMethodReferences = false;
 						break;
@@ -1106,15 +1192,15 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				searchPattern = 	createTypePattern(
 							type.getElementName().toCharArray(), 
 							type.getPackageFragment().getElementName().toCharArray(),
-							enclosingTypeNames(type),
+							ignoreDeclaringType ? null : enclosingTypeNames(type),
 							null,
 							type,
-							limitTo,
+							maskedLimitTo,
 							matchRule);
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
-				searchPattern = createPackagePattern(element.getElementName(), limitTo, matchRule);
+				searchPattern = createPackagePattern(element.getElementName(), maskedLimitTo, matchRule);
 				break;
 		}
 		if (searchPattern != null)

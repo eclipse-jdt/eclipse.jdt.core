@@ -94,9 +94,6 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return IMPOSSIBLE_MATCH;
 		}
 	}
-	
-	// Verify return type
-	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return IMPOSSIBLE_MATCH;
 
 	// Verify type arguments (do not reject if pattern has no argument as it can be an erasure match)
 	if (this.pattern.hasMethodArguments()) {

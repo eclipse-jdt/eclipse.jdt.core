@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -37,7 +38,7 @@ protected static char[][] CATEGORIES = { TYPE_DECL };
  * Create index key for type declaration pattern:
  *		key = typeName / packageName / enclosingTypeName / typeSuffix modifiers
  */
-public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, char typeSuffix) {
+public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames) { //, char typeSuffix) {
 	int typeNameLength = typeName == null ? 0 : typeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
 	int enclosingNamesLength = 0;
@@ -49,7 +50,7 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 
-	char[] result = new char[typeNameLength + packageLength + enclosingNamesLength + 5];
+	char[] result = new char[typeNameLength + packageLength + enclosingNamesLength + 4];
 	int pos = 0;
 	if (typeNameLength > 0) {
 		System.arraycopy(typeName, 0, result, pos, typeNameLength);
@@ -72,7 +73,6 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 	result[pos++] = SEPARATOR;
-	result[pos++] = typeSuffix;
 	result[pos] = (char) modifiers;
 	return result;
 }
@@ -104,10 +104,10 @@ TypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
 }
 /*
- * Type entries are encoded as simpleTypeName / packageName / enclosingTypeName / 'C' or 'I'
- * e.g. Object/java.lang//C
- * e.g. Cloneable/java.lang//I
- * e.g. LazyValue/javax.swing/UIDefaults/C
+ * Type entries are encoded as simpleTypeName / packageName / enclosingTypeName / modifiers
+ * e.g. Object/java.lang//0
+ * e.g. Cloneable/java.lang//512
+ * e.g. LazyValue/javax.swing/UIDefaults/0
  */
 public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
@@ -125,8 +125,24 @@ public void decodeIndexKey(char[] key) {
 		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
 	}
 
-	this.typeSuffix = key[key.length - 2];
 	this.modifiers = key[key.length - 1]; // implicit cast to int type
+	// Extract suffix from modifiers instead of index key
+	int kind = this.modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+	switch (kind) {
+		case IConstants.AccAnnotation:
+		case IConstants.AccAnnotation+IConstants.AccInterface:
+			this.typeSuffix = ANNOTATION_TYPE_SUFFIX;
+			break;
+		case IConstants.AccEnum:
+			this.typeSuffix = ENUM_SUFFIX;
+			break;
+		case IConstants.AccInterface:
+			this.typeSuffix = INTERFACE_SUFFIX;
+			break;
+		default:
+			this.typeSuffix = CLASS_SUFFIX;
+			break;
+	}
 }
 public SearchPattern getBlankPattern() {
 	return new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);

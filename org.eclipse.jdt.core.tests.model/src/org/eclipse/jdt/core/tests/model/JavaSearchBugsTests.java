@@ -50,7 +50,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug73112";
+//		TESTS_PREFIX =  "testBug80264";
 //		TESTS_NAMES = new String[] { "testBug83304" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -926,6 +926,220 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, DECLARATIONS);
 		assertSearchResults(
 			"src/b80223/a/A.java void b80223.a.A.m() [m] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 80264: [search] Search for method declarations in workspace, disregarding declaring type
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264"
+	 * 
+	 * Following tests also verify
+	 * Bug 87778: [search] doesn't find all declarations of method with covariant return type
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778"
+	 */
+	// Methods
+	public void testBug80264_Methods() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Methods.java",
+			"package b80264;\n" + 
+			"class Methods {\n" + 
+			"    Methods stable() { return null; }\n" + 
+			"    Methods covariant() { return null; }\n" + 
+			"}\n" + 
+			"class MethodsSub extends Methods {\n" + 
+			"    Methods stable() { return null; }\n" + 
+			"    MethodsSub covariant() { return null; }\n" + 
+			"}\n" + 
+			"class MethodsOther {\n" + 
+			"    Methods stable() { return null; }\n" + 
+			"    Methods covariant() { return null; }\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Methods");
+		IMethod[] methods = type.getMethods();
+		search(methods[0], DECLARATIONS);
+		search(methods[1], DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_MethodsIgnoreDeclaringType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Methods");
+		IMethod[] methods = type.getMethods();
+		search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
+		search(methods[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsOther.covariant() [covariant] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_MethodsIgnoreReturnType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Methods");
+		IMethod[] methods = type.getMethods();
+		search(methods[0], DECLARATIONS|IGNORE_RETURN_TYPE);
+		search(methods[1], DECLARATIONS|IGNORE_RETURN_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Methods");
+		IMethod[] methods = type.getMethods();
+		search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		search(methods[1], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH\n" + 
+			"src/b80264/Methods.java Methods b80264.MethodsOther.covariant() [covariant] EXACT_MATCH"
+		);
+	}
+	// Classes
+	public void testBug80264_Classes() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Classes.java",
+			"package b80264;\n" + 
+			"class Classes {\n" + 
+			"    class Inner {}\n" + 
+			"}\n" + 
+			"class ClassesSub extends Classes {\n" + 
+			"    class Inner {}\n" + 
+			"}\n" + 
+			"class ClassesOther {\n" + 
+			"    class Inner {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Classes").getType("Inner");
+		search(type, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_ClassesIgnoreDeclaringType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Classes").getType("Inner");
+		search(type, DECLARATIONS|IGNORE_DECLARING_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" + 
+			"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" + 
+			"src/b80264/Classes.java b80264.ClassesOther$Inner [Inner] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_ClassesIgnoreReturnType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Classes").getType("Inner");
+		search(type, DECLARATIONS|IGNORE_RETURN_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Classes").getType("Inner");
+		search(type, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" + 
+			"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" + 
+			"src/b80264/Classes.java b80264.ClassesOther$Inner [Inner] EXACT_MATCH"
+		);
+	}
+	// Fields
+	public void testBug80264_Fields() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Fields.java",
+			"package b80264;\n" + 
+			"class Fields {\n" + 
+			"    Fields field1;\n" + 
+			"    Fields field2;\n" + 
+			"}\n" + 
+			"class FieldsSub extends Fields {\n" + 
+			"    Fields field1;\n" + 
+			"    FieldsSub field2;\n" + 
+			"}\n" + 
+			"class FieldsOther {\n" + 
+			"    Fields field1;\n" + 
+			"    Fields field2;\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Fields");
+		IField[] fields = type.getFields();
+		search(fields[0], DECLARATIONS);
+		search(fields[1], DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_FieldsIgnoreDeclaringType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Fields");
+		IField[] fields = type.getFields();
+		search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
+		search(fields[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsOther.field2 [field2] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_FieldsIgnoreReturnType() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Fields");
+		IField[] fields = type.getFields();
+		search(fields[0], DECLARATIONS|IGNORE_RETURN_TYPE);
+		search(fields[1], DECLARATIONS|IGNORE_RETURN_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
+		);
+	}
+	public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModelException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("Fields");
+		IField[] fields = type.getFields();
+		search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		search(fields[1], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsSub.field2 [field2] EXACT_MATCH\n" + 
+			"src/b80264/Fields.java b80264.FieldsOther.field2 [field2] EXACT_MATCH"
 		);
 	}
 

@@ -47,11 +47,37 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Add new flags on nature of match to specify that declaring or return type should be ignored during the search
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264">80264</a>).<br>
+These flags are defined on <code>IJavaSearchConstants</code> interface:
+<pre>
+/**
+ * Ignore declaring type while searching result.
+ * Can be used in conjunction with any of the nature of match.
+ * @since 3.1
+ */
+int IGNORE_DECLARING_TYPE = 0x10;
+/**
+ * Ignore return type while searching result.
+ * Can be used in conjunction with any of the nature of match.
+ * Note that:
+ * 	- for fields search, pattern will ignore field type
+ * 	- this flag will have no effect for types search
+ * @since 3.1
+ */
+int IGNORE_RETURN_TYPE = 0x20;
+</pre>
+Note that these flags are active only for search of declarations (ie. <code>IJavaSearchConstants.DECLARATIONS</code> and <code>IJavaSearchConstants.ALL_OCCURRENCES</code>)
+and while searching for IJavaElement (see doc of <code>SearchPattern.createPattern(IJavaElement, int)</code> API method).
+</li>
 <li>Modify API for type name requestor. Abstract class <code>TypeNameRequestor</code> replaces interface <code>ITypeNameRequestor</code> which is deprecated.<br>
 There's now only a single method for type name requestor while accepting a type:
 <pre>
 /**
  * Accepts a top-level or a member type.
+ *
+ * The default implementation of this method does nothing.
+ * Subclasses should override.
  *
  * @param modifiers the modifier flags of the type. Note that for source type,
  *	these flags may slightly differ from thoses get after resolution.
@@ -91,7 +117,9 @@ nodes depending on the form of the given name string.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85924">85924</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264">80264</a>
+[search] Search for method declarations in workspace, disregarding declaring type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85924">85924</a>
 [1.5][compiler[ code generation error in M5 w/regard to generics
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87849">87849</a>
 [AST] SimpleName.setIdentifier() not detecting bogus identifiers

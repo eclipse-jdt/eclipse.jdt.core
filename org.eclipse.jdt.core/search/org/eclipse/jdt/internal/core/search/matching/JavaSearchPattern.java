@@ -67,7 +67,6 @@ public class JavaSearchPattern extends SearchPattern {
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
 		int rule = getMatchRule();
 		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
-//		this.isErasureMatch = (rule & R_ERASURE_MATCH) != 0;
 		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
 		this.matchMode = rule & MATCH_MODE_MASK;
 	}

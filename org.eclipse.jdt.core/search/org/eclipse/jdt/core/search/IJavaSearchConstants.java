@@ -81,7 +81,7 @@ public interface IJavaSearchConstants {
 	int ANNOTATION_TYPE= 8;
 
 	/* Nature of match */
-	
+
 	/**
 	 * The search result is a declaration.
 	 * Can be used in conjunction with any of the nature of searched elements
@@ -132,6 +132,25 @@ public interface IJavaSearchConstants {
 	 * @since 2.0
 	 */
 	int WRITE_ACCESSES = 5;
+
+	/**
+	 * Ignore declaring type while searching result.
+	 * Can be used in conjunction with any of the nature of match.
+	 * @since 3.1
+	 */
+	int IGNORE_DECLARING_TYPE = 0x10;
+
+	/**
+	 * Ignore return type while searching result.
+	 * Can be used in conjunction with any of the nature of match.
+	 * Note that:
+	 * <ul>
+	 * 	<li>for fields search, pattern will ignore field type</li>
+	 * 	<li>this flag will have no effect for types search</li>
+	 *	</ul>
+	 * @since 3.1
+	 */
+	int IGNORE_RETURN_TYPE = 0x20;
 	
 	/* Syntactic match modes */
 	
