@@ -436,7 +436,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			// incomplete initialization. We cannot go further.
 			return buffer.toString();
 		}
-		decodeModifiersForType(buffer, classFileReader.getAccessFlags());
+		
+		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
+		
+		if (innerClassesAttribute != null) {
+			// search the right entry
+			IInnerClassesAttributeEntry[] entries = innerClassesAttribute.getInnerClassAttributesEntries();
+			for (int i = 0, max = entries.length; i < max ; i++) {
+				IInnerClassesAttributeEntry entry = entries[i];
+				char[] innerClassName = entry.getInnerClassName();
+				if (innerClassName != null) {
+					if (CharOperation.equals(classFileReader.getClassName(), innerClassName)) {
+						decodeModifiersForInnerClasses(buffer, entry.getAccessFlags());
+					}
+				}
+			}
+		} else {
+			decodeModifiersForType(buffer, classFileReader.getAccessFlags());
+		}
 		if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
 		} else {
@@ -470,7 +487,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
-			IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
@@ -505,8 +521,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
 			innerNameIndex = innerClassesAttributeEntry.getInnerNameIndex();
 			accessFlags = innerClassesAttributeEntry.getAccessFlags();
+			buffer.append(Util.bind("disassembler.openinnerclassentry")); //$NON-NLS-1$
+			writeNewLine(buffer, lineSeparator, tabNumber);
+			dumpTab(tabNumber + 1, buffer);
 			buffer
-				.append(Util.bind("disassembler.openinnerclassentry")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.inner_class_info_name")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(innerClassNameIndex);
@@ -515,7 +533,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 					.append(innerClassesAttributeEntry.getInnerClassName());
 			}
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			dumpTab(tabNumber + 1, buffer);
 			buffer
 				.append(Util.bind("disassembler.outer_class_info_name")) //$NON-NLS-1$
@@ -526,7 +544,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 					.append(innerClassesAttributeEntry.getOuterClassName());
 			}
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			dumpTab(tabNumber + 1, buffer);
 			buffer
 				.append(Util.bind("disassembler.inner_name")) //$NON-NLS-1$
@@ -537,7 +555,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 					.append(innerClassesAttributeEntry.getInnerName());
 			}
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			dumpTab(tabNumber + 1, buffer);
 			buffer
 				.append(Util.bind("disassembler.inner_accessflags")) //$NON-NLS-1$
@@ -555,8 +573,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
 		innerNameIndex = innerClassesAttributeEntry.getInnerNameIndex();
 		accessFlags = innerClassesAttributeEntry.getAccessFlags();
+		buffer.append(Util.bind("disassembler.openinnerclassentry")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		dumpTab(tabNumber + 1, buffer);
 		buffer
-			.append(Util.bind("disassembler.openinnerclassentry")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.inner_class_info_name")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(innerClassNameIndex);
@@ -565,7 +585,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(innerClassesAttributeEntry.getInnerClassName());
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		dumpTab(tabNumber + 1, buffer);
 		buffer
 			.append(Util.bind("disassembler.outer_class_info_name")) //$NON-NLS-1$
@@ -576,7 +596,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(innerClassesAttributeEntry.getOuterClassName());
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		dumpTab(tabNumber + 1, buffer);
 		buffer
 			.append(Util.bind("disassembler.inner_name")) //$NON-NLS-1$
@@ -587,7 +607,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(innerClassesAttributeEntry.getInnerName());
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		dumpTab(tabNumber + 1, buffer);
 		buffer
 			.append(Util.bind("disassembler.inner_accessflags")) //$NON-NLS-1$
