@@ -141,10 +141,35 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			attributes.put(ATT_HANDLE_ID, element.getHandleIdentifier());
 	}
 	
-	/** TOFIX
+	/**
+	 * Notification of a classpath container change. This notification must be performed
+	 * by client code which did register some classpath container resolvers, whenever 
+	 * changes in container need to be reflected onto the JavaModel.
+	 * <p>
+	 * In reaction to this notification, the JavaModel will be updated to reflect the new
+	 * state of the updated container. Note that the update can be scoped to either
+	 * a given project or the entire Java model according to the changeScope argument.
+	 * This is symetric to container resolution which enables project specific resolution.
+	 * <p>
+	 * This functionality cannot be used while the resource tree is locked.
+	 * <p>
+	 * Classpath container states are persisted locally to the workspace, and 
+	 * are preserved from session to session.
+	 * <p>
+	 * When notifying a container change, the corresponding container resolver should
+	 * in turn expect to be activated so as to resolve the updated container path.
 	 * 
+	 * @param containerPath - the name of the container which is being updated
+	 * @param changeScope - the scope of the change, either a specific project (IJavaProject)
+	 *     or the entire JavaModel (IJavaModel).
+	 * @param monitor a monitor to report progress
+	 * 
+	 * @see #getResolvedClasspathContainer(IPath, IJavaProject)
+	 * @since 2.0
 	 */
-	public void classpathContainerChanged(IPath containerPath, IJavaProject project){
+	public void classpathContainerChanged(IPath containerPath, IJavaElement changeScope, IProgressMonitor monitor){
+
+		//TOFIX
 	}
 	
 	/**
@@ -424,6 +449,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * A classpath container cannot reference further classpath containers.
 	 * <p>
+	 * @param containerPath - the name of the container which needs to be resolved
+	 * @param changeScope - a specific project (IJavaProject) in which the container is being resolved
+	 * 
+	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
+	 *   contains illegal entries (further container entries or null entries).	 
+	 * 
 	 * @since 2.0
 	 */
 	public static IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
@@ -440,6 +471,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
 			if (resolver != null){
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				boolean ok = false;
 				try {
 					entries = resolver.resolve(containerPath, project);
 					
@@ -448,7 +480,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						for (int i = 0; i < entries.length; i++){
 							IClasspathEntry entry = entries[i];
 							if (entry == null || entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
-								JavaModelManager.Containers.put(project, null); // flush cache
 								throw new JavaModelException(
 									new JavaModelStatus(
 										IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
@@ -456,10 +487,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							}
 						}
 					}
-
+					ok = true;
 				} catch(CoreException e){
-					JavaModelManager.Containers.put(project, null); // flush cache
 					throw new JavaModelException(e);
+				} finally {
+					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
 				}
 				if (entries != null){
 					projectContainers.put(containerPath, entries);
