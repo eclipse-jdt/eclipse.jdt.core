@@ -856,27 +856,6 @@ public class CodeFormatter implements TerminalSymbols {
 	}
 
 	/** 
-	 * Formats a given source string, starting indenting it at depth 0
-	 * using default options.
-	 */
-	public static String format(String sourceString) {
-		return format(sourceString, 0, null);
-	}
-
-	/** 
-	 * Formats a given source string, starting indenting it at a particular 
-	 * depth and using the given options
-	 */
-	public static String format(
-		String sourceString,
-		int initialIndentationLevel,
-		Map options) {
-		CodeFormatter formatter = new CodeFormatter(options);
-		formatter.setInitialIndentationLevel(initialIndentationLevel);
-		return formatter.formatSourceString(sourceString);
-	}
-
-	/** 
 	 * Formats the char array <code>sourceString</code>,
 	 * and returns a string containing the formatted version.
 	 * @return the formatted ouput.
@@ -889,6 +868,50 @@ public class CodeFormatter implements TerminalSymbols {
 		return formattedSource.toString();
 	}
 
+	/** 
+	 * Formats the char array <code>sourceString</code>,
+	 * and returns a string containing the formatted version.
+	 * @param string the string to format
+	 * @param indentationLevel the initial indentation level
+	 * @return the formatted ouput.
+	 */
+	public String format(String string, int indentationLevel) {
+		return format(string, indentationLevel, null);
+	}	
+	
+	/** 
+	 * Formats the char array <code>sourceString</code>,
+	 * and returns a string containing the formatted version.
+	 * The positions array is modified to contain the mapped positions.
+	 * @param string the string to format
+	 * @param indentationLevel the initial indentation level
+	 * @param positions the array of positions to map
+	 * @return the formatted ouput.
+	 */
+	public String format(String string, int indentationLevel, int[] positions) {
+		// XXX temporary inefficient implementation to meet API
+		if (positions != null) {
+			this.setPositionsToMap(positions);
+			this.setInitialIndentationLevel(indentationLevel);
+			String formattedString = this.formatSourceString(string);
+			int[] mappedPositions = this.getMappedPositions();
+			System.arraycopy(mappedPositions, 0, positions, 0, positions.length);
+			return formattedString;
+		} else {
+			this.setInitialIndentationLevel(indentationLevel);
+			return this.formatSourceString(string);
+		}
+	}	
+	/** 
+	 * Formats the char array <code>sourceString</code>,
+	 * and returns a string containing the formatted version. The initial indentation level is 0.
+	 * @param string the string to format
+	 * @return the formatted ouput.
+	 */
+	public String format(String string) {
+		return this.format(string, 0, null);
+	}
+	
 	/**
 	 * Returns the number of characters and tab char between the beginning of the line
 	 * and the beginning of the comment.
@@ -935,6 +958,7 @@ public class CodeFormatter implements TerminalSymbols {
 	 * Returns the array of mapped positions.
 	 * Returns null is no positions have been set.
 	 * @return int[]
+	 * @deprecated There is no need to retrieve the mapped positions anymore.
 	 */
 	public int[] getMappedPositions() {
 		return mappedPositions;
@@ -1289,14 +1313,13 @@ public class CodeFormatter implements TerminalSymbols {
 				boolean pendingCarriageReturn = false;
 				for (int i = startPosition, max = scanner.currentPosition; i < max; i++) {
 					char currentCharacter = source[i];
+					updateMappedPositions(i);
 					switch (currentCharacter) {
 						case '\r' :
-							updateMappedPositions(i);
 							pendingCarriageReturn = true;
 							endOfLine = true;
 							break;
 						case '\n' :
-							updateMappedPositions(i);
 							if (pendingCarriageReturn) {
 								increaseGlobalDelta(options.lineSeparatorSequence.length - 2);
 							} else {
@@ -1365,14 +1388,14 @@ public class CodeFormatter implements TerminalSymbols {
 				multipleLineCommentCounter++;
 				break;
 			default :
-				currentLineBuffer.append(
-					source,
-					startPosition,
-					scanner.currentPosition - startPosition);
-				updateMappedPositions(startPosition);
+				for (int i = startPosition, max = scanner.currentPosition; i < max; i++) {
+					char currentCharacter = source[i];
+					updateMappedPositions(i);
+					currentLineBuffer.append(currentCharacter);
+				}
 		}
 	}
-
+	
 	/**
 	 * Outputs <code>currentString</code>:<br>
 	 * <ul><li>If its length is < maxLineLength, output
@@ -1438,7 +1461,6 @@ public class CodeFormatter implements TerminalSymbols {
 					dumpTab(depth);
 				}
 			}
-			int numberOfSpaces = 0;
 			int max = currentString.length();
 			if (multipleLineCommentCounter != 0) {
 				try {
@@ -1464,10 +1486,6 @@ public class CodeFormatter implements TerminalSymbols {
 				updateMappedPositionsWhileSplitting(
 					beginningOfLineIndex,
 					beginningOfLineIndex + max);
-				int currentMultipleLineNumber = 0;
-				int previousMultipleLineNumber = -1;
-				int currentPositionInCurrentLineBuffer = 0;
-				int numberOfLineBreaksInCurrentMultipleLineComment = 0;
 				for (int i = 0; i < max; i++) {
 					char currentChar = currentString.charAt(i);
 					switch (currentChar) {
@@ -1541,7 +1559,6 @@ public class CodeFormatter implements TerminalSymbols {
 		// perform actual splitting
 		String result[] = splitLine.substrings;
 		int[] splitOperators = splitLine.operators;
-		int[] splitLineStartIndexes = splitLine.startSubstringsIndexes;
 
 		if (result[0].length() == 0) {
 			// when the substring 0 is null, the substring 1 is correctly indented.
@@ -1795,6 +1812,7 @@ public class CodeFormatter implements TerminalSymbols {
 	 * getMappedPositions() method.
 	 * @see getMappedPositions()
 	 * @param positions int[]
+	 * @deprecated Set the positions to map using the format(String, int, int[]) method.
 	 */
 	public void setPositionsToMap(int[] positions) {
 		positionsToMap = positions;
@@ -1802,7 +1820,7 @@ public class CodeFormatter implements TerminalSymbols {
 		globalDelta = 0;
 		mappedPositions = new int[positions.length];
 	}
-	
+		
 	/** 
 	 * Appends a space character to the current line buffer.
 	 */
