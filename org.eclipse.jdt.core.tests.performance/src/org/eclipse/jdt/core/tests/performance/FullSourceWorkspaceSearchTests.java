@@ -160,6 +160,20 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 	
 	protected JavaSearchResultCollector resultCollector;
+	
+	/*
+	 * To avoid creating a synthetic accessor to the super implementation
+	 */
+	protected void assertPerformance() {
+		super.assertPerformance();
+	}
+	
+	/*
+	 * To avoid creating a synthetic accessor to the super implementation
+	 */
+	protected void commitMeasurements() {
+		super.commitMeasurements();
+	}
 
 	protected void search(String patternString, int searchFor, int limitTo, SearchRequestor requestor) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
