@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -95,7 +96,8 @@ void buildTypeBindings() {
 			return;
 		}
 	}
-	char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
+	ICompilationUnit unit = referenceContext.compilationResult.compilationUnit;
+	char[][] expectedPackageName = unit == null ? null : unit.getPackageName();
 	if (expectedPackageName != null && !CharOperation.equals(currentPackageName, expectedPackageName)) {
 		problemReporter().packageIsNotExpectedPackage(referenceContext);
 		fPackage = expectedPackageName.length == 0
