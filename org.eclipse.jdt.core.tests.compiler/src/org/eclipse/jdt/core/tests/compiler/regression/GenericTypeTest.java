@@ -1617,7 +1617,7 @@ public void test057() {
 	/*
 	 * Tests of syntax for Parameterized Type Declarations and References.
 	 */
-	public void test0001() {
+	public void test058() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -1632,7 +1632,7 @@ public void test057() {
 			}
 		);
 	}
-	public void test0002() {
+	public void test059() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1653,7 +1653,7 @@ public void test057() {
 				"----------\n"
 		);
 	}
-	public void test0003() {
+	public void test060() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1674,7 +1674,7 @@ public void test057() {
 				"----------\n"
 		);
 	}
-	public void test0004() {
+	public void test061() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1725,7 +1725,7 @@ public void test057() {
 				"----------\n"
 		);
 	}
-	public void _test0005() {
+	public void _test062() {
 		// TODO (philippe) see if array may be allowed for type parameters
 		this.runConformTest(
 			new String[] {
