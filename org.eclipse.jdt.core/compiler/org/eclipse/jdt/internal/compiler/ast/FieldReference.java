@@ -526,7 +526,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				this,
 				scope,
 				0);
-		if (!receiver.isThis())
+		if (receiver != ThisReference.ThisImplicit)
 			constant = NotAConstant;
 
 		return binding.type;
