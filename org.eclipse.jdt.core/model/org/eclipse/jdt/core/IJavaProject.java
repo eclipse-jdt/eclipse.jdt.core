@@ -51,6 +51,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <code>IJavaElement</code> is found. The result is one of an
 	 * <code>ICompilationUnit</code>, <code>IClassFile</code>, or
 	 * <code>IPackageFragment</code>. 
+	 * <p>
+	 * When looking for a package fragment, there might be several potential
+	 * matches; only one of them is returned.
 	 *
 	 * <p>For example, the path "java/lang/Object.java", would result in the
 	 * <code>ICompilationUnit</code> or <code>IClassFile</code> corresponding to
