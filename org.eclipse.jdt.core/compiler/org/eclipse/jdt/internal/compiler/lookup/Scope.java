@@ -1641,7 +1641,6 @@ public abstract class Scope
 							break;
 						case CLASS_SCOPE :
 							SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
 							if (sourceType.isHierarchyBeingConnected()) {
 								// type variables take precedence over the source type, ex. class X <X> extends X == class X <Y> extends Y 
 								TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
@@ -1658,10 +1657,11 @@ public abstract class Scope
 								if (resolvingHierarchy)
 									// class X <T> { class MX extends T {}}
 									return new ProblemReferenceBinding(name, IllegalSuperTypeVariable); // cannot bind to a type variable
-								if (insideStaticContext)
+								if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
 									return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
 								return typeVariable;
 							}
+							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
 							ReferenceBinding memberType = findMemberType(name, sourceType);
 							if (memberType != null) { // skip it if we did not find anything

@@ -5679,6 +5679,30 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n", 			
 			},
 			"");
-	}		
-	
+	}
+	// 63555 - reference to static type parameter allowed inside type itself
+	public void test205() {
+		this.runConformTest(
+			new String[] {
+				"Alpha.java",
+				"public class Alpha {\n" + 
+				"	static class Beta<T> {\n" + 
+				"		T obj;\n" + 
+				"	}\n" + 
+				"}\n", 			
+			},
+			"");
+	}
+	// 63555 - variation on static method type parameter
+	public void test206() {
+		this.runConformTest(
+			new String[] {
+				"Alpha.java",
+				"public class Alpha {\n" + 
+				"	static <T> void Beta(T t) {\n" + 
+				"	}\n" + 
+				"}\n", 			
+			},
+			"");
+	}			
 }
