@@ -118,12 +118,19 @@ STREAM: 2.0
           char[] completionName,
           int completionStart,
           int completionEnd);
-          
+
+  * Helper method for computing a resolved and expanded path (all exports from 
+    prerequisites) which was introduced in 204, got removed. This is not an API 
+    change, it never made it out officially.
+    - IJavaProject.getExpandedClasspath(boolean)
+                  
   * SearchEngine.createJavaSearchScope(IResource[]) has been deprecated.
   	Use SearchEngine.createJavaSearchScope(IJavaElement[]) instead.
   	The rational is that createJavaSearchScope(IResource[]) was not well
   	defined for projects, and it could not define a search scope for java
   	elements that didn't have a corresponding resource (e.g. external jars).
+  	This deprecated API's behavior has also reverted to the 1.0 state for
+  	backward compatibility.
   	
   	The specification of createJavaSearchScope(IJavaElement[]) is as follows:
 	- If an element is an IJavaProject, then the project's source folders, 
