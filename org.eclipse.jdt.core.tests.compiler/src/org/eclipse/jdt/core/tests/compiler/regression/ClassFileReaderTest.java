@@ -156,4 +156,40 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			removeTempClass("A002");
 		}
 	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26098
+	 */
+	public void test003() {
+		try {
+			String sourceA003 =
+				"public class A003 {\n" +
+				"\n" +
+				"	public int bar() {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	\n" +
+				"	public void foo() {\n" +
+				"		System.out.println(bar());\n" +
+				"	}\n" +
+				"}";			compileAndDeploy(sourceA003, "A003");
+			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A003.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
+			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			assertEquals("wrong size", 3, methodInfos.length);
+			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[2];
+			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
+			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			assertNotNull("No code attribute", codeAttribute);
+			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			assertNotNull("No code line number attribute", lineNumberAttribute);
+			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
+			assertEquals("wrong size", 2, lineNumberTable.length);
+			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
+			assertEquals("wrong line[0]", 8, lineNumberTable[0][1]);
+			assertEquals("wrong pc[1]", 10, lineNumberTable[1][0]);
+			assertEquals("wrong line[1]", 9, lineNumberTable[1][1]);
+		} finally {
+			removeTempClass("A003");
+		}
+	}
 }
