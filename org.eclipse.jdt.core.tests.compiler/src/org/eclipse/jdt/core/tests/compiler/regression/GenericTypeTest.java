@@ -12237,5 +12237,42 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X<M> extends AbstractTest<M> {}\n",
 			},
 			"");
-	}			
+	}
+	
+	public void test457() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				" void add(List<? super X> l) { \n" + 
+				" 	l.add(new X()); \n" + 
+				" }\n" + 
+				" void add2(List<? extends X> l) { \n" + 
+				" 	l.add(new X()); \n" + 
+				" }\n" + 
+				" \n" + 
+				" static <T> void add3(List<T> l, List<T> l2) { \n" + 
+				" }\n" + 
+				" public static void main(String[] args) {\n" + 
+				"	List<X> lx = null;\n" + 
+				"	List<String> ls = null;\n" + 
+				"	add3(lx, ls);\n" + 
+				" } \n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	l.add(new X()); \n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The method add(? extends X) of type List<? extends X> is not applicable for the arguments (X). The wildcard parameter ? extends X has no lower bound, and may actually be more restrictive than argument X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	add3(lx, ls);\n" + 
+			"	^^^^\n" + 
+			"The method add3(List<T>, List<T>) in the type X is not applicable for the arguments (List<X>, List<String>)\n" + 
+			"----------\n");
+	}		
 }
