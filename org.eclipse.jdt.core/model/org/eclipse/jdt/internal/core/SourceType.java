@@ -41,7 +41,7 @@ public class SourceType extends Member implements IType {
 	protected static final String[] fgEmptyList= new String[] {};
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1);
+	Assert.isTrue(name.indexOf('.') == -1, Util.bind("sourcetype.invalidName", name));
 }
 /**
  * @see IType
