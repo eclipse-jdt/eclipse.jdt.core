@@ -288,13 +288,6 @@ public class JavaProject
 			}
 		}
 		
-		// forget cached classpath
-		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfo(fProject, false /*no need to create*/);
-		if (perProjectInfo != null) {
-			perProjectInfo.classpath = null;
-			perProjectInfo.lastResolvedClasspath = null;
-		}
-		
 		super.closing(info);
 	}
 	

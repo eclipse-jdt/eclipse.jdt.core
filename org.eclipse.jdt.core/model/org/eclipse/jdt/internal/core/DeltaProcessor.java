@@ -97,6 +97,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 	public HashSet projectsForDependentNamelookupRefresh = new HashSet();  
 	
 	JavaModelManager manager;
+	
+	/* A table from IJavaProject to an array of IPackageFragmentRoot.
+	 * This table contains the pkg fragment roots of the project that are being deleted.	 */
+	Map removedRoots;
 
 	static final IJavaElementDelta[] NO_DELTA = new IJavaElementDelta[0];
 
@@ -606,6 +610,22 @@ public class DeltaProcessor implements IResourceChangeListener {
 			this.indexManager.discardJobs(project.getName());
 
 			JavaProject javaProject = (JavaProject)JavaCore.create(project);
+			
+			// remember roots of this project
+			if (this.removedRoots == null) {
+				this.removedRoots = new HashMap();
+			}
+			if (javaProject.isOpen()) {
+				this.removedRoots.put(javaProject, javaProject.getPackageFragmentRoots());
+			} else {
+				// compute roots without opening project
+				this.removedRoots.put(
+					javaProject, 
+					javaProject.computePackageFragmentRoots(
+						javaProject.getResolvedClasspath(true), 
+						false));
+			}
+			
 			javaProject.close();
 
 			// workaround for bug 15168 circular errors not reported  
@@ -1045,7 +1065,7 @@ private JavaModelException newInvalidElementType() {
 					// if a package fragment root is the project, clear it too
 					PackageFragmentRoot projectRoot =
 						(PackageFragmentRoot) ((JavaProject) element).getPackageFragmentRoot(
-							new Path(IPackageFragment.DEFAULT_PACKAGE_NAME));
+							element.getPath());
 					if (projectRoot.isOpen()) {
 						((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
 							null);
@@ -1447,6 +1467,7 @@ private JavaModelException newInvalidElementType() {
 						// workaround for bug 15168 circular errors not reported 
 						this.manager.javaProjectsCache = null;
 						JavaModelManager.resourceTreeIsUnlocked();
+						this.removedRoots = null;
 					}
 			}
 		}

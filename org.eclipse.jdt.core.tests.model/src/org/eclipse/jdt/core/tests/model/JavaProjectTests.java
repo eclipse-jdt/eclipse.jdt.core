@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.Util;
 
 import java.io.IOException;
 
@@ -32,7 +33,32 @@ public class JavaProjectTests extends AbstractJavaModelTests {
 public JavaProjectTests(String name) {
 	super(name);
 }
+protected void assertResources(String message, String expected, IResource[] resources) {
+	// sort in alphabetical order
+	Util.Comparer comparer = new Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IResource resourceA = (IResource)a;
+			IResource resourceB = (IResource)b;
+			return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());
+		}
+	};
+	Util.sort(resources, comparer);
+	
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = resources.length; i < length; i++) {
+		buffer.append(((IResource)resources[i]).getFullPath());
+		if (i != length-1) {
+			buffer.append("\n");
+		}
+	}
 
+	String actual = buffer.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(displayString(buffer.toString(), 2));
+	}
+	
+	assertEquals(message, expected, actual);
+}
 public static Test suite() {
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
 	suite.addTest(new JavaProjectTests("testProjectGetChildren"));
@@ -101,9 +127,13 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 			null);
 		
 		// ensure the new resource is present
-		root.getParent().getUnderlyingResource().refreshLocal(1, null);
 		resources = root.getNonJavaResources();
-		assertEquals("incorrect number of non java resources", 2, resources.length);
+		assertResources(
+			"incorrect non java resources", 
+			"/JavaProjectTests/.classpath\n" +
+			"/JavaProjectTests/.project\n" +
+			"/JavaProjectTests/TestNonJavaResource.abc",
+			(IResource[])resources);
 	} finally {
 		// clean up
 		resource.getWorkspace().getRoot().getFile(newPath).delete(true, null);

@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -399,6 +400,7 @@ public class Tests extends TestCase {
 	 */
 	protected void tearDown() throws Exception {
 		env.resetWorkspace();
+		JavaCore.setOptions(JavaCore.getDefaultOptions());
 	}
 
 	

@@ -90,6 +90,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testAddJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveAddJavaProject"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveAddBinaryProject"));
 	suite.addTest(new JavaElementDeltaTests("testAddJavaNature"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveJavaNature"));
 	suite.addTest(new JavaElementDeltaTests("testOpenJavaProject"));
@@ -1058,7 +1059,44 @@ public void testRemoveJavaNature() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-
+/*
+ * Remove then add a binary project (in a workspace runnable).
+ * (regression test for 24775 Wrong delta when replacing binary project with source project)
+ */
+public void testRemoveAddBinaryProject() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		this.createFile("P/lib.jar", "");
+		project.setRawClasspath(
+			new IClasspathEntry[] {
+				JavaCore.newLibraryEntry(new Path("/P/lib.jar"), null, null)
+			},
+			null
+		);
+		
+		this.startDeltas();
+		getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteProject("P");
+					createJavaProject("P", new String[] {""}, "");
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/.project)[*]\n" + 
+			"	ResourceDelta(/P/lib.jar)[-]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
 /*
  * Remove then add a java project (in a workspace runnable).
  */

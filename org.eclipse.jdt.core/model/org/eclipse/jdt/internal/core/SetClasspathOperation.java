@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -251,6 +252,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 		boolean oldResolvedPathLongest = oldLength >= newLength;
 			
 		final IndexManager indexManager = manager.getIndexManager();
+		Map allRemovedRoots = manager.deltaProcessor.removedRoots;
+		Map removedRoots = null;
+		if (allRemovedRoots != null) {
+			removedRoots = new HashMap();
+			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) allRemovedRoots.get(project);
+			for (int i = 0; i < roots.length; i++) {
+				IPackageFragmentRoot root = roots[i];
+				removedRoots.put(root.getPath(), root);
+			}
+		}
 		for (int i = 0; i < oldResolvedPath.length; i++) {
 			
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
@@ -262,8 +273,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 					continue; 
 				}
 
-				IPackageFragmentRoot[] pkgFragmentRoots =
-					project.getPackageFragmentRoots(oldResolvedPath[i]);
+				IPackageFragmentRoot[] pkgFragmentRoots = null;
+				if (removedRoots != null) {
+					pkgFragmentRoots = new IPackageFragmentRoot[] {(IPackageFragmentRoot) removedRoots.get(oldResolvedPath[i].getPath())};
+				}
+				if (pkgFragmentRoots == null) {
+					pkgFragmentRoots = project.getPackageFragmentRoots(oldResolvedPath[i]);
+				}
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 
 				int changeKind = oldResolvedPath[i].getEntryKind();
