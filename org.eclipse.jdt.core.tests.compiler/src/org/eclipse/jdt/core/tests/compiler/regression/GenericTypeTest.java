@@ -95,7 +95,7 @@ public void test003() {
 		"Cannot refer to the type variable X as a supertype\n" + 
 		"----------\n");
 }
-		
+
 // check cannot bind superinterface to type variable
 public void test004() {
 	this.runNegativeTest(
@@ -1178,6 +1178,35 @@ public void test049() {
 			"        }.run();\n" + 
 			"    }\n" + 
 			"}\n",
+		},
+		"SUCCESS");
+}
+public void test050() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Super {class M {}}\n" + 
+			"public class X <T extends M> extends Super {\n" +
+			"}\n", 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X <T extends M> extends Super {\n" + 
+		"	                          ^\n" + 
+		"M cannot be resolved to a type\n" + 
+		"----------\n");
+}
+public void test051() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Super {class M {}}\n" + 
+			"public class X extends Super {\n" + 
+			"	class N <T extends M> {}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS:\");\n" + 
+			"	}\n" + 
+			"}\n", 
 		},
 		"SUCCESS");
 }

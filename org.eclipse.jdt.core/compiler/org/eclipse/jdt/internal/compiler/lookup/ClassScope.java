@@ -782,7 +782,6 @@ public class ClassScope extends Scope {
 	}
 	
 	private boolean connectTypeVariables() {
-	    // TODO (kent) obsolete? connect type parameter bounds
 		boolean noProblems = true;
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
 		if (typeParameters == null) return true;
@@ -793,7 +792,6 @@ public class ClassScope extends Scope {
 
 			typeVariable.superclass = getJavaLangObject();
 			typeVariable.superInterfaces = NoSuperInterfaces;
-			//TODO (kent) obsolete? ignore parameter bounds for now
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
 
@@ -809,7 +807,6 @@ public class ClassScope extends Scope {
 			if (superType.isTypeVariable()) {
 				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
 				if (varSuperType.rank >= typeVariable.rank) {
-					// TODO (kent) obsolete ? replace with illegal forward reference
 					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
 					typeVariable.tagBits |= HierarchyHasProblems;
 					noProblems = false;
