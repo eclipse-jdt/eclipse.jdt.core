@@ -969,7 +969,7 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * 
 	 * @param listener the listener
-	 * @see #removePreResourceChangeListener(IResourceChangeListener)
+	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
 	 * @since 3.0
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
@@ -2153,12 +2153,15 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static String getEncoding() {
-		try {
-			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
-		} catch (Exception e) {
-			// fails silently and return plugin global encoding if core exception occurs or
-			// if workspace is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
-		} 
+		// Verify that workspace is not shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		if (workspace != null) {
+			try {
+				return workspace.getRoot().getDefaultCharset();
+			} catch (CoreException e) {
+				// fails silently and return plugin global encoding if core exception occurs
+			}
+		}
 		return ResourcesPlugin.getEncoding();
 	}
 
