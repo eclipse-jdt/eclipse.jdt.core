@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-
+//TODO: (jim) why do we have this class, isn't it a dup of org.eclipse.jdt.core.Flags ?
 package org.eclipse.jdt.core.dom;
 
 /**
