@@ -634,7 +634,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void updateAffectedProjects(IPath prerequisiteProjectPath) {
 
 		// remove all update classpath post actions for this project
-		removeAllPostAction(prerequisiteProjectPath.toString());
+		final String updateClasspath = "UpdateClassPath:"; //$NON-NLS-1$
+		removeAllPostAction(updateClasspath + prerequisiteProjectPath.toString());
 		
 		try {
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
@@ -656,7 +657,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								
 							postAction(new IPostAction() {
 									public String getID() {
-										return affectedProject.getPath().toString();
+										return updateClasspath + affectedProject.getPath().toString();
 									}
 									public void run() throws JavaModelException {
 										affectedProject.setRawClasspath(

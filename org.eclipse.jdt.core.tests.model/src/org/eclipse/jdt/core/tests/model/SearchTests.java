@@ -135,7 +135,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(SearchTests.class.getName());
-		suite.addTest(new SearchTests("testSearchPatternCreation33"));
+		suite.addTest(new SearchTests("testChangeClasspath2"));
 		return suite;
 	}
 	return new Suite(SearchTests.class);
@@ -260,6 +260,62 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 		job.runningSem.release();
 		deleteProject("P1");
 		indexManager.enable();
+	}
+}
+/*
+ * Ensure that removing a project source folder and adding another source folder removes the existing cus from the index
+ * (regression test for bug 73356 Index not updated after adding a source folder
+ */
+public void testChangeClasspath2() throws CoreException {
+	try {
+		final IJavaProject project = createJavaProject("P1", new String[] {""}, "bin");
+		createFile(
+			"/P1/X.java",
+			"public class X {}"
+		);
+		assertAllTypes(
+			"Unexpected types before changing the classpath",
+			null, // workspace search
+			"X\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" + 
+			"x.y.Foo\n" + 
+			"x.y.I"
+		);
+		getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				createFolder("/P1/src");
+				project.setRawClasspath(createClasspath(new String[] {"/P1/src"}, false, false), null);
+			}
+		}, null);
+		assertAllTypes(
+			"Unexpected types after changing the classpath",
+			null, // workspace search
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" + 
+			"x.y.Foo\n" + 
+			"x.y.I"
+		);
+	} finally {
+		deleteProject("P1");
 	}
 }
 /*
