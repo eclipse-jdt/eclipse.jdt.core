@@ -530,7 +530,7 @@ public class Scribe {
 							}
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (hasLineComment) {
-							this.preserveEmptyLines(2, this.scanner.getCurrentTokenStartPosition());
+							this.preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (this.formatter.preferences.preserve_user_linebreaks) {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
@@ -558,7 +558,8 @@ public class Scribe {
 						hasWhitespace = false;
 						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = true;					
+						hasLineComment = true;		
+						count = 0;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						if (count >= 1) {
@@ -575,6 +576,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
+						count = 0;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						if (count >= 1) {
@@ -591,6 +593,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
+						count = 0;
 						break;
 					default :
 						// step back one token
