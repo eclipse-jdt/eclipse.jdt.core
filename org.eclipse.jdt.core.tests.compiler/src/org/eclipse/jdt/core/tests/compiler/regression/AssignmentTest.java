@@ -1100,6 +1100,397 @@ public void test033() {
 		true,
 		customOptions);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84215
+//TODO (philippe) should move to InitializationTest suite
+public void _test034() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public final class X \n" + 
+			"{\n" + 
+			"	public static String vdg;\n" + 
+			"	public static final String aa = null;\n" + 
+			"	public static final int a = 14;\n" + 
+			"	public static final int b = 3;\n" + 
+			"	private static final int c = 12;\n" + 
+			"	private static final int d = 2; \n" + 
+			"	private static final int e = 3; \n" + 
+			"	private static final int f = 34; \n" + 
+			"	private static final int g = 35; \n" + 
+			"	private static final int h = 36; \n" + 
+			"	private static final int j = 4;\n" + 
+			"	private static final int k = 1;\n" + 
+			"	public static final int aba = 1;\n" + 
+			"	public static final int as = 11;\n" + 
+			"	public static final int ad = 12;\n" + 
+			"	public static final int af = 13;\n" + 
+			"	public static final int ag = 2;\n" + 
+			"	public static final int ah = 21;\n" + 
+			"	public static final int aj = 22;\n" + 
+			"	public static final int ak = 3;\n" + 
+			"	public static final String aaad = null;\n" + 
+			"	public static final int aaaf = 1;\n" + 
+			"	public static final int aaag = 2;\n" + 
+			"	public static final int aaha = 2;\n" + 
+			"	static int cxvvb = 1;\n" + 
+			"	static int z = a;\n" + 
+			"	String asdff;\n" + 
+			"	public static String ppfp;\n" + 
+			"	public static int ppfpged;\n" + 
+			"	boolean asfadf;\n" + 
+			"	boolean cbxbx;\n" + 
+			"	private static long tyt, rrky;\n" + 
+			"	private static int dgjt, ykjr6y;\n" + 
+			"	private static final int krykr = 1;\n" + 
+			"	protected static int rykr5;\n" + 
+			"	protected static int dhfg;\n" + 
+			"	private static int dthj;\n" + 
+			"	private static int fkffy;\n" + 
+			"	private static String fhfy;\n" + 
+			"	protected static String fhmf;\n" + 
+			"	protected String ryur6;\n" + 
+			"	protected String dhdthd;\n" + 
+			"	protected String dth5;\n" + 
+			"	protected String kfyk;\n" + 
+			"	private String ntd;\n" + 
+			"	public int asdasdads;\n" + 
+			"	public static final int dntdr = 7;\n" + 
+			"	public static final int asys = 1;\n" + 
+			"	public static final int djd5rwas = 11;\n" + 
+			"	public static final int dhds45rjd = 12;\n" + 
+			"	public static final int srws4jd = 13;\n" + 
+			"	public static final int s4ts = 2;\n" + 
+			"	public static final int dshes4 = 21;\n" + 
+			"	public static final int drthed56u = 22;\n" + 
+			"	public static final int drtye45 = 23;\n" + 
+			"	public static final int xxbxrb = 3;\n" + 
+			"	public static final int xfbxr = 31;\n" + 
+			"	public static final int asgw4y = 32;\n" + 
+			"	public static final int hdtrhs5r = 33;\n" + 
+			"	public static final int dshsh = 34;\n" + 
+			"	public static final int ds45yuwsuy = 4;\n" + 
+			"	public static final int astgs45rys = 5;\n" + 
+			"	public static final int srgs4y = 6;\n" + 
+			"	public static final int srgsryw45 = -6;\n" + 
+			"	public static final int srgdtgjd45ry = -7;\n" + 
+			"	public static final int srdjs43t = 1;\n" + 
+			"	public static final int sedteued5y = 2;\n" + 
+			"	public static int jrfd6u;\n" + 
+			"	public static int udf56u;\n" + 
+			"	private String jf6tu;\n" + 
+			"	private String jf6tud;\n" + 
+			"	String bsrh;\n" + 
+			"	protected X(String a)\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	private long sfhdsrhs;\n" + 
+			"	private boolean qaafasdfs;\n" + 
+			"	private int sdgsa;\n" + 
+			"	private long dgse4;\n" + 
+			"	long sgrdsrg;\n" + 
+			"	public void gdsthsr()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	private int hsrhs;\n" + 
+			"	private void hsrhsdsh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	private String dsfhshsr;\n" + 
+			"	protected void sfhsh4rsrh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	protected void shsrhsh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	protected void sfhstuje56u()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	public void dhdrt6u()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	public void hdtue56u()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	private void htdws4()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	String mfmgf;\n" + 
+			"	String mgdmd;\n" + 
+			"	String mdsrh;\n" + 
+			"	String nmdr;\n" + 
+			"	private void oyioyio()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	protected static long oyioyreye()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"	protected static long etueierh()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"	protected static void sdfgsgs()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	protected static void fhsrhsrh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	long dcggsdg;\n" + 
+			"	int ssssssgsfh;\n" + 
+			"	long ssssssgae;\n" + 
+			"	long ssssssfaseg;\n" + 
+			"	public void zzzdged()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	String t;\n" + 
+			"	protected void xxxxxcbsg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	\n" + 
+			"	public void vdg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private int[] fffcvffffffasdfaef;\n" + 
+			"	private int[] fffcffffffasdfaef;\n" + 
+			"	private long[] ffcvfffffffasdfaef;\n" + 
+			"	private int fffffghffffasdfaef; \n" + 
+			"	private int fffffdffffasdfaef; \n" + 
+			"	private String ffafffffffasdfaef;\n" + 
+			"	\n" + 
+			"	private void fffffffffasdfaef()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private boolean aaaadgasrg;\n" + 
+			"	private void ddddgaergnj()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void aaaadgaeg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void aaaaaaefadfgh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void addddddddafge()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	static boolean aaaaaaaefae;\n" + 
+			"	protected void aaaaaaefaef()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void ggggseae()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void ggggggsgsrg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static synchronized void ggggggfsfgsr()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void aaaaaadgaeg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void aaaaadgaerg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void bbbbbbsfryghs()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void bfbbbbbbfssreg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void bbbbbbfssfb()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void bbbbbbfssb()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void bbbbfdssb()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	boolean dggggggdsg;\n" + 
+			"\n" + 
+			"	public void hdfhdr()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void dhdrtdrs()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void dghdthtdhd()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void dhdhdtdh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void fddhdsh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private boolean sdffgsdg()\n" + 
+			"	{\n" + 
+			"		return true;\n" + 
+			"	}\n" + 
+			"			\n" + 
+			"	private static boolean sdgsdg()\n" + 
+			"	{\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	protected static final void sfdgsg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static int[] fghtys;\n" + 
+			"\n" + 
+			"	protected static final int sdsst = 1;\n" + 
+			"	private static X asdfahnr;\n" + 
+			"	private static int ssdsdbrtyrtdfhd, ssdsrtyrdbdfhd;\n" + 
+			"	protected static int ssdsrtydbdfhd, ssdsrtydffbdfhd;\n" + 
+			"	protected static int ssdrtyhrtysdbdfhd, ssyeghdsdbdfhd;\n" + 
+			"	private static int ssdsdrtybdfhd, ssdsdehebdfhd;\n" + 
+			"	protected static int ssdthrtsdbdfhd, ssdshethetdbdfhd;\n" + 
+			"	private static String sstrdrfhdsdbdfhd;\n" + 
+			"	protected static int ssdsdbdfhd, ssdsdethbdfhd;\n" + 
+			"	private static long ssdshdfhchddbdfhd;\n" + 
+			"	private static long ssdsdvbbdfhd;\n" + 
+			"	\n" + 
+			"	\n" + 
+			"	protected static long ssdsdbdfhd()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static long sdgsrsbsf()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static void sfgsfgssghr()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	protected static String sgsgsrg()\n" + 
+			"	{\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static void sdgshsdygra()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static String sdfsdfs()\n" + 
+			"	{\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static boolean ryweyer;\n" + 
+			"\n" + 
+			"	protected static void adfadfaghsfh()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	protected static void ghasghasrg()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void aadfadfaf()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static void aadfadf()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private static int fgsfhwr()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static int gdfgfgrfg()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static int asdfsfs()\n" + 
+			"	{\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected static String sdgs;\n" + 
+			"	protected static String sdfsh4e;\n" + 
+			"	protected static final int gsregs = 0;\n" + 
+			"	\n" + 
+			"	protected static String sgsgsd()\n" + 
+			"	{\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private byte[] sdhqtgwsrh(String rsName, int id)\n" + 
+			"	{\n" + 
+			"		String rs = null;\n" + 
+			"		try\n" + 
+			"		{\n" + 
+			"			rs = \"\";\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"		catch (Exception ex)\n" + 
+			"		{\n" + 
+			"		}\n" + 
+			"		finally\n" + 
+			"		{\n" + 
+			"			if (rs != null)\n" + 
+			"			{\n" + 
+			"				try\n" + 
+			"				{\n" + 
+			"					rs.toString();\n" + 
+			"				}\n" + 
+			"				catch (Exception ex)\n" + 
+			"				{\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void dgagadga()\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private String adsyasta;\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
 
 public static Class testClass() {
 	return AssignmentTest.class;
