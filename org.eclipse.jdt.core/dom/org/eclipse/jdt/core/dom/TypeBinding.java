@@ -264,9 +264,7 @@ class TypeBinding implements ITypeBinding {
 	public boolean isLocal() {
 		if (this.binding.isClass() || this.binding.isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			if (referenceBinding.isLocalType()) {
-				return !referenceBinding.isMemberType();
-			}
+			return referenceBinding.isLocalType() && !referenceBinding.isMemberType();
 		}
 		return false;
 	}
