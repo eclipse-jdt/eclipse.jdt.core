@@ -853,7 +853,7 @@ public final class CompletionEngine
 		CompilationResult fakeResult = new CompilationResult(fakeUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration fakeAST = parser.dietParse(fakeUnit, fakeResult, actualCompletionPosition);
 		
-		parseMethod(fakeAST, actualCompletionPosition);
+		parseBlockStatements(fakeAST, actualCompletionPosition);
 		
 		return (Initializer)fakeAST.types[0].fields[0];
 	}
@@ -935,7 +935,7 @@ public final class CompletionEngine
 							source = sourceUnit.getContents();
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
-							parseMethod(parsedUnit, actualCompletionPosition);
+							parseBlockStatements(parsedUnit, actualCompletionPosition);
 							if(DEBUG) {
 								System.out.println("COMPLETION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());

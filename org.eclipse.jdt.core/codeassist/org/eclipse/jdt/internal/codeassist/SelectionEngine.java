@@ -501,14 +501,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							selectDeclaration(parsedUnit);
-							AstNode method = parseMethod(parsedUnit, selectionSourceStart);
+							AstNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
 							parsedUnit.resolve();
-							if (method != null) {
-								selectLocalDeclaration(method);
+							if (node != null) {
+								selectLocalDeclaration(node);
 							}
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
@@ -672,9 +672,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 	
 	/*
-	 * Checks if a local declaration got selected in this method/initializer.
+	 * Checks if a local declaration got selected in this method/initializer/field.
 	 */
-	private void selectLocalDeclaration(AstNode method) {
+	private void selectLocalDeclaration(AstNode node) {
 		// the selected identifier is not identical to the parser one (equals but not identical),
 		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
 		final char[] assistIdentifier = this.getParser().assistIdentifier();
@@ -731,10 +731,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		}
 		
-		if (method instanceof AbstractMethodDeclaration) {
-			((AbstractMethodDeclaration)method).traverse(new Visitor(), (ClassScope)null);
+		if (node instanceof AbstractMethodDeclaration) {
+			((AbstractMethodDeclaration)node).traverse(new Visitor(), (ClassScope)null);
 		} else {
-			((Initializer)method).traverse(new Visitor(), (MethodScope)null);
+			((FieldDeclaration)node).traverse(new Visitor(), (MethodScope)null);
 		}
 	}
 
@@ -873,7 +873,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	// Check if a declaration got selected in this type
 	private void selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier){
-
+	
 		if (typeDeclaration.name == assistIdentifier){
 			throw new SelectionNodeFound(typeDeclaration.binding);
 		}

@@ -126,7 +126,12 @@ public abstract class Engine implements ITypeRequestor {
 		return true;
 	}
 
-	protected AstNode parseMethod(CompilationUnitDeclaration unit, int position) {
+	/*
+	 * Find the node (a field, a method or an initializer) at the given position 
+	 * and parse its block statements if it is a method or an initializer.
+	 * Returns the node or null if not found
+	 */
+	protected AstNode parseBlockStatements(CompilationUnitDeclaration unit, int position) {
 		int length = unit.types.length;
 		for (int i = 0; i < length; i++) {
 			TypeDeclaration type = unit.types[i];
@@ -134,13 +139,13 @@ public abstract class Engine implements ITypeRequestor {
 				&& type.declarationSourceEnd >= position) {
 				getParser().scanner.setSource(
 					unit.compilationResult.compilationUnit.getContents());
-				return parseMethod(type, unit, position);
+				return parseBlockStatements(type, unit, position);
 			}
 		}
 		return null;
 	}
 
-	private AstNode parseMethod(
+	private AstNode parseBlockStatements(
 		TypeDeclaration type,
 		CompilationUnitDeclaration unit,
 		int position) {
@@ -153,7 +158,7 @@ public abstract class Engine implements ITypeRequestor {
 				if (memberType.bodyStart > position)
 					continue;
 				if (memberType.declarationSourceEnd >= position) {
-					return parseMethod(memberType, unit, position);
+					return parseBlockStatements(memberType, unit, position);
 				}
 			}
 		}
@@ -176,14 +181,14 @@ public abstract class Engine implements ITypeRequestor {
 		if (fields != null) {
 			int length = fields.length;
 			for (int i = 0; i < length; i++) {
-				if (!(fields[i] instanceof Initializer))
+				FieldDeclaration field = fields[i];
+				if (field.sourceStart > position)
 					continue;
-				Initializer initializer = (Initializer) fields[i];
-				if (initializer.sourceStart > position)
-					continue;
-				if (initializer.declarationSourceEnd >= position) {
-					getParser().parseBlockStatements(initializer, type, unit);
-					return initializer;
+				if (field.declarationSourceEnd >= position) {
+					if (field instanceof Initializer) {
+						getParser().parseBlockStatements((Initializer)field, type, unit);
+					}
+					return field;
 				}
 			}
 		}

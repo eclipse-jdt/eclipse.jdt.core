@@ -739,7 +739,21 @@ public void testMethodDeclarationinanonymous() throws JavaModelException {
 		"bar() [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous [in ResolveMethodDeclarationInAnonymous.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
-}/**
+}
+/**
+ * Resolve method declaration in anonymous
+ * (regression test for bug 45786 No selection on method declaration in field initializer)
+ */
+public void testMethodDeclarationinanonymous2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInAnonymous2.java");
+	IJavaElement[] elements = codeSelect(cu, "foo()", "foo");
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() [in <anonymous #1> [in field [in ResolveMethodDeclarationInAnonymous2 [in ResolveMethodDeclarationInAnonymous2.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
  * Resolve the method
  */
 public void testMethodWithIncorrectParameter() throws JavaModelException {
