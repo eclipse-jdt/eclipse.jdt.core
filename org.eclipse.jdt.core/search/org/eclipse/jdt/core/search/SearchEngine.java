@@ -421,12 +421,11 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 
 	/* search is starting */
 	resultCollector.aboutToStart();
-
+	IProgressMonitor progressMonitor = resultCollector.getProgressMonitor();
 	try {	
 		if (searchPattern == null) return;
 
 		/* initialize progress monitor */
-		IProgressMonitor progressMonitor = resultCollector.getProgressMonitor();
 		if (progressMonitor != null) {
 			progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
 		}
@@ -477,12 +476,11 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		
+		matchLocator.locatePackageDeclarations(workspace);
+	} finally {
 		if (progressMonitor != null) {
 			progressMonitor.done();
 		}
-
-		matchLocator.locatePackageDeclarations(workspace);
-	} finally {
 		/* search has ended */
 		resultCollector.done();
 	}
