@@ -794,7 +794,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
 		}		
 		// get encoding through resource plugin
-		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); //$NON-NLS-1$
+		String coreEncoding = getPlugin().getPluginPreferences().getString("encoding"); //$NON-NLS-1$
+			if (coreEncoding == null || coreEncoding.length() == 0) {
+				defaultOptions.put(CORE_ENCODING, ""); //$NON-NLS-1$
+			} else {
+				defaultOptions.put(CORE_ENCODING, coreEncoding); 
+			}
 		
 		return defaultOptions;
 	}
@@ -855,8 +860,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			options.put(propertyName, preferences.getString(propertyName));
 		}		
 		// get encoding through resource plugin
-		options.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); //$NON-NLS-1$
-		
+		String coreEncoding = getPlugin().getPluginPreferences().getString("encoding"); //$NON-NLS-1$
+			if (coreEncoding == null || coreEncoding.length() == 0) {
+				options.put(CORE_ENCODING, ""); //$NON-NLS-1$
+			} else {
+				options.put(CORE_ENCODING, coreEncoding);
+			}
+
 		return options;
 	}
 		
