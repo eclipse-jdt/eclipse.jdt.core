@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-    <classpathentry kind="src" path="antadapter"/>
+    <classpathentry kind="src" output="antbin" path="antadapter"/>
     <classpathentry kind="src" path="batch"/>
     <classpathentry kind="src" path="codeassist"/>
     <classpathentry kind="src" path="compiler"/>

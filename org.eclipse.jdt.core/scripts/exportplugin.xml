@@ -61,14 +61,12 @@
 	<echo message="UPDATE jdtcore.jar" />
 	<jar 
 		jarfile="${plugin-dir}/jdtcore.jar"
-		basedir="bin" 
-		excludes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
+		basedir="bin"/>
 		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
 	<jar 
 		jarfile="${plugin-dir}/jdtCompilerAdapter.jar"
-		basedir="bin" 
-		includes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
+		basedir="antbin"/>
 
 	<echo message="UPDATE plugin.xml" />
 	<copy file="plugin.xml" todir="${plugin-dir}" />
