@@ -32,6 +32,9 @@
 		<echo message="UPDATE .options" />
 		<copy file=".options" todir="${dest}" />
 
+		<echo message="UPDATE about.html" />
+		<copy file="about.html" todir="${dest}" />
+
 		<echo message="UPDATE jdtcoresrc.zip" />
 		<zip zipfile="${dest}/jdtcoresrc.zip">
 		    <zipfileset dir="ant" />
