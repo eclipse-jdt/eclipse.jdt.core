@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *                                 CORE_CIRCULAR_CLASSPATH
  *                                 CORE_INCOMPLETE_CLASSPATH
  *     IBM Corporation - added run(IWorkspaceRunnable, IProgressMonitor)
+ *     IBM Corporation - added exclusion patterms to source classpath entries
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -1978,19 +1979,22 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * identified by the given absolute path. This specifies that all package fragments within the root will 
 	 * have children of type <code>ICompilationUnit</code>.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
+	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>/Project/src</code>.
 	 * </p>
 	 * <p>
 	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
-	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
+	 * context of the containing project (a source entry <code>/Proj1/src</code> cannot be used on the classpath of 
+	 * a different project <code>/Proj2</code>).
 	 * </p>
 	 * <p>
 	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
 	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
 	 * </p>
+	 * TODO: should mention existence of other method that allows exclusion filters
 	 * 
 	 * @param path the absolute path of a source folder
 	 * @return a new source classpath entry
+	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath[])
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
@@ -2004,22 +2008,29 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
 	 * </p>
+	 * <p>
 	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
 	 * TODO: should mention mount points at this stage
+	 * </p>
 	 * <p>
 	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
 	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
+	 * </p>
 	 * <p>
 	 * Exclusion patterns can be specified to cause portions of the resource tree to be excluded from this source folder.
 	 * If <code>null</code> is passed, then the source folder will default to only exclude ".class" files (which is the minimal
 	 * exclusion pattern). Empty patterns will automatically be discarded (after trimmed). Exclusion patterns are source
-	 *folder relative paths, and can contain '**', '*' or '?' wildcards (see <code>IClasspathEntry#getExclusionPatterns()</code>).
-	 * <p>
+	 * folder relative paths, and can contain '**', '*' or '?' wildcards (see <code>IClasspathEntry#getExclusionPatterns()</code>).
+	 * </p>
+	 * TODO: should mention existence of other method if you don't need exclusion filters
+	 *
 	 * @param path the absolute path of a source folder
 	 * @param exclusionPatterns the resource path patterns to exclude (<code>null</code> if none)
+	 * TODO: This method should expect an empty array rather than null
 	 * @return a new source classpath entry
-	 * @see IClasspathEntry#getExclusionPatterns()
+	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
+	 * @see IClasspathEntry#getExclusionPatterns
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
