@@ -65,10 +65,16 @@ public class MethodScope extends BlockScope {
 		// iterate over possible return addresses rooted at the method scope level, which
 		// have no resolvedPosition yet, and assign them to positions at maxOffset and beyond
 		for (int i = 0; i < this.localIndex; i++) {
-			if (locals[i].name == TryStatement.SecretReturnName 
-				&& locals[i].resolvedPosition != -1){
+			LocalVariableBinding local = locals[i];
+			if (local.name == TryStatement.SecretReturnName 
+				&& local.resolvedPosition != -1){
 					
-				locals[i].resolvedPosition = this.maxOffset++;
+				local.resolvedPosition = this.maxOffset++;
+				// check for too many arguments/local variables
+				if (this.maxOffset > 0xFFFF) { // no more than 65535 words of locals
+					this.problemReporter().noMoreAvailableSpaceForLocal(
+						local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
+				}				
 			}
 		}
 	}

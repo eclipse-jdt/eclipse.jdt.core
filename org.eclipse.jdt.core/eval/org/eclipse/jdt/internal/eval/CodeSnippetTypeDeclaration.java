@@ -14,6 +14,9 @@ public class CodeSnippetTypeDeclaration extends TypeDeclaration {
  * Generic bytecode generation for type
  */
 public void generateCode(ClassFile enclosingClassFile) {
+	if (hasBeenGenerated) return;
+	hasBeenGenerated = true;
+	
 	if (ignoreFurtherInvestigation) {
 		if (binding == null)
 			return;

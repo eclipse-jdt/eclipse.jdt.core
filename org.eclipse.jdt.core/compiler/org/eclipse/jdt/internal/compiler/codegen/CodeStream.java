@@ -4703,6 +4703,7 @@ public void record(LocalVariableBinding local) {
 	}
 	locals[allLocalsCounter++] = local;
 	local.initializationPCs = new int[4];
+	local.initializationCount = 0;
 }
 public void recordPositionsFrom(int startPC, AstNode node) {
 
@@ -4712,30 +4713,6 @@ public void recordPositionsFrom(int startPC, AstNode node) {
 	 * The pcToSourceMap table is always sorted.
 	 */
 
-	/** OLD CODE
-	int startPos, endPos;
-	int[] lastEntry;
-	if (!generateLineNumberAttributes && !generateLocalVariableTableAttributes)
-	return;
-	if ((startPos = node.sourceStart()) == 0)
-	return;
-	if ((endPos = node.sourceEnd()) == 0)
-	return;
-	
-	// Widening an existing entry that already has the same source positions
-	if ((pcToSourceMapSize > 0) && (pcToSourceMap[pcToSourceMapSize - 1][2] == startPos) && (pcToSourceMap[pcToSourceMapSize - 1][3] == endPos)) {
-	if (pcToSourceMap[pcToSourceMapSize - 1][0] > startPC)
-	pcToSourceMap[pcToSourceMapSize - 1][0] = startPC;
-	pcToSourceMap[pcToSourceMapSize - 1][1] = position;
-	return;
-	}
-	if (pcToSourceMapSize == pcToSourceMap.length) {
-	// resize the array pcToSourceMap		
-	System.arraycopy(pcToSourceMap, 0, (pcToSourceMap = new int[pcToSourceMapSize * 2][]), 0, pcToSourceMapSize);
-	}
-	pcToSourceMap[pcToSourceMapSize++] = new int[] {startPC, position, startPos, endPos};
-	
-	*/
 	int startPos;
 	if (!generateLineNumberAttributes)
 		return;

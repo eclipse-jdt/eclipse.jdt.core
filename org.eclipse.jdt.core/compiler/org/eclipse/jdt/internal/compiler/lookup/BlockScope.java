@@ -244,11 +244,12 @@ public class BlockScope extends Scope {
 						// check for too many arguments/local variables
 						if (local.isArgument) {
 							if (this.offset > 0xFF) { // no more than 255 words of arguments
-								this.problemReporter().noMoreAvailableSpaceForArgument(local.declaration);
+								this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
 							}
 						} else {
 							if (this.offset > 0xFFFF) { // no more than 65535 words of locals
-								this.problemReporter().noMoreAvailableSpaceForLocal(local.declaration);
+								this.problemReporter().noMoreAvailableSpaceForLocal(
+									local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
 							}
 						}
 
