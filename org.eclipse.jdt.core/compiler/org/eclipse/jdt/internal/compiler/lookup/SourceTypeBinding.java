@@ -1031,7 +1031,7 @@ public String toString() {
 void verifyMethods(MethodVerifier verifier) {
 	verifier.verify(this);
 
-	for (int i = memberTypes.length; --i >= 0;)//TODO: (kent) should iterate in syntactical order
+	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
 }
 
