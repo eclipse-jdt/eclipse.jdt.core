@@ -172,7 +172,7 @@ public void testAttachSourceToLibFolder() throws JavaModelException {
 	String lineSeparator = System.getProperty("line.separator");
 	assertEquals(
 		"Unexpected source for class file",
-		"package p;" + lineSeparator +		"public class X {" + lineSeparator +		"	public void foo() {" + lineSeparator +		"	}" + lineSeparator +		"}" + lineSeparator,
+		"package p;" + lineSeparator +		"public class X {" + lineSeparator +		"	public void foo() {" + lineSeparator +		"	}" + lineSeparator +		"}",
 		cf.getSource());
 }
 /**
