@@ -1151,6 +1151,92 @@ public final class CompletionEngine
 		}
 	}
 
+	private void findIntefacesMethods(
+		char[] selector,
+		TypeBinding[] argTypes,
+		ReferenceBinding receiverType,
+		ReferenceBinding[] itsInterfaces,
+		Scope scope,
+		ObjectVector methodsFound,
+		boolean onlyStaticMethods,
+		boolean exactMatch,
+		boolean isCompletingDeclaration,
+		InvocationSite invocationSite,
+		Scope invocationScope,
+		boolean implicitCall) {
+
+		if (selector == null)
+			return;
+
+		if (itsInterfaces != NoSuperInterfaces) {
+			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+			int lastPosition = 0;
+			interfacesToVisit[lastPosition] = itsInterfaces;
+			
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++) {
+					ReferenceBinding currentType = interfaces[j];
+
+					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+						// if interface as not already been visited
+						currentType.tagBits |= TagBits.InterfaceVisited;
+
+						if(isCompletingDeclaration){
+
+							findLocalMethodDeclarations(
+								selector,
+								currentType.methods(),
+								scope,
+								methodsFound,
+								onlyStaticMethods,
+								exactMatch,
+								receiverType);
+
+						} else {
+
+							findLocalMethods(
+								selector,
+								argTypes,
+								currentType.methods(),
+								scope,
+								methodsFound,
+								onlyStaticMethods,
+								exactMatch,
+								receiverType,
+								invocationSite,
+								invocationScope,
+								implicitCall);
+						}
+
+						itsInterfaces = currentType.superInterfaces();
+						if (itsInterfaces != NoSuperInterfaces) {
+
+							if (++lastPosition == interfacesToVisit.length)
+								System.arraycopy(
+									interfacesToVisit,
+									0,
+									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
+									0,
+									lastPosition);
+							interfacesToVisit[lastPosition] = itsInterfaces;
+						}
+					}
+				}
+			}
+
+			// bit reinitialization
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++){
+					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
+				}
+			}
+		}
+	}
+	
 	private void findImplicitMessageSends(
 		char[] token,
 		TypeBinding[] argTypes,
@@ -1526,7 +1612,6 @@ public final class CompletionEngine
 				endPosition);
 		}
 	}
-
 	private void findMethods(
 		char[] selector,
 		TypeBinding[] argTypes,
@@ -1543,105 +1628,59 @@ public final class CompletionEngine
 		if (selector == null)
 			return;
 			
-		boolean isInterface = receiverType.isInterface();
-		
 		ReferenceBinding currentType = receiverType;
-		if (isInterface || isCompletingDeclaration) {
-			if(!isCompletingDeclaration){
-				findLocalMethods(
+		if (receiverType.isInterface()) {
+			if(isCompletingDeclaration) {
+				findIntefacesMethods(
 					selector,
 					argTypes,
-					currentType.methods(),
+					receiverType,
+					currentType.superInterfaces(),
 					scope,
 					methodsFound,
 					onlyStaticMethods,
 					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+			} else {
+				findIntefacesMethods(
+					selector,
+					argTypes,
 					receiverType,
+					new ReferenceBinding[]{currentType},
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
 					implicitCall);
 			}
-
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
-				ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-				int lastPosition = 0;
-				interfacesToVisit[lastPosition] = itsInterfaces;
-
-				for (int i = 0; i <= lastPosition; i++) {
-					ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-					for (int j = 0, length = interfaces.length; j < length; j++) {
-						currentType = interfaces[j];
-
-						if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
-							// if interface as not already been visited
-							currentType.tagBits |= TagBits.InterfaceVisited;
-
-							if(isCompletingDeclaration){
-
-								findLocalMethodDeclarations(
-									selector,
-									currentType.methods(),
-									scope,
-									methodsFound,
-									onlyStaticMethods,
-									exactMatch,
-									receiverType);
-
-							} else {
-
-								findLocalMethods(
-									selector,
-									argTypes,
-									currentType.methods(),
-									scope,
-									methodsFound,
-									onlyStaticMethods,
-									exactMatch,
-									receiverType,
-									invocationSite,
-									invocationScope,
-									implicitCall);
-							}
-
-							itsInterfaces = currentType.superInterfaces();
-							if (itsInterfaces != NoSuperInterfaces) {
-
-								if (++lastPosition == interfacesToVisit.length)
-									System.arraycopy(
-										interfacesToVisit,
-										0,
-										interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-										0,
-										lastPosition);
-								interfacesToVisit[lastPosition] = itsInterfaces;
-							}
-						}
-					}
-				}
-
-				// bit reinitialization
-				for (int i = 0; i <= lastPosition; i++) {
-					ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-					for (int j = 0, length = interfaces.length; j < length; j++){
-						interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
-					}
-				}
-			}
 			
 			currentType = scope.getJavaLangObject();
-		}
-		
-		if(!isInterface){
+		} else {
 			if(isCompletingDeclaration){
+				findIntefacesMethods(
+					selector,
+					argTypes,
+					receiverType,
+					currentType.superInterfaces(),
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+				
 				currentType = receiverType.superclass();
-			} else {
-				currentType = receiverType;
 			}
 		}
-		
+		boolean hasPotentialDefaultAbstractMethods = true;
 		while (currentType != null) {
 
 			if(isCompletingDeclaration){
@@ -1669,10 +1708,27 @@ public final class CompletionEngine
 					invocationScope,
 					implicitCall);
 			}
+			
+			if(hasPotentialDefaultAbstractMethods && currentType.isAbstract()){
+				findIntefacesMethods(
+					selector,
+					argTypes,
+					receiverType,
+					currentType.superInterfaces(),
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+			} else {
+				hasPotentialDefaultAbstractMethods = false;
+			}
 			currentType = currentType.superclass();
 		}
 	}
-
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
 		ReferenceBinding bindingType = method.declaringClass;
 
