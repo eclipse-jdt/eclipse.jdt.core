@@ -113,6 +113,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner class emulation
   1GD07GK: ITPJUI:WIN98 - Code assist should qualify methods if needed.
   1GL1HF8: ITPJCORE:WIN2000 - Missing implementation in the compiler compiling invalid code
   1GL13OT: ITPJCORE:ALL - INameLookup should be removed

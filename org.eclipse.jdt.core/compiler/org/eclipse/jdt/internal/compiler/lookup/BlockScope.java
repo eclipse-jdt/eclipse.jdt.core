@@ -275,7 +275,10 @@ public void emulateOuterAccess(LocalVariableBinding outerLocalVariable) {
 
 public void emulateOuterAccess(ReferenceBinding targetEnclosingType, boolean useDirectReference) {
 	ReferenceBinding currentType = enclosingSourceType();
-	if (currentType.isNestedType() && currentType != targetEnclosingType) {
+	if (currentType.isNestedType() 
+		&& currentType != targetEnclosingType 
+		&& !targetEnclosingType.isSuperclassOf(currentType)) {
+
 		NestedTypeBinding currentNestedType = (NestedTypeBinding) currentType;		
 		if (useDirectReference) {
 			// the target enclosing type is not in scope, we directly refer it
@@ -293,7 +296,10 @@ public void emulateOuterAccess(ReferenceBinding targetEnclosingType, boolean use
 			else
 				currentNestedType.addSyntheticArgumentAndField(currentType);
 			// further indirect cases
-			while (currentType != targetEnclosingType && !targetEnclosingType.isSuperclassOf(currentType)) {
+			while (currentType.isNestedType() 
+					&& currentType != targetEnclosingType 
+					&& !targetEnclosingType.isSuperclassOf(currentType)) {
+						
 				currentNestedType = (NestedTypeBinding) currentType;
 				currentType = currentNestedType.enclosingType;
 				currentNestedType.addSyntheticArgumentAndField(currentType);
