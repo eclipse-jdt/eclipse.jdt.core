@@ -301,9 +301,8 @@ public class MethodScope extends BlockScope {
 		SourceTypeBinding declaringClass = referenceType().binding;
 		int modifiers = method.modifiers | AccUnresolved;
 		if (method.isConstructor()) {
-			if (method.isDefaultConstructor()) {
+			if (method.isDefaultConstructor())
 				modifiers |= AccIsDefaultConstructor;
-			}
 			method.binding = new MethodBinding(modifiers, null, null, declaringClass);
 			checkAndSetModifiersForConstructor(method.binding);
 		} else {
@@ -314,6 +313,17 @@ public class MethodScope extends BlockScope {
 			checkAndSetModifiersForMethod(method.binding);
 		}
 		this.isStatic = method.binding.isStatic();
+
+		Argument[] argTypes = method.arguments;
+		int argLength = argTypes == null ? 0 : argTypes.length;
+		if (argLength > 0 && environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
+			if (argTypes[--argLength].isVarArgs)
+				method.binding.modifiers |= AccVarargs;
+			while (--argLength >= 0) {
+				if (argTypes[argLength].isVarArgs)
+					problemReporter().illegalVararg(argTypes[argLength], method);
+			}
+		}
 		
 		TypeParameter[] typeParameters = method.typeParameters();
 	    // do not construct type variables if source < 1.5
