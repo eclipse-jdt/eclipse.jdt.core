@@ -8159,10 +8159,12 @@ public void testCompletionNonEmptyToken1() throws JavaModelException {
 	String str = cu.getSource();
 	String completeBehind = "zz";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	int start = cursorLocation - 2;
+	int end = start + 4;
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzyy    completion:zzyy    position:[70,74]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:zzyy    completion:zzyy    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 		requestor.getResultsWithPosition());
 }
 public void testCompletionEmptyToken1() throws JavaModelException {
@@ -8173,23 +8175,25 @@ public void testCompletionEmptyToken1() throws JavaModelException {
 	String completeBehind = "zz";
 	// completion is just at start of 'zz'
 	int cursorLocation = str.lastIndexOf(completeBehind);
+	int start = cursorLocation;
+	int end = start + 4;
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionEmptyToken1    completion:CompletionEmptyToken1    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:clone()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:equals    completion:equals()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:finalize    completion:finalize()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:foo    completion:foo()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:getClass    completion:getClass()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:hashCode    completion:hashCode()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:notify    completion:notify()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:notifyAll    completion:notifyAll()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:toString    completion:toString()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:zzyy    completion:zzyy    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:CompletionEmptyToken1    completion:CompletionEmptyToken1    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:clone    completion:clone()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:equals    completion:equals()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:finalize    completion:finalize()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:foo    completion:foo()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:getClass    completion:getClass()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:hashCode    completion:hashCode()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:notify    completion:notify()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:notifyAll    completion:notifyAll()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:toString    completion:toString()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:zzyy    completion:zzyy    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 		requestor.getResultsWithPosition());
 }
 }
