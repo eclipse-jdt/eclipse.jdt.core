@@ -328,8 +328,18 @@ public final class AST {
 	public static CompilationUnit parseCompilationUnit(
 			IClassFile classFile,
 			boolean resolveBindings) {
-		// TODO: (olivier) missing implementation
-		throw new IllegalArgumentException();
+				try {
+					String source = classFile.getSource();
+					if (resolveBindings) {
+						return AST.parseCompilationUnit(source.toCharArray());
+					}
+					return AST.parseCompilationUnit(
+						source.toCharArray(),
+						classFile.getElementName(),
+						classFile.getJavaProject());
+				} catch (JavaModelException e) {
+					throw new IllegalArgumentException();
+				}
 	}
 			
 	/**
