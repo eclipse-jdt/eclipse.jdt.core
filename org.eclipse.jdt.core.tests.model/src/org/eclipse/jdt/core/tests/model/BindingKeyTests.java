@@ -167,4 +167,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 
+	/*
+	 * Method
+	 * (regression test for bug 85811 BindingKey.toSignature should return method signature for methods)
+	 */
+	public void test014() {
+		assertBindingKeySignatureEquals(
+			"(Ljava.lang.String;I)Z",
+			"Lp1/X;.foo(Ljava/lang/String;I)Z"
+		);
+	}
+
 }
