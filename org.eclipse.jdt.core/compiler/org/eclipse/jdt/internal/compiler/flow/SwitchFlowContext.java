@@ -45,7 +45,6 @@ public class SwitchFlowContext extends FlowContext {
 
 	public void recordBreakFrom(FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
 		if (initsOnBreak == FlowInfo.DEAD_END) {
 			initsOnBreak = flowInfo.copy().unconditionalInits();
 		} else {

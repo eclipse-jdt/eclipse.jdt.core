@@ -161,7 +161,7 @@ public class TryStatement extends Statement {
 		FlowContext traversedContext = insideSubContext.parent;
 		while (traversedContext != null) {
 			AstNode sub = traversedContext.subRoutine();
-			if (sub != null && sub.cannotReturn()) break;//TODO: should move below?
+			if (sub != null && sub.cannotReturn()) break;//TODO: should move below next line?
 			traversedContext.initsOnReturn().addInitializationsFrom(initsBeforeReturn);
 			traversedContext = traversedContext.parent;
 		}
