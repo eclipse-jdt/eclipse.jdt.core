@@ -392,6 +392,11 @@ private void configure(String[] argv) throws InvalidInputException {
 			versionIDRequired = true;
 			continue;
 		}
+		if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
+			noWarn = false;
+			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+			continue;
+		}
 		if (currentArg.equals("-help")) { //$NON-NLS-1$
 			printUsageRequired = true;
 			continue;
