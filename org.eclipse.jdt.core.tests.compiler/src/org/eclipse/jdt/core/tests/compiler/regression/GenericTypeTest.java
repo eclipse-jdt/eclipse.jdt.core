@@ -1390,6 +1390,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The operator += is undefined for the argument type(s) T, String\n" + 
 			"----------\n");
 	}
+	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
 	public void test048() {
 		this.runNegativeTest(
 			new String[] {
@@ -2227,4 +2228,41 @@ public void test057() {
 			"The constructor X<String>(String[]) is undefined\n" + 
 			"----------\n");
 	}	
+	// TODO (kent) investigate failures to resolve 'p' as a package
+	public void _test078() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import p.A;\n" + 
+				"public class X {\n" + 
+				"    X(A<String> a, A<String> b) {\n" + 
+				"    }\n" + 
+				"    void foo(A<String> a) {\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X x = new X((A)null, (A)null);\n" + 
+				"        A a = new A((A)null);\n" + 
+				"		x.foo(a);\n" + 
+				"		a.print(x);\n" + 
+				"		A<String> as = new A<String>(null);\n" + 
+				"		as.print(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n",
+				"p/A.java",
+				"public class A<P> {\n" + 
+				"    protected P p;\n" + 
+				"    protected A(P p) {\n" + 
+				"        this.p = p;\n" + 
+				"    }\n" + 
+				"    protected void print(P p) {\n" + 
+				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"    }\n" + 
+				"    protected void print(A<P> a) {\n" + 
+				"        print(a.p);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"visibility issues");
+	}	
+
 }
