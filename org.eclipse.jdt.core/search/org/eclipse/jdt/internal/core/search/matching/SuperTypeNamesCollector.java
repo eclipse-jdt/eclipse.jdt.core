@@ -291,8 +291,20 @@ protected boolean matches(char[][] compoundName) {
 	}
 }
 private void addToResult(char[][] compoundName) {
-	if (this.result.length == this.resultIndex) {
-		System.arraycopy(this.result, 0, this.result = new char[this.resultIndex*2][][], 0, this.resultIndex);
+	int resultLength = this.result.length;
+	for (int i = 0; i < resultLength; i++) {
+		if (CharOperation.equals(this.result[i], compoundName)) {
+			// already known
+			return;
+		}
+	}
+	if (resultLength == this.resultIndex) {
+		System.arraycopy(
+			this.result, 
+			0, 
+			this.result = new char[resultLength*2][][], 
+			0, 
+			resultLength);
 	}
 	this.result[this.resultIndex++] = compoundName;
 }
