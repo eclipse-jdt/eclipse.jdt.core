@@ -1905,7 +1905,7 @@ public class JavaProject
 						if ((patternCount  = patterns.length) > 0) {
 							exclusionPatterns = new String[patternCount];
 							for (int j = 0; j < patterns.length; j++){
-								exclusionPatterns[i] = new String(patterns[j]);
+								exclusionPatterns[j] = new String(patterns[j]);
 							}
 						}
 					}
