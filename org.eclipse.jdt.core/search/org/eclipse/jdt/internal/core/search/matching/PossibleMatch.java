@@ -25,18 +25,22 @@ public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-N
 
 public IResource resource;
 public Openable openable;
-public MatchingNodeSet matchingNodeSet;
+public MatchingNodeSet nodeSet;
 public char[][] compoundName;
 CompilationUnitDeclaration parsedUnit;
 private String sourceFileName;
+private char[] source;
 
 public PossibleMatch(MatchLocator locator, IResource resource, Openable openable) {
 	this.resource = resource;
 	this.openable = openable;
-	this.matchingNodeSet = new MatchingNodeSet(locator);
+	this.nodeSet = new MatchingNodeSet();
 	char[] qualifiedName = getQualifiedName();
 	if (qualifiedName != null)
 		this.compoundName = CharOperation.splitOn('.', qualifiedName);
+}
+public void cleanUp() {
+	this.source = null;
 }
 public boolean equals(Object obj) {
 	if (this.compoundName == null) return super.equals(obj);
@@ -44,15 +48,17 @@ public boolean equals(Object obj) {
 	return CharOperation.equals(this.compoundName, ((PossibleMatch) obj).compoundName);
 }
 public char[] getContents() {
-	char[] source = null;
+	if (this.source != null) return this.source;
+
+	this.source = CharOperation.NO_CHAR;
 	try {
 		if (this.openable instanceof CompilationUnit) {
 			if (((CompilationUnit) this.openable).isWorkingCopy()) {
 				IBuffer buffer = this.openable.getBuffer();
 				if (buffer == null) return null;
-				source = buffer.getCharacters();
+				this.source = buffer.getCharacters();
 			} else {
-				source = Util.getResourceContentsAsCharArray((IFile) this.resource);
+				this.source = Util.getResourceContentsAsCharArray((IFile) this.resource);
 			}
 		} else if (this.openable instanceof ClassFile) {
 			SourceMapper sourceMapper = this.openable.getSourceMapper();
@@ -61,13 +67,12 @@ public char[] getContents() {
 				if (fileName == NO_SOURCE_FILE_NAME) return null;
 
 				IType type = ((ClassFile) this.openable).getType();
-				source = sourceMapper.findSource(type, fileName);
+				this.source = sourceMapper.findSource(type, fileName);
 			}
 		}
 	} catch (JavaModelException e) { // ignored
 	}
-	if (source == null) return CharOperation.NO_CHAR;
-	return source;
+	return this.source;
 }
 public char[] getFileName() {
 	return this.openable.getPath().toString().toCharArray();
@@ -121,7 +126,7 @@ private String getSourceFileName() {
 		SourceMapper sourceMapper = this.openable.getSourceMapper();
 		if (sourceMapper != null) {
 			IType type = ((ClassFile) this.openable).getType();
-			ClassFileReader reader = this.matchingNodeSet.locator.classFileReader(type);
+			ClassFileReader reader = MatchLocator.classFileReader(type);
 			if (reader != null)
 				this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
 		}
