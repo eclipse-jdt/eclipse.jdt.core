@@ -22,7 +22,7 @@ public class Javadoc extends ASTNode {
 	public TypeReference[] thrownExceptions; // @throws, @exception
 	public JavadocReturnStatement returnStatement; // @return
 	public Expression[] references; // @see
-	
+
 	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -62,11 +62,12 @@ public class Javadoc extends ASTNode {
 	 * Resolve type javadoc while a class scope
 	 */
 	public void resolve(ClassScope classScope) {
+		
 
 		// @param tags
-		int paramTagsSize = parameters == null ? 0 : parameters.length;
+		int paramTagsSize = this.parameters == null ? 0 : this.parameters.length;
 		for (int i = 0; i < paramTagsSize; i++) {
-			JavadocSingleNameReference param = parameters[i];
+			JavadocSingleNameReference param = this.parameters[i];
 			classScope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 		}
 
@@ -76,9 +77,9 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @throws/@exception tags
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		int throwsTagsNbre = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
 		for (int i = 0; i < throwsTagsNbre; i++) {
-			TypeReference typeRef = thrownExceptions[i];
+			TypeReference typeRef = this.thrownExceptions[i];
 			int start, end;
 			if (typeRef instanceof JavadocSingleTypeReference) {
 				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
@@ -96,9 +97,9 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @see tags
-		int seeTagsNbre = references == null ? 0 : references.length;
+		int seeTagsNbre = this.references == null ? 0 : this.references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
-			references[i].resolveType(classScope);
+			this.references[i].resolveType(classScope);
 		}
 	}
 	
@@ -109,18 +110,18 @@ public class Javadoc extends ASTNode {
 		
 		// get method declaration
 		AbstractMethodDeclaration methDecl = methScope.referenceMethod();
-		boolean override = (methDecl.binding.modifiers & (AccImplementing+AccOverriding)) != 0;
+		boolean overriding = methDecl == null ? false : (methDecl.binding.modifiers & (AccImplementing+AccOverriding)) != 0;
 
 		// @see tags
-		int seeTagsNbre = references == null ? 0 : references.length;
+		int seeTagsNbre = this.references == null ? 0 : this.references.length;
 		boolean superRef = false;
 		for (int i = 0; i < seeTagsNbre; i++) {
-			references[i].resolveType(methScope);
+			this.references[i].resolveType(methScope);
 			try {
 				// see whether we can have a super reference
-				if ((methDecl.isConstructor() || override) && !superRef) {
-					if (references[i] instanceof JavadocMessageSend) {
-						JavadocMessageSend messageSend = (JavadocMessageSend) references[i];
+				if ((methDecl.isConstructor() || overriding) && !superRef) {
+					if (this.references[i] instanceof JavadocMessageSend) {
+						JavadocMessageSend messageSend = (JavadocMessageSend) this.references[i];
 						// if binding is valid then look if we have a reference to an overriden method/constructor
 						if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
 							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.receiverType) &&
@@ -135,8 +136,8 @@ public class Javadoc extends ASTNode {
 							}
 						}
 					}
-					else if (references[i] instanceof JavadocAllocationExpression) {
-						JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) references[i];
+					else if (this.references[i] instanceof JavadocAllocationExpression) {
+						JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) this.references[i];
 						// if binding is valid then look if we have a reference to an overriden method/constructor
 						if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
 							if (methDecl.binding.declaringClass.isCompatibleWith(allocationExpr.resolvedType)) {
@@ -157,19 +158,19 @@ public class Javadoc extends ASTNode {
 		}
 		
 		// Store if a reference exists to an overriden method/constructor or the method is in a local type,
-		boolean reportMissing = !(superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
+		boolean reportMissing = methDecl == null || !(superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
 
 		// @param tags
 		resolveParamTags(methScope, reportMissing);
 
 		// @return tags
 		if (this.returnStatement == null) {
-			if (reportMissing) {
+			if (reportMissing && methDecl != null) {
 				if (!methDecl.isConstructor() && !methDecl.isClinit()) {
 					MethodDeclaration meth = (MethodDeclaration) methDecl;
 					if (meth.binding.returnType != VoidBinding) {
 						// method with return should have @return tag
-						methScope.problemReporter().javadocMissingReturnTag(meth.returnType.sourceStart, meth.returnType.sourceEnd);
+						methScope.problemReporter().javadocMissingReturnTag(meth.returnType.sourceStart, meth.returnType.sourceEnd, methDecl.binding.modifiers);
 					}
 				}
 			}
@@ -186,15 +187,24 @@ public class Javadoc extends ASTNode {
 	 */
 	private void resolveParamTags(MethodScope methScope, boolean reportMissing) {
 		AbstractMethodDeclaration md = methScope.referenceMethod();
-		int paramTagsSize = parameters == null ? 0 : parameters.length;
-		int argumentsSize = md.arguments == null ? 0 : md.arguments.length;
+		int paramTagsSize = this.parameters == null ? 0 : this.parameters.length;
 
+		// If no referenced method (field initializer for example) then report a problem for each param tag
+		if (md == null) {
+			for (int i = 0; i < paramTagsSize; i++) {
+				JavadocSingleNameReference param = this.parameters[i];
+				methScope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
+			}
+			return;
+		}
+		
 		// If no param tags then report a problem for each method argument
+		int argumentsSize = md.arguments == null ? 0 : md.arguments.length;
 		if (paramTagsSize == 0) {
 			if (reportMissing) {
 				for (int i = 0; i < argumentsSize; i++) {
 					Argument arg = md.arguments[i];
-					methScope.problemReporter().javadocMissingParamTag(arg);
+					methScope.problemReporter().javadocMissingParamTag(arg, md.binding.modifiers);
 				}
 			}
 		} else {
@@ -203,14 +213,14 @@ public class Javadoc extends ASTNode {
 
 			// Scan all @param tags
 			for (int i = 0; i < paramTagsSize; i++) {
-				JavadocSingleNameReference param = parameters[i];
+				JavadocSingleNameReference param = this.parameters[i];
 				param.resolve(methScope);
 				if (param.binding != null && param.binding.isValidBinding()) {
 					// Verify duplicated tags
 					boolean found = false;
 					for (int j = 0; j < maxBindings && !found; j++) {
 						if (bindings[j] == param.binding) {
-							methScope.problemReporter().javadocInvalidParamName(param, true);
+							methScope.problemReporter().javadocDuplicatedParamTag(param, md.binding.modifiers);
 							found = true;
 						}
 					}
@@ -232,7 +242,7 @@ public class Javadoc extends ASTNode {
 						}
 					}
 					if (!found) {
-						methScope.problemReporter().javadocMissingParamTag(arg);
+						methScope.problemReporter().javadocMissingParamTag(arg, md.binding.modifiers);
 					}
 				}
 			}
@@ -244,16 +254,34 @@ public class Javadoc extends ASTNode {
 	 */
 	private void resolveThrowsTags(MethodScope methScope, boolean reportMissing) {
 		AbstractMethodDeclaration md = methScope.referenceMethod();
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		int thrownExceptionSize = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
+		int throwsTagsNbre = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
+
+		// If no referenced method (field initializer for example) then report a problem for each param tag
+		if (md == null) {
+			for (int i = 0; i < throwsTagsNbre; i++) {
+				TypeReference typeRef = this.thrownExceptions[i];
+				int start = typeRef.sourceStart;
+				int end = typeRef.sourceEnd;
+				if (typeRef instanceof JavadocQualifiedTypeReference) {
+					start = ((JavadocQualifiedTypeReference) typeRef).tagSourceStart;
+					end = ((JavadocQualifiedTypeReference) typeRef).tagSourceEnd;
+				} else if (typeRef instanceof JavadocSingleTypeReference) {
+					start = ((JavadocSingleTypeReference) typeRef).tagSourceStart;
+					end = ((JavadocSingleTypeReference) typeRef).tagSourceEnd;
+				}
+				methScope.problemReporter().javadocUnexpectedTag(start, end);
+			}
+			return;
+		}
 
 		// If no throws tags then report a problem for each method thrown exception
+		int thrownExceptionSize = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
 		if (throwsTagsNbre == 0) {
 			if (reportMissing) {
 				for (int i = 0; i < thrownExceptionSize; i++) {
 					TypeReference typeRef = md.thrownExceptions[i];
 					if (typeRef.resolvedType != null && typeRef.resolvedType.isValidBinding()) { // flag only valid class name
-						methScope.problemReporter().javadocMissingThrowsTag(typeRef);
+						methScope.problemReporter().javadocMissingThrowsTag(typeRef, md.binding.modifiers);
 					}
 				}
 			}
@@ -263,7 +291,7 @@ public class Javadoc extends ASTNode {
 
 			// Scan all @throws tags
 			for (int i = 0; i < throwsTagsNbre; i++) {
-				TypeReference typeRef = thrownExceptions[i];
+				TypeReference typeRef = this.thrownExceptions[i];
 				typeRef.resolve(methScope);
 				TypeBinding typeBinding = typeRef.resolvedType;
 
@@ -272,7 +300,7 @@ public class Javadoc extends ASTNode {
 					boolean found = false;
 					for (int j = 0; j < maxRef && !found; j++) {
 						if (typeReferences[j].resolvedType == typeBinding) {
-							methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, true);
+							methScope.problemReporter().javadocDuplicatedThrowsClassName(typeRef, md.binding.modifiers);
 							found = true;
 						}
 					}
@@ -283,23 +311,21 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Look for undocumented thrown exception
-			if (reportMissing) {
-				for (int i = 0; i < thrownExceptionSize; i++) {
-					TypeReference exception = md.thrownExceptions[i];
-					boolean found = false;
-					for (int j = 0; j < maxRef && !found; j++) {
-						if (typeReferences[j] != null) {
-							TypeBinding typeBinding = typeReferences[j].resolvedType;
-							if (exception.resolvedType == typeBinding) {
-								found = true;
-								typeReferences[j] = null;
-							}
+			for (int i = 0; i < thrownExceptionSize; i++) {
+				TypeReference exception = md.thrownExceptions[i];
+				boolean found = false;
+				for (int j = 0; j < maxRef && !found; j++) {
+					if (typeReferences[j] != null) {
+						TypeBinding typeBinding = typeReferences[j].resolvedType;
+						if (exception.resolvedType == typeBinding) {
+							found = true;
+							typeReferences[j] = null;
 						}
 					}
-					if (!found) {
-						if (exception.resolvedType != null && exception.resolvedType.isValidBinding()) { // flag only valid class name
-							methScope.problemReporter().javadocMissingThrowsTag(exception);
-						}
+				}
+				if (!found && reportMissing) {
+					if (exception.resolvedType != null && exception.resolvedType.isValidBinding()) { // flag only valid class name
+						methScope.problemReporter().javadocMissingThrowsTag(exception, md.binding.modifiers);
 					}
 				}
 			}
@@ -310,7 +336,7 @@ public class Javadoc extends ASTNode {
 				if (typeRef != null) {
 					if (!typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangRuntimeException())
 							&& !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangError())) {
-						methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, false);
+						methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, md.binding.modifiers);
 					}
 				}
 			}

@@ -43,10 +43,100 @@ Eclipse SDK 3.0M6 Build - ?th December 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compiler options to signal problems with javadoc comments have been improved. User can now decide to report
+independently problems on invalid tags (syntax and references), missing tags and missing comments.
+Invalid references, missing tags or missing comments problem can be now ignored below a specific visibility level.
+Finally, user will also have the possibility to ignore missing tags and missing comments on overriding methods
+(assuming that complete Javadoc comments is done in superclass or interface declaration).
+<br>
+Here's the complete list of these options:
+<pre>
+	 * COMPILER / Reporting Invalid Javadoc Comment
+	 *    This is the generic control for the severity of Javadoc problems.
+	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Visibility Level For Invalid Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
+	 * 
+	 * COMPILER / Reporting Invalid Javadoc Tags
+	 *    When enabled, the compiler will signal unbound or unexpected reference tags in Javadoc.
+	 *    A 'throws' tag referencing an undeclared exception would be considered as unexpected.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *    <br>
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
+	 *     - possible values:   { "disabled", "enabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags
+	 *    This is the generic control for the severity of Javadoc missing tag problems.
+	 *    When enabled, the compiler will issue an error or a warning when tags are missing in Javadoc comments.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTags"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc missing tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments
+	 *    This is the generic control for the severity of missing Javadoc comment problems.
+	 *    When enabled, the compiler will issue an error or a warning when Javadoc comments are missing.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the expected Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocComments"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Comments
+	 *    Set the minimum visibility level for missing Javadoc problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "public"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report missing Javadoc comment problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+</pre>
+Note that backward compatibility with previous options IDs: <code>"org.eclipse.jdt.core.compiler.problem.missingJavadoc"</code>
+will be supported until 3.0M7 build and removed after.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48617">48617</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
+@throws reference incorrectly warned as not declared
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47940">47940</a>
+Unable to control level  of JavaDoc errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47319">47319</a>
+Compiler warns on missing Javadoc tags for private methods.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46976">46976</a>
+Do not warn about 'Missing Javadoc'  for overriding methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46854">46854</a>
+[DCR] Javadoc configuration setting needs more flexibility
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48617">48617</a>
 Error range for unresolved names in qualified references
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48333">48333</a>
 [Compiler] Implicit deprecation isn't propagated to anonymous type
