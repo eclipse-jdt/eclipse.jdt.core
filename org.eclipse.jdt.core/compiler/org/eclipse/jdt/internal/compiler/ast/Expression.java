@@ -48,10 +48,9 @@ public abstract class Expression extends Statement {
 	 * since it is not strictly equivalent to the definition of constant expressions.
 	 * In particular, some side-effects may be required to occur (only the end value
 	 * is known).
-	 * Constant is known to be of boolean type
+	 * @return Constant known to be of boolean type
 	 */ 
 	public Constant optimizedBooleanConstant() {
-
 		return this.constant;
 	}
 
@@ -250,6 +249,11 @@ public abstract class Expression extends Statement {
 
 	/**
 	 * Default generation of a boolean value
+	 * @param currentScope
+	 * @param codeStream
+	 * @param trueLabel
+	 * @param falseLabel
+	 * @param valueRequired
 	 */
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
