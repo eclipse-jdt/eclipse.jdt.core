@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -111,6 +112,57 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 public static Test suite() {
 	return new Suite(SearchTests.class);
 }
+
+
+public SearchTests(String name) {
+	super(name);
+}
+protected void assertAllTypes(int waitingPolicy, String expected) throws JavaModelException {
+	assertAllTypes("Unexpected all types", null, waitingPolicy, expected);
+}
+protected void assertAllTypes(String expected) throws JavaModelException {
+	assertAllTypes(WAIT_UNTIL_READY_TO_SEARCH, expected);
+}
+protected void assertAllTypes(String message, IJavaProject project, String expected) throws JavaModelException {
+	assertAllTypes(message, project, WAIT_UNTIL_READY_TO_SEARCH, expected);
+}
+protected void assertAllTypes(String message, IJavaProject project, int waitingPolicy, String expected) throws JavaModelException {
+	IJavaSearchScope scope =
+		project == null ?
+			SearchEngine.createWorkspaceScope() :
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+	SearchEngine searchEngine = new SearchEngine();
+	TypeNameRequestor requestor = new TypeNameRequestor();
+	searchEngine.searchAllTypeNames(
+		ResourcesPlugin.getWorkspace(),
+		null,
+		null,
+		PATTERN_MATCH,
+		CASE_INSENSITIVE,
+		TYPE,
+		scope, 
+		requestor,
+		waitingPolicy,
+		null);
+	String actual = requestor.toString();
+	if (!expected.equals(actual)){
+	 	System.out.println(Util.displayString(actual, 3));
+	}
+	assertEquals(
+		message,
+		expected,
+		actual);
+}
+protected void assertPattern(String expected, ISearchPattern actualPattern) {
+	String actual = actualPattern == null ? null : actualPattern.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(actual == null ? "null" : Util.displayString(actual));
+	}
+	assertEquals(
+		"Unexpected search pattern",
+		expected,
+		actual);
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	createJavaProject("P");
@@ -137,51 +189,6 @@ public void tearDownSuite() throws Exception {
 	deleteProject("P");
 	super.tearDownSuite();
 }
-
-
-public SearchTests(String name) {
-	super(name);
-}
-protected void assertAllTypes(String expected) throws JavaModelException {
-	assertAllTypes("Unexpected all types", null, expected);
-}
-protected void assertAllTypes(String message, IJavaProject project, String expected) throws JavaModelException {
-	IJavaSearchScope scope =
-		project == null ?
-			SearchEngine.createWorkspaceScope() :
-			SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
-	SearchEngine searchEngine = new SearchEngine();
-	TypeNameRequestor requestor = new TypeNameRequestor();
-	searchEngine.searchAllTypeNames(
-		ResourcesPlugin.getWorkspace(),
-		null,
-		null,
-		PATTERN_MATCH,
-		CASE_INSENSITIVE,
-		TYPE,
-		scope, 
-		requestor,
-		WAIT_UNTIL_READY_TO_SEARCH,
-		null);
-	String actual = requestor.toString();
-	if (!expected.equals(actual)){
-	 	System.out.println(Util.displayString(actual, 3));
-	}
-	assertEquals(
-		message,
-		expected,
-		actual);
-}
-protected void assertPattern(String expected, ISearchPattern actualPattern) {
-	String actual = actualPattern == null ? null : actualPattern.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(actual == null ? "null" : Util.displayString(actual));
-	}
-	assertEquals(
-		"Unexpected search pattern",
-		expected,
-		actual);
-}
 /*
  * Ensure that changing the classpath in the middle of reindexing
  * a project causes another request to reindex.
@@ -206,7 +213,7 @@ public void testChangeClasspath() throws CoreException {
 		// add waiting job and wait for it to be executed
 		indexManager.request(job);
 		indexManager.enable();
-		job.waitForJobToStart();
+		job.waitForJobToStart(); // job is suspended here
 		
 		// remove source folder from classpath
 		IJavaProject project = getJavaProject("P1");
@@ -228,6 +235,36 @@ public void testChangeClasspath() throws CoreException {
 		indexManager.enable();
 	}
 }
+/*
+ * Ensures that passing a null progress monitor with a CANCEL_IF_NOT_READY_TO_SEARCH
+ * waiting policy doesn't throw a NullPointerException but an OperationCanceledException.
+ * (regression test for bug 33571 SearchEngine.searchAllTypeNames: NPE when passing null as progress monitor)
+ */
+ public void testNullProgressMonitor() throws CoreException {
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	WaitingJob job = new WaitingJob();
+ 	try {
+ 		// add waiting job and wait for it to be executed
+		indexManager.disable();
+		indexManager.request(job);
+		indexManager.enable();
+		job.waitForJobToStart(); // job is suspended here
+		
+		// query all type names with 
+		boolean operationCanceled = false;
+		try {
+			assertAllTypes(
+				CANCEL_IF_NOT_READY_TO_SEARCH,
+				"Should not get any type"
+			);
+		} catch (OperationCanceledException e) {
+			operationCanceled = true;
+		}
+		assertTrue("Should throw an OperationCanceledException", operationCanceled);
+ 	} finally {
+ 		job.resume();
+ 	}
+ }
 /*
  * Ensure that removing the outer folder from the classpath doesn't remove cus in inner folder
  * from index
