@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -148,7 +149,7 @@ public class Clinit extends AbstractMethodDeclaration {
 		if (this.assertionSyntheticFieldBinding != null) {
 			// generate code related to the activation of assertion for this class
 			codeStream.generateClassLiteralAccessForType(
-				classScope.enclosingSourceType(),
+					classScope.enclosingSourceType(),
 				classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
 			Label falseLabel = new Label(codeStream);
@@ -162,35 +163,59 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.putstatic(this.assertionSyntheticFieldBinding);
 		}
 		// generate static fields/initializers/enum constants
-		int enumCount = 0;
-		if (declaringType.fields != null) {
-			for (int i = 0, max = declaringType.fields.length; i < max; i++) {
-				FieldDeclaration fieldDecl = declaringType.fields[i];
-				if (fieldDecl.isStatic()) {
-					fieldDecl.generateCode(staticInitializerScope, codeStream);
-				}
-				if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-					enumCount++;
-				}
-			}
-		}
-		// enum need to initialize $VALUES synthetic cache of enum constants
-		if (enumCount > 0) {
-			if (declaringType.fields != null) {
-				// $VALUES := new <EnumType>[<enumCount>]
-				codeStream.generateInlinedValue(enumCount);
-				codeStream.anewarray(declaringType.binding);
-				for (int i = 0, max = declaringType.fields.length; i < max; i++) {
-					FieldDeclaration fieldDecl = declaringType.fields[i];
-					// $VALUES[i] = <enum-constant-i>
-					if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-						codeStream.dup();
-						codeStream.generateInlinedValue(fieldDecl.binding.id);
-						codeStream.getstatic(fieldDecl.binding);
-						codeStream.aastore();
+		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
+		if (declaringType.getKind() == IGenericType.ENUM) {
+			int enumCount = 0;
+			int notEnumConstants = 0;
+			if (fieldDeclarations != null) {
+				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl = fieldDeclarations[i];
+					if (fieldDecl.isStatic()) {
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+							fieldDecl.generateCode(staticInitializerScope, codeStream);
+							enumCount++;
+						} else {
+							notEnumConstants++;
+						}
 					}
 				}
-				codeStream.putstatic(declaringType.enumValuesSyntheticfield);
+			}
+			// enum need to initialize $VALUES synthetic cache of enum constants
+			if (enumCount > 0) {
+				if (fieldDeclarations != null) {
+					// $VALUES := new <EnumType>[<enumCount>]
+					codeStream.generateInlinedValue(enumCount);
+					codeStream.anewarray(declaringType.binding);
+					for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+						FieldDeclaration fieldDecl = fieldDeclarations[i];
+						// $VALUES[i] = <enum-constant-i>
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+							codeStream.dup();
+							codeStream.generateInlinedValue(fieldDecl.binding.id);
+							codeStream.getstatic(fieldDecl.binding);
+							codeStream.aastore();
+						}
+					}
+					codeStream.putstatic(declaringType.enumValuesSyntheticfield);
+				}
+			}
+			if (notEnumConstants != 0) {
+				// if fields that are not enum constants need to be generated (static initializer/static field)
+				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl = fieldDeclarations[i];
+					if (fieldDecl.isStatic() && fieldDecl.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT) {
+						fieldDecl.generateCode(staticInitializerScope, codeStream);
+					}
+				}
+			}
+		} else {
+			if (fieldDeclarations != null) {
+				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl = fieldDeclarations[i];
+					if (fieldDecl.isStatic()) {
+						fieldDecl.generateCode(staticInitializerScope, codeStream);
+					}
+				}
 			}
 		}
 		

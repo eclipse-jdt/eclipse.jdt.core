@@ -1310,6 +1310,33 @@ public class EnumTest extends AbstractComparisonTest {
 			}
 		);
 	}
+	
+	public void test045() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X\n" + 
+				"{\n" + 
+				"  FIRST,\n" + 
+				"  SECOND,\n" + 
+				"  THIRD;\n" + 
+				"\n" + 
+				"  static {\n" + 
+				"    for (X t : values()) {\n" + 
+				"      System.out.print(t.name());\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  X() {\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"  }\n" + 
+				"}"
+			},
+			"FIRSTSECONDTHIRD"
+		);
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
