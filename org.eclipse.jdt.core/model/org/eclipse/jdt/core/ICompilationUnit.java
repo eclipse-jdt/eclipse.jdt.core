@@ -31,6 +31,12 @@ import org.eclipse.jdt.core.dom.AST;
  */
 public interface ICompilationUnit extends IJavaElement, ISourceReference, IParent, IOpenable, IWorkingCopy, ISourceManipulation, ICodeAssist {
 /**
+ * Constant indicating that a reconcile operation should not return an AST.
+ * @since 3.0
+ */
+public static final int NO_AST = 0;
+
+/**
  * Changes this compilation unit handle into a working copy. A new <code>IBuffer</code> is
  * created using this compilation unit handle's owner. Uses the primary owner is none was
  * specified when this compilation unit handle was created.
@@ -483,58 +489,6 @@ boolean isWorkingCopy();
  * <p>
  * The boolean argument allows to force problem detection even if the
  * working copy is already consistent.
- * </p><p>
- * This functionality allows to specify a working copy owner which is used during problem detection.
- * All references contained in the working copy are resolved against other units; for which corresponding 
- * owned working copies are going to take precedence over their original compilation units. 
- * If <code>null</code> is passed in, then the primary working copy owner is used.
- * </p><p>
- * Compilation problems found in the new contents are notified through the
- * <code>IProblemRequestor</code> interface which was passed at
- * creation, and no longer as transient markers.
- * </p><p>
- * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
- * </p><p>
- * If requested, a DOM AST representing the compilation unit is returned. Its bindings are computed 
- * only if the problem requestor is active, or if the problem detection is forced. 
- * This method returns <code>null</code> if the creation of the DOM AST was not requested, or 
- * if the working copy was already consistent.
- * </p>
- *
- * @param createAST boolean indicating whether a compilation unit AST should be created.
- * @param forceProblemDetection boolean indicating whether problem should be recomputed
- *   even if the source hasn't changed.
- * @param owner the owner of working copies that take precedence over the original compilation units,
- *   or <code>null</code> if the primary working copy owner should be used
- * @param monitor a progress monitor
- * @return the compilation unit AST or <code>null</code> if not requested, 
- *   or if the working copy was consistent.
- * 
- * @throws JavaModelException if the contents of the original element
- *		cannot be accessed. Reasons include:
- * <ul>
- * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * </ul>
- * @deprecated Replaced by {@link #reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor).
- * TODO (jeem) this method to be deleted for April 20, 2004 I-build
- * @since 3.0
- */
-CompilationUnit reconcile(boolean createAST, boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
-
-/**
- * Reconciles the contents of this working copy, sends out a Java delta
- * notification indicating the nature of the change of the working copy since
- * the last time it was either reconciled or made consistent 
- * (see <code>IOpenable#makeConsistent()</code>), and returns a
- * compilation unit AST if requested.
- * <p>
- * It performs the reconciliation by locally caching the contents of 
- * the working copy, updating the contents, then creating a delta 
- * over the cached contents and the new contents, and finally firing
- * this delta.
- * <p>
- * The boolean argument allows to force problem detection even if the
- * working copy is already consistent.
  * </p>
  * <p>
  * This functionality allows to specify a working copy owner which is used
@@ -559,10 +513,8 @@ CompilationUnit reconcile(boolean createAST, boolean forceProblemDetection, Work
  * API is not supported, or if the working copy was already consistent.
  * </p>
  *
- * @param astLevel if positive, a compilation unit AST that should be created
- * and returned, and the value specifies the
- * {@linkplain AST#AST(int)
- * AST API level} for that AST; if zero, no AST is wanted
+ * @param astLevel either {@link #NO_AST} if no AST is wanted,
+ * or the {@linkplain AST#AST(int) AST API level} of the AST if one is wanted
  * @param forceProblemDetection boolean indicating whether problem should be 
  *   recomputed even if the source hasn't changed
  * @param owner the owner of working copies that take precedence over the 

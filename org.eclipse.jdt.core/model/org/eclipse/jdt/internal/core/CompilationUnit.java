@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @see ICompilationUnit
  */
-
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
 	public WorkingCopyOwner owner;
@@ -631,6 +630,7 @@ public int getElementType() {
 public char[] getFileName(){
 	return getElementName().toCharArray();
 }
+
 /*
  * @see JavaElement
  */
@@ -652,6 +652,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	}
 	return null;
 }
+
 /**
  * @see JavaElement#getHandleMementoDelimiter()
  */
@@ -1057,28 +1058,14 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	reconcile(0/*don't create AST*/, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
+	reconcile(NO_AST, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
 }
 /**
  * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(0/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);
-}
-/**
- * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
- * @since 3.0
- * @deprecated TODO (jeem) remove after the ICompilationUnit API method is removed
- */
-public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
-	boolean createAST,
-	boolean forceProblemDetection,
-	WorkingCopyOwner workingCopyOwner,
-	IProgressMonitor monitor)
-	throws JavaModelException {
-
-	return reconcile(AST.LEVEL_2_0, forceProblemDetection, workingCopyOwner, monitor);
+	reconcile(NO_AST, forceProblemDetection, null/*use primary owner*/, monitor);
 }
 
 /**
