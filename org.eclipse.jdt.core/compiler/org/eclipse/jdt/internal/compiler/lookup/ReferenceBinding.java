@@ -317,7 +317,51 @@ public int fieldCount() {
 public FieldBinding[] fields() {
 	return NoFields;
 }
+/**
+ * Find supertype which erases to a given well-known type, or null if not found
+ * (using id avoids triggering the load of well-known type: 73740)
+ * NOTE: only works for erasures of well-known types, as random other types may share
+ * same id though being distincts.
+ *
+ */
+public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsClass) {
 
+    if (erasure().id == erasureId) return this;
+    ReferenceBinding currentType = this;
+    // iterate superclass to avoid recording interfaces if searched supertype is class
+    if (erasureIsClass) {
+		while ((currentType = currentType.superclass()) != null) { 
+			if (currentType.erasure().id == erasureId) return currentType;
+		}    
+		return null;
+    }
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	int lastPosition = -1;
+	do {
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]).erasure().id == erasureId)
+				return currentType;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return null;
+}
 /**
  * Find supertype which erases to a given type, or null if not found
  */

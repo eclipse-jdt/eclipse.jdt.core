@@ -301,7 +301,7 @@ public class ForeachStatement extends Statement {
 		TypeBinding collectionType = this.collection.resolveType(scope);
 		this.collection.computeConversion(scope, collectionType, collectionType);
 		boolean hasError = elementType == null || collectionType == null;
-		
+
 		if (!hasError) {
 			if (collectionType.isArrayType()) { // for(E e : E[])
 				this.kind = ARRAY;
@@ -315,7 +315,7 @@ public class ForeachStatement extends Statement {
 					this.elementVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
 				}
 			} else if (collectionType instanceof ReferenceBinding) {
-			    ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeErasingTo(scope.getJavaLangIterable());
+			    ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeErasingTo(T_JavaLangIterable, false /*Iterable is not a class*/);
 			    if (iterableType != null) {
 				    if (iterableType.isParameterizedType()) { // for(E e : Iterable<E>)
 					    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)iterableType;
