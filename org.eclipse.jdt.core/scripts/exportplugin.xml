@@ -1,91 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- build script to create a plugin from org.eclipse.jdt.core -->
-<project name="org.eclipse.jdt.core" default="export plug-in [_2.0.4]" basedir="..">
+<!-- build script to create a plugin from ${plugin} -->
+<project name="${plugin}" default="export plug-in [_2.0.4]" basedir="..">
 
-<target name="zz_init">
-	<tstamp/>
-	<property name="export-dir" value="../../plugin-export" />
-</target>
 
-<target name="export plug-in [_2.0.4]" depends="zz_init">
+<target name="export plug-in [_3.0.0]">
 	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.4"/>
-	</antcall>
-</target>
-<target name="export plug-in [_2.0.2]" depends="zz_init">
-	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.2"/>
+		<param name="version" value="3.0.0"/>
 	</antcall>
 </target>
 
-<target name="export plug-in [_2.0.1]" depends="zz_init">
+<target name="export plug-in [_2.1.1]">
 	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.1"/>
+		<param name="version" value="2.1.1"/>
 	</antcall>
 </target>
 
-<target name="export plug-in [_2.0.0]" depends="zz_init">
+<target name="export plug-in [_2.1.0]">
 	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.0"/>
+		<param name="version" value="2.1.0"/>
 	</antcall>
 </target>
 
-<target name="export plug-in [_1.9.0]" depends="zz_init">
-	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_1.9.0"/>
+<target name="export plug-in [_2.1.0] (directory structure)">
+	<antcall target="zz_internal_export_structure">
+		<param name="version" value="2.1.0"/>
 	</antcall>
 </target>
 
-<target name="export plug-in [no version]" depends="zz_init">
+<target name="export plug-in [_2.0.4]">
 	<antcall target="zz_internal_export">
-	<param name="dest" value="${export-dir}/org.eclipse.jdt.core"/>
+		<param name="version" value="2.0.4"/>
+	</antcall>
+</target>
+
+<target name="export plug-in [_2.0.3]">
+	<antcall target="zz_internal_export">
+		<param name="version" value="2.0.3"/>
+	</antcall>
+</target>
+
+<target name="export plug-in [_1.9.0]">
+	<antcall target="zz_internal_export">
+		<param name="version" value="1.9.0"/>
 	</antcall>
 </target>
 
 <target name="zz_internal_export">
 
 	<tstamp/>
+	<property name="export-dir" value="../../plugin-export" />
+	<property name="plugin" value="org.eclipse.jdt.core" />
+	<property name="plugin-dir" value="${export-dir}/${plugin}_${version}"/>
 
 	<echo message="TARGET: ${export-dir}" />
 	<mkdir dir="${export-dir}" />
-	<delete dir="${dest}" />
-	<mkdir dir="${dest}" />
+	<delete dir="${plugin-dir}" />
+	<mkdir dir="${plugin-dir}" />
 
 	<echo message="UPDATE jdtcore.jar" />
 	<jar 
-		jarfile="${dest}/jdtcore.jar"
+		jarfile="${plugin-dir}/jdtcore.jar"
 		basedir="bin" 
-		excludes="**/JDTCompilerAdapter.class"/>
+		excludes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
 	<jar 
-		jarfile="${dest}/jdtCompilerAdapter.jar"
+		jarfile="${plugin-dir}/jdtCompilerAdapter.jar"
 		basedir="bin" 
-		includes="**/JDTCompilerAdapter.class"/>
+		includes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 
 	<echo message="UPDATE plugin.xml" />
-	<copy file="plugin.xml" todir="${dest}" />
+	<copy file="plugin.xml" todir="${plugin-dir}" />
 	<echo message="UPDATE plugin.properties" />
-	<copy file="plugin.properties" todir="${dest}" />
+	<copy file="plugin.properties" todir="${plugin-dir}" />
 
 	<echo message="UPDATE .options" />
-	<copy file=".options" todir="${dest}" />
+	<copy file=".options" todir="${plugin-dir}" />
 
 	<echo message="UPDATE about.html" />
-	<copy file="about.html" todir="${dest}" />
+	<copy file="about.html" todir="${plugin-dir}" />
 
 	<echo message="UPDATE jdtcoresrc.zip" />
-	<zip zipfile="${dest}/jdtcoresrc.zip">
-	    <zipfileset dir="antadapter" />
-	    <zipfileset dir="batch" />
-	    <zipfileset dir="codeassist" />
-	    <zipfileset dir="compiler" />
-	    <zipfileset dir="dom" />
-	    <zipfileset dir="eval" />
-	    <zipfileset dir="formatter" />
-	    <zipfileset dir="model" />
-	    <zipfileset dir="search" />
+	<zip zipfile="${plugin-dir}/jdtcoresrc.zip">
+	    <fileset dir="batch" />
+	    <fileset dir="codeassist" />
+	    <fileset dir="compiler" />
+	    <fileset dir="dom" />
+	    <fileset dir="eval" />
+	    <fileset dir="formatter" />
+	    <fileset dir="model" />
+	    <fileset dir="search" />
+	</zip>		
+
+	<echo message="UPDATE jdtCompilerAdaptersrc.zip" />
+	<zip zipfile="${plugin-dir}/jdtCompilerAdaptersrc.zip">
+		<fileset dir="antadapter" />
+	</zip>	    
+
+	<echo message="UPDATE ${export-dir}/../${plugin}_${version}.zip" />
+	<zip zipfile="${export-dir}/../${plugin}_${version}.zip"
+	    basedir="${export-dir}" 
+	    includes="${plugin}_${version}/**"	/>		
+</target>
+
+<target name="zz_internal_export_structure">
+
+	<tstamp/>
+	<property name="export-dir" value="../../plugin-export" />
+	<property name="plugin" value="org.eclipse.jdt.core" />
+	<property name="bin_dest" value="${export-dir}/eclipse/plugins/${plugin}_${version}"/>
+	<property name="src_dest" value="${export-dir}/eclipse/plugins/org.eclipse.jdt.source_${version}/src/${plugin}_${version}"/>
+
+	<echo message="TARGET: ${export-dir}" />
+	<mkdir dir="${export-dir}" />
+	<delete dir="${bin_dest}" />
+	<delete dir="${src_dest}" />
+	<mkdir dir="${bin_dest}" />
+	<mkdir dir="${src_dest}" />
+
+	<echo message="UPDATE jdtcore.jar" />
+	<jar 
+		jarfile="${bin_dest}/jdtcore.jar"
+		basedir="bin" 
+		excludes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
+		
+	<echo message="UPDATE jdtCompilerAdapter.jar" />
+	<jar 
+		jarfile="${bin_dest}/jdtCompilerAdapter.jar"
+		basedir="bin" 
+		includes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
+
+	<echo message="UPDATE plugin.xml" />
+	<copy file="plugin.xml" todir="${bin_dest}" />
+	<echo message="UPDATE plugin.properties" />
+	<copy file="plugin.properties" todir="${bin_dest}" />
+
+	<echo message="UPDATE .options" />
+	<copy file=".options" todir="${bin_dest}" />
+
+	<echo message="UPDATE about.html" />
+	<copy file="about.html" todir="${bin_dest}" />
+
+	<echo message="UPDATE jdtcoresrc.zip" />
+	<zip zipfile="${src_dest}/jdtcoresrc.zip">
+	    <fileset dir="batch" />
+	    <fileset dir="codeassist" />
+	    <fileset dir="compiler" />
+	    <fileset dir="dom" />
+	    <fileset dir="eval" />
+	    <fileset dir="formatter" />
+	    <fileset dir="model" />
+	    <fileset dir="search" />
 	</zip>		
 </target>
 
