@@ -886,15 +886,21 @@ class NaiveASTFlattener extends ASTVisitor {
 			// top-level tags always begin on a new line
 			this.buffer.append("\n * ");//$NON-NLS-1$
 		}
+		boolean previousNeedsWhiteSpace = false;
 		if (node.getTagName() != null) {
 			this.buffer.append(node.getTagName());
-			if (node.fragments().size() > 0) {
-				this.buffer.append(" ");//$NON-NLS-1$
-			}
+			previousNeedsWhiteSpace = true;
 		}
 		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
 			ASTNode e = (ASTNode) it.next();
+			// assume text elements include necessary leading and trailing whitespace
+			boolean currentIncludesWhiteSpace = (e instanceof TextElement);
+			// add space if required to separate
+			if (previousNeedsWhiteSpace && !currentIncludesWhiteSpace) {
+				this.buffer.append(" "); //$NON-NLS-1$
+			}
 			e.accept(this);
+			previousNeedsWhiteSpace = !(e instanceof TextElement);
 		}
 		if (node.isNested()) {
 			this.buffer.append("}");//$NON-NLS-1$
