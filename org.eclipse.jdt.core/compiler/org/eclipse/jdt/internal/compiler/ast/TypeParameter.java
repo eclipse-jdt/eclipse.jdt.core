@@ -22,6 +22,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	public TypeReference[] bounds;
 
 	public void resolve(ClassScope scope) {
+	    // TODO (philippe) add warning for detecting variable name collisions
 	}
 
 	/* (non-Javadoc)
@@ -43,6 +44,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+	    // nothing to do
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
