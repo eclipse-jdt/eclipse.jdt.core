@@ -23,7 +23,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -67,6 +69,10 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 	switch (parent.getNodeType()) {
 		case ASTNode.COMPILATION_UNIT:
 			return CompilationUnit.TYPES_PROPERTY;
+		case ASTNode.ENUM_DECLARATION:
+			return EnumDeclaration.BODY_DECLARATIONS_PROPERTY;
+		case ASTNode.ANNOTATION_TYPE_DECLARATION:
+			return AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY;
 		default:
 			return TypeDeclaration.BODY_DECLARATIONS_PROPERTY;
 	}

@@ -10,11 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Hashtable;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CreateMembersTests extends AbstractJavaModelTests {
@@ -53,5 +58,61 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			"	}\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
+	public void test002() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			IField sibling = type.getField("j");
+			type.createField("int i;", sibling, true, null);
+			String expectedSource = 
+				"public enum E {\n" + 
+				"	E1, E2;\n" + 
+				"	int i;\n" + 
+				"	int j;\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
+	public void test003() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Annot.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			IMethod sibling = type.getMethod("foo", new String[]{});
+			type.createMethod("String bar();", sibling, true, null);
+			String expectedSource = 
+				"public @interface Annot {\n" + 
+				"	String bar();\n" + 
+				"\n" + 
+				"	String foo();\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
 	}
 }
