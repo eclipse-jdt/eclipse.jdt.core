@@ -367,7 +367,7 @@ public void test0023() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"",
 		requestor.getResults());
 }
 public void test0024() throws JavaModelException {
@@ -380,7 +380,7 @@ public void test0024() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"",
 		requestor.getResults());
 }
 public void test0025() throws JavaModelException {
@@ -475,7 +475,263 @@ public void test0031() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0032() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0032", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
 		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0033() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0033", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0034() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0034", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0035() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0035", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0036() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0036", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0037() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0037", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0038() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0038", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0039() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0039", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0040() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0040", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0041() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0041", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0042() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0042", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0043() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0043", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0044() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0044", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0045() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0045", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0046() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0046", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
+ */
+public void test0047() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0047", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Stri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"",
 		requestor.getResults());
 }
 }

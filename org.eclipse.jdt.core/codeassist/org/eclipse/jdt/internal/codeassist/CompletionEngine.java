@@ -412,6 +412,7 @@ public final class CompletionEngine
 		
 		computeUninterestingBindings(astNodeParent, scope);
 		if(astNodeParent != null) {
+			if(!isValidParent(astNodeParent, astNode, scope)) return;
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 		
@@ -3689,5 +3690,58 @@ public final class CompletionEngine
 					endPosition - offset,
 					relevance);
 		}
+	}
+	
+	private boolean isValidParent(ASTNode parent, ASTNode node, Scope scope){
+		
+		if(parent instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
+			int nodeIndex = -1;
+			for(int i = length - 1 ; i > -1 ; i--) {
+				if(node == ref.typeArguments[i]) {
+					nodeIndex = i;
+					break;
+				}
+			}
+			if(nodeIndex > -1 && (typeVariables == null || typeVariables.length < nodeIndex + 1)) {
+				TypeBinding[] typeBindings = new TypeBinding[nodeIndex + 1];
+				for(int i = 0; i < nodeIndex; i++) {
+					typeBindings[i] = ref.typeArguments[i].resolvedType;
+				}
+				typeBindings[nodeIndex] = scope.getJavaLangObject();
+				if(typeVariables == null || typeVariables.length == 0) {
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(ref, ref.resolvedType, typeBindings);
+				} else {
+					scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
+				}
+				return false;
+			}
+		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeReference[][] arguments = ref.typeArguments;
+			int iLength = arguments == null ? 0 : arguments.length;
+			done: for (int i = 0; i < iLength; i++) {
+				int jLength = arguments[i] == null ? 0 : arguments[i].length;
+				for (int j = 0; j < jLength; j++) {
+					if(arguments[i][j] == node && (typeVariables == null || typeVariables.length <= j)) {
+						TypeBinding[] typeBindings = new TypeBinding[j + 1];
+						for(int k = 0; k < j; k++) {
+							typeBindings[k] = ref.typeArguments[i][k].resolvedType;
+						}
+						typeBindings[j] = scope.getJavaLangObject();
+						if(typeVariables == null || typeVariables.length == 0) {
+							scope.problemReporter().nonGenericTypeCannotBeParameterized(ref, ref.resolvedType, typeBindings);
+						} else {
+							scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
+						}
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 }
