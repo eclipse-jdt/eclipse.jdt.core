@@ -212,8 +212,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
-		// TODO  (olivier) bug 67790 remove once DOMParser is activated
-		intPtr--;
+		intPtr--; // remove the position of the '<'
 
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -276,8 +275,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
-		// TODO (olivier) bug 67790 remove once DOMParser is activated
-		intPtr--;
+		intPtr--; // remove the position of the '<'
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)

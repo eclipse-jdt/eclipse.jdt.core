@@ -1973,6 +1973,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 			length = this.genericsLengthStack[this.genericsLengthPtr--];
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
+			allocationExpression.sourceStart = intStack[intPtr--];
 		}
 		
 		// mark initializers with local type mark if needed
@@ -2035,6 +2036,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 			length = this.genericsLengthStack[this.genericsLengthPtr--];
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
+			allocationExpression.sourceStart = intStack[intPtr--];
 		}
 		
 		// mark initializers with local type mark if needed
