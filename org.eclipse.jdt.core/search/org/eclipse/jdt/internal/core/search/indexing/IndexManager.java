@@ -37,11 +37,6 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	 */
 	private Map indexes = new HashMap(5);
 
-	/*
-	 * key = a SearchDocument, value = an Index
-	 */
-	public Map documentIndexes = new HashMap(5);
-
 	/* need to save ? */
 	private boolean needToSave = false;
 	private static final CRC32 checksumCalculator = new CRC32();
@@ -239,10 +234,10 @@ private IPath getJavaPluginWorkingLocation() {
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
-		this.documentIndexes.put(searchDocument, index);
+		((InternalSearchDocument) searchDocument).index = index;
 		searchParticipant.indexDocument(searchDocument, indexPath);
 	} finally {
-		this.documentIndexes.remove(searchDocument);
+		((InternalSearchDocument) searchDocument).index = null;
 	}
 }
 /**

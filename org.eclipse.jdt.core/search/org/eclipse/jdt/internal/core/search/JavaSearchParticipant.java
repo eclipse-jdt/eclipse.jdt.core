@@ -65,7 +65,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 	 */
 	public void indexDocument(SearchDocument document, IPath indexPath) {
 		// TODO must verify that the document + indexPath match, when this is not called from scheduleDocumentIndexing
-		removeAllIndexEntries(document); // in case the document was already indexed
+		document.removeAllIndexEntries(); // in case the document was already indexed
 
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(documentPath)) {

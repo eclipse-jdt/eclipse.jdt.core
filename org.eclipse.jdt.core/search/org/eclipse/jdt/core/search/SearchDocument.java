@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
+
 /**
  * A search document encapsulates a content to be either indexed or searched in.
  * A search particpant creates a search document.
@@ -19,7 +21,7 @@ package org.eclipse.jdt.core.search;
  * 
  * @since 3.0
  */
-public abstract class SearchDocument {
+public abstract class SearchDocument extends InternalSearchDocument {
 	private String documentPath;
 	private SearchParticipant participant;
 	
@@ -36,6 +38,18 @@ public abstract class SearchDocument {
 		this.participant = participant;
 	}
 
+	/**
+	 * Adds the given index entry (category and key) coming from this
+	 * document to the index. This method must be called from
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
+	 * 
+	 * @param category the category of the index entry
+	 * @param key the key of the index entry
+	 */
+	public void addIndexEntry(char[] category, char[] key) {
+		super.addIndexEntry(category, key);
+	}
+	
 	/**
 	 * Returns the contents of this document.
 	 * Contents may be different from actual resource at corresponding document path,
@@ -92,5 +106,13 @@ public abstract class SearchDocument {
 	 */	
 	public final String getPath() {
 		return this.documentPath;
+	}
+	/**
+	 * Removes all index entries from the index for the given document.
+	 * This method must be called from 
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
+	 */
+	public void removeAllIndexEntries() {
+		super.removeAllIndexEntries();
 	}
 }

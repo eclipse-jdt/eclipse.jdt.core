@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 /**
@@ -94,7 +95,7 @@ public Index(String fileName, String printableName, boolean reuseExistingFile) t
 	this.diskIndex = new DiskIndex(fileName);
 	this.diskIndex.initialize(reuseExistingFile);
 }
-public void addIndexEntry(char[] category, char[] key, SearchDocument document) {
+public void addIndexEntry(char[] category, char[] key, InternalSearchDocument document) {
 	this.memoryIndex.addIndexEntry(category, key, document);
 }
 public File getIndexFile() {

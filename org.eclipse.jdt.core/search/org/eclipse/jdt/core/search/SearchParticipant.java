@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * A search participant describes a particular extension to a generic search
@@ -47,35 +45,6 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * @since 3.0
  */
 public abstract class SearchParticipant {
-
-	/**
-	 * Adds the given index entry (category and key) coming from the given
-	 * document to the index. This method must be called from
-	 * {@link #indexDocument(SearchDocument document, IPath indexPath).
-	 * 
-	 * @param category the category of the index entry
-	 * @param key the key of the index entry
-	 * @param document the document that is being indexed
-	 */
-	public static void addIndexEntry(char[] category, char[] key, SearchDocument document) {
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-		Index index = (Index) indexManager.documentIndexes.get(document);
-		if (index != null)
-			index.addIndexEntry(category, key, document);
-	}
-	/**
-	 * Removes all index entries from the index for the given document.
-	 * This method must be called from 
-	 * {@link #indexDocument(SearchDocument document, IPath indexPath).
-	 * 
-	 * @param document the document that is being indexed
-	 */
-	public static void removeAllIndexEntries(SearchDocument document) {
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-		Index index = (Index) indexManager.documentIndexes.get(document);
-		if (index != null)
-			index.remove(document.getPath());
-	}
 
 	/**
 	 * Creates a new search participant.
