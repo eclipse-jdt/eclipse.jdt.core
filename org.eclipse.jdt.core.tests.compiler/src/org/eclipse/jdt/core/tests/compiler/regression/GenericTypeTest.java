@@ -7984,6 +7984,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"foo, bar");	
 	}
 	// 72644
+	// TODO (kent) this should generate:
+	// X is not abstract and does not override abstract method putAll(java.util.Map<? extends java.lang.String,? extends V>) in java.util.Map
 	public void test298() {
 		this.runConformTest(
 			new String[] {
@@ -8014,7 +8016,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"   }\n" + 
 				"}\n",
 			},
-			"SUCCESS");	
+			"SUCCESS");
+/* Also
+name clash: putAll(java.util.Map<? extends java.lang.String,? extends V>) in GenericMap<S,V> and putAll(java.util.Map<? extends K,? extends V>)
+in java.util.Map<S,V> have the same erasure, yet neither overrides the other
+
+abstract class GenericMap<S, V> implements java.util.Map<S, V> {
+   public void putAll(java.util.Map<? extends String, ? extends V> t) { }
+}
+ */
 	}
 	// 74244
 	public void test299() {
