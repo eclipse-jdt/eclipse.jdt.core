@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
@@ -1177,7 +1178,7 @@ public abstract class Scope
 		return false;
 	}
 
-	/* Answer whether the type is defined in the same compilation unit as the receiver
+	/* Answer true if the scope is nested inside a given type declaration
 	*/
 	public final boolean isDefinedInType(ReferenceBinding type) {
 		Scope scope = this;
@@ -1190,7 +1191,24 @@ public abstract class Scope
 		} while (scope != null);
 		return false;
 	}
-	
+
+	/* Answer true if the scope is nested inside a given method declaration
+	*/
+	public final boolean isDefinedInMethod(MethodBinding method) {
+		Scope scope = this;
+		do {
+			if (scope instanceof MethodScope) {
+				ReferenceContext refContext = ((MethodScope) scope).referenceContext;
+				if (refContext instanceof AbstractMethodDeclaration
+						&& ((AbstractMethodDeclaration)refContext).binding == method) {
+					return true;
+				}
+			}
+			scope = scope.parent;
+		} while (scope != null);
+		return false;
+	}
+		
 	public boolean isInsideDeprecatedCode(){
 		switch(kind){
 			case Scope.BLOCK_SCOPE :

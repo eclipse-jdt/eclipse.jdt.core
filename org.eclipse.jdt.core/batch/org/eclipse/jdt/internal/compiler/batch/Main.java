@@ -1245,6 +1245,7 @@ public class Main implements ProblemSeverities {
 			CompilerOptions.OPTION_ReportHiddenCatchBlock,
 			CompilerOptions.WARNING);
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportUnusedParameter,
 			CompilerOptions.IGNORE);

@@ -139,7 +139,8 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	*/
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope) {
 
-		if (method.isPrivate()) {
+		if (method.isPrivate() && !scope.isDefinedInMethod(method)) {
+			// ignore cases where method is used from within inside itself (e.g. direct recursions)
 			method.modifiers |= AccPrivateUsed;
 		}
 		
