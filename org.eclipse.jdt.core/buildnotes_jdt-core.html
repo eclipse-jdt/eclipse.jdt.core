@@ -51,10 +51,18 @@ Eclipse SDK 3.1M4 - ?th November 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>New ComletionProposal kind <code>METHOD_NAME_REFERENCE</code>.
+This completion is a reference to a method name.
+<br>This kind of completion might occur in a context like
+<code>"import java.lang.Math.co^"</code> and complete it to
+<code>"import java.lang.Math.cos;"</code>.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78008">78008</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77573">77573</a>
+[1.5][assist] Code assist does not propose static fields
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78008">78008</a>
 [1.5][compiler] java.lang.VerifyError on shortcut if-else
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78018">78018</a>
 [1.5][javadoc] Missing Javadoc comments Problem for enums
