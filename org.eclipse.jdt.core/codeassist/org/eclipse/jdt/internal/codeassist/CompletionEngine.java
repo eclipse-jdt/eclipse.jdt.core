@@ -690,7 +690,7 @@ public final class CompletionEngine
 				
 				if (constructor.isSynthetic()) continue next;
 					
-				if (options.checkVisibility()
+				if (options.checkVisibility
 					&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
 
 				TypeBinding[] parameters = constructor.parameters;
@@ -763,7 +763,7 @@ public final class CompletionEngine
 
 			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
 
-			if (options.checkVisibility()
+			if (options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 
 			boolean prefixRequired = false;
@@ -802,7 +802,7 @@ public final class CompletionEngine
 			
 			char[] completion = field.name;
 			
-			if(prefixRequired || options.insertQualificationForFieldsAndMethods()){
+			if(prefixRequired || options.forceImplicitQualification){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
@@ -1030,7 +1030,7 @@ public final class CompletionEngine
 				))
 				continue next;
 
-			if (options.checkVisibility()
+			if (options.checkVisibility
 				&& !memberType.canBeSeenBy(receiverType, invocationType))
 				continue next;
 
@@ -1344,7 +1344,7 @@ public final class CompletionEngine
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if (onlyStaticMethods && !method.isStatic()) continue next;
 
-			if (options.checkVisibility()
+			if (options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
 
 			if (exactMatch) {
@@ -1437,7 +1437,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if(prefixRequired || options.insertQualificationForFieldsAndMethods()){
+			if(prefixRequired || options.forceImplicitQualification){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
@@ -1487,7 +1487,7 @@ public final class CompletionEngine
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if (onlyStaticMethods && !method.isStatic()) continue next;
 
-			if (options.checkVisibility()
+			if (options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, false, scope)) continue next;
 
 			if (exactMatch) {

@@ -1418,6 +1418,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:				"disabled"
+	 * 
+	 *	CODEASSIST / Automatic Qualification of Implicit Members
+	 *    When active, completion automatically qualifies completion on implicit
+	 *    field references and message expressions.
+	 *     - option id:				"org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
+	 *     - possible values:	{ "enabled", "disabled" }
+	 *     - default:				"disabled"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -1463,7 +1470,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		// CodeAssist settings
 		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
-		defaultOptions.put("org.eclipse.jdt.core.codeComplete.insertQualificationForFieldsAndMethods", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.forceImplicitQualification", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		return defaultOptions;
 	}
