@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -48,7 +46,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	
 	/*
 	 * A cache of all package fragments in this project.
-	 * (a map from String[] (the package name) to IPackageFragment[] (the package fragments with this name)
+	 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name)
 	 */
 	private HashtableOfArrayToObject allPkgFragmentsCache;
 
@@ -177,20 +175,28 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		if (this.allPkgFragmentsCache == null) {
 			HashtableOfArrayToObject cache = new HashtableOfArrayToObject();
 			IPackageFragmentRoot[] roots = getAllPackageFragmentRoots(project);
-			IPackageFragment[] frags = this.getPackageFragmentsInRoots(roots, project);
-			for (int i= 0; i < frags.length; i++) {
-				PackageFragment fragment= (PackageFragment) frags[i];
-				String[] pkgName = fragment.names;
-				IPackageFragment[] entry= (IPackageFragment[]) cache.get(pkgName);
-				if (entry == null) {
-					entry= new IPackageFragment[1];
-					entry[0]= fragment;
-					cache.put(pkgName, entry);
-				} else {
-					IPackageFragment[] copy= new IPackageFragment[entry.length + 1];
-					System.arraycopy(entry, 0, copy, 0, entry.length);
-					copy[entry.length]= fragment;
-					cache.put(pkgName, copy);
+			for (int i = 0, length = roots.length; i < length; i++) {
+				IPackageFragmentRoot root = roots[i];
+				IJavaElement[] frags = null;
+				try {
+					frags = root.getChildren();
+				} catch (JavaModelException e) {
+					// root doesn't exist: ignore
+					continue;
+				}
+				for (int j = 0, length2 = frags.length; j < length2; j++) {
+					PackageFragment fragment= (PackageFragment) frags[j];
+					String[] pkgName = fragment.names;
+					IPackageFragmentRoot[] entry= (IPackageFragmentRoot[]) cache.get(pkgName);
+					if (entry == null) {
+						entry= new IPackageFragmentRoot[] {root};
+						cache.put(pkgName, entry);
+					} else {
+						IPackageFragmentRoot[] copy= new IPackageFragmentRoot[entry.length + 1];
+						System.arraycopy(entry, 0, copy, 0, entry.length);
+						copy[entry.length]= root;
+						cache.put(pkgName, copy);
+					}
 				}
 			}
 			this.allPkgFragmentsCache = cache;
@@ -207,51 +213,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			this.nonJavaResources = computeNonJavaResources(project);
 		}
 		return this.nonJavaResources;
-	}
-	
-	/**
-	 * Returns all the package fragments found in the specified
-	 * package fragment roots. Make sure the returned fragments have the given
-	 * project as great parent. This ensures the name lookup will not refer to another
-	 * project (through jar package fragment roots)
-	 */
-	private IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots, IJavaProject project) {
-
-		// The following code assumes that all the roots have the given project as their parent
-		ArrayList frags = new ArrayList();
-		for (int i = 0; i < roots.length; i++) {
-			PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
-			try {
-				IJavaElement[] pkgs = root.getChildren();
-
-				/* 2 jar package fragment roots can be equals but not belonging 
-				   to the same project. As a result, they share the same element info.
-				   So this jar package fragment root could get the children of
-				   another jar package fragment root.
-				   The following code ensures that the children of this jar package
-				   fragment root have the given project as a great parent.
-				 */
-				int length = pkgs.length;
-				if (length == 0) continue;
-				if (pkgs[0].getParent().getParent().equals(project)) {
-					// the children have the right parent, simply add them to the list
-					for (int j = 0; j < length; j++) {
-						frags.add(pkgs[j]);
-					}
-				} else {
-					// create a new handle with the root as the parent
-					for (int j = 0; j < length; j++) {
-						String[] pkgName = ((PackageFragment) pkgs[j]).names;
-						frags.add(root.getPackageFragment(pkgName));
-					}
-				}
-			} catch (JavaModelException e) {
-				// do nothing
-			}
-		}
-		IPackageFragment[] fragments = new IPackageFragment[frags.size()];
-		frags.toArray(fragments);
-		return fragments;
 	}
 
 	/*
