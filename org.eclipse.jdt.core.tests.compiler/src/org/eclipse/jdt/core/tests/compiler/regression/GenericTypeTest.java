@@ -15950,5 +15950,33 @@ public void test500(){
 				"}\n",
 			},
 			"SUCCESS");
-	}		
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87956
+	public void test561() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(A<String> a) {}\n" + 
+				"	Object foo(A<Integer> a) { return null; }\n" + 
+				"	 void test(A<Integer> a) { foo(a); }\n" + 
+				"}\n" + 
+				"class A<T> {}\n",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Number foo(A<String> a) { return null; }\n" + 
+				"	Integer foo(A<Integer> a) { return null; }\n" + 
+				"	void test(A<Integer> a) { foo(a); }\n" + 
+				"}\n" + 
+				"class A<T> {}\n",
+			},
+			""
+		);
+	}
 }

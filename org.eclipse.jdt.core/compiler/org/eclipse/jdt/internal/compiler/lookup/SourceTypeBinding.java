@@ -954,6 +954,7 @@ public MethodBinding[] methods() {
 		}
 
 		// find & report collision cases
+		boolean is15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
@@ -961,7 +962,7 @@ public MethodBinding[] methods() {
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						boolean paramsMatch = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5
+						boolean paramsMatch = is15 && method.returnType == method2.returnType // see 87956
 							? method.areParameterErasuresEqual(method2)
 							: method.areParametersEqual(method2);
 						if (paramsMatch) {
