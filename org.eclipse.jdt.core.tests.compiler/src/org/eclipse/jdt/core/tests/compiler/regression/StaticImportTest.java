@@ -421,6 +421,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77955
 	public void test013() { 
 		this.runNegativeTest(
@@ -504,6 +505,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78056
 	public void test014() { 
 		this.runConformTest(
@@ -520,6 +522,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78075
 	public void test015() { 
 		this.runConformTest(
@@ -551,6 +554,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77630
 	public void test016() { 
 		this.runNegativeTest(
@@ -567,7 +571,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724
 	public void test017() {
 		this.runConformTest(
@@ -591,7 +595,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			""
 		);
-	}	
+	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724 - variation
 	public void test018() {
@@ -638,8 +642,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			"The private field C.b is never read locally\n" + 
 			"----------\n"
 		);
-	}		
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81718
 	public void test019() {
 		this.runNegativeTest(
@@ -664,5 +668,29 @@ public class StaticImportTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n"
 		);
-	}		
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82754
+	public void test020() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.Math.round;\n" + 
+				"public class X {\n" + 
+				"  void foo() { cos(0); }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import static java.lang.Math.round;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.lang.Math.round is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	void foo() { cos(0); }\n" + 
+			"	             ^^^\n" + 
+			"The method cos(int) is undefined for the type X\n" + 
+			"----------\n"
+		);
+	}
 }

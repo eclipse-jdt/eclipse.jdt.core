@@ -1745,8 +1745,9 @@ public abstract class Scope
 						MethodBinding possible = null;
 						if (resolvedImport instanceof MethodBinding && !importBinding.onDemand) {
 							MethodBinding staticMethod = (MethodBinding) resolvedImport;
-							// answers closest approximation, may not check argumentTypes or visibility
-							possible = findMethod(staticMethod.declaringClass, staticMethod.selector, argumentTypes, invocationSite);
+							if (CharOperation.equals(staticMethod.selector, selector))
+								// answers closest approximation, may not check argumentTypes or visibility
+								possible = findMethod(staticMethod.declaringClass, staticMethod.selector, argumentTypes, invocationSite);
 						} else if (resolvedImport instanceof ReferenceBinding && importBinding.onDemand) {
 							// answers closest approximation, may not check argumentTypes or visibility
 							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
