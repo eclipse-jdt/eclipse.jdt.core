@@ -244,6 +244,19 @@ public class ForeachStatement extends Statement {
 					currentScope,
 					this.postCollectionInitStateIndex);
 			}
+		} else {
+			// if unused variable, some side effects still need to be performed (86487)
+			switch(this.kind) {
+				case ARRAY :
+					break;
+				case RAW_ITERABLE :
+				case GENERIC_ITERABLE :
+					// still advance in iterator to prevent infinite loop
+					codeStream.load(this.indexVariable);
+					codeStream.invokeJavaUtilIteratorNext();
+					codeStream.pop();
+					break;
+			}
 		}
 		this.action.generateCode(scope, codeStream);
 
