@@ -142,8 +142,13 @@ public void evaluateCodeSnippet(
 		} else {
 			// try to retrieve imports from the source
 			SourceMapper sourceMapper = ((ClassFile) declaringType.getClassFile()).getSourceMapper();
-			declaringType.getSource(); // do the mapping and initialize the imports
-			this.context.setImports(sourceMapper.getImports());
+			if (sourceMapper != null) {
+				declaringType.getSource(); // do the mapping and initialize the imports
+				char[][] imports = sourceMapper.getImports();
+				if (imports != null) {
+					this.context.setImports(sourceMapper.getImports());
+				}
+			}
 		}
 	}
 	try {
