@@ -23,6 +23,12 @@ package org.eclipse.jdt.core.dom;
  * Range 0: first character of qualified name through the last character
  * of the simple name.
  *
+ * <p>
+ * See <code>FieldAccess</code> for guidelines on handling other expressions
+ * that resemble qualified names.
+ * </p>
+ * 
+ * @see FieldAccess
  * @since 2.0
  */
 public class QualifiedName extends Name {

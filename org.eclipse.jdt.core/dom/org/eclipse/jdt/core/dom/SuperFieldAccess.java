@@ -19,6 +19,12 @@ package org.eclipse.jdt.core.dom;
  *     [ ClassName <b>.</b> ] <b>super</b> <b>.</b> Identifier
  * </pre>
  * 
+ * <p>
+ * See <code>FieldAccess</code> for guidelines on handling other expressions
+ * that resemble qualified names.
+ * </p>
+ * 
+ * @see FieldAccess
  * @since 2.0
  */
 public class SuperFieldAccess extends Expression {

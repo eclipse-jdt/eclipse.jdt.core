@@ -18,6 +18,38 @@ package org.eclipse.jdt.core.dom;
  * FieldAccess: 
  * 		Expression <b>.</b> Identifier
  * </pre>
+ * 
+ * <p>
+ * Note that there are several kinds of expressions that resemble field access
+ * expressions: qualified names, this expressions, and super field access
+ * expressions. The following guidelines help with correct usage:
+ * <ul>
+ *   <li>An expression like "foo.this" can only be represented as a this
+ *   expression (<code>ThisExpression</code>) containing a simple name.
+ *   "this" is a keyword, and therefore invalid as an identifier.</li>
+ *   <li>An expression like "this.foo" can only be represented as a field
+ *   access expression (<code>FieldAccess</code>) containing a this expression
+ *   and a simple name. Again, this is because "this" is a keyword, and
+ *   therefore invalid as an identifier.</li>
+ *   <li>An expression with "super" can only be represented as a super field
+ *   access expression (<code>SuperFieldAccess</code>). "super" is a also
+ *   keyword, and therefore invalid as an identifier.</li>
+ *   <li>An expression like "foo.bar" can be represented either as a
+ *   qualified name (<code>QualifiedName</code>) or as a field access
+ *   expression (<code>FieldAccess</code>) containing simple names. Either
+ *   is acceptable, and there is no way to choose between them without
+ *   information about what the names resolve to
+ *   (<code>AST.parseCompilationUnit</code> may return either).</li>
+ *   <li>Other expressions ending in an identifier, such as "foo().bar" can
+ *   only be represented as field access expressions
+ *   (<code>FieldAccess</code>).</li>
+ * </ul>
+ * </p>
+ * 
+ * @see QualifiedName
+ * @see ThisExpression
+ * @see SuperFieldAccess
+ * @since 2.0
  */
 public class FieldAccess extends Expression {
 	
