@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Basic tests of the image builder.
@@ -27,7 +28,7 @@ public class OutputFolderTests extends Tests {
 		//           Step 1
 		//----------------------------
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		IPath root = env.getPackageFragmentRootPath(projectPath, "");
 		IPath bin = env.setOutputFolder(projectPath, "bin");
@@ -66,7 +67,7 @@ public class OutputFolderTests extends Tests {
 		//           Step 1
 		//----------------------------
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");

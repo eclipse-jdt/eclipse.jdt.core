@@ -3,6 +3,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class IncrementalTests extends Tests {
 
@@ -19,7 +20,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRenameMainType() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");
@@ -75,8 +76,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRemoveSecondaryType() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
-		env.addExternalJar(projectPath, env.getBuilderTestsJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");
@@ -143,8 +143,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRemoveSecondaryType2() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
-		env.addExternalJar(projectPath, env.getBuilderTestsJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");
@@ -207,7 +206,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMoveSecondaryType() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");
@@ -260,7 +259,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMoveMemberType() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");
@@ -318,8 +317,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMemberTypeFromClassFile() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
-		env.addExternalJar(projectPath, env.getBuilderTestsJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, "");

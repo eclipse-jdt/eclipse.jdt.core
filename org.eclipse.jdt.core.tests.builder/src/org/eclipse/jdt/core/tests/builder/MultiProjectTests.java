@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 
 public class MultiProjectTests extends Tests {
@@ -25,7 +26,7 @@ public class MultiProjectTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, "");
 		env.addClass(root1, "", "A",
 			"public class A {\n"+
@@ -36,7 +37,7 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2");
-		env.addExternalJar(project2Path, env.getMinimalJarPath());
+		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, "");
 		env.addClass(root2, "", "B",
@@ -48,7 +49,7 @@ public class MultiProjectTests extends Tests {
 			//         Project3
 			//----------------------------
 		IPath project3Path = env.addProject("Project3");
-		env.addExternalJar(project3Path, env.getMinimalJarPath());
+		env.addExternalJar(project3Path, Util.getJavaClassLib());
 		IPath root3 = env.getPackageFragmentRootPath(project3Path, "");
 		env.addClass(root3, "", "C",
 			"public class C {\n"+
@@ -79,7 +80,7 @@ public class MultiProjectTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, "");
 		env.addClass(root1, "", "A",
 			"public class A {\n"+
@@ -91,7 +92,7 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2");
-		env.addExternalJar(project2Path, env.getMinimalJarPath());
+		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, "");
 		IPath b = env.addClass(root2, "", "B",

@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageTests extends Tests {
 	private static String[] EXCLUDED_TESTS = {
@@ -25,7 +26,7 @@ public class PackageTests extends Tests {
 		//           Step 1
 		//----------------------------
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath src = env.addPackageFragmentRoot(projectPath, "src");
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2");

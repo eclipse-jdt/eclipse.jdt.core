@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 
 /**
@@ -18,7 +19,7 @@ public class ErrorsTests extends Tests {
 	
 	public void testErrors() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide

@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractMethodTests extends Tests {
 	private static String[] EXCLUDED_TESTS = {};
@@ -24,7 +25,7 @@ public class AbstractMethodTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 		
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, "");
@@ -51,7 +52,7 @@ public class AbstractMethodTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2");
-		env.addExternalJar(project2Path, env.getMinimalJarPath());
+		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 		
 		// remove old package fragment root so that names don't collide

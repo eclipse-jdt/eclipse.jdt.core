@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Basic execution tests of the image builder.
@@ -17,8 +18,7 @@ public class ExecutionTests extends Tests {
 	
 	public void testSuccess() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
-		env.addExternalJar(projectPath, env.getBuilderTestsJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -43,7 +43,7 @@ public class ExecutionTests extends Tests {
 	
 	public void testFailure() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide

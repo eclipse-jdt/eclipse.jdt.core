@@ -3,6 +3,8 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.Util;
+
 import java.util.*;
 
 public class ClasspathTests extends Tests {
@@ -20,15 +22,15 @@ public class ClasspathTests extends Tests {
 
 	public void testClosedProject() {
 		IPath project1Path = env.addProject("CP1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0});
 
 		IPath project2Path = env.addProject("CP2");
-		env.addExternalJar(project2Path, env.getMinimalJarPath());
+		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 
 		IPath project3Path = env.addProject("CP3");
-		env.addExternalJar(project3Path, env.getMinimalJarPath());
+		env.addExternalJar(project3Path, Util.getJavaClassLib());
 		env.addExternalJar(project3Path, jarPath.toString());
 
 		fullBuild();
@@ -85,10 +87,10 @@ public class ClasspathTests extends Tests {
 
 	public void testMissingProject() {
 		IPath project1Path = env.addProject("MP1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
 		IPath project2Path = env.addProject("MP2");
-		env.addExternalJar(project2Path, env.getMinimalJarPath());
+		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 
 		fullBuild();
@@ -109,7 +111,7 @@ public class ClasspathTests extends Tests {
 		);
 
 		project1Path = env.addProject("MP1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -129,7 +131,7 @@ public class ClasspathTests extends Tests {
 		);
 
 		project1Path = env.addProject("MP1");
-		env.addExternalJar(project1Path, env.getMinimalJarPath());
+		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -168,7 +170,7 @@ public class ClasspathTests extends Tests {
 		//----------------------------
 		//           Step 2
 		//----------------------------	
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		incrementalBuild();
 		expectingNoProblems();

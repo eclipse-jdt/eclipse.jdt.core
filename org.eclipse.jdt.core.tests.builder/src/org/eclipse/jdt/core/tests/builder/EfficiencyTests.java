@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Basic efficiency tests of the image builder.
@@ -17,7 +18,7 @@ public class EfficiencyTests extends Tests {
 	
 	public void testEfficiency() {
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -57,7 +58,7 @@ public class EfficiencyTests extends Tests {
 	public void testMethodAddition() {
 
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -109,7 +110,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeAddition() {
 
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -161,7 +162,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeAddition2() {
 
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -219,7 +220,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeRemoval() {
 
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -271,7 +272,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeRemoval2() {
 
 		IPath projectPath = env.addProject("Project");
-		env.addExternalJar(projectPath, env.getMinimalJarPath());
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
