@@ -29,7 +29,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
 
-		if (true) {
+		if (false) {
 			Class c = ASTConverterTest2.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {
@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0470"));			
+		suite.addTest(new ASTConverterTest2("test0473"));			
 		return suite;
 	}
 	/**
@@ -1883,5 +1883,72 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(fragment, "j= goo(3)", source);
 		checkSourceRange(variableDeclarationExpression, "int i= 0, j= goo(3)", source);
 	}		
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=38447
+	 */
+	public void test0471() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0471", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Is a constructor", !methodDeclaration.isConstructor());
+		checkSourceRange(methodDeclaration, "private void foo(){", source);
+		node = getASTNode(compilationUnit, 0, 1);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Is a constructor", !methodDeclaration.isConstructor());
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=38447
+	 */
+	public void test0472() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "junit.textui", "ResultPrinter.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 2);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=38732
+	 */
+	public void test0473() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			JavaCore.setOptions(newOptions);
+				
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0473", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			char[] source = sourceUnit.getSource().toCharArray();
+			ASTNode result = runConversion(sourceUnit, true);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+			assertNotNull("No node", node);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			AssertStatement assertStatement = (AssertStatement) node;
+			checkSourceRange(assertStatement, "assert(true);", source);
+			Expression expression = assertStatement.getExpression();
+			checkSourceRange(expression, "(true)", source);
+		} finally {
+			JavaCore.setOptions(options);
+		}
+	}
+
 }
 

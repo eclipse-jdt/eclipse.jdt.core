@@ -700,39 +700,71 @@ class ASTConverter {
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
 		int declarationSourceEnd = methodDeclaration.bodyEnd;
 		methodDecl.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-		retrieveRightBraceOrSemiColonPosition(methodDecl);
-		
-		org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
-		
-		if (statements != null || explicitConstructorCall != null) {
-			Block block = this.ast.newBlock();
-			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
-			block.setSourceRange(start, end - start + 1);
-			if (explicitConstructorCall != null && explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
-				block.statements().add(convert(explicitConstructorCall));
-			}
-			int statementsLength = statements == null ? 0 : statements.length;
-			for (int i = 0; i < statementsLength; i++) {
-				if (statements[i] instanceof LocalDeclaration) {
-					checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-				} else {
-					block.statements().add(convert(statements[i]));
+		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDecl, methodDeclaration);
+		if (closingPosition != -1) {
+			int startPosition = methodDecl.getStartPosition();
+			methodDecl.setSourceRange(startPosition, closingPosition - startPosition);
+
+			org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
+			
+			if (statements != null || explicitConstructorCall != null) {
+				Block block = this.ast.newBlock();
+				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
+				block.setSourceRange(start, end - start + 1);
+				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
+					block.statements().add(convert(explicitConstructorCall));
+				}
+				int statementsLength = statements == null ? 0 : statements.length;
+				for (int i = 0; i < statementsLength; i++) {
+					if (statements[i] instanceof LocalDeclaration) {
+						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
+					} else {
+						block.statements().add(convert(statements[i]));
+					}
+				}
+				methodDecl.setBody(block);
+			} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
+				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
+				if (start != -1 && end != -1) {
+					/*
+					 * start or end can be equal to -1 if we have an interface's method.
+					 */
+					Block block = this.ast.newBlock();
+					block.setSourceRange(start, end - start + 1);
+					methodDecl.setBody(block);
 				}
 			}
-			methodDecl.setBody(block);
-		} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
-			if (start != -1 && end != -1) {
-				/*
-				 * start or end can be equal to -1 if we have an interface's method.
-				 */
-				Block block = this.ast.newBlock();
-				block.setSourceRange(start, end - start + 1);
-				methodDecl.setBody(block);
-			}
+		} else {
+			// syntax error in this method declaration
+			if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
+				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+				end = methodDeclaration.bodyEnd;
+				// try to get the best end position
+				IProblem[] problems = methodDeclaration.compilationResult().problems;
+				if (problems != null) {
+					for (int i = 0, max = problems.length; i < max; i++) {
+						IProblem currentProblem = problems[i];
+						if (currentProblem.getSourceStart() == start && currentProblem.getID() == IProblem.ParsingErrorInsertToComplete) {
+							end = currentProblem.getSourceEnd();
+							break;
+						}
+					}
+				}
+				int startPosition = methodDecl.getStartPosition();
+				methodDecl.setSourceRange(startPosition, end - startPosition + 1);
+				if (start != -1 && end != -1) {
+					/*
+					 * start or end can be equal to -1 if we have an interface's method.
+					 */
+					Block block = this.ast.newBlock();
+					block.setSourceRange(start, end - start + 1);
+					methodDecl.setBody(block);
+				}
+			}			
 		}
+		
 		setJavaDocComment(methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
@@ -1787,8 +1819,8 @@ class ASTConverter {
 
 	public AssertStatement convert(org.eclipse.jdt.internal.compiler.ast.AssertStatement statement) {
 		AssertStatement assertStatement = this.ast.newAssertStatement();
-		assertStatement.setExpression(convert(statement.assertExpression));
 		int end = statement.assertExpression.sourceEnd + 1;
+		assertStatement.setExpression(convert(statement.assertExpression));
 		org.eclipse.jdt.internal.compiler.ast.Expression exceptionArgument = statement.exceptionArgument;
 		if (exceptionArgument != null) {
 			assertStatement.setMessage(convert(exceptionArgument));
@@ -2649,9 +2681,9 @@ class ASTConverter {
 	 * This method is used to retrieve position before the next right brace or semi-colon.
 	 * @return int the position found.
 	 */
-	private void retrieveRightBraceOrSemiColonPosition(ASTNode node) {
+	private int retrieveRightBraceOrSemiColonPosition(MethodDeclaration node, AbstractMethodDeclaration methodDeclaration) {
 		int start = node.getStartPosition();
-		scanner.resetTo(start, this.compilationUnitSource.length);
+		scanner.resetTo(start, methodDeclaration.declarationSourceEnd);
 		try {
 			int token;
 			int braceCounter = 0;
@@ -2663,19 +2695,18 @@ class ASTConverter {
 					case TerminalTokens.TokenNameRBRACE :
 						braceCounter--;
 						if (braceCounter == 0) {
-							node.setSourceRange(start, scanner.currentPosition - start);
-							return;
+							return scanner.currentPosition;
 						}
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
 						if (braceCounter == 0) {
-							node.setSourceRange(start, scanner.currentPosition - start);
-							return;
+							return scanner.currentPosition;
 						}
 				}
 			}
 		} catch(InvalidInputException e) {
 		}
+		return -1;
 	}
 
 	/**
