@@ -53,12 +53,39 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
  * Record a local declaration 
  */
 public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance) {
+	return this.add(localDeclaration, bracketBalance, false);
+}
+/*
+ * Record a local declaration 
+ */
+public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance, boolean delegatedByParent) {
 
-	/* do not consider a local variable starting passed the block end (if set)
+	/* local variables inside method can only be final and non void */
+/*	
+	char[][] localTypeName; 
+	if ((localDeclaration.modifiers & ~AccFinal) != 0 // local var can only be final 
+		|| (localDeclaration.type == null) // initializer
+		|| ((localTypeName = localDeclaration.type.getTypeName()).length == 1 // non void
+			&& CharOperation.equals(localTypeName[0], VoidBinding.sourceName()))){ 
+
+		if (delegatedByParent){
+			return this; //ignore
+		} else {
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));
+			return this.parent.add(localDeclaration, bracketBalance);
+		}
+	}
+*/	
+		/* do not consider a local variable starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
 		&& localDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
-		return this.parent.add(localDeclaration, bracketBalance);
+
+		if (delegatedByParent){
+			return this; //ignore
+		} else {
+			return this.parent.add(localDeclaration, bracketBalance);
+		}
 	}
 
 	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalance);
@@ -76,12 +103,24 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
  * Record a statement declaration 
  */
 public RecoveredElement add(Statement statement, int bracketBalance) {
+	return this.add(statement, bracketBalance, false);
+}
+
+/*
+ * Record a statement declaration 
+ */
+public RecoveredElement add(Statement statement, int bracketBalance, boolean delegatedByParent) {
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
 		&& statement.sourceStart > blockDeclaration.sourceEnd){
-		return this.parent.add(statement, bracketBalance);
+			
+		if (delegatedByParent){
+			return this; //ignore
+		} else {
+			return this.parent.add(statement, bracketBalance);
+		}			
 	}
 			
 	RecoveredStatement element = new RecoveredStatement(statement, this, bracketBalance);
@@ -93,12 +132,22 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
  * Addition of a type to an initializer (act like inside method body)
  */
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
+	return this.add(typeDeclaration, bracketBalance, false);
+}
+/*
+ * Addition of a type to an initializer (act like inside method body)
+ */
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance, boolean delegatedByParent) {
 
 	/* do not consider a type starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
 		&& typeDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
-		return this.parent.add(typeDeclaration, bracketBalance);
+		if (delegatedByParent){
+			return this; //ignore
+		} else {
+			return this.parent.add(typeDeclaration, bracketBalance);
+		}
 	}
 			
 	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalance);
@@ -254,7 +303,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 
 	/* local variables inside method can only be final and non void */
 	char[][] fieldTypeName; 
-	if ((fieldDeclaration.modifiers & ~AccFinal) != 0 /* local var can only be final */
+	if ((fieldDeclaration.modifiers & ~AccFinal) != 0 // local var can only be final 
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
 			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
