@@ -62,7 +62,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	 * Convert a set of source element types into a parsed compilation unit declaration
 	 * The argument types are then all grouped in the same unit. The argument types must 
 	 * at least contain one type.
-	 * Can optionally ignore fields & methods or member types
+	 * Can optionally ignore fields & methods or member types or field initialization
 	 */
 	public static CompilationUnitDeclaration buildCompilationUnit(
 		ISourceType[] sourceTypes,
@@ -84,7 +84,6 @@ public class SourceTypeConverter implements CompilerModifiers {
 	 * Convert a set of source element types into a parsed compilation unit declaration
 	 * The argument types are then all grouped in the same unit. The argument types must 
 	 * at least contain one type.
-	 * Can optionally ignore fields & methods or member types
 	 */
 	private CompilationUnitDeclaration convert(
 		ISourceType[] sourceTypes,
