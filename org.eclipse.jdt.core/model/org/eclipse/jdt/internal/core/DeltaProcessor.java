@@ -1088,10 +1088,12 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 									this.manager.registerJavaModelDelta(translatedDeltas[i]);
 								}
 							}
+							/*
 							IJavaElementDelta externalDelta = this.processExternalJarChanges();
 							if (externalDelta != null){
 								this.manager.registerJavaModelDelta(externalDelta);
 							}
+							*/
 							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
 						}		
 					} finally {
