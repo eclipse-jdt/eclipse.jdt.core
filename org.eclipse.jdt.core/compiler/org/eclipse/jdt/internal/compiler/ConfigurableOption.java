@@ -44,7 +44,7 @@ public ConfigurableOption(
 	ResourceBundle resource = null;
 	try {
 		String location = componentName.substring(0, componentName.lastIndexOf('.'));
-		resource = ResourceBundle.getBundle(location + ".Options"/*nonNLS*/, loc); 
+		resource = ResourceBundle.getBundle(location + ".options"/*nonNLS*/, loc); 
 	} catch (MissingResourceException e) {
 		category = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
 		name = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
