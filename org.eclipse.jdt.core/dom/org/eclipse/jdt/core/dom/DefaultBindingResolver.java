@@ -703,20 +703,23 @@ class DefaultBindingResolver extends BindingResolver {
 		if (methodBinding != null && !methodBinding.isValidBinding()) {
 			/*
 			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597			 */
-			if (methodBinding.problemId() == ProblemReasons.NotVisible) {
-				ReferenceBinding declaringClass = methodBinding.declaringClass;
-				if (declaringClass != null) {
-					org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
-					if (exactBinding != null) {
-						IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
-						if (binding != null) {
+			switch(methodBinding.problemId()) {
+				case ProblemReasons.NotVisible : 
+				case ProblemReasons.NonStaticReferenceInStaticContext :
+					ReferenceBinding declaringClass = methodBinding.declaringClass;
+					if (declaringClass != null) {
+						org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
+						if (exactBinding != null) {
+							IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
+							if (binding != null) {
+								return binding;
+							}
+							binding = new MethodBinding(this, exactBinding);
+							this.compilerBindingsToASTBindings.put(methodBinding, binding);
 							return binding;
 						}
-						binding = new MethodBinding(this, exactBinding);
-						this.compilerBindingsToASTBindings.put(methodBinding, binding);
-						return binding;
 					}
-				}
+					break;
 			}
 		}
 		if (methodBinding == null || !methodBinding.isValidBinding()) {
