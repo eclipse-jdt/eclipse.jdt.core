@@ -3958,7 +3958,9 @@ public void needToEmulateMethodAccess(
 	MethodBinding method, 
 	ASTNode location) {
 
-	if (method.isConstructor())
+	if (method.isConstructor()) {
+		if (method.declaringClass.isEnum())
+			return; // tolerate emulation for enum constructors, which can only be made private
 		this.handle(
 			IProblem.NeedToEmulateConstructorAccess, 
 			new String[] {
@@ -3971,21 +3973,22 @@ public void needToEmulateMethodAccess(
 			 }, 
 			location.sourceStart, 
 			location.sourceEnd); 
-	else
-		this.handle(
-			IProblem.NeedToEmulateMethodAccess, 
-			new String[] {
-				new String(method.declaringClass.readableName()), 
-				new String(method.selector), 
-				typesAsString(method.isVarargs(), method.parameters, false)
-			 }, 
-			new String[] {
-				new String(method.declaringClass.shortReadableName()), 
-				new String(method.selector), 
-				typesAsString(method.isVarargs(), method.parameters, true)
-			 }, 
-			location.sourceStart, 
-			location.sourceEnd); 
+		return;
+	}
+	this.handle(
+		IProblem.NeedToEmulateMethodAccess, 
+		new String[] {
+			new String(method.declaringClass.readableName()), 
+			new String(method.selector), 
+			typesAsString(method.isVarargs(), method.parameters, false)
+		 }, 
+		new String[] {
+			new String(method.declaringClass.shortReadableName()), 
+			new String(method.selector), 
+			typesAsString(method.isVarargs(), method.parameters, true)
+		 }, 
+		location.sourceStart, 
+		location.sourceEnd); 
 }
 public void nestedClassCannotDeclareInterface(TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(typeDecl.name)};

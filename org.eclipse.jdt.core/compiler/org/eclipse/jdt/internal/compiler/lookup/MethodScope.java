@@ -96,6 +96,7 @@ public class MethodScope extends BlockScope {
 				// must check the parse node explicitly
 				problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 			}
+			modifiers |= AccPrivate; // enum constructor is implicitly private
 		} else if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 			modifiers &= ~AccJustFlag | ~unexpectedModifiers;

@@ -2547,4 +2547,100 @@ public class EnumTest extends AbstractComparableTest {
 			"The member enum E cannot be local\n" + 
 			"----------\n");
 	}
+	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87998 - check no emulation warning
+	public void test083() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	INPUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return OUTPUT;\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	OUTPUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return INPUT;\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	INOUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return INOUT;\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	X(){}\n" + 
+				"  Zork z;\n" +
+				"	public abstract X getReverse();\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87998 - check private constructor generation
+	public void test084() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	INPUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return OUTPUT;\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	OUTPUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return INPUT;\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	INOUT {\n" + 
+				"		@Override\n" +
+				"		public X getReverse() {\n" + 
+				"			return INOUT;\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	X(){}\n" + 
+				"	public abstract X getReverse();\n" + 
+				"}\n",
+			},
+			"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor #18 (Ljava/lang/String;I)V\n" + 
+			"  // Stack: 3, Locals: 3\n" + 
+			"  private X(String arg, int arg);\n"; 
+			
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
+		}
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
+	}	
 }
