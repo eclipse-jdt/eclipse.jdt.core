@@ -264,6 +264,10 @@ public final class CompletionProposal {
 	 * for this kind of completion proposal at little extra cost:
 	 * <ul>
 	 * <li>{@link #getDeclarationSignature()} -
+	 * the dot-based package signature of the package that contains
+	 * the type that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
 	 * the type signature of the type that is referenced
 	 * </li>
 	 * <li>{@link #getFlags()} -
@@ -662,8 +666,8 @@ public final class CompletionProposal {
 	 * implemented or overridden</li>
 	 * 	<li><code>PACKAGE_REF</code> - dot-based package 
 	 * signature of the package that is referenced</li>
-	 * 	<li><code>TYPE_REF</code> - type signature
-	 * of the type that is referenced</li>
+	 * 	<li><code>TYPE_REF</code> - dot-based package 
+	 * signature of the package containing the type that is referenced</li>
 	 * </ul>
 	 * For kinds of completion proposals, this method returns
 	 * <code>null</code>. Clients must not modify the array
@@ -745,7 +749,7 @@ public final class CompletionProposal {
 	}
 	
 	/**
-	 * Returns the signature of the method, field type, member type,
+	 * Returns the signature of the method or type
 	 * relevant in the context, or <code>null</code> if none.
 	 * <p>
 	 * This field is available for the following kinds of
@@ -761,6 +765,8 @@ public final class CompletionProposal {
 	 * of the method that is referenced</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - method signature
 	 * of the method that is being implemented or overridden</li>
+	 * 	<li><code>TYPE_REF</code> - type signature
+	 * of the type that is referenced</li>
 	 * 	<li><code>VARIABLE_DECLARATION</code> - the type signature
 	 * of the type of the variable being declared</li>
 	 * </ul>
