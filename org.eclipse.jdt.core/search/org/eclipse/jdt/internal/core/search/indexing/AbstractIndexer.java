@@ -72,7 +72,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
-				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, TypeConstants.JAVA_LANG_ENUM[2], CLASS_SUFFIX));
+				modifiers, packageName, name, enclosingTypeNames, ENUM_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ENUM, '.'), CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
 				char[] superinterface = erasure(superinterfaces[i]);
@@ -80,7 +80,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
-						modifiers, packageName, name, enclosingTypeNames, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+						modifiers, packageName, name, enclosingTypeNames, ENUM_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
 			}
 		}
 	}	
