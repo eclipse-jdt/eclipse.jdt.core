@@ -18,7 +18,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	/**
 	 * Describes the kind of classpath entry - one of 
-	 * CPE_PROJECT, CPE_LIBRARY or CPE_SOURCE.
+	 * CPE_PROJECT, CPE_LIBRARY, CPE_SOURCE, CPE_VARIABLE or CPE_CONTAINER
 	 */
 	protected int entryKind;
 
@@ -44,6 +44,10 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
 	 *		is computed by appending to <it>P</it> the segments of the returned
 	 *		path without the variable.</li>
+	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - a 2-segments path, the first denoting
+	 *     the unique container identifier (for which a <code>ClasspathContainerInitializer</code> could be
+	 * 	registered), and the second segment is used as additional hint for resolving the container entry to
+	 * 	an actual <code>IClasspathContainer</code>.</li>
 	 */
 	protected IPath path;
 
@@ -213,6 +217,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_VARIABLE :
 				buffer.append("CPE_VARIABLE"); //$NON-NLS-1$
 				break;
+			case IClasspathEntry.CPE_CONTAINER :
+				buffer.append("CPE_CONTAINER"); //$NON-NLS-1$
+				break;
 		}
 		buffer.append("]["); //$NON-NLS-1$
 		switch (getContentKind()) {
@@ -259,6 +266,8 @@ public class ClasspathEntry implements IClasspathEntry {
 				return "[SRC]"+this.path;  //$NON-NLS-1$
 			case IClasspathEntry.CPE_VARIABLE :
 				return "[VAR]"+this.path;  //$NON-NLS-1$
+			case IClasspathEntry.CPE_CONTAINER :
+				return "[CON]"+this.path;  //$NON-NLS-1$
 		}
 		return "";  //$NON-NLS-1$
 	}

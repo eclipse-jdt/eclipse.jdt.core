@@ -197,7 +197,7 @@ public class JavaProject
 			return IClasspathEntry.CPE_PROJECT;
 		if (kindStr.equalsIgnoreCase("var")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_VARIABLE;
-		if (kindStr.equalsIgnoreCase("container")) //$NON-NLS-1$
+		if (kindStr.equalsIgnoreCase("con")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_CONTAINER;
 		if (kindStr.equalsIgnoreCase("src")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_SOURCE;
@@ -223,7 +223,7 @@ public class JavaProject
 			case IClasspathEntry.CPE_VARIABLE :
 				return "var"; //$NON-NLS-1$
 			case IClasspathEntry.CPE_CONTAINER :
-				return "container"; //$NON-NLS-1$
+				return "con"; //$NON-NLS-1$
 			case ClasspathEntry.K_OUTPUT :
 				return "output"; //$NON-NLS-1$
 			default :
@@ -1746,7 +1746,7 @@ public class JavaProject
 					// ensure path is absolute
 					IPath path = new Path(pathStr);
 					int kind = kindFromString(cpeElementKind);
-					if (kind != IClasspathEntry.CPE_VARIABLE && !path.isAbsolute()) {
+					if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
 						path = projectPath.append(path);
 					}
 					// source attachment info (optional)
