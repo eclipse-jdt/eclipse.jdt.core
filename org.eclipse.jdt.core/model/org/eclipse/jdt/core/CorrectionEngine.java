@@ -58,8 +58,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * Performs code correction for the given marker,
 	 * reporting results to the given correction requestor.
 	 * 
-	 * @return void
-	 *      correction results are answered through a requestor.
+	 * Correction results are answered through a requestor.
 	 * 
 	 * @param marker
 	 * 		the marker which describe the problem to correct.
@@ -94,8 +93,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * Performs code correction for the given IProblem,
 	 * reporting results to the given correction requestor.
 	 * 
-	 * @return void
-	 *      correction results are answered through a requestor.
+	 * Correction results are answered through a requestor.
 	 * 
 	 * @param problem
 	 * 		the problem which describe the problem to correct.
@@ -121,9 +119,7 @@ public class CorrectionEngine implements ProblemReasons {
 	/**
 	 * Ask the engine to compute a correction for the specified problem
 	 * of the given compilation unit.
-	 *
-	 *  @return void
-	 *      correction results are answered through a requestor.
+	 * Correction results are answered through a requestor.
 	 *
 	 *  @param unit org.eclipse.jdt.internal.core.ICompilationUnit
 	 *      the compilation unit.

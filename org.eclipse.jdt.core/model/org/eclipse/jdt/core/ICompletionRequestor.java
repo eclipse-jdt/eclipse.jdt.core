@@ -25,36 +25,28 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public interface ICompletionRequestor {
 /**
  * Code assist notification of an anonymous type declaration completion.
- * @param superTypePackageName char[]
- * 		Name of the package that contains the super type of this new anonymous type declaration .
+ * @param superTypePackageName Name of the package that contains the super type of this 
+ * 		new anonymous type declaration .
  * 
- * @param superTypeName char[]
- * 		Name of the super type of this new anonymous type declaration.
+ * @param superTypeName Name of the super type of this new anonymous type declaration.
  * 
- * @param parameterPackageNames char[][]
- * 		Names of the packages in which the parameter types are declared.
+ * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    	Should contain as many elements as parameterTypeNames.
  * 
- * @param parameterTypeNames char[][]
- * 		Names of the parameters types.
- *    	Should contain as many elements as parameterPackageNames.
+ * @param parameterTypeNames Names of the parameters types. 
+ * 		Should contain as many elements as parameterPackageNames.
  * 
- * @param completionName char[]
- * 		The completion for the anonymous type declaration.
+ * @param completionName The completion for the anonymous type declaration.
  * 		Can include zero, one or two brackets. If the closing bracket is included,
  * 		then the cursor should be placed before it.
  * 
- * @param modifiers int
- * 		The modifiers of the constructor.
+ * @param modifiers The modifiers of the constructor.
  * 
- * @param completionStart int
- * 		The start position of insertion of the name of this new anonymous type declaration.
+ * @param completionStart The start position of insertion of the name of this new anonymous type declaration.
  * 
- * @param completionEnd int
- * 		The end position of insertion of the name of this new anonymous type declaration.
+ * @param completionEnd The end position of insertion of the name of this new anonymous type declaration.
  * 
- * @param relevance int
- * 		The relevance of the completion proposal
+ * @param relevance The relevance of the completion proposal
  * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
  * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
  * 		value is higher.

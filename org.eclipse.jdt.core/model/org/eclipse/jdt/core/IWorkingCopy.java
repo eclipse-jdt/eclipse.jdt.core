@@ -333,9 +333,9 @@ public interface IWorkingCopy {
 	 * not generate change deltas.  The implementation has been
 	 * modified to reflect this assumption.
 	 *
-	 * @param forceProblemDetection - boolean indicating whether problem should be recomputed
+	 * @param forceProblemDetection boolean indicating whether problem should be recomputed
 	 *   even if the source hasn't changed.
-	 * @param monitor - a progress monitor
+	 * @param monitor a progress monitor
 	 * @exception JavaModelException if the contents of the original element
 	 *		cannot be accessed. Reasons include:
 	 * <ul>

@@ -69,13 +69,14 @@ public interface IType extends IMember, IParent {
 	 * <p>
 	 * Optionally, the new element can be positioned before the specified
 	 * sibling. If no sibling is specified, the element will be inserted
-	 * as the last field declaration in this type.
+	 * as the last field declaration in this type.</p>
 	 *
 	 * <p>It is possible that a field with the same name already exists in this type.
 	 * The value of the <code>force</code> parameter effects the resolution of
 	 * such a conflict:<ul>
 	 * <li> <code>true</code> - in this case the field is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
+	 * </ul></p>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
@@ -102,9 +103,8 @@ public interface IType extends IMember, IParent {
 	 * Optionally, the new element can be positioned before the specified
 	 * sibling. If no sibling is specified, the new initializer is positioned
 	 * after the last existing initializer declaration, or as the first member
-	 * in the type if there are no
-	 * initializers.
-	
+	 * in the type if there are no initializers.</p>
+	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
 	 * @param monitor the given progress monitor
@@ -134,6 +134,7 @@ public interface IType extends IMember, IParent {
 	 * such a conflict:<ul>
 	 * <li> <code>true</code> - in this case the method is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
+	 * </ul></p>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
@@ -167,6 +168,7 @@ public interface IType extends IMember, IParent {
 	 * such a conflict:<ul>
 	 * <li> <code>true</code> - in this case the type is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
+	 * </ul></p>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
@@ -249,7 +251,7 @@ public interface IType extends IMember, IParent {
 	 * Returns the fully qualified name of this type, 
 	 * including qualification for any containing types and packages.
 	 * This is the name of the package, followed by <code>'.'</code>,
-	 * followed by the type-qualified name using the <code>enclosingTypeSeparator<code>.
+	 * followed by the type-qualified name using the <code>enclosingTypeSeparator</code>.
 	 * 
 	 * For example:
 	 * <ul>

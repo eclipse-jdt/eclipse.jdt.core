@@ -56,9 +56,9 @@ public abstract class ClasspathContainerInitializer {
      * value for it was recorded so far. The implementation of the initializer can set the corresponding 
      * container using <code>JavaCore#setClasspathContainer</code>.
      * <p>
-     * @param containerPath - a two-segment path (ID/hint) identifying the container that needs 
+     * @param containerPath a two-segment path (ID/hint) identifying the container that needs 
      * 	to be resolved
-     * @param project - the Java project in which context the container is to be resolved.
+     * @param project the Java project in which context the container is to be resolved.
      *    This allows generic containers to be bound with project specific values.
      * 
      * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
