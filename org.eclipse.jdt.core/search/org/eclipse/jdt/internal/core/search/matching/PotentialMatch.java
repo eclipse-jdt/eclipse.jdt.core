@@ -26,12 +26,14 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.*;
 
 public class PotentialMatch implements ICompilationUnit {
+	public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-NLS-1$
 
 	private MatchLocator2 locator;
 	public IResource resource;
 	public Openable openable;
 	public char[][] compoundName;
 	MatchingNodeSet matchingNodeSet;
+	private String sourceFileName;
 
 	public PotentialMatch(
 			MatchLocator2 locator, 
@@ -46,26 +48,50 @@ public class PotentialMatch implements ICompilationUnit {
 			this.compoundName = CharOperation.splitOn('.', qualifiedName);
 		}
 	}
-	private char[] findSource(ClassFile classFile) {
+	public boolean equals(Object obj) {
+		if (this.compoundName == null) return super.equals(obj);
+		if (!(obj instanceof PotentialMatch)) return false;
+		return CharOperation.equals(this.compoundName, ((PotentialMatch)obj).compoundName);
+	}
+
+	/*
+	 * Finds the source of this class file.
+	 * Returns null if not found.
+	 */
+	private char[] findClassFileSource() {
+		String sourceFileName = getSourceFileName();
+		if (sourceFileName == NO_SOURCE_FILE_NAME) return null;
 		char[] source = null; 
 		try {
-			SourceMapper sourceMapper = classFile.getSourceMapper();
+			SourceMapper sourceMapper = this.openable.getSourceMapper();
 			if (sourceMapper != null) {
-				IType type = classFile.getType();
-				if (classFile.isOpen() && type.getDeclaringType() == null) {
-					source = sourceMapper.findSource(type);
-				} else {
-					ClassFileReader reader = this.locator.classFileReader(type);
-					if (reader != null) {
-						source = sourceMapper.findSource(type, reader);
-					}
-				}
+				IType type = ((ClassFile)this.openable).getType();
+				source = sourceMapper.findSource(type, sourceFileName);
 			}
 		} catch (JavaModelException e) {
 		}
 		return source;
 	}
-	// TODO: (jerome) Cache contents (only after diet parse)
+	/*
+	 * Returns the source file name of the class file.
+	 * Returns NO_SOURCE_FILE_NAME if not found.
+	 */
+	private String getSourceFileName() {
+		if (this.sourceFileName != null) return this.sourceFileName;
+		this.sourceFileName = NO_SOURCE_FILE_NAME; 
+		try {
+			SourceMapper sourceMapper = this.openable.getSourceMapper();
+			if (sourceMapper != null) {
+				IType type = ((ClassFile)this.openable).getType();
+				ClassFileReader reader = this.locator.classFileReader(type);
+				if (reader != null) {
+					this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		return this.sourceFileName;
+	}	
 	public char[] getContents() {
 		char[] source = null;
 		try {
@@ -75,15 +101,18 @@ public class PotentialMatch implements ICompilationUnit {
 				source = buffer.getCharacters();
 			} else if (this.openable instanceof CompilationUnit) {
 				source = Util.getResourceContentsAsCharArray((IFile)this.resource);
-			} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-				org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-				source = this.findSource(classFile);
+			} else if (this.openable instanceof ClassFile) {
+				source = findClassFileSource();
 			}
 		} catch (JavaModelException e) {
 		}
 		if (source == null) return CharOperation.NO_CHAR;
 		return source;
 	}
+	/*
+	 * Returns the fully qualified name of the main type of the compilation unit
+	 * or the main type of the .java file that defined the class file.
+	 */
 	private char[] getQualifiedName() {
 		if (this.openable instanceof CompilationUnit) {
 			// get file name
@@ -92,18 +121,35 @@ public class PotentialMatch implements ICompilationUnit {
 			char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
 			CompilationUnit cu = (CompilationUnit)this.openable;
 			return cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
-		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-			try {
-				IType type = MatchingOpenable.getTopLevelType(classFile.getType());
-				return type.getFullyQualifiedName().toCharArray();
-			} catch (JavaModelException e) {
-				return null; // nothing we can do here
+		} else if (this.openable instanceof ClassFile) {
+			String sourceFileName = getSourceFileName();
+			if (sourceFileName == NO_SOURCE_FILE_NAME) {
+				try {
+					return ((ClassFile)this.openable).getType().getFullyQualifiedName('.').toCharArray();
+				} catch (JavaModelException e) {
+					return null;
+				}
+			}
+			String simpleName = sourceFileName.substring(0, sourceFileName.length()-5); // length-".java".length()
+			String pkgName = this.openable.getParent().getElementName();
+			if (pkgName.length() == 0) {
+				return simpleName.toCharArray();
+			} else {
+				return (pkgName + '.' + simpleName).toCharArray();
 			}
 		} else {
 			return null;
 		}
 	}
+	public int hashCode() {
+		if (this.compoundName == null) return super.hashCode();
+		int hashCode = 0;
+		for (int i = 0, length = this.compoundName.length; i < length; i++) {
+			hashCode += CharOperation.hashCode(this.compoundName[i]);
+		}
+		return hashCode;
+	}
+
 	public char[] getMainTypeName() {
 		return null; // cannot know the main type name without opening .java or .class file
 		                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182

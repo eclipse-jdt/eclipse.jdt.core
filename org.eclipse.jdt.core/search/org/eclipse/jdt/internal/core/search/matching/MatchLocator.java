@@ -706,9 +706,12 @@ public IType lookupType(TypeBinding typeBinding) {
 			SourceMapper mapper = classFile.getSourceMapper();
 			if (mapper != null) {
 				IType type = classFile.getType();
-				char[] contents = mapper.findSource(type, info);
-				if (contents != null) {
-					range = mapper.mapSource(type, contents, binaryMember);
+				String sourceFileName = mapper.findSourceFileName(type, info);
+				if (sourceFileName != null) {
+					char[] contents = mapper.findSource(type, sourceFileName);
+					if (contents != null) {
+						range = mapper.mapSource(type, contents, binaryMember);
+					}
 				}
 			}
 		}
@@ -1124,7 +1127,10 @@ BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
 				} else {
 					ClassFileReader reader = this.classFileReader(type);
 					if (reader != null) {
-						source = sourceMapper.findSource(type, reader);
+						String sourceFileName = sourceMapper.findSourceFileName(type, reader);
+						if (sourceFileName != null) {
+							source = sourceMapper.findSource(type, sourceFileName);
+						}
 					}
 				}
 			}

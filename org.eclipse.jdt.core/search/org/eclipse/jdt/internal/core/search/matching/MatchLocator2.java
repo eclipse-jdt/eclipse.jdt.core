@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.core.search.HierarchyScope;
 
 // TODO: (jerome) remove extends
 public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
+	public static final int MAX_AT_ONCE = 500;
 	public static final PotentialMatch[] NO_POTENTIAL_MATH = new PotentialMatch[0];
 	
 /*	// permanent state
@@ -119,18 +120,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			} finally {
 				this.parser.matchSet = originalMatchSet;
 			}
-	
-			if (options.verbose) {
-				String count = String.valueOf(totalUnits + 1);
-				System.out.println(
-					Util.bind(
-						"compilation.request" , //$NON-NLS-1$
-						new String[] {
-							count,
-							count,
-							new String(sourceUnit.getFileName())}));
-			}
-	
+		
 			// initial type binding creation
 			lookupEnvironment.buildTypeBindings(parsedUnit);
 			this.addCompilationUnit(sourceUnit, parsedUnit);
@@ -279,9 +269,9 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	 * Add the initial set of compilation units into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
-	protected void createAndResolveBindings(PotentialMatch[] potentialMatches) {
+	protected void createAndResolveBindings(PotentialMatch[] potentialMatches, int start, int length) {
 
-		for (int i = 0, maxUnits = potentialMatches.length; i < maxUnits; i++) {
+		for (int i = start, maxUnits = start+length; i < maxUnits; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
@@ -293,6 +283,10 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 				CompilationResult unitResult =
 					new CompilationResult(potentialMatch, i, maxUnits, this.options.maxProblemsPerUnit);
 					
+				if (SearchEngine.VERBOSE) {
+					System.out.println("Parsing " + potentialMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+				}
+
 				// diet parsing for large collection of units
 				CompilationUnitDeclaration parsedUnit;
 				if (totalUnits < parseThreshold) {
@@ -300,19 +294,12 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 				} else {
 					parsedUnit = this.parser.dietParse(potentialMatch, unitResult);
 				}
-				
-				if (options.verbose) {
-					System.out.println(
-						Util.bind(
-							"compilation.request" , //$NON-NLS-1$
-							new String[] {
-								String.valueOf(i + 1),
-								String.valueOf(maxUnits),
-								new String(potentialMatch.getFileName())}));
+								
+				// initial type binding creation
+				if (parsedUnit != null && !parsedUnit.isEmpty()) {
+					this.lookupEnvironment.buildTypeBindings(parsedUnit);
 				}
 				
-				// initial type binding creation
-				this.lookupEnvironment.buildTypeBindings(parsedUnit);
 				this.addCompilationUnit(potentialMatch, parsedUnit);
 				
 				// progress reporting
@@ -641,21 +628,30 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 				javaProject.getPackageFragmentRoots() :
 				javaProject.getAllPackageFragmentRoots()); // all potential matches are resolved in the focus' project context
 		
-		// copy array because elements  from the original are removed below
 		int length = potentialMatches.length;
+		int index = 0;
+		while (index < length) {
+			int max = Math.min(MAX_AT_ONCE, length-index);
+			locateMatches(javaProject, potentialMatches, index, max);
+			index += max;
+		}
+	}
+	private void locateMatches(JavaProject javaProject, PotentialMatch[] potentialMatches, int start, int length) throws JavaModelException {
+		
+		// copy array because elements  from the original are removed below
 		PotentialMatch[] copy = new PotentialMatch[length];
-		System.arraycopy(potentialMatches, 0, copy, 0, length);
+		System.arraycopy(potentialMatches, start, copy, 0, length);
 		this.initialize(javaProject, copy);
-	
+		
 		this.compilationAborted = false;
-
+		
 		// create and resolve binding (equivalent to beginCompilation() in Compiler)
 		try {
-			this.createAndResolveBindings(potentialMatches);
+			this.createAndResolveBindings(potentialMatches, start, length);
 		} catch (AbortCompilation e) {
 			this.compilationAborted = true;
 		}
-	
+		
 		// create hierarchy resolver if needed
 		try {
 			if (!this.compilationAborted && !this.createHierarchyResolver(copy)) {
@@ -667,7 +663,8 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 		
 		// free memory
 		copy = null;
-	
+		potentialMatches = null;
+		
 		// potential match resolution
 		try {
 			CompilationUnitDeclaration unit = null;
@@ -677,14 +674,6 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 				}
 				unit = this.unitsToProcess[i];
 				try {
-					if (this.options.verbose)
-						System.out.println(
-							Util.bind(
-								"compilation.process" , //$NON-NLS-1$
-								new String[] {
-									String.valueOf(i + 1),
-									String.valueOf(totalUnits),
-									new String(unitsToProcess[i].getFileName())}));
 					process(unit, i);
 				} catch (AbortCompilation e) {
 					// problem with class path: it could not find base classes
@@ -737,7 +726,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			}
 			System.out.println("]"); //$NON-NLS-1$
 			if (workingCopies != null) {
-				 System.out.println(" and working copies ["); //$NON-NLS-1$
+				 System.out.println("and working copies ["); //$NON-NLS-1$
 				for (int i = 0, length = workingCopies.length; i < length; i++) {
 					IWorkingCopy wc = workingCopies[i];
 					System.out.println("\t" + ((JavaElement)wc).toStringWithAncestors()); //$NON-NLS-1$
@@ -965,6 +954,11 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			if ((this.pattern.needsResolve || matchingNodeSet.needsResolve()/* TODO: do not need this check any longer */) 
 					&& unit.types != null 
 					&& !this.compilationAborted) {
+
+				if (SearchEngine.VERBOSE) {
+					System.out.println("Resolving " + this.currentPotentialMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+				}
+
 				// fault in fields & methods
 				if (unit.scope != null)
 					unit.scope.faultInTypes();
@@ -1205,9 +1199,12 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			SourceMapper mapper = classFile.getSourceMapper();
 			if (mapper != null) {
 				IType type = classFile.getType();
-				char[] contents = mapper.findSource(type, info);
-				if (contents != null) {
-					range = mapper.mapSource(type, contents, binaryMember);
+				String sourceFileName = mapper.findSourceFileName(type, info);
+				if (sourceFileName != null) {
+					char[] contents = mapper.findSource(type, sourceFileName);
+					if (contents != null) {
+						range = mapper.mapSource(type, contents, binaryMember);
+					}
 				}
 			}
 		}

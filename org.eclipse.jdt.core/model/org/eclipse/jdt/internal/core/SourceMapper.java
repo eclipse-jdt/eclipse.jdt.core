@@ -754,52 +754,30 @@ public class SourceMapper
 		} catch (JavaModelException e) {
 			return null;
 		}
-		return this.findSource(type, info);
+		String simpleSourceFileName = findSourceFileName(type, info);
+		if (simpleSourceFileName == null) {
+			return null;
+		}
+		return this.findSource(type, simpleSourceFileName);
 	}
 	
 	/**
 	 * Locates and returns source code for the given (binary) type, in this
 	 * SourceMapper's ZIP file, or returns <code>null</code> if source
 	 * code cannot be found.
+	 * The given simpleSourceFileName is the .java file name (without the enclosing
+	 * folder) used to create the given type (e.g. "A.java" for x/y/A$Inner.class)
 	 */
-	public char[] findSource(IType type, IBinaryType info) {
+	public char[] findSource(IType type, String simpleSourceFileName) {
 		long time = 0;
 		if (VERBOSE) {
 			time = System.currentTimeMillis();
 		}
-		char[] sourceFileName = info.sourceFileName();
+		String name = simpleSourceFileName;
 		IPackageFragment pkgFrag = type.getPackageFragment();
-		String name = null;
-		if (sourceFileName == null) {
-			/*
-			 * We assume that this type has been compiled from a file with its name
-			 * For example, A.class comes from A.java and p.A.class comes from a file A.java
-			 * in the folder p.
-			 */
-			try {
-				if (type.isMember()) {
-					IType enclosingType = type.getDeclaringType();
-					while (enclosingType.getDeclaringType() != null) {
-						enclosingType = enclosingType.getDeclaringType();
-					}
-					name = enclosingType.getFullyQualifiedName().replace('.', '/') + ".java"; //$NON-NLS-1$
-				} else if (type.isLocal() || type.isAnonymous()){
-					String fullyQualifiedName = type.getFullyQualifiedName();
-					name = fullyQualifiedName.substring(0, fullyQualifiedName.indexOf('$')).replace('.', '/') + ".java"; //$NON-NLS-1$
-				} else {
-					name = type.getFullyQualifiedName().replace('.', '/') + ".java"; //$NON-NLS-1$
-				}
-			} catch (JavaModelException e) {
-			}
-		} else {
-			name = new String(sourceFileName);
-			if (!pkgFrag.isDefaultPackage()) {
-				String pkg = pkgFrag.getElementName().replace('.', '/');
-				name = pkg + '/' + name;
-			}
-		}
-		if (name == null) {
-			return null;
+		if (!pkgFrag.isDefaultPackage()) {
+			String pkg = pkgFrag.getElementName().replace('.', '/');
+			name = pkg + '/' + name;
 		}
 	
 		char[] source = null;
@@ -835,6 +813,39 @@ public class SourceMapper
 			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return source;
+	}
+
+	/*
+	 * Finds the source file name (i.e. the simple .java file name) for the given IBinaryType.
+	 * Returns null if not found.
+	 */
+	public String findSourceFileName(IType type, IBinaryType info) {
+		char[] sourceFileName = info.sourceFileName();
+		if (sourceFileName == null) {
+			/*
+			 * We assume that this type has been compiled from a file with its name
+			 * For example, A.class comes from A.java and p.A.class comes from a file A.java
+			 * in the folder p.
+			 */
+			try {
+				if (type.isMember()) {
+					IType enclosingType = type.getDeclaringType();
+					while (enclosingType.getDeclaringType() != null) {
+						enclosingType = enclosingType.getDeclaringType();
+					}
+					return enclosingType.getElementName() + ".java"; //$NON-NLS-1$
+				} else if (type.isLocal() || type.isAnonymous()){
+					String typeQualifiedName = type.getTypeQualifiedName();
+					return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + ".java"; //$NON-NLS-1$
+				} else {
+					return type.getElementName() + ".java"; //$NON-NLS-1$
+				}
+			} catch (JavaModelException e) {
+			}
+		} else {
+			return  new String(sourceFileName);
+		}
+		return null;
 	}
 
 	private char[] getSourceForRootPath(String currentRootPath, String name) {
