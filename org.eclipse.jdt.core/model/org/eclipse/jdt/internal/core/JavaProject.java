@@ -382,8 +382,9 @@ public class JavaProject
 								preferredOutputs);
 						}
 					}
+				} else {
+					rootIDs.add(rootID);
 				}
-				rootIDs.add(rootID);
 			}			
 		}
 	}
