@@ -1693,6 +1693,7 @@ protected void consumeToken(int token) {
 							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, this.invocationType);
 							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
 						}
+						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
 					case TokenNamethis: // explicit constructor invocation, eg. this[(]1, 2)
@@ -1700,6 +1701,7 @@ protected void consumeToken(int token) {
 							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
 							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
 						}
+						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
 					case TokenNamesuper: // explicit constructor invocation, eg. super[(]1, 2)
@@ -1707,6 +1709,7 @@ protected void consumeToken(int token) {
 							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
 							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
 						}
+						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
 				}
