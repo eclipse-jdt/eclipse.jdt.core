@@ -1584,9 +1584,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						return JavaCore.newProjectEntry(resolvedPath, entry.isExported());
 						
 					case IResource.FILE : 
-						String extension = resolvedResource.getFileExtension();
-						if ("jar".equalsIgnoreCase(extension)  //$NON-NLS-1$
-							 || "zip".equalsIgnoreCase(extension)) {  //$NON-NLS-1$
+						if (Util.isArchiveFileName(resolvedResource.getName())) {
 							// internal binary archive
 							return JavaCore.newLibraryEntry(
 									resolvedPath,
