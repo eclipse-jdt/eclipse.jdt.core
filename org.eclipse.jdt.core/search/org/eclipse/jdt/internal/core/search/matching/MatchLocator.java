@@ -59,7 +59,7 @@ public class MatchLocator implements ITypeRequestor {
 	private PotentialMatch[] potentialMatches;
 	private int potentialMatchesIndex;
 	private int potentialMatchesLength;
-
+	public HandleFactory handleFactory;
 	public MatchLocator(
 		SearchPattern pattern,
 		int detailLevel,
@@ -102,80 +102,92 @@ public class MatchLocator implements ITypeRequestor {
 		ISourceType sourceType = sourceTypes[0];
 		while (sourceType.getEnclosingType() != null)
 			sourceType = sourceType.getEnclosingType();
-		CompilationUnitDeclaration unit = null;
 		if (sourceType instanceof SourceTypeElementInfo) {
 			// get source
 			SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
 			IType type = elementInfo.getHandle();
 			try {
-				final IFile file = (IFile) type.getUnderlyingResource();
-				final char[] source = Util.getResourceContentsAsCharArray(file);
-
-				// get main type name
-				final String fileName = file.getFullPath().lastSegment();
-				final char[] mainTypeName =
-					fileName.substring(0, fileName.length() - 5).toCharArray();
-
-				// source unit
-				ICompilationUnit sourceUnit = new ICompilationUnit() {
-					public char[] getContents() {
-						return source;
-					}
-					public char[] getFileName() {
-						return fileName.toCharArray();
-					}
-					public char[] getMainTypeName() {
-						return mainTypeName;
-					}
-				};
-
-				// diet parse
-				MatchSet originalMatchSet = this.parser.matchSet;
-				try {
-					this.parser.matchSet = new MatchSet(this);
-					CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
-					unit = this.parser.dietParse(sourceUnit, compilationResult);
-				} finally {
-					if (originalMatchSet == null) {
-						if (!this.parser.matchSet.isEmpty() 
-								&& unit != null) {
-							// potential matches were found while initializing the search pattern
-							// from the lookup environment: add them in the list of potential matches
-							PotentialMatch potentialMatch = 
-								new PotentialMatch(
-									this,
-									file, 
-									(CompilationUnit)type.getCompilationUnit(), 
-									unit,
-									this.parser.matchSet);
-							this.addPotentialMatch(potentialMatch);
-						}
-						this.parser.matchSet = null;
-					} else {
-						this.parser.matchSet = originalMatchSet;
-					}
-				}
+				this.buildBindings(type.getCompilationUnit());
 			} catch (JavaModelException e) {
-				unit = null;
+				// nothing we can do here: ignore
 			}
 		} else {
 			CompilationResult result =
 				new CompilationResult(sourceType.getFileName(), 0, 0);
-			unit =
+			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(
 					sourceTypes,
 					true,
 					true,
 					lookupEnvironment.problemReporter,
 					result);
-		}
-
-		if (unit != null) {
 			this.lookupEnvironment.buildTypeBindings(unit);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 			this.parsedUnits.put(sourceType.getQualifiedName(), unit);
 		}
 	}
+
+/*
+ * Parse the given compiation unit and build its type bindings.
+ * Remember the parsed unit.
+ */
+public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
+	final IFile file = (IFile)compilationUnit.getUnderlyingResource();
+	CompilationUnitDeclaration unit = null;
+	final char[] source = Util.getResourceContentsAsCharArray(file);
+	
+	// get main type name
+	final String fileName = file.getFullPath().lastSegment();
+	final char[] mainTypeName =
+		fileName.substring(0, fileName.length() - 5).toCharArray();
+	
+	// source unit
+	ICompilationUnit sourceUnit = new ICompilationUnit() {
+		public char[] getContents() {
+			return source;
+		}
+		public char[] getFileName() {
+			return fileName.toCharArray();
+		}
+		public char[] getMainTypeName() {
+			return mainTypeName;
+		}
+	};
+	
+	// diet parse
+	MatchSet originalMatchSet = this.parser.matchSet;
+	try {
+		this.parser.matchSet = new MatchSet(this);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+		unit = this.parser.dietParse(sourceUnit, compilationResult);
+	} finally {
+		if (originalMatchSet == null) {
+			if (!this.parser.matchSet.isEmpty() 
+					&& unit != null) {
+				// potential matches were found while initializing the search pattern
+				// from the lookup environment: add them in the list of potential matches
+				PotentialMatch potentialMatch = 
+					new PotentialMatch(
+						this,
+						file, 
+						(CompilationUnit)compilationUnit, 
+						unit,
+						this.parser.matchSet);
+				this.addPotentialMatch(potentialMatch);
+			}
+			this.parser.matchSet = null;
+		} else {
+			this.parser.matchSet = originalMatchSet;
+		}
+	}
+	if (unit != null) {
+		this.lookupEnvironment.buildTypeBindings(unit);
+		this.lookupEnvironment.completeTypeBindings(unit, true);
+		char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+		this.parsedUnits.put(qualifiedName, unit);
+	}
+	return unit;
+}
 
 	/**
 	 * Creates an IField from the given field declaration and type. 
@@ -340,14 +352,15 @@ public class MatchLocator implements ITypeRequestor {
 	public void locateMatches(String[] filePaths, IWorkspace workspace)
 		throws JavaModelException {
 		Util.sort(filePaths); // sort by projects
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		HandleFactory factory = new HandleFactory(workspace.getRoot(), manager);
+		if (this.handleFactory == null) {
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			this.handleFactory = new HandleFactory(workspace.getRoot(), manager);
+		}
 		JavaProject previousJavaProject = null;
 		int length = filePaths.length;
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		boolean couldInitializePattern = false;
 		this.potentialMatches = new PotentialMatch[10];
 		this.potentialMatchesLength = 0;
 		for (int i = 0; i < length; i++) {
@@ -356,7 +369,7 @@ public class MatchLocator implements ITypeRequestor {
 				throw new OperationCanceledException();
 			}
 			String pathString = filePaths[i];
-			Openable openable = factory.createOpenable(pathString);
+			Openable openable = this.handleFactory.createOpenable(pathString);
 			if (openable == null)
 				continue; // match is outside classpath
 
@@ -385,12 +398,9 @@ public class MatchLocator implements ITypeRequestor {
 					}
 
 					// create parser for this project
-					couldInitializePattern = this.createParser(javaProject);
+					this.createParser(javaProject);
 					previousJavaProject = javaProject;
 				}
-				if (!couldInitializePattern)
-					continue;
-				// the pattern could not be initialized: the match cannot be in this project
 			} catch (JavaModelException e) {
 				// file doesn't exist -> skip it
 				continue;
@@ -835,10 +845,9 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 
 	/**
 	 * Create a new parser for the given project, as well as a lookup environment.
-	 * Asks the pattern to initialize itself from the lookup environment.
-	 * Returns whether it was able to initialize the pattern.
+	 * Asks the pattern to initialize itself for polymorphic search.
 	 */
-	private boolean createParser(JavaProject project) throws JavaModelException {
+	private void createParser(JavaProject project) throws JavaModelException {
 		INameEnvironment nameEnvironment = project.getSearchableNameEnvironment();
 		IProblemFactory problemFactory = new DefaultProblemFactory();
 
@@ -852,7 +861,7 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
 		this.parsedUnits = new HashtableOfObject(10);
-		return this.pattern.initializeFromLookupEnvironment(this.lookupEnvironment);
+		this.pattern.initializePolymorphicSearch(this, project, this.collector.getProgressMonitor());
 	}
 
 	protected Openable getCurrentOpenable() {

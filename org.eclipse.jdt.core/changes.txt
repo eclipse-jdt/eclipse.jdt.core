@@ -111,6 +111,9 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5070      search: missing interface method reference  
+  5069      search: method reference in super missing  
+  5068      search: missing method reference  
 
   PRs Closed in this Release
   ================================================================================

@@ -315,6 +315,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *	<li>The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
 	 *	<li>The path is not an absolute path (<code>RELATIVE_PATH</code>)
 	 *  <li>The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+	 *  <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)	 
 	 * </ul>
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)

@@ -10,7 +10,9 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -92,9 +94,13 @@ protected int matchContainer() {
 	return METHOD | FIELD;
 }
 
-public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
-	this.allSuperDeclaringTypeNames = this.collectSuperTypeNames(this.declaringQualification, this.declaringSimpleName, this.matchMode, env);
-	return this.allSuperDeclaringTypeNames == null || this.allSuperDeclaringTypeNames != NOT_FOUND_DECLARING_TYPE; 
+public void initializePolymorphicSearch(MatchLocator locator, IJavaProject project, IProgressMonitor progressMonitor) {
+	this.allSuperDeclaringTypeNames = 
+		new SuperTypeNamesCollector(
+			this, 
+			locator, 
+			project, 
+			progressMonitor).collect();
 }
 
 /**

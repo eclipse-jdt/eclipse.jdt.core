@@ -323,6 +323,9 @@ protected void changedSourceElement(SourceEntry newEntry) {
 	PackageElement element = fNewState.packageElementFromSourceEntry(newEntry);
 	if (element.isSource()) {
 		fWorkQueue.add(element);
+	} else {
+		// trigger recompilation of all dependents of any changed binary
+		markDependentsAsNeedingCompile(element);
 	}
 
 	/* remove problems for this source entry */

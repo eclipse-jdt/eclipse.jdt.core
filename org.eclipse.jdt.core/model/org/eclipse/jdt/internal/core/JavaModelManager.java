@@ -155,6 +155,7 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			for (int i = 0, length = children.length; i < length; i++) {
 				this.checkProjectBeingAdded(children[i]);
 			}
+			break;
 		case IResource.PROJECT :
 			if (delta.getKind() == IResourceDelta.ADDED) {
 				fProjectsBeingDeleted.remove(delta.getResource());
