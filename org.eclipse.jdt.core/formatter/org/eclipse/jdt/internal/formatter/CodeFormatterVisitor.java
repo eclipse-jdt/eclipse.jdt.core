@@ -1271,7 +1271,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			Alignment throwsAlignment = this.scribe.createAlignment(
 					"throws",//$NON-NLS-1$
 					this.preferences.method_throws_clause_alignment,
-					thrownExceptionsLength + 1, // throws is the first token
+					thrownExceptionsLength, // throws is the first token
 					this.scribe.scanner.currentPosition);
 		
 			this.scribe.enterAlignment(throwsAlignment);
@@ -1284,15 +1284,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					for (int i = 0; i < thrownExceptionsLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, spaceBeforeComma);
-							this.scribe.alignFragment(throwsAlignment, i + 1);
+							this.scribe.alignFragment(throwsAlignment, i);
 							if (spaceAfterComma) {
 								this.scribe.space();
 							}
 						} else {
-							this.scribe.alignFragment(throwsAlignment, i + 1);
 							this.scribe.space();
 						}
-						this.scribe.alignFragment(throwsAlignment, i + 1);
 						thrownExceptions[i].traverse(this, methodDeclaration.scope);
 					}
 					ok = true;

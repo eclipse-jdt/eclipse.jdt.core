@@ -143,9 +143,8 @@ public class RemotePublication extends Publication {
 		}
 		return successful;
 	}
-	protected void getPages()
-			throws FTPServerTimeoutException, FTPServerException,
-					NoFTPServiceException {
+	protected void getPages() throws FTPServerTimeoutException,
+			FTPServerException, NoFTPServiceException {
 		// Setup the ftp server
 		FtpServer ftp;
 		try {

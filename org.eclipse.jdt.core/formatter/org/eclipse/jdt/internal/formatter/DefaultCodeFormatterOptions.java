@@ -155,7 +155,7 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final String DEFAULT_METHOD_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	public static final int DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;//$NON-NLS-1$
 	public static final int DEFAULT_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY = 0;
 	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
