@@ -2169,14 +2169,10 @@ public final class CompletionEngine
 					case TokenNamelong :
 					case TokenNamefloat :
 					case TokenNamedouble :
-						if(token != null && token.length != 0)
-							return;
-						name = computeBaseNames(sourceName[0], excludeNames);
-						break;
 					case TokenNameboolean :
 						if(token != null && token.length != 0)
 							return;
-						name = computeBaseNames('b', excludeNames);
+						name = computeBaseNames(sourceName[0], excludeNames);
 						break;
 				}
 				if(name != null) {
