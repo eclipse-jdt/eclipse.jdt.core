@@ -888,7 +888,10 @@ public class TypeDeclaration
 			
 			boolean needSerialVersion = sourceType.isClass() && !sourceType.isAbstract() 
 								&& sourceType.implementsInterface(scope.getJavaIoSerializable(), true);
-				
+			
+			if (this.typeParameters != null && scope.getJavaLangThrowable().isSuperclassOf(sourceType)) {
+				this.scope.problemReporter().genericTypeCannotExtendThrowable(this);
+			}
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
 			if (this.fields != null) {
@@ -916,7 +919,7 @@ public class TypeDeclaration
 					field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 				}
 			}
-			if (needSerialVersion && !this.ignoreFurtherInvestigation) {
+			if (needSerialVersion) {
 				this.scope.problemReporter().missingSerialVersion(this);
 			}
 			if (this.memberTypes != null) {

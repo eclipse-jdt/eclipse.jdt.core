@@ -916,6 +916,8 @@ public interface IProblem {
 	int TypeArgumentsForRawGenericConstructor = TypeRelated + 555;
 	/** @since 3.1 */
 	int SuperTypeUsingWildcard = TypeRelated + 556;
+	/** @since 3.1 */
+	int GenericTypeCannotExtendThrowable = TypeRelated + 557;
 
 	/**
 	 * Foreach

@@ -314,7 +314,7 @@ public class ClassScope extends Scope {
 		if (sourceType.id == T_Object) { // handle the case of redefining java.lang.Object up front
 			problemReporter().objectCannotBeGeneric(referenceContext);
 			return; 
-		}		    
+		}
 		sourceType.typeVariables = createTypeVariables(typeParameters, sourceType);
 		sourceType.modifiers |= AccGenericSignature;
 	}

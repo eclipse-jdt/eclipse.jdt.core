@@ -1053,6 +1053,14 @@ public void forwardTypeVariableReference(ASTNode location, TypeVariableBinding t
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void genericTypeCannotExtendThrowable(TypeDeclaration typeDecl) {
+	this.handle(
+		IProblem.GenericTypeCannotExtendThrowable,
+		new String[]{ new String(typeDecl.binding.readableName()) },
+		new String[]{ new String(typeDecl.binding.shortReadableName()) },
+		typeDecl.superclass.sourceStart,
+		typeDecl.superclass.sourceEnd);
+}
 // use this private API when the compilation unit result can be found through the
 // reference context. Otherwise, use the other API taking a problem and a compilation result
 // as arguments
@@ -3117,7 +3125,7 @@ public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 		NoArgument,
 		NoArgument,
 		typeDecl.typeParameters[0].sourceStart,
-		typeDecl.typeParameters[0].sourceEnd);
+		typeDecl.typeParameters[typeDecl.typeParameters.length-1].sourceEnd);
 }
 public void objectCannotHaveSuperTypes(SourceTypeBinding type) {
 	this.handle(
