@@ -28,6 +28,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		this.typeArguments = typeArguments;
 	}
 	public void checkBounds(Scope scope) {
+		if (this.resolvedType == null) return;
+
 		ParameterizedTypeBinding parameterizedType = null;
 		if (this.resolvedType instanceof ParameterizedTypeBinding)
 			parameterizedType = (ParameterizedTypeBinding) this.resolvedType;
