@@ -251,6 +251,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceInHierarchy"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithRecovery"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithProblem"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceWithCorruptJar"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2728,6 +2729,37 @@ public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreExc
 		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [X]",
 		resultCollector.toString());
+}
+/**
+ * Type reference with corrupt jar on the classpath test.
+ * (Regression test for bug 39831 Search finds only "inexact" matches)
+ */
+public void testTypeReferenceWithCorruptJar() throws JavaModelException, CoreException {
+	IJavaProject project = getJavaProject("JavaSearch");
+	IClasspathEntry[] originalCP = project.getRawClasspath();
+	try {
+		// add corrupt.jar to classpath
+		int cpLength = originalCP.length;
+		IClasspathEntry[] newCP = new IClasspathEntry[cpLength+1];
+		System.arraycopy(originalCP, 0, newCP, 0, cpLength);
+		newCP[cpLength] = JavaCore.newLibraryEntry(new Path("/JavaSearch/corrupt.jar"), null, null);
+		project.setRawClasspath(newCP, null);
+		
+		IType type = getCompilationUnit("JavaSearch", "src", "e7", "A.java").getType("A");
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			type,
+			REFERENCES, 
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
+			resultCollector);
+		assertEquals(
+			"src/e7/A.java e7.A.a [A] EXACT_MATCH",
+			resultCollector.toString());
+	} finally {
+		project.setRawClasspath(originalCP, null);
+	}
 }
 /**
  * Type reference with problem test.
