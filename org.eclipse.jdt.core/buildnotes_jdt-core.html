@@ -47,14 +47,14 @@ non public methods to scenario where thrown exceptions are not compatible (probl
 This problem is optional, and its severity is also controlled by the <code>JavaCore</code>
 preference <code>"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"</code>.
 </li>
-<li> API Change in org.eclipse.jdt.core.NamingConventions: a new boolean parameter 'isBoolean' added. The value of this parameter is <code>true</code> if the field's type is boolean.
+<li> 2.1 API Change in org.eclipse.jdt.core.NamingConventions: a new boolean parameter 'isBoolean' added. The value of this parameter is <code>true</code> if the field's type is boolean.
 	<ul>
 	<li><code>suggestSetterName(IJavaProject,char[],int,char[][])</code> become <code>suggestSetterName(IJavaProject,char[],int,boolean,char[][])</code>
 	</li>
 	<li><code>suggestSetterName(IJavaProject,String,int,String[])</code> become <code>suggestSetterName(IJavaProject,String,int,boolean,String[])</code>
 	</li>
 	</ul>
-	
+	Previous APIs got deprecated, and will be removed before 2.1.
 </li>
 </ul>
 
@@ -97,7 +97,9 @@ Source path exclusion filter not relative source folder
 Odd behavior from code formatter
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30232">30232</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28263">28263</a>
+Better specification of source folders
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30232">30232</a>
 NullPointerException in compilation unit
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30160">30160</a>
 CodeAssist - no completion behind jProject
