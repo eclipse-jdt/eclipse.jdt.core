@@ -1129,7 +1129,7 @@ protected void consumeAnnotationTypeMemberDeclarationHeader() {
 	annotationTypeMemberDeclaration.returnType = getTypeReference(this.intStack[this.intPtr--]);
 	//modifiers
 	annotationTypeMemberDeclaration.declarationSourceStart = this.intStack[this.intPtr--];
-	annotationTypeMemberDeclaration.modifiers = this.intStack[this.intPtr--];
+	annotationTypeMemberDeclaration.modifiers = this.intStack[this.intPtr--] | AccSemicolonBody;
 	// javadoc
 	annotationTypeMemberDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
