@@ -70,7 +70,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 		the offset of position given by the marker.
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
-	 * @exception JavaModelException currently this exception is never thrown,ut the opportunity to thrown an exception
+	 * @exception JavaModelException currently this exception is never thrown, but the opportunity to thrown an exception
 	 * 	when the correction failed is kept for later. 
 	 * @since 2.0 
 	 */
