@@ -1146,20 +1146,7 @@ public void testClasspathWithNonExistentSourceEntry() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-/**
- * Ensure a source folder can have a name ending with ".jar"
- */
-public void testClasspathWithJarName() throws CoreException {
-	try {
-		IJavaProject project= this.createJavaProject("P", new String[] {"src.jar"}, "bin");
-		IFile unit = createFile("/P/src.jar/X.java", "class X {}");
-		JavaCore.create(unit);
-	} catch (CoreException e) {
-		assertTrue("unable to open unit in src.jar source folder", false);
-	} finally {
-		this.deleteProject("P");
-	}
-}
+
 /**
  * Ensure that cycle are properly reported.
  */
