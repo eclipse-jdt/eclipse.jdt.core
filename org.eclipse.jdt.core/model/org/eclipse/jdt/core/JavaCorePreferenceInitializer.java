@@ -23,6 +23,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
  * JavaCore eclipse preferences initializer.
  * Initially done in JavaCore.initializeDefaultPreferences which was deprecated
  * with new eclipse preferences mechanism.
+ * 
+ * TODO (frederic) - This class should proably not be API
  */
 public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
