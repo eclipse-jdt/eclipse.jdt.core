@@ -182,6 +182,12 @@ public interface ITypeBinding extends IBinding {
 	 * superclass of this class is returned. If this type binding represents
 	 * the class <code>java.lang.Object</code>, then <code>null</code> is
 	 * returned.
+	 * <p>
+	 * Loops that ascend the class hierarchy need a suitable termination test.
+	 * Rather than test the superclass for <code>null</code>, it is more 
+	 * transparent to check whether the class is <code>Object</code>, by 
+	 * comparing whether the class binding is identical to 
+	 * <code>ast.resolveWellKnownType("java.lang.Object")</code>.
 	 * </p>
 	 * <p>
 	 * If this type binding represents an interface, an array type, a
@@ -190,6 +196,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the superclass of the class represented by this type binding,
 	 *    or <code>null</code> if none
+	 * @see AST#resolveWellKnownType
 	 */
 	public ITypeBinding getSuperclass();
 	
