@@ -1403,6 +1403,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 private int sourceEnd(TypeDeclaration typeDeclaration) {
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 		// TODO for enum constant body, type is null
+		if (typeDeclaration.allocation.type == null) {
+			// TODO (jerome) please update with the right value
+			return typeDeclaration.allocation.sourceEnd;
+		}
 		return typeDeclaration.allocation.type.sourceEnd;
 	} else {
 		return typeDeclaration.sourceEnd;
