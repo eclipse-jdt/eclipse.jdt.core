@@ -684,6 +684,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
 		char[] memberName = wrapper.nextWord();
+		BinaryTypeBinding.resolveType(parameterizedType, this, false);
 		ReferenceBinding memberType = parameterizedType.type.getMemberType(memberName);
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
