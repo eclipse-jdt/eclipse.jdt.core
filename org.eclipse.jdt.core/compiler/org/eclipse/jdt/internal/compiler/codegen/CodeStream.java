@@ -1369,7 +1369,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 
 	anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NullBinding /* represents ClassNotFoundException*/);
-	this.ldc(accessedType == TypeBinding.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+	this.ldc(accessedType == TypeBinding.NullBinding ? "java.lang.Object"/*nonNLS*/ : String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
 	this.invokeClassForName();
 
 	/* We need to protect the runtime code from binary inconsistencies
@@ -1429,7 +1429,7 @@ final public int[] generateCodeAttributeForProblemMethod(String errorName, Strin
 	anewarrayJavaLangClass();
 	dup();
 	iconst_0();
-	ldc("java.lang.String");
+	ldc("java.lang.String"/*nonNLS*/);
 	invokeClassForName();
 	aastore();
 	invokeConstructorGetConstructor();
@@ -1773,28 +1773,28 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 	char[][] wrapperTypeCompoundName = null;
 	switch (valueType.id) {
 		case T_int : // new: java.lang.Integer
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Integer".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Integer"/*nonNLS*/.toCharArray()};
 			break;
 		case T_boolean : // new: java.lang.Boolean
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Boolean".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Boolean"/*nonNLS*/.toCharArray()};
 			break;
 		case T_byte : // new: java.lang.Byte
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Byte".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Byte"/*nonNLS*/.toCharArray()};
 			break;
 		case T_char : // new: java.lang.Character
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Character".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Character"/*nonNLS*/.toCharArray()};
 			break;
 		case T_float : // new: java.lang.Float
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Float".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Float"/*nonNLS*/.toCharArray()};
 			break;
 		case T_double : // new: java.lang.Double
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Double".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Double"/*nonNLS*/.toCharArray()};
 			break;
 		case T_short : // new: java.lang.Short
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Short".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Short"/*nonNLS*/.toCharArray()};
 			break;
 		case T_long : // new: java.lang.Long
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Long"/*nonNLS*/.toCharArray()};
 			break;
 	}
 	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
@@ -5304,15 +5304,15 @@ final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] k
 	}
 }
 public String toString() {
-	StringBuffer buffer = new StringBuffer("( position:");
+	StringBuffer buffer = new StringBuffer("( position:"/*nonNLS*/);
 	buffer.append(position);
-	buffer.append(",\nstackDepth:");
+	buffer.append(",\nstackDepth:"/*nonNLS*/);
 	buffer.append(stackDepth);
-	buffer.append(",\nmaxStack:");
+	buffer.append(",\nmaxStack:"/*nonNLS*/);
 	buffer.append(stackMax);
-	buffer.append(",\nmaxLocals:");
+	buffer.append(",\nmaxLocals:"/*nonNLS*/);
 	buffer.append(maxLocals);
-	buffer.append(")");
+	buffer.append(")"/*nonNLS*/);
 	return buffer.toString();
 }
 public void updateLastRecordedEndPC(int pos) {

@@ -109,11 +109,11 @@ public String toString() {
 	if (getName() != null) {
 		buffer.append(getName());
 	}
-	buffer.append("\n");
+	buffer.append("\n"/*nonNLS*/);
 	if (getEnclosingTypeName() != null) {
 		buffer.append(getEnclosingTypeName());
 	}
-	buffer.append("\n");
+	buffer.append("\n"/*nonNLS*/);
 	if (getSourceName() != null) {
 		buffer.append(getSourceName());
 	}

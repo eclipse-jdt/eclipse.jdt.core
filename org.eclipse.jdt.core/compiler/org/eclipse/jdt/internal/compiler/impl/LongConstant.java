@@ -31,13 +31,13 @@ public String stringValue() {
 	
 	String s = new Long(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(long)" + value ; }
+	return "(long)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_long;
 }

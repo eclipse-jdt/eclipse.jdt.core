@@ -71,7 +71,7 @@ abstract public FlowInfo markAsFakeReachable(boolean isFakeReachable);
 abstract public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits);
 public String toString(){
 	if (this == DeadEnd){
-		return "FlowInfo.DeadEnd";
+		return "FlowInfo.DeadEnd"/*nonNLS*/;
 	}
 	return super.toString();
 }

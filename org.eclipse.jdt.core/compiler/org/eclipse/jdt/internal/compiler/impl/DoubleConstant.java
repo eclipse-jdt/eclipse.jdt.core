@@ -31,14 +31,14 @@ public String stringValue() {
 	
 	String s = new Double(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	if (this == NotAConstant) return "(Constant) NotAConstant" ;
-	return "(double)" + value ; }
+	if (this == NotAConstant) return "(Constant) NotAConstant"/*nonNLS*/ ;
+	return "(double)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_double;
 }

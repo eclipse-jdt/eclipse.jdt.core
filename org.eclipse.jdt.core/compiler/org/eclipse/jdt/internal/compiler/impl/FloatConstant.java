@@ -31,13 +31,13 @@ public String stringValue() {
 	
 	String s = new Float(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(float)" + value ; }
+	return "(float)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_float;
 }

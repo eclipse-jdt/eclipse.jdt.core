@@ -419,9 +419,9 @@ static int numberOfEnclosingFields(ReferenceBinding type){
 }
 public String toString(){
 	if (this == DeadEnd){
-		return "FlowInfo.DeadEnd";
+		return "FlowInfo.DeadEnd"/*nonNLS*/;
 	}
-	return "FlowInfo<def: "+ definiteInits +", pot: " + potentialInits + ">";
+	return "FlowInfo<def: "/*nonNLS*/+ definiteInits +", pot: "/*nonNLS*/ + potentialInits + ">"/*nonNLS*/;
 }
 public UnconditionalFlowInfo unconditionalInits() {
 	// also see conditional inits, where it requests them to merge

@@ -190,14 +190,14 @@ public void place() { // Currently lacking wide support.
  * Print out the receiver
  */
 public String toString() {
-	StringBuffer buffer = new StringBuffer("(position=");
+	StringBuffer buffer = new StringBuffer("(position="/*nonNLS*/);
 	buffer.append(position);
-	buffer.append(", forwards = [");
+	buffer.append(", forwards = ["/*nonNLS*/);
 	for (int i = 0; i < forwardReferenceCount - 1; i++)
-		buffer.append(forwardReferences[i] + ", ");
+		buffer.append(forwardReferences[i] + ", "/*nonNLS*/);
 	if (forwardReferenceCount >= 1)
 		buffer.append(forwardReferences[forwardReferenceCount-1]);
-	buffer.append("] )");
+	buffer.append("] )"/*nonNLS*/);
 	return buffer.toString();
 }
 }

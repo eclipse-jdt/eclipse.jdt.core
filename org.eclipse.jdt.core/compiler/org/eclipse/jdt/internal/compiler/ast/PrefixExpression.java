@@ -23,17 +23,17 @@ public PrefixExpression(Expression l, Expression e, int op, int pos) {
 public String operatorToString() {
 	switch (operator) {
 		case PLUS :
-			return "++";
+			return "++"/*nonNLS*/;
 		case MINUS :
-			return "--";}
-	return "unknown operator";
+			return "--"/*nonNLS*/;}
+	return "unknown operator"/*nonNLS*/;
 }
 public boolean restrainUsageToNumericTypes(){
 	return true ;}
 public String toStringExpressionNoParenthesis(){
 	/* slow code */
 	
-	return operatorToString() + " " + lhs.toStringExpression() ;
+	return operatorToString() + " "/*nonNLS*/ + lhs.toStringExpression() ;
 
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -28,7 +28,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(String)\"" + value +"\""; }
+	return "(String)\""/*nonNLS*/ + value +"\""/*nonNLS*/; }
 public int typeID() {
 	return T_String;
 }

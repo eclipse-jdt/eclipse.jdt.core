@@ -151,14 +151,14 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "while (" + condition.toStringExpression() + ")";
+	s = s + "while ("/*nonNLS*/ + condition.toStringExpression() + ")"/*nonNLS*/;
 	if (action == null)
-		s = s + " {} ;";
+		s = s + " {} ;"/*nonNLS*/;
 	else
 		if (action instanceof Block)
-			s = s + "\n" + action.toString(tab+1) ;
+			s = s + "\n"/*nonNLS*/ + action.toString(tab+1) ;
 		else
-			s = s + " {\n" + action.toString(tab+1) + "}" ;
+			s = s + " {\n"/*nonNLS*/ + action.toString(tab+1) + "}"/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

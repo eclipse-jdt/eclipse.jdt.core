@@ -31,13 +31,13 @@ public String stringValue() {
 	
 	String s = new Integer(value).toString() ;
 	if (s == null)
-		return "null";
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(byte)" + value ; }
+	return "(byte)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_byte;
 }
