@@ -227,6 +227,40 @@ private void buildDeltas(SimpleLookupTable deltas) {
 		buildAll();
 }
 
+protected void clean(IProgressMonitor monitor) throws CoreException {
+	this.currentProject = getProject();
+	if (currentProject == null || !currentProject.isAccessible()) return;
+
+	if (DEBUG)
+		System.out.println("\nCleaning " + currentProject.getName() //$NON-NLS-1$
+			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
+	this.notifier = new BuildNotifier(monitor, currentProject);
+	notifier.begin();
+	try {
+		notifier.checkCancel();
+
+		if ((this.lastState = getLastState(currentProject)) != null) {
+			initializeBuilder();
+			if (DEBUG && lastState != null)
+				System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
+			clearLastState();
+			removeProblemsAndTasksFor(currentProject);
+			new BatchImageBuilder(this).cleanOutputFolders(false);
+		}
+	} catch (CoreException e) {
+		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject", e.getLocalizedMessage())); //$NON-NLS-1$
+		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+	} finally {
+		notifier.done();
+		cleanup();
+	}
+	if (DEBUG)
+		System.out.println("Finished cleaning " + currentProject.getName() //$NON-NLS-1$
+			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
+}
+
 private void cleanup() {
 	this.nameEnvironment = null;
 	this.binaryLocationsPerProject = null;

@@ -32,7 +32,7 @@ public void build() {
 	try {
 		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
-		cleanOutputFolders();
+		cleanOutputFolders(true);
 		notifier.updateProgressDelta(0.1f);
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
@@ -97,7 +97,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 	}
 }
 
-protected void cleanOutputFolders() throws CoreException {
+protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
@@ -126,7 +126,8 @@ protected void cleanOutputFolders() throws CoreException {
 					}
 				}
 				notifier.checkCancel();
-				copyExtraResourcesBack(sourceLocation, true);
+				if (copyBack)
+					copyExtraResourcesBack(sourceLocation, true);
 			} else {
 				boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
 				final char[][] exclusionPatterns =
@@ -164,14 +165,14 @@ protected void cleanOutputFolders() throws CoreException {
 					},
 					IResource.NONE
 				);
-				if (!isOutputFolder) {
+				if (!isOutputFolder && copyBack) {
 					notifier.checkCancel();
 					copyPackages(sourceLocation);
 				}
 			}
 			notifier.checkCancel();
 		}
-	} else {
+	} else if (copyBack) {
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder)
