@@ -1556,8 +1556,6 @@ public class EnumTest extends AbstractComparableTest {
 	
 	// TODO (philippe) check binary compatibility (removing referenced enum constants in switch)
 	
-	// TODO (philippe) check warning when switch doesn't use all enum constants
-	
 	// TODO (philippe) check enum syntax recovery
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914 - variation
