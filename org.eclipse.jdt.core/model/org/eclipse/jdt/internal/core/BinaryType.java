@@ -52,6 +52,12 @@ protected void closing(Object info) throws JavaModelException {
  * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor)
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
+	codeComplete(snippet, insertion, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor, WorkingCopyOwner)
+ */
+public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
@@ -59,23 +65,35 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
 	NameLookup nameLookup = project.getNameLookup();
 	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
-	
+
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
-		String encoding = project.getOption(JavaCore.CORE_ENCODING, true); 
-		
-		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
-		char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
-		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
-		
-		BasicCompilationUnit cu = 
-			new BasicCompilationUnit(
-				fakeSource, 
-				null,
-				getElementName(),
-				encoding); 
-
-		engine.complete(cu, prefix.length + position, prefix.length);
+		try {
+			// set the units to look inside
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+			nameLookup.setUnitsToLookInside(workingCopies);
+	
+			// code complete
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true); 
+			
+			char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
+			char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
+			char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
+			
+			BasicCompilationUnit cu = 
+				new BasicCompilationUnit(
+					fakeSource, 
+					null,
+					getElementName(),
+					encoding); 
+	
+			engine.complete(cu, prefix.length + position, prefix.length);
+		} finally {
+			if (nameLookup != null) {
+				nameLookup.setUnitsToLookInside(null);
+			}
+		}
 	} else {
 		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}

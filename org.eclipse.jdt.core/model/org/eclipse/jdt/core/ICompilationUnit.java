@@ -470,7 +470,7 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * working copy is already consistent.
  * </p><p>
  * When problem are computed, the contents of the working copies owned by the given
- * owner take precedence on their original compilation units. 
+ * owner take precedence over their original compilation units. 
  * </p><p>
  * Compilation problems found in the new contents are notified through the
  * <code>IProblemRequestor</code> interface which was passed at
@@ -484,7 +484,7 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  *
  * @param forceProblemDetection boolean indicating whether problem should be recomputed
  *   even if the source hasn't changed.
- * @param owner the owner of working copies that take precedence on the original compilation units
+ * @param owner the owner of working copies that take precedence over the original compilation units
  * @param monitor a progress monitor
  * @exception JavaModelException if the contents of the original element
  *		cannot be accessed. Reasons include:

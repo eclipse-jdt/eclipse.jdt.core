@@ -748,7 +748,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the <code>IJavaElement</code> represented by the 
 	 * <code>String</code> memento.
 	 */
-	public IJavaElement getHandleFromMemento(String memento) throws JavaModelException {
+	public IJavaElement getHandleFromMemento(String memento, WorkingCopyOwner owner) throws JavaModelException {
 		if (memento == null) {
 			return null;
 		}
@@ -793,7 +793,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 
 		//deal with compilation units and source members
-		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, unitEnd);
+		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, unitEnd, owner);
 	}
 	public IndexManager getIndexManager() {
 		return this.deltaProcessor.indexManager;
@@ -984,7 +984,9 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner, boolean addPrimary) {
 		synchronized(perWorkingCopyInfos) {
-			ICompilationUnit[] primaryWCs = addPrimary ? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) : NoWorkingCopy;
+			ICompilationUnit[] primaryWCs = addPrimary && owner != DefaultWorkingCopyOwner.PRIMARY 
+				? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) 
+				: NoWorkingCopy;
 			Map pathToPerWorkingCopyInfos = (Map)perWorkingCopyInfos.get(owner);
 			if (pathToPerWorkingCopyInfos == null) return primaryWCs;
 			int primaryLength = primaryWCs.length;

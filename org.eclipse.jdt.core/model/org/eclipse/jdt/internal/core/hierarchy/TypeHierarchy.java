@@ -91,7 +91,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	protected IType focusType;
 	
 	/*
-	 * The working copies that take precedence on original compilation units
+	 * The working copies that take precedence over original compilation units
 	 */
 	protected ICompilationUnit[] workingCopies;
 

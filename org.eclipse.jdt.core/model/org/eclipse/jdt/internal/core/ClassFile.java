@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.IClassFile;
@@ -97,6 +98,12 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
+ */
+public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
 		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
@@ -107,13 +114,19 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 				null,
 				elementName.substring(0, elementName.length()-SUFFIX_STRING_class.length()) + SUFFIX_STRING_java,
 				encoding); 
-		codeComplete(cu, cu, offset, requestor);
+		codeComplete(cu, cu, offset, requestor, owner);
 	}
 }
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
+	return codeSelect(offset, length, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see ICodeAssist#codeSelect(int, int, WorkingCopyOwner)
+ */
+public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
 	IBuffer buffer = getBuffer();
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
@@ -123,7 +136,7 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 			current = parent;
 		}
 		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + SUFFIX_STRING_java, null);
-		return super.codeSelect(cu, offset, length);
+		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
 		return new IJavaElement[] {};

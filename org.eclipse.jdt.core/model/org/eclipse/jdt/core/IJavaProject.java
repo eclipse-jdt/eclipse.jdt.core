@@ -78,8 +78,34 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * classpath-relative path, or <code>null</code> if no such 
 	 * <code>IJavaElement</code> is found
 	 */
-	// TODO: add WorkingCopyOwner
 	IJavaElement findElement(IPath path) throws JavaModelException;
+	
+	/**
+	 * Returns the <code>IJavaElement</code> corresponding to the given
+	 * classpath-relative path, or <code>null</code> if no such 
+	 * <code>IJavaElement</code> is found. The result is one of an
+	 * <code>ICompilationUnit</code>, <code>IClassFile</code>, or
+	 * <code>IPackageFragment</code>. If it is an <code>ICompilationUnit</code>,
+	 * its owner is the given owner.
+	 * <p>
+	 * When looking for a package fragment, there might be several potential
+	 * matches; only one of them is returned.
+	 *
+	 * <p>For example, the path "java/lang/Object.java", would result in the
+	 * <code>ICompilationUnit</code> or <code>IClassFile</code> corresponding to
+	 * "java.lang.Object". The path "java/lang" would result in the
+	 * <code>IPackageFragment</code> for "java.lang".
+	 * @param path the given classpath-relative path
+	 * @param owner the owner of the returned compilation unit, ignored if it is
+	 *   not a compilation unit.
+	 * @exception JavaModelException if the given path is <code>null</code>
+	 *  or absolute
+	 * @return the <code>IJavaElement</code> corresponding to the given
+	 * classpath-relative path, or <code>null</code> if no such 
+	 * <code>IJavaElement</code> is found
+	 * @since 3.0
+	 */
+	IJavaElement findElement(IPath path, WorkingCopyOwner owner) throws JavaModelException;
 
 	/**
 	 * Returns the first existing package fragment on this project's classpath
@@ -154,8 +180,33 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @see IType#getFullyQualifiedName(char)
 	 * @since 2.0
 	 */
-	// TODO: add WorkingCopyOwner
 	IType findType(String fullyQualifiedName) throws JavaModelException;
+	/**
+	 * Returns the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found.
+	 * The fully qualified name is a dot-separated name. For example,
+	 * a class B defined as a member type of a class A in package x.y should have a 
+	 * the fully qualified name "x.y.A.B".
+	 * If the returned type is part of a compilation unit, its owner is the given
+	 * owner.
+	 * 
+	 * TODO: (kent) need to change spec if secondary types are found
+	 * Note that in order to be found, a type name (or its toplevel enclosing
+	 * type name) must match its corresponding compilation unit name. As a 
+	 * consequence, secondary types cannot be found using this functionality.
+	 * Secondary types can however be explicitely accessed through their enclosing
+	 * unit or found by the <code>SearchEngine</code>.
+	 * 
+	 * @param fullyQualifiedName the given fully qualified name
+	 * @param owner the owner of the returned type's compilation unit
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.0
+	 */
+	IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException;
 	/**
 	 * Returns the first type found following this project's classpath 
 	 * with the given package name and type qualified name
@@ -180,12 +231,39 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * with the given package name and type qualified name
 	 * or <code>null</code> if none is found
 	 * @see IType#getTypeQualifiedName(char)
-
 	 * @since 2.0
 	 */
-	// TODO: add WorkingCopyOwner
 	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
-
+	/**
+	 * Returns the first type found following this project's classpath 
+	 * with the given package name and type qualified name
+	 * or <code>null</code> if none is found.
+	 * The package name is a dot-separated name.
+	 * The type qualified name is also a dot-separated name. For example,
+	 * a class B defined as a member type of a class A should have the 
+	 * type qualified name "A.B".
+	 * If the returned type is part of a compilation unit, its owner is the given
+	 * owner.
+	 * 
+	 * TODO: (kent) need to change spec if secondary types are found
+	 * Note that in order to be found, a type name (or its toplevel enclosing
+	 * type name) must match its corresponding compilation unit name. As a 
+	 * consequence, secondary types cannot be found using this functionality.
+	 * Secondary types can however be explicitely accessed through their enclosing
+	 * unit or found by the <code>SearchEngine</code>.
+	 * 
+	 * @param packageName the given package name
+	 * @param typeQualifiedName the given type qualified name
+	 * @param owner the owner of the returned type's compilation unit
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given package name and type qualified name
+	 * or <code>null</code> if none is found
+	 * @see IType#getTypeQualifiedName(char)
+	 * @since 3.0
+	 */
+	IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException;
 	/**
 	 * Force the project to reload its <code>.classpath</code> file from disk and update the classpath accordingly.
 	 * Usually, a change to the <code>.classpath</code> file is automatically noticed and reconciled at the next 

@@ -832,7 +832,14 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public IJavaElement findElement(IPath path) throws JavaModelException {
+		return findElement(path, DefaultWorkingCopyOwner.PRIMARY);
+	}
 
+	/**
+	 * @see IJavaProject
+	 */
+	public IJavaElement findElement(IPath path, WorkingCopyOwner owner) throws JavaModelException {
+		
 		if (path == null || path.isAbsolute()) {
 			throw new JavaModelException(
 				new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, path));
@@ -873,11 +880,25 @@ public class JavaProject
 				} else {
 					qualifiedName = typeName;
 				}
-				IType type =
-					getNameLookup().findType(
+				IType type = null;
+				NameLookup lookup = null;
+				try {
+					// set units to look inside
+					lookup = getNameLookup();
+					JavaModelManager manager = JavaModelManager.getJavaModelManager();
+					ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+					lookup.setUnitsToLookInside(workingCopies);
+					
+					// lookup type
+					type = lookup.findType(
 						qualifiedName,
 						false,
 						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+				} finally {
+					if (lookup != null) {
+						lookup.setUnitsToLookInside(null);
+					}
+				}
 				if (type != null) {
 					return type.getParent();
 				} else {
@@ -965,11 +986,33 @@ public class JavaProject
 	 * @see IJavaProject#findType(String)
 	 */
 	public IType findType(String fullyQualifiedName) throws JavaModelException {
-		IType type = 
-			this.getNameLookup().findType(
-				fullyQualifiedName, 
+		return findType(fullyQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	}
+
+	/**
+	 * @see IJavaProject#findType(String, WorkingCopyOwner)
+	 */
+	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
+		
+		IType type = null;
+		NameLookup lookup = null;
+		try {
+			// set units to look inside
+			lookup = getNameLookup();
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+			lookup.setUnitsToLookInside(workingCopies);
+			
+			// lookup type
+			type = lookup.findType(
+				fullyQualifiedName,
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		} finally {
+			if (lookup != null) {
+				lookup.setUnitsToLookInside(null);
+			}
+		}
 		if (type == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
@@ -989,12 +1032,32 @@ public class JavaProject
 	 * @see IJavaProject#findType(String, String)
 	 */
 	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
-		return 
-			this.getNameLookup().findType(
+		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	}
+
+	/**
+	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
+		NameLookup lookup = null;
+		try {
+			// set units to look inside
+			lookup = getNameLookup();
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+			lookup.setUnitsToLookInside(workingCopies);
+			
+			// lookup type
+			return lookup.findType(
 				typeQualifiedName, 
 				packageName,
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		} finally {
+			if (lookup != null) {
+				lookup.setUnitsToLookInside(null);
+			}
+		}
 	}	
 	
 	/**

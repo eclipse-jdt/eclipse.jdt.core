@@ -138,12 +138,12 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
 /**
  * Returns a java search scope limited to the hierarchy of the given type.
  * When the hierarchy is computed, the types defined in the working copies owned
- * by the given owner take precedence on the original compilation units.
+ * by the given owner take precedence over the original compilation units.
  * The java elements resulting from a search with this scope will
  * be types in this hierarchy, or members of the types in this hierarchy.
  *
  * @param type the focus of the hierarchy scope
- * @param the owner of working copies that take precedence of original compilation units
+ * @param the owner of working copies that take precedence over original compilation units
  * @return a new hierarchy scope
  * @exception JavaModelException if the hierarchy could not be computed on the given type
  * @since 3.0

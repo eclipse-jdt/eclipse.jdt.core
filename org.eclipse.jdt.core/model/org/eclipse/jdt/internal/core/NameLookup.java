@@ -754,7 +754,7 @@ public class NameLookup implements SuffixConstants {
 /**
  * Remembers a set of compilation units that will be looked inside
  * when looking up a type. If they are working copies, they take
- * precedence of their compilation units.
+ * precedence over their compilation units.
  * <code>null</code> means that no special compilation units should be used.
  */
 public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {

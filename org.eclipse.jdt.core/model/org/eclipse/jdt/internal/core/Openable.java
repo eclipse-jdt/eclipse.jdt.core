@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
-import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 
 
@@ -101,10 +100,7 @@ protected void closeBuffer() {
 protected void closing(Object info) throws JavaModelException {
 	closeBuffer();
 }
-/**
- * @see ICodeAssist
- */
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor) throws JavaModelException {
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
@@ -116,42 +112,64 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
-	NameLookup nameLookup = project.getNameLookup();
-	environment.unitToSkip = unitToSkip;
-
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
-	engine.complete(cu, position, 0);
-	environment.unitToSkip = null;
-}
-/**
- * @see ICodeAssist
- */
-protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length) throws JavaModelException {
-	SelectionRequestor requestor= new SelectionRequestor(((JavaProject)getJavaProject()).getNameLookup(), this);
-	this.codeSelect(cu, offset, length, requestor);
-	return requestor.getElements();
-}
-/**
- * @see ICodeAssist
- */
-protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, ISelectionRequestor requestor) throws JavaModelException {
-	IBuffer buffer = getBuffer();
-	if (buffer == null) {
-		return;
-	}
-	int end= buffer.getLength();
-	if (offset < 0 || length < 0 || offset + length > end ) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
-	}
-
-	// fix for 1FVGGKF
-	JavaProject project = (JavaProject)getJavaProject();
-	ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
+	SearchableEnvironment environment = null;
+	NameLookup nameLookup = null;
+	try {
+		// set unit to skip
+		environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
+		environment.unitToSkip = unitToSkip;
 	
-	// fix for 1FVXGDK
-	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
-	engine.select(cu, offset, offset + length - 1);
+		// set the units to look inside
+		nameLookup = project.getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		nameLookup.setUnitsToLookInside(workingCopies);
+
+		// code complete
+		CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
+		engine.complete(cu, position, 0);
+	} finally {
+		if (environment != null) {
+			environment.unitToSkip = null;
+		}
+		if (nameLookup != null) {
+			nameLookup.setUnitsToLookInside(null);
+		}
+	}
+}
+protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
+	NameLookup nameLookup = null;
+	try {
+		// set the units to look inside
+		nameLookup = ((JavaProject)getJavaProject()).getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		nameLookup.setUnitsToLookInside(workingCopies);
+
+		// code select
+		SelectionRequestor requestor= new SelectionRequestor(nameLookup, this);
+		IBuffer buffer = getBuffer();
+		if (buffer == null) {
+			return requestor.getElements();
+		}
+		int end= buffer.getLength();
+		if (offset < 0 || length < 0 || offset + length > end ) {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
+		}
+	
+		// fix for 1FVGGKF
+		JavaProject project = (JavaProject)getJavaProject();
+		ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
+		
+		// fix for 1FVXGDK
+		SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
+		engine.select(cu, offset, offset + length - 1);
+		return requestor.getElements();
+	} finally {
+		if (nameLookup != null) {
+			nameLookup.setUnitsToLookInside(null);
+		}
+	}
 }
 /*
  * Returns a new element info for this element.
@@ -453,7 +471,7 @@ public PackageFragmentRoot getPackageFragmentRoot() {
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
 
 	if (requestor == null){
-		codeComplete(cu, unitToSkip, position, (ICompletionRequestor)null);
+		codeComplete(cu, unitToSkip, position, (ICompletionRequestor)null, DefaultWorkingCopyOwner.PRIMARY);
 		return;
 	}
 	codeComplete(
@@ -515,6 +533,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
-		});
+		},
+		DefaultWorkingCopyOwner.PRIMARY);
 }
 }

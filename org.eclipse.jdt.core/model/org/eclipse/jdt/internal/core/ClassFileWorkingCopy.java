@@ -553,9 +553,25 @@ public IType findPrimaryType() {
 	}
 
 	/**
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
+	 */
+	public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeSelect(int, int)
 	 */
 	public IJavaElement[] codeSelect(int offset, int length)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeSelect(int, int, WorkingCopyOwner)
+	 */
+	public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}

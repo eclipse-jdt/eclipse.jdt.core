@@ -189,7 +189,13 @@ protected void closing(Object info) throws JavaModelException {
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
-	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor);
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
+ */
+public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor, workingCopyOwner);
 }
 /**
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
@@ -264,7 +270,13 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
  * @see ICodeAssist#codeSelect(int, int)
  */
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
-	return super.codeSelect(this, offset, length);
+	return codeSelect(offset, length, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see ICodeAssist#codeSelect(int, int, WorkingCopyOwner)
+ */
+public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+	return super.codeSelect(this, offset, length, workingCopyOwner);
 }
 /**
  * @see IWorkingCopy#commit(boolean, IProgressMonitor)

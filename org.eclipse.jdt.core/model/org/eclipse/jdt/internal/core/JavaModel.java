@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -235,7 +236,7 @@ protected IPackageFragmentRoot getHandleFromMementoForRoot(String memento, JavaP
  * memento.
  * @see getHandleMemento()
  */
-protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPackageFragmentRoot root, int rootEnd, int end) throws JavaModelException {
+protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPackageFragmentRoot root, int rootEnd, int end, WorkingCopyOwner owner) throws JavaModelException {
 
 	//deal with compilation units and source members
 	IPackageFragment frag = null;
@@ -249,12 +250,12 @@ protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPac
 	end = memento.indexOf(JavaElement.JEM_PACKAGEDECLARATION, end);
 	if (end != -1) {
 		//package declaration
-		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end));
+		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end), owner);
 		return cu.getPackageDeclaration(memento.substring(end + 1));
 	}
 	end = memento.indexOf(JavaElement.JEM_IMPORTDECLARATION, oldEnd);
 	if (end != -1) {
-		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end));
+		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end), owner);
 		if (memento.length() == end + 1) {
 			// import container
 			return cu.getImportContainer();
@@ -266,11 +267,11 @@ protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPac
 	int typeStart = memento.indexOf(JavaElement.JEM_TYPE, oldEnd);
 	if (typeStart == -1) {
 		//we ended with a compilation unit
-		return frag.getCompilationUnit(memento.substring(oldEnd + 1));
+		return frag.getCompilationUnit(memento.substring(oldEnd + 1), owner);
 	}
 
 	//source members
-	ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, typeStart));
+	ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, typeStart), owner);
 	end = memento.indexOf(JavaElement.JEM_FIELD, oldEnd);
 	if (end != -1) {
 		//source field
