@@ -2224,6 +2224,8 @@ public abstract class Scope
 					if (bestArgument == null) return null;
 					bestArguments[j] = bestArgument;
 				}
+			} else if (invocation.isRawType()) {
+				return invocation; // raw type is taking precedence
 			}
 		}
 		return createParameterizedType((ReferenceBinding) mec, bestArguments, null);
@@ -2377,7 +2379,7 @@ public abstract class Scope
 							someInvocations.add(itsSuperclass);
 							allInvocations.put(itsSuperclassErasure, someInvocations);
 						}
-						typesToVisit.add(itsSuperclass);
+						typesToVisit.add(itsSuperclassErasure);
 						max++;
 					}
 				}
