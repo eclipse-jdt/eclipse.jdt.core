@@ -25,10 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeTest extends AbstractRegressionTest {
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
-	static boolean runJavac;
-	{
-		runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
-	}
+	static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	IPath dirPath;
 	
 	public GenericTypeTest(String name) {
@@ -165,7 +162,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 						StringBuffer cmdLine = new StringBuffer(javacPath.toString());
 						cmdLine.append(" -classpath ");
 						cmdLine.append(cp);
-						cmdLine.append(" -source 1.5 -deprecation ");
+						cmdLine.append(" -source 1.5 -deprecation -Xlint "); // enable recommended warnings
 						if (GenericTypeTest.this.dirPath.equals(dirFilePath)) {
 							cmdLine.append("*.java");
 						} else {
