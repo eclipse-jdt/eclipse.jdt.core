@@ -113,8 +113,7 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
-// char[] signature = null;
-	char[] typeSignature = binaryType.getSignature();
+	char[] typeSignature = binaryType.getGenericSignature();
 	// TODO do we only care about signature based on a certain compliance level?
 	if (typeSignature == null) {
 		char[] superclassName = binaryType.getSuperclassName();
@@ -202,8 +201,7 @@ private void createFields(IBinaryField[] iFields) {
 			this.fields = new FieldBinding[size];
 			for (int i = 0; i < size; i++) {
 				IBinaryField field = iFields[i];
-// char[] signature = null;
-				char[] fieldSignature = field.getSignature();
+				char[] fieldSignature = field.getGenericSignature();
 				// TODO do we only care about signature based on a certain compliance level?
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
@@ -225,8 +223,7 @@ private MethodBinding createMethod(IBinaryMethod method) {
 	TypeBinding[] parameters = NoParameters;
 	TypeBinding returnType = null;
 
-// char[] signature = null;
-	char[] methodSignature = method.getSignature();
+	char[] methodSignature = method.getGenericSignature();
 	// TODO do we only care about signature based on a certain compliance level?
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V

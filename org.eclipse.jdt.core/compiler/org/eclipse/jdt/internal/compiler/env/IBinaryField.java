@@ -35,5 +35,5 @@ char[] getTypeName();
  * Answer the receiver's signature which describes the parameter &
  * return types as specified in section 4.4.4 of the Java 2 VM spec.
  */
-char[] getSignature();
+char[] getGenericSignature();
 }

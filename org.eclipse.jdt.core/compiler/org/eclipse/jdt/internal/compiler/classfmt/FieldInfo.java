@@ -78,6 +78,16 @@ public Constant getConstant() {
 	}
 	return constant;
 }
+public char[] getGenericSignature() {
+	if (this.signatureUtf8Offset != -1) {
+		if (this.signature == null) {
+			// decode the signature
+			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
+		}
+		return this.signature;
+	}
+	return null;
+}
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
@@ -103,16 +113,6 @@ public char[] getName() {
 		name = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
 	return name;
-}
-public char[] getSignature() {
-	if (this.signatureUtf8Offset != -1) {
-		if (this.signature == null) {
-			// decode the signature
-			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
-		}
-		return this.signature;
-	}
-	return null;
 }
 /**
  * Answer the resolved name of the receiver's type in the

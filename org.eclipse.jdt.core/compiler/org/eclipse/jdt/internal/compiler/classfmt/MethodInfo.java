@@ -78,6 +78,16 @@ public char[][] getExceptionTypeNames() {
 	}
 	return exceptionNames;
 }
+public char[] getGenericSignature() {
+	if (this.signatureUtf8Offset != -1) {
+		if (this.signature == null) {
+			// decode the signature
+			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
+		}
+		return this.signature;
+	}
+	return null;
+}
 /**
  * Answer the receiver's method descriptor which describes the parameter &
  * return types as specified in section 4.3.3 of the Java 2 VM spec.
@@ -123,16 +133,6 @@ public char[] getSelector() {
 	}
 	return name;
 }
-public char[] getSignature() {
-	if (this.signatureUtf8Offset != -1) {
-		if (this.signature == null) {
-			// decode the signature
-			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
-		}
-		return this.signature;
-	}
-	return null;
-}
 /**
  * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
  * will be therefore fully initialized and we can get rid of the bytes.
@@ -142,7 +142,7 @@ void initialize() {
 	getSelector();
 	getMethodDescriptor();
 	getExceptionTypeNames();
-	getSignature();
+	getGenericSignature();
 	reset();
 }
 /**
@@ -228,7 +228,7 @@ public int sizeInBytes() {
 }
 public String toString() {
 	int modifiers = getModifiers();
-	char[] desc = getSignature();
+	char[] desc = getGenericSignature();
 	if (desc == null)
 		desc = getMethodDescriptor();
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());

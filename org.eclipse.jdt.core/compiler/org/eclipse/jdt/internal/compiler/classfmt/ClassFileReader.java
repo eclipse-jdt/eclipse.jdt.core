@@ -316,6 +316,9 @@ public IBinaryField[] getFields() {
 public char[] getFileName() {
 	return this.classFileName;
 }
+public char[] getGenericSignature() {
+	return this.signature;
+}
 /**
  * Answer the source name if the receiver is a inner type. Return null if it is an anonymous class or if the receiver is a top-level class.
  * e.g.
@@ -441,9 +444,6 @@ public int getModifiers() {
  */
 public char[] getName() {
 	return this.className;
-}
-public char[] getSignature() {
-	return this.signature;
 }
 /**
  * Answer the resolved name of the receiver's superclass in the
@@ -696,7 +696,7 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 		return true;
 	if (!CharOperation.equals(currentMethodInfo.getMethodDescriptor(), otherMethodInfo.getMethodDescriptor()))
 		return true;
-	if (!CharOperation.equals(currentMethodInfo.getSignature(), otherMethodInfo.getSignature()))
+	if (!CharOperation.equals(currentMethodInfo.getGenericSignature(), otherMethodInfo.getGenericSignature()))
 		return true;
 
 	char[][] currentThrownExceptions = currentMethodInfo.getExceptionTypeNames();
