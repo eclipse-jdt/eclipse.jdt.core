@@ -60,38 +60,8 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	/**
 	 * @throws TargetException
 	 */
-	protected void cleanUp() throws TargetException {
-		// Clean up written file(s)
-		IPath testDir =  new Path(OUTPUT_DIR);
-		cleanupDirectory(testDir.toFile());
-	}
-
-	/*######################################
-	 * Specific method to let tests Sun javac compilation available...
-	 #######################################*/
-	/*
-	 * Cleans up the given directory by removing all the files it contains as well
-	 * but leaving the directory.
-	 * @throws TargetException if the target path could not be cleaned up
-	 */
-	private void cleanupDirectory(File directory) throws TargetException {
-		if (!directory.exists()) {
-			return;
-		}
-		String[] fileNames = directory.list();
-		for (int i = 0; i < fileNames.length; i++) {
-			File file = new File(directory, fileNames[i]);
-			if (file.isDirectory()) {
-				cleanupDirectory(file);
-			} else {
-				if (!file.delete()) {
-					throw new TargetException("Could not delete file " + file.getPath());
-				}
-			}
-		}
-		if (!directory.delete()) {
-			throw new TargetException("Could not delete directory " + directory.getPath());
-		}
+	protected void cleanUp() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 	}
 
 	/*
@@ -283,12 +253,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		if (!RunJavac) return;
 		
 		// Compare with javac
-		try {
-			cleanUp();
-		} catch(TargetException e) {
-			// nothing to do
-		}
-		
+		cleanUp();
 		runJavac("test001", testsSource);
 		
 		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
@@ -425,12 +390,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		if (!RunJavac) return;
 
 		// Compare with javac
-		try {
-			cleanUp();
-		} catch(TargetException e) {
-			// nothing to do
-		}
-		
+		cleanUp();
 		runJavac("test002", testsSource);
 		
 		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
