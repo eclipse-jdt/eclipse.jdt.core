@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,25 +23,46 @@ import java.util.List;
  * TypeDeclaration:
  * 		ClassDeclaration
  * 		InterfaceDeclaration
+ * 		EnumDeclaration
  * ClassDeclaration:
  *      [ Javadoc ] { Modifier } <b>class</b> Identifier
- *			[ <b>extends</b> Type]
+ *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *			[ <b>extends</b> Type ]
  *			[ <b>implements</b> Type { <b>,</b> Type } ]
  *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
  * InterfaceDeclaration:
  *      [ Javadoc ] { Modifier } <b>interface</b> Identifier
+ *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *			[ <b>extends</b> Type { <b>,</b> Type } ]
  * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
+ * EnumDeclaration:
+ *      [ Javadoc ] { Modifier } <b>enum</b> Identifier
+ *			[ <b>implements</b> Type { <b>,</b> Type } ]
+ *			<b>{</b>
+ *               [ EnumConstantDeclaration [ <b>,</b> EnumConstantDeclaration ] ]
+ *               [ <b>;</b> { ClassBodyDeclaration | <b>;</b> } ]
+ *          <b>}</b>
  * </pre>
  * <p>
  * When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter.
  * When there is no Javadoc comment, the source range begins with the first
  * character of the first modifier keyword (if modifiers), or the
- * first character of the "class" or "interface": keyword (if no modifiers).
- * The source range extends through the last character of the ";" token (if
- * no body), or the last character of the "}" token following the body
- * declarations.
+ * first character of the "class", "interface", or "enum" keyword (if no
+ * modifiers). The source range extends through the last character of the "}"
+ * token following the body declarations.
+ * </p>
+ * <p>
+ * Note: Enum declarations are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
+ * <p>
+ * Note: Support for generic types is an experimental language feature 
+ * under discussion in JSR-014 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
  * </p>
  * 
  * @since 2.0
@@ -62,6 +84,20 @@ public class TypeDeclaration extends BodyDeclaration {
 	private boolean isInterface = false;
 	
 	/**
+	 * <code>true</code> for an enumeration, <code>false</code> for a class.
+	 * Defaults to class. This field is ignored for interfaces.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	private boolean isEnumeration = false;
+	
+	/**
 	 * The modifiers; bit-wise or of Modifier flags.
 	 * Defaults to none.
 	 */
@@ -74,18 +110,28 @@ public class TypeDeclaration extends BodyDeclaration {
 	private SimpleName typeName = null;
 
 	/**
-	 * The optional superclass name; <code>null</code> if none.
-	 * Defaults to none. Note that this field is not used for
-	 * interface declarations.
+	 * The type paramters (element type: <code>TypeParameter</code>). 
+	 * Defaults to an empty list.
+	 * @since 2.2
 	 */
-	private Name optionalSuperclassName = null;
+	private ASTNode.NodeList typeParameters =
+		new ASTNode.NodeList(false, TypeParameter.class);
 
 	/**
-	 * The superinterface names (element type: <code>Name</code>). 
-	 * Defaults to an empty list.
+	 * The optional superclass type; <code>null</code> if none.
+	 * Defaults to none. Note that this field is not used for
+	 * interface declarations.
+	 * @since 2.2
 	 */
-	private ASTNode.NodeList superInterfaceNames =
-		new ASTNode.NodeList(false, Name.class);
+	private Type optionalSuperclassType = null;
+
+	/**
+	 * The superinterface types (element type: <code>Type</code>). 
+	 * Defaults to an empty list.
+	 * @since 2.2
+	 */
+	private ASTNode.NodeList superInterfaceTypes =
+		new ASTNode.NodeList(false, Type.class);
 
 	/**
 	 * The body declarations (element type: <code>BodyDeclaration</code>).
@@ -98,8 +144,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Creates a new AST node for a type declaration owned by the given 
 	 * AST. By default, the type declaration is for a class of an
 	 * unspecified, but legal, name; no modifiers; no javadoc; 
-	 * no superclass or superinterfaces; and an empty list of body
-	 * declarations.
+	 * no type parameters; no superclass or superinterfaces; and an empty list
+	 * of body declarations.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -129,6 +175,7 @@ public class TypeDeclaration extends BodyDeclaration {
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setInterface(isInterface());
+		result.setEnumeration(isEnumeration());
 		result.setName((SimpleName) getName().clone(target));
 		result.setSuperclass(
 			(Name) ASTNode.copySubtree(target, getSuperclass()));
@@ -156,8 +203,9 @@ public class TypeDeclaration extends BodyDeclaration {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
 			acceptChild(visitor, getName());
-			acceptChild(visitor, getSuperclass());
-			acceptChildren(visitor, superInterfaceNames);
+			acceptChildren(visitor, typeParameters);
+			acceptChild(visitor, getSuperclassType());
+			acceptChildren(visitor, superInterfaceTypes);
 			acceptChildren(visitor, bodyDeclarations);
 		}
 		visitor.endVisit(this);
@@ -168,7 +216,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * interface.
 	 * 
 	 * @return <code>true</code> if this is an interface declaration,
-	 *    and <code>false</code> if this is a class declaration
+	 *    and <code>false</code> if this is a class or enumeration declaration
 	 */ 
 	public boolean isInterface() {
 		return isInterface;
@@ -179,12 +227,50 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * interface.
 	 * 
 	 * @param isInterface <code>true</code> if this is an interface
-	 *    declaration, and <code>false</code> if this is a class
+	 *    declaration, and <code>false</code> if this is a class or enumeration
 	 * 	  declaration
 	 */ 
 	public void setInterface(boolean isInterface) {
 		modifying();
 		this.isInterface = isInterface;
+	}
+
+	/**
+	 * Returns whether this type declaration declares a class or an 
+	 * enumeration. Note that this property is not relevant for interfaces.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is an enumeration declaration,
+	 *    and <code>false</code> if this is a class declaration
+	 * @since 2.2
+	 */ 
+	public boolean isEnumeration() {
+		return isEnumeration;
+	}
+	
+	/**
+	 * Sets whether this type declaration declares a class or an 
+	 * enumeration. Note that this property is not relevant for interfaces.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param isEnumeration <code>true</code> if this is an enumeration
+	 *    declaration, and <code>false</code> if this is a class
+	 * 	  declaration
+	 * @since 2.2
+	 */ 
+	public void setEnumeration(boolean isEnumeration) {
+		modifying();
+		this.isEnumeration = isEnumeration;
 	}
 
 	/**
@@ -257,32 +343,86 @@ public class TypeDeclaration extends BodyDeclaration {
 		this.typeName = typeName;
 	}
 
-//	JSR-014 feature
-//	public List<TypeParameter> typeParameters() {
-//		throw RuntimeException("not implemented yet");
-//	}
-
+	/**
+	 * Returns the live ordered list of type parameters of this type 
+	 * declaration. This list is non-empty for parameterized types.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of type parameters
+	 *    (element type: <code>TypeParameter</code>)
+	 * @since 2.2
+	 */ 
+	public List typeParameters() {
+		return typeParameters;
+	}
+	
 	/**
 	 * Returns the name of the superclass declared in this type
 	 * declaration, or <code>null</code> if there is none.
 	 * <p>
-	 * Note that this child is not relevant for interface declarations
-	 * (although it does still figure in subtree equality comparisons).
+	 * Note that this child is not relevant for interface and
+	 * enumeration declarations (although it does still figure in subtree
+	 * equality comparisons).
 	 * </p>
 	 * 
 	 * @return the superclass name node, or <code>null</code> if 
 	 *    there is none
+	 * @deprecated Replaced by <code>getSuperclassType</code>, which returns
+	 * a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public Name getSuperclass() {
-		return optionalSuperclassName;
+		// implement deprecated method in terms of get/setSuperclassType
+		Type superclassType = getSuperclassType();
+		if (superclassType == null) {
+			// return null if no superclass type
+			return null;
+		} else if (superclassType instanceof SimpleType) {
+			// no problem - extract name from SimpleType
+			SimpleType t = (SimpleType) superclassType;
+			return t.getName();
+		} else if ((superclassType instanceof ParameterizedType)
+			     || (superclassType instanceof QualifiedType)) {
+			// compatibility issue
+			// back-level clients know nothing of new node types added in 2.1
+			// take this opportunity to inform client of problem
+			throw new RuntimeException("Deprecated AST API method cannot handle newer node types"); //$NON-NLS-1$
+		} else {
+			// compatibility issue
+			// AST is bogus - illegal for type to be array or primitive type
+			// take this opportunity to inform client of problem
+			throw new RuntimeException("Deprecated AST API method cannot handle malformed AST"); //$NON-NLS-1$
+		}
 	}
-	
+
+	/**
+	* Returns the superclass declared in this type
+	* declaration, or <code>null</code> if there is none.
+	* <p>
+	* Note that this child is not relevant for interface and
+	* enumeration declarations (although it does still figure in subtree
+	* equality comparisons).
+	* </p>
+	* 
+	* @return the superclass type node, or <code>null</code> if 
+	*    there is none
+	* @since 2.2
+	*/ 
+	public Type getSuperclassType() {
+		return this.optionalSuperclassType;
+	}
+
 	/**
 	 * Sets or clears the name of the superclass declared in this type
 	 * declaration.
 	 * <p>
-	 * Note that this child is not relevant for interface declarations
-	 * (although it does still figure in subtree equality comparisons).
+	 * Note that this child is not relevant for interface and
+	 * enumeration declarations (although it does still figure in subtree
+	 * equality comparisons).
 	 * </p>
 	 * 
 	 * @param superclassName the superclass name node, or <code>null</code> if 
@@ -294,31 +434,194 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * </ul>
 	 */ 
 	public void setSuperclass(Name superclassName) {
-		replaceChild(
-			this.optionalSuperclassName,
-			superclassName, false);
-		this.optionalSuperclassName = superclassName;
+		// implement deprecated method in terms of get/setSuperclassType
+		if (superclassName == null) {
+			setSuperclassType(null);
+		} else {
+			Type superclassType = getSuperclassType();
+			if (superclassType instanceof SimpleType) {
+				// if possible edit name in SimpleType
+				SimpleType s = (SimpleType) superclassType;
+				s.setName(superclassName);
+				// give type node same range as name node
+				s.setSourceRange(
+					superclassName.getStartPosition(),
+					superclassName.getLength());
+				// note that only s will be modified(), not the TypeDecl node
+			} else {
+				// all other cases - wrap name in a SimpleType and replace superclassType
+				Type newT = getAST().newSimpleType(superclassName);
+				// give new type node same range as name node
+				newT.setSourceRange(
+					superclassName.getStartPosition(),
+					superclassName.getLength());
+				setSuperclassType(newT);
+			}
+		}
 	}
 
 	/**
+	 * Sets or clears the superclass declared in this type
+	 * declaration.
+	 * <p>
+	 * Note that this child is not relevant for interface declarations
+	 * (although it does still figure in subtree equality comparisons).
+	 * </p>
+	 * 
+	 * @param superclassType the superclass type node, or <code>null</code> if 
+	 *    there is none
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @since 2.2
+	 */ 
+	public void setSuperclassType(Type superclassType) {
+		replaceChild(this.optionalSuperclassType, superclassType, true);
+		this.optionalSuperclassType = superclassType;
+ 	}
+
+	/**
 	 * Returns the live ordered list of names of superinterfaces of this type 
-	 * declaration. For a class declaration, these are the names of the
-	 * interfaces that this class implements; for an interface declaration,
-	 * these are the names of the interfaces that this interface extends.
+	 * declaration. For a class or enumeration declaration, these are the names
+	 * of the interfaces that this class implements; for an interface
+	 * declaration, these are the names of the interfaces that this interface
+	 * extends.
 	 * 
 	 * @return the live list of interface names
 	 *    (element type: <code>Name</code>)
+	 * @deprecated Replaced by <code>superInterfaceTypes</code>, which contains
+	 * a list of <code>Type</code>s instead of <code>Name</code>s.
 	 */ 
 	public List superInterfaces() {
-		return superInterfaceNames;
+		// implement deprecated method in terms of superInterfaceTypes()
+		// return special implementation of List<Name> in terms of List<Type>
+		return new AbstractList() {
+			/**
+			 * @see java.util.AbstractCollection#size()
+			 */
+			public int size() {
+				return superInterfaceTypes().size();
+			}
+		
+			/**
+			 * @see AbstractList#get(int)
+			 */
+			public Object get(int index) {
+				Type t = (Type) superInterfaceTypes().get(index);
+				if (t instanceof SimpleType) {
+					// old client reading an old style element
+					SimpleType s = (SimpleType) t;
+					return s.getName();
+				} else if ((t instanceof ParameterizedType)
+					     || (t instanceof QualifiedType)) {
+					// compatibility issue
+					// back-level clients know nothing of new node types added in 2.1
+					// take this opportunity to inform client of problem
+					throw new RuntimeException("Deprecated AST API method (TypeDeclaration.superinterfaces()) cannot handle newer node types"); //$NON-NLS-1$
+				} else {
+					// compatibility issue
+					// AST is bogus - illegal for type to be array or primitive type
+					// take this opportunity to inform client of problem
+					throw new RuntimeException("Deprecated AST API method (TypeDeclaration.superinterfaces()) cannot handle malformed AST"); //$NON-NLS-1$
+				}
+			}
+		
+			/**
+			 * @see List#set(int, java.lang.Object)
+			 */
+			public Object set(int index, Object element) {
+				if (!(element instanceof Name)) {
+					throw new IllegalArgumentException();
+				}
+				Type oldType = (Type) superInterfaceTypes().get(index);
+				Name newName = (Name) element;
+				if (oldType instanceof SimpleType) {
+					// old client operating on old style element
+					SimpleType s = (SimpleType) oldType;
+					Name oldName = s.getName();
+					if (oldName != element) {
+						s.setName(newName);
+						// give type node same range as name node
+						s.setSourceRange(
+							newName.getStartPosition(),
+							newName.getLength());
+					}
+					return oldName;
+				} else {
+					// old client replaced a new-fangled element
+					Type newType = getAST().newSimpleType(newName);
+					// give new type node same range as name node
+					newType.setSourceRange(
+						newName.getStartPosition(),
+						newName.getLength());
+					superInterfaceTypes().set(index, newType);
+					// no choice but to return old new-fangled element
+					return oldType;
+				}
+			}
+			
+			/**
+			 * @see List#add(int, java.lang.Object)
+			 */
+			public void add(int index, Object element) {
+				if (!(element instanceof Name)) {
+					throw new IllegalArgumentException();
+				}
+				Name newName = (Name) element;
+				Type newType = getAST().newSimpleType(newName);
+				// give new type node same range as name node
+				newType.setSourceRange(
+					newName.getStartPosition(),
+					newName.getLength());
+				superInterfaceTypes().add(index, newType);
+			}
+			
+			/**
+			 * @see List#remove(int)
+			 */
+			public Object remove(int index) {
+				Object result = superInterfaceTypes().remove(index);
+				if (result instanceof SimpleType) {
+					// old client operating on old style element
+					SimpleType s = (SimpleType) result;
+					Name oldName = s.getName();
+					// make sure that oldName has no parent afterwards
+					s.setName(getAST().newSimpleName("deleted")); //$NON-NLS-1$
+					return oldName;
+				} else {
+					// old client removing a new-fangled element
+					// take a chance that they ignore result
+					return result;
+				}
+			}
+		};
+	}
+	
+	/**
+	 * Returns the live ordered list of superinterfaces of this type 
+	 * declaration. For a class declaration, these are the interfaces
+	 * that this class implements; for an interface declaration,
+	 * these are the interfaces that this interface extends.
+	 * 
+	 * @return the live list of interface types
+	 *    (element type: <code>Type</code>)
+	 * @since 2.2
+	 */ 
+	public List superInterfaceTypes() {
+		return superInterfaceTypes;
 	}
 	
 	/**
 	 * Returns the live ordered list of body declarations of this type 
 	 * declaration. For a class declaration, these are the
 	 * initializer, field, method, constructor, and member type
-	 * declarations; for an interface declaration, these are 
-	 * the constant, method, and member type declarations.
+	 * declarations; for an interface declaration, these are the constant,
+	 * method, and member type declarations. For an enumeration declaration, 
+	 * these are the enum constant declarations, which are always at the 
+	 * front of the list, followed by any initializer, field, method,
+	 * constructor, and member type declarations.
 	 * 
 	 * @return the live list of body declarations
 	 *    (element type: <code>BodyDeclaration</code>)
@@ -331,7 +634,9 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Returns the ordered list of field declarations of this type 
 	 * declaration. For a class declaration, these are the
 	 * field declarations; for an interface declaration, these are
-	 * the constant declarations.
+	 * the constant declarations; for an enum declaration, these are
+	 * the explicitly declared field declarations (excludes enum
+	 * constant declarations).
 	 * <p>
 	 * This convenience method returns this node's body declarations
 	 * with non-fields filtered out. Unlike <code>bodyDeclarations</code>,
@@ -421,6 +726,44 @@ public class TypeDeclaration extends BodyDeclaration {
 	}
 
 	/**
+	 * Returns the ordered list of enum constant declarations of this enum
+	 * declaration. This method is not relevant for class and interface 
+	 * declarations, for which enum constant declarations are meaningless.
+	 * <p>
+	 * This convenience method returns this node's enum constant declarations
+	 * with non-enum constants filtered out. Unlike <code>bodyDeclarations</code>,
+	 * this method does not return a live result.
+	 * </p>
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the (possibly empty) list of enum constant declarations
+	 * @since 2.2
+	 */ 
+	public EnumConstantDeclaration[] getEnumConstants() {
+		List bd = bodyDeclarations();
+		int enumCount = 0;
+		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
+			if (it.next() instanceof EnumConstantDeclaration) {
+				enumCount++;
+			}
+		}
+		EnumConstantDeclaration[] enumConstants = new EnumConstantDeclaration[enumCount];
+		int next = 0;
+		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
+			Object decl = it.next();
+			if (decl instanceof EnumConstantDeclaration) {
+				enumConstants[next++] = (EnumConstantDeclaration) decl;
+			}
+		}
+		return enumConstants;
+	}
+
+	/**
 	 * Returns whether this type declaration is a package member (that is,
 	 * a top-level type).
 	 * <p>
@@ -440,18 +783,19 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Returns whether this type declaration is a type member.
 	 * <p>
 	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a type declaration node or an anonymous 
-	 * class declaration.
+	 * this node's parent is a type declaration node, an anonymous 
+	 * class declaration, or an enumeration constant declaration.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this type declaration is a child of
-	 *   a type declaration node or a class instance creation node, and 
-	 *   <code>false</code> otherwise
+	 *   a type declaration node, a class instance creation node, or an
+	 *   enum constant declaration, and <code>false</code> otherwise
 	 */ 
 	public boolean isMemberTypeDeclaration() {
 		ASTNode parent = getParent();
 		return (parent instanceof TypeDeclaration)
-			|| (parent instanceof AnonymousClassDeclaration);
+			|| (parent instanceof AnonymousClassDeclaration)
+			|| (parent instanceof EnumConstantDeclaration);
 	}
 
 	/**
@@ -488,25 +832,28 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	void appendDebugString(StringBuffer buffer) {
-		buffer.append("TypeDeclaration[");//$NON-NLS-1$
-		buffer.append(isInterface() ? "interface " : "class ");//$NON-NLS-2$//$NON-NLS-1$
+		buffer.append("TypeDeclaration["); //$NON-NLS-1$
+		buffer.append(isInterface()
+		   ? "interface " //$NON-NLS-1$
+		   : (isEnumeration()
+		        ? "enum " : "class ")); //$NON-NLS-2$//$NON-NLS-1$
 		buffer.append(getName().getIdentifier());
-		buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = bodyDeclarations().iterator(); it.hasNext(); ) {
+		buffer.append(" "); //$NON-NLS-1$
+		for (Iterator it = bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
 			d.appendDebugString(buffer);
 			if (it.hasNext()) {
-				buffer.append(";");//$NON-NLS-1$
+				buffer.append(";"); //$NON-NLS-1$
 			}
 		}
-		buffer.append("]");//$NON-NLS-1$
+		buffer.append("]"); //$NON-NLS-1$
 	}
 		
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 6 * 4;
+		return super.memSize() + 7 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -514,12 +861,13 @@ public class TypeDeclaration extends BodyDeclaration {
 	 */
 	int treeSize() {
 		return
-			memSize()
-			+ (getJavadoc() == null ? 0 : getJavadoc().treeSize())
-			+ (typeName == null ? 0 : getName().treeSize())
-			+ (optionalSuperclassName == null ? 0 : getSuperclass().treeSize())
-			+ superInterfaceNames.listSize()
-			+ bodyDeclarations.listSize();
+			memSize() + 
+			 (getJavadoc() == null ? 0 : getJavadoc().treeSize()) +
+			 (typeName == null ? 0 : getName().treeSize()) +
+			 typeParameters.listSize() +
+			 (optionalSuperclassType == null ? 0 : getSuperclassType().treeSize())+ 
+			 superInterfaceTypes.listSize() +
+			 bodyDeclarations.listSize();
 	}
 }
 

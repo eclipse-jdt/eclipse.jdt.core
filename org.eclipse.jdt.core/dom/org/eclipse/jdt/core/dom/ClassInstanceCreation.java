@@ -18,10 +18,39 @@ import java.util.List;
  *
  * <pre>
  * ClassInstanceCreation:
- *        [ Expression <b>.</b> ] <b>new</b> TypeName
+ *        [ Expression <b>.</b> ] <b>new</b> Type
  *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
+ * <p>
+ * Not all node arragements will represent legal Java constructs. In particular,
+ * it is nonsense if the type is a primitive type or an array type (primitive
+ * types cannot be instantiated, and array creations must be represented with
+ * <code>ArrayCreation</code> nodes). The normal use is when the type is a
+ * simple, qualified, or parameterized type.
+ * </p>
+ * <p>
+ * A type like "A.B" can be represented either of two ways:
+ * <ol>
+ * <li>
+ * <code>QualifiedType(SimpleType(SimpleName("A")),SimpleName("B"))</code>
+ * </li>
+ * <li>
+ * <code>SimpleType(QualifiedName(SimpleName("A"),SimpleName("B")))</code>
+ * </li>
+ * </ol>
+ * The first form is preferred when "A" is known to be a type (as opposed
+ * to a package). However, a parser cannot always determine this. Clients
+ * should be prepared to handle either rather than make assumptions.
+ * (Note also that the first form became possible as of 2.2; only the second
+ * form existed in 2.0 and 2.1.)
+ * </p>
+ * <p>
+ * Note: Support for generic types is an experimental language feature 
+ * under discussion in JSR-014 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  * 
  * @since 2.0
  */
@@ -33,10 +62,10 @@ public class ClassInstanceCreation extends Expression {
 	private Expression optionalExpression = null;
 	
 	/**
-	 * The type name; lazily initialized; defaults to a unspecified,
-	 * legal type name.
+	 * The type; lazily initialized; defaults to a unspecified type.
+	 * @since 2.2
 	 */
-	private Name typeName = null;
+	private Type type = null;
 	
 	/**
 	 * The list of argument expressions (element type: 
@@ -54,7 +83,7 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * Creates a new AST node for a class instance creation expression owned 
 	 * by the given AST. By default, there is no qualifying expression,
-	 * an unspecified (but legal) type name, an empty list of arguments,
+	 * an unspecified type, an empty list of arguments,
 	 * and does not declare an anonymous class.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
@@ -83,7 +112,7 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		result.setName((Name) getName().clone(target));
+		result.setType((Type) getType().clone(target));
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		result.setAnonymousClassDeclaration(
 			(AnonymousClassDeclaration) 
@@ -107,7 +136,7 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			acceptChild(visitor, getName());
+			acceptChild(visitor, getType());
 			acceptChildren(visitor, arguments);
 			acceptChild(visitor, getAnonymousClassDeclaration());
 		}
@@ -148,15 +177,28 @@ public class ClassInstanceCreation extends Expression {
 	 * creation expression.
 	 * 
 	 * @return the type name node
+	 * @deprecated Replaced by <code>getType</code>, which returns
+	 * a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public Name getName() {
-		if (typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		// implement deprecated method in terms of getType
+		Type t = getType();
+		if (t instanceof SimpleType) {
+			// no problem - extract name from SimpleType
+			SimpleType s = (SimpleType) t;
+			return s.getName();
+		} else if ((t instanceof ParameterizedType)
+			     || (t instanceof QualifiedType)) {
+			// compatibility issue
+			// back-level clients know nothing of new node types added in 2.1
+			// take this opportunity to inform client of problem
+			throw new RuntimeException("Deprecated AST API method cannot handle newer node types"); //$NON-NLS-1$
+		} else {
+			// compatibility issue
+			// AST is bogus - illegal for type to be array or primitive type
+			// take this opportunity to inform client of problem
+			throw new RuntimeException("Deprecated AST API method cannot handle malformed AST"); //$NON-NLS-1$
 		}
-		return typeName;
 	}
 	
 	/**
@@ -169,13 +211,64 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>`
 	 * </ul>
+	 * @deprecated Replaced by <code>setType</code>, which expects
+	 * a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public void setName(Name name) {
+		// implement deprecated method in terms of get/setType
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeName, name, false);
-		this.typeName = name;
+		Type t = getType();
+		if (t instanceof SimpleType) {
+			// if possible edit name in SimpleType
+			SimpleType s = (SimpleType) t;
+			s.setName(name);
+			// give type node same range as name node
+			s.setSourceRange(name.getStartPosition(), name.getLength());
+			// note that only s will be modified(), not the ClassInst node
+		} else {
+			// all other cases - wrap name in a SimpleType and replace superclassType
+			Type newT = getAST().newSimpleType(name);
+			// give new type node same range as name node
+			newT.setSourceRange(name.getStartPosition(), name.getLength());
+			setType(newT);
+		}
+	}
+
+	/**
+	 * Returns the type instantiated in this class instance creation expression.
+	 * 
+	 * @return the type node
+	 * @since 2.2
+	 */ 
+	public Type getType() {
+		if (this.type == null) {
+			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
+			setType(new SimpleType(getAST()));
+			getAST().setModificationCount(count);
+		}
+		return this.type;
+	}
+	
+	/**
+	 * Sets the type instantiated in this class instance creation expression.
+	 * 
+	 * @param name the new type
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>`
+	 * </ul>
+	 * @since 2.2
+	 */ 
+	public void setType(Type type) {
+		if (type == null) {
+			throw new IllegalArgumentException();
+		}
+		replaceChild(this.type, type, false);
+		this.type = type;
 	}
 
 	/**
@@ -243,7 +336,7 @@ public class ClassInstanceCreation extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (typeName == null ? 0 : getName().treeSize())
+			+ (type == null ? 0 : getName().treeSize())
 			+ (optionalExpression == null ? 0 : getExpression().treeSize())
 			+ arguments.listSize()
 			+ (optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());

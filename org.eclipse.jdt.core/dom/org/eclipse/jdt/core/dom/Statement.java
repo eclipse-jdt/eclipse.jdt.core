@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *    Block
  *    IfStatement
  *    ForStatement
+ *    EnhancedForStatement
  *    WhileStatement
  *    DoStatement
  *    TryStatement

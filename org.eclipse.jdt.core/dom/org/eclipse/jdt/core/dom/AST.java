@@ -1399,7 +1399,7 @@ public final class AST {
 	
 	/**
 	 * Creates an unparented import declaration node owned by this AST.
-	 * The import declaration initially contains a single-type import
+	 * The import declaration initially contains a regular single-type import
 	 * of a type with an unspecified name.
 	 * 
 	 * @return the new unparented import declaration node
@@ -1421,7 +1421,11 @@ public final class AST {
 	 * and an empty class body.
 	 * <p>
 	 * To create an interface, use this method and then call
-	 * <code>TypeDeclaration.setInterface(true)</code> and
+	 * <code>TypeDeclaration.setInterface(true)</code>.
+	 * </p>
+	 * <p>
+	 * To create an enum declaration, use this method and then call
+	 * <code>TypeDeclaration.setEnumeration(true)</code>.
 	 * </p>
 	 * 
 	 * @return a new unparented type declaration node
@@ -1489,6 +1493,18 @@ public final class AST {
 		return result;
 	}
 
+	/**
+	 * Creates an unparented enum constant declaration node owned by this AST.
+	 * The name of the constant is an unspecified, but legal, name; 
+	 * no Javadoc comment; an empty list of arguments; and an empty class body.
+	 * 
+	 * @return a new unparented edeclaration node
+	 */
+	public EnumConstantDeclaration newEnumConstantDeclaration() {
+		EnumConstantDeclaration result = new EnumConstantDeclaration(this);
+		return result;
+	}
+	
 	/**
 	 * Creates and returns a new Javadoc comment node.
 	 * Initially the new node has an unspecified, but legal, Javadoc comment.
@@ -1756,10 +1772,28 @@ public final class AST {
 	 * By default, there are no initializers, no condition expression, 
 	 * no updaters, and the body is an empty block.
 	 * 
-	 * @return a new unparented throw statement node
+	 * @return a new unparented for statement node
 	 */
 	public ForStatement newForStatement() {
 		return new ForStatement(this);
+	}
+
+	/**
+	 * Creates a new unparented enhanced for statement node owned by this AST.
+	 * By default, the type, name, and expression are unspecified
+	 * but legal subtrees, and the body is an empty block.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented throw statement node
+	 * @since 2.2
+	 */
+	public EnhancedForStatement newEnhancedForStatement() {
+		return new EnhancedForStatement(this);
 	}
 
 	//=============================== EXPRESSIONS ===========================

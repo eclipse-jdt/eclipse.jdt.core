@@ -16,9 +16,15 @@ package org.eclipse.jdt.core.dom;
  *
  * <pre>
  * ImportDeclaration:
- *    <b>import</b> Name [ <b>.</b> <b>*</b> ] <b>;</b>
+ *    <b>import</b> [ <b>static</b> ] Name [ <b>.</b> <b>*</b> ] <b>;</b>
  * </pre>
  * 
+ * <p>
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  * @since 2.0
  */
 public class ImportDeclaration extends ASTNode {
@@ -34,9 +40,22 @@ public class ImportDeclaration extends ASTNode {
 	private boolean onDemand = false;
 
 	/**
+	 * Static versus regular; defaults to regular import.
+	 * <p>
+	 * Note: Static imports are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	private boolean isStatic = false;
+
+	/**
 	 * Creates a new AST node for an import declaration owned by the
-	 * given AST. The import declaration initially is a single type
-	 * import for an unspecified, but legal, Java type name.
+	 * given AST. The import declaration initially is a regular (non-static)
+	 * single type import for an unspecified, but legal, Java type name.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -63,6 +82,7 @@ public class ImportDeclaration extends ASTNode {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
+		result.setStatic(isStatic());
 		result.setName((Name) getName().clone(target));
 		return result;
 	}
@@ -89,8 +109,11 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Returns the name imported by this declaration.
 	 * <p>
-	 * For an on-demand import, this is the name of a package. For a 
-	 * single-type import, this is the qualified name of a type.
+	 * For a regular on-demand import, this is the name of a package. 
+	 * For a static on-demand import, this is the qualified name of
+	 * a type. For a regular single-type import, this is the qualified name
+	 * of a type. For a static single-type import, this is the qualified name
+	 * of a static member of a type.
 	 * </p>
 	 * 
 	 * @return the imported name node
@@ -109,8 +132,11 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Sets the name of this import declaration to the given name.
 	 * <p>
-	 * For an on-demand import, this is the name of a package. For a 
-	 * single-type import, this is the qualified name of a type.
+	 * For a regular on-demand import, this is the name of a package. 
+	 * For a static on-demand import, this is the qualified name of
+	 * a type. For a regular single-type import, this is the qualified name
+	 * of a type. For a static single-type import, this is the qualified name
+	 * of a static member of a type.
 	 * </p>
 	 * 
 	 * @param name the new import name
@@ -152,6 +178,41 @@ public class ImportDeclaration extends ASTNode {
 	}
 	
 	/**
+	 * Returns whether this import declaration is a static import.
+	 * <p>
+	 * Note: Static imports are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a static import,
+	 *    and <code>false</code> if this is a regular import
+	 * @since 2.2
+	 */ 
+	public boolean isStatic() {
+		return isStatic;
+	}
+		
+	/**
+	 * Sets whether this import declaration is a static import.
+	 * <p>
+	 * Note: Static imports are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param isStatic <code>true</code> if this is a static import,
+	 *    and <code>false</code> if this is a regular import
+	 * @since 2.2
+	 */ 
+	public void setStatic(boolean isStatic) {
+		modifying();
+		this.isStatic = isStatic;
+	}
+	
+	/**
 	 * Resolves and returns the binding for the package or type imported by
 	 * this import declaration.
 	 * <p>
@@ -171,7 +232,7 @@ public class ImportDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 	
 	/* (omit javadoc for this method)

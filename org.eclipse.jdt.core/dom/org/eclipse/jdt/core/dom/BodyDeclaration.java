@@ -13,21 +13,21 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * Abstract base class of all AST nodes that represent body declarations 
- * that may appear in the body of a class or interface declaration.
+ * that may appear in the body of some kind of class or interface declaration,
+ * including anonymous class declarations, enumeration declarations, and
+ * enumeration constant declarations.
+ * 
  * <p>
  * <pre>
- * ClassBodyDeclaration:
+ * BodyDeclaration:
  *		ClassDeclaration
  *		InterfaceDeclaration
+ *		EnumDeclaration
  *		MethodDeclaration
  * 		ConstructorDeclaration
  * 		FieldDeclaration
  * 		Initializer
- * InterfaceBodyDeclaration:
- *		ClassDeclaration
- *		InterfaceDeclaration
- *		MethodDeclaration
- * 		FieldDeclaration
+ *		EnumConstantDeclaration
  * </pre>
  * </p>
  * <p>

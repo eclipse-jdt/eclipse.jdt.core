@@ -183,6 +183,32 @@ public abstract class ASTVisitor {
 	public boolean visit(EmptyStatement node) {
 		return true;
 	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public boolean visit(EnhancedForStatement node) {
+		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public boolean visit(EnumConstantDeclaration node) {
+		return true;
+	}
 	public boolean visit(ExpressionStatement node) {
 		return true;
 	}
@@ -231,6 +257,20 @@ public abstract class ASTVisitor {
 	public boolean visit(PackageDeclaration node) {
 		return true;
 	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public boolean visit(ParameterizedType node) {
+		return true;
+	}
 	public boolean visit(ParenthesizedExpression node) {
 		return true;
 	}
@@ -244,6 +284,19 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	public boolean visit(QualifiedName node) {
+		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public boolean visit(QualifiedType node) {
 		return true;
 	}
 	public boolean visit(ReturnStatement node) {
@@ -292,6 +345,19 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	public boolean visit(TypeLiteral node) {
+		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public boolean visit(TypeParameter node) {
 		return true;
 	}
 	public boolean visit(SingleVariableDeclaration node) {
@@ -370,6 +436,30 @@ public abstract class ASTVisitor {
 	public void endVisit(EmptyStatement node) {
 		// default implementation: do nothing
 	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public void endVisit(EnhancedForStatement node) {
+	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public void endVisit(EnumConstantDeclaration node) {
+	}	
 	public void endVisit(ExpressionStatement node) {
 		// default implementation: do nothing
 	}
@@ -418,6 +508,18 @@ public abstract class ASTVisitor {
 	public void endVisit(PackageDeclaration node) {
 		// default implementation: do nothing
 	}
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public void endVisit(ParameterizedType node) {
+	}	
 	public void endVisit(ParenthesizedExpression node) {
 		// default implementation: do nothing
 	}
@@ -433,6 +535,18 @@ public abstract class ASTVisitor {
 	public void endVisit(QualifiedName node) {
 		// default implementation: do nothing
 	}
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public void endVisit(QualifiedType node) {
+	}	
 	public void endVisit(ReturnStatement node) {
 		// default implementation: do nothing
 	}
@@ -481,6 +595,18 @@ public abstract class ASTVisitor {
 	public void endVisit(TypeLiteral node) {
 		// default implementation: do nothing
 	}
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 2.2
+	 */
+	public void endVisit(TypeParameter node) {
+ 	}
 	public void endVisit(SingleVariableDeclaration node) {
 		// default implementation: do nothing
 	}

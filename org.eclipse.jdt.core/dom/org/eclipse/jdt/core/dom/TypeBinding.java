@@ -93,6 +93,14 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	/*
+	 * @see ITypeBinding#isTypeVariable()
+	 */
+	public boolean isTypeVariable() {
+		// TODO: missing implementation of type variables (JSR-014)
+		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+	}
+
+	/*
 	 * @see IBinding#getName()
 	 */
 	public String getName() {

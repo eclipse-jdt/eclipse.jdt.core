@@ -248,6 +248,29 @@ class BindingResolver {
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		return null;
 	}
+	
+	/**
+	 * Resolves the loop variable of the given enhanced for statement and 
+	 * returns the binding for it.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param statement the enhanced for statement of interest
+	 * @return the binding for the loop variable for the given enhanced for
+	 *    statement, or <code>null</code> if no binding is available
+	 * @since 2.2
+	 */
+	IVariableBinding resolveVariable(EnhancedForStatement statement) {
+		return null;
+	}
 
 	/**
 	 * Resolves the given field declaration and returns the binding for it.
@@ -267,6 +290,33 @@ class BindingResolver {
 	 *    <code>null</code> if no binding is available
 	 */
 	IVariableBinding resolveVariable(FieldDeclaration variable) {
+		return null;
+	}
+		
+	/**
+	 * Resolves the given enum constant declaration and returns the binding for
+	 * the field.
+	 * <p>
+	 * The implementation of <code>EnumConstantDeclaration.resolveVariable</code>
+	 * forwards to this method.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param enumConstant the enum constant declaration of interest
+	 * @return the field binding for the given enum constant declaration, or 
+	 *    <code>null</code> if no binding is available
+	 * @since 2.2
+	 */
+	IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
 		return null;
 	}
 		

@@ -20,7 +20,9 @@ import java.util.List;
  *
  * <pre>
  * MethodDeclaration:
- *    [ Javadoc ] { Modifier } ( Type | <b>void</b> ) Identifier <b>(</b>
+ *    [ Javadoc ] { Modifier }
+ *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *        ( Type | <b>void</b> ) Identifier <b>(</b>
  *        [ FormalParameter 
  * 		     { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
  *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
@@ -35,10 +37,17 @@ import java.util.List;
  * range begins with the first character of the "/**" comment delimiter.
  * When there is no Javadoc comment, the source range begins with the first
  * character of the first modifier keyword (if modifiers), or the
- * first character of the return type (method, no modifiers), or the
- * first character of the identifier (constructor, no modifiers).
- * The source range extends through the last character of the ";" token (if
- * no body), or the last character of the block (if body).
+ * first character of the "&lt;" token (method, no modifiers, type parameters), 
+ * or the first character of the return type (method, no modifiers, no type
+ * parameters), or the first character of the identifier (constructor, 
+ * no modifiers). The source range extends through the last character of the
+ * ";" token (if no body), or the last character of the block (if body).
+ * </p>
+ * <p>
+ * Note: Support for generic types is an experimental language feature 
+ * under discussion in JSR-014 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
  * </p>
  *
  * @since 2.0 
@@ -65,6 +74,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	private int modifiers = Modifier.NONE;
 	
+	/**
+	 * The type paramters (element type: <code>TypeParameter</code>). 
+	 * Defaults to an empty list.
+	 * @since 2.2
+	 */
+	private ASTNode.NodeList typeParameters =
+		new ASTNode.NodeList(false, TypeParameter.class);
+
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
@@ -109,9 +126,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Creates a new AST node for a method declaration owned 
 	 * by the given AST. By default, the declaration is for a method of an
-	 * unspecified, but legal, name; no modifiers; no javadoc; no parameters; 
-	 * void return type; no array dimensions after the parameters; no thrown
-	 * exceptions; and no body (as opposed to an empty body).
+	 * unspecified, but legal, name; no modifiers; no javadoc; no type 
+	 * parameters; void return type; no parameters; no array dimensions after 
+	 * the parameters; no thrown exceptions; and no body (as opposed to an
+	 * empty body).
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -170,6 +188,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
+			acceptChildren(visitor, typeParameters);
 			// n.b. visit return type even for constructors
 			acceptChild(visitor, getReturnType());
 			acceptChild(visitor, getName());
@@ -234,8 +253,30 @@ public class MethodDeclaration extends BodyDeclaration {
 		this.modifiers = modifiers;
 	}
 
-//	public List<TypeParameter> typeParameters(); // JSR-014
-
+	/**
+	 * Returns the live ordered list of type parameters of this method
+	 * declaration. This list is non-empty for parameterized methods.
+	 * <p>
+	 * Note that these children are not relevant for constructor declarations
+	 * (although it does still figure in subtree equality comparisons
+	 * and visits), and is devoid of the binding information ordinarily
+	 * available.
+	 * </p>
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of type parameters
+	 *    (element type: <code>TypeParameter</code>)
+	 * @since 2.2
+	 */ 
+	public List typeParameters() {
+		return typeParameters;
+	}
+	
 	/**
 	 * Returns the name of the method declared in this method declaration.
 	 * For a constructor declaration, this should be the same as the name 
@@ -467,7 +508,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 8 * 4;
+		return super.memSize() + 9 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -477,6 +518,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		return
 			memSize()
 			+ (getJavadoc() == null ? 0 : getJavadoc().treeSize())
+			+ typeParameters.listSize()
 			+ (methodName == null ? 0 : getName().treeSize())
 			+ (returnType == null ? 0 : getReturnType().treeSize())
 			+ parameters.listSize()

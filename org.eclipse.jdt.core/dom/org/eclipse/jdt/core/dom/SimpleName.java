@@ -141,6 +141,12 @@ public class SimpleName extends Name {
 	 * providing <code>isConstructor</code> is <code>false</code>.</li>
 	 * <li>The variable name in any type of <code>VariableDeclaration</code>
 	 * node.</li>
+	 * <li>The enum constant name in an <code>EnumConstantDeclaration</code>
+	 * node.</li>
+	 * <li>The variable name in an <code>EnhancedForStatement</code>
+	 * node.</li>
+	 * <li>The type variable name in a <code>TypeParameter</code>
+	 * node.</li>
 	 * </ul>
 	 * <p>
 	 * Note that this is a convenience method that simply checks whether
@@ -175,6 +181,19 @@ public class SimpleName extends Name {
 			VariableDeclarationFragment p = (VariableDeclarationFragment) parent;
 			// make sure its the name of the variable (not the initializer)
 			return (p.getName() == this);
+		}
+		if (parent instanceof EnumConstantDeclaration) {
+			// could only be the name of the enum constant
+			return true;
+		}
+		if (parent instanceof EnhancedForStatement) {
+			EnhancedForStatement p = (EnhancedForStatement) parent;
+			// make sure its the name of the loop variable (not the initializer)
+			return (p.getName() == this);
+		}
+		if (parent instanceof TypeParameter) {
+			// could only be the type variable name
+			return true;
 		}
 		return false;
 	}

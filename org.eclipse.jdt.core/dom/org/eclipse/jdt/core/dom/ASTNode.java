@@ -549,6 +549,88 @@ public abstract class ASTNode {
 	public static final int INSTANCEOF_EXPRESSION = 62;
 
 	/**
+	 * Reserved for experimental JSR-201 constructs.
+	 * @since 2.2
+	 */
+	public static final int RESERVED_1 = 63;
+
+	/**
+	 * Reserved for experimental JSR-201 constructs.
+	 * @since 2.2
+	 */
+	public static final int RESERVED_2 = 64;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>TypeParameter</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see TypeParameter
+	 * @since 2.2
+	 */
+	public static final int TYPE_PARAMETER = 65;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>ParameterizedType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see ParameterizedType
+	 * @since 2.2
+	 */
+	public static final int PARAMETERIZED_TYPE = 66;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>QualifiedType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see QualifiedType
+	 * @since 2.2
+	 */
+	public static final int QUALIFIED_TYPE = 67;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>EnhancedForStatement</code>.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnhancedForStatement
+	 * @since 2.2
+	 */
+	public static final int ENHANCED_FOR_STATEMENT = 63;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>EnumConstantDeclaration</code>.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnumConstantDeclaration
+	 * @since 2.2
+	 */
+	public static final int ENUM_CONSTANT_DECLARATION = 64;
+
+	/**
 	 * Owning AST.
 	 */
 	private final AST owner;

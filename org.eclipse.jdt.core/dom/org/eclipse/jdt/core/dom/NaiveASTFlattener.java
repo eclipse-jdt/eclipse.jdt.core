@@ -281,7 +281,7 @@ class NaiveASTFlattener extends ASTVisitor {
 			buffer.append(".");//$NON-NLS-1$
 		}
 		buffer.append("new ");//$NON-NLS-1$
-		node.getName().accept(this);
+		node.getType().accept(this);
 		buffer.append("(");//$NON-NLS-1$
 		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
@@ -377,6 +377,50 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(EnhancedForStatement)
+	 * @since 2.2
+	 */
+	public boolean visit(EnhancedForStatement node) {
+		buffer.append("for (");//$NON-NLS-1$
+		node.getType().accept(this);
+		buffer.append(" ");//$NON-NLS-1$
+		node.getName().accept(this);
+		buffer.append(" : ");//$NON-NLS-1$
+		node.getExpression().accept(this);
+		buffer.append(") ");//$NON-NLS-1$
+		node.getBody().accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(EnumConstantDeclaration)
+	 * @since 2.2
+	 */
+	public boolean visit(EnumConstantDeclaration node) {
+		node.getName().accept(this);
+		if (!node.arguments().isEmpty()) {
+			buffer.append("(");//$NON-NLS-1$
+			for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
+				Expression e = (Expression) it.next();
+				e.accept(this);
+				if (it.hasNext()) {
+					buffer.append(",");//$NON-NLS-1$
+				}
+			}
+			buffer.append(")");//$NON-NLS-1$
+		}
+		if (!node.bodyDeclarations().isEmpty()) {
+			buffer.append("{");//$NON-NLS-1$
+			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
+				BodyDeclaration d = (BodyDeclaration) it.next();
+				d.accept(this);
+			}
+			buffer.append("}");//$NON-NLS-1$
+		}
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(ExpressionStatement)
 	 */
 	public boolean visit(ExpressionStatement node) {
@@ -459,6 +503,9 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ImportDeclaration node) {
 		buffer.append("import ");//$NON-NLS-1$
+		if (node.isStatic()) {
+			buffer.append("static ");//$NON-NLS-1$
+		}
 		node.getName().accept(this);
 		if (node.isOnDemand()) {
 			buffer.append(".*");//$NON-NLS-1$
@@ -611,6 +658,28 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * @see ASTVisitor#visit(ParameterizedType)
+	 * @since 2.2
+	 */
+	public boolean visit(ParameterizedType node) {
+		node.getName().accept(this);
+		buffer.append("<");//$NON-NLS-1$
+		for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+			Type t = (Type) it.next();
+			t.accept(this);
+			if (it.hasNext()) {
+				buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		buffer.append(">");//$NON-NLS-1$
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(ParenthesizedExpression)
 	 */
 	public boolean visit(ParenthesizedExpression node) {
@@ -650,6 +719,17 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(QualifiedName)
 	 */
 	public boolean visit(QualifiedName node) {
+		node.getQualifier().accept(this);
+		buffer.append(".");//$NON-NLS-1$
+		node.getName().accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(QualifiedType)
+	 * @since 2.2
+	 */
+	public boolean visit(QualifiedType node) {
 		node.getQualifier().accept(this);
 		buffer.append(".");//$NON-NLS-1$
 		node.getName().accept(this);
@@ -853,17 +933,28 @@ class NaiveASTFlattener extends ASTVisitor {
 		printModifiers(node.getModifiers());
 		buffer.append(node.isInterface() ? "interface " : "class ");//$NON-NLS-2$//$NON-NLS-1$
 		node.getName().accept(this);
+		if (!node.typeParameters().isEmpty()) {
+			buffer.append("<");//$NON-NLS-1$
+			for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
+				TypeParameter t = (TypeParameter) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					buffer.append(",");//$NON-NLS-1$
+				}
+			}
+			buffer.append(">");//$NON-NLS-1$
+		}
 		buffer.append(" ");//$NON-NLS-1$
-		if (node.getSuperclass() != null) {
+		if (node.getSuperclassType() != null) {
 			buffer.append("extends ");//$NON-NLS-1$
-			node.getSuperclass().accept(this);
+			node.getSuperclassType().accept(this);
 			buffer.append(" ");//$NON-NLS-1$
 		}
-		if (!node.superInterfaces().isEmpty()) {
+		if (!node.superInterfaceTypes().isEmpty()) {
 			buffer.append(node.isInterface() ? "extends " : "implements ");//$NON-NLS-2$//$NON-NLS-1$
-			for (Iterator it = node.superInterfaces().iterator(); it.hasNext(); ) {
-				Name n = (Name) it.next();
-				n.accept(this);
+			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
+				Type t = (Type) it.next();
+				t.accept(this);
 				if (it.hasNext()) {
 					buffer.append(", ");//$NON-NLS-1$
 				}
@@ -871,8 +962,20 @@ class NaiveASTFlattener extends ASTVisitor {
 			buffer.append(" ");//$NON-NLS-1$
 		}
 		buffer.append("{");//$NON-NLS-1$
+		BodyDeclaration prev = null;
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
+			if (prev instanceof EnumConstantDeclaration) {
+				// enum constant declarations do not include punctuation
+				if (d instanceof EnumConstantDeclaration) {
+					// enum constant declarations are separated by commas
+					buffer.append(", ");//$NON-NLS-1$
+				} else {
+					// semicolon separates last enum constant declaration from 
+					// first class body declarations
+					buffer.append("; ");//$NON-NLS-1$
+				}
+			}
 			d.accept(this);
 		}
 		buffer.append("}");//$NON-NLS-1$
@@ -894,6 +997,29 @@ class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(TypeLiteral node) {
 		node.getType().accept(this);
 		buffer.append(".class");//$NON-NLS-1$
+		return false;
+	}
+
+	/*
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * @see ASTVisitor#visit(TypeParameter)
+	 * @since 2.2
+	 */
+	public boolean visit(TypeParameter node) {
+		node.getName().accept(this);
+		if (!node.typeBounds().isEmpty()) {
+			buffer.append(" extends ");//$NON-NLS-1$
+			for (Iterator it = node.typeBounds().iterator(); it.hasNext(); ) {
+				Type t = (Type) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					buffer.append(" & ");//$NON-NLS-1$
+				}
+			}
+		}
 		return false;
 	}
 
