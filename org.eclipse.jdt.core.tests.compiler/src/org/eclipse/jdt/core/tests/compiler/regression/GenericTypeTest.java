@@ -9473,7 +9473,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76434
 	public void test363() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.Map;\n" + 
@@ -9485,7 +9485,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"  }\n" + 
 				"}\n"
 			},
-			"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	m_values = values.entrySet();\r\n" + 
+		"	           ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Set<Map.Entry<Integer,?>> to Set<Map.Entry<Integer,?>>\n" + 
+		"----------\n");
 	}	
 	// check param type equivalences
 	public void test364() {
@@ -10930,6 +10935,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"    	}\n" + 
 				"        System.out.println(first(\"SUCCESS\", \"List\"));\n" + 
 				"    }\n" + 
+				"   Zork z;\n" +
 				"}",
 			},
 			"should warn about unchecked array conversion for T[]");	
@@ -11825,4 +11831,31 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from Number[] to T[]\n" + 
 			"----------\n");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82053
+	public void test442() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Foo {\n" + 
+				"	public interface Model {\n" + 
+				"	}\n" + 
+				"	public interface View<M extends Model> {\n" + 
+				"		M getTarget() ;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Bar {\n" + 
+				"	public interface Model extends Foo.Model {\n" + 
+				"	}\n" + 
+				"	public interface View<M extends Model> extends Foo.View<M> {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	public void baz() {\n" + 
+				"		Bar.View<?> bv = null ;\n" + 
+				"		Bar.Model m = bv.getTarget() ;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}			
 }
