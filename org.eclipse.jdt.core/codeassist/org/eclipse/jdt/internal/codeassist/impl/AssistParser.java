@@ -1073,29 +1073,6 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 	}
 
 }
-/**
- * If the given ast node is inside an explicit constructor call
- * then wrap it with a fake constructor call.
- * Returns the wrapped completion node or the completion node itself.
- */
-protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
-	int selector;
-	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
-			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||
-			(selector == SUPER_CONSTRUCTOR))) {
-		ExplicitConstructorCall call = new ExplicitConstructorCall(
-			(selector == THIS_CONSTRUCTOR) ? 
-				ExplicitConstructorCall.This : 
-				ExplicitConstructorCall.Super
-		);
-		call.arguments = new Expression[] {(Expression)ast};
-		call.sourceStart = ast.sourceStart;
-		call.sourceEnd = ast.sourceEnd;
-		return call;
-	} else {
-		return ast;
-	}
-}
 protected void popElement(int kind){
 	if(elementPtr < 0 || elementKindStack[elementPtr] != kind) return;
 	
@@ -1312,5 +1289,27 @@ protected int topKnownElementKind(int owner, int offSet) {
 	}
 	return 0;
 }
-
+/**
+ * If the given ast node is inside an explicit constructor call
+ * then wrap it with a fake constructor call.
+ * Returns the wrapped completion node or the completion node itself.
+ */
+protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
+	int selector;
+	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
+			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||
+			(selector == SUPER_CONSTRUCTOR))) {
+		ExplicitConstructorCall call = new ExplicitConstructorCall(
+			(selector == THIS_CONSTRUCTOR) ? 
+				ExplicitConstructorCall.This : 
+				ExplicitConstructorCall.Super
+		);
+		call.arguments = new Expression[] {(Expression)ast};
+		call.sourceStart = ast.sourceStart;
+		call.sourceEnd = ast.sourceEnd;
+		return call;
+	} else {
+		return ast;
+	}
+}
 }

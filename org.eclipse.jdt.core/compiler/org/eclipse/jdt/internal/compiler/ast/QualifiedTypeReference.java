@@ -29,7 +29,7 @@ public class QualifiedTypeReference extends TypeReference {
 	public TypeReference copyDims(int dim){
 		//return a type reference copy of me with some dimensions
 		//warning : the new type ref has a null binding
-		return new ArrayQualifiedTypeReference(tokens, dim, sourcePositions) ;
+		return new ArrayQualifiedTypeReference(tokens, dim, sourcePositions);
 	}
 	
 	public TypeBinding getTypeBinding(Scope scope) {

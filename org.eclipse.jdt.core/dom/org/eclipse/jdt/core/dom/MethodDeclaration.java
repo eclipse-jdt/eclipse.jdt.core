@@ -67,21 +67,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to method.
 	 */
 	private boolean isConstructor = false;
-
-	/**
-	 * The type paramters (element type: <code>TypeParameter</code>). 
-	 * Defaults to an empty list.
-	 * @since 2.2
-	 */
-	private ASTNode.NodeList typeParameters =
-		new ASTNode.NodeList(false, TypeParameter.class);
-
+	
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
 	private SimpleName methodName = null;
-	
+
 	/**
 	 * The parameter declarations 
 	 * (element type: <code>SingleVariableDeclaration</code>).
@@ -96,6 +88,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	private Type returnType = null;
 	
+	/**
+	 * The type paramters (element type: <code>TypeParameter</code>). 
+	 * Defaults to an empty list.
+	 * @since 2.2
+	 */
+	private ASTNode.NodeList typeParameters =
+		new ASTNode.NodeList(false, TypeParameter.class);
+
 	/**
 	 * The number of array dimensions that appear after the parameters, rather
 	 * than after the return type itself; defaults to 0.

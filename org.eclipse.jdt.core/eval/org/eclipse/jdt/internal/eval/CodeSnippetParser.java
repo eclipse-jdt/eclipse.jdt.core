@@ -68,8 +68,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				length); 
 		}
 		if (alwaysQualified) {
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnAstLengthStack(0);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsLengthStack(0);
 		}
 		alloc.type = getTypeReference(0);
 		

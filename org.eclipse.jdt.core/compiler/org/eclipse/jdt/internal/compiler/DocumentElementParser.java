@@ -1198,6 +1198,8 @@ public void parseType(char[] regionSource) {
  * Returns this parser's problem reporter initialized with its reference context.
  * Also it is assumed that a problem is going to be reported, so initializes
  * the compilation result's line positions.
+ * 
+ * @return ProblemReporter
  */
 public ProblemReporter problemReporter() {
 	problemReporter.referenceContext = referenceContext;

@@ -96,9 +96,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @since 2.2
 	 */
 	private boolean isEnumeration = false;
-	
 
-	
 	/**
 	 * The type name; lazily initialized; defaults to a unspecified,
 	 * legal Java class identifier.

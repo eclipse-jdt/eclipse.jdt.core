@@ -29,7 +29,7 @@ public class SingleTypeReference extends TypeReference {
 		//return a type reference copy of me with some dimensions
 		//warning : the new type ref has a null binding
 		
-		return new ArrayTypeReference(token, dim,(((long)sourceStart)<<32)+sourceEnd) ;
+		return new ArrayTypeReference(token, dim,(((long)sourceStart)<<32)+sourceEnd);
 	}
 
 	public TypeBinding getTypeBinding(Scope scope) {
