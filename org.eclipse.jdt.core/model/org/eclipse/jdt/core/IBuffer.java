@@ -14,6 +14,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * If a buffer does not have an underlying resource, saving the buffer has no effect. 
  * Buffers can be read-only.
  * <p>
+ * Note that the default implementation of <code>IBuffer</code> ensures that the
+ * same line delimiter (i.e. either </code>"\n"</code> or </code>"\r"</code> or  
+ * </code>"\r\n"</code>) is used accross the whole buffer. Thus the operations
+ * that modify the contents of the buffer (like <code>append</code>, <code>replace</code>, 
+ * etc.) may change the line delimiter(s) included in the string to be append, or replaced.
+ * The java model is not sensitive to heterogeneous line delimiters but implementors of this 
+ * interface should be aware that other clients might be.
+ * <p>
  * This interface may be implemented by clients.
  * </p>
  */
