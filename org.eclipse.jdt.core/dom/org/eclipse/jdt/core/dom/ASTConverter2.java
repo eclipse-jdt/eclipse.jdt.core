@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 /**
  * Internal class for converting internal compiler ASTs into public ASTs.
  */
-class ASTConverter {
+class ASTConverter2 {
 
 	private AST ast;
 	char[] compilationUnitSource;
@@ -46,7 +46,7 @@ class ASTConverter {
 	private boolean insideComments;
 	private Comment[] commentsTable;
 
-	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
+	public ASTConverter2(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
 		this.scanner = new Scanner(
 					true /*comment*/,

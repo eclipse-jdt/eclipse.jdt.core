@@ -15,15 +15,10 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -45,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
@@ -226,59 +220,7 @@ class CompilationUnitResolver extends Compiler {
 			removeUnresolvedBindings(unit);
 		}
 	}	
-	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement,
-		boolean cleanUp,
-		char[] source,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-
-		IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-		char[][] packageName = null;
-		if (packageFragment != null){
-			packageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
-		}
-		String fileName = unitElement.getElementName();
-		IJavaProject project = unitElement.getJavaProject();
-		return resolve(source, packageName, fileName, project, null/*no node searcher*/, cleanUp, owner, monitor);
-	}
 	
-	public static CompilationUnitDeclaration parse(char[] source, Map settings) {
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = new CommentRecorderParser(
-			new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory()),
-			false);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
-		
-		if (compilationUnitDeclaration.ignoreMethodBodies) {
-			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
-			// if initial diet parse did not work, no need to dig into method bodies.
-			return compilationUnitDeclaration; 
-		}
-		
-		//fill the methods bodies in order for the code to be generated
-		//real parse of the method....
-		parser.scanner.setSource(source);
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
-		if (types != null) {
-			for (int i = types.length; --i >= 0;)
-				types[i].parseMethod(parser, compilationUnitDeclaration);
-		}
-		return compilationUnitDeclaration;
-	}
-
 	public static CompilationUnitDeclaration parse(char[] source, NodeSearcher nodeSearcher, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -303,89 +245,42 @@ class CompilationUnitResolver extends Compiler {
 			return null; 
 		}
 		
-		int searchPosition = nodeSearcher.position;
-		if (searchPosition < 0 || searchPosition > source.length) {
-			// the position is out of range. There is no need to search for a node.
- 			return compilationUnitDeclaration;
-		}
-	
-		compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
+		if (nodeSearcher != null) {
+			int searchPosition = nodeSearcher.position;
+			if (searchPosition < 0 || searchPosition > source.length) {
+				// the position is out of range. There is no need to search for a node.
+	 			return compilationUnitDeclaration;
+			}
 		
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
- 		if (node == null) {
- 			return compilationUnitDeclaration;
- 		}
- 		
- 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
- 		
-		if (node instanceof AbstractMethodDeclaration) {
-			((AbstractMethodDeclaration)node).parseStatements(parser, compilationUnitDeclaration);
-		} else if (enclosingTypeDeclaration != null) {
-			if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-				((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
-			} else {  					
-				((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, compilationUnitDeclaration);
-			} 				
+			compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
+			
+			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
+	 		if (node == null) {
+	 			return compilationUnitDeclaration;
+	 		}
+	 		
+	 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+	 		
+			if (node instanceof AbstractMethodDeclaration) {
+				((AbstractMethodDeclaration)node).parseStatements(parser, compilationUnitDeclaration);
+			} else if (enclosingTypeDeclaration != null) {
+				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
+				} else {  					
+					((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, compilationUnitDeclaration);
+				} 				
+			}
+		} else {
+			//fill the methods bodies in order for the code to be generated
+			//real parse of the method....
+			parser.scanner.setSource(source);
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
+			if (types != null) {
+				for (int i = types.length; --i >= 0;)
+					types[i].parseMethod(parser, compilationUnitDeclaration);
+			}
 		}
-		
 		return compilationUnitDeclaration;
-	}
-	public static CompilationUnitDeclaration resolve(
-		char[] source,
-		String unitName,
-		IJavaProject javaProject,
-		boolean cleanUp,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-	
-		return 
-			resolve(
-				source, 
-				null/*no package name*/, 
-				unitName, 
-				javaProject, 
-				null/*no node searcher*/, 
-				cleanUp, 
-				owner, 
-				monitor);
-	}
-
-	public static CompilationUnitDeclaration resolve(
-		IClassFile classFile,
-		NodeSearcher nodeSearcher,
-		boolean cleanUp,
-		char[] source,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-		
-		char[][] packageName = CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray());
-		StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
-		String classFileName = classFile.getElementName(); // this includes the trailing .class
-		buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
-		String fileName = String.valueOf(buffer);
-		IJavaProject project = classFile.getJavaProject();
-		return resolve(source, packageName, fileName, project, nodeSearcher, cleanUp, owner, monitor);
-	}
-	
-	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement,
-		NodeSearcher nodeSearcher,
-		boolean cleanUp,
-		char[] source,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-		
-		IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-		char[][] packageName = null;
-		if (packageFragment != null){
-			packageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
-		}
-		String fileName = unitElement.getElementName();
-		IJavaProject project = unitElement.getJavaProject();
-		return resolve(source, packageName, fileName, project, nodeSearcher, cleanUp, owner, monitor);
 	}
 
 	public static CompilationUnitDeclaration resolve(
