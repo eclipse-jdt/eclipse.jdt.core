@@ -303,7 +303,7 @@ private void buildMoreCompletionContext(Expression expression) {
 						if(invocType == ALLOCATION) {
 							AllocationExpression allocationExpr = new AllocationExpression();
 							allocationExpr.arguments = arguments;
-							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+							pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 							pushOnGenericsLengthStack(0);
 							allocationExpr.type = getTypeReference(0);
 							assistNodeParent = allocationExpr;
@@ -311,7 +311,7 @@ private void buildMoreCompletionContext(Expression expression) {
 							QualifiedAllocationExpression allocationExpr = new QualifiedAllocationExpression();
 							allocationExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
 							allocationExpr.arguments = arguments;
-							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+							pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 							pushOnGenericsLengthStack(0);
 							
 							allocationExpr.type = getTypeReference(0);
@@ -399,7 +399,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_ARRAY_CREATION) {
 					ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
 					pushOnGenericsLengthStack(0);
-					pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+					pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 					allocationExpression.type = getTypeReference(0);
 					int length = expressionLengthStack[expressionLengthPtr];
 					allocationExpression.dimensions = new Expression[length];
@@ -562,7 +562,7 @@ private boolean checkClassInstanceCreation() {
 		} else {
 			// qualified allocation expression
 			QualifiedAllocationExpression allocExpr = new QualifiedAllocationExpression();
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnGenericsLengthStack(0);
 			type = getTypeReference(0);
 			allocExpr.type = type;
@@ -625,11 +625,10 @@ private boolean checkClassLiteralAccess() {
 			this.identifierLengthPtr--; // it can only be a simple identifier (so its length is one)
 			
 			// get the type reference
-			int dims = this.intStack[this.intPtr--];
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnGenericsLengthStack(0);
 
-			TypeReference typeRef = getTypeReference(dims);
+			TypeReference typeRef = getTypeReference(this.intStack[this.intPtr--]);
 			
 			// build the completion on class literal access node
 			CompletionOnClassLiteralAccess access = new CompletionOnClassLiteralAccess(pos, typeRef);
@@ -841,7 +840,7 @@ private boolean checkInvocation() {
 				CompletionOnQualifiedAllocationExpression allocExpr = new CompletionOnQualifiedAllocationExpression();
 				allocExpr.arguments = arguments;
 				pushOnGenericsLengthStack(0);
-				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+				pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 				allocExpr.type = super.getTypeReference(0); // we don't want a completion node here, so call super
 				if (invocType == QUALIFIED_ALLOCATION) {
 					allocExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
@@ -1071,10 +1070,9 @@ protected void consumeCastExpressionWithNameArray() {
 	
 	// handle type arguments
 	pushOnGenericsLengthStack(0);
-	int dim = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -1266,10 +1264,9 @@ protected void consumeEnterVariable() {
 			if(!checkKeyword() && !(currentElement instanceof RecoveredUnit && ((RecoveredUnit)currentElement).typeCount == 0)) {
 				int nameSourceStart = (int)(identifierPositionStack[identifierPtr] >>> 32);
 				intPtr--;
-				int dims = intStack[intPtr--];
-				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+				pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 				pushOnGenericsLengthStack(0);
-				TypeReference type = getTypeReference(dims);
+				TypeReference type = getTypeReference(intStack[intPtr--]);
 				intPtr--;
 				
 				if (!(currentElement instanceof RecoveredType)

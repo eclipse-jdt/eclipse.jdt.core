@@ -116,6 +116,8 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public int firstToken ; // handle for multiple parsing goals
 
 	// generics management
+	protected int genericsIdentifiersLengthPtr;
+	protected int[] genericsIdentifiersLengthStack = new int[GenericsStackIncrement];
 	protected int genericsLengthPtr;
 	protected int[] genericsLengthStack = new int[GenericsStackIncrement];
 	protected int genericsPtr;
@@ -847,7 +849,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				length); 
 		}
 		if (alwaysQualified) {
-			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnGenericsLengthStack(0);
 		}
 		alloc.type = getTypeReference(0);
@@ -1257,7 +1259,7 @@ protected void consumeCastExpressionWithGenerics() {
 
 	Expression exp, cast, castType;
 	int end = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(0));
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
@@ -1270,7 +1272,7 @@ protected void consumeCastExpressionWithGenericsArray() {
 	int end = intStack[intPtr--];
 
 	int dim = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	
 	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
 	castType.sourceEnd = end - 1;
@@ -1285,10 +1287,9 @@ protected void consumeCastExpressionWithNameArray() {
 	
 	// handle type arguments
 	pushOnGenericsLengthStack(0);
-	int dim = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -1729,7 +1730,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 				0, 
 				length); 
 		}
-		pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+		pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 		pushOnGenericsLengthStack(0);
 		alloc.type = getTypeReference(0);
 
@@ -1829,11 +1830,11 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	}
 }
 protected void consumeClassOrInterface() {
-	intStack[intPtr] += identifierLengthStack[identifierLengthPtr];
+	genericsIdentifiersLengthStack[genericsIdentifiersLengthPtr] += identifierLengthStack[identifierLengthPtr];
 	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeClassOrInterfaceName() {
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeClassTypeElt() {
@@ -2301,7 +2302,7 @@ protected void consumeEnterAnonymousClassBody() {
 protected void consumeEnterAnonymousClassBodySimpleName() {
 	// EnterAnonymousClassBody ::= $empty
 	pushOnGenericsLengthStack(0);
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
@@ -3423,9 +3424,7 @@ protected void consumeModifiers() {
 }
 protected void consumeNameArrayType() {
 	pushOnGenericsLengthStack(0); // handle type arguments
-	int dim = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnIntStack(dim);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 }
 protected void consumeNestedMethod() {
 	// NestedMethod ::= $empty
@@ -3539,21 +3538,19 @@ protected void consumePrimaryNoNewArray() {
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= Name Dims '.' 'class'
 	intPtr--; // remove the class start position
-	int classEndPosition = intStack[intPtr--];
 
-	int dims = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
 
 	pushOnExpressionStack(
-		new ClassLiteralAccess(classEndPosition, getTypeReference(dims)));
+		new ClassLiteralAccess(intStack[intPtr--], getTypeReference(intStack[intPtr--])));
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
 	intPtr--; // remove the class start position
 
 	// handle type arguments
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
 	TypeReference typeReference = getTypeReference(0);
 	
@@ -3563,22 +3560,20 @@ protected void consumePrimaryNoNewArrayName() {
 protected void consumePrimaryNoNewArrayNameSuper() {
 	// PrimaryNoNewArray ::= Name '.' 'super'
 	// handle type arguments
-	int sourceStart = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
 	TypeReference typeReference = getTypeReference(0);
 
 	pushOnExpressionStack(
 		new QualifiedSuperReference(
 			typeReference,
-			sourceStart,
+			intStack[intPtr--],
 			endPosition));
 }
 protected void consumePrimaryNoNewArrayNameThis() {
 	// PrimaryNoNewArray ::= Name '.' 'this'
 	// handle type arguments
-	int sourceStart = intStack[intPtr--];
-	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnGenericsLengthStack(0); // handle type arguments
 
 	TypeReference typeReference = getTypeReference(0);
@@ -3586,7 +3581,7 @@ protected void consumePrimaryNoNewArrayNameThis() {
 	pushOnExpressionStack(
 		new QualifiedThisReference(
 			typeReference,
-			sourceStart,
+			intStack[intPtr--],
 			endPosition));
 }
 protected void consumePrimaryNoNewArrayPrimitiveArrayType() {
@@ -6564,7 +6559,7 @@ protected TypeReference getTypeReference(int dim) {
 			ref.sourceEnd = endPosition;
 		}
 	} else {
-		int numberOfIdentifiers = intStack[intPtr--];
+		int numberOfIdentifiers = genericsIdentifiersLengthStack[genericsIdentifiersLengthPtr--];
 		if (length != numberOfIdentifiers || genericsLengthStack[genericsLengthPtr] != 0) {
 			// generic type
 			ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
@@ -7554,14 +7549,10 @@ protected void pushIdentifier() {
 	} catch (IndexOutOfBoundsException e) {
 		/*---stack reallaocation (identifierPtr is correct)---*/
 		int oldStackLength = identifierStack.length;
-		char[][] oldStack = identifierStack;
-		identifierStack = new char[oldStackLength + 20][];
-		System.arraycopy(oldStack, 0, identifierStack, 0, oldStackLength);
+		System.arraycopy(identifierStack, 0, identifierStack = new char[oldStackLength + 20][], 0, oldStackLength);
 		identifierStack[identifierPtr] = scanner.getCurrentTokenSource();
 		/*identifier position stack*/
-		long[] oldPos = identifierPositionStack;
-		identifierPositionStack = new long[oldStackLength + 20];
-		System.arraycopy(oldPos, 0, identifierPositionStack, 0, oldStackLength);
+		System.arraycopy(identifierPositionStack, 0, identifierPositionStack = new long[oldStackLength + 20], 0, oldStackLength);
 		identifierPositionStack[identifierPtr] = 
 			(((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1); 
 	}
@@ -7571,9 +7562,7 @@ protected void pushIdentifier() {
 	} catch (IndexOutOfBoundsException e) {
 		/*---stack reallocation (identifierLengthPtr is correct)---*/
 		int oldStackLength = identifierLengthStack.length;
-		int oldStack[] = identifierLengthStack;
-		identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
+		System.arraycopy(identifierLengthStack, 0, identifierLengthStack = new int[oldStackLength + 10], 0, oldStackLength);
 		identifierLengthStack[identifierLengthPtr] = 1;
 	}
 
@@ -7589,9 +7578,7 @@ protected void pushIdentifier(int flag) {
 	} catch (IndexOutOfBoundsException e) {
 		/*---stack reallaocation (identifierLengthPtr is correct)---*/
 		int oldStackLength = identifierLengthStack.length;
-		int oldStack[] = identifierLengthStack;
-		identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
+		System.arraycopy(identifierLengthStack, 0, identifierLengthStack = new int[oldStackLength + 10], 0, oldStackLength);
 		identifierLengthStack[identifierLengthPtr] = flag;
 	}
 
@@ -7601,9 +7588,7 @@ protected void pushOnAstLengthStack(int pos) {
 		astLengthStack[++astLengthPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = astLengthStack.length;
-		int[] oldPos = astLengthStack;
-		astLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, astLengthStack, 0, oldStackLength);
+		System.arraycopy(astLengthStack, 0, astLengthStack = new int[oldStackLength + StackIncrement], 0, oldStackLength);
 		astLengthStack[astLengthPtr] = pos;
 	}
 }
@@ -7615,9 +7600,7 @@ protected void pushOnAstStack(AstNode node) {
 		astStack[++astPtr] = node;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = astStack.length;
-		AstNode[] oldStack = astStack;
-		astStack = new AstNode[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldStack, 0, astStack, 0, oldStackLength);
+		System.arraycopy(astStack, 0, astStack = new AstNode[oldStackLength + AstStackIncrement], 0, oldStackLength);
 		astPtr = oldStackLength;
 		astStack[astPtr] = node;
 	}
@@ -7626,9 +7609,7 @@ protected void pushOnAstStack(AstNode node) {
 		astLengthStack[++astLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = astLengthStack.length;
-		int[] oldPos = astLengthStack;
-		astLengthStack = new int[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldPos, 0, astLengthStack, 0, oldStackLength);
+		System.arraycopy(astLengthStack, 0, astLengthStack = new int[oldStackLength + AstStackIncrement], 0, oldStackLength);
 		astLengthStack[astLengthPtr] = 1;
 	}
 }
@@ -7639,9 +7620,7 @@ protected void pushOnExpressionStack(Expression expr) {
 	} catch (IndexOutOfBoundsException e) {
 		//expressionPtr is correct 
 		int oldStackLength = expressionStack.length;
-		Expression[] oldStack = expressionStack;
-		expressionStack = new Expression[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldStack, 0, expressionStack, 0, oldStackLength);
+		System.arraycopy(expressionStack, 0, expressionStack  = new Expression[oldStackLength + ExpressionStackIncrement], 0, oldStackLength);
 		expressionStack[expressionPtr] = expr;
 	}
 
@@ -7649,9 +7628,7 @@ protected void pushOnExpressionStack(Expression expr) {
 		expressionLengthStack[++expressionLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = expressionLengthStack.length;
-		int[] oldPos = expressionLengthStack;
-		expressionLengthStack = new int[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldPos, 0, expressionLengthStack, 0, oldStackLength);
+		System.arraycopy(expressionLengthStack, 0, expressionLengthStack = new int[oldStackLength + ExpressionStackIncrement], 0, oldStackLength);
 		expressionLengthStack[expressionLengthPtr] = 1;
 	}
 }
@@ -7660,9 +7637,7 @@ protected void pushOnExpressionStackLengthStack(int pos) {
 		expressionLengthStack[++expressionLengthPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = expressionLengthStack.length;
-		int[] oldPos = expressionLengthStack;
-		expressionLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, expressionLengthStack, 0, oldStackLength);
+		System.arraycopy(expressionLengthStack, 0, expressionLengthStack = new int[oldStackLength + StackIncrement], 0, oldStackLength);
 		expressionLengthStack[expressionLengthPtr] = pos;
 	}
 }
@@ -7674,9 +7649,7 @@ protected void pushOnGenericsStack(AstNode node) {
 		genericsStack[++genericsPtr] = node;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = genericsStack.length;
-		AstNode[] oldStack = genericsStack;
-		genericsStack = new AstNode[oldStackLength + GenericsStackIncrement];
-		System.arraycopy(oldStack, 0, genericsStack, 0, oldStackLength);
+		System.arraycopy(genericsStack, 0, genericsStack = new AstNode[oldStackLength + GenericsStackIncrement], 0, oldStackLength);
 		genericsPtr = oldStackLength;
 		genericsStack[genericsPtr] = node;
 	}
@@ -7685,10 +7658,17 @@ protected void pushOnGenericsStack(AstNode node) {
 		genericsLengthStack[++genericsLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = genericsLengthStack.length;
-		int[] oldPos = genericsLengthStack;
-		genericsLengthStack = new int[oldStackLength + GenericsStackIncrement];
-		System.arraycopy(oldPos, 0, genericsLengthStack, 0, oldStackLength);
+		System.arraycopy(genericsLengthStack, 0, genericsLengthStack = new int[oldStackLength + GenericsStackIncrement], 0, oldStackLength);
 		genericsLengthStack[genericsLengthPtr] = 1;
+	}
+}
+protected void pushOnGenericsIdentifiersLengthStack(int pos) {
+	try {
+		genericsIdentifiersLengthStack[++genericsIdentifiersLengthPtr] = pos;
+	} catch (IndexOutOfBoundsException e) {
+		int oldStackLength = genericsIdentifiersLengthStack.length;
+		System.arraycopy(genericsIdentifiersLengthStack, 0, (genericsIdentifiersLengthStack = new int[oldStackLength + GenericsStackIncrement]), 0, oldStackLength);
+		genericsIdentifiersLengthStack[genericsIdentifiersLengthPtr] = pos;
 	}
 }
 protected void pushOnGenericsLengthStack(int pos) {
@@ -7703,28 +7683,22 @@ protected void pushOnGenericsLengthStack(int pos) {
 	}
 }
 protected void pushOnIntStack(int pos) {
-
 	try {
 		intStack[++intPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
 		//intPtr is correct 
 		int oldStackLength = intStack.length;
-		int oldStack[] = intStack;
-		intStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, intStack, 0, oldStackLength);
+		System.arraycopy(intStack, 0, intStack = new int[oldStackLength + StackIncrement], 0, oldStackLength);
 		intStack[intPtr] = pos;
 	}
 }
 protected void pushOnRealBlockStack(int i){
-	
 	try {
 		realBlockStack[++realBlockPtr] = i;
 	} catch (IndexOutOfBoundsException e) {
 		//realBlockPtr is correct 
 		int oldStackLength = realBlockStack.length;
-		int oldStack[] = realBlockStack;
-		realBlockStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, realBlockStack, 0, oldStackLength);
+		System.arraycopy(realBlockStack, 0, realBlockStack = new int[oldStackLength + StackIncrement], 0, oldStackLength);
 		realBlockStack[realBlockPtr] = i;
 	}
 }

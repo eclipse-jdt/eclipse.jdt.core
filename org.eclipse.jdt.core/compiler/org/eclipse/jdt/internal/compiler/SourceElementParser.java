@@ -412,7 +412,7 @@ protected TypeReference getTypeReference(int dim) {
 		}
 		return ref;
 	} else {
-		int numberOfIdentifiers = intStack[intPtr--];
+		int numberOfIdentifiers = genericsIdentifiersLengthStack[genericsIdentifiersLengthPtr--];
 		if (length != numberOfIdentifiers || genericsLengthStack[genericsLengthPtr] != 0) {
 			// generic type
 			// TODO handle accept of generic types
