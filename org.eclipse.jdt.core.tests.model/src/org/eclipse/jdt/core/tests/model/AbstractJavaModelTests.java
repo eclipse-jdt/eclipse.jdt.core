@@ -40,10 +40,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static String EXTERNAL_JAR_DIR_PATH;
 	
 	// static variables for subsets tests
-	public static String testsPrefix = null; // prefix of test names to perform
-	public static String[] testsNames = null; // list of test names to perform
-	public static int[] testsNumbers = null; // list of test numbers to perform
-	public static int[] testsRange = null; // range of test numbers to perform
+	public static String TESTS_PREFIX = null; // prefix of test names to perform
+	public static String[] TESTS_NAMES = null; // list of test names to perform
+	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
+	public static int[] TESTS_SEARCH = null; // range of test numbers to perform
 	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
@@ -176,17 +176,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
 					// no prefix, no subsets => add method
-					if (testsPrefix == null && testsNames == null && testsNumbers == null && testsRange == null) {
+					if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_SEARCH == null) {
 						suite.addTest((Test)constructor.newInstance(params));
 						continue nextMethod;
 					}
 					// no prefix or method matches prefix
-					if (testsPrefix == null || methName.startsWith(testsPrefix)) {
-						int numStart = testsPrefix==null ? 4 /* test */ : testsPrefix.length();
+					if (TESTS_PREFIX == null || methName.startsWith(TESTS_PREFIX)) {
+						int numStart = TESTS_PREFIX==null ? 4 /* test */ : TESTS_PREFIX.length();
 						// tests names subset
-						if (testsNames != null) {
-							for (int i = 0, imax= testsNames.length; i<imax; i++) {
-								if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
+						if (TESTS_NAMES != null) {
+							for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
+								if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
 									tests.add(methName);
 									suite.addTest((Test)constructor.newInstance(params));
 									continue nextMethod;
@@ -205,9 +205,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 								try {
 									int num = Integer.parseInt(methName.substring(numStart, n));
 									// tests numbers subset
-									if (testsNumbers != null && !tests.contains(methName)) {
-										for (int i = 0; i < testsNumbers.length; i++) {
-											if (testsNumbers[i] == num) {
+									if (TESTS_NUMBERS != null && !tests.contains(methName)) {
+										for (int i = 0; i < TESTS_NUMBERS.length; i++) {
+											if (TESTS_NUMBERS[i] == num) {
 												tests.add(methName);
 												suite.addTest((Test)constructor.newInstance(params));
 												continue nextMethod;
@@ -215,8 +215,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 										}
 									}
 									// tests range subset
-									if (testsRange != null && testsRange.length == 2 && !tests.contains(methName)) {
-										if ((testsRange[0]==-1 || num>=testsRange[0]) && (testsRange[1]==-1 || num<=testsRange[1])) {
+									if (TESTS_SEARCH != null && TESTS_SEARCH.length == 2 && !tests.contains(methName)) {
+										if ((TESTS_SEARCH[0]==-1 || num>=TESTS_SEARCH[0]) && (TESTS_SEARCH[1]==-1 || num<=TESTS_SEARCH[1])) {
 											tests.add(methName);
 											suite.addTest((Test)constructor.newInstance(params));
 											continue nextMethod;
@@ -229,7 +229,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						}
 
 						// no subset, add all tests
-						if (testsNames==null && testsNumbers==null && testsRange==null) {
+						if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_SEARCH==null) {
 							suite.addTest((Test)constructor.newInstance(params));
 						}
 					}

@@ -73,9 +73,9 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] {"testInvalidInternalJar2"};
-//	testsNumbers = new int[] { 23, 28, 38 };
-//	testsRange = new int[] { 21, 38 };
+//	TESTS_NAMES = new String[] {"testInvalidInternalJar2"};
+//	TESTS_NUMBERS = new int[] { 23, 28, 38 };
+//	TESTS_SEARCH = new int[] { 21, 38 };
 }
 public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);

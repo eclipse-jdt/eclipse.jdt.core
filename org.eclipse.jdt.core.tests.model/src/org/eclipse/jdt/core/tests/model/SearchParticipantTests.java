@@ -123,9 +123,9 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//	testsNames = new String[] { "testSearch"};
-	//	testsNumbers = new int[] { 23, 28, 38 };
-	//	testsRange = new int[] { 21, 38 };
+	//	TESTS_NAMES = new String[] { "testSearch"};
+	//	TESTS_NUMBERS = new int[] { 23, 28, 38 };
+	//	TESTS_SEARCH = new int[] { 21, 38 };
 	}
 	
 	public static Test suite() {

@@ -307,19 +307,18 @@ public JavaSearchTests(String name) {
 }
 public static Test suite() {
 	return buildTestSuite(JavaSearchTests.class);
-//	return buildTestSuite(JavaSearchTests.class, "testMethodReference", null);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Prefix for tests names to be run
-//	testsPrefix =  "testEnum";
+//	TESTS_PREFIX =  "testEnum";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testPackageReference9" };
+//	TESTS_NAMES = new String[] { "testPackageReference9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 1, 2, 3, 9, 11, 16 };
+//	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	testsRange = new int[] { 16, -1 };
+//	TESTS_SEARCH = new int[] { 16, -1 };
 	}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});

@@ -30,18 +30,19 @@ public WorkingCopySearchTests(String name) {
 	super(name);
 }
 public static Test suite() {
-//		return buildTestSuite(WorkingCopySearchTests.class, "testAllTypeNames", null);
 	return buildTestSuite(WorkingCopySearchTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
+	// Prefix for tests names to run
+//	TESTS_PREFIX =  "testAllTypeNames";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testGenericFieldReferenceAC04" };
+//	TESTS_NAMES = new String[] { "testGenericFieldReferenceAC04" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 8 };
+//	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	testsRange = new int[] { -1, -1 };
+//	TESTS_SEARCH = new int[] { -1, -1 };
 }
 
 /**

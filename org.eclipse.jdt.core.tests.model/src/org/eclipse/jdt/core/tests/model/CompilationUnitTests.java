@@ -65,11 +65,11 @@ public void setUpSuite() throws Exception {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "Bug73884" };
+//	TESTS_NAMES = new String[] { "Bug73884" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 13 };
+//	TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	testsRange = new int[] { 16, -1 };
+//	TESTS_SEARCH = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(CompilationUnitTests.class);

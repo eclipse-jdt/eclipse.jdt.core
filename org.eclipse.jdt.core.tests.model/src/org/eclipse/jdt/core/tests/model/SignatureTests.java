@@ -32,15 +32,16 @@ protected void assertInvalidTypeSignature(String typeName, boolean isResolved, S
 }
 public static Test suite() {
 	return buildTestSuite(SignatureTests.class);
-//	return buildTestSuite(SignatureTests.class, "testGetTypeErasure", null);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
+	// Prefix for tests names to run
+//	TESTS_PREFIX =  "testGetTypeErasure";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testGetTypeErasure5", "testGetTypeErasure9", "testGetTypeErasure10" };
+//	TESTS_NAMES = new String[] { "testGetTypeErasure5", "testGetTypeErasure9", "testGetTypeErasure10" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 8 };
+//	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //	testsRange = new int[] { -1, -1 };
 }

@@ -40,10 +40,10 @@ public static Test suite() {
 
 	ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(getAllTestClasses()));
 	// Reset forgotten subsets of tests
-	AbstractJavaModelTests.testsPrefix = null;
-	AbstractJavaModelTests.testsNames = null;
-	AbstractJavaModelTests.testsNumbers = null;
-	AbstractJavaModelTests.testsRange = null;
+	AbstractJavaModelTests.TESTS_PREFIX = null;
+	AbstractJavaModelTests.TESTS_NAMES = null;
+	AbstractJavaModelTests.TESTS_NUMBERS = null;
+	AbstractJavaModelTests.TESTS_SEARCH = null;
 
 	for (int i = 0, l=ConverterTestSetup.TEST_SUITES.size(); i < l; i++) {
 		Class testClass = (Class) ConverterTestSetup.TEST_SUITES.get(i);
