@@ -30,11 +30,13 @@ public void setUpSuite() throws Exception {
 	this.createFile(
 		"/P/src/p/X.java",
 		"/* some comment */" +		"package p;\n" +
-		"import p2.*;\n" +		"import p3.Z;\n" +		"public class X implements Runnable {\n" +		"  public int f1;\n" +		"  protected Object f2;\n" +		"  private X f3;\n" +		"  java.lang.String f4;\n" +		"  public class Inner {\n" +		"    class InnerInner {\n" +		"    }\n" +		"  }\n" +		"  public void foo(Y y) throws IOException {\n" +		"  }\n" +		"  protected static Object bar() {\n" +
+		"import p2.*;\n" +		"import p3.Z;\n" +		"public class X implements Runnable {\n" +		"  public int f1;\n" +		"  /** @deprecated\n */" +
+		"  protected Object f2;\n" +		"  private X f3;\n" +		"  java.lang.String f4;\n" +		"  public class Inner {\n" +		"    class InnerInner {\n" +		"    }\n" +		"  }\n" +		"  public void foo(Y y) throws IOException {\n" +		"  }\n" +		"  protected static Object bar() {\n" +
 		"  }\n" +
+		"  /** @deprecated\n */" +
 		"  private int fred() {\n" +
 		"  }\n" +
-		"}\n" +		"interface I {\n" +		"  int run();\n" +		"}");
+		"}\n" +		"/** @deprecated\n */" +		"interface I {\n" +		"  int run();\n" +		"}");
 	this.cu = this.getCompilationUnit("/P/src/p/X.java");
 }
 public static Test suite() {
@@ -63,6 +65,20 @@ public void testCommit() throws JavaModelException {
 		return;
 	}
 	assertTrue("A compilation unit should throw an exception is a commit is attempted", false);
+}
+/*
+ * Ensure that the deprecated flags is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work) */
+public void testDeprecatedFlag() throws JavaModelException {
+	IType type = this.cu.getType("X");
+	assertTrue("Type X should not be deprecated", !Flags.isDeprecated(type.getFlags()));
+	assertTrue("Type I should be deprecated", Flags.isDeprecated(this.cu.getType("I").getFlags()));
+	
+	assertTrue("Field f1 should not be deprecated", !Flags.isDeprecated(type.getField("f1").getFlags()));
+	assertTrue("Field f2 should be deprecated", Flags.isDeprecated(type.getField("f2").getFlags()));
+	
+	assertTrue("Method bar should not be deprecated", !Flags.isDeprecated(type.getMethod("bar", new String[]{}).getFlags()));
+	assertTrue("Method fred should be deprecated", Flags.isDeprecated(type.getMethod("fred", new String[]{}).getFlags()));
 }
 /**
  * Ensures <code>getContents()</code> returns the correct value
