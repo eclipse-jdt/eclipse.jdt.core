@@ -133,9 +133,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// process optional arguments
 			if (minArgLength < argLength) {
 				TypeBinding varargType = parameters[minArgLength]; // last arg type - as is ?
+				TypeBinding lastArgument = arguments[minArgLength];
 				if (paramLength != argLength // argument is passed as is ?
-						||  (arguments[minArgLength] != NullBinding
-								&& (arguments[minArgLength].dimensions() == 0))) { 
+						||  (lastArgument != NullBinding
+								&& (lastArgument.dimensions() == 0 || lastArgument.leafComponentType().isBaseType() != varargType.leafComponentType().isBaseType()))) { 
 					varargType = ((ArrayBinding)varargType).elementsType(); // eliminate one array dimension
 				}
 				for (int i = minArgLength; i < argLength; i++) {
