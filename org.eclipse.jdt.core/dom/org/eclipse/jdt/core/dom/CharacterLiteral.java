@@ -52,6 +52,7 @@ public class CharacterLiteral extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		CharacterLiteral result = new CharacterLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setEscapedValue(getEscapedValue());
 		return result;
 	}

@@ -53,6 +53,7 @@ public class ContinueStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		ContinueStatement result = new ContinueStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
 		return result;

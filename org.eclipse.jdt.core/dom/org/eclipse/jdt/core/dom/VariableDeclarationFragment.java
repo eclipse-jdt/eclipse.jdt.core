@@ -71,6 +71,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		VariableDeclarationFragment result = new VariableDeclarationFragment(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) getName().clone(target));
 		result.setExtraDimensions(getExtraDimensions());
 		result.setInitializer(

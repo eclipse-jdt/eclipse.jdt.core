@@ -60,6 +60,7 @@ public class CastExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		CastExpression result = new CastExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setType((Type) getType().clone(target));
 		result.setExpression((Expression) getExpression().clone(target));
 		return result;

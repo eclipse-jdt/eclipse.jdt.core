@@ -58,6 +58,7 @@ public class ExpressionStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		ExpressionStatement result = new ExpressionStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setExpression((Expression) getExpression().clone(target));
 		return result;

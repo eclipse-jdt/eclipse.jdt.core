@@ -56,6 +56,7 @@ public class PackageDeclaration extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((Name) getName().clone(target));
 		return result;
 	}

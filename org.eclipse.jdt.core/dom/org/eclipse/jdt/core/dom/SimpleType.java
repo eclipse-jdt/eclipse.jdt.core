@@ -52,6 +52,7 @@ public class SimpleType extends Type {
 	 */
 	ASTNode clone(AST target) {
 		SimpleType result = new SimpleType(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((Name) ((ASTNode) getName()).clone(target));
 		return result;
 	}

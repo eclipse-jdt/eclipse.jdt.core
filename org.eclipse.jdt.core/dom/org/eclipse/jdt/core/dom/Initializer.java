@@ -65,6 +65,7 @@ public class Initializer extends BodyDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		Initializer result = new Initializer(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));

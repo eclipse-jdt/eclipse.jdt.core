@@ -60,6 +60,7 @@ public class SwitchCase extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		SwitchCase result = new SwitchCase(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));

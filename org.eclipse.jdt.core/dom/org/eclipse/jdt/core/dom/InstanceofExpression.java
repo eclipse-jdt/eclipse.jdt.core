@@ -61,6 +61,7 @@ public class InstanceofExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		InstanceofExpression result = new InstanceofExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Type) getRightOperand().clone(target));
 		return result;

@@ -51,6 +51,7 @@ public class NumberLiteral extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		NumberLiteral result = new NumberLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setToken(getToken());
 		return result;
 	}

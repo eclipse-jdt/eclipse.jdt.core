@@ -61,6 +61,7 @@ public class LabeledStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		LabeledStatement result = new LabeledStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLabel(
 			(SimpleName) ASTNode.copySubtree(target, getLabel()));
 		result.setBody(

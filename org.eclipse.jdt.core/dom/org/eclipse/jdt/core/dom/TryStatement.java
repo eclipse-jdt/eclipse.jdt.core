@@ -72,6 +72,7 @@ public class TryStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		TryStatement result = new TryStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setBody((Block) getBody().clone(target));
 		result.catchClauses().addAll(

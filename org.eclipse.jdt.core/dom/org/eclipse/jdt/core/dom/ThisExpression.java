@@ -55,6 +55,7 @@ public class ThisExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ThisExpression result = new ThisExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
 		return result;
 	}

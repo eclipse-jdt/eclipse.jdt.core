@@ -54,6 +54,7 @@ public class ParenthesizedExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ParenthesizedExpression result = new ParenthesizedExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression((Expression) getExpression().clone(target));
 		return result;
 	}

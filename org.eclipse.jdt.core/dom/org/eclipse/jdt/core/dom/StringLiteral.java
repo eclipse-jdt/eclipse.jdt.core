@@ -52,6 +52,7 @@ public class StringLiteral extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		StringLiteral result = new StringLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setEscapedValue(getEscapedValue());
 		return result;
 	}

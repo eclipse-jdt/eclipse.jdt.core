@@ -60,6 +60,7 @@ public class DoStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		DoStatement result = new DoStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setBody((Statement) getBody().clone(target));

@@ -136,6 +136,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		MethodDeclaration result = new MethodDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
 		result.setModifiers(getModifiers());

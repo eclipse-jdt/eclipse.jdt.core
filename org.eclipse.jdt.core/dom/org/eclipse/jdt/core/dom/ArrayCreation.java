@@ -80,6 +80,7 @@ public class ArrayCreation extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ArrayCreation result = new ArrayCreation(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setType((ArrayType) getType().clone(target));
 		result.dimensions().addAll(ASTNode.copySubtrees(target, dimensions()));
 		result.setInitializer(

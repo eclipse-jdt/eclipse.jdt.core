@@ -152,6 +152,7 @@ public class PrefixExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		PrefixExpression result = new PrefixExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOperator(getOperator());
 		result.setOperand((Expression) getOperand().clone(target));
 		return result;

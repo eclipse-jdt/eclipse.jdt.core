@@ -91,6 +91,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		FieldDeclaration result = new FieldDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
 		result.setModifiers(getModifiers());

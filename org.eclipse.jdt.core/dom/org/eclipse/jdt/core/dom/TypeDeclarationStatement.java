@@ -60,6 +60,7 @@ public class TypeDeclarationStatement extends Statement {
 	ASTNode clone(AST target) {
 		TypeDeclarationStatement result = 
 			new TypeDeclarationStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setTypeDeclaration(
 			(TypeDeclaration) getTypeDeclaration().clone(target));

@@ -61,6 +61,7 @@ public class ArrayAccess extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ArrayAccess result = new ArrayAccess(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setArray((Expression) getArray().clone(target));
 		result.setIndex((Expression) getIndex().clone(target));
 		return result;

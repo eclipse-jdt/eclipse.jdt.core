@@ -82,6 +82,7 @@ public class ForStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		ForStatement result = new ForStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.initializers().addAll(ASTNode.copySubtrees(target, initializers()));
 		result.setExpression(

@@ -70,6 +70,7 @@ public class QualifiedName extends Name {
 	 */
 	ASTNode clone(AST target) {
 		QualifiedName result = new QualifiedName(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Name) getQualifier().clone(target));
 		result.setName((SimpleName) getName().clone(target));
 		return result;

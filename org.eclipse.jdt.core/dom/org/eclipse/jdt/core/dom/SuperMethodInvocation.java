@@ -67,6 +67,7 @@ public class SuperMethodInvocation extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		SuperMethodInvocation result = new SuperMethodInvocation(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) getName().clone(target));
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));

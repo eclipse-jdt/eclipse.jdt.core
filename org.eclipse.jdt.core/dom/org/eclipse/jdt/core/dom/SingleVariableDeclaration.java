@@ -93,6 +93,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));
 		result.setExtraDimensions(getExtraDimensions());

@@ -54,6 +54,7 @@ public class ArrayInitializer extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ArrayInitializer result = new ArrayInitializer(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.expressions().addAll(ASTNode.copySubtrees(target, expressions()));
 		return result;
 	}

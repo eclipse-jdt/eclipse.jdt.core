@@ -136,6 +136,7 @@ public class PostfixExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		PostfixExpression result = new PostfixExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOperator(getOperator());
 		result.setOperand((Expression) getOperand().clone(target));
 		return result;

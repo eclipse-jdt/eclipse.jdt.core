@@ -57,6 +57,7 @@ public class Block extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		Block result = new Block(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.statements().addAll(
 			ASTNode.copySubtrees(target, statements()));

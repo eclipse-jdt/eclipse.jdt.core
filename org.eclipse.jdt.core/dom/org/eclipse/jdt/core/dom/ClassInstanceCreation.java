@@ -80,6 +80,7 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ClassInstanceCreation result = new ClassInstanceCreation(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
 		result.setName((Name) getName().clone(target));

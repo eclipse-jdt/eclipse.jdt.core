@@ -82,6 +82,7 @@ public class VariableDeclarationStatement extends Statement {
 	ASTNode clone(AST target) {
 		VariableDeclarationStatement result = 
 			new VariableDeclarationStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));

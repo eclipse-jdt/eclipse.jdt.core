@@ -56,6 +56,7 @@ public class Javadoc extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		Javadoc result = new Javadoc(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setComment(getComment());
 		return result;
 	}

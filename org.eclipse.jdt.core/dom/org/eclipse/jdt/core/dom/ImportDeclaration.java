@@ -61,6 +61,7 @@ public class ImportDeclaration extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		ImportDeclaration result = new ImportDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
 		result.setName((Name) getName().clone(target));
 		return result;

@@ -222,6 +222,7 @@ public class InfixExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		InfixExpression result = new InfixExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOperator(getOperator());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Expression) getRightOperand().clone(target));

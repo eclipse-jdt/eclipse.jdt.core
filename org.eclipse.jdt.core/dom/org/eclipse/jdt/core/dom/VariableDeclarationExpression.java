@@ -84,6 +84,7 @@ public class VariableDeclarationExpression extends Expression {
 	ASTNode clone(AST target) {
 		VariableDeclarationExpression result = 
 			new VariableDeclarationExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(

@@ -66,6 +66,7 @@ public class SuperFieldAccess extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		SuperFieldAccess result = new SuperFieldAccess(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) ASTNode.copySubtree(target, getName()));
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
 		return result;

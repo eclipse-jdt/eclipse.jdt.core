@@ -67,6 +67,7 @@ public class ConditionalExpression extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		ConditionalExpression result = new ConditionalExpression(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setThenExpression(
 			(Expression) getThenExpression().clone(target));

@@ -40,7 +40,9 @@ public class NullLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone(AST target) {
-		return new NullLiteral(target);
+		NullLiteral result = new NullLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
+		return result;
 	}
 
 	/* (omit javadoc for this method)

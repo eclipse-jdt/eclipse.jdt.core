@@ -129,6 +129,7 @@ public class CompilationUnit extends ASTNode {
 	ASTNode clone(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
 		// n.b do not copy line number table or messages
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setPackage(
 			(PackageDeclaration) ASTNode.copySubtree(target, getPackage()));
 		result.imports().addAll(ASTNode.copySubtrees(target, imports()));

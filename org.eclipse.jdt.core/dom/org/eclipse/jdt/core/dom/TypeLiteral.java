@@ -54,6 +54,7 @@ public class TypeLiteral extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		TypeLiteral result = new TypeLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setType((Type) getType().clone(target));
 		return result;
 	}

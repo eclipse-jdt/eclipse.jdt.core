@@ -53,6 +53,7 @@ public class BooleanLiteral extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		BooleanLiteral result = new BooleanLiteral(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setBooleanValue(booleanValue());
 		return result;
 	}

@@ -91,6 +91,7 @@ public class FieldAccess extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		FieldAccess result = new FieldAccess(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setName((SimpleName) getName().clone(target));
 		return result;

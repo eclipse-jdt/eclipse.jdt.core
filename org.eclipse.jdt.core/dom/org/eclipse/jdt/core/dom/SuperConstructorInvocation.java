@@ -60,6 +60,7 @@ public class SuperConstructorInvocation extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		SuperConstructorInvocation result = new SuperConstructorInvocation(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));

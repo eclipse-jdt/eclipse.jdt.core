@@ -47,6 +47,7 @@ public class EmptyStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		EmptyStatement result = new EmptyStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		return result;
 	}

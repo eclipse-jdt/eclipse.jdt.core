@@ -66,6 +66,7 @@ public class SimpleName extends Name {
 	 */
 	ASTNode clone(AST target) {
 		SimpleName result = new SimpleName(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setIdentifier(getIdentifier());
 		return result;
 	}

@@ -59,6 +59,7 @@ public class CatchClause extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		CatchClause result = new CatchClause(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setBody((Block) getBody().clone(target));
 		result.setException(
 			(SingleVariableDeclaration) ASTNode.copySubtree(target, getException()));

@@ -124,6 +124,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 */
 	ASTNode clone(AST target) {
 		TypeDeclaration result = new TypeDeclaration(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));

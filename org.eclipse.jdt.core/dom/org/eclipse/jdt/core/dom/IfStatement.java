@@ -72,6 +72,7 @@ public class IfStatement extends Statement {
 	 */
 	ASTNode clone(AST target) {
 		IfStatement result = new IfStatement(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeadingComment(getLeadingComment());
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setThenStatement(
@@ -223,7 +224,7 @@ public class IfStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (expression == null ? 0 : getElseStatement().treeSize())
+			+ (expression == null ? 0 : getExpression().treeSize())
 			+ (thenStatement == null ? 0 : getThenStatement().treeSize())
 			+ (optionalElseStatement == null ? 0 : getElseStatement().treeSize());
 	}

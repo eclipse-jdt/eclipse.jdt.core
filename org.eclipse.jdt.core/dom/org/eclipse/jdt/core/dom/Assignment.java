@@ -184,6 +184,7 @@ public class Assignment extends Expression {
 	 */
 	ASTNode clone(AST target) {
 		Assignment result = new Assignment(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOperator(getOperator());
 		result.setLeftHandSide((Expression) getLeftHandSide().clone(target));
 		result.setRightHandSide((Expression) getRightHandSide().clone(target));

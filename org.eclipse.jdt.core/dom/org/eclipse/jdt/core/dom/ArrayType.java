@@ -55,6 +55,7 @@ public class ArrayType extends Type {
 	 */
 	ASTNode clone(AST target) {
 		ArrayType result = new ArrayType(target);
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setComponentType((Type) getComponentType().clone(target));
 		return result;
 	}
