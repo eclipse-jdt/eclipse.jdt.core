@@ -1237,7 +1237,7 @@ public void illegalExtendedDimensions(Argument argument) {
 		IProblem.IllegalExtendedDimensionsForVarArgs,
 		NoArgument, 
 		NoArgument, 
-		argument.type.sourceStart,
+		argument.sourceStart,
 		argument.sourceEnd);
 }
 public void illegalGenericArray(TypeBinding leadtComponentType, ASTNode location) {

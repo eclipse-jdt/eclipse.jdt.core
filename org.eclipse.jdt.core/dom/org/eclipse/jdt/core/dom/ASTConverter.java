@@ -808,8 +808,14 @@ class ASTConverter {
 		int nameEnd = argument.sourceEnd;
 		name.setSourceRange(start, nameEnd - start + 1);
 		variableDecl.setName(name);
-		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, argument.type.sourceEnd);
+		final int typeSourceEnd = argument.type.sourceEnd;
+		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, typeSourceEnd);
 		variableDecl.setExtraDimensions(extraDimensions);
+		final boolean isVarArgs = argument.isVarArgs;
+		if (isVarArgs && extraDimensions == 0) {
+			// remove the ellipsis from the type source end
+			argument.type.sourceEnd = retrieveEllipsisStartPosition(argument.type.sourceStart, typeSourceEnd);
+		}
 		Type type = convertType(argument.type);
 		int typeEnd = type.getStartPosition() + type.getLength() - 1;
 		int rightEnd = Math.max(typeEnd, argument.declarationSourceEnd);
@@ -817,10 +823,14 @@ class ASTConverter {
 		 * There is extra work to do to set the proper type positions
 		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
 		 */
-		setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
+		if (isVarArgs) {
+			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
+		} else {
+			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
+		}
 		variableDecl.setSourceRange(argument.declarationSourceStart, rightEnd - argument.declarationSourceStart + 1);
 		
-		if (argument.isVarArgs) {
+		if (isVarArgs) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2 :
 					variableDecl.setFlags(variableDecl.getFlags() | ASTNode.MALFORMED);
@@ -3702,7 +3712,25 @@ class ASTConverter {
 			// ignore
 		}
 	}
+	/**
+	 * This method is used to retrieve the start position of the Ellipsis
+	 */
+	protected int retrieveEllipsisStartPosition(int start, int end) {
+		this.scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(token) {
+					case TerminalTokens.TokenNameELLIPSIS:
+						return this.scanner.startPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return -1;
 	
+	}
 	/**
 	 * This method is used to retrieve the end position of the block.
 	 * @return int the dimension found, -1 if none

@@ -1581,7 +1581,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		TypeReference type = getTypeReference(typeDimensions);
 		if (isVarArgs) {
 			type = type.copyDims(typeDimensions + 1);
-			type.sourceEnd = endOfEllipsis;
+			if (extendedDimensions == 0) {
+				type.sourceEnd = endOfEllipsis;
+			}
 		}
 		intPtr -= 2;
 		CompletionOnArgumentName arg = 

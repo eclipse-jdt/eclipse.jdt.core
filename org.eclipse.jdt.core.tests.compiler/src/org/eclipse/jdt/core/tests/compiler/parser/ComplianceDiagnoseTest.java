@@ -2116,7 +2116,7 @@ public void test0048() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(X ... arg[]){\n" + 
-		"	         ^^^^^^^^^\n" + 
+		"	               ^^^\n" + 
 		"Extended dimensions are illegal for a variable argument\n" + 
 		"----------\n";
 	

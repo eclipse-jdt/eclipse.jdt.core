@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -78,7 +79,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0049"));
+		suite.addTest(new ASTConverter15Test("test0051"));
 		return suite;
 	}
 		
@@ -1410,6 +1411,58 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		enumConstantDeclaration = (EnumConstantDeclaration) node;
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED", source);
-	}	
+	}
+	
+	/**
+	 * Ellipsis
+	 */
+	public void test0050() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0050", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 1, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		assertTrue("Not a varargs", singleVariableDeclaration.isVarargs());
+		final Type type = singleVariableDeclaration.getType();
+		checkSourceRange(type, "String[]", source);
+		assertTrue("not an array type", type.isArrayType());
+		ArrayType arrayType = (ArrayType) type;
+		checkSourceRange(arrayType.getComponentType(), "String", source);
+		assertEquals("Wrong extra dimensions", 1, singleVariableDeclaration.getExtraDimensions());
+	}
+	
+	/**
+	 * Ellipsis
+	 */
+	public void test0051() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0051", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		assertTrue("Not a varargs", singleVariableDeclaration.isVarargs());
+		final Type type = singleVariableDeclaration.getType();
+		checkSourceRange(type, "String[]", source);
+		assertTrue("not an array type", type.isArrayType());
+		ArrayType arrayType = (ArrayType) type;
+		checkSourceRange(arrayType.getComponentType(), "String", source);
+		assertEquals("Wrong extra dimensions", 0, singleVariableDeclaration.getExtraDimensions());
+	}
 }
 
