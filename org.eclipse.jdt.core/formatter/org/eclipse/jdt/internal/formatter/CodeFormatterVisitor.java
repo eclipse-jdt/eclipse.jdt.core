@@ -462,6 +462,18 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return new String(compilationUnitSource);
 	}
 
+	private String failedToFormat(final String compilationUnitSource) {
+		if (DEBUG) {
+			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
+			System.out.println(this.scribe);
+		}
+		int[] positions = this.scribe.positionsToMap;
+		if (positions != null) {
+			System.arraycopy(positions, 0, this.scribe.mappedPositions, 0, positions.length);
+		}
+		return compilationUnitSource;
+	}
+
 	private void format(
 		AbstractMethodDeclaration methodDeclaration,
 		ClassScope scope,
@@ -690,6 +702,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		// reset the scribe
 		this.scribe.reset(positions);
 		
+		if (compilationUnitDeclaration == null || compilationUnitDeclaration.ignoreFurtherInvestigation) {
+			return failedToFormat(string);
+		}
+
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
@@ -698,9 +714,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.localScanner.setSource(compilationUnitSource);
 		this.scribe.scannerEndPosition = compilationUnitSource.length;
 		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
-		if (compilationUnitDeclaration == null || compilationUnitDeclaration.ignoreFurtherInvestigation) {
-			return string;
-		}
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {

@@ -185,6 +185,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 				break;
 			case K_STATEMENTS :
 				result = formatStatements(source, indentationLevel, positions, lineSeparator, options);
+				break;
+			case K_UNKNOWN :
+				result = probeFormatting(source, indentationLevel, positions, lineSeparator, options);
 		}
 		this.positionsMapping = positions;
 		return result;
@@ -227,33 +230,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int[] positions,
 		String lineSeparator) {
 		
-		Map options = JavaCore.getOptions();
-		// probing algorithm
-		/*
-		 * 1) expression
-		 * 2) statements
-		 * 3) classbody declarations
-		 * 4) compilation unit
-		 */
-		Expression expression = parseExpression(source.toCharArray(), options);
-		
-		if (expression != null) {
-			return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
-		}
-
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
-		
-		if (constructorDeclaration.statements != null) {
-			return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
-		}
-		
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
-		
-		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
-		}
-
-		return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
+		return format(K_UNKNOWN, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
 	}
 
 	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
@@ -305,6 +282,28 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			return source;
 		}
 		return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+	}
+
+	private String probeFormatting(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		Expression expression = parseExpression(source.toCharArray(), options);
+		
+		if (expression != null) {
+			return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
+		}
+
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
+		
+		if (constructorDeclaration.statements != null) {
+			return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+		}
+		
+		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
+		
+		if (bodyDeclarations != null) {
+			return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
+		}
+
+		return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, options);
 	}
 
 	public String getDebugOutput() {
