@@ -147,12 +147,6 @@ public interface IJavaElementDelta {
 	public int F_CLASSPATH_REORDER = 0x0100;
 
 	/**
-	 * Change flag indicating that the element's archive content on the classpath has changed.
-	 * In this case the element is an <code>IPackageFragmentRoot</code>.
-	 */
-	public int F_ARCHIVE_CONTENT_CHANGED = 0x0200;
-
-	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been
 	 * opened.
 	 */
@@ -192,6 +186,13 @@ public interface IJavaElementDelta {
      * is not set). 
 	 */
 	public int F_FINE_GRAINED = 0x4000;
+
+	/**
+	 * Change flag indicating that the element's archive content on the classpath has changed.
+	 * In this case the element is an <code>IPackageFragmentRoot</code>.
+	 */
+	public int F_ARCHIVE_CONTENT_CHANGED = 0x8000;
+
 /**
  * Returns deltas for the children that have been added.
  */
