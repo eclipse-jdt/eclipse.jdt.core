@@ -525,7 +525,8 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeMethodWithRawArguments:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
-		return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
+		case IProblem.UnsafeRawReturnValue:
+			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
 		
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
@@ -3685,6 +3686,14 @@ public void unsafeInvocationWithRawArguments(ASTNode location, TypeBinding recei
 			location.sourceStart,
 			location.sourceEnd);    
     }
+}
+public void unsafeRawReturnValue(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
+	this.handle(
+		IProblem.UnsafeRawReturnValue,
+		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
+		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
+		expression.sourceStart,
+		expression.sourceEnd);    
 }
 public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] arguments) {
     if (method.isConstructor()) {

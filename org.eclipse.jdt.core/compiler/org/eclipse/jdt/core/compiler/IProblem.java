@@ -883,6 +883,8 @@ public interface IProblem {
 	int GenericConstructorTypeArgumentMismatch = TypeRelated + 545;
 	/** @since 3.1 */
 	int UnsafeGenericCast = TypeRelated + 546;
+	/** @since 3.1 */
+	int UnsafeRawReturnValue = TypeRelated + 547;
 	
 	/**
 	 * Foreach

@@ -4696,6 +4696,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E,F> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	return new AX(\"SUCCESS\");\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not return value of raw type AX instead of type AX<AX<T,T>,U>. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test169() {
@@ -4729,6 +4734,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	return new AX(\"SUCCESS\");\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not return value of raw type AX instead of type AX<T>. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -4911,5 +4921,41 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n"
 			},
 			"SUCCESS");
-	}			
+	}
+	// unsafe raw return value
+	public void test176() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    <T> Vector<T> valuesOf(Hashtable<?, T> h) {\n" + 
+				"        return new Vector();\n" + 
+				"    }\n" + 
+				"    Vector<Object> data;\n" + 
+				"    \n" + 
+				"    public void t() {\n" + 
+				"        Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	return new Vector();\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not return value of raw type Vector instead of type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not cast from Object to Vector<Object>. Generic type information will be erased at runtime\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+	
 }
