@@ -215,6 +215,12 @@ public interface IMethodBinding extends IBinding {
 	 * for the corresponding generic method. For other method bindings, this
 	 * returns the same binding.
 	 *
+	 * Note: The one notable exception is the method <code>Object.getClass()</code>, 
+	 * which is declared to return <code>Class&lt;? extends Object&gt;</code>, but 
+	 * when invoked its return type becomes <code>Class&lt;? extends 
+	 * </code><em>R</em><code>&gt;</code>, where <em>R</em> is the compile type of 
+	 * the receiver of the method invocation.
+	 *
 	 * @return the method binding
 	 * @since 3.1
 	 */
