@@ -26,7 +26,17 @@
 		    <fileset dir="compiler/"/>
 		</copy>
 	
-        <echo message='compiling sources      -> .o'/>
+
+        <echo message='compiling resources   -> .o'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false' skipemptyfilesets='true'>
+            <arg value='--verbose'/>
+            <arg value='-c'/>
+            <targetfile/>
+            <fileset dir='${work}' includes='**/*.properties' />
+            <mapper type='regexp' from='^(.*)\.(.*)$' to=' --resource \0 \0 -o \1.o'/>
+        </apply>
+	        
+	    <echo message='compiling sources      -> .o'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
             <arg value='--classpath=${work}'/>
             <arg value='-O2'/>
@@ -51,18 +61,5 @@
             <mapper type='glob' from='*.o' to='${dest}${binaryname}.exe'/>
        </apply>
     </target>
-
-	<target name="ignore">
-	        <echo message='compiling resources   -> .o'/>
-	        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
-	            <arg value='--verbose'/>
-	            <arg value='-c'/>
-	            <srcfile/>
-	            <arg value='--resource'/>
-	            <targetfile/>
-	            <fileset dir='${work}' excludes='**/*.java,**/*html' />
-				<mapper type='regexp' from='^(.*)\.(.*)$$' to='\1.\2 -o \1.o'/>
-	        </apply>
-	</target>    	
 
 </project>
