@@ -108,6 +108,8 @@ public TypeBinding resolveType(BlockScope blockScope) {
 			return null; // already reported error
 	} else {
 		type = this.resolvedType = getTypeBinding(blockScope);
+		if (type == null)
+			return null; // detected cycle while resolving hierarchy
 		if (!type.isValidBinding()) {
 			reportInvalidType(blockScope);
 			return null;
@@ -133,6 +135,8 @@ public TypeBinding resolveType(ClassScope classScope) {
 			return null; // already reported error
 	} else {
 		type = this.resolvedType = getTypeBinding(classScope);
+		if (type == null)
+			return null; // detected cycle while resolving hierarchy		
 		if (!type.isValidBinding()) {
 			reportInvalidType(classScope);
 			return null;
