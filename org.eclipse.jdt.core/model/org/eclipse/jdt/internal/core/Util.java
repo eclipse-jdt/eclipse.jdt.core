@@ -61,11 +61,6 @@ public class Util {
 	
 	public static final String[] fgEmptyStringArray = new String[0];
 
-	/**
-	 * Are we running JDK 1.1?
-	 */
-	private static boolean JDK1_1 = false;
-
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
 	private final static String bundleName = "org.eclipse.jdt.internal.core.messages"; //$NON-NLS-1$
@@ -80,8 +75,6 @@ public class Util {
 	public final static char[] SUFFIX_ZIP = ".ZIP".toCharArray(); //$NON-NLS-1$
 
 	static {
-		String ver = System.getProperty("java.version"); //$NON-NLS-1$
-		JDK1_1 = ((ver != null) && ver.startsWith("1.1")); //$NON-NLS-1$
 		relocalize();
 	}	
 	
