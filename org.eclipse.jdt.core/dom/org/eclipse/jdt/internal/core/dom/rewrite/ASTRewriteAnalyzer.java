@@ -1587,7 +1587,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		
-		changeNotSupported(node); // no modification possible
+		Boolean newLiteral= (Boolean) getNewValue(node, BooleanLiteral.BOOLEAN_VALUE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, BooleanLiteral.BOOLEAN_VALUE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newLiteral.toString(), group);
 		return false;
 	}
 
@@ -1642,7 +1644,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		
-		changeNotSupported(node); // no modification possible
+		String escapedSeq= (String) getNewValue(node, CharacterLiteral.ESCAPED_VALUE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, CharacterLiteral.ESCAPED_VALUE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), escapedSeq, group);
 		return false;
 	}
 
@@ -2087,8 +2091,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		
-		changeNotSupported(node); // no modification possible
+		String newLiteral= (String) getNewValue(node, NumberLiteral.TOKEN_PROPERTY);
+		TextEditGroup group = getEditGroup(node, NumberLiteral.TOKEN_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newLiteral, group);
 		return false;
 	}
 
@@ -2149,8 +2154,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		
-		changeNotSupported(node); // no modification possible
+		PrimitiveType.Code newCode= (PrimitiveType.Code) getNewValue(node, PrimitiveType.PRIMITIVE_TYPE_CODE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, PrimitiveType.PRIMITIVE_TYPE_CODE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newCode.toString(), group);
 		return false;
 	}
 
@@ -2174,8 +2180,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		
-		changeNotSupported(node); // no modification possible
+		String newString= (String) getNewValue(node, SimpleName.IDENTIFIER_PROPERTY);
+		TextEditGroup group = getEditGroup(node, SimpleName.IDENTIFIER_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newString, group);
 		return false;
 	}
 
@@ -2228,8 +2235,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		
-		changeNotSupported(node); // no modification possible
+		String escapedSeq= (String) getNewValue(node, StringLiteral.ESCAPED_VALUE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, StringLiteral.ESCAPED_VALUE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), escapedSeq, group);
+
 		return false;
 	}
 
@@ -2581,19 +2590,59 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		if (isChanged(node, TagElement.FRAGMENTS_PROPERTY)) {
-			// eval position after opening parent
-			try {
-				int startOffset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameIdentifier, node.getStartPosition());
-				rewriteNodeList(node, TagElement.FRAGMENTS_PROPERTY, startOffset, " ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
-			} catch (CoreException e) {
-				handleException(e);
+		
+		int changeKind= getChangeKind(node, TagElement.TAG_NAME_PROPERTY);
+		switch (changeKind) {
+			case RewriteEvent.INSERTED: {
+			    String newTagName= '@' + (String) getNewValue(node, TagElement.TAG_NAME_PROPERTY);
+				doTextInsert(node.getStartPosition(), newTagName, getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
+				break;
 			}
+			case RewriteEvent.REMOVED: {
+			    String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
+			    int tagEnd= findTagNameStart(node)  + oldTag.length();
+			    doTextRemove(node.getStartPosition(), tagEnd - node.getStartPosition(), getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
+			    break;
+			}
+			case RewriteEvent.REPLACED: {
+			    String newTagName= (String) getNewValue(node, TagElement.TAG_NAME_PROPERTY);
+		    	String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
+		    	int tagStart= findTagNameStart(node);
+		    	doTextReplace(tagStart, oldTag.length(), newTagName, getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
+			    break;
+			}
+		}
+				
+		if (isChanged(node, TagElement.FRAGMENTS_PROPERTY)) {
+			// eval position after name
+			int startOffset= node.getStartPosition();
+            String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
+            if (oldTag != null) {
+                startOffset= findTagNameStart(node) + oldTag.length();
+            }
+            
+            rewriteNodeList(node, TagElement.FRAGMENTS_PROPERTY, startOffset, " ", " ");  //$NON-NLS-1$//$NON-NLS-2$
 		} else {
 			doVisit(node, TagElement.FRAGMENTS_PROPERTY, 0);
 		}
 		return false;
 	}
+		
+	private int findTagNameStart(ASTNode tagNode) {
+	    try {
+	        IDocument doc = getDocument();
+	        int i= tagNode.getStartPosition();
+	        int end= i + tagNode.getLength();
+	        while (i < end && !Character.isJavaIdentifierStart(doc.getChar(i))) {
+	            i++;
+	        }
+	        return i;
+	    } catch (BadLocationException e) {
+	        handleException(e);
+	    }
+	    return tagNode.getStartPosition();
+	}
+		
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.TextElement)
@@ -2602,8 +2651,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		changeNotSupported(node); // no modification possible
-		return true;
+		String newText= (String) getNewValue(node, TextElement.TEXT_PROPERTY);
+		TextEditGroup group = getEditGroup(node, TextElement.TEXT_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newText, group);
+		return false;
 	}
 
 	final void handleException(Throwable e) {

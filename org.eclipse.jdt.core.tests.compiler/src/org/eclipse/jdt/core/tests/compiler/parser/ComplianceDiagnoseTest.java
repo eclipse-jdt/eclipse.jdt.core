@@ -1099,7 +1099,7 @@ public void test0026() {
 		expected15ProblemeLog
 	);
 }
-public void _test0027() {
+public void test0027() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

@@ -335,15 +335,16 @@ public class JavaProject
 		JavaProject initialProject, 
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
-		HashSet visitedProjects, 
+		HashSet rootIDs,
 		ObjectVector accumulatedEntries,
 		Map preferredClasspaths,
 		Map preferredOutputs) throws JavaModelException {
 		
-		if (visitedProjects.contains(this)){
+		String projectRootId = this.rootID();
+		if (rootIDs.contains(projectRootId)){
 			return; // break cycles if any
 		}
-		visitedProjects.add(this);
+		rootIDs.add(projectRootId);
 
 		IClasspathEntry[] preferredClasspath = preferredClasspaths != null ? (IClasspathEntry[])preferredClasspaths.get(this) : null;
 		IPath preferredOutput = preferredOutputs != null ? (IPath)preferredOutputs.get(this) : null;
@@ -355,8 +356,12 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		boolean isInitialProject = this.equals(initialProject);
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
-			IClasspathEntry entry = immediateClasspath[i];
+			ClasspathEntry entry = (ClasspathEntry) immediateClasspath[i];
 			if (isInitialProject || entry.isExported()){
+				String rootID = entry.rootID();
+				if (rootIDs.contains(rootID)) {
+					continue;
+				}
 				
 				accumulatedEntries.add(entry);
 				
@@ -371,12 +376,14 @@ public class JavaProject
 								initialProject, 
 								ignoreUnresolvedVariable, 
 								false /* no marker when recursing in prereq*/,
-								visitedProjects, 
+								rootIDs,
 								accumulatedEntries,
 								preferredClasspaths,
 								preferredOutputs);
 						}
 					}
+				} else {
+					rootIDs.add(rootID);
 				}
 			}			
 		}
