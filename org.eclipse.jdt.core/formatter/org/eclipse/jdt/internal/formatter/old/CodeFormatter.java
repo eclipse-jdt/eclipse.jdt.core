@@ -39,20 +39,6 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 	}
 	
 	public String format(String string, int indentLevel, int[] positions, String lineSeparator) {
-/*		if (lineSeparator != null){
-			this.options.setLineSeparator(lineSeparator);
-		}
-		if (positions != null) {
-			this.setPositionsToMap(positions);
-			this.setInitialIndentationLevel(indentLevel);
-			String formattedString = this.formatSourceString(string);
-			System.arraycopy(this.mappedPositions, 0, positions, 0, positions.length);
-			return formattedString;
-		} else {
-			this.setInitialIndentationLevel(indentLevel);
-			return this.formatSourceString(string);
-		}*/
-
 		// initialize the new formatter with old options
 		Map newOptions = DefaultCodeFormatterConstants.getDefaultSettings();
 
