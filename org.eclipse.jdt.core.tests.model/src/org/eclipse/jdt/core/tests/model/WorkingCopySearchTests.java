@@ -33,12 +33,20 @@ public WorkingCopySearchTests(String name) {
 }
 
 public static Test suite() {
+	if (false) {
+		TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
+		suite.addTest(new WorkingCopySearchTests("testAllTypeNames3"));
+		return suite;
+	}
+	
 	// NOTE: cannot use 'new Suite(WorkingCopySearchTests.class)' as this would include tests from super class
 	TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
 	
 	suite.addTest(new WorkingCopySearchTests("testAddNewType"));
 	suite.addTest(new WorkingCopySearchTests("testAllTypeNames1"));
 	suite.addTest(new WorkingCopySearchTests("testAllTypeNames2"));
+	suite.addTest(new WorkingCopySearchTests("testAllTypeNames3"));
+	suite.addTest(new WorkingCopySearchTests("testAllTypeNames4"));
 	suite.addTest(new WorkingCopySearchTests("testRemoveType"));
 	suite.addTest(new WorkingCopySearchTests("testMoveType"));
 	suite.addTest(new WorkingCopySearchTests("testHierarchyScopeOnWorkingCopy"));
@@ -178,6 +186,85 @@ public void testAllTypeNames2() throws CoreException {
 		"wc.Y\n" +
 		"wc.Y$I",
 		requestor);
+}
+
+/*
+ * Search all type names with a prefix in a primary working copy.
+ * (regression test for bug 44884 Wrong list displayed while code completion)
+ */
+public void testAllTypeNames3() throws CoreException {
+	ICompilationUnit wc = getCompilationUnit("/JavaSearch/wc3/X44884.java");
+	try {
+		wc.becomeWorkingCopy(null, null);
+		wc.getBuffer().setContents(
+			"package wc3;\n" +
+			"public class X44884 {\n" +
+			"}\n" +
+			"interface I {\n" +
+			"}"
+		);
+		wc.makeConsistent(null);
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
+		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			ResourcesPlugin.getWorkspace(),
+			"wc3".toCharArray(),
+			"X".toCharArray(),
+			PREFIX_MATCH,
+			CASE_INSENSITIVE,
+			TYPE,
+			scope, 
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null		
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"wc3.X44884",
+			requestor);
+	} finally {
+		wc.discardWorkingCopy();
+	}
+}
+
+/*
+ * Search all type names with a prefix in a primary working copy (without reconciling it).
+ * (regression test for bug 44884 Wrong list displayed while code completion)
+ */
+public void testAllTypeNames4() throws CoreException {
+	ICompilationUnit wc = getCompilationUnit("/JavaSearch/wc3/X44884.java");
+	try {
+		wc.becomeWorkingCopy(null, null);
+		wc.getBuffer().setContents(
+			"package wc3;\n" +
+			"public class X44884 {\n" +
+			"}\n" +
+			"interface I {\n" +
+			"}"
+		);
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
+		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			ResourcesPlugin.getWorkspace(),
+			"wc3".toCharArray(),
+			"X".toCharArray(),
+			PREFIX_MATCH,
+			CASE_INSENSITIVE,
+			TYPE,
+			scope, 
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null		
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"wc3.X44884",
+			requestor);
+	} finally {
+		wc.discardWorkingCopy();
+	}
 }
 
 /**

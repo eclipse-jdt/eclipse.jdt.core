@@ -433,6 +433,31 @@ private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 	}
 	return getWorkingCopies();
 }
+boolean match(char classOrInterface, char[] patternPkg, char[] patternTypeName, int matchMode, boolean isCaseSensitive, boolean isClass, char[] pkg, char[] typeName) {
+	switch(classOrInterface) {
+		case IIndexConstants.CLASS_SUFFIX :
+			if (!isClass) return false;
+		case IIndexConstants.INTERFACE_SUFFIX :
+			if (isClass) return false;
+		case IIndexConstants.TYPE_SUFFIX : // nothing
+	}
+
+	if (patternPkg != null && !CharOperation.equals(patternPkg, pkg, isCaseSensitive))
+		return false;
+
+	if (patternTypeName != null) {
+		switch(matchMode) {
+			case IJavaSearchConstants.EXACT_MATCH :
+				return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
+			case IJavaSearchConstants.PREFIX_MATCH :
+				return CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
+			case IJavaSearchConstants.PATTERN_MATCH :
+				return CharOperation.match(patternTypeName, typeName, isCaseSensitive);
+		}
+	}
+	return true;
+
+}
 /**
  * Searches for the Java element determined by the given signature. The signature
  * can be incomplete. For example, a call like 
@@ -637,10 +662,10 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
  */
 public void searchAllTypeNames(
 	IWorkspace workspace,
-	char[] packageName, 
-	char[] typeName,
-	int matchMode, 
-	boolean isCaseSensitive,
+	final char[] packageName, 
+	final char[] typeName,
+	final int matchMode, 
+	final boolean isCaseSensitive,
 	int searchFor, 
 	IJavaSearchScope scope, 
 	final ITypeNameRequestor nameRequestor,
@@ -649,7 +674,7 @@ public void searchAllTypeNames(
 
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		
-	char classOrInterface;
+	final char classOrInterface;
 	switch(searchFor){
 		case IJavaSearchConstants.CLASS :
 			classOrInterface = IIndexConstants.CLASS_SUFFIX;
@@ -707,10 +732,10 @@ public void searchAllTypeNames(
 		if (copies != null) {
 			for (int i = 0, length = copies.length; i < length; i++) {
 				ICompilationUnit workingCopy = copies[i];
-				IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
 				final String path = workingCopy.getPath().toString();
-				final char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 				if (workingCopy.isConsistent()) {
+					IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
+					char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 					IType[] allTypes = workingCopy.getAllTypes();
 					for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
 						IType type = allTypes[j];
@@ -722,10 +747,13 @@ public void searchAllTypeNames(
 						} else {
 							enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 						}
-						if (type.isClass()) {
-							nameRequestor.acceptClass(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
-						} else {
-							nameRequestor.acceptInterface(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+						char[] simpleName = type.getElementName().toCharArray();
+						if (match(classOrInterface, packageName, typeName, matchMode, isCaseSensitive, type.isClass(), packageDeclaration, simpleName)) {
+							if (type.isClass()) {
+								nameRequestor.acceptClass(packageDeclaration, simpleName, enclosingTypeNames, path);
+							} else {
+								nameRequestor.acceptInterface(packageDeclaration, simpleName, enclosingTypeNames, path);
+							}
 						}
 					}
 				} else {
@@ -748,6 +776,7 @@ public void searchAllTypeNames(
 					CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
 					CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
 					if (parsedUnit != null) {
+						final char[] packageDeclaration = parsedUnit.currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(parsedUnit.currentPackage.getImportName(), '.');
 						class AllTypeDeclarationsVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope blockScope) {
 								return false; // no local type
@@ -756,30 +785,34 @@ public void searchAllTypeNames(
 								return false; // no anonymous type
 							}
 							public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-								if (!typeDeclaration.isInterface()) {
-									nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
-								} else {
-									nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+								if (match(classOrInterface, packageName, typeName, matchMode, isCaseSensitive, !typeDeclaration.isInterface(), packageDeclaration, typeDeclaration.name)) {
+									if (!typeDeclaration.isInterface()) {
+										nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+									} else {
+										nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+									}
 								}
 								return true;
 							}
 							public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-								// compute encloising type names
-								TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
-								char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
-								while (enclosing != null) {
-									enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
-									if (enclosing instanceof MemberTypeDeclaration) {
-										enclosing = ((MemberTypeDeclaration)enclosing).enclosingType;
-									} else {
-										enclosing = null;
+								if (match(classOrInterface, packageName, typeName, matchMode, isCaseSensitive, !memberTypeDeclaration.isInterface(), packageDeclaration, memberTypeDeclaration.name)) {
+									// compute encloising type names
+									TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
+									char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+									while (enclosing != null) {
+										enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
+										if (enclosing instanceof MemberTypeDeclaration) {
+											enclosing = ((MemberTypeDeclaration)enclosing).enclosingType;
+										} else {
+											enclosing = null;
+										}
 									}
-								}
-								// report
-								if (!memberTypeDeclaration.isInterface()) {
-									nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
-								} else {
-									nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+									// report
+									if (!memberTypeDeclaration.isInterface()) {
+										nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+									} else {
+										nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+									}
 								}
 								return true;
 							}
