@@ -411,15 +411,15 @@ public class SourceTypeConverter implements CompilerModifiers {
 				case '<' :
 					if (fragments == null) fragments = new ArrayList(2);
 					nameFragmentEnd = this.namePos-1;
-					int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
-					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, nameFragmentLength);
+					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
 					fragments.add(identifiers);
-					this.namePos++;
-					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end);
+					this.namePos++; // skip '<'
+					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end); // positionned on '>' at end
 					fragments.add(arguments);
 					identCount = 0;
-					nameFragmentStart = this.namePos; // next fragment start immediately behind
+					nameFragmentStart = -1;
 					nameFragmentEnd = -1;
+					// next increment will skip '>'
 			}
 			this.namePos++;
 		}
@@ -430,7 +430,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				if (dim == 0) {
 					char[] nameFragment;
 					if (nameFragmentStart != 0 || nameFragmentEnd >= 0) {
-					int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
+						int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
 						System.arraycopy(typeName, nameFragmentStart, nameFragment = new char[nameFragmentLength], 0, nameFragmentLength);						
 					} else {
 						nameFragment = typeName;
@@ -448,8 +448,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				for (int i = 0; i < identCount; i++) {
 					positions[i] = pos;
 				}
-				int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
-				char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, nameFragmentLength);
+				char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, nameFragmentEnd+1);
 				if (dim == 0) {
 					return new QualifiedTypeReference(identifiers, positions);
 				} else {
@@ -459,9 +458,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 		} else { // parameterized
 			// rebuild type reference from available fragments: char[][], arguments, char[][], arguments...
 			// check trailing qualified name
-			if (nameFragmentStart < length) {
-				int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
-				char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, nameFragmentLength);
+			if (nameFragmentStart > 0 && nameFragmentStart < length) {
+				char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, nameFragmentEnd+1);
 				fragments.add(identifiers);
 			}
 			int fragmentLength = fragments.size();
@@ -473,15 +471,15 @@ public class SourceTypeConverter implements CompilerModifiers {
 				}
 			}
 			// parameterized qualified type
-			int tokenCount = 0;
+			identCount = 0;
 			for (int i = 0; i < fragmentLength; i ++) {
 				Object element = fragments.get(i);
 				if (element instanceof char[][]) {
-					tokenCount += ((char[][])element).length;
+					identCount += ((char[][])element).length;
 				}
 			}
-			char[][] tokens = new char[tokenCount][];
-			TypeReference[][] arguments = new TypeReference[tokenCount][];
+			char[][] tokens = new char[identCount][];
+			TypeReference[][] arguments = new TypeReference[identCount][];
 			int index = 0;
 			for (int i = 0; i < fragmentLength; i ++) {
 				Object element = fragments.get(i);
