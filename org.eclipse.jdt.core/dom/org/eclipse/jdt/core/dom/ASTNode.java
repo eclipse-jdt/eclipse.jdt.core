@@ -113,6 +113,38 @@ import java.util.Map;
  * @since 2.0
  */
 public abstract class ASTNode {
+	/*
+	 * INSTRUCTIONS FOR ADDING NEW CONCRETE AST NODE TYPES
+	 * 
+	 * There are several things that need to be changed when a
+	 * new concrete AST node type (call it "FooBar"):
+	 * 
+	 * 1. Create the FooBar AST node type class.
+	 * The most effective way to do this is to copy a similar
+	 * existing concrete node class to get a template that
+     * includes all the framework methods that must be implemented.
+	 * 
+	 * 2. Add node type constant ASTNode.FOO_BAR.
+	 * Node constants are numbered consecutively. Add the
+	 * constant after the existing ones.
+	 * 
+	 * 3. Add AST.newFooBar() factory method.
+	 * 
+	 * 4. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods.
+	 * 
+	 * 5. Add ASTMatcher.match(FooBar,Object) method.
+	 * 
+	 * 6. Ensure that SimpleName.isDeclaration() covers FooBar
+	 * nodes if required.
+	 * 
+	 * 7. Add NaiveASTFlattener.visit(FooBar) method to illustrate
+	 * how these nodes should be serialized.
+	 * 
+	 * 8. Update the AST test suites.
+	 * 
+	 * The next steps are to update AST.parse* to start generating
+	 * the new type of nodes.
+	 */
 	
 	/**
 	 * Node type constant indicating a node of type 
