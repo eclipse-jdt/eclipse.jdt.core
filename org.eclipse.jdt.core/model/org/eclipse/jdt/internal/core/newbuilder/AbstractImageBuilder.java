@@ -353,18 +353,7 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	if (isClassFileChanged(file, fileName, bytes, isSecondaryType)) {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing class file " + file.getName());//$NON-NLS-1$
-		InputStream inputStream = null;
-		try {
-			inputStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
-			file.create(inputStream, true, null);
-		} finally {
-			if (inputStream != null){
-				try {
-					inputStream.close();
-				} catch(IOException e){
-				}
-			}
-		}
+		file.create(new ByteArrayInputStream(bytes), true, null);
 	} else if (JavaBuilder.DEBUG) {
 		System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
 	}
