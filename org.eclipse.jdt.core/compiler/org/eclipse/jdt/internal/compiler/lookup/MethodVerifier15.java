@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 class MethodVerifier15 extends MethodVerifier {
@@ -267,6 +271,20 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+}
+boolean mustImplementAbstractMethods() {
+	if (!super.mustImplementAbstractMethods()) return false;
+	if (!this.type.isEnum() || this.type.isAnonymousType()) return true;
+
+	// enum type only needs to implement abstract methods if any of its constants does not supply a body
+	TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+	for (int i = 0, length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length; i < length; i++) {
+		FieldDeclaration fieldDecl = typeDeclaration.fields[i];
+		if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
+			if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
+				return true; // leave mustImplementAbstractMethods flag on 
+	}
+	return false; // since all enum constants define an anonymous body
 }
 void verify(SourceTypeBinding someType) {
 	super.verify(someType);

@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -248,20 +245,7 @@ For each inherited method identifier (message pattern - vm signature minus the r
 					complain about missing implementation only if type is NOT an interface or abstract
 */
 void checkMethods() {
-	boolean mustImplementAbstractMethods = ((this.type.modifiers & IConstants.AccInterface) == 0) && !this.type.isAbstract();
-	if (mustImplementAbstractMethods && this.type.isEnum() && !this.type.isAnonymousType()) {
-		// enum type only needs to implement abstract methods if any of its constants does not supply a body
-		checkEnumConstantBodies: {
-			TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-			for (int i = 0, length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length; i < length; i++) {
-				FieldDeclaration fieldDecl = typeDeclaration.fields[i];
-				if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT && !(fieldDecl.initialization instanceof QualifiedAllocationExpression)) {
-					break checkEnumConstantBodies; // leave mustImplementAbstractMethods flag on 
-				}
-			}
-			mustImplementAbstractMethods = false; // since all enum constants define an anonymous body
-		}
-	}
+	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
@@ -566,6 +550,9 @@ boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
 			superclass = superclass.superclass(); // find the first concrete superclass or the superclass which implements the interface
 	}
 	return superclass.isAbstract();		// if it is a concrete class then we have already reported problem against it
+}
+boolean mustImplementAbstractMethods() {
+	return (this.type.modifiers & IConstants.AccInterface) == 0 && !this.type.isAbstract();
 }
 ProblemReporter problemReporter() {
 	return this.type.scope.problemReporter();
