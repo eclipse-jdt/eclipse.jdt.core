@@ -148,7 +148,11 @@ public IResource getUnderlyingResource();
  * was opened or since it was last saved.
  * If a buffer does not have an underlying resource, this method always
  * returns <code>true</code>.
- *
+ * <p>
+ * NOTE: when a buffer does not have unsaved changes, the model may decide to close it 
+ * to claim some memory back. If the associated element needs to be reopened later on, its
+ * buffer factory will be requested to create a new buffer.
+ * </p>
  * @return a <code>boolean</code> indicating presence of unsaved changes (in
  *   the absence of any underlying resource, it will always return <code>true</code>).
  */
