@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -291,16 +292,27 @@ protected RuntimeException internalException(CoreException t) {
 }
 
 protected Compiler newCompiler() {
+	// disable entire javadoc support if not interested in diagnostics
+	Map projectOptions = javaBuilder.javaProject.getOptions(true);
+	if (projectOptions.get(JavaCore.COMPILER_PB_INVALID_JAVADOC).equals(JavaCore.IGNORE) &&
+		projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS).equals(JavaCore.IGNORE) &&
+		projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS).equals(JavaCore.IGNORE))
+	{
+		projectOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+	}
+	
 	// called once when the builder is initialized... can override if needed
 	Compiler newCompiler = new Compiler(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		javaBuilder.javaProject.getOptions(true),
+		projectOptions,
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
-	// enable the compiler reference info support
-	newCompiler.options.produceReferenceInfo = true;
+	CompilerOptions options = newCompiler.options;
 
+	// enable the compiler reference info support
+	options.produceReferenceInfo = true;
+	
 	org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = newCompiler.lookupEnvironment;
 	synchronized (env) {
 		// enable shared byte[]'s used by ClassFile to avoid allocating MBs during a build
