@@ -11444,6 +11444,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			false, // do not flush output
 			null);		
 	}			
+	// 79891
 	public void test431() {
 		this.runNegativeTest(
 			new String[] {
@@ -11463,6 +11464,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"Cannot create a generic array of X<Type>.Element\n" + 
 		"----------\n");
 	}		
+	// 79891
 	public void test432() {
 		this.runConformTest(
 			new String[] {
