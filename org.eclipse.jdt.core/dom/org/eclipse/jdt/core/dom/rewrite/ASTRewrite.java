@@ -33,19 +33,41 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 /**
- * Infrastucture for modifying code in terms of AST nodes. The AST rewriter
- * collects descriptions of modifications to nodes and translates these description
- * into text edits that can then be applied to the source.
- * The rewrite infrastructure takes care of generating minimal text changes that
- * follow code formatter settings and existing code style and indentation.
- * <p>When using the {@link ASTRewrite} class, the modifications are only described. The
- * AST must is and must not be changed. This allows to calculate a set of changes on the
- * same AST, e.g. for calculating several quick fix proposals where finally only one is executed.
- * </p>
+ * Infrastucture for modifying code by describing changes to AST nodes.
+ * The AST rewriter collects descriptions of modifications to nodes and
+ * translates these descriptions into text edits that can then be applied to
+ * the original source. The key thing is that this is all done without actually
+ * modifying the original AST, which has the virtue of allowing one to entertain
+ * several alternate sets of changes on the same AST (e.g., for calculating
+ * quick fix proposals). The rewrite infrastructure tries to generate minimal
+ * text changes, preserve existing comments and indentation, and follow code
+ * formatter settings. If the freedom to explore multiple alternate changes is
+ * not required, consider using the AST's built-in rewriter 
+ * (see {@link org.eclipse.jdt.core.dom.CompilationUnit#rewrite(IDocument, Map)}).
  * <p>
- * To rewrite code by changing nodes use the 'modifying AST rewriter', initiated with
- * {@link org.eclipse.jdt.core.dom.CompilationUnit#recordModifications()}
+ * The following code snippet illustrated usage of this class:
  * </p>
+ * <pre>
+ * Document doc = new Document("import java.util.List;\nclass X {}\n");
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+ * parser.setSource(doc.get().toCharArray());
+ * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+ * AST ast = cu.getAST();
+ * ImportDeclaration id = ast.newImportDeclaration();
+ * id.setName(ast.newName(new String[] {"java", "util", "Set"});
+ * ASTRewrite rewriter = ASTRewrite.create(ast);
+ * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
+ * ITrackedNodePosition tdLocation = rewriter.track(td);
+ * ListRewriter lrw = rewriter.getListRewrite(cu,
+ *                       CompilationUnit.IMPORTS_PROPERTY);
+ * lrw.insertLast(id, null);
+ * TextEdit edits = rewriter.rewriteAST(document, null);
+ * UndoEdit undo = edits.apply(document);
+ * assert "import java.util.List;\nimport java.util.Set;\nclass X {}"
+ *   .equals(doc.get().toCharArray());
+ * // tdLocation.getStartPosition() and tdLocation.getLength()
+ * // are new source range for "class X {}" in doc.get()
+ * </pre>
  * <p>
  * This class is not intended to be subclassed.
  * </p>
@@ -60,11 +82,22 @@ public class ASTRewrite {
 	private final NodeInfoStore nodeStore;
 	
 	/**
-	 * Creates a new AST rewrite for the given AST.
+	 * Creates a new instance for describing manipulations of
+	 * the given AST.
+	 * 
+	 * @param ast the AST whose nodes will be rewritten
+	 */
+	public static ASTRewrite create(AST ast) {
+		return new ASTRewrite(ast);
+	}
+
+	/**
+	 * Creates a new instance for the given AST.
 	 * 
 	 * @param ast the AST being rewritten
+	 * @see #create(AST)
 	 */
-	public ASTRewrite(AST ast) {
+	private ASTRewrite(AST ast) {
 		this.ast= ast;
 		this.eventStore= new RewriteEventStore();
 		this.nodeStore= new NodeInfoStore(ast);

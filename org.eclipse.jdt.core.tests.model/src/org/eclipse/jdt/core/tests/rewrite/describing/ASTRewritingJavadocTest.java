@@ -59,7 +59,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -108,7 +108,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -158,7 +158,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -209,7 +209,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -259,7 +259,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -312,7 +312,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -369,7 +369,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -422,7 +422,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -474,7 +474,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		{  // insert method at first position
@@ -539,7 +539,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -583,7 +583,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -629,7 +629,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -674,7 +674,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -729,7 +729,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -776,7 +776,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -824,7 +824,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
 		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -858,7 +858,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 		
-		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 	
 		{  // insert method at first position
 			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
