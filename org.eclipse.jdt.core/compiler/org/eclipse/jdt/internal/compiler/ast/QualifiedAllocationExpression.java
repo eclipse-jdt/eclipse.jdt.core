@@ -62,14 +62,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		LocalTypeBinding localType = (LocalTypeBinding) allocatedType;
 		localType.constantPoolName(codeStream.classFile.outerMostEnclosingClassFile().computeConstantPoolName(localType));
 	}
-	if (syntheticAccessor == null) {
-		codeStream.new_(allocatedType);
-		if (valueRequired) {
-			codeStream.dup();
-		}
-		// better highlight for allocation: display the type individually
-		codeStream.recordPositionsFrom(pc, type.sourceStart);
+	codeStream.new_(allocatedType);
+	if (valueRequired) {
+		codeStream.dup();
 	}
+	// better highlight for allocation: display the type individually
+	codeStream.recordPositionsFrom(pc, type.sourceStart);
+
 	// handling innerclass instance allocation
 	if (allocatedType.isNestedType()) { // make sure its name is computed before arguments, since may be necessary for argument emulation
 		codeStream.generateSyntheticArgumentValues(currentScope, allocatedType, enclosingInstance(), this);
@@ -84,7 +83,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (syntheticAccessor == null) {
 		codeStream.invokespecial(binding);
 	} else {
-		codeStream.invokestatic(syntheticAccessor);
+		// synthetic accessor got some extra arguments appended to its signature, which need values
+		for (int i = 0, max = syntheticAccessor.parameters.length - binding.parameters.length; i < max; i++) {
+			codeStream.aconst_null();
+		}		
+		codeStream.invokespecial(syntheticAccessor);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	if (anonymousType != null) {
