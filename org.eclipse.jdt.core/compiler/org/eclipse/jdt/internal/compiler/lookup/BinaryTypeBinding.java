@@ -51,6 +51,9 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve();
+
+	if (convertGenericToRawType && type.isGenericType()) // raw reference to generic ?
+	    return environment.createRawType(type, null);
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
@@ -62,6 +65,9 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 		return ((WildcardBinding) type).resolve();
 	if (type.isArrayType())
 		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
+
+	if (parameterizedType == null && type.isGenericType()) // raw reference to generic ?
+	    return environment.createRawType((ReferenceBinding) type, null);
 	return type;
 }
 // resolve hierarchy types in 2 steps by first resolving any UnresolvedTypes

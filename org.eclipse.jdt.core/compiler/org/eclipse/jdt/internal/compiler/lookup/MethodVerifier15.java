@@ -41,13 +41,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		TypeBinding[] inheritedArgs = inheritedMethod.parameters;
 		if (currentArgs != inheritedArgs) {
 			for (int j = 0, k = currentArgs.length; j < k; j++) {
-				TypeBinding currentArg = currentArgs[j];
-				TypeBinding inheritedArg = inheritedArgs[j];
+				TypeBinding currentArg = currentArgs[j].leafComponentType();
+				TypeBinding inheritedArg = inheritedArgs[j].leafComponentType();
 				if (currentArg != inheritedArg) {
-					if (inheritedArg.isArrayType()) {
-						inheritedArg = inheritedArg.leafComponentType();
-						currentArg = currentArg.leafComponentType();
-					}
 					if (currentArg.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) currentArg)) {
 						if (inheritedArg.isRawType()) {
 //						if (inheritedArg.isRawType() || !inheritedArg.isEquivalentTo(currentArg)) {
@@ -74,12 +70,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 				continue nextMethod;
 			}
 
-			TypeBinding inheritedReturnType = inheritedMethod.returnType;
-			TypeBinding returnType = currentMethod.returnType;
-			if (inheritedReturnType.isArrayType()) {
-				inheritedReturnType = inheritedReturnType.leafComponentType();
-				returnType = returnType.leafComponentType();
-			}
+			TypeBinding inheritedReturnType = inheritedMethod.returnType.leafComponentType();
+			TypeBinding returnType = currentMethod.returnType.leafComponentType();
 			if (inheritedReturnType.isRawType()) {
 				if (returnType.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) returnType)) {
 					this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);

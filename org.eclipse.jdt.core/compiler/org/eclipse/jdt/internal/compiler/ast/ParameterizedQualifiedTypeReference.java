@@ -37,7 +37,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		if (this.resolvedType == null) return;
 
 		checkBounds(
-			(ReferenceBinding) (this.resolvedType.isArrayType() ? this.resolvedType.leafComponentType() : this.resolvedType),
+			(ReferenceBinding) this.resolvedType.leafComponentType(),
 			scope,
 			this.typeArguments.length - 1);
 	}

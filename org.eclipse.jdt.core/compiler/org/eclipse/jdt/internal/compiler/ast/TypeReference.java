@@ -113,62 +113,36 @@ public TypeBinding resolveSuperType(ClassScope scope) {
 public TypeBinding resolveType(BlockScope blockScope) {
 	// handle the error here
 	this.constant = NotAConstant;
-	TypeBinding type;
-	if ((type = this.resolvedType) != null) { // is a shared type reference which was already resolved
-		if (!type.isValidBinding())
-			return null; // already reported error
-	} else {
-		type = this.resolvedType = getTypeBinding(blockScope);
-		if (type == null)
-			return null; // detected cycle while resolving hierarchy	
-		if (!type.isValidBinding()) {
-			reportInvalidType(blockScope);
-			return null;
-		}
-		if (isTypeUseDeprecated(type, blockScope)) {
-			reportDeprecatedType(blockScope);
-		}
-		// check raw type
-		if (type.isArrayType()) {
-		    TypeBinding leafComponentType = type.leafComponentType();
-		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = blockScope.createArrayType(blockScope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
-		    }
-		} else if (type.isGenericType()) {
-	        return this.resolvedType = blockScope.environment().createRawType((ReferenceBinding)type, null); // raw type
-		}
+	if (this.resolvedType != null) // is a shared type reference which was already resolved
+		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+
+	this.resolvedType = getTypeBinding(blockScope);
+	if (this.resolvedType == null)
+		return null; // detected cycle while resolving hierarchy	
+	if (!this.resolvedType.isValidBinding()) {
+		reportInvalidType(blockScope);
+		return null;
 	}
-	return this.resolvedType;
+	if (isTypeUseDeprecated(this.resolvedType, blockScope))
+		reportDeprecatedType(blockScope);
+	return this.resolvedType = convertToRawType(this.resolvedType, blockScope);
 }
 public TypeBinding resolveType(ClassScope classScope) {
 	// handle the error here
 	this.constant = NotAConstant;
-	TypeBinding type;
-	if ((type = this.resolvedType) != null) { // is a shared type reference which was already resolved
-		if (!type.isValidBinding())
-			return null; // already reported error
-	} else {
-		type = this.resolvedType = getTypeBinding(classScope);
-		if (type == null)
-			return null; // detected cycle while resolving hierarchy	
-		if (!type.isValidBinding()) {
-			reportInvalidType(classScope);
-			return null;
-		}
-		if (isTypeUseDeprecated(type, classScope)) {
-			reportDeprecatedType(classScope);
-		}
-		// check raw type
-		if (type.isArrayType()) {
-		    TypeBinding leafComponentType = type.leafComponentType();
-		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = classScope.createArrayType(classScope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
-		    }
-		} else if (type.isGenericType()) {
-	        return this.resolvedType = classScope.environment().createRawType((ReferenceBinding)type, null); // raw type
-		}
+	if (this.resolvedType != null) // is a shared type reference which was already resolved
+		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+
+	this.resolvedType = getTypeBinding(classScope);
+	if (this.resolvedType == null)
+		return null; // detected cycle while resolving hierarchy	
+	if (!this.resolvedType.isValidBinding()) {
+		reportInvalidType(classScope);
+		return null;
 	}
-	return this.resolvedType;
+	if (isTypeUseDeprecated(this.resolvedType, classScope))
+		reportDeprecatedType(classScope);
+	return this.resolvedType = convertToRawType(this.resolvedType, classScope);
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {

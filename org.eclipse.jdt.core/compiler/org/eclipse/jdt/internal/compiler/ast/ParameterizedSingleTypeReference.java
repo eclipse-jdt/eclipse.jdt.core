@@ -30,13 +30,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	public void checkBounds(Scope scope) {
 		if (this.resolvedType == null) return;
 
-		ParameterizedTypeBinding parameterizedType = null;
-		if (this.resolvedType instanceof ParameterizedTypeBinding)
-			parameterizedType = (ParameterizedTypeBinding) this.resolvedType;
-		else if (this.resolvedType.isArrayType() && this.resolvedType.leafComponentType() instanceof ParameterizedTypeBinding)
-			parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
-
-		if (parameterizedType != null) {
+		if (this.resolvedType.leafComponentType() instanceof ParameterizedTypeBinding) {
+			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
 			ReferenceBinding currentType = parameterizedType.type;
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 			int argLength = this.typeArguments.length;

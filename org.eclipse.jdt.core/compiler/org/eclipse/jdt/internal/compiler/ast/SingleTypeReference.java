@@ -60,19 +60,9 @@ public class SingleTypeReference extends TypeReference {
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
 			return null;
 		}
-		if (isTypeUseDeprecated(memberType, scope)) {
+		if (isTypeUseDeprecated(memberType, scope))
 			scope.problemReporter().deprecatedType(memberType, this);
-		}
-		// check raw type
-		if (memberType.isArrayType()) {
-		    TypeBinding leafComponentType = memberType.leafComponentType();
-		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), memberType.dimensions());
-		    }
-		} else if (memberType.isGenericType()) {
-	        return this.resolvedType = scope.environment().createRawType(memberType, null); // raw type
-		}			
-		return this.resolvedType = memberType;
+		return this.resolvedType = convertToRawType(memberType, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

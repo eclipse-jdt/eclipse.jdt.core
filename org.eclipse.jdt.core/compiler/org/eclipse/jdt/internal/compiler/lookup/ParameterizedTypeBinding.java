@@ -694,14 +694,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#leafComponentType()
-	 */
-	public TypeBinding leafComponentType() {
-		// TODO (philippe) why is this here? Only ArrayBinding should override this method
-		return this.type.leafComponentType();
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedPackageName()
 	 */
 	public char[] qualifiedPackageName() {
