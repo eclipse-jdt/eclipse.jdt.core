@@ -584,6 +584,7 @@ public char[][] getInterfaceNames() {
  */
 public int getKind() {
 	int modifiers = getModifiers();
+	if ((modifiers & AccAnnotation) != 0) return IGenericType.ANNOTATION_TYPE_DECL;
 	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE_DECL;
 	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM_DECL;
 	return IGenericType.CLASS_DECL;
