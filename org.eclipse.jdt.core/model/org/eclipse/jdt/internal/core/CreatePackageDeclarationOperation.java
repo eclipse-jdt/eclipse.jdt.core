@@ -66,7 +66,7 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 	}
 	AST ast = this.cuAST.getAST();
 	PackageDeclaration pkgDeclaration = ast.newPackageDeclaration();
-	Name astName = ast.newName(new String[] {this.name});
+	Name astName = ast.newName(this.name);
 	pkgDeclaration.setName(astName);
 	return pkgDeclaration;
 }
