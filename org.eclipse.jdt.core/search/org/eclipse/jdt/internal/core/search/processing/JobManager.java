@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.processing;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.search.Util;
 
 public abstract class JobManager implements Runnable {
 
