@@ -828,19 +828,63 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int size = builder.size();
 		MessageSend[] fragments = builder.fragments();
 		Expression fragment = fragments[0].receiver;
+		int startingPositionInCascade = 1;
 		if (!fragment.isImplicitThis()) {
 			fragment.traverse(this, scope);
+		} else {
+			MessageSend currentMessageSend = fragments[1];
+			final int numberOfParens = (currentMessageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
+			}
+			AstNode[] arguments = currentMessageSend.arguments;
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
+			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+			if (arguments != null) {
+				int argumentLength = arguments.length;
+				Alignment argumentsAlignment = this.scribe.createAlignment(
+						"messageArguments", //$NON-NLS-1$
+						this.preferences.message_send_arguments_alignment,
+						argumentLength,
+						this.scribe.scanner.currentPosition);
+				this.scribe.enterAlignment(argumentsAlignment);
+				boolean okForArguments = false;
+				do {
+					try {
+						if (this.preferences.insert_space_within_message_send) {
+							this.scribe.space();
+						}
+						for (int j = 0; j < argumentLength; j++) {
+							if (j > 0) {
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+							}
+							this.scribe.alignFragment(argumentsAlignment, j);
+							if (j > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+								this.scribe.space();
+							}
+							arguments[j].traverse(this, scope);
+						}
+						okForArguments = true;
+					} catch (AlignmentException e) {
+						this.scribe.redoAlignment(e);
+					}
+				} while (!okForArguments);
+				this.scribe.exitAlignment(argumentsAlignment, true);
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(currentMessageSend, numberOfParens);
+			}
+			startingPositionInCascade = 2;
 		}
 		Alignment cascadingMessageSendAlignment = this.scribe.createAlignment("cascadingMessageSendAlignment", Alignment.M_COMPACT_SPLIT, Alignment.R_OUTERMOST, size, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
 		do {
 			try {
-				if (!fragment.isImplicitThis()) {
-					this.scribe.alignFragment(cascadingMessageSendAlignment, 0);
-					this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
-				}
-				for (int i = 1; i < size; i++) {
+				this.scribe.alignFragment(cascadingMessageSendAlignment, 0);
+				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+				for (int i = startingPositionInCascade; i < size; i++) {
 					MessageSend currentMessageSend = fragments[i];
 					final int numberOfParens = (currentMessageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
 					if (numberOfParens > 0) {
