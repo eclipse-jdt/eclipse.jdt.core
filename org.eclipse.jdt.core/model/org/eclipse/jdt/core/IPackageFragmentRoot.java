@@ -10,6 +10,11 @@
  *     IBM Corporation - specified that a source archive or a source folder can be attached to a binary
  *                               package fragment root.
  *     IBM Corporation - added root manipulation APIs: copy, delete, move
+ *     IBM Corporation - added DESTINATION_PROJECT_CLASSPATH
+ *     IBM Corporation - added OTHER_REFERRING_PROJECTS_CLASSPATH
+ *     IBM Corporation - added NO_RESOURCE_MODIFICATION
+ *     IBM Corporation - added REPLACE
+ *     IBM Corporation - added ORIGINATING_PROJECT_CLASSPATH
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
