@@ -94,7 +94,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0136"));
+		suite.addTest(new ASTConverter15Test("test0137"));
 		return suite;
 	}
 	
@@ -4063,4 +4063,32 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		}
     	});
     }
+    
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79696
+	 */
+	public void test0137() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0137", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Wrong node", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		type = parameterizedType.getType();
+		assertTrue("Not a parameterized type", type.isSimpleType());
+		SimpleType simpleType = (SimpleType) type;
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.isQualifiedName());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		name = qualifiedName.getQualifier();
+		assertTrue("Not a simple name", name.isSimpleName());
+		ITypeBinding typeBinding = name.resolveTypeBinding();
+		assertEquals("Wrong name", "test0137.Source", typeBinding.getQualifiedName());
+	}
 }
