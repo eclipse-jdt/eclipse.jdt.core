@@ -29,7 +29,7 @@
  *                                 CODEASSIST_LOCAL_SUFFIXES
  *                                 CODEASSIST_STATIC_FIELD_PREFIXES
  *                                 CODEASSIST_STATIC_FIELD_SUFFIXES
- *                                 COMPILER_PB_CHAR_ARRAY_NEED_STRING_CONVERSION
+ *                                 COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -218,7 +218,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
-	public static final String COMPILER_PB_CHAR_ARRAY_NEED_STRING_CONVERSION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
+	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1808,8 +1808,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD, WARNING); 
 		optionNames.add(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD);
 
-		preferences.setDefault(COMPILER_PB_CHAR_ARRAY_NEED_STRING_CONVERSION, WARNING); 
-		optionNames.add(COMPILER_PB_CHAR_ARRAY_NEED_STRING_CONVERSION);
+		preferences.setDefault(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION, WARNING); 
+		optionNames.add(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); //$NON-NLS-1$
 		optionNames.add(COMPILER_TASK_TAGS);
