@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -312,6 +313,47 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return members;
 	}
 
+	private AstNode[] computeMergedMemberDeclarations(AstNode[] nodes){
+		ArrayList mergedNodes = new ArrayList();
+		for (int i = 0, max = nodes.length; i < max; i++) {
+			AstNode currentNode = nodes[i];
+			if (currentNode instanceof FieldDeclaration) {
+				FieldDeclaration currentField = (FieldDeclaration) currentNode;
+				if (mergedNodes.size() == 0) {
+					// first node
+					mergedNodes.add(currentNode);
+				} else {
+					// we need to check if the previous merged node is a field declaration
+					AstNode previousMergedNode = (AstNode) mergedNodes.get(mergedNodes.size() - 1);
+					if (previousMergedNode instanceof MultiFieldDeclaration) {
+						// we merge the current node
+						MultiFieldDeclaration multiFieldDeclaration = (MultiFieldDeclaration) previousMergedNode;
+						int length = multiFieldDeclaration.declarations.length;
+						System.arraycopy(multiFieldDeclaration.declarations, 0, multiFieldDeclaration.declarations= new FieldDeclaration[length+1], 0, length);
+						multiFieldDeclaration.declarations[length] = currentField;
+					} else if (previousMergedNode instanceof FieldDeclaration) {
+						// need to check we need to create a multiple field declaration
+						if (currentField.declarationSourceStart == ((FieldDeclaration) previousMergedNode).declarationSourceStart) {
+							// we create a multi field declaration
+							mergedNodes.set(mergedNodes.size() - 1, new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMergedNode, currentField}));
+						}
+					} else {
+						mergedNodes.add(currentNode);
+					}
+				}
+			} else {
+				mergedNodes.add(currentNode);
+			}
+		}
+		if (mergedNodes.size() != nodes.length) {
+			AstNode[] result = new AstNode[mergedNodes.size()];
+			mergedNodes.toArray(result);
+			return result;
+		} else {
+			return nodes;
+		}
+	}
+	
 	private boolean dumpBinaryExpression(
 		BinaryExpression binaryExpression,
 		int operator,
@@ -947,6 +989,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private void formatClassBodyDeclarations(AstNode[] nodes) {
 		final int FIELD = 1, METHOD = 2, TYPE = 3;
 		
+		AstNode[] mergedNodes = computeMergedMemberDeclarations(nodes);
 		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
 		boolean isChunkStart = false;
@@ -954,8 +997,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int startIndex = 0;
 		do {
 			try {
-				for (int i = startIndex, max = nodes.length; i < max; i++) {
-					AstNode member = nodes[i];
+				for (int i = startIndex, max = mergedNodes.length; i < max; i++) {
+					AstNode member = mergedNodes[i];
 					if (member instanceof FieldDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
 						if (member instanceof MultiFieldDeclaration){
@@ -2381,6 +2424,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 		}
 		
+		if (this.preferences.insert_new_line_in_control_statements) {
+			this.scribe.printNewLine();
+		}
 		this.scribe.printNextToken(TerminalTokens.TokenNamewhile, this.preferences.insert_space_after_block_close_brace);
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
 		
