@@ -484,7 +484,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	private void runAstCreation(int astLevel) throws JavaModelException {
-		tagAsSummary("AST Creation", Dimension.CPU_TIME);
 		int allExtendedStartPositions = 0;
 		int allExtendedEndPositions = 0;
 		int allNodesCount = 0;
@@ -548,9 +547,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
 	// Do NOT forget that tests must start with "testPerf"
 	public void testPerfDomAstCreationJLS2() throws JavaModelException {
+		tagAsSummary("AST Creation", Dimension.CPU_TIME);
 		runAstCreation(AST.JLS2);
 	}
 	public void testPerfDomAstCreationJLS3() throws JavaModelException {
+		tagAsSummary("AST Creation using JLS3", Dimension.CPU_TIME);
 		runAstCreation(AST.JLS3);
 	}
 }
