@@ -339,7 +339,8 @@ void faultInImports() {
 			} else if (importBinding instanceof FieldBinding) {
 				for (int j = 0; j < index; j++) {
 					ImportBinding resolved = resolvedImports[j];
-					if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding) {
+					// find other static fields with the same name
+					if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding && importBinding != resolved.resolvedImport) {
 						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
 							problemReporter().duplicateImport(importReference);
 							continue nextImport;

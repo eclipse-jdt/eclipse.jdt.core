@@ -133,15 +133,15 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { public static int C = 1; }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
 			"	import static p.A.C;\n" + 
 			"	              ^^^^^\n" + 
-			"The import p.A.C cannot be resolved\n" + 
+			"The import p.A.C is never used\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 2)\n" + 
 			"	public class X { int i = C; }\n" + 
 			"	                         ^\n" + 
-			"C cannot be resolved\n" + 
+			"The type I is not visible\n" + 
 			"----------\n"
 			// C in p.I is not defined in a public class or interface; cannot be accessed from outside package
 		);
@@ -813,6 +813,24 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			""
 			// no collision between field and method
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.F;\n" + 
+				"import static p.B.F;\n" + 
+				"public class X {\n" + 
+				"	int i = F;\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static int F = 1; }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B extends A {}\n",
+			},
+			""
+			// no collision between 2 fields that are the same
 		);
 		this.runNegativeTest(
 			new String[] {

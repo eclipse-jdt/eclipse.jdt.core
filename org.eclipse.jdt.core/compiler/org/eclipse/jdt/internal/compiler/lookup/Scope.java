@@ -732,11 +732,10 @@ public abstract class Scope
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
-					if (visibleField != null)
+					if (visibleField == null)
+						visibleField = field;
+					else
 						return new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
-					if (!currentType.canBeSeenBy(this))
-						return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
-					visibleField = field;
 				} else {
 					notVisible = true;
 				}
@@ -746,7 +745,6 @@ public abstract class Scope
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemFieldBinding ambiguous = null;
-			ProblemFieldBinding nonVisibleType = null;
 			done : for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
@@ -757,10 +755,7 @@ public abstract class Scope
 						unitScope.recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
-								if (anInterface.canBeSeenBy(this))
-									visibleField = field;
-								else
-									nonVisibleType = new ProblemFieldBinding(anInterface, fieldName, ReceiverTypeNotVisible);
+								visibleField = field;
 							} else {
 								ambiguous = new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
 								break done;
@@ -783,8 +778,6 @@ public abstract class Scope
 				for (int j = 0, length = interfaces.length; j < length; j++)
 					interfaces[j].tagBits &= ~InterfaceVisited;
 			}
-			if (nonVisibleType != null)
-				return nonVisibleType;
 			if (ambiguous != null)
 				return ambiguous;
 		}
@@ -1504,9 +1497,13 @@ public abstract class Scope
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
 									if (unitScope.resolveSingleImport(importBinding) != null && importBinding.resolvedImport instanceof FieldBinding) {
-										ImportReference importReference = importBinding.reference;
-										if (importReference != null) importReference.used = true;
-										return importBinding.resolvedImport; // already know its visible
+										ReferenceBinding declaringClass = ((FieldBinding) importBinding.resolvedImport).declaringClass;
+										if (declaringClass.canBeSeenBy(this)) {
+											ImportReference importReference = importBinding.reference;
+											if (importReference != null) importReference.used = true;
+											return importBinding.resolvedImport;
+										}
+										problemField = new ProblemFieldBinding(declaringClass, name, ReceiverTypeNotVisible);
 									}
 								}
 							}
