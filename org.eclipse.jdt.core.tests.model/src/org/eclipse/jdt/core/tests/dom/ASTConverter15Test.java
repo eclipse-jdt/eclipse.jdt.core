@@ -3446,7 +3446,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X</*start*/E/*end*/> {\n" +
 			"}",
 			this.workingCopy);
-		ITypeBinding binding = ((ITypeBinding)type.resolveBinding()).getTypeDeclaration();
+		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
 			"LX<TE;>;:TE;",
 			binding);
@@ -3539,7 +3539,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X</*start*/E/*end*/> {\n" +
 			"}",
 			this.workingCopy);
-		ITypeBinding binding = ((ITypeBinding)type.resolveBinding()).getErasure();
+		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
 			"Ljava/lang/Object;",
 			binding);
