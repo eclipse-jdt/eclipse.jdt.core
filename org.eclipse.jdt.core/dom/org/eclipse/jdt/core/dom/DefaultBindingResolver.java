@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -61,6 +62,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
@@ -361,6 +363,32 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	synchronized void recordScope(ASTNode astNode, BlockScope blockScope) {
 		this.astNodesToBlockScope.put(astNode, blockScope);
+	}
+	
+	/*
+	 * @see BindingResolver#resolveConstantExpressionValue(Expression)
+	 */
+	Object resolveConstantExpressionValue(Expression expression) {
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
+			Constant constant = compilerExpression.constant;
+			if (constant != null && constant != Constant.NotAConstant) {
+				switch (constant.typeID()) {
+					case TypeIds.T_int : return new Integer(constant.intValue());
+					case TypeIds.T_byte : return new Byte(constant.byteValue());
+					case TypeIds.T_short : return new Short(constant.shortValue());
+					case TypeIds.T_char : return new Character(constant.charValue());
+					case TypeIds.T_float : return new Float(constant.floatValue());
+					case TypeIds.T_double : return new Double(constant.doubleValue());
+					case TypeIds.T_boolean : return constant.booleanValue() ? Boolean.TRUE : Boolean.FALSE;
+					case TypeIds.T_long : return new Long(constant.longValue());
+					case TypeIds.T_JavaLangString : return constant.stringValue();
+				}
+				return null;
+			}
+		}
+		return null;
 	}
 	
 	/*

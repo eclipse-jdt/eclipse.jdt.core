@@ -61,7 +61,39 @@ public abstract class Expression extends ASTNode {
 	Expression(AST ast) {
 		super(ast);
 	}
-	
+
+	/**
+	 * Resolves and returns the compile-time constant expression value as 
+	 * specified in JLS2 15.28, if this expression has one. Constant expression
+	 * values are unavailable unless bindings are requested when the AST is
+	 * being built. If the type of the value is a primitive type, the result
+	 * is the boxed equivalent (i.e., int returned as an <code>Integer</code>);
+	 * if the type of the value is <code>String</code>, the result is the string
+	 * itself. If the expression does not have a compile-time constant expression
+	 * value, the result is <code>null</code>.
+	 * <p>
+	 * Resolving constant expressions takes into account the value of simple
+	 * and qualified names that refer to constant variables (JLS2 4.12.4).
+	 * </p>
+	 * <p>
+	 * Note 1: enum constants are not considered constant expressions either.
+	 * The result is always <code>null</code> for these.
+	 * </p>
+	 * <p>
+	 * Note 2: Compile-time constant expressions cannot denote <code>null</code>.
+	 * So technically {@link NullLiteral} nodes are not constant expressions.
+	 * The result is <code>null</code> for these nonetheless.
+	 * </p>
+	 * 
+	 * @return the constant expression value, or <code>null</code> if this
+	 * expression has no constant expression value or if bindings were not
+	 * requested when the AST was created
+	 * @since 3.1
+	 */
+	public final Object resolveConstantExpressionValue() {
+		return this.ast.getBindingResolver().resolveConstantExpressionValue(this);
+	}
+
 	/**
 	 * Resolves and returns the binding for the type of this expression.
 	 * <p>
@@ -74,38 +106,6 @@ public abstract class Expression extends ASTNode {
 	 */	
 	public final ITypeBinding resolveTypeBinding() {
 		return this.ast.getBindingResolver().resolveExpressionType(this);
-	}
-	
-	/**
-	 * Returns whether this expression node is the site of a boxing
-	 * conversion (JLS3 5.1.7). This information is available only
-	 * when bindings are requested when the AST is being built.
-	 * 
-	 * @return <code>true</code> if this expression is the site of a
-	 * boxing conversion, or <code>false</code> if either no boxing conversion
-	 * is involved or if bindings were not requested when the AST was created
-	 * @since 3.1
-	 */
-	public final boolean resolveBoxing() {
-		// TODO (olivier) - missing implementation
-		return false;
-	}
-	
-	/**
-	 * Returns whether this expression node is the site of an unboxing
-	 * conversion (JLS3 5.1.8). This information is available only
-	 * when bindings are requested when the AST is being built.
-	 * 
-	 * @return <code>true</code> if this expression is the site of an
-	 * unboxing conversion, or <code>false</code> if either no unboxing
-	 * conversion is involved or if bindings were not requested when the
-	 * AST was created
-	 * @since 3.1
-	 */
-	public final boolean resolveUnboxing() {
-		// TODO (olivier) - missing implementation
-		return false;
-	}
-	
+	}	
 }
 
