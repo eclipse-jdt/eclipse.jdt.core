@@ -146,6 +146,9 @@ public char[] qualifiedSourceName() {
 public char[] readableName() {
 	return simpleName;
 }
+public char[] shortReadableName(){
+	return simpleName;
+}
 public char[] sourceName() {
 	return simpleName;
 }

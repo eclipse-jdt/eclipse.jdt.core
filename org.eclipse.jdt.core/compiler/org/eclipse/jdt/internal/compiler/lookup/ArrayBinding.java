@@ -129,6 +129,14 @@ public char[] readableName() /* java.lang.Object[] */ {
 	}
 	return CharOperation.concat(leafComponentType.readableName(), brackets);
 }
+public char[] shortReadableName(){
+	char[] brackets = new char[dimensions * 2];
+	for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
+		brackets[i] = ']';
+		brackets[i - 1] = '[';
+	}
+	return CharOperation.concat(leafComponentType.shortReadableName(), brackets);
+}
 public char[] sourceName() {
 	char[] brackets = new char[dimensions * 2];
 	for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
