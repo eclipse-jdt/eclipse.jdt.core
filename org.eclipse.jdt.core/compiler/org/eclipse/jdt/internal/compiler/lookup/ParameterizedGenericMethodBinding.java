@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -48,57 +49,60 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */	
 	public static MethodBinding computeCompatibleMethod(MethodBinding originalMethod, TypeBinding[] arguments, Scope scope, InvocationSite invocationSite) {
 		
-		// collect substitutes by pattern matching parameters and arguments
+		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
-		int argLength = arguments.length;
-		TypeBinding[] parameters = originalMethod.parameters;
-		int varLength = typeVariables.length;
-		HashMap substitutes = new HashMap(varLength);
-		for (int i = 0; i < varLength; i++)
-			substitutes.put(typeVariables[i], new TypeBinding[1]);
-		for (int i = 0; i < argLength; i++)
-			parameters[i].collectSubstitutes(arguments[i], substitutes);
-		TypeBinding[] mostSpecificSubstitutes = new TypeBinding[varLength];
-		boolean needReturnTypeInference = false;
-		for (int i = 0; i < varLength; i++) {
-			TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(typeVariables[i]);
-			TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
-			if (mostSpecificSubstitute == null)
-				return null; // incompatible
-			if (mostSpecificSubstitute == VoidBinding) {
-				needReturnTypeInference = true;
-			    mostSpecificSubstitute = typeVariables[i];
+		TypeBinding[] substitutes;
+		
+		if (invocationSite instanceof ParameterizedMessageSend) {
+			ParameterizedMessageSend parameterizedMsg = (ParameterizedMessageSend) invocationSite;
+			substitutes = parameterizedMsg.typeArgumentTypes;
+			if (substitutes.length != typeVariables.length) {
+				return null; // incompatible TODO (philippe) should answer problem
 			}
-			mostSpecificSubstitutes[i] = mostSpecificSubstitute;
+			methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
+		} else {
+			// perform type inference based on argument types and expected type
+			
+			// collect substitutes by pattern matching parameters and arguments
+			int argLength = arguments.length;
+			TypeBinding[] parameters = originalMethod.parameters;
+			int varLength = typeVariables.length;
+			HashMap collectedSubstitutes = new HashMap(varLength);
+			for (int i = 0; i < varLength; i++)
+				collectedSubstitutes.put(typeVariables[i], new TypeBinding[1]);
+			for (int i = 0; i < argLength; i++)
+				parameters[i].collectSubstitutes(arguments[i], collectedSubstitutes);
+			substitutes = new TypeBinding[varLength];
+			boolean needReturnTypeInference = false;
+			for (int i = 0; i < varLength; i++) {
+				TypeBinding[] variableSubstitutes = (TypeBinding[]) collectedSubstitutes.get(typeVariables[i]);
+				TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
+				if (mostSpecificSubstitute == null)
+					return null; // incompatible
+				if (mostSpecificSubstitute == VoidBinding) {
+					needReturnTypeInference = true;
+				    mostSpecificSubstitute = typeVariables[i];
+				}
+				substitutes[i] = mostSpecificSubstitute;
+			}
+			// apply inferred variable substitutions
+			methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
+	
+			if (needReturnTypeInference && invocationSite instanceof MessageSend) {
+				MessageSend message = (MessageSend) invocationSite;
+				TypeBinding expectedType = message.expectedType;
+				if (expectedType != null)
+					methodSubstitute.inferFromExpectedType(message.expectedType, scope);
+			}
 		}
-
-		// apply inferred variable substitutions
-		ParameterizedGenericMethodBinding methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, mostSpecificSubstitutes, scope.environment());
-
-		if (needReturnTypeInference && invocationSite instanceof MessageSend) {
-			MessageSend message = (MessageSend) invocationSite;
-			TypeBinding expectedType = message.expectedType;
-			if (expectedType != null)
-				methodSubstitute.inferFromExpectedType(message.expectedType, scope);
-		}
-
 		// check bounds
 		for (int i = 0, length = typeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = typeVariables[i];
-		    if (!typeVariable.boundCheck(methodSubstitute, mostSpecificSubstitutes[i]))
+		    if (!typeVariable.boundCheck(methodSubstitute, substitutes[i]))
 		        // incompatible due to bound check
-		        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{mostSpecificSubstitutes[i], typeVariables[i] }, ParameterBoundMismatch);
+		        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitutes[i], typeVariables[i] }, ParameterBoundMismatch);
 		}
 
-		// recheck argument compatibility
-		if (false) { // only necessary if inferred types got suggested
-			parameters = methodSubstitute.parameters;
-			argumentCompatibility: {
-				for (int i = 0; i < argLength; i++)
-					if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
-						return null;
-			}
-		}
 		return methodSubstitute;
 	}
 	

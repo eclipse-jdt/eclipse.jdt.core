@@ -5199,5 +5199,40 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			null,
 			true,
 			customOptions);
-	}				
+	}
+	// 62292 - parameterized message send
+	// TODO (olivier) reenable when fixed
+	public void _test184() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	static <T, U> T foo(T t, U u) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(X.<String,X>foo(\"SUCCESS\", null));\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}
+	// parameterized message send
+	public void test185() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	<T, U> T foo(T t, U u) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().<String,X>foo(\"SUCCESS\", null));\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}			
 }

@@ -89,7 +89,7 @@ public abstract class Scope
 			return null; // incompatible
 
 		TypeVariableBinding[] typeVariables = method.typeVariables;
-		if (typeVariables != NoTypeVariables) { // generic method
+		if (typeVariables != NoTypeVariables || (!(method instanceof ParameterizedGenericMethodBinding) && invocationSite instanceof ParameterizedMessageSend)) { // generic method
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence

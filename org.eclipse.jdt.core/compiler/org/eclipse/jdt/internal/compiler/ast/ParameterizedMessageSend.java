@@ -12,14 +12,16 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ParameterizedMessageSend extends MessageSend {
 	public TypeReference[] typeArguments;
+	public TypeBinding[] typeArgumentTypes;
 
 public StringBuffer printExpression(int indent, StringBuffer output){
 	
 	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
-	if (typeArguments != null) {
+	if (this.typeArguments != null) {
 		output.append('<');//$NON-NLS-1$
 		int max = typeArguments.length - 1;
 		for (int j = 0; j < max; j++) {
@@ -39,7 +41,22 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 	}
 	return output.append(')');
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.MessageSend#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+ */
+public TypeBinding resolveType(BlockScope scope) {
 	
+	int length = this.typeArguments == null ? 0 : this.typeArguments.length;
+	this.typeArgumentTypes = new TypeBinding[length];
+	for (int i = 0; i < length; i++) {
+		TypeBinding argType = this.typeArguments[i].resolveType(scope);
+		if (argType == null) return null; // error already reported
+		typeArgumentTypes[i] = argType;
+	}
+	return super.resolveType(scope);
+}
+
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		receiver.traverse(visitor, blockScope);
