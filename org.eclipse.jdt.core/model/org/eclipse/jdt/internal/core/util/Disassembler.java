@@ -497,13 +497,18 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
+			IEnclosingMethodAttribute enclosingMethodAttribute = classFileReader.getEnclosingMethodAttribute();
+			if (enclosingMethodAttribute != null) {
+				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
+			}
 			length = attributes.length;
 			if (length != 0) {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != innerClassesAttribute
 						&& attribute != sourceAttribute
-						&& attribute != signatureAttribute) {
+						&& attribute != signatureAttribute
+						&& attribute != enclosingMethodAttribute) {
 						disassemble(attribute, buffer, lineSeparator, 0);
 					}
 				}
@@ -924,6 +929,22 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
 				.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
 		} 
+	}
+
+	private void disassemble(IEnclosingMethodAttribute enclosingMethodAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Util.bind("disassembler.enclosingmethodheader")); //$NON-NLS-1$
+		buffer
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClassIndex())
+			.append(" ")//$NON-NLS-1$
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
+			.append(" ")//$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClass()) //$NON-NLS-1$
+			.append(".")//$NON-NLS-1$
+			.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
 	}
 	
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
