@@ -1725,8 +1725,9 @@ public void test057() {
 				"----------\n"
 		);
 	}
+	// TODO (philippe) reenable once array type arguments are supported
 	public void _test062() {
-		// TODO (philippe) see if array may be allowed for type parameters
+		
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
