@@ -70,8 +70,7 @@ protected ClassFile(IPackageFragment parent, String name) {
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 		
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(

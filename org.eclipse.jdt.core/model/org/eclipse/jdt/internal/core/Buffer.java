@@ -326,7 +326,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 			
 		// use a platform operation to update the resource contents
 		try {
-			String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 			byte[] bytes = encoding == null 
 				? getContents().getBytes() 
 				: getContents().getBytes(encoding);

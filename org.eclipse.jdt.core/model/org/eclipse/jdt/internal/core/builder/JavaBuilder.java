@@ -398,7 +398,7 @@ private void initializeBuilder() throws CoreException {
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 
-	String filterSequence = (String) JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
+	String filterSequence = JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
 	char[][] filters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
@@ -424,7 +424,7 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
-	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
+	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
 	if (!abortBuilds) return true;
 
 	IMarker[] markers =

@@ -1182,10 +1182,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 				}
 			}
 		}
-		String encoding = (String)JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(encoding)) { //$NON-NLS-1$
-			encoding = null;
-		}
+		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 		return new FileNameEnvironment(classpathNames, encoding, rootModes);
 		
 	}

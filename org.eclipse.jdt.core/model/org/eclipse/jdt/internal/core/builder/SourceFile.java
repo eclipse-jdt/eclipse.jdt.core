@@ -33,9 +33,7 @@ public SourceFile(String fileName, String initialTypeName) {
 	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
 
-	this.encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
-	if (this.encoding.length() == 0)
-		this.encoding = null;
+	this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 }
 
 public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
@@ -45,9 +43,7 @@ public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
 	this.mainTypeName = mainTypeName;
 	this.packageName = packageName;
 
-	this.encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
-	if (this.encoding.length() == 0)
-		this.encoding = null;
+	this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 }
 
 public char[] getContents() {

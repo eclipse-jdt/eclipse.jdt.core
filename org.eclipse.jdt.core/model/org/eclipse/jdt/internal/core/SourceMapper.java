@@ -166,8 +166,7 @@ public class SourceMapper
 		
 		IResource zipResource = ResourcesPlugin.getWorkspace().getRoot().findMember(zipPath);
 
-		this.encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(this.encoding)) this.encoding = null; //$NON-NLS-1$
+		this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 	}
 	
 	/**

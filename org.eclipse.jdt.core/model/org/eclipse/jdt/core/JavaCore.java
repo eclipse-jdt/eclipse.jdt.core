@@ -904,6 +904,27 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 	
 	/**
+	 * Helper method for returning one option value only. Equivalent to <code>(String)JavaCore.getOptions().get(optionName)</code>
+	 * Note that it may answer <code>null</code> if this option does not exist.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
+	 * </p>
+	 * 
+	 * @param optionName - the String name of an option
+	 * @return the String value of a given option
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.0
+	 */
+	public static String getOption(String optionName) {
+		
+		if (CORE_ENCODING.equals(optionName)){
+			return ResourcesPlugin.getEncoding();
+		}
+		Preferences preferences = getPlugin().getPluginPreferences();
+		return preferences.getString(optionName);
+	}
+	
+	/**
 	 * Returns the table of the current options. Initially, all options have their default values,
 	 * and this method returns a table that includes all known options.
 	 * <p>

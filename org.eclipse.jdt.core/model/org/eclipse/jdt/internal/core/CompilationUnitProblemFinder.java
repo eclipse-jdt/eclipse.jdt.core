@@ -151,8 +151,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 		CompilationUnitDeclaration unit = null;
 		try {
-			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 			
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;

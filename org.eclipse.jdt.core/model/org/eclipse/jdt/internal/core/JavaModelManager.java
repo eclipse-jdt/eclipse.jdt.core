@@ -1292,7 +1292,7 @@ public class JavaModelManager implements ISaveParticipant {
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
 		// optional behaviour
 		// possible value of index 0 is Compute
-		if (!"compute".equals(JavaCore.getOptions().get("org.eclipse.jdt.core.computeJavaBuildOrder"))) return; //$NON-NLS-1$ //$NON-NLS-2$
+		if (!JavaCore.COMPUTE.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_ORDER))) return;
 		
 		if (javaBuildOrder == null || javaBuildOrder.length <= 1) return;
 		

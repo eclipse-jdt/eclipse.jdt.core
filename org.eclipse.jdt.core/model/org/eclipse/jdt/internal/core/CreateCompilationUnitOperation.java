@@ -96,7 +96,7 @@ protected void executeOperation() throws JavaModelException {
 		}
 	} else {
 		try {
-			String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 			InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
 			createFile(folder, unit.getElementName(), stream, false);
 			fResultElements = new IJavaElement[] {unit};

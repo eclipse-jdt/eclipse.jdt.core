@@ -68,8 +68,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	
 	String source = getCompilationUnit().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
-		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 		
 		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
 		char[] suffix = CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());

@@ -298,8 +298,7 @@ protected IWorkingCopy[] getWokingCopies() {
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) throws JavaModelException {
-	String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+	String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 	return 
 		new BasicCompilationUnit(
 			null,
