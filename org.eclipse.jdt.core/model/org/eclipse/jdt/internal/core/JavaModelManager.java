@@ -760,7 +760,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	
 	public void readOptions(String xmlString) throws IOException {
 		if(fOptions == null)
-			JavaCore.setOptionsToDefault();
+			JavaCore.resetOptions();
 		
 		StringReader reader = new StringReader(xmlString);
 		Element cpElement;

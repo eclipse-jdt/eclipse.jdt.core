@@ -7,16 +7,17 @@ package org.eclipse.jdt.internal.core.eval;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
+import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 
 import java.util.Locale;

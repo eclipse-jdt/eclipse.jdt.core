@@ -1209,7 +1209,7 @@ private static void setJavaCoreDefaultOptionsValue(Locale locale){
 }
 private static Hashtable getOptions(){
 	if(JavaModelManager.fOptions == null)
-		setOptionsToDefault();
+		resetOptions();
 	
 	return JavaModelManager.fOptions;
 }
