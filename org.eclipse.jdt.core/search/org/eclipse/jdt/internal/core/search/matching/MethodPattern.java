@@ -322,12 +322,12 @@ protected int matchLevel(MessageSend messageSend) {
 protected int matchLevelAsSubtype(char[] simpleNamePattern, char[] qualificationPattern, ReferenceBinding type) {
 	if (type == null) return INACCURATE_MATCH;
 	
-	int level = this.matchLevelForType(simpleNamePattern, qualificationPattern, type);
+	int level = matchLevelForType(simpleNamePattern, qualificationPattern, type);
 	if (level != IMPOSSIBLE_MATCH) return level;
 	
 	// matches superclass
 	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
-		level = this.matchLevelAsSubtype(simpleNamePattern, qualificationPattern, type.superclass());
+		level = matchLevelAsSubtype(simpleNamePattern, qualificationPattern, type.superclass());
 		if (level != IMPOSSIBLE_MATCH) return level;
 	}
 
@@ -335,7 +335,7 @@ protected int matchLevelAsSubtype(char[] simpleNamePattern, char[] qualification
 	ReferenceBinding[] interfaces = type.superInterfaces();
 	if (interfaces == null) return INACCURATE_MATCH;
 	for (int i = 0; i < interfaces.length; i++) {
-		level = this.matchLevelAsSubtype(simpleNamePattern, qualificationPattern, interfaces[i]);
+		level = matchLevelAsSubtype(simpleNamePattern, qualificationPattern, interfaces[i]);
 		if (level != IMPOSSIBLE_MATCH) return level;
 	}
 	return IMPOSSIBLE_MATCH;

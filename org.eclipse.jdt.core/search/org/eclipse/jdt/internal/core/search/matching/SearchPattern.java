@@ -1170,18 +1170,16 @@ protected boolean matchesName(char[] pattern, char[] name) {
  * and qualification pattern.
  */
 protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPattern, char[] fullyQualifiedTypeName) {
+	// NOTE: if case insensitive search then simpleNamePattern & qualificationPattern are assumed to be lowercase
 	char[] pattern;
 	if (simpleNamePattern == null) {
-		pattern = qualificationPattern == null
-			? ONE_STAR
-			: CharOperation.concat(qualificationPattern, ONE_STAR, '.');
+		if (qualificationPattern == null) return true;
+		pattern = CharOperation.concat(qualificationPattern, ONE_STAR, '.');
 	} else {
 		pattern = qualificationPattern == null
 			? CharOperation.concat(ONE_STAR, simpleNamePattern)
 			: CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
 	}
-	if (!this.isCaseSensitive)
-		pattern = CharOperation.toLowerCase(pattern);
 	return CharOperation.match(pattern, fullyQualifiedTypeName, this.isCaseSensitive);
 }
 /**
@@ -1233,9 +1231,9 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
 		? qualifiedSourceName
 		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
-	if (this.matchesType(simpleNamePattern, qualificationPattern, fullyQualifiedTypeName))
-		return ACCURATE_MATCH;
-	return IMPOSSIBLE_MATCH;
+	return matchesType(simpleNamePattern, qualificationPattern, fullyQualifiedTypeName)
+		? ACCURATE_MATCH
+		: IMPOSSIBLE_MATCH;
 }
 /**
  * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
