@@ -105,7 +105,7 @@ public class CatchClause extends ASTNode {
 	/**
 	 * Sets the variable declaration of this catch clause.
 	 * 
-	 * @param decl the exception variable declaration node
+	 * @param exception the exception variable declaration node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>

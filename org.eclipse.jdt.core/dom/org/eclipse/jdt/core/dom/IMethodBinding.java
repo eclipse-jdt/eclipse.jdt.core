@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.dom;
  * This interface is not intended to be implemented by clients.
  * </p>
  *
- * @see ITypeBinding#getDeclaredMethods
+ * @see ITypeBinding#getDeclaredMethods()
  * @since 2.0
  */
 public interface IMethodBinding extends IBinding {

@@ -26,6 +26,7 @@ public class ClassFormatException extends Exception {
 	
 	/**
 	 * Constructor for ClassFormatException.
+	 * @param errorID the given error ID
 	 */
 	public ClassFormatException(int errorID) {
 		// TODO what is the errorID?

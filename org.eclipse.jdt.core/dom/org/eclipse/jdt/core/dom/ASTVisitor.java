@@ -94,7 +94,7 @@ package org.eclipse.jdt.core.dom;
  * </ul>
  * </p>
  * 
- * @see ASTNode#accept
+ * @see org.eclipse.jdt.core.dom.ASTNode#accept(ASTVisitor)
  */
 public abstract class ASTVisitor {
 

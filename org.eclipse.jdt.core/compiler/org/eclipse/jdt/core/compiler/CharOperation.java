@@ -293,7 +293,7 @@ public final class CharOperation {
 	 * @param array the given array
 	 * @param prefix the given prefix
 	 * @return the result of the comparison (>=0 if array>prefix)
-	 * @exception NullPointerException if either array or prefix is null
+	 * @throws NullPointerException if either array or prefix is null
 	 */
 	public static final int compareWith(char[] array, char[] prefix) {
 		int arrayLength = array.length;
@@ -826,7 +826,7 @@ public final class CharOperation {
 	 * @param character the character to search
 	 * @param array the array in which the search is done
 	 * @return true if the array contains an occurrence of character, false otherwise.
-	 * @exception NullPointerException if array is null.
+	 * @throws NullPointerException if array is null.
 	 */
 	public static final boolean contains(char character, char[][] array) {
 		for (int i = array.length; --i >= 0;) {
@@ -862,7 +862,7 @@ public final class CharOperation {
 	 * @param character the character to search
 	 * @param array the array in which the search is done
 	 * @return true if the array contains an occurrence of character, false otherwise.
-	 * @exception NullPointerException if array is null.
+	 * @throws NullPointerException if array is null.
 	 */
 	public static final boolean contains(char character, char[] array) {
 		for (int i = array.length; --i >= 0;)
@@ -915,7 +915,7 @@ public final class CharOperation {
 	 * @param toBeFound the array to find
 	 * @return true if array ends with the sequence of characters contained in toBeFound, 
 	 * otherwise false.
-	 * @exception NullPointerException if array is null or toBeFound is null
+	 * @throws NullPointerException if array is null or toBeFound is null
 	 */
 	public static final boolean endsWith(char[] array, char[] toBeFound) {
 		int i = toBeFound.length;
@@ -1265,12 +1265,12 @@ public final class CharOperation {
 	 * </ol>
 	 * 
 	 * @param fragment the fragment to check
-	 * @param second the array to check
+	 * @param name the array to check
 	 * @param startIndex the starting index
 	 * @param isCaseSensitive check whether or not the equality should be case sensitive
 	 * @return true if the name contains the fragment at the starting index startIndex according to the 
 	 * value of isCaseSensitive, otherwise false.
-	 * @exception NullPointerException if fragment or name is null.
+	 * @throws NullPointerException if fragment or name is null.
 	 */
 	public static final boolean fragmentEquals(
 		char[] fragment,
@@ -1303,7 +1303,7 @@ public final class CharOperation {
 	 * 
 	 * @param array the array for which a hashcode is required
 	 * @return the hashcode
-	 * @exception NullPointerException if array is null
+	 * @throws NullPointerException if array is null
 	 */
 	public static final int hashCode(char[] array) {
 		int hash = 0;
@@ -1379,7 +1379,7 @@ public final class CharOperation {
 	 * @param array the array to be searched
 	 * @return the first index in the array for which the corresponding character is
 	 * equal to toBeFound, -1 otherwise
-	 * @exception NullPointerException if array is null
+	 * @throws NullPointerException if array is null
 	 */
 	public static final int indexOf(char toBeFound, char[] array) {
 		for (int i = 0; i < array.length; i++)
@@ -1424,8 +1424,8 @@ public final class CharOperation {
 	 * @param start the starting index
 	 * @return the first index in the array for which the corresponding character is
 	 * equal to toBeFound, -1 otherwise
-	 * @exception NullPointerException if array is null
-	 * @exception ArrayIndexOutOfBoundsException if  start is lower than 0
+	 * @throws NullPointerException if array is null
+	 * @throws ArrayIndexOutOfBoundsException if  start is lower than 0
 	 */
 	public static final int indexOf(char toBeFound, char[] array, int start) {
 		for (int i = start; i < array.length; i++)
@@ -1460,7 +1460,7 @@ public final class CharOperation {
 	 * @param array the array to be searched
 	 * @return the last index in the array for which the corresponding character is
 	 * equal to toBeFound starting from the end of the array, -1 otherwise
-	 * @exception NullPointerException if array is null
+	 * @throws NullPointerException if array is null
 	 */
 	public static final int lastIndexOf(char toBeFound, char[] array) {
 		for (int i = array.length; --i >= 0;)
@@ -1505,8 +1505,8 @@ public final class CharOperation {
 	 * @param startIndex the stopping index
 	 * @return the last index in the array for which the corresponding character is
 	 * equal to toBeFound stopping at the index startIndex, -1 otherwise
-	 * @exception NullPointerException if array is null
-	 * @exception ArrayIndexOutOfBoundsException if startIndex is lower than 0
+	 * @throws NullPointerException if array is null
+	 * @throws ArrayIndexOutOfBoundsException if startIndex is lower than 0
 	 */
 	public static final int lastIndexOf(
 		char toBeFound,
@@ -1558,8 +1558,8 @@ public final class CharOperation {
 	 * @param endIndex the starting index
 	 * @return the last index in the array for which the corresponding character is
 	 * equal to toBeFound starting from endIndex to startIndex, -1 otherwise
-	 * @exception NullPointerException if array is null
-	 * @exception ArrayIndexOutOfBoundsException if endIndex is greater or equals to array length or starting is lower than 0
+	 * @throws NullPointerException if array is null
+	 * @throws ArrayIndexOutOfBoundsException if endIndex is greater or equals to array length or starting is lower than 0
 	 */
 	public static final int lastIndexOf(
 		char toBeFound,
@@ -1584,7 +1584,7 @@ public final class CharOperation {
 	 * @param array the array
 	 * @param separator the given separator
 	 * @return the last portion of a name given a separator
-	 * @exception NullPointerException if array is null
+	 * @throws NullPointerException if array is null
 	 */
 	final static public char[] lastSegment(char[] array, char separator) {
 		int pos = lastIndexOf(separator, array);
@@ -1999,7 +1999,7 @@ public final class CharOperation {
 	 * @param toBeFound the given character
 	 * @param array the given array
 	 * @return the number of occurrences of the given character in the given array, 0 if any
-	 * @exception NullPointerException if array is null
+	 * @throws NullPointerException if array is null
 	 */
 	public static final int occurencesOf(char toBeFound, char[] array) {
 		int count = 0;
@@ -2035,9 +2035,10 @@ public final class CharOperation {
 	 * 
 	 * @param toBeFound the given character
 	 * @param array the given array
+	 * @param start the given index
 	 * @return the number of occurrences of the given character in the given array, 0 if any
-	 * @exception NullPointerException if array is null
-	 * @exception ArrayIndexOutOfBoundsException if start is lower than 0
+	 * @throws NullPointerException if array is null
+	 * @throws ArrayIndexOutOfBoundsException if start is lower than 0
 	 */
 	public static final int occurencesOf(
 		char toBeFound,
@@ -2074,7 +2075,7 @@ public final class CharOperation {
 	 * @param prefix the given prefix
 	 * @param name the given name
 	 * @return true if the given name starts with the given prefix, false otherwise
-	 * @exception NullPointerException if the given name is null or if the given prefix is null
+	 * @throws NullPointerException if the given name is null or if the given prefix is null
 	 */
 	public static final boolean prefixEquals(char[] prefix, char[] name) {
 
@@ -2116,7 +2117,7 @@ public final class CharOperation {
 	 * @param name the given name
 	 * @param isCaseSensitive to find out whether or not the comparison should be case sensitive
 	 * @return true if the given name starts with the given prefix, false otherwise
-	 * @exception NullPointerException if the given name is null or if the given prefix is null
+	 * @throws NullPointerException if the given name is null or if the given prefix is null
 	 */
 	public static final boolean prefixEquals(
 		char[] prefix,
@@ -2170,7 +2171,7 @@ public final class CharOperation {
 	 * @param array the given array
 	 * @param toBeReplaced the character to be replaced
 	 * @param replacementChar the replacement character
-	 * @exception NullPointerException if the given array is null
+	 * @throws NullPointerException if the given array is null
 	 */
 	public static final void replace(
 		char[] array,
@@ -2208,11 +2209,11 @@ public final class CharOperation {
 	 * </li>
 	 * </ol>
 	 * 
-	 * @param the given array
+	 * @param array the given array
 	 * @param toBeReplaced characters to be replaced
-	 * @param the replacement characters
+	 * @param replacementChars the replacement characters
 	 * @return a new array of characters with substitutions or the given array if none
-	 * @exception NullPointerException if the given array is null
+	 * @throws NullPointerException if the given array is null
 	 */
 	public static final char[] replace(
 		char[] array,
@@ -2432,7 +2433,7 @@ public final class CharOperation {
 	 * @param start the given starting index
 	 * @param end the given ending index
 	 * @return a new array which is the split of the given array using the given divider
-	 * @exception ArrayIndexOutOfBoundsException if start is lower than 0 or end is greater than the array length
+	 * @throws ArrayIndexOutOfBoundsException if start is lower than 0 or end is greater than the array length
 	 */
 	public static final char[][] splitOn(
 		char divider,
@@ -2496,7 +2497,7 @@ public final class CharOperation {
 	 * @param end the given ending index
 	 * @return a new array which is a copy of the given array starting at the given start and 
 	 * ending at the given end
-	 * @exception NullPointerException if the given array is null
+	 * @throws NullPointerException if the given array is null
 	 */
 	public static final char[][] subarray(char[][] array, int start, int end) {
 		if (end == -1)
@@ -2543,7 +2544,7 @@ public final class CharOperation {
 	 * @param end the given ending index
 	 * @return a new array which is a copy of the given array starting at the given start and 
 	 * ending at the given end
-	 * @exception NullPointerException if the given array is null
+	 * @throws NullPointerException if the given array is null
 	 */
 	public static final char[] subarray(char[] array, int start, int end) {
 		if (end == -1)
@@ -2663,7 +2664,7 @@ public final class CharOperation {
 	 * </li>
 	 * </ol>
 	 * 
-	 * @param chars the given array
+	 * @param array the given array
 	 * @return a string which is the concatenation of the given array using the '.' as a separator
 	 */
 	final static public String toString(char[][] array) {

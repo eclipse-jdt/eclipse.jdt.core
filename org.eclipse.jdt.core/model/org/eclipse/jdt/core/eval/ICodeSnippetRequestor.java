@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.eval;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IType;
 
 /**
  * A code snippet requestor implements a callback interface for installing 
@@ -22,7 +24,8 @@ import org.eclipse.jdt.internal.eval.EvaluationConstants;
  * Clients may implement this interface to provide a bridge a running Java VM.
  * </p>
  *
- * @see IEvaluationContext#evaluateCodeSnippet
+ * @see IEvaluationContext#evaluateCodeSnippet(String, ICodeSnippetRequestor, IProgressMonitor)
+ * @see IEvaluationContext#evaluateCodeSnippet(String, String[], String[], int[], IType, boolean, boolean, ICodeSnippetRequestor, IProgressMonitor)
  */
 public interface ICodeSnippetRequestor {
 	
@@ -70,35 +73,35 @@ public interface ICodeSnippetRequestor {
 	 * code.
 	 * </p>
 	 *
-	 * @see #acceptProblem
+	 * @see #acceptProblem(IMarker, String, int)
 	 */
 	public static final int VARIABLE = 1;
 
 	/**
 	 * Indicates a compilation problem related to a code snippet.
 	 *
-	 * @see #acceptProblem
+	 * @see #acceptProblem(IMarker, String, int)
 	 */
 	public static final int CODE_SNIPPET = 2;
 
 	/**
 	 * Indicates a compilation problem related to an import declaration.
 	 *
-	 * @see #acceptProblem
+	 * @see #acceptProblem(IMarker, String, int)
 	 */
 	public static final int IMPORT = 3;
 
 	/**
 	 * Indicates a compilation problem related to a package declaration.
 	 *
-	 * @see #acceptProblem
+	 * @see #acceptProblem(IMarker, String, int)
 	 */
 	public static final int PACKAGE = 4;
 
 	/**
 	 * Indicates an internal problem.
 	 *
-	 * @see #acceptProblem
+	 * @see #acceptProblem(IMarker, String, int)
 	 */
 	public static final int INTERNAL = 5;		
 /**

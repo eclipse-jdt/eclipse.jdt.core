@@ -60,49 +60,49 @@ public interface IDOMNode extends Cloneable  {
 	/**
 	 * Node type constant indicating a compilation unit.
 	 * Nodes of this type maybe by safely cast to <code>IDOMCompilationUnit</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int COMPILATION_UNIT= 1;
 	
 	/**
 	 * Node type constant indicating a package declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMPackage</code>.
-	* @see #getNodeType
+	* @see #getNodeType()
 	 */
 	public static int PACKAGE= 2;
 	
 	/**
 	 * Node type constant indicating an import declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMImport</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int IMPORT= 3;
 	
 	/**
 	 * Node type constant indicating a type declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMType</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int TYPE= 4;
 	
 	/**
 	 * Node type constant indicating a field declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMField</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int FIELD= 5;
 	
 	/**
 	 * Node type constant indicating a method (or constructor) declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMMethod</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int METHOD= 6;
 	
 	/**
 	 * Node type constant indicating an initializer declaration.
 	 * Nodes of this type maybe by safely cast to <code>IDOMInitializer</code>.
-	 * @see #getNodeType
+	 * @see #getNodeType()
 	 */
 	public static int INITIALIZER= 7;
 	
@@ -118,8 +118,8 @@ public interface IDOMNode extends Cloneable  {
  * </ul>
  * @exception IllegalArgumentException if the child is <code>null</code>
  *
- * @see #insertSibling
- * @see #remove
+ * @see #insertSibling(IDOMNode)
+ * @see #remove()
  */
 public void addChild(IDOMNode child) throws DOMException, IllegalArgumentException;
 /**
@@ -133,9 +133,9 @@ public boolean canHaveChildren();
  * is in no way dependent on the document this node is part of.
  *
  * @return a copy of type <code>IDOMNode</code>
- * @see #addChild
- * @see #insertSibling
- * @see #remove
+ * @see #addChild(IDOMNode)
+ * @see #insertSibling(IDOMNode)
+ * @see #remove()
  */
 public Object clone();
 /**
@@ -178,7 +178,7 @@ public String getContents();
  * Children appear in the order in which they exist in the source code.
  *
  * @return the first child, or <code>null</code> if this node has no children
- * @see #getChildren
+ * @see #getChildren()
  */
 public IDOMNode getFirstChild();
 /**
@@ -188,6 +188,8 @@ public IDOMNode getFirstChild();
  * @param parent the parent Java element
  * @exception IllegalArgumentException if the parent element is not
  *   of a valid parent type for this node
+ * @return a handle for the Java element associated with this 
+ *         document fragment, based on the parent Java element
  */
 public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentException;
 /**
@@ -235,9 +237,9 @@ public IDOMNode getPreviousNode();
  * </ul>
  * @exception IllegalArgumentException if the sibling is <code>null</code>
  *
- * @see #addChild
- * @see #clone
- * @see #remove
+ * @see #addChild(IDOMNode)
+ * @see #clone()
+ * @see #remove()
  */
 public void insertSibling(IDOMNode sibling) throws DOMException, IllegalArgumentException;
 /**
@@ -262,9 +264,9 @@ public boolean isSignatureEqual(IDOMNode node);
  * from its host document may still be dependent on that host document until it is
  * inserted into a different document. Removing a root node has no effect.
  *
- * @see #addChild
- * @see #clone
- * @see #insertSibling
+ * @see #addChild(IDOMNode)
+ * @see #clone()
+ * @see #insertSibling(IDOMNode)
  */
 public void remove();
 /**

@@ -290,7 +290,7 @@ public class CompilationUnit extends ASTNode {
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * Note that as explained in {@link IBinding#getkey IBinding.getkey}
+	 * Note that as explained in {@link IBinding#getKey() IBinding.getkey}
 	 * there may be no keys for finding the declaring node for local variables,
 	 * local or anonymous classes, etc.
 	 * </p>
@@ -325,7 +325,7 @@ public class CompilationUnit extends ASTNode {
 	 *    position does not correspond to a source line in the original
 	 *    source file or if line number information is not known for this
 	 *    compilation unit
-	 * @see AST#parseCompilationUnit
+	 * @see AST#parseCompilationUnit(char[])
 	 */
 	public int lineNumber(int position) {
 		int length = lineEndTable.length;
@@ -392,7 +392,7 @@ public class CompilationUnit extends ASTNode {
 	 *
 	 * @return the list of messages, possibly empty
 	 * @see #getProblems()
-	 * @see AST#parseCompilationUnit
+	 * @see AST#parseCompilationUnit(char[])
 	 */
 	public Message[] getMessages() {
 		if (this.messages == null) {
@@ -424,7 +424,7 @@ public class CompilationUnit extends ASTNode {
 	 * 
 	 * @return the list of detailed problem objects, possibly empty
 	 * @see #getMessages()
-	 * @see AST#parseCompilationUnit
+	 * @see AST#parseCompilationUnit(char[])
 	 * @since 2.1
 	 */
 	public IProblem[] getProblems() {
@@ -453,7 +453,7 @@ public class CompilationUnit extends ASTNode {
 	 * to the structure of an AST. The one exception is doc comments 
 	 * which, by convention, immediately precede type, field, and
 	 * method declarations; these comments are located in the AST
-	 * by {@link  BodyDeclaration#getJavadoc BodyDeclaration.getJavadoc}.
+	 * by {@link  BodyDeclaration#getJavadoc() BodyDeclaration.getJavadoc}.
 	 * Other comments do not show up in the AST. The table of comments
 	 * is provided for clients that need to find the source ranges of
 	 * all comments in the original source string. It includes entries
@@ -470,7 +470,7 @@ public class CompilationUnit extends ASTNode {
 	 * will return <code>null</code>, and {@link ASTNode#getRoot() getRoot()}
 	 * will return the comment node itself, indicating that these comment nodes
 	 * are not directly connected to the AST for the compilation unit. The 
-	 * {@link Comment#getAlternateRoot Comment.getAlternateRoot}
+	 * {@link Comment#getAlternateRoot() Comment.getAlternateRoot}
 	 * method provides a way to navigate from a comment to its compilation
 	 * unit.
 	 * </p>
@@ -488,7 +488,7 @@ public class CompilationUnit extends ASTNode {
 	 * @return a list of comments in increasing order of source
 	 * start position, or <code>null</code> if comment information
 	 * for this compilation unit is not available
-	 * @see AST#parseCompilationUnit
+	 * @see AST#parseCompilationUnit(char[])
 	 * @since 3.0
 	 */
 	public Comment[] getCommentTable() {

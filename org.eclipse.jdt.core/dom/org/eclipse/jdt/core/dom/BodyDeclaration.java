@@ -104,7 +104,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * Sets the modifiers explicitly specified on this declaration.
 	 * The allowable modifiers differ for each type of body declaration.
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @see Modifier
 	 * @exception IllegalArgumentException if the modifiers are illegal
 	 * @since 3.0

@@ -147,7 +147,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * parameter declarations, the only meaningful modifier is final.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @see Modifier
 	 * @exception IllegalArgumentException if the modifiers are illegal
 	 */ 

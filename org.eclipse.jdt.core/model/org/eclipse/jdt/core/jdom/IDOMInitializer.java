@@ -30,6 +30,8 @@ public String getBody();
 /**
  * The <code>IDOMInitializer</code> refinement of this <code>IDOMNode</code>
  * method returns <code>null</code>. An initializer does not have a name.
+ * 
+ * @return <code>null</code>
  */
 public String getName();
 /**
@@ -44,6 +46,8 @@ public void setBody(String body);
 /**
  * The <code>IDOMInitializer</code> refinement of this <code>IDOMNode</code>
  * method does nothing.
+ * 
+ * @param name the given name
  */
 public void setName(String name);
 }

@@ -147,7 +147,7 @@ class CompilationUnitResolver extends Compiler {
 		super(environment, policy, settings, requestor, problemFactory, false);
 	}
 	
-	/**
+	/*
 	 * Add additional source types
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
@@ -494,7 +494,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
-	/**
+	/*
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(
@@ -570,7 +570,7 @@ class CompilationUnitResolver extends Compiler {
 			// this.reset();
 		}
 	}
-	/**
+	/*
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(
@@ -587,7 +587,7 @@ class CompilationUnitResolver extends Compiler {
 			generateCode);
 	}
 
-	/**
+	/*
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(

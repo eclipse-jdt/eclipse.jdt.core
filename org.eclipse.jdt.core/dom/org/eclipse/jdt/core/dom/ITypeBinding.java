@@ -83,7 +83,7 @@ public interface ITypeBinding extends IBinding {
 	 * represent a class or interface.
 	 *
 	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see #getModifiers
+	 * @see #getModifiers()
 	 * @see Modifier
 	 */
 	public int getDeclaredModifiers();
@@ -176,7 +176,9 @@ public interface ITypeBinding extends IBinding {
 	 * should be used if the original modifiers are needed. 
 	 * Returns 0 if this type does not represent a class or interface.
 	 * 
-	 * @see #getDeclaredModifiers
+	 * @return the compiled modifiers for this class or interface binding or 0
+	 *         if this type does not represent a class or interface
+	 * @see #getDeclaredModifiers()
 	 */
 	public int getModifiers();
 	
@@ -193,7 +195,7 @@ public interface ITypeBinding extends IBinding {
 	 * 
 	 * @return the unqualified name of the type represented by this binding, an
 	 *    empty string this is an anonymous type, or "null" for the null type
-	 * @see #getQualifiedName
+	 * @see #getQualifiedName()
 	 */
 	public String getName();
 			
@@ -236,7 +238,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return the fully qualified name of the type represented by this 
 	 *    binding, or an empty string if this type does not have such an
 	 *    unambiguous name
-	 * @see #getName
+	 * @see #getName()
 	 * @since 2.1
 	 */
 	public String getQualifiedName();
@@ -264,7 +266,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the superclass of the class represented by this type binding,
 	 *    or <code>null</code> if none
-	 * @see AST#resolveWellKnownType
+	 * @see AST#resolveWellKnownType(String)
 	 */
 	public ITypeBinding getSuperclass();
 	

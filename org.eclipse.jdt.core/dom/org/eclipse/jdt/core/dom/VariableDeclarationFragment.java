@@ -134,6 +134,8 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * dimensions, respectively.
 	 * </p>
 	 * 
+	 * @return the number of extra array dimensions this variable has over
+	 *         and above the type specified in the enclosing declaration
 	 * @since 2.0
 	 */ 
 	public int getExtraDimensions() {
@@ -150,6 +152,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * dimensions, respectively.
 	 * </p>
 	 * 
+	 * @param dimensions the given dimensions
 	 * @since 2.0
 	 */ 
 	public void setExtraDimensions(int dimensions) {

@@ -1309,6 +1309,8 @@ public abstract class ASTNode {
 	 * compare two subtrees for equality.
 	 * 
 	 * @see #subtreeMatch(ASTMatcher matcher, Object other)
+	 * @param obj the given object
+	 * @return true if the receiver is identical to the given object, false otherwise
 	 */
 	public final boolean equals(Object obj) {
 		return this == obj; // equivalent to Object.equals

@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.eval;
  * <code>IEvaluationContext.newVariable</code> can be used to obtain an instance.
  * </p>
  *
- * @see IEvaluationContext#newVariable
+ * @see IEvaluationContext#newVariable(String, String, String)
  */
 public interface IGlobalVariable {
 /**
