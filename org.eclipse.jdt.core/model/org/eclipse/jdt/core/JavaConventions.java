@@ -539,7 +539,15 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
 							for (int i = 0, length = containerEntries.length; i < length; i++){
-								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntries[i], checkSourceAttachment);
+								IClasspathEntry containerEntry = containerEntries[i];
+								if (containerEntry == null
+									|| containerEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE
+									|| containerEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+										return new JavaModelStatus(
+											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
+											container.getPath().toString());
+								}
+								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntry, checkSourceAttachment);
 								if (!containerEntryStatus.isOK()){
 									return containerEntryStatus;
 								}
