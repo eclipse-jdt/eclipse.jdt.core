@@ -1396,7 +1396,7 @@ public void testClasspathValidation31() throws CoreException {
 }
 
 /**
- * Checks it is illegal for a nested output folder (sitting inside excluded range of source folder) to be nested in another source folder
+ * Checks it is illegal for a nested output folder (sitting inside excluded range of source folder) to be coincidating with another source folder
  */
 public void testClasspathValidation32() throws CoreException {
 	try {
