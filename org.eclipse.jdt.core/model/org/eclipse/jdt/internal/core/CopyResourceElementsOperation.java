@@ -243,13 +243,14 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		// copy resource
 		IContainer destFolder = (IContainer)dest.getResource(); // can be an IFolder or an IProject
 		IFile destFile = destFolder.getFile(new Path(destName));
+		org.eclipse.jdt.internal.core.CompilationUnit destCU = new org.eclipse.jdt.internal.core.CompilationUnit(dest, destName, DefaultWorkingCopyOwner.PRIMARY);
 		if (!destFile.equals(sourceResource)) {
 			try {
 				if (destFile.exists()) {
 					if (this.force) {
 						// we can remove it
 						deleteResource(destFile, IResource.KEEP_HISTORY);
-						dest.getCompilationUnit(destName).close(); // ensure the in-memory buffer for the dest CU is closed
+						destCU.close(); // ensure the in-memory buffer for the dest CU is closed
 					} else {
 						// abort
 						throw new JavaModelException(new JavaModelStatus(
@@ -286,7 +287,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 		
 			// register the correct change deltas
-			ICompilationUnit destCU = dest.getCompilationUnit(destName);
 			prepareDeltas(source, destCU, isMove());
 			if (newCUName != null) {
 				//the main type has been renamed

@@ -266,7 +266,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
 				true, // local
 				getSubProgressMonitor(1));
-				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -718,6 +718,18 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				// update JavaModel using deltas that were recorded during this operation
 				for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
 					deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));
+				}
+				
+				// close the parents of the created elements and reset their project's cache (in case we are in an 
+				// IWorkspaceRunnable and the clients wants to use the created element's parent)
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83646
+				for (int i = 0, length = this.resultElements.length; i < length; i++) {
+					IJavaElement element = this.resultElements[i];
+					Openable openable = (Openable) element.getOpenable();
+					if (!(openable instanceof CompilationUnit) || !((CompilationUnit) openable).isWorkingCopy()) { // a working copy must remain a child of its parent even after a move
+						((JavaElement) openable.getParent()).close();
+					}
+					((JavaProject) element.getJavaProject()).resetCaches();
 				}
 				
 				// fire only iff:

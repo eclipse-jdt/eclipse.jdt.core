@@ -362,7 +362,10 @@ protected void assertDeltas(String message, String expected) {
 		if (sort) this.sortTypes(types);
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < types.length; i++){
-			buffer.append(types[i].getFullyQualifiedName());
+			if (types[i] == null)
+				buffer.append("<null>");
+			else
+				buffer.append(types[i].getFullyQualifiedName());
 			buffer.append("\n");
 		}
 		String actual = buffer.toString();

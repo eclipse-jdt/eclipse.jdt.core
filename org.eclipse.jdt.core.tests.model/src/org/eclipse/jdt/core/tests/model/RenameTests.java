@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.*;
@@ -752,6 +753,31 @@ public void testRenamePF2() throws CoreException {
 		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}\n" + 
 		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
 	);
+}
+/*
+ * Ensure that renaming a package to a sub package and using IJavaProject#findType(...) in a IWorskpaceRunnable
+ * finds the right type
+ * (regression test for bug 83646 NPE renaming package)
+ */
+public void testRenamePF3() throws CoreException {
+	createFolder("/P/src/x");
+	createFile(
+		"/P/src/x/A.java",
+		"package x;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			getPackage("/P/src/x").rename("x.y", false, null);
+			IType type = getJavaProject("P").findType("x.y.A");
+			assertTypesEqual(
+				"Unepected type",
+				"x.y.A\n",
+				new IType[] {type});
+		}
+	};
+	getWorkspace().run(runnable, null);
 }
 public void testRenamePFWithSubPackages() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
