@@ -287,8 +287,10 @@ public IType getType() throws JavaModelException {
 		String name = fName.substring(0, fName.lastIndexOf('.'));
 		name = name.substring(name.lastIndexOf('.') + 1);
 		int index = name.lastIndexOf('$');
-		if (index > -1 && !Character.isDigit(name.charAt(index + 1))) {
-			name = name.substring(index + 1);
+		if (index > -1) {
+			if (name.length() > (index + 1) && !Character.isDigit(name.charAt(index + 1))) {
+				name = name.substring(index + 1);
+			}
 		}
 		fBinaryType = new BinaryType(this, name);
 	}
@@ -420,8 +422,9 @@ public IJavaElement rootedAt(IJavaProject project) {
 		return null;
 	className = unqualifiedName(className);
 	int count = 0;
-	for (int i = className.length - 1; i > -1; i--) {
-		if (className[i] == '$') {
+	int lastPosition = className.length - 1;
+	for (int i = lastPosition; i > -1; i--) {
+		if (className[i] == '$' && (i != lastPosition)) {
 			char[] name = new char[count];
 			System.arraycopy(className, i + 1, name, 0, count);
 			if (Character.isDigit(name[0])) {
