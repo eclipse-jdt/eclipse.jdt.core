@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -97,6 +98,8 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
 		long targetJDK = referenceBinding.scope.environment().options.targetJDK;
+		// TODO until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
+		if (targetJDK == ClassFileConstants.JDK1_5) targetJDK = ClassFileConstants.JDK1_4;
 		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
 		header[headerOffset++] = (byte) (targetJDK >> 24); // major high
