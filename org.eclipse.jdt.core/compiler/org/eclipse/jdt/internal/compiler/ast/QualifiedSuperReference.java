@@ -39,7 +39,7 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}
-		return currentCompatibleType.superclass();
+		return this.expressionType = currentCompatibleType.superclass();
 	}
 
 	public String toStringExpression() {

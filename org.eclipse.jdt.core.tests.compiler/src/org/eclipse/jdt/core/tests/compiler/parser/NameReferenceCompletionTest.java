@@ -560,7 +560,7 @@ public void testInvocationFieldInitializer() {
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
 		"class Bar {\n" +
-		"  String s = <CompleteOnName:>;\n" +
+		"  String s = (1 + <CompleteOnName:>);\n" +
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" +

@@ -74,7 +74,7 @@ public class ClassLiteralAccess extends Expression {
 			return null;
 		}
 
-		return scope.getJavaLangClass();
+		return this.expressionType = scope.getJavaLangClass();
 	}
 
 	public String toStringExpression() {

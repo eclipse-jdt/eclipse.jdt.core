@@ -171,7 +171,7 @@ public class AllocationExpression
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
-		TypeBinding typeBinding = type.resolveType(scope);
+		this.expressionType = type.resolveType(scope);
 		// will check for null after args are resolved
 
 		// buffering the arguments' types
@@ -184,22 +184,22 @@ public class AllocationExpression
 				if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
 					argHasError = true;
 			if (argHasError)
-				return typeBinding;
+				return this.expressionType;
 		}
-		if (typeBinding == null)
+		if (this.expressionType == null)
 			return null;
 
-		if (!typeBinding.canBeInstantiated()) {
-			scope.problemReporter().cannotInstantiate(type, typeBinding);
-			return typeBinding;
+		if (!this.expressionType.canBeInstantiated()) {
+			scope.problemReporter().cannotInstantiate(type, this.expressionType);
+			return this.expressionType;
 		}
-		ReferenceBinding allocatedType = (ReferenceBinding) typeBinding;
+		ReferenceBinding allocatedType = (ReferenceBinding) this.expressionType;
 		if (!(binding = scope.getConstructor(allocatedType, argumentTypes, this))
 			.isValidBinding()) {
 			if (binding.declaringClass == null)
 				binding.declaringClass = allocatedType;
 			scope.problemReporter().invalidConstructor(this, binding);
-			return typeBinding;
+			return this.expressionType;
 		}
 		if (isMethodUseDeprecated(binding, scope))
 			scope.problemReporter().deprecatedMethod(binding, this);

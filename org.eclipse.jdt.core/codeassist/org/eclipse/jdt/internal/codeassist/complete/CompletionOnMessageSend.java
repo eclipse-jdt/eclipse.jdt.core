@@ -38,6 +38,12 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class CompletionOnMessageSend extends MessageSend {
 
 	public TypeBinding resolveType(BlockScope scope) {
+		if (arguments != null) {
+			int argsLength = arguments.length;
+			for (int a = argsLength; --a >= 0;)
+				arguments[a].resolveType(scope);
+		}
+		
 		if (receiver == ThisReference.ThisImplicit)
 			throw new CompletionNodeFound(this, null, scope);
 

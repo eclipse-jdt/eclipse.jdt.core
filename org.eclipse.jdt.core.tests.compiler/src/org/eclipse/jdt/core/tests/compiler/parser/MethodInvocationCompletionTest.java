@@ -293,13 +293,14 @@ public void testAfterEmptyAnonymous() {
 		// completeBehind:
 		"fred(new Runnable() {}, ",
 		// expectedCompletionNodeToString:
-		"<CompleteOnMessageSend:this.fred(new Runnable())>",
+		"<CompleteOnMessageSend:this.fred(new Runnable() {\n})>",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred(new Runnable())>;\n" + 
+		"    <CompleteOnMessageSend:this.fred(new Runnable() {\n" + 
+		"})>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -454,7 +455,7 @@ public void testEmptyInFirstParameter() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnName:>;\n" + 
+		"    (\"abc\" + <CompleteOnName:>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -485,7 +486,7 @@ public void testInFirstParameter() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnName:bi>;\n" + 
+		"    (\"abc\" + <CompleteOnName:bi>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

@@ -252,16 +252,19 @@ public class CastExpression extends Expression {
 
 		constant = Constant.NotAConstant;
 		implicitConversion = T_undefined;
-		TypeBinding expressionTb = expression.resolveType(scope);
-		if (expressionTb == null)
-			return null;
-
 		if ((type instanceof TypeReference) || (type instanceof NameReference)) {
-			if ((castTb = type.resolveType(scope)) == null)
+			TypeBinding castTypeBinding = type.resolveType(scope);
+			if(castTypeBinding == null)
 				return null;
-			areTypesCastCompatible(scope, castTb, expressionTb);
-			return castTb;
-		} else { // expression as a cast !!!!!!!! 
+			TypeBinding expressionTb = expression.resolveType(scope);
+			if (expressionTb == null)
+				return null;
+			areTypesCastCompatible(scope, castTypeBinding, expressionTb);
+			return this.expressionType = castTb = castTypeBinding;
+		} else { // expression as a cast !!!!!!!!
+			TypeBinding expressionTb = expression.resolveType(scope);
+			if (expressionTb == null)
+				return null;
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}

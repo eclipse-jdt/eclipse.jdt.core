@@ -41,6 +41,12 @@ public CompletionOnExplicitConstructorCall(int accessMode) {
 }
 public void resolve(BlockScope scope) {
 	ReferenceBinding receiverType = scope.enclosingSourceType();
+	
+	if (arguments != null) {
+		int argsLength = arguments.length;
+		for (int a = argsLength; --a >= 0;)
+			arguments[a].resolveType(scope);
+	}
 
 	if (accessMode != This && receiverType != null) {
 		if (receiverType.isHierarchyInconsistent())

@@ -539,10 +539,10 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(literal.literalType(null));
 		} else if (expression instanceof InfixExpression) {
 			OperatorExpression operatorExpression = (OperatorExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(operatorExpression.typeBinding);
+			return this.getTypeBinding(operatorExpression.expressionType);
 		} else if (expression instanceof InstanceofExpression) {
 			org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression instanceOfExpression = (org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(instanceOfExpression.typeBinding);
+			return this.getTypeBinding(instanceOfExpression.expressionType);
 		} else if (expression instanceof FieldAccess) {
 			FieldReference fieldReference = (FieldReference) this.newAstToOldAst.get(expression);
 			IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
@@ -583,7 +583,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.resolveExpressionType(parenthesizedExpression.getExpression());
 		} else if (expression instanceof ConditionalExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ConditionalExpression conditionalExpression = (org.eclipse.jdt.internal.compiler.ast.ConditionalExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(conditionalExpression.typeBinding);
+			return this.getTypeBinding(conditionalExpression.expressionType);
 		} else if (expression instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
 			Type type = variableDeclarationExpression.getType();

@@ -58,7 +58,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
 	if (this != ThisImplicit && !checkAccess(scope.methodScope()))
 		return null;
-	return scope.enclosingSourceType();
+	return this.expressionType = scope.enclosingSourceType();
 }
 public String toStringExpression(){
 

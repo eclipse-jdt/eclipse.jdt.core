@@ -54,7 +54,7 @@ public interface ITerminalSymbols {
       TokenNamefloat = 22,
       TokenNamefor = 122,
       TokenNameif = 123,
-      TokenNameimplements = 267,
+      TokenNameimplements = 268,
       TokenNameimport = 191,
       TokenNameinstanceof = 65,
       TokenNameint = 23,
@@ -71,10 +71,10 @@ public interface ITerminalSymbols {
       TokenNameshort = 25,
       TokenNamestatic = 94,
       TokenNamestrictfp = 104,
-      TokenNamesuper = 34,
+      TokenNamesuper = 33,
       TokenNameswitch = 125,
       TokenNamesynchronized = 85,
-      TokenNamethis = 35,
+      TokenNamethis = 34,
       TokenNamethrow = 126,
       TokenNamethrows = 227,
       TokenNametransient = 105,
@@ -91,7 +91,7 @@ public interface ITerminalSymbols {
       TokenNameStringLiteral = 45,
       TokenNamePLUS_PLUS = 1,
       TokenNameMINUS_MINUS = 2,
-      TokenNameEQUAL_EQUAL = 33,
+      TokenNameEQUAL_EQUAL = 35,
       TokenNameLESS_EQUAL = 66,
       TokenNameGREATER_EQUAL = 67,
       TokenNameNOT_EQUAL = 36,
@@ -136,5 +136,5 @@ public interface ITerminalSymbols {
       TokenNameDOT = 6,
       TokenNameEQUAL = 167,
       TokenNameEOF = 158,
-      TokenNameERROR = 307;
+      TokenNameERROR = 309;
 }

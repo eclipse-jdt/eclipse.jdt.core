@@ -5443,7 +5443,12 @@ public void test98() {
 		"  final String sel = \"\";\n"+
 		"  Object l = null;\n"+
 		"  {\n"+
-		"    Platform.run(new Runnable());\n"+
+		"    Platform.run(new Runnable() {\n"+
+		"  public void run() {\n"+
+		"  }\n"+
+		"  public void handleException(Throwable e) {\n"+
+		"  }\n"+
+		"});\n"+
 		"  }\n"+
 		"  public A() {\n"+
 		"    super();\n"+

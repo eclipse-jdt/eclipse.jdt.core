@@ -32,7 +32,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		constant = Constant.NotAConstant;
 		return null;
 	}
-	return literalType(scope);
+	this.expressionType = literalType(scope);
+	return this.expressionType;
 }
 public abstract char[] source() ;
 }

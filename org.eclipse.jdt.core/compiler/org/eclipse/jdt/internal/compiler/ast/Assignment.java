@@ -76,6 +76,7 @@ public class Assignment extends Expression {
 			|| (this.lhsType.isBaseType() && BaseTypeBinding.isWidening(this.lhsType.id, expressionTb.id)))
 			|| (Scope.areTypesCompatible(expressionTb, this.lhsType))) {
 			expression.implicitWidening(this.lhsType, expressionTb);
+			this.expressionType = this.lhsType;
 			return this.lhsType;
 		}
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(

@@ -49,7 +49,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 		return null;
 	}
-	return enclosingTb.superclass;
+	return this.expressionType = enclosingTb.superclass;
 }
 public String toStringExpression(){
 

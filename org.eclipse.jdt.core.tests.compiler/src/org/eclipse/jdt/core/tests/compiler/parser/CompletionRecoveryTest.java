@@ -168,7 +168,7 @@ public void test04() {
 		"  }\n" + 
 		"  int foo(String str) {\n" + 
 		"    String variable;\n" + 
-		"    <CompleteOnName:var>;\n" + 
+		"    foo(<CompleteOnName:var>);\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "varia";
@@ -217,7 +217,7 @@ public void test05() {
 		"      L() {\n" + 
 		"      }\n" + 
 		"      int bar() {\n" + 
-		"        <CompleteOnName:str>;\n" + 
+		"        foo(<CompleteOnName:str>);\n" + 
 		"      }\n" + 
 		"      void stringAppend(String s1, String s2) {\n" + 
 		"      }\n" + 
@@ -276,7 +276,7 @@ public void test06() {
 		"      int notInterestingBody() {\n" + 
 		"      }\n" + 
 		"      int bar() {\n" + 
-		"        <CompleteOnName:str>;\n" + 
+		"        foo(<CompleteOnName:str>);\n" + 
 		"      }\n" + 
 		"      void stringAppend(String s1, String s2) {\n" + 
 		"      }\n" + 

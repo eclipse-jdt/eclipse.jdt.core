@@ -37,7 +37,7 @@ public void testAdditiveExpressionMinus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 - <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -68,7 +68,7 @@ public void testAdditiveExpressionPlus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 + <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -99,7 +99,7 @@ public void testAndExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue & <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -130,7 +130,7 @@ public void testArgumentList() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    bizz(1 , \"2\" , <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -287,7 +287,7 @@ public void testAssignment() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    i = <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -491,7 +491,7 @@ public void testCastExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  Bar foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    return <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -526,7 +526,7 @@ public void testCastExpressionUnaryExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  Bar foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (Bar) <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -557,7 +557,7 @@ public void testClassInstanceCreationExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    new Bar(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -588,7 +588,7 @@ public void testClassInstanceCreationExpressionName() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    Bar.new Bar(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -619,7 +619,7 @@ public void testClassInstanceCreationExpressionPrimary() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    bizz().new Bar(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -650,7 +650,7 @@ public void testConditionalAndExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue && <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -681,7 +681,7 @@ public void testConditionalExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  Bar foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    return <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -712,7 +712,7 @@ public void testConditionalExpressionConditionalExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue ? true : <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -743,7 +743,7 @@ public void testConditionalOrExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue || <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -902,7 +902,7 @@ public void testEqualityExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 == <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -933,7 +933,7 @@ public void testEqualityExpressionNot() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 != <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -964,7 +964,7 @@ public void testExclusiveOrExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue ^ <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1151,7 +1151,7 @@ public void testForUpdate() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    int i;\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    i += <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1354,7 +1354,7 @@ public void testInclusiveOrExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (isTrue | <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1451,7 +1451,7 @@ public void testMethodInvocation() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    bizz(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1482,7 +1482,7 @@ public void testMethodInvocationPrimary() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    buzz().bizz(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1513,7 +1513,7 @@ public void testMethodInvocationSuper() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    super.bizz(<CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1544,7 +1544,7 @@ public void testMultiplicativeExpressiondDivision() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  double foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (2 / <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1575,7 +1575,7 @@ public void testMultiplicativeExpressionMultiplication() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (2 * <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1606,7 +1606,7 @@ public void testMultiplicativeExpressionRemainder() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (2 % <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1637,7 +1637,7 @@ public void testPreIncrementExpressionMinusMinus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    -- <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1668,7 +1668,7 @@ public void testPreIncrementExpressionPlusPlus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    ++ <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1730,7 +1730,7 @@ public void testRelationalExpressionGreaterThan() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 > <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1761,7 +1761,7 @@ public void testRelationalExpressionGreaterThanOrEquals() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 >= <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1792,7 +1792,7 @@ public void testRelationalExpressionLessThan() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 < <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1823,7 +1823,7 @@ public void testRelationalExpressionLessThanOrEqual() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (1 <= <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1854,7 +1854,7 @@ public void testReturnStatement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    return <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1885,7 +1885,7 @@ public void testShiftExpressionLeft() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (i << <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1916,7 +1916,7 @@ public void testShiftExpressionRight() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (i >> <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1947,7 +1947,7 @@ public void testShiftExpressionRightUnSigned() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (i >>> <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2184,7 +2184,7 @@ public void testUnaryExpressionBitwiseComplement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (~ <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2215,7 +2215,7 @@ public void testUnaryExpressionLogicalComplement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (! <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2246,7 +2246,7 @@ public void testUnaryExpressionMinus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (- <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2277,7 +2277,7 @@ public void testUnaryExpressionPlus() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    (+ <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

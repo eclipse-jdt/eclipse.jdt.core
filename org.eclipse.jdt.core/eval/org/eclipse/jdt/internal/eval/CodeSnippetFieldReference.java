@@ -357,6 +357,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!receiver.isThis())
 		constant = NotAConstant;
 
-	return binding.type;
+	return this.expressionType = binding.type;
 }
 }

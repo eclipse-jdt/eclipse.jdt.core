@@ -78,8 +78,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	
 	delegateThis = scope.getField(snippetType, DELEGATE_THIS, this);
 	if (delegateThis == null) return null; // internal error, field should have been found
-	if (delegateThis.isValidBinding()) return delegateThis.type;
-	return snippetType;
+	if (delegateThis.isValidBinding()) return this.expressionType = delegateThis.type;
+	return this.expressionType = snippetType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	// ignored

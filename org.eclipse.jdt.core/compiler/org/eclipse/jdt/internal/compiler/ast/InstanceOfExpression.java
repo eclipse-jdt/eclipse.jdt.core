@@ -227,7 +227,7 @@ public class InstanceOfExpression extends OperatorExpression {
 			scope.problemReporter().notCompatibleTypesError(this, expressionTb, checkTb);
 			return null;
 		}
-		this.typeBinding = BooleanBinding;
+		this.expressionType = BooleanBinding;
 		return BooleanBinding;
 	}
 

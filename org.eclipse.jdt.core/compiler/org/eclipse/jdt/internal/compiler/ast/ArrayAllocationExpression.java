@@ -145,7 +145,7 @@ public class ArrayAllocationExpression extends Expression {
 		}
 
 		// building the array binding
-		arrayTb = scope.createArray(referenceTb, dimensions.length);
+		this.expressionType = arrayTb = scope.createArray(referenceTb, dimensions.length);
 
 		// check the initializer
 		if (initializer != null)

@@ -38,6 +38,7 @@ public void tearDownSuite() throws Exception {
 public static Test suite() {
 	TestSuite suite = new Suite(CompletionTests.class.getName());
 	
+	// completion tests
 	suite.addTest(new CompletionTests("testCompletionCaseInsensitive"));
 	suite.addTest(new CompletionTests("testCompletionNullRequestor"));
 	suite.addTest(new CompletionTests("testCompletionFindExceptions1"));
@@ -114,6 +115,23 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionUnresolvedParameterType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
+	
+	// completion expectedTypes tests
+	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
+	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent2"));
+	suite.addTest(new CompletionTests("testCompletionCastIsParent1"));
+	suite.addTest(new CompletionTests("testCompletionCastIsParent2"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent1"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent2"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent3"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent4"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent5"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent1"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent2"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent3"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent4"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent5"));
+	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent6"));
 	
 	return suite;
 }
@@ -293,8 +311,8 @@ public void testCompletionFindField1() throws JavaModelException {
 	
 	assertEquals(
 		"should have one field: 'var' and one variable: 'var'", 
-		"element:var    completion:this.var    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE),
+		"element:var    completion:this.var    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n"+
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());	
 }
 
@@ -380,7 +398,7 @@ public void testCompletionFindLocalVariable() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one local variable of 'var'", 
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());	
 }
 
@@ -1435,5 +1453,311 @@ public void testCompletionUnresolvedEnclosingType() throws JavaModelException {
 	assertTrue(
 		requestor.getResults().length() == 0);
 }
+public void testCompletionReturnStatementIsParent1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionReturnStatementIsParent1.java");
 
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionReturnStatementIsParent2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionReturnStatementIsParent2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "xx";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_EXPECTED_TYPE)+"\n" +
+		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT),
+		requestor.getResults());
+}
+
+public void testCompletionCastIsParent1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionCastIsParent1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionCastIsParent2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionCastIsParent2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "xx";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_EXPECTED_TYPE)+"\n" +
+		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT)+"\n" +
+		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT),
+		requestor.getResults());
+}
+
+public void testCompletionMessageSendIsParent1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionMessageSendIsParent2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionMessageSendIsParent3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionMessageSendIsParent4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionMessageSendIsParent5() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent5.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent5() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent5.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionAllocationExpressionIsParent6() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent6.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
 }

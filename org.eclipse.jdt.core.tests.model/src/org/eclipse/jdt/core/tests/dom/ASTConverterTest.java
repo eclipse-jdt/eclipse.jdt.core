@@ -7798,7 +7798,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNull("typeBinding is not null", typeBinding); //$NON-NLS-1$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNull("typeBinding2 is not null", typeBinding2); //$NON-NLS-1$
+		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "String", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}					
 
 	/**

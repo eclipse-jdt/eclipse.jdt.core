@@ -146,8 +146,7 @@ public void testAA_2() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" + 
-		"      <CompleteOnName:n>;\n" + 
+		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(<CompleteOnName:n>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -197,8 +196,7 @@ public void testAA_3() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" + 
-		"      <CompleteOnName:i>;\n" + 
+		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(null, <CompleteOnName:i>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -248,8 +246,7 @@ public void testAA_4() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" + 
-		"      <CompleteOnName:max>;\n" + 
+		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(null, i, <CompleteOnName:max>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -645,8 +642,7 @@ public void testBC_1FJ4GSG_1() {
 		"  public BC() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Vector v;\n" + 
-		"    <CompleteOnName:BC.>;\n" + 
+		"    Vector v;\n" +		"    new Vector(Value1, <CompleteOnName:BC.>);\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -703,7 +699,7 @@ public void testBC_1FJ4GSG_2() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    Vector v;\n" + 
-		"    <CompleteOnName:BC.Constants.>;\n" + 
+		"    (BC.Constants.OK | <CompleteOnName:BC.Constants.>);\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1785,7 +1781,7 @@ public void testFA_1() {
 		"  public FA() {\n" + 
 		"  }\n" + 
 		"  public float foo() {\n" + 
-		"    <CompleteOnName:f>;\n" + 
+		"    return <CompleteOnName:f>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1821,7 +1817,7 @@ public void testFA_2() {
 		"  public FA() {\n" + 
 		"  }\n" + 
 		"  public float foo() {\n" + 
-		"    <CompleteOnName:v>;\n" + 
+		"    (float) <CompleteOnName:v>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1936,7 +1932,7 @@ public void testG() {
 		"    Y() {\n" + 
 		"    }\n" + 
 		"    void foo(int b) {\n" + 
-		"      <CompleteOnName:b>;\n" + 
+		"      return <CompleteOnName:b>;\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"  public G() {\n" + 
@@ -2062,8 +2058,7 @@ public void testGC_1FSHLHV_1() {
 		"  public GC() {\n" + 
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
-		"    Object l;\n" + 
-		"    new <CompleteOnType:O>();\n" + 
+		"    Object l;\n" +		"    new <CompleteOnType:O>();\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2469,8 +2464,7 @@ public void testHC_1FMPYO3_2() {
 		"  HC(Object o) {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    A a;\n" + 
-		"    new <CompleteOnType:O>();\n" + 
+		"    A a;\n" +		"    new A(new <CompleteOnType:O>());\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2878,6 +2872,13 @@ public void testK_1() {
 		"			new File(\"c:\\abc.txt\"); \n" + 
 		"		O bb bbbb.}\n" + 
 		"}\n";
+		
+//	str = 
+//		"public class K {\n" + 
+//		"	void foo() {\n" + 
+//		"		new X(\"c:abc.txt\"); \n" + 
+//		"		O" +//		"   }\n" + 
+//		"}\n";
 
 	String testName = "<complete on corrupted local variable declaration>";
 	String completeBehind = "		O";
@@ -3596,8 +3597,7 @@ public void testMA_2() {
 		"      MemberMember() {\n" + 
 		"      }\n" + 
 		"      void fooMemberMember() {\n" + 
-		"        MemberOfCUMA m;\n" + 
-		"        new <CompleteOnType:MemberOfCU>();\n" + 
+		"        MemberOfCUMA m;\n" +		"        new <CompleteOnType:MemberOfCU>();\n" + 
 		"      }\n" + 
 		"    }\n" + 
 		"    class MemberMember2 {\n" + 
@@ -4192,7 +4192,7 @@ public void testNB() {
 		"    int iOutside;\n" + 
 		"    {\n" + 
 		"      int i;\n" + 
-		"      <CompleteOnName:i>;\n" + 
+		"      -- <CompleteOnName:i>;\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -6757,7 +6757,7 @@ public void testX_1FGGV8C_1() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    <CompleteOnName:t>;\n" + 
+		"    new Y(\"debug.vars\", <CompleteOnName:t>);\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -6858,7 +6858,7 @@ public void testX_1FGGV8C_2() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    new <CompleteOnType:Y>();\n" + 
+		"    return new <CompleteOnType:Y>();\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -7161,7 +7161,7 @@ public void testX_1FGPE8E() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    <CompleteOnName:n>;\n" + 
+		"    return <CompleteOnName:n>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -8175,7 +8175,7 @@ public void test004(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnName:ZZZ>;\n" + 
+		"    bar(<CompleteOnName:ZZZ>);\n" + 
 		"  }\n" + 
 		"  void bar(int y) {\n" + 
 		"  }\n" + 

@@ -188,7 +188,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
 					enclosingInstanceType,
 					enclosingInstance);
-			} else if ((receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
+			} else if ((this.expressionType = receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
 							scope,
 							(ReferenceBinding) enclosingInstanceType)) == null) {
 				hasError = true;
@@ -311,13 +311,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
 		return anonymousType.binding; // 1.2 change
 	}
+	
+	public String toStringExpression() {
+		return this.toStringExpression(0);
+	}
 
 	public String toStringExpression(int tab) {
 
 		String s = ""; //$NON-NLS-1$
 		if (enclosingInstance != null)
 			s += enclosingInstance.toString() + "."; //$NON-NLS-1$
-		s += super.toStringExpression(tab);
+		s += super.toStringExpression();
 		if (anonymousType != null) {
 			s += anonymousType.toString(tab);
 		} //allows to restart just after the } one line under ....

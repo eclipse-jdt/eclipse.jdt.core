@@ -25,7 +25,8 @@ public abstract class Expression extends Statement {
 	//Expression is a subclass of Statement. See the message isValidJavaStatement()
 
 	public int implicitConversion;
-
+	public TypeBinding expressionType;
+	
 	public Constant constant;
 
 	public Expression() {

@@ -174,7 +174,7 @@ public class ArrayReference extends Reference {
 		if (positionTb == null)
 			return null;
 		position.implicitWidening(IntBinding, positionTb);
-		return arrayElementBinding = ((ArrayBinding) arrayTb).elementsType(scope);
+		return this.expressionType = arrayElementBinding = ((ArrayBinding) arrayTb).elementsType(scope);
 	}
 
 	public String toStringExpression() {

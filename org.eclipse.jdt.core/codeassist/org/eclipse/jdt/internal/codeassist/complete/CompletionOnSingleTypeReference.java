@@ -60,4 +60,7 @@ public String toStringExpression(int tab){
 
 	return "<CompleteOnType:" + new String(token) + ">" ; //$NON-NLS-2$ //$NON-NLS-1$
 }
+public String toStringExpression(){
+	return this.toStringExpression(0);
+}
 }

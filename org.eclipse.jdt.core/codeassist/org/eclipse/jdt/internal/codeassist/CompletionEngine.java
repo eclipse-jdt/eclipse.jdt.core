@@ -47,7 +47,13 @@ public final class CompletionEngine
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
 	private final static char[] SEMICOLON = new char[] { ';' };
-	TypeBinding[] expectedTypes;
+	
+	private final static int SUPERTYPE = 1;
+	private final static int SUBTYPE = 2;
+	
+	int expectedTypesCount = -1;
+	TypeBinding[] expectedTypes = new TypeBinding[1];
+	int expectedTypesFilter;
 	
 	boolean assistNodeIsClass;
 	boolean assistNodeIsException;
@@ -325,12 +331,12 @@ public final class CompletionEngine
 			relevance);
 	}
 
-	private void complete(AstNode astNode, Binding qualifiedBinding, Scope scope) {
+	private void complete(AstNode astNode, AstNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
 		
-		if(parser.assistNodeParent != null) {
-			computeExpectedTypes(parser.assistNodeParent, scope);
+		if(astNodeParent != null) {
+			computeExpectedTypes(astNodeParent, scope);
 		}
 
 		// defaults... some nodes will change these
@@ -695,7 +701,7 @@ public final class CompletionEngine
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
 							// if null then we found a problem in the completion node
-							complete(e.astNode, e.qualifiedBinding, e.scope);
+							complete(e.astNode, parser.assistNodeParent, e.qualifiedBinding, e.scope);
 						}
 					}
 				}
@@ -817,9 +823,13 @@ public final class CompletionEngine
 							if(DEBUG) {
 								System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
 								System.out.println(e.astNode.toString());
+								if(parser.assistNodeParent != null) {
+									System.out.print("COMPLETION - Parent Node : ");  //$NON-NLS-1$
+									System.out.println(parser.assistNodeParent);
+								}
 							}
 							// if null then we found a problem in the completion node
-							complete(e.astNode, e.qualifiedBinding, e.scope);
+							complete(e.astNode, parser.assistNodeParent, e.qualifiedBinding, e.scope);
 						}
 					}
 				}
@@ -853,7 +863,7 @@ public final class CompletionEngine
 		int argsLength = arguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argsLength];
 		for (int a = argsLength; --a >= 0;)
-			argTypes[a] = arguments[a].resolveType(scope);
+			argTypes[a] = arguments[a].expressionType;
 		return argTypes;
 	}
 	
@@ -1790,8 +1800,13 @@ public final class CompletionEngine
 	}
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(expectedTypes != null && proposalType != null) {
-			for (int i = 0; i < expectedTypes.length; i++) {
-				if(Scope.areTypesCompatible(proposalType, expectedTypes[i])) {
+			for (int i = 0; i <= expectedTypesCount; i++) {
+				if((expectedTypesFilter & SUBTYPE) != 0
+					&& Scope.areTypesCompatible(proposalType, expectedTypes[i])) {
+						return R_EXPECTED_TYPE;
+				}
+				if((expectedTypesFilter & SUPERTYPE) != 0
+					&& Scope.areTypesCompatible(expectedTypes[i], proposalType)) {
 					return R_EXPECTED_TYPE;
 				}
 			}
@@ -1800,7 +1815,7 @@ public final class CompletionEngine
 	}
 	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
 		if(expectedTypes != null) {
-			for (int i = 0; i < expectedTypes.length; i++) {
+			for (int i = 0; i <= expectedTypesCount; i++) {
 				if(CharOperation.equals(expectedTypes[i].qualifiedPackageName(), packageName) &&
 					CharOperation.equals(expectedTypes[i].qualifiedSourceName(), typeName)) {
 					return R_EXPECTED_TYPE;
@@ -2582,28 +2597,229 @@ public final class CompletionEngine
 		return name;
 	}
 	private void computeExpectedTypes(AstNode parent, Scope scope){
-		int expectedTypeCount = 0;
-		expectedTypes = new TypeBinding[1];
 		
+		// default filter
+		expectedTypesFilter = SUBTYPE;
+		
+		// find types from parent
 		if(parent instanceof AbstractVariableDeclaration) {
 			TypeBinding binding = ((AbstractVariableDeclaration)parent).type.binding;
 			if(binding != null) {
-				expectedTypes[expectedTypeCount++] = binding;
+				addExpectedType(binding);
 			}
 		} else if(parent instanceof Assignment) {
 			TypeBinding binding = ((Assignment)parent).lhsType;
 			if(binding != null) {
-				expectedTypes[expectedTypeCount++] = binding;
+				addExpectedType(binding);
 			}
 		} else if(parent instanceof ReturnStatement) {
 			MethodBinding methodBinding = ((AbstractMethodDeclaration) scope.methodScope().referenceContext).binding;
 			TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
 			if(binding != null) {
-				expectedTypes[expectedTypeCount++] = binding;
+				addExpectedType(binding);
+			}
+		} else if(parent instanceof CastExpression) {
+			Expression e = ((CastExpression)parent).type;
+			TypeBinding binding = e.expressionType;
+			if(binding != null){
+				addExpectedType(binding);
+				expectedTypesFilter = SUBTYPE | SUPERTYPE;
+			}
+		} else if(parent instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) parent;
+			
+			ReferenceBinding binding = (ReferenceBinding)messageSend.receiverType;
+			boolean isStatic = messageSend.receiver.isTypeReference();
+			
+			while(binding != null) {	
+				computeExpectedTypesForMessageSend(
+					binding,
+					messageSend.selector,
+					messageSend.arguments,
+					(ReferenceBinding)messageSend.receiverType,
+					scope,
+					messageSend,
+					isStatic);
+				computeExpectedTypesForMessageSendForInterface(
+					binding,
+					messageSend.selector,
+					messageSend.arguments,
+					(ReferenceBinding)messageSend.receiverType,
+					scope,
+					messageSend,
+					isStatic);
+				binding = binding.superclass();
+			}
+		} else if(parent instanceof AllocationExpression) {
+			AllocationExpression allocationExpression = (AllocationExpression) parent;
+			
+			ReferenceBinding binding = (ReferenceBinding)allocationExpression.type.binding;
+
+			if(binding != null) {	
+				computeExpectedTypesForAllocationExpression(
+					binding,
+					allocationExpression.arguments,
+					scope,
+					allocationExpression);
 			}
 		}
 		
-		System.arraycopy(expectedTypes, 0, expectedTypes = new TypeBinding[expectedTypeCount], 0, expectedTypeCount);
+		if(expectedTypesCount + 1 != expectedTypes.length) {
+			System.arraycopy(expectedTypes, 0, expectedTypes = new TypeBinding[expectedTypesCount + 1], 0, expectedTypesCount + 1);
+		}
+	}
+	
+	private void computeExpectedTypesForAllocationExpression(
+		ReferenceBinding binding,
+		Expression[] arguments,
+		Scope scope,
+		InvocationSite invocationSite) {
+			
+		MethodBinding[] methods = binding.availableMethods();
+		nextMethod : for (int i = 0; i < methods.length; i++) {
+			MethodBinding method = methods[i];
+			
+			if (!method.isConstructor()) continue nextMethod;
+			
+			if (method.isSynthetic()) continue nextMethod;
+			
+			if (options.checkVisibility && !method.canBeSeenBy(invocationSite, scope)) continue nextMethod;
+			
+			TypeBinding[] parameters = method.parameters;
+			if(parameters.length < arguments.length)
+				continue nextMethod;
+				
+			int length = arguments.length - 1;
+			
+			for (int j = 0; j < length; j++) {
+				Expression argument = arguments[j];
+				TypeBinding argType = argument.expressionType;
+				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
+					continue nextMethod;
+			}
+			
+			TypeBinding expectedType = method.parameters[arguments.length - 1];
+			if(expectedType != null) {
+				addExpectedType(expectedType);
+			}
+		}
+	}
+	
+	private void computeExpectedTypesForMessageSendForInterface(
+		ReferenceBinding binding,
+		char[] selector,
+		Expression[] arguments,
+		ReferenceBinding receiverType,
+		Scope scope,
+		InvocationSite invocationSite,
+		boolean isStatic) {
+
+		ReferenceBinding[] itsInterfaces = binding.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+			int lastPosition = 0;
+			interfacesToVisit[lastPosition] = itsInterfaces;
+			
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++) {
+					ReferenceBinding currentType = interfaces[j];
+
+					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+						// if interface as not already been visited
+						currentType.tagBits |= TagBits.InterfaceVisited;
+	
+						computeExpectedTypesForMessageSend(
+							currentType,
+							selector,
+							arguments,
+							receiverType,
+							scope,
+							invocationSite,
+							isStatic);
+
+						itsInterfaces = currentType.superInterfaces();
+						if (itsInterfaces != NoSuperInterfaces) {
+
+							if (++lastPosition == interfacesToVisit.length)
+								System.arraycopy(
+									interfacesToVisit,
+									0,
+									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
+									0,
+									lastPosition);
+							interfacesToVisit[lastPosition] = itsInterfaces;
+						}
+					}
+				}
+			}
+			
+			// bit reinitialization
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++){
+					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
+				}
+			}
+		}
+	}
+	
+	private void computeExpectedTypesForMessageSend(
+		ReferenceBinding binding,
+		char[] selector,
+		Expression[] arguments,
+		ReferenceBinding receiverType,
+		Scope scope,
+		InvocationSite invocationSite,
+		boolean isStatic) {
+			
+		MethodBinding[] methods = binding.availableMethods();
+		nextMethod : for (int i = 0; i < methods.length; i++) {
+			MethodBinding method = methods[i];
+			
+			if (method.isSynthetic()) continue nextMethod;
+
+			if (method.isDefaultAbstract())	continue nextMethod;
+
+			if (method.isConstructor()) continue nextMethod;
+
+			if (isStatic && !method.isStatic()) continue nextMethod;
+			
+			if (options.checkVisibility && !method.canBeSeenBy(receiverType, invocationSite, scope)) continue nextMethod;
+			
+			if(!CharOperation.equals(method.selector, selector)) continue nextMethod;
+			
+			TypeBinding[] parameters = method.parameters;
+			if(parameters.length < arguments.length)
+				continue nextMethod;
+				
+			int length = arguments.length - 1;
+			
+			for (int j = 0; j < length; j++) {
+				Expression argument = arguments[j];
+				TypeBinding argType = argument.expressionType;
+				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
+					continue nextMethod;
+			}
+				
+			TypeBinding expectedType = method.parameters[arguments.length - 1];
+			if(expectedType != null) {
+				addExpectedType(expectedType);
+			}
+		}
+	}
+	private void addExpectedType(TypeBinding type){
+		try {
+			this.expectedTypes[++this.expectedTypesCount] = type;
+		} catch (IndexOutOfBoundsException e) {
+			int oldLength = this.expectedTypes.length;
+			TypeBinding oldTypes[] = this.expectedTypes;
+			this.expectedTypes = new TypeBinding[oldLength * 2];
+			System.arraycopy(oldTypes, 0, this.expectedTypes, 0, oldLength);
+			this.expectedTypes[this.expectedTypesCount] = type;
+		}
 	}
 	private char[][] computeNames(char[] sourceName, boolean forArray){
 		char[][] names = new char[5][];

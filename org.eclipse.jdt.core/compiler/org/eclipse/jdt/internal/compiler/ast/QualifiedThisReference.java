@@ -156,7 +156,7 @@ public class QualifiedThisReference extends ThisReference {
 				methodScope = methodScope.parent.methodScope();
 			}
 		}
-		return qualificationTb;
+		return this.expressionType = qualificationTb;
 	}
 
 	public String toStringExpression() {

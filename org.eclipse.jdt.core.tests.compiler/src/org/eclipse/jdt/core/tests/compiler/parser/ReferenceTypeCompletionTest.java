@@ -337,7 +337,7 @@ public void testClassInstanceCreationExpression2() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    new <CompleteOnType:X>();\n" + 
+		"    new Y(new <CompleteOnType:X>());\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -368,7 +368,7 @@ public void testClassInstanceCreationExpression3() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    new <CompleteOnType:X>();\n" + 
+		"    new Y(1, true, new <CompleteOnType:X>());\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -399,7 +399,7 @@ public void testClassInstanceCreationExpression4() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    new <CompleteOnType:X>();\n" + 
+		"    fred().new Y(new <CompleteOnType:X>());\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -475,7 +475,7 @@ public void testClassInstanceCreationExpressionName2() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      Bar.baz.new <CompleteOnType:X>();\n" +
+		"      new Y(Bar.baz.new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  static Bar baz;\n" +
@@ -516,7 +516,7 @@ public void testClassInstanceCreationExpressionName3() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      Bar.baz.new <CompleteOnType:X>();\n" +
+		"      new Y(1, true, Bar.baz.new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  static Bar baz;\n" +
@@ -557,7 +557,7 @@ public void testClassInstanceCreationExpressionName4() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      Bar.baz.new <CompleteOnType:X>();\n" +
+		"      fred().new Y(Bar.baz.new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  static Bar baz;\n" +
@@ -634,7 +634,7 @@ public void testClassInstanceCreationExpressionPrimary2() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      new Bar().new <CompleteOnType:X>();\n" +
+		"      new Y(new Bar().new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  public Bar() {\n" + 
@@ -671,7 +671,7 @@ public void testClassInstanceCreationExpressionPrimary3() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      new Bar().new <CompleteOnType:X>();\n" +
+		"      fred().new Y(new Bar().new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  public Bar() {\n" + 
@@ -708,7 +708,7 @@ public void testClassInstanceCreationExpressionPrimary4() {
 		"    public X() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" +
-		"      new Bar().new <CompleteOnType:X>();\n" +
+		"      new Y(1, true, new Bar().new <CompleteOnType:X>());\n" +
 		"    }\n" + 
 		"  }\n" + 
 		"  public Bar() {\n" + 
@@ -1091,7 +1091,7 @@ public void testInstanceOf() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  boolean foo() {\n" +
-		"    <CompleteOnType:X>;\n" +
+		"    (this instanceof <CompleteOnType:X>);\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

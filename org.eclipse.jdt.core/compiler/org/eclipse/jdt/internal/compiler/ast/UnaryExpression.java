@@ -229,25 +229,25 @@ public class UnaryExpression extends OperatorExpression {
 		bits |= result & 0xF;
 		switch (result & 0xF) { // only switch on possible result type.....
 			case T_boolean :
-				this.typeBinding = BooleanBinding;
+				this.expressionType = BooleanBinding;
 				break;
 			case T_byte :
-				this.typeBinding = ByteBinding;
+				this.expressionType = ByteBinding;
 				break;
 			case T_char :
-				this.typeBinding = CharBinding;
+				this.expressionType = CharBinding;
 				break;
 			case T_double :
-				this.typeBinding = DoubleBinding;
+				this.expressionType = DoubleBinding;
 				break;
 			case T_float :
-				this.typeBinding = FloatBinding;
+				this.expressionType = FloatBinding;
 				break;
 			case T_int :
-				this.typeBinding = IntBinding;
+				this.expressionType = IntBinding;
 				break;
 			case T_long :
-				this.typeBinding = LongBinding;
+				this.expressionType = LongBinding;
 				break;
 			default : //error........
 				constant = Constant.NotAConstant;
@@ -270,7 +270,7 @@ public class UnaryExpression extends OperatorExpression {
 					optimizedBooleanConstant = Constant.fromValue(!cst.booleanValue());
 			}
 		}
-		return this.typeBinding;
+		return this.expressionType;
 	}
 
 	public String toStringExpressionNoParenthesis() {

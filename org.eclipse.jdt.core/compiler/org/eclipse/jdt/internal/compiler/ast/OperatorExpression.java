@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 
 	public static int[][] ResolveTypeTables = new int[NumberOfTables][];
-	public TypeBinding typeBinding;	
+
 	static {classInitialize();}
 
 	/**

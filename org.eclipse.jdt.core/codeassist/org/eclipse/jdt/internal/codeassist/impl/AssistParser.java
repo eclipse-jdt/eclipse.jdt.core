@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public abstract class AssistParser extends Parser {
-
 	public AstNode assistNode;
 	public boolean isOrphanCompletionNode;
 		
@@ -55,31 +54,25 @@ public abstract class AssistParser extends Parser {
 	// the index in the identifier stack of the previous identifier
 	protected int previousIdentifierPtr;
 	
-	// the stacks of selectors for invocations (ie. method invocations, allocation expressions and
-	// explicit constructor invocations)
-	// the selector stack contains pointers to the identifier stack or one of the selector constants below
-	protected int invocationPtr;
-	protected int[] selectorStack = new int[StackIncrement];
-
+	// element stack
+	protected static final int ElementStackIncrement = 100;
+	protected int elementPtr;
+	protected int[] elementKindStack = new int[ElementStackIncrement];
+	protected int[] elementInfoStack = new int[ElementStackIncrement];
+	
+	// OWNER
+	protected static final int ASSIST_PARSER = 512;
+	
+	// KIND : all values known by AssistParser are between 513 and 1023
+	protected static final int K_SELECTOR = ASSIST_PARSER + 1; // whether we are inside a message send
+	protected static final int K_TYPE_DELIMITER = ASSIST_PARSER + 2; // whether we are inside a type declaration
+	protected static final int K_METHOD_DELIMITER = ASSIST_PARSER + 3; // whether we are inside a method declaration
+	protected static final int K_FIELD_INITIALIZER_DELIMITER = ASSIST_PARSER + 4; // whether we are inside a field initializer
+	
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
 	protected static final int SUPER_CONSTRUCTOR = -2;
 
-	// whether the parser is in a field initializer
-	// (false is pushed each time a new type is entered,
-	//  it is changed to true when the initializer is entered,
-	//  it is changed back to false when the initializer is exited,
-	//  and it is poped when the type is exited)
-	protected int inFieldInitializationPtr;
-	protected boolean[] inFieldInitializationStack = new boolean[StackIncrement];
-
-	// whether the parser is in a method, constructor or initializer
-	// (false is pushed each time a new type is entered,
-	//  it is changed to true when the method is entered,
-	//  it is changed back to false when the method is exited,
-	//  and it is poped when the type is exited)
-	protected int inMethodPtr;
-	protected boolean[] inMethodStack = new boolean[StackIncrement];
 public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, true, assertMode);
 }
@@ -95,12 +88,11 @@ public int bodyEnd(Initializer initializer){
  * Recovery state is inferred from the current state of the parser (reduced node stack).
  */
 public RecoveredElement buildInitialRecoveryState(){
-
 	/* recovery in unit structure */
 	if (referenceContext instanceof CompilationUnitDeclaration){
 		RecoveredElement element = super.buildInitialRecoveryState();
 		flushAssistState();
-		initInMethodAndInFieldInitializationStack(element);
+		elementPtr = -1;
 		return element;
 	}
 
@@ -239,75 +231,56 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 	}
 	
-	initInMethodAndInFieldInitializationStack(element);
 	return element;
-}
-protected void consumeClassBodyDeclarationsopt() {
-	super.consumeClassBodyDeclarationsopt();
-	this.inFieldInitializationPtr--;
-	this.inMethodPtr--;
 }
 protected void consumeClassBodyopt() {
 	super.consumeClassBodyopt();
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer
+	popElement(K_SELECTOR);
 }
 protected void consumeClassHeader() {
 	super.consumeClassHeader();
-	this.pushNotInInitializer();
-	this.pushNotInMethod();
+	pushOnElementStack(K_TYPE_DELIMITER);
 }
 protected void consumeConstructorBody() {
 	super.consumeConstructorBody();
-	this.inMethodStack[this.inMethodPtr] = false;
+	popElement(K_METHOD_DELIMITER);
 }
 protected void consumeConstructorHeader() {
 	super.consumeConstructorHeader();
-	this.inMethodStack[this.inMethodPtr] = true;
-}
-protected void consumeEmptyClassBodyDeclarationsopt() {
-	super.consumeEmptyClassBodyDeclarationsopt();
-	this.inFieldInitializationPtr--;
-	this.inMethodPtr--;
+	pushOnElementStack(K_METHOD_DELIMITER);
 }
 protected void consumeEnterAnonymousClassBody() {
 	super.consumeEnterAnonymousClassBody();
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer
-	this.pushNotInInitializer();
-	this.pushNotInMethod();
+	popElement(K_SELECTOR);
+	pushOnElementStack(K_TYPE_DELIMITER);
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer
+	popElement(K_SELECTOR);
 }
 protected void consumeForceNoDiet() {
 	super.consumeForceNoDiet();
 	// if we are not in a method (ie. we are not in a local variable initializer)
 	// then we are entering a field initializer
-	if (!this.inMethodStack[this.inMethodPtr]) {
-		this.inFieldInitializationStack[this.inFieldInitializationPtr] = true;
+	if (!isInsideMethod()) {
+		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
 protected void consumeInterfaceHeader() {
 	super.consumeInterfaceHeader();
-	this.pushNotInInitializer();
-	this.pushNotInMethod();
-}
-protected void consumeInterfaceMemberDeclarationsopt() {
-	super.consumeInterfaceMemberDeclarationsopt();
-	this.inFieldInitializationPtr--;
-	this.inMethodPtr--;
+	pushOnElementStack(K_TYPE_DELIMITER);
 }
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
-	this.inMethodStack[this.inMethodPtr] = false;
+	popElement(K_METHOD_DELIMITER);
 }
 protected void consumeMethodHeader() {
 	super.consumeMethodHeader();
-	this.inMethodStack[this.inMethodPtr] = true;
+	pushOnElementStack(K_METHOD_DELIMITER);
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer
+	popElement(K_SELECTOR);
 	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
 	if (messageSend == assistNode){
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
@@ -315,7 +288,7 @@ protected void consumeMethodInvocationName() {
 }
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary();
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer
+	popElement(K_SELECTOR);
 	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
 	if (messageSend == assistNode){
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
@@ -323,7 +296,7 @@ protected void consumeMethodInvocationPrimary() {
 }
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
-	this.invocationPtr--; // NB: This can be decremented below -1 only if in diet mode and not in field initializer 
+	popElement(K_SELECTOR);
 	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
 	if (messageSend == assistNode){
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
@@ -331,7 +304,7 @@ protected void consumeMethodInvocationSuper() {
 }
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
-	this.inMethodStack[this.inMethodPtr] = true;
+	if(!isInsideMethod()) pushOnElementStack(K_METHOD_DELIMITER);
 }
 protected void consumeOpenBlock() {
 	// OpenBlock ::= $empty
@@ -400,8 +373,8 @@ protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();
 	// if we are not in a method (ie. we were not in a local variable initializer)
 	// then we are exiting a field initializer
-	if (!this.inMethodStack[this.inMethodPtr]) {
-		this.inFieldInitializationStack[this.inFieldInitializationPtr] = false;
+	if (!isInsideMethod()) {
+		popElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
@@ -457,26 +430,36 @@ protected void consumeSingleTypeImportDeclarationName() {
 }
 protected void consumeStaticInitializer() {
 	super.consumeStaticInitializer();
-	this.inMethodStack[this.inMethodPtr] = false;
+	popElement(K_METHOD_DELIMITER);
 }
 protected void consumeStaticOnly() {
 	super.consumeStaticOnly();
-	this.inMethodStack[this.inMethodPtr] = true;
+	pushOnElementStack(K_METHOD_DELIMITER);
 }
 protected void consumeToken(int token) {
 	super.consumeToken(token);
 	// register message send selector only if inside a method or if looking at a field initializer 
 	// and if the current token is an open parenthesis
-	if ((this.inMethodStack[this.inMethodPtr] || this.inFieldInitializationStack[this.inFieldInitializationPtr]) && token == TokenNameLPAREN) {
-		switch (this.previousToken) {
-			case TokenNameIdentifier:
-				this.pushOnSelectorStack(this.identifierPtr);
+	if (isInsideMethod() || isInsideFieldInitialization()) {
+		switch (token) {
+			case TokenNameLPAREN :
+				switch (this.previousToken) {
+					case TokenNameIdentifier:
+						this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
+						break;
+					case TokenNamethis: // explicit constructor invocation, eg. this(1, 2)
+						this.pushOnElementStack(K_SELECTOR, THIS_CONSTRUCTOR);
+						break;
+					case TokenNamesuper: // explicit constructor invocation, eg. super(1, 2)
+						this.pushOnElementStack(K_SELECTOR, SUPER_CONSTRUCTOR);
+						break;
+				}
 				break;
-			case TokenNamethis: // explicit constructor invocation, eg. this(1, 2)
-				this.pushOnSelectorStack(THIS_CONSTRUCTOR);
-				break;
-			case TokenNamesuper: // explicit constructor invocation, eg. super(1, 2)
-				this.pushOnSelectorStack(SUPER_CONSTRUCTOR);
+		}
+	} else {
+		switch (token) {
+			case TokenNameLBRACE :
+				popElement(K_TYPE_DELIMITER);	
 				break;
 		}
 	}
@@ -701,63 +684,81 @@ protected int indexOfAssistIdentifier(){
 public void initialize() {
 	super.initialize();
 	this.flushAssistState();
-	this.invocationPtr = -1;
-	this.inMethodStack[this.inMethodPtr = 0] = false;
-	this.inFieldInitializationStack[this.inFieldInitializationPtr = 0] = false;
+	this.elementPtr = -1;
 	this.previousIdentifierPtr = -1;
 }
+
 public abstract void initializeScanner();
-
-protected void initInMethodAndInFieldInitializationStack(RecoveredElement currentElement) {
-
-	int length = currentElement.depth() + 1;
-	int ptr = length;
-	boolean[] methodStack = new boolean[length];
-	boolean[] fieldInitializationStack = new boolean[length];
-	boolean inMethod = false;
-	boolean inFieldInitializer = false;
-	
-	RecoveredElement element = currentElement;
-	while(element != null){
-		if(element instanceof RecoveredMethod ||
-			element instanceof RecoveredInitializer) {
-			if(element.parent == null) {
-				methodStack[--ptr] = true;
-				fieldInitializationStack[ptr] = false;
-			}
-			inMethod = true;
-		} else if(element instanceof RecoveredField){
-			inFieldInitializer = element.sourceEnd() == 0;
-		} else if(element instanceof RecoveredType){
-			methodStack[--ptr] = inMethod;
-			fieldInitializationStack[ptr] = inFieldInitializer;
-	
-			inMethod = false;
-			inFieldInitializer = false;
-		} else if(element instanceof RecoveredUnit) {
-			methodStack[--ptr] = false;
-			fieldInitializationStack[ptr] = false;
-		}
-		element = element.parent;
-	}
-	
-	inMethodPtr = length - ptr - 1;
-	inFieldInitializationPtr = inMethodPtr;
-	System.arraycopy(methodStack, ptr, inMethodStack, 0, inMethodPtr + 1);
-	System.arraycopy(fieldInitializationStack, ptr, inFieldInitializationStack, 0, inFieldInitializationPtr + 1);
-	
-}
-
-/**
- * Returns whether we are directly or indirectly inside a field initializer.
- */
-protected boolean insideFieldInitialization() {
-	for (int i = this.inFieldInitializationPtr; i >= 0; i--) {
-		if (this.inFieldInitializationStack[i]) {
+protected boolean isIndirectlyInsideFieldInitialization(){
+	int i = elementPtr;
+	while(i > -1) {
+		if(elementKindStack[i] == K_FIELD_INITIALIZER_DELIMITER)
 			return true;
-		}
+		i--;
 	}
 	return false;
+}
+protected boolean isIndirectlyInsideMethod(){
+	int i = elementPtr;
+	while(i > -1) {
+		if(elementKindStack[i] == K_METHOD_DELIMITER)
+			return true;
+		i--;
+	}
+	return false;
+}
+protected boolean isIndirectlyInsideType(){
+	int i = elementPtr;
+	while(i > -1) {
+		if(elementKindStack[i] == K_TYPE_DELIMITER)
+			return true;
+		i--;
+	}
+	return false;
+}
+protected boolean isInsideFieldInitialization(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return true;
+		}
+		i--;
+	}
+	return false;
+}
+protected boolean isInsideMethod(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return true;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
+		}	
+		i--;
+	}
+	return false;
+}
+protected boolean isInsideType(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return true;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
+		}
+		i--;
+	}
+	return false;
+}
+protected int lastIndexOfElement(int kind) {
+	int i = elementPtr;
+	while(i > -1) {
+		if(elementKindStack[i] == kind) return i;
+		i--;	
+	}
+	return -1;
 }
 /**
  * Parse the block statements inside the given method declaration and try to complete at the
@@ -858,6 +859,24 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 		nestedMethod[nestedType]--;		
 	}
 }
+protected void popElement(int kind){
+	if(elementPtr < 0 || elementKindStack[elementPtr] != kind) return;
+	switch (kind) {
+		default :
+			elementPtr--;
+			break;
+	}
+}
+protected void popUntilElement(int kind){
+	if(elementPtr < 0) return;
+	int i = elementPtr;
+	while (i >= 0 && elementKindStack[i] != kind) {
+		i--;
+	}
+	if(i > 0) {
+		elementPtr = i;	
+	}
+}
 /*
  * Prepares the state of the parser to go for BlockStatements.
  */
@@ -865,59 +884,52 @@ protected void prepareForBlockStatements() {
 	this.nestedMethod[this.nestedType = 0] = 1;
 	this.variablesCounter[this.nestedType] = 0;
 	this.realBlockStack[this.realBlockPtr = 1] = 0;
-	this.invocationPtr = -1;
-}
-/*
- * Pushes 'false' on the inInitializerStack.
- */
-protected void pushNotInInitializer() {
-	try {
-		this.inFieldInitializationStack[++this.inFieldInitializationPtr] = false;
-	} catch (IndexOutOfBoundsException e) {
-		//except in test's cases, it should never raise
-		int oldStackLength = this.inFieldInitializationStack.length;
-		System.arraycopy(this.inFieldInitializationStack , 0, (this.inFieldInitializationStack = new boolean[oldStackLength + StackIncrement]), 0, oldStackLength);
-		this.inFieldInitializationStack[this.inFieldInitializationPtr] = false;
+	
+	// initialize element stack
+	int fieldInitializerIndex = lastIndexOfElement(K_FIELD_INITIALIZER_DELIMITER);
+	int methodIndex = lastIndexOfElement(K_METHOD_DELIMITER);
+	if(methodIndex == fieldInitializerIndex) {
+		// there is no method and no field initializer
+		elementPtr = -1;
+	} else if(methodIndex > fieldInitializerIndex) {
+		popUntilElement(K_METHOD_DELIMITER);
+	} else {
+		popUntilElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
 /*
- * Pushes 'false' on the inMethodStack.
+ * Prepares the state of the parser to go for Headers.
  */
-protected void pushNotInMethod() {
-	try {
-		this.inMethodStack[++this.inMethodPtr] = false;
-	} catch (IndexOutOfBoundsException e) {
-		//except in test's cases, it should never raise
-		int oldStackLength = this.inMethodStack.length;
-		System.arraycopy(this.inMethodStack , 0, (this.inMethodStack = new boolean[oldStackLength + StackIncrement]), 0, oldStackLength);
-		this.inMethodStack[this.inMethodPtr] = false;
-	}
+protected void prepareForHeaders() {
+	nestedMethod[nestedType = 0] = 0;
+	variablesCounter[nestedType] = 0;
+	realBlockStack[realBlockPtr = 0] = 0;
+	
+	popUntilElement(K_TYPE_DELIMITER);
 }
-/**
- * Pushes the given the given selector (an identifier pointer to the identifier stack) on the selector stack.
- */
-protected void pushOnSelectorStack(int selectorIdPtr) {
-	if (this.invocationPtr < -1) return;
+protected void pushOnElementStack(int kind){
+	this.pushOnElementStack(kind, 0);
+}
+protected void pushOnElementStack(int kind, int info){
+	if (this.elementPtr < -1) return;
 	try {
-		this.selectorStack[++this.invocationPtr] = selectorIdPtr;
+		this.elementPtr++;
+		this.elementKindStack[this.elementPtr] = kind;
+		this.elementInfoStack[this.elementPtr] = info;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.selectorStack.length;
-		int oldSelectorStack[] = this.selectorStack;
-		this.selectorStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldSelectorStack, 0, this.selectorStack, 0, oldStackLength);
-		this.selectorStack[this.invocationPtr] = selectorIdPtr;
+		int oldStackLength = this.elementKindStack.length;
+		int oldElementStack[] = this.elementKindStack;
+		int oldElementInfoStack[] = this.elementInfoStack;
+		this.elementKindStack = new int[oldStackLength + StackIncrement];
+		this.elementInfoStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldElementStack, 0, this.elementKindStack, 0, oldStackLength);
+		System.arraycopy(oldElementInfoStack, 0, this.elementInfoStack, 0, oldStackLength);
+		this.elementKindStack[this.elementPtr] = kind;
+		this.elementInfoStack[this.elementPtr] = info;
 	}
 }
 public void reset(){
 	this.flushAssistState();
-}
-/*
- * Reset context so as to resume to regular parse loop
- */
-protected void resetStacks() {
-	super.resetStacks();
-	this.inFieldInitializationStack[this.inFieldInitializationPtr = 0] = false;
-	this.inMethodStack[this.inMethodPtr = 0] = false;
 }
 /*
  * Reset context so as to resume to regular parse loop
@@ -944,23 +956,29 @@ protected boolean resumeAfterRecovery() {
 
 	/* attempt to move checkpoint location */
 	if (!this.moveRecoveryCheckpoint()) return false;
-
-	initInMethodAndInFieldInitializationStack(currentElement);
+	
+//	if(currentElement instanceof RecoveredMethod
+//		&& !isInsideMethod()) {
+//		pushOnElementStack(K_METHOD_DELIMITER);
+//	} else if(currentElement instanceof RecoveredField
+//		&& !isInsideFieldInitialization()) {
+//		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+//	} if(currentElement instanceof RecoveredType
+//		&& !isInsideType()) {
+//		pushOnElementStack(K_TYPE_DELIMITER);
+//	}
 
 	// only look for headers
 	if (referenceContext instanceof CompilationUnitDeclaration
 		|| this.assistNode != null){
-		
-		if(inMethodStack[inMethodPtr] &&
-			insideFieldInitialization() &&
+		if(isInsideMethod() &&
+			isIndirectlyInsideFieldInitialization() &&		
 			this.assistNode == null
 			){ 
 			this.prepareForBlockStatements();
 			goForBlockStatementsOrMethodHeaders();
 		} else {
-			nestedMethod[nestedType = 0] = 0;
-			variablesCounter[nestedType] = 0;
-			realBlockStack[realBlockPtr = 0] = 0;
+			this.prepareForHeaders();
 			goForHeaders();
 			diet = true; // passed this point, will not consider method bodies
 		}
@@ -970,9 +988,7 @@ protected boolean resumeAfterRecovery() {
 		|| referenceContext instanceof TypeDeclaration){
 			
 		if (currentElement instanceof RecoveredType){
-			nestedMethod[nestedType = 0] = 0;
-			variablesCounter[nestedType] = 0;
-			realBlockStack[realBlockPtr = 0] = 0;
+			this.prepareForHeaders();
 			goForHeaders();
 		} else {
 			this.prepareForBlockStatements();
@@ -984,6 +1000,34 @@ protected boolean resumeAfterRecovery() {
 	return false;
 }
 public abstract void setAssistIdentifier(char[] assistIdent);
+protected int topKnownElementInfo(int owner) {
+	return topKnownElementInfo(owner, 0);
+}
+protected int topKnownElementInfo(int owner, int offSet) {
+	int i = elementPtr;
+	while(i > -1) {
+		if((elementKindStack[i] & owner) != 0) {
+			if(offSet <= 0) return elementInfoStack[i];
+			offSet--;
+		}
+		i--;
+	}
+	return 0;
+}
+protected int topKnownElementKind(int owner) {
+	return topKnownElementKind(owner, 0);
+}
+protected int topKnownElementKind(int owner, int offSet) {
+	int i = elementPtr;
+	while(i > -1) {
+		if((elementKindStack[i] & owner) != 0) {
+			if(offSet <= 0) return elementKindStack[i];
+			offSet--;
+		}
+		i--;
+	}
+	return 0;
+}
 /**
  * If the given ast node is inside an explicit constructor call
  * then wrap it with a fake constructor call.
@@ -991,8 +1035,8 @@ public abstract void setAssistIdentifier(char[] assistIdent);
  */
 protected AstNode wrapWithExplicitConstructorCallIfNeeded(AstNode ast) {
 	int selector;
-	if (ast != null && this.invocationPtr >= 0 && ast instanceof Expression &&
-			(((selector = this.selectorStack[this.invocationPtr]) == THIS_CONSTRUCTOR) ||
+	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
+			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||
 			(selector == SUPER_CONSTRUCTOR))) {
 		ExplicitConstructorCall call = new ExplicitConstructorCall(
 			(selector == THIS_CONSTRUCTOR) ? 

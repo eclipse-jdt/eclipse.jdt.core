@@ -39,24 +39,29 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
 public TypeBinding resolveType(BlockScope scope) {
-	TypeBinding typeBinding = null;
+	if (arguments != null) {
+		int argsLength = arguments.length;
+		for (int a = argsLength; --a >= 0;)
+			arguments[a].resolveType(scope);
+	}
+	
 	if (enclosingInstance != null) {
 		TypeBinding enclosingType = enclosingInstance.resolveType(scope);
 		if (enclosingType == null || !(enclosingType instanceof ReferenceBinding)) {
 			throw new CompletionNodeFound();
 		}
-		typeBinding = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
-		if (!(typeBinding instanceof ReferenceBinding))
+		this.expressionType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
+		if (!(this.expressionType instanceof ReferenceBinding))
 			throw new CompletionNodeFound(); // no need to continue if its an array or base type
-		if (typeBinding.isInterface()) // handle the anonymous class definition case
-			typeBinding = scope.getJavaLangObject();
+		if (this.expressionType.isInterface()) // handle the anonymous class definition case
+			this.expressionType = scope.getJavaLangObject();
 	} else {
-		typeBinding = type.resolveType(scope);
-		if (!(typeBinding instanceof ReferenceBinding))
+		this.expressionType = type.resolveType(scope);
+		if (!(this.expressionType instanceof ReferenceBinding))
 			throw new CompletionNodeFound(); // no need to continue if its an array or base type
 	}
 
-	throw new CompletionNodeFound(this, typeBinding, scope);
+	throw new CompletionNodeFound(this, this.expressionType, scope);
 }
 public String toStringExpression(int tab) {
 	return 
