@@ -95,8 +95,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 				// if the output location changes, do not delete the binary files from old location
 				// the user may be trying something
 				buildAll();
-			} else if (sourceFolders.length > 0) {
-				// if there is no source to compile & no classpath changes then we are done
+			} else if (sourceFolders.length > 0) { // if there is no source to compile & no classpath changes then we are done
+				clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
 				SimpleLookupTable deltas = findDeltas();
 				if (deltas == null)
 					buildAll();
@@ -166,7 +166,6 @@ private void cleanup() {
 
 private void clearLastState() {
 	JavaModelManager.getJavaModelManager().setLastBuiltState(currentProject, null);
-	this.lastState = null;
 }
 
 private void createFolder(IContainer folder) throws CoreException {
@@ -332,10 +331,6 @@ private void recordNewState(State state) {
  * String representation for debugging purposes
  */
 public String toString() {
-	State state = getLastState(currentProject);
-	if (state != null)
-		return "JavaBuilder(" //$NON-NLS-1$
-			+ state + ")"; //$NON-NLS-1$
-	return "JavaBuilder(no built state)"; //$NON-NLS-1$
+	return "JavaBuilder for " + currentProject.getName(); //$NON-NLS-1$
 }
 }
