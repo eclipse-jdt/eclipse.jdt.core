@@ -428,27 +428,8 @@ PackageBinding createPackage(char[][] compoundName) {
 	return packageBinding;
 }
 
-public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] originalArguments, ReferenceBinding enclosingType) {
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 
-	// relocalize wildcard onto genericType (could come from other types)
-	TypeBinding[] typeArguments = originalArguments;
-	for (int i = 0, length = typeArguments == null ? 0 : typeArguments.length; i < length; i++) {
-		TypeBinding argument = originalArguments[i];
-		if (argument.isWildcard()) {
-			WildcardBinding wildcard = (WildcardBinding) argument;
-			if (wildcard.genericType != genericType) { // wildcard comes from different type
-				if (typeArguments == originalArguments) {
-					System.arraycopy(originalArguments, 0, typeArguments = new TypeBinding[length], 0, i);
-				}
-				typeArguments[i] = createWildcard(genericType, i, wildcard.bound, wildcard.kind);
-			} else if (typeArguments != originalArguments) {
-				typeArguments[i] = argument;
-			}
-		} else if (typeArguments != originalArguments) {
-			typeArguments[i] = argument;
-		}
-	}
-	
 	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
