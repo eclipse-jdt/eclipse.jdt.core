@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -337,6 +338,9 @@ public boolean exists() {
 protected void fireChange() {
 	if (fChangeListeners == null) {
 		return;
+	}
+	if (DEBUG) {
+		System.out.println("FIRING hierarchy change for hierarchy focused on " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
 	}
 	Vector listeners= (Vector)fChangeListeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
@@ -1047,6 +1051,10 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		long start = -1;
 		if (DEBUG) {
 			start = System.currentTimeMillis();
+			System.out.println("CREATING TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (fType != null) {
+				System.out.println("  on type " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
+			}
 		}
 		compute();
 		if (reactivate) {
@@ -1058,8 +1066,7 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		fProgressMonitor = null;
 		if (DEBUG) {
-			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			System.out.println(this.toString());
+			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} catch (JavaModelException e) {
 		fProgressMonitor = null;
@@ -1188,8 +1195,7 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
 		buffer.append("  "); //$NON-NLS-1$
 	}
 	JavaElement element = (JavaElement)type;
-	buffer.append(element.toDebugString());
-	element.toStringAncestors(buffer);
+	buffer.append(element.toStringWithAncestors());
 	buffer.append('\n');
 
 	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);

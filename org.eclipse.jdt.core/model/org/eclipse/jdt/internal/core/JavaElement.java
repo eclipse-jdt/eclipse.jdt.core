@@ -555,7 +555,17 @@ protected void toString(int tab, StringBuffer buffer) {
 /**
  * @private Debugging purposes
  */
-public void toStringAncestors(StringBuffer buffer) {
+public String toStringWithAncestors() {
+	StringBuffer buffer = new StringBuffer();
+	Object info = fgJavaModelManager.getInfo(this);
+	this.toStringInfo(0, buffer, info);
+	this.toStringAncestors(buffer);
+	return buffer.toString();
+}
+/**
+ * @private Debugging purposes
+ */
+protected void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
 	if (parent != null && parent.getParent() != null) {
 		buffer.append(" [in "); //$NON-NLS-1$

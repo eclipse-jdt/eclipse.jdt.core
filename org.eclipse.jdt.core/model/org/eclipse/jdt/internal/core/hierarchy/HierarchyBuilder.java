@@ -121,6 +121,20 @@ public void connect(IGenericType suppliedType, IGenericType superclass, IGeneric
 		System.arraycopy(resolvedInterfaceHandles, 0, interfaceHandles = new IType[index], 0, index);
 	}
 
+	if (TypeHierarchy.DEBUG) {
+		System.out.println("Connecting: " + ((JavaElement)typeHandle).toStringWithAncestors()); //$NON-NLS-1$
+		System.out.println("  to superclass: " + (superHandle == null ? "<None>" : ((JavaElement)superHandle).toStringWithAncestors())); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.print("  and superinterfaces:"); //$NON-NLS-1$
+		if (interfaceHandles == null) {
+			System.out.println(" <None>"); //$NON-NLS-1$
+		} else {
+			System.out.println();
+			for (int i = 0, length = interfaceHandles.length; i < length; i++) {
+				System.out.println("    " + ((JavaElement)interfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
+			}
+		}
+	}
+
 	// now do the caching
 	if (suppliedType.isClass()) {
 		if (superHandle == null) {
