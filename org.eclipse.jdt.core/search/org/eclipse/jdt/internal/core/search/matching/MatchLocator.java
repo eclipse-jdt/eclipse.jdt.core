@@ -41,8 +41,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
-import org.eclipse.jdt.internal.core.search.HierarchyScope;
-
 /**
  * Locate matches in compilation units.
  */
@@ -373,11 +371,11 @@ public class MatchLocator implements ITypeRequestor {
 		this.nameLookup = project.getNameLookup();
 
 		// create hierarchy resolver if scope is a hierarchy scope
-		if (this.scope instanceof HierarchyScope) {
+/*	if (this.scope instanceof HierarchyScope) {
 			IType focusType = ((HierarchyScope)this.scope).focusType;
 			if (focusType != null) {
 					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
+					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed);
 					this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
 			} else {
 				this.hierarchyResolver = null;
@@ -385,6 +383,7 @@ public class MatchLocator implements ITypeRequestor {
 		} else {
 			this.hierarchyResolver = null;
 		}
+*/
 	}
 
 	public void initializeNameEnvironment(JavaProject project) throws JavaModelException {

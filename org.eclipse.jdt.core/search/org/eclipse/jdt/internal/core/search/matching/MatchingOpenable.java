@@ -192,7 +192,7 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				char[][] compoundName = CharOperation.splitOn('.', binaryType.getFullyQualifiedName().toCharArray());
 				ReferenceBinding referenceBinding = this.locator.lookupEnvironment.getCachedType(compoundName);
 				if (referenceBinding != null && (referenceBinding instanceof BinaryTypeBinding)) {
-					// if the binding could be found and if it comes from a source type,
+					// if the binding could be found and if it comes from a binary type,
 					binding = (BinaryTypeBinding)referenceBinding;
 				}
 			}
