@@ -188,12 +188,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (isClassScope)
 					if (((ClassScope) scope).detectCycle(currentType, this, null))
 						return null;
-					
-   			    if (enclosingType != null && enclosingType.isParameterizedType()) {
-					scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType(currentType, null, enclosingType));
-					return null;
+				if (currentType.erasure().isGenericType()) {
+	   			    if (enclosingType != null && enclosingType.isParameterizedType()) {
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType(currentType, null, enclosingType));
+						return null;
+					}
+	   			    this.resolvedType = scope.environment().createRawType(currentType, enclosingType); // raw type
 				}
-   			    this.resolvedType = scope.environment().createRawType(currentType, enclosingType); // raw type
 			}
 		}
 
