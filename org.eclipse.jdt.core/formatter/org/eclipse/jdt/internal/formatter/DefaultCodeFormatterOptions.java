@@ -292,7 +292,8 @@ public class DefaultCodeFormatterOptions {
 	public final char filling_space = ' ';
 	public int page_width;
 	public int tab_char;
-
+	public boolean use_tabs_only_for_leading_indentations;
+	
 	public int initial_indentation_level;
 	public String line_separator;
 	
@@ -561,6 +562,7 @@ public class DefaultCodeFormatterOptions {
 				break;
 		}
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS, this.use_tabs_only_for_leading_indentations ?  DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		return options;
 	}
 
@@ -1767,6 +1769,10 @@ public class DefaultCodeFormatterOptions {
 				this.tab_size = 4;
 			}
 		}
+		final Object useTabsOnlyForLeadingIndentationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS);
+		if (useTabsOnlyForLeadingIndentationsOption != null) {
+			this.use_tabs_only_for_leading_indentations = DefaultCodeFormatterConstants.TRUE.equals(useTabsOnlyForLeadingIndentationsOption);
+		}
 		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
 		if (pageWidthOption != null) {
 			try {
@@ -2028,6 +2034,7 @@ public class DefaultCodeFormatterOptions {
 		this.tab_size = 4;
 		this.page_width = 80;
 		this.tab_char = TAB; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
+		this.use_tabs_only_for_leading_indentations = false;
 	}
 	
 	public void setEclipseDefaultSettings() {
@@ -2275,5 +2282,6 @@ public class DefaultCodeFormatterOptions {
 		this.tab_size = 4;
 		this.page_width = 80;
 		this.tab_char = SPACE;
+		this.use_tabs_only_for_leading_indentations = false;
 	}
 }

@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return suite;
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test566"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test569"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -7904,4 +7904,50 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49896
+	public void test567() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+        preferences.use_tabs_only_for_leading_indentations = true;
+        preferences.page_width = 35;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test567", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49896
+	public void test568() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+        preferences.indentation_size = 4;
+        preferences.tab_size = 4;
+        preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+		preferences.use_tabs_only_for_leading_indentations = true;
+        preferences.page_width = 35;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test568", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49896
+	public void test569() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+        preferences.indentation_size = 4;
+        preferences.tab_size = 4;
+        preferences.tab_char = DefaultCodeFormatterOptions.TAB;
+		preferences.use_tabs_only_for_leading_indentations = false;
+        preferences.page_width = 40;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test569", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 }

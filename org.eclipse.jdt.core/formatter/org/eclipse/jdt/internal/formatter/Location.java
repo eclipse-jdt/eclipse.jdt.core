@@ -25,6 +25,7 @@ public class Location {
 	public boolean pendingSpace;
 	public int nlsTagCounter;
 	public int lastLocalDeclarationSourceStart;
+	public int numberOfIndentations;
 
 	// chunk management
 	public int lastNumberOfNewLines;
@@ -47,6 +48,7 @@ public class Location {
 		this.pendingSpace = scribe.pendingSpace;
 		this.editsIndex = scribe.editsIndex;
 		this.nlsTagCounter = scribe.nlsTagCounter;
+		this.numberOfIndentations = scribe.numberOfIndentations;
 		textEdit = scribe.getLastEdit();
 	}
 }

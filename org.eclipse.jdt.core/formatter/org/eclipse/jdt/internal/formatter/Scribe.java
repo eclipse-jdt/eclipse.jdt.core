@@ -72,6 +72,8 @@ public class Scribe {
 	private int textRegionEnd;
 	private int textRegionStart;
 	public int tabChar;
+	public int numberOfIndentations;
+	private boolean useTabsOnlyForLeadingIndents;
 
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
@@ -90,6 +92,8 @@ public class Scribe {
 		this.pageWidth = formatter.preferences.page_width;
 		this.tabLength = formatter.preferences.tab_size;
 		this.indentationLevel= 0; // initialize properly
+		this.numberOfIndentations = 0;
+		this.useTabsOnlyForLeadingIndents = formatter.preferences.use_tabs_only_for_leading_indentations;
 		this.tabChar = formatter.preferences.tab_char;
 		if (this.tabChar == DefaultCodeFormatterOptions.MIXED) {
 			this.indentationSize = formatter.preferences.indentation_size;
@@ -322,6 +326,7 @@ public class Scribe {
 			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
 		}
 		this.indentationLevel = alignment.location.outputIndentationLevel;
+		this.numberOfIndentations = alignment.location.numberOfIndentations;
 		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;	
 		if (discardAlignment){ 
 			this.currentAlignment = alignment.enclosing;
@@ -338,6 +343,7 @@ public class Scribe {
 			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
 		}
 		this.indentationLevel = current.location.outputIndentationLevel;
+		this.numberOfIndentations = current.location.numberOfIndentations;
 		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;	
 		this.memberAlignment = current.enclosing;
 	}
@@ -471,6 +477,9 @@ public class Scribe {
 		if (indent == 0)
 			return this.indentationLevel;
 		if (this.tabChar == DefaultCodeFormatterOptions.TAB) {
+			if (this.useTabsOnlyForLeadingIndents) {
+				return indent;
+			}
 			int rem = indent % this.indentationSize;
 			int addition = rem == 0 ? 0 : this.indentationSize - rem; // round to superior
 			return indent + addition;
@@ -571,6 +580,7 @@ public class Scribe {
 	
 	public void indent() {
 		this.indentationLevel += this.indentationSize;
+		this.numberOfIndentations++;
 	}	
 
 	private int indexOf(char[] toBeFound, char[] source, int start, int end) {
@@ -1086,12 +1096,32 @@ public class Scribe {
 	private void printIndentationIfNecessary(StringBuffer buffer) {
 		switch(this.tabChar) {
 			case DefaultCodeFormatterOptions.TAB :
-				while (this.column <= this.indentationLevel) {
-					buffer.append('\t');
-					this.lastNumberOfNewLines = 0;
-					int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
-					this.column += complement;
-					this.needSpace = false;
+				boolean useTabsForLeadingIndents = this.useTabsOnlyForLeadingIndents;
+				int numberOfLeadingIndents = this.numberOfIndentations;
+				int indentationsAsTab = 0;
+				if (useTabsForLeadingIndents) {
+					while (this.column <= this.indentationLevel) {
+						if (indentationsAsTab < numberOfLeadingIndents) {
+							buffer.append('\t');
+							indentationsAsTab++;
+							this.lastNumberOfNewLines = 0;
+							int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+							this.column += complement;
+							this.needSpace = false;
+						} else {
+							buffer.append(' ');
+							this.column++;
+							this.needSpace = false;
+						}
+					}
+				} else {
+					while (this.column <= this.indentationLevel) {
+						buffer.append('\t');
+						this.lastNumberOfNewLines = 0;
+						int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+						this.column += complement;
+						this.needSpace = false;
+					}
 				}
 				break;
 			case DefaultCodeFormatterOptions.SPACE :
@@ -1102,21 +1132,51 @@ public class Scribe {
 				}
 				break;
 			case DefaultCodeFormatterOptions.MIXED :
-				while (this.column <= this.indentationLevel) {
-					if ((this.column - 1 + this.tabLength) <= this.indentationLevel) {
-						buffer.append('\t');
-						this.column += this.tabLength;
-					} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
-						// print one indentation
-						for (int i = 0, max = this.indentationSize; i < max; i++) {
+				useTabsForLeadingIndents = this.useTabsOnlyForLeadingIndents;
+				numberOfLeadingIndents = this.numberOfIndentations;
+				indentationsAsTab = 0;
+				if (useTabsForLeadingIndents) {
+					final int columnForLeadingIndents = numberOfLeadingIndents * this.indentationSize;
+					while (this.column <= this.indentationLevel) {
+						if (this.column <= columnForLeadingIndents) {
+							if ((this.column - 1 + this.tabLength) <= this.indentationLevel) {
+								buffer.append('\t');
+								this.column += this.tabLength;
+							} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
+								// print one indentation
+								for (int i = 0, max = this.indentationSize; i < max; i++) {
+									buffer.append(' ');
+									this.column++;
+								}
+							} else {
+								buffer.append(' ');
+								this.column++;
+							}
+						} else {
+							for (int i = this.column, max = this.indentationLevel; i <= max; i++) {
+								buffer.append(' ');
+								this.column++;
+							}
+						}
+						this.needSpace = false;
+					}
+				} else {
+					while (this.column <= this.indentationLevel) {
+						if ((this.column - 1 + this.tabLength) <= this.indentationLevel) {
+							buffer.append('\t');
+							this.column += this.tabLength;
+						} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
+							// print one indentation
+							for (int i = 0, max = this.indentationSize; i < max; i++) {
+								buffer.append(' ');
+								this.column++;
+							}
+						} else {
 							buffer.append(' ');
 							this.column++;
 						}
-					} else {
-						buffer.append(' ');
-						this.column++;
+						this.needSpace = false;
 					}
-					this.needSpace = false;
 				}
 				break;
 		}
@@ -1453,6 +1513,7 @@ public class Scribe {
 		this.line = location.outputLine;
 		this.column = location.outputColumn;
 		this.indentationLevel = location.outputIndentationLevel;
+		this.numberOfIndentations = location.numberOfIndentations;
 		this.lastNumberOfNewLines = location.lastNumberOfNewLines;
 		this.needSpace = location.needSpace;
 		this.pendingSpace = location.pendingSpace;
@@ -1505,5 +1566,6 @@ public class Scribe {
 	
 	public void unIndent() {
 		this.indentationLevel -= this.indentationSize;
+		this.numberOfIndentations--;
 	}
 }
