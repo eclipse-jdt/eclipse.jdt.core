@@ -288,6 +288,7 @@ IJavaElement getOriginal(IJavaElement workingCopyElement);
  * @return the original element this working copy was created from,
  * or <code>null</code> if this is not a working copy
  * @since 3.0
+ * TODO: change into getOriginal() that returns an ICompilationUnit
  */
 IJavaElement getOriginalElement();
 /**
