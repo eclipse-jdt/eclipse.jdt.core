@@ -99,6 +99,10 @@ public class CodeSnippetParsingUtil {
 				compilerOptions.defaultEncoding);
 		final CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
+
+		if (recordParsingInformation) {
+			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
+		}
 		
 		if (compilationUnitDeclaration.ignoreMethodBodies) {
 			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
@@ -117,9 +121,8 @@ public class CodeSnippetParsingUtil {
 		}
 		
 		if (recordParsingInformation) {
-			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
+			this.recordedParsingInformation.updateRecordedParsingInformation(compilationResult);
 		}
-		
 		return compilationUnitDeclaration;
 	}
 
