@@ -87,4 +87,11 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 		return checkAndTagAsMalformed(node);		
 	}
 
+	/*
+	 * @see ASTVisitor#visit(Initializer)
+	 */
+	public boolean visit(Initializer node) {
+		return checkAndTagAsMalformed(node);		
+	}
+
 }
