@@ -60,7 +60,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(FIELD_REF, FieldPattern.createIndexKey(fieldName));
 	}
 	protected void addIndexEntry(char[] category, char[] key) {
-		SearchParticipant.addIndexEntry(category, key, this.document.getPath(), this.indexPath);
+		SearchParticipant.addIndexEntry(category, key, this.document, this.indexPath);
 	}
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(packageName, enclosingTypeNames, name, false));

@@ -109,8 +109,8 @@ public void addBinary(IFile resource, IPath indexedContainer){
 	String indexPath = computeIndexName(indexedContainer);
 	participant.scheduleDocumentIndexing(document, indexedContainer.toString(), indexPath);
 }
-public void addIndexEntry(char[] category, char[] key, String documentPath, String indexPath) {
-	IIndexerOutput output = (IIndexerOutput) indexerOutputs.get(documentPath + indexPath);
+public void addIndexEntry(char[] category, char[] key, SearchDocument document, String indexPath) {
+	IIndexerOutput output = (IIndexerOutput) indexerOutputs.get(document);
 	if (output == null) return;
 	output.addRef(CharOperation.concat(category, key));
 }
@@ -248,12 +248,11 @@ public void indexDocument(final SearchDocument searchDocument, final SearchParti
 			public void index(SearchDocument document, IIndexerOutput output) throws IOException {
 				output.addDocument(document); // Add the name of the file to the index
 				String indexPath = index.getIndexFile().toString();
-				String outputKey = searchDocument.getPath() + indexPath;
 				try {
-					indexerOutputs.put(outputKey, output);
+					indexerOutputs.put(document, output);
 					searchParticipant.indexDocument(searchDocument, indexPath);
 				} finally {
-					indexerOutputs.remove(outputKey);
+					indexerOutputs.remove(document);
 				}
 			}
 		});

@@ -31,8 +31,8 @@ public abstract class SearchParticipant {
 	public static final SearchParticipant[] NO_PARTICIPANT = {};
 
 	// A service provided for participants so that they can delegate between themselves.
-	public static void addIndexEntry(char[] category, char[] key, String documentPath, String indexPath) {
-		JavaModelManager.getJavaModelManager().getIndexManager().addIndexEntry(category, key, documentPath, indexPath);
+	public static void addIndexEntry(char[] category, char[] key, SearchDocument document, String indexPath) {
+		JavaModelManager.getJavaModelManager().getIndexManager().addIndexEntry(category, key, document, indexPath);
 	}
 
 	public static void removeAllIndexEntries(String documentPath, String indexPath) {
