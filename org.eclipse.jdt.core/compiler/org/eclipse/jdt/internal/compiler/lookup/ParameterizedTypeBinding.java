@@ -101,22 +101,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fields()
 	 */
 	public FieldBinding[] fields() {
-
-	    // TODO (kent) check handling of corner cases (AbortCompilation)
 		if (this.fields == null) {
 			try {
-			    FieldBinding[] originalFields = this.type.fields();
-			    int length = originalFields.length;
-			    FieldBinding[] parameterizedFields = new FieldBinding[length];
-			    for (int i = 0; i < length; i++) {
-			        FieldBinding originalField = originalFields[i];
-			        // substitute all fields, so as to get updated declaring class at least
-		            parameterizedFields[i] = new ParameterizedFieldBinding(this, originalField);
-			    }
-			    this.fields = parameterizedFields;	    
+				FieldBinding[] originalFields = this.type.fields();
+				int length = originalFields.length;
+				FieldBinding[] parameterizedFields = new FieldBinding[length];
+				for (int i = 0; i < length; i++)
+					// substitute all fields, so as to get updated declaring class at least
+					parameterizedFields[i] = new ParameterizedFieldBinding(this, originalFields[i]);
+				this.fields = parameterizedFields;	    
 			} finally {
-			    if (this.fields == null) 
-			        this.fields = NoFields;
+				// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields
+				if (this.fields == null) 
+					this.fields = NoFields;
 			}
 		}
 		return this.fields;
@@ -199,8 +196,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getField(char[], boolean)
 	 */
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
-	    // TODO (kent) need to be optimized to avoid resolving all fields
-	    fields();	    	    
+		fields(); // ensure fields have been initialized... must create all at once unlike methods
 		int fieldLength = fieldName.length;
 		for (int f = fields.length; --f >= 0;) {
 			FieldBinding field = fields[f];
@@ -208,7 +204,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 				return field;
 		}
 		return null;
-}
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
