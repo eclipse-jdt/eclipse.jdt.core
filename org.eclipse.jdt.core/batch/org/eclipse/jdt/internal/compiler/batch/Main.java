@@ -396,6 +396,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		boolean didSpecifyTarget = false;
 		boolean didSpecifyDeprecation = false;
 		boolean didSpecifyWarnings = false;
+		boolean useEnableJavadoc = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -846,9 +847,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							CompilerOptions.OPTION_ReportUnsafeTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_DocCommentSupport,
-							isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						if (!useEnableJavadoc) {
+							this.options.put(
+								CompilerOptions.OPTION_DocCommentSupport,
+								isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						}
 						// if disabling then it's not necessary to set other javadoc options
 						if (isEnabling) {
 							this.options.put(
@@ -868,9 +871,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								CompilerOptions.PRIVATE);
 						}
 					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_DocCommentSupport,
-							isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						if (!useEnableJavadoc) {
+							this.options.put(
+								CompilerOptions.OPTION_DocCommentSupport,
+								isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						}
 						// if disabling then it's not necessary to set other javadoc options
 						if (isEnabling) {
 							this.options.put(
@@ -940,6 +945,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.options.put(
 					CompilerOptions.OPTION_PreserveUnusedLocal,
 					CompilerOptions.PRESERVE);
+				continue;
+			}
+			if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
+				this.options.put(
+					CompilerOptions.OPTION_DocCommentSupport,
+					CompilerOptions.ENABLED);
+				useEnableJavadoc = true;
 				continue;
 			}
 			if (mode == TargetSetting) {

@@ -117,7 +117,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 				// working copy on cu outside classpath OR resource doesn't exist yet
 				String encoding = null;
 				try {
-					resource.getCharset();
+					encoding = resource.getCharset();
 				}
 				catch (CoreException ce) {
 					// use no encoding
