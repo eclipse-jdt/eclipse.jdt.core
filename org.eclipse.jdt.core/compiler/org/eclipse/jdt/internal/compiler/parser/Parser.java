@@ -1835,21 +1835,22 @@ protected void consumeEnterVariable() {
 	// do nothing by default
 
 	char[] name = identifierStack[identifierPtr];
-	long namePosition = identifierPositionStack[identifierPtr--];
+	long namePosition = identifierPositionStack[identifierPtr];
 	int extendedDimension = intStack[intPtr--];
-
 	AbstractVariableDeclaration declaration;
 	// create the ast node
 	boolean isLocalDeclaration = nestedMethod[nestedType] != 0; 
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration = 
-			new LocalDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition); 
+			this.createLocalDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition);
 	} else {
 		// create the field declaration
 		declaration = 
 			this.createFieldDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition); 
 	}
+	
+	identifierPtr--;
 	identifierLengthPtr--;
 	TypeReference type;
 	int variableIndex = variablesCounter[nestedType];
@@ -4322,6 +4323,11 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
 	return new FieldDeclaration(null, name, sourceStart, sourceEnd);
 }
+
+protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
+	return new LocalDeclaration(null, name, sourceStart, sourceEnd);
+}
+
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {
 
 	CompilationUnitDeclaration parsedUnit;
@@ -6164,6 +6170,7 @@ public void initialize() {
 	recoveredStaticInitializerStart = 0;
 	lastIgnoredToken = -1;
 	lastErrorEndPosition = -1;
+	listLength = 0;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(false, false, this.problemReporter.options.getNonExternalizedStringLiteralSeverity() != ProblemSeverities.Ignore , this.assertMode);

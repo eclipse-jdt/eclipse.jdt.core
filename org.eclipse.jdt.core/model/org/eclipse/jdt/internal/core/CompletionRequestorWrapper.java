@@ -138,7 +138,9 @@ public void acceptPackage(char[] packageName, char[] completionName, int complet
 public void acceptType(char[] packageName, char[] typeName, char[] completionName, int completionStart, int completionEnd) {
 	this.clientRequestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
 }
-
+public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd){
+	this.clientRequestor.acceptVariableName(typePackageName, typeName, name, completionName, completionStart, completionEnd);
+}
 private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames){
 	char[][] parameterNames = null;
 	int length = parameterTypeNames.length;

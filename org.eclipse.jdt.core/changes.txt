@@ -108,9 +108,22 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
-  
+  * CodeAssist provides variable name suggestions. 
+    API Changes on ICompletionRequestor
+    + Added API for suggest variable name:
+      void acceptVariableName(
+          char[] typePackageName,
+          char[] typeName,
+          char[] name,
+          char[] completionName,
+          int completionStart,
+          int completionEnd);
+
   PRs Fixed in this Release
   ================================================================================
+  3296  	CodeAssist - should filter out duplicates if any (1GEWDL7)
+  3325  	Too much codeassist match on interface (1GH0GV1)
+  3424  	DCR: code assist support for variable name suggestions (1GKM6OQ)
   3282      JCK 1.4 - DASG - assigned variable before catch block after return statement (1GK2AHX)  
   3452		NPE doing Display from Binary (1GLEG5K) 
   3374      SearchPatter.createPattern(...) doesn't work with unicodes (1GJYBRY)  

@@ -39,6 +39,8 @@ public final class CompletionEngine
 	boolean insideQualifiedReference = false;
 	int startPosition, actualCompletionPosition, endPosition;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
+	HashtableOfObject knownTypes = new HashtableOfObject(10);
+	Scanner identifierScanner;
 
 	/*
 		static final char[][] mainDeclarations =
@@ -125,6 +127,8 @@ public final class CompletionEngine
 			new CompletionParser(problemReporter, compilerOptions.assertMode);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, compilerOptions, problemReporter, nameEnvironment);
+		this.identifierScanner =
+			new Scanner(false, false, false, compilerOptions.assertMode);
 	}
 
 	/**
@@ -138,6 +142,11 @@ public final class CompletionEngine
 	public void acceptClass(char[] packageName, char[] className, int modifiers) {
 
 		char[] completionName = CharOperation.concat(packageName, className, '.');
+		
+		if (this.knownTypes.containsKey(completionName)) return;
+
+		this.knownTypes.put(completionName, this);
+		
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
@@ -174,6 +183,10 @@ public final class CompletionEngine
 		int modifiers) {
 
 		char[] completionName = CharOperation.concat(packageName, interfaceName, '.');
+
+		if (this.knownTypes.containsKey(completionName)) return;
+
+		this.knownTypes.put(completionName, this);
 
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
@@ -230,6 +243,10 @@ public final class CompletionEngine
 	public void acceptType(char[] packageName, char[] typeName) {
 
 		char[] completionName = CharOperation.concat(packageName, typeName, '.');
+		
+		if (this.knownTypes.containsKey(completionName)) return;
+
+		this.knownTypes.put(completionName, this);
 
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
@@ -468,6 +485,49 @@ public final class CompletionEngine
 
 												char[] token = ((CompletionOnClassLiteralAccess) astNode).completionIdentifier;
 												findClassField(token, (TypeBinding) qualifiedBinding);
+											} else {
+												if(astNode instanceof CompletionOnMethodName) {
+													CompletionOnMethodName method = (CompletionOnMethodName) astNode;
+														
+													setSourceRange(method.sourceStart, method.selectorEnd);
+														
+													FieldBinding[] fields = scope.enclosingSourceType().fields();
+													char[][] excludeNames = new char[fields.length][];
+													for(int i = 0 ; i < fields.length ; i++){
+														excludeNames[i] = fields[i].name;
+													}
+														
+													findVariableNames(method.selector, method.returnType, excludeNames);
+												} else {
+													if (astNode instanceof CompletionOnFieldName) {
+														CompletionOnFieldName field = (CompletionOnFieldName) astNode;
+														
+														FieldBinding[] fields = scope.enclosingSourceType().fields();
+														char[][] excludeNames = new char[fields.length][];
+														for(int i = 0 ; i < fields.length ; i++){
+															excludeNames[i] = fields[i].name;
+														}
+														
+														findVariableNames(field.name, field.type, excludeNames);
+													} else {
+														if (astNode instanceof CompletionOnLocalName ||
+															astNode instanceof CompletionOnArgumentName){
+															LocalDeclaration variable = (LocalDeclaration) astNode;
+															
+															LocalVariableBinding[] locals = ((BlockScope)scope).locals;
+															char[][] excludeNames = new char[locals.length][];
+															int localCount = 0;
+															for(int i = 0 ; i < locals.length ; i++){
+																if(locals[i] != null) {
+																	excludeNames[localCount++] = locals[i].name;
+																}
+															}
+															System.arraycopy(excludeNames, 0, excludeNames = new char[localCount][], 0, localCount);
+															
+															findVariableNames(variable.name, variable.type, excludeNames);
+														} 
+													}
+												}
 											}
 										}
 									}
@@ -1219,6 +1279,12 @@ public final class CompletionEngine
 							.declaringClass
 							.implementsInterface(otherMethod.declaringClass, true))
 							continue next;
+
+					if (method.declaringClass.isInterface())
+						if(otherMethod
+							.declaringClass
+							.implementsInterface(method.declaringClass,true))
+							continue next;
 				}
 			}
 
@@ -1346,6 +1412,12 @@ public final class CompletionEngine
 							.declaringClass
 							.implementsInterface(otherMethod.declaringClass, true))
 							continue next;
+							
+					if (method.declaringClass.isInterface())
+						if(otherMethod
+							.declaringClass
+							.implementsInterface(method.declaringClass,true))
+							continue next;
 				}
 			}
 
@@ -1371,17 +1443,24 @@ public final class CompletionEngine
 				if(insertedModifiers != CompilerModifiers.AccDefault){
 					completion.append(AstNode.modifiersString(insertedModifiers));
 				}
-				completion.append(method.returnType.sourceName());
+				char[] returnPackageName = method.returnType.qualifiedPackageName();
+				char[] returnTypeName = CharOperation.concat(returnPackageName,method.returnType.qualifiedSourceName(),'.') ;
+				if(mustQualifyType(CharOperation.splitOn('.', returnPackageName), returnTypeName)) {
+					completion.append(returnTypeName);
+				} else {
+					completion.append(method.returnType.sourceName());
+				}
 				completion.append(' ');
 				completion.append(method.selector);
 				completion.append('(');
 
 				for(int i = 0; i < length ; i++){
-					if(mustQualifyType(CharOperation.splitOn('.',parameterPackageNames[i]), parameterTypeNames[i])){
-						completion.append(parameterPackageNames[i]);
-						completion.append('.');
+					char[] completeParameterTypeName = CharOperation.concat(parameterPackageNames[i], parameterTypeNames[i], '.');
+					if(mustQualifyType(CharOperation.splitOn('.',parameterPackageNames[i]), completeParameterTypeName)){
+						completion.append(completeParameterTypeName);
+					} else {
+						completion.append(parameterTypeNames[i]);
 					}
-					completion.append(parameterTypeNames[i]);
 					completion.append(' ');
 					if(parameterNames != null){
 						completion.append(parameterNames[i]);
@@ -1394,25 +1473,26 @@ public final class CompletionEngine
 				completion.append(')');
 				
 				ReferenceBinding[] exceptions = method.thrownExceptions;
-				int exceptionCount =0;
-				if (exceptions != null && (( exceptionCount = exceptions.length) > 0)){
+				
+				if (exceptions != null && exceptions.length > 0){
 					completion.append(' ');
 					completion.append(THROWS);
 					completion.append(' ');
-					for(int i = 0; i < exceptionCount ; i++){
+					for(int i = 0; i < exceptions.length ; i++){
 						ReferenceBinding exception = exceptions[i];
-						char[] typeName = exception.qualifiedSourceName();
-						char[] packageName = exception.qualifiedPackageName();
-							
-						if(mustQualifyType(CharOperation.splitOn('.',packageName), typeName)){
-							completion.append(packageName);
-							completion.append('.');
-						}
-						completion.append(typeName);
+
+						char[] exceptionPackageName = exception.qualifiedPackageName();
+						char[] exceptionTypeName = CharOperation.concat(exceptionPackageName, exception.qualifiedSourceName());
 						
-						if(i != (exceptionCount - 1)){
+						if(i != 0){
 							completion.append(',');
 							completion.append(' ');
+						}
+						
+						if(mustQualifyType(CharOperation.splitOn('.',exceptionPackageName), exceptionTypeName)){
+							completion.append(exceptionTypeName);
+						} else {
+							completion.append(exception.sourceName());
 						}
 					}
 				}
@@ -1890,6 +1970,66 @@ public final class CompletionEngine
 		}
 	}
 
+	// Helper method for private void findVariableNames(char[] name, TypeReference type )
+	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames){
+			if(sourceName == null || sourceName.length == 0)
+				return;
+			
+			char[][] names = computeNames(sourceName);
+			next : for(int i = 0 ; i < names.length ; i++){
+				char[] name = names[i];
+				
+				if (!CharOperation.prefixEquals(token, name, false))
+					continue next;
+				
+				// completion must be an identifier (not a keyword, ...).
+				try{
+					identifierScanner.setSourceBuffer(name);
+					if(identifierScanner.getNextToken() != identifierScanner.TokenNameIdentifier)
+						continue next;
+				} catch(InvalidInputException e){
+					continue next;
+				}
+				
+				for(int j = 0 ; j < excludeNames.length ; j++){
+					if(CharOperation.equals(name, excludeNames[j], false))
+						continue next;
+				}
+				
+				// accept result
+				requestor.acceptVariableName(
+					qualifiedPackageName,
+					qualifiedSourceName,
+					name,
+					name,
+					startPosition,
+					endPosition);
+			}
+	}
+
+	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames){
+		if(
+			type != null &&
+			type.binding != null &&
+			type.binding.problemId() == Binding.NoError){
+			TypeBinding tb = type.binding;
+			findVariableName(
+				name,
+				tb.qualifiedPackageName(),
+				tb.qualifiedSourceName(),
+				tb.sourceName(),
+				excludeNames);
+		} else {
+			char[][] typeName = type.getTypeName();
+			findVariableName(
+				name,
+				NoChar,
+				CharOperation.concatWith(typeName, '.'),
+				typeName[typeName.length - 1],
+				excludeNames);
+		}
+	}
+	
 	public AssistParser getParser() {
 
 		return parser;
@@ -1928,12 +2068,38 @@ public final class CompletionEngine
 
 		super.reset();
 		this.knownPkgs = new HashtableOfObject(10);
+		this.knownTypes = new HashtableOfObject(10);
 	}
 
 	private void setSourceRange(int start, int end) {
 
 		this.startPosition = start;
 		this.endPosition = end + 1;
+	}
+	
+	private char[][] computeNames(char[] sourceName){
+		char[][] names = new char[5][];
+		int nameCount = 0;
+		boolean previousIsUpperCase = false;
+		for(int i = sourceName.length - 1 ; i >= 0 ; i--){
+			boolean isUpperCase = Character.isUpperCase(sourceName[i]);
+			if(isUpperCase && !previousIsUpperCase){
+				char[] name = CharOperation.subarray(sourceName,i,sourceName.length);
+				if(name.length > 1){
+					if(nameCount == names.length) {
+						System.arraycopy(names, 0, names = new char[nameCount * 2][], 0, nameCount);
+					}
+					name[0] = Character.toLowerCase(name[0]);
+					names[nameCount++] = name;
+				}
+			}
+			previousIsUpperCase = isUpperCase;
+		}
+		if(nameCount == 0){
+			names[nameCount++] = CharOperation.toLowerCase(sourceName);
+		}
+		System.arraycopy(names, 0, names = new char[nameCount][], 0, nameCount);
+		return names;
 	}
 	
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){

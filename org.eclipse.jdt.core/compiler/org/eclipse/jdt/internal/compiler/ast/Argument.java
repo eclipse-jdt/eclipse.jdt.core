@@ -14,13 +14,22 @@ public Argument(char[] name , long posNom , TypeReference tr , int modifiers){
 	this.modifiers = modifiers;
 	type = tr;
 }
-public void resolve(BlockScope scope) {
-	// an argument may be final ==> cannot be assigned
 
-	super.resolve(scope);
-	binding.isArgument = true;
-	binding.used = true;
+public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
+	if (this.type != null) this.type.binding = typeBinding; // record the resolved type into the type reference
+	int modifierFlag = this.modifiers;
+	if ((this.binding = scope.duplicateName(this.name)) != null) {
+		//the name already exist....may carry on with the first binding ....
+		scope.problemReporter().redefineArgument(this);
+	} else {
+		scope.addLocalVariable(this.binding = new LocalVariableBinding(this.name, typeBinding, modifierFlag, true)); //true stand for argument instead of just local
+		if (isTypeUseDeprecated(typeBinding, scope))
+			scope.problemReporter().deprecatedType(typeBinding, this.type);
+		this.binding.declaration = this;
+		this.binding.used = used;
+	}
 }
+
 public TypeBinding resolveForCatch(BlockScope scope) {
 	// resolution on an argument of a catch clause
 	// provide the scope with a side effect : insertion of a LOCAL

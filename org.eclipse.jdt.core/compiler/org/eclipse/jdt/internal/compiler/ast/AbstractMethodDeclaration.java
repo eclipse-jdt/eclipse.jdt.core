@@ -104,19 +104,7 @@ public void bindArguments() {
 	if (arguments != null) {
 		int length = arguments.length;
 		for (int i = 0; i < length; i++) {
-			Argument argument = arguments[i];
-			if (argument.type != null) argument.type.binding = binding.parameters[i]; // record the resolved type into the type reference
-			int modifierFlag = argument.modifiers;
-			if ((argument.binding = scope.duplicateName(argument.name)) != null) {
-				//the name already exist....may carry on with the first binding ....
-				scope.problemReporter().redefineArgument(argument);
-			} else {
-				scope.addLocalVariable(argument.binding = new LocalVariableBinding(argument.name, binding.parameters[i], modifierFlag, true)); //true stand for argument instead of just local
-				if (isTypeUseDeprecated(binding.parameters[i], scope))
-					scope.problemReporter().deprecatedType(binding.parameters[i], argument.type);
-				argument.binding.declaration = argument;
-				argument.binding.used = binding.isAbstract() | binding.isNative(); // by default arguments in abstract/native methods are considered to be used (no complaint is expected)
-			}
+			arguments[i].bind(scope, binding.parameters[i], binding.isAbstract() | binding.isNative());// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
 		}
 	}
 }

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
+import org.eclipse.jdt.internal.codeassist.complete.*;
 
 public class CompletionParser extends AssistParser {
 
@@ -612,6 +613,80 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		this.pushCompletionOnMemberAccessOnExpressionStack(isSuperAccess);
 	}
 }
+
+protected void consumeFormalParameter() {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeFormalParameter();
+	} else {
+
+		identifierLengthPtr--;
+		char[] name = identifierStack[identifierPtr];
+		long namePositions = identifierPositionStack[identifierPtr--];
+		TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
+		intPtr -= 2;
+		Argument arg = 
+			new CompletionOnArgumentName(
+				name, 
+				namePositions, 
+				type, 
+				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+		pushOnAstStack(arg);
+		
+		assistNode = arg;
+		this.lastCheckPoint = (int) namePositions;
+		isOrphanCompletionNode = true;
+
+		/* if incomplete method header, listLength counter will not have been reset,
+			indicating that some arguments are available on the stack */
+		listLength++;
+	} 	
+}
+
+protected void consumeMethodHeaderName() {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeMethodHeaderName();
+	} else {
+		// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+		int length;
+		CompletionOnMethodName md = new CompletionOnMethodName();
+	
+		//name
+		md.selector = identifierStack[identifierPtr];
+		long selectorSource = identifierPositionStack[identifierPtr--];
+		identifierLengthPtr--;
+		//type
+		md.returnType = getTypeReference(intStack[intPtr--]);
+		//modifiers
+		md.declarationSourceStart = intStack[intPtr--];
+		md.modifiers = intStack[intPtr--];
+	
+		//highlight starts at selector start
+		md.sourceStart = (int) (selectorSource >>> 32);
+		md.selectorEnd = (int) selectorSource;
+		pushOnAstStack(md);
+		md.sourceEnd = lParenPos;
+		md.bodyStart = lParenPos+1;
+		listLength = 0; // initialize listLength before reading parameters/throws
+		
+		this.assistNode = md;	
+		this.lastCheckPoint = md.sourceEnd;
+		// recovery
+		if (currentElement != null){
+			if (currentElement instanceof RecoveredType 
+				//|| md.modifiers != 0
+				|| (scanner.searchLineNumber(md.returnType.sourceStart)
+						== scanner.searchLineNumber(md.sourceStart))){
+				lastCheckPoint = md.bodyStart;
+				currentElement = currentElement.add(md, 0);
+				lastIgnoredToken = -1;
+			} else {
+				lastCheckPoint = md.sourceStart;
+				restartRecovery = true;
+			}
+		}		
+	}
+}
+
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
 	this.labelCounterPtr--;
@@ -1137,4 +1212,27 @@ protected void updateRecoveryState() {
 	*/
 	this.recoveryTokenCheck();
 }
+
+protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
+	if (this.indexOfAssistIdentifier() < 0) {
+		return super.createLocalDeclaration(initialization, name, sourceStart, sourceEnd);
+	} else {
+		CompletionOnLocalName local = new CompletionOnLocalName(initialization, name, sourceStart, sourceEnd);
+		this.assistNode = local;
+		this.lastCheckPoint = sourceEnd + 1;
+		return local;
+	}
+}
+
+protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
+	if (this.indexOfAssistIdentifier() < 0) {
+		return super.createFieldDeclaration(initialization, name, sourceStart, sourceEnd);
+	} else {
+		CompletionOnFieldName field = new CompletionOnFieldName(initialization, name, sourceStart, sourceEnd);
+		this.assistNode = field;
+		this.lastCheckPoint = sourceEnd + 1;
+		return field;
+	}
+}
+
 }

@@ -196,6 +196,9 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 						|| CharOperation.equals(className, CodeSnippetToCuMapper.this.varClassName))) return;
 			originalRequestor.acceptType(packageName, typeName, completionName, completionStart - startPosOffset, completionEnd - startPosOffset);
 		}
+		public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd){
+			originalRequestor.acceptVariableName(typePackageName, typeName, name, completionName, completionStart, completionEnd);
+		}
 	};
 }
 public char[] getCUSource() {
