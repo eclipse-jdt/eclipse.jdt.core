@@ -376,10 +376,14 @@ public void testStructureKnownForCU() throws JavaModelException {
  *  Ensures that the "structure is unknown" flag is set for a non valid compilation unit. 
  */
 public void testStructureUnknownForCU() throws CoreException {
-	this.createFile(
-		"/P/src/p/Invalid.java",
-		"@#D(03");
-	ICompilationUnit badCU = getCompilationUnit("/P/src/p/Invalid.java");
-	assertTrue("Structure is known for an invalid CU", !badCU.isStructureKnown());
+	try {
+		this.createFile(
+			"/P/src/p/Invalid.java",
+			"@#D(03");
+		ICompilationUnit badCU = getCompilationUnit("/P/src/p/Invalid.java");
+		assertTrue("Structure is known for an invalid CU", !badCU.isStructureKnown());
+	} finally {
+		this.deleteFile("/P/src/p/Invalid.java");
+	}
 }
 }

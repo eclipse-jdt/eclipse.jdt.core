@@ -477,17 +477,15 @@ public void testNestedSourceFolder6() throws CoreException {
 public void testRenameExcludedCompilationUnit() throws CoreException {
 	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
-	IPackageFragment pkg = getPackage("/P/src/p");
-	ICompilationUnit cu = pkg.createCompilationUnit(
-		"A.java",
+	IFile file = this.createFile(
+		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
-		"}",
-		false,
-		null);
+		"}"
+	);
 
 	clearDeltas();
-	cu.rename("B.java", false, null);
+	file.move(new Path("/P/src/p/B.java"), false, null);
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -498,6 +496,7 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
 		"			ResourceDelta(/P/src/p/A.java)[-]"
 	);
 	
+	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"B.java",

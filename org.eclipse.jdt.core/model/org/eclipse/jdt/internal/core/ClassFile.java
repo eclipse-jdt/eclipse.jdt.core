@@ -104,6 +104,11 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 protected OpenableElementInfo createElementInfo() {
 	return new ClassFileInfo(this);
 }
+public boolean exists() {
+	if (!isValidClassFile()) return false;
+	return super.exists();
+}
+
 /**
  * Finds the deepest <code>IJavaElement</code> in the hierarchy of
  * <code>elt</elt>'s children (including <code>elt</code> itself)
@@ -376,6 +381,16 @@ public boolean isInterface() throws JavaModelException {
 public boolean isReadOnly() {
 	return true;
 }
+private boolean isValidClassFile() {
+	IPackageFragmentRoot root = getPackageFragmentRoot();
+	try {
+		if (root.getKind() != IPackageFragmentRoot.K_BINARY) return false;
+	} catch (JavaModelException e) {
+		return false;
+	}
+	if (!Util.isValidClassFileName(getElementName())) return false;
+	return true;
+}
 /**
  * Opens and returns buffer on the source code associated with this class file.
  * Maps the source code to the children elements of this class file.
@@ -387,27 +402,27 @@ public boolean isReadOnly() {
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
-		char[] contents = mapper.findSource(getType());
-		if (contents != null) {
-			// create buffer
-			IBuffer buffer = getBufferFactory().createBuffer(this);
-			if (buffer == null) return null;
-			BufferManager bufManager = getBufferManager();
-			bufManager.addBuffer(buffer);
-			
-			// set the buffer source
-			if (buffer.getCharacters() == null){
-				buffer.setContents(contents);
-			}
-			
-			// listen to buffer changes
-			buffer.addBufferChangedListener(this);	
-					
-			// do the source mapping
-			mapper.mapSource(getType(), contents);
-			
-			return buffer;
+	char[] contents = mapper.findSource(getType());
+	if (contents != null) {
+		// create buffer
+		IBuffer buffer = getBufferFactory().createBuffer(this);
+		if (buffer == null) return null;
+		BufferManager bufManager = getBufferManager();
+		bufManager.addBuffer(buffer);
+		
+		// set the buffer source
+		if (buffer.getCharacters() == null){
+			buffer.setContents(contents);
 		}
+		
+		// listen to buffer changes
+		buffer.addBufferChangedListener(this);	
+				
+		// do the source mapping
+		mapper.mapSource(getType(), contents);
+		
+		return buffer;
+	}
 	} else {
 		// Attempts to find the corresponding java file
 		String qualifiedName = getType().getFullyQualifiedName();
@@ -420,11 +435,11 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	return null;
 }
 protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	if (!isValidClassFile()) throw newNotPresentException();
 	IResource resource = this.getResource();
 	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
 	return super.openWhenClosed(pm);
-}
-/*
+}/*
  * @see JavaElement#rootedAt(IJavaProject)
  */
 public IJavaElement rootedAt(IJavaProject project) {

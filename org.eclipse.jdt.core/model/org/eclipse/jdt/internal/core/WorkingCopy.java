@@ -379,6 +379,9 @@ public boolean isBasedOn(IResource resource) {
 		return false;
 	}
 }
+protected boolean isValidCompilationUnit() {
+	return true; // no check is done on root kind or eclusion pattern for working copies
+}
 /**
  * @see IWorkingCopy
  */

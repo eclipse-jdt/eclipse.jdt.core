@@ -215,6 +215,10 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	}
 	return false;
 }
+public boolean exists() {
+	if (!isValidCompilationUnit()) return false;
+	return super.exists();
+}
 /**
  * @see IWorkingCopy#findElements(IJavaElement)
  */
@@ -605,6 +609,21 @@ public boolean isConsistent() throws JavaModelException {
 protected boolean isSourceElement() {
 	return true;
 }
+protected boolean isValidCompilationUnit() {
+	IPackageFragmentRoot root = getPackageFragmentRoot();
+	try {
+		if (root.getKind() != IPackageFragmentRoot.K_SOURCE) return false;
+	} catch (JavaModelException e) {
+		return false;
+	}
+	IResource resource = getResource();
+	if (resource != null) {
+		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
+		if (Util.isExcluded(resource, exclusionPatterns)) return false;
+	}
+	if (!Util.isValidCompilationUnitName(getElementName())) return false;
+	return true;
+}
 /**
  * @see IWorkingCopy#isWorkingCopy()
  */
@@ -667,6 +686,11 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	
 	return buffer;
 }
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	if (!isValidCompilationUnit()) throw newNotPresentException();
+	return super.openWhenClosed(pm);
+}
+
 /**
  * @see IWorkingCopy#reconcile()
  */

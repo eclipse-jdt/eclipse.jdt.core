@@ -113,10 +113,12 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setUpJavaProject("JavaProjectTests");
 	setUpJavaProject("JavaProjectSrcTests");
+	setUpJavaProject("JavaProjectLibTests");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaProjectTests");
 	deleteProject("JavaProjectSrcTests");
+	deleteProject("JavaProjectLibTests");
 	super.tearDownSuite();
 }
 
@@ -168,8 +170,8 @@ public void testArchiveClassFileCorrespondingResource() throws JavaModelExceptio
  * Test that a binary type
  * has a corresponding resource.
  */
-public void testBinaryTypeCorrespondingResource() throws JavaModelException {
-	IClassFile element= getClassFile("JavaProjectTests", "", "p", "Y.class");
+public void testBinaryTypeCorrespondingResource() throws CoreException {
+	IClassFile element= getClassFile("/JavaProjectLibTests/lib/p/Y.class");
 	IType type= element.getType();
 	IResource corr= type.getCorrespondingResource();
 	assertTrue("incorrect corresponding resource", corr == null);
@@ -206,9 +208,9 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
  * has a corresponding resource.
  */
 public void testClassFileCorrespondingResource() throws JavaModelException {
-	IClassFile element= getClassFile("JavaProjectTests", "", "p", "Y.class");
+	IClassFile element= getClassFile("JavaProjectLibTests", "lib", "p", "Y.class");
 	IResource corr= element.getCorrespondingResource();
-	IResource res= getWorkspace().getRoot().getProject("JavaProjectTests").getFolder("p").getFile("Y.class");
+	IResource res= getWorkspace().getRoot().getProject("JavaProjectLibTests").getFolder("lib").getFolder("p").getFile("Y.class");
 	assertTrue("incorrect corresponding resource", corr.equals(res));
 }
 /**
@@ -578,7 +580,7 @@ public void testOutputLocationNestedInRoot() throws JavaModelException, CoreExce
 public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelException, CoreException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IJavaElement[] packages= root.getChildren();
-	assertEquals("unepected number of packages", 5, packages.length);
+	assertEquals("unepected number of packages", 4, packages.length);
 	assertTrue("should be default", packages[0].getElementName().equals(""));
 
 
@@ -850,7 +852,7 @@ public void testProjectGetChildren() throws JavaModelException {
 public void testProjectGetPackageFragments() throws JavaModelException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
 	IPackageFragment[] fragments= project.getPackageFragments();
-	assertTrue("should be package 12 package fragments in 'JavaProjectTests', were " + fragments.length , fragments.length == 12);
+	assertTrue("should be package 12 package fragments in 'JavaProjectTests', were " + fragments.length , fragments.length == 11);
 }
 /**
  * Test that the correct package fragments exist in the project.
@@ -858,7 +860,7 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 public void testRootGetPackageFragments() throws JavaModelException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IJavaElement[] fragments= root.getChildren();
-	assertTrue("should be package 5 package fragments in source root, were " + fragments.length , fragments.length == 5);
+	assertTrue("should be package 5 package fragments in source root, were " + fragments.length , fragments.length == 4);
 
 	root= getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	fragments= root.getChildren();	

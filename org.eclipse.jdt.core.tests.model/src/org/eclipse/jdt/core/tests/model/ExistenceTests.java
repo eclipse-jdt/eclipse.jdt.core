@@ -81,14 +81,68 @@ public void testClassFileInLibrary() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-public void testClassFileInSource() throws CoreException {
+/*
+ * Ensure that an IClassFile handle created on a .class file in a source folder
+ * doesn't not exist.
+ * (regression test for bug 36499 exists() returns true for a source file inside a classfolder)
+ */
+public void testClassFileInSource1() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFile("P/src/X.class", "");
 		IClassFile classFile = this.getClassFile("P/src/X.class");
-		// for now, we don't check the kind (source or library), 
-		// so class file can exist in source folder
-		assertTrue("Class file should exist", classFile.exists()); 
+		assertTrue("Class file should not exist", !classFile.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an IClassFile handle created on a .class file in a source folder
+ * cannot be opened.
+ * (regression test for bug 36499 exists() returns true for a source file inside a classfolder)
+ */
+ public void testClassFileInSource2() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.createFile("P/src/X.class", "");
+		IClassFile classFile = this.getClassFile("P/src/X.class");
+		assertOpenFails((IOpenable)classFile);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an ICompilationUnit handle created on a .java file in a library folder
+ * doesn't not exist.
+ * (regression test for bug 36499 exists() returns true for a source file inside a classfolder)
+ */
+public void testCompilationUnitInLibrary1() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {}, new String[] {"lib"},  "bin");
+		this.createFile(
+			"P/lib/X.java", 
+			"public class X {}"
+		);
+		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
+		assertTrue("Ccompilation unit should not exist", !cu.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an ICompilationUnit handle created on a .java file in a library folder
+ *cannot be opened.
+ * (regression test for bug 36499 exists() returns true for a source file inside a classfolder)
+ */
+public void testCompilationUnitInLibrary2() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {}, new String[] {"lib"},  "bin");
+		this.createFile(
+			"P/lib/X.java", 
+			"public class X {}"
+		);
+		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
+		assertOpenFails((IOpenable)cu);
 	} finally {
 		this.deleteProject("P");
 	}
