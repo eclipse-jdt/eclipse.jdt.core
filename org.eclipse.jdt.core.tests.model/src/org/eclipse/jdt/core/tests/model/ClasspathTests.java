@@ -1925,7 +1925,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Invalid classpath in 'P/.classpath' file: Name collision.",
+			"Invalid classpath in \'P/.classpath\' file: Classpath contains duplicate entry: P/src",
 			project);
 	} finally {
 		this.deleteProject("P");

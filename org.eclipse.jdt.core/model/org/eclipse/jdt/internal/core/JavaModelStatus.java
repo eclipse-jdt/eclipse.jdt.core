@@ -164,7 +164,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case ELEMENT_DOES_NOT_EXIST:
 					return Util.bind("element.doesNotExist",((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case EVALUATION_ERROR:
-					return Util.bind("status.evaluationError", getString()); //$NON-NLS-1$
+					return Util.bind("status.evaluationError", fString); //$NON-NLS-1$
 				case INDEX_OUT_OF_BOUNDS:
 					return Util.bind("status.indexOutOfBounds"); //$NON-NLS-1$
 				case INVALID_CONTENTS:
@@ -181,17 +181,21 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					}
 					return buff.toString();
 				case INVALID_NAME:
-					return Util.bind("status.invalidName", getString()); //$NON-NLS-1$
+					return Util.bind("status.invalidName", fString); //$NON-NLS-1$
 				case INVALID_PACKAGE:
-					return Util.bind("status.invalidPackage", getString()); //$NON-NLS-1$
+					return Util.bind("status.invalidPackage", fString); //$NON-NLS-1$
 				case INVALID_PATH:
-					return Util.bind("status.invalidPath", getPath() == null ? "null" : getPath().toString()); //$NON-NLS-1$ //$NON-NLS-2$
+					if (fString != null) {
+						return fString;
+					} else {
+						return Util.bind("status.invalidPath", getPath() == null ? "null" : getPath().toString()); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				case INVALID_PROJECT:
-					return Util.bind("status.invalidProject", getString()); //$NON-NLS-1$
+					return Util.bind("status.invalidProject", fString); //$NON-NLS-1$
 				case INVALID_RESOURCE:
-					return Util.bind("status.invalidResource", getString()); //$NON-NLS-1$
+					return Util.bind("status.invalidResource", fString); //$NON-NLS-1$
 				case INVALID_RESOURCE_TYPE:
-					return Util.bind("status.invalidResourceType", getString()); //$NON-NLS-1$
+					return Util.bind("status.invalidResourceType", fString); //$NON-NLS-1$
 				case INVALID_SIBLING:
 					return Util.bind("status.invalidSibling", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case IO_EXCEPTION:
@@ -204,7 +208,11 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 							return Util.bind("operation.cannotRenameDefaultPackage"); //$NON-NLS-1$
 						}
 					}
-					return Util.bind("status.nameCollision"); //$NON-NLS-1$
+					if (fString != null) {
+						return fString;
+					} else {
+						return Util.bind("status.nameCollision"); //$NON-NLS-1$
+					}
 				case NO_ELEMENTS_TO_PROCESS:
 					return Util.bind("operation.needElements"); //$NON-NLS-1$
 				case NULL_NAME:
@@ -214,7 +222,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case NULL_STRING:
 					return Util.bind("operation.needString"); //$NON-NLS-1$
 				case PATH_OUTSIDE_PROJECT:
-					return Util.bind("operation.pathOutsideProject", getString(), ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+					return Util.bind("operation.pathOutsideProject", fString, ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case READ_ONLY:
 					IJavaElement element = fElements[0];
 					String name = element.getElementName();
@@ -231,7 +239,11 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case NO_LOCAL_CONTENTS :
 					return Util.bind("status.noLocalContents", getPath().toString()); //$NON-NLS-1$
 			}
-			return getString();
+			if (fString != null) {
+				return fString;
+			} else {
+				return ""; // //$NON-NLS-1$
+			}
 		} else {
 			return getException().getMessage();
 		}
@@ -258,6 +270,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	}
 	/**
 	 * @see IJavaModelStatus#getString()
+	 * @deprecated
 	 */
 	public String getString() {
 		return fString;

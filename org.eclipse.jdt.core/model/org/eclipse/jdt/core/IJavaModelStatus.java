@@ -67,6 +67,7 @@ IPath getPath();
  *
  * @return the string culprit, or <code>null</code> if none
  * @see IJavaModelStatusConstants
+ * @deprecated Use IStatus#getMessage instead
  */
 String getString();
 /**
