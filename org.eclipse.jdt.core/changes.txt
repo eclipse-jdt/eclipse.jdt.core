@@ -14,6 +14,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when searching references in JAR
 
   PRs Closed in this Release
   ================================================================================
