@@ -131,20 +131,8 @@ void buildTypeBindings() {
 		System.arraycopy(topLevelTypes, 0, topLevelTypes = new SourceTypeBinding[count], 0, count);
 }
 void checkAndSetImports() {
-	// initialize the default imports if necessary... share the default java.lang.* import
-	if (environment.defaultImports == null) {
-		Binding importBinding = environment.getTopLevelPackage(JAVA);
-		if (importBinding != null)
-			importBinding = ((PackageBinding) importBinding).getTypeOrPackage(JAVA_LANG[1]);
-
-		// abort if java.lang cannot be found...
-		if (importBinding == null || !importBinding.isValidBinding())
-			problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
-
-		environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
-	}
 	if (referenceContext.imports == null) {
-		imports = environment.defaultImports;
+		imports = getDefaultImports();
 		return;
 	}
 
@@ -159,7 +147,7 @@ void checkAndSetImports() {
 		}
 	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
-	resolvedImports[0] = environment.defaultImports[0];
+	resolvedImports[0] = getDefaultImports()[0];
 	int index = 1;
 
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
@@ -279,7 +267,7 @@ void faultInImports() {
 		}
 	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
-	resolvedImports[0] = environment.defaultImports[0];
+	resolvedImports[0] = getDefaultImports()[0];
 	int index = 1;
 
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
@@ -430,6 +418,20 @@ private Binding findSingleTypeImport(char[][] compoundName) {
 			return typeBinding;
 	}
 	return findOnDemandImport(compoundName);
+}
+ImportBinding[] getDefaultImports() {
+	// initialize the default imports if necessary... share the default java.lang.* import
+	if (environment.defaultImports != null) return environment.defaultImports;
+
+	Binding importBinding = environment.getTopLevelPackage(JAVA);
+	if (importBinding != null)
+		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(JAVA_LANG[1]);
+
+	// abort if java.lang cannot be found...
+	if (importBinding == null || !importBinding.isValidBinding())
+		problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
+
+	return environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
 }
 /* Answer the problem reporter to use for raising new problems.
 *
