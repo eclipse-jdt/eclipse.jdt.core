@@ -67,6 +67,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		        this.valueCast = originalBinding.returnType.genericCast(runtimeTimeType);
 		    }
 		} 	else if (this.actualReceiverType.isArrayType() 
+						&& runtimeTimeType.id != T_Object
 						&& this.binding.parameters == NoParameters 
 						&& scope.environment().options.complianceLevel >= JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
