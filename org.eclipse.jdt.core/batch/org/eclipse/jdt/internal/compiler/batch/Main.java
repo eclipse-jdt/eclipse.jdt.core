@@ -1285,7 +1285,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = Default;
 				continue;
 			}
-			if (currentArg.equals("-1.5")) { //$NON-NLS-1$
+			if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				if (didSpecifyCompliance) {
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
@@ -1741,7 +1741,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 					}
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5")) { //$NON-NLS-1$//$NON-NLS-2$
+				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_5) {
 						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
@@ -1793,7 +1793,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5")) { //$NON-NLS-1$//$NON-NLS-2$
+				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
