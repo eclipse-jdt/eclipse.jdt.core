@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -28,16 +30,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
@@ -53,6 +51,13 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor {
+
+	/**
+	 * Specifies the location of the package fragment roots within
+	 * the zip (empty specifies the default root). <code>null</code> is
+	 * not a valid root path.
+	 */
+	protected HashSet rootPaths;
 
 	/**
 	 * The binary type source is being mapped for
@@ -161,17 +166,11 @@ public class SourceMapper
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
 		this.options = options;
 		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
-		this.sourcePath = sourcePath;
-		if (rootPath == null) {
-			rootPath = this.computeRootPath();
-		}
 		if (rootPath != null) {
-			rootPath = rootPath.replace('\\', '/');
-			if (rootPath.endsWith("/" )) { //$NON-NLS-1$
-				rootPath = rootPath.substring(0, rootPath.lastIndexOf('/'));
-			}
+			this.rootPaths = new HashSet();
+			this.rootPaths.add(rootPath);
 		}
-		this.rootPath = rootPath;
+		this.sourcePath = sourcePath;
 		this.fSourceRanges = new HashMap();
 		this.fParameterNames = new HashMap();
 		this.importsTable = new HashMap();
@@ -270,26 +269,48 @@ public class SourceMapper
 		}
 		return typeSigs;
 	}
+	
+	private void computeRootPath(File directory, String fullName, String[] rootPathHolder, int[] index) {
+		File[] files = directory.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			if (file.isDirectory()) {
+				computeRootPath(file, fullName, rootPathHolder, index);
+			} else if (Util.isJavaFileName(file.getName())) {
+				IPath fullPath = new Path(file.getPath());
+				IPath javaFilePath = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+				String javaFilePathString = javaFilePath.toString();
+				if (javaFilePathString.endsWith(fullName)) {
+					index[0] = Math.min(index[0], javaFilePathString.indexOf(fullName));
+					rootPathHolder[0] = javaFilePathString;
+				}
+			}
+		}
+	}	
 	/*
 	 * Computes the root path by scanning the first .java file in this source archive or folder.
 	 * Returns null if could not compute the root path.
 	 */
-	private String computeRootPath() {
+	private String computeRootPath(final String fullName) {
 		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
 				zip = manager.getZipFile(this.sourcePath);
+				int index = Integer.MAX_VALUE;
+				String foundEntry = null;
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String name;
 					if (!entry.isDirectory() && Util.isJavaFileName(name = entry.getName())) {
-						char[] contents = this.readSource(entry, zip);
-						String rootPath = computeRootPath(name, contents);
-						if (rootPath != null) {
-							return rootPath;
+						if (name.endsWith(fullName)) {
+							index = Math.min(index, name.indexOf(fullName));
+							foundEntry = name;
 						}
 					}
+				}
+				if (foundEntry != null) {
+					return foundEntry.substring(0, index);
 				}
 				return null;
 			} catch (CoreException e) {
@@ -302,6 +323,7 @@ public class SourceMapper
 			if (target instanceof IFolder) {
 				IFolder folder = (IFolder)target;
 				final String[] rootPathHolder = new String[1];
+				final int[] index = new int[] { Integer.MAX_VALUE };
 				try {
 					folder.accept(
 						new IResourceProxyVisitor() {
@@ -309,14 +331,13 @@ public class SourceMapper
 								if (proxy.getType() == IResource.FILE) {
 									if (Util.isJavaFileName(proxy.getName())) { 
 										IResource resource = proxy.requestResource();
-										char[] contents = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)resource, encoding);
-										IPath fullPath = resource.getFullPath();
+										IPath resourceFullPath = resource.getFullPath();
 										int sourcePathSegmentCount = sourcePath.segmentCount();
-										IPath javaFilePath = fullPath.removeFirstSegments(sourcePathSegmentCount);
-										String rootPath = computeRootPath(javaFilePath.toString(), contents);
-										if (rootPath != null) {
-											rootPathHolder[0] = rootPath;
-											throw new CoreException(new JavaModelStatus()); // abort visit
+										IPath javaFilePath = resourceFullPath.removeFirstSegments(sourcePathSegmentCount);
+										String javaFilePathString = javaFilePath.toString();
+										if (javaFilePathString.endsWith(fullName)) {
+											index[0] = Math.min(index[0], javaFilePathString.indexOf(javaFilePathString));
+											rootPathHolder[0] = javaFilePathString;
 										}
 									}
 									return false;
@@ -329,79 +350,29 @@ public class SourceMapper
 				} catch (CoreException e) {
 				}
 				if (rootPathHolder[0] != null) {
-					return rootPathHolder[0];
+					if (index[0] == 0) {
+						return ""; //$NON-NLS-1$
+					}
+					return rootPathHolder[0].substring(0, index[0]);
 				}
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
-					return computeRootPath(file);
-				}
-			}
-		}
-		return null;
-	}
-	private String computeRootPath(File directory) {
-		File[] files = directory.listFiles();
-		for (int i = 0; i < files.length; i++) {
-			File file = files[i];
-			if (file.isDirectory()) {
-				String rootPath = computeRootPath(file);
-				if (rootPath != null) return rootPath;
-			} else if (Util.isJavaFileName(file.getName())) {
-				try {
-					char[] contents = Util.getFileCharContent(file, this.encoding);
-					IPath fullPath = new Path(file.getPath());
-					IPath relativePath = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-					String rootPath = computeRootPath(relativePath.toString(), contents);
-					if (rootPath != null) return rootPath;
-				} catch (IOException e) {
+					final String[] rootPathHolder = new String[1];
+					final int[] index = new int[] { Integer.MAX_VALUE };
+					computeRootPath(file, fullName, rootPathHolder, index);
+					if (rootPathHolder[0] != null) {
+						if (index[0] == 0) {
+							return ""; //$NON-NLS-1$
+						}
+						return rootPathHolder[0].substring(0, index[0]);
+					}
 				}
 			}
 		}
 		return null;
 	}
 
-	/*
-	 * Compute the root path from the given javaFilePath by extracting the package declaration
-	 * from its contents. The javaFilePath is the relative path (/ separated and relative to the source path) to the .java file.
-	 */
-	String computeRootPath(String javaFilePath, char[] contents) {
-		IErrorHandlingPolicy policy =
-			new IErrorHandlingPolicy() {
-					public boolean stopOnFirstError() {
-						return false;
-					}
-					public boolean proceedOnErrors() {
-						return true;
-					}
-				};						
-		ProblemReporter reporter = new ProblemReporter(policy, new CompilerOptions(this.options), new DefaultProblemFactory());
-		Parser parser = new Parser(reporter, false, false);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-			new BasicCompilationUnit(contents, null, javaFilePath, this.encoding);
-		CompilationResult unitResult = new CompilationResult(sourceUnit, 0, 1, 0); 
-		CompilationUnitDeclaration unit = parser.dietParse(sourceUnit, unitResult);
-		if (unit != null && unit.currentPackage != null && unit.currentPackage.tokens != null) {
-			String packagePath = new String(CharOperation.concatWith(unit.currentPackage.tokens, '/'));
-			if (packagePath != null) {
-				if (packagePath.length() == 0) {
-					int lastSlash = javaFilePath.lastIndexOf('/');
-					if (lastSlash > 0) {
-						return javaFilePath.substring(0, lastSlash-1);
-					} else {
-						return javaFilePath;
-					}
-				} else {
-					int index = javaFilePath.indexOf(packagePath);
-					if (index != -1) {
-						return javaFilePath.substring(0, index);
-					}
-				}
-			}
-		}
-		return null;
-	}
-	
 	/**
 	 * @see ISourceElementRequestor
 	 */
@@ -726,39 +697,60 @@ public class SourceMapper
 		if (name == null) {
 			return null;
 		}
-
-		String fullName;
-		if (this.rootPath != null && !this.rootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
-			fullName = this.rootPath + '/' + name;
-		} else {
-			fullName = name;
+	
+		char[] source = null;
+		if (this.rootPath != null) {
+			source = getSourceForRootPath(this.rootPath, name);
 		}
 
-		char[] source = findSource(fullName);
 		if (source == null) {
-			// root path may just have been a hint: try recomputing it
-			String rootPath = this.computeRootPath();
-			String newFullName;
-			if (rootPath != null && !rootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
-				if (rootPath.endsWith("/")) { //$NON-NLS-1$
-					newFullName = rootPath + name;
-				} else {
-					newFullName = rootPath + '/' + name;
+			/*
+			 * We should try all existing root paths. If none works, try to recompute it.
+			 * If it still doesn't work, then return null
+			 */
+			if (this.rootPaths != null) {
+				loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
+					String currentRootPath = (String) iterator.next();
+					if (!currentRootPath.equals(this.rootPath)) {
+						source = getSourceForRootPath(currentRootPath, name);
+						if (source != null) {
+							// remember right root path
+							this.rootPath = currentRootPath;
+							break loop;
+						}
+					}
 				}
-			} else {
-				newFullName = name;
 			}
-			if (!fullName.equals(newFullName)) {
-				source = this.findSource(newFullName);
-				if (source != null) {
-					// remember right root path
-					this.rootPath = rootPath;
+			if (source == null) {
+				// Try to recompute it and add the new root path to the rootPaths collection
+				String newRootPath = computeRootPath(name);
+				if (newRootPath != null) {
+					if (this.rootPaths == null) {
+						this.rootPaths = new HashSet();
+					}
+					this.rootPaths.add(newRootPath);
+					this.rootPath = newRootPath;
+					source = getSourceForRootPath(newRootPath, name);
 				}
 			}
 		}
 		return source;
 	}
 
+	private char[] getSourceForRootPath(String currentRootPath, String name) {
+		String newFullName;
+		if (!currentRootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
+			if (currentRootPath.endsWith("/")) { //$NON-NLS-1$
+				newFullName = currentRootPath + name;
+			} else {
+				newFullName = currentRootPath + '/' + name;
+			}
+		} else {
+			newFullName = name;
+		}
+		return this.findSource(newFullName);
+	}
+	
 	public char[] findSource(String fullName) {
 		char[] source = null;
 		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
