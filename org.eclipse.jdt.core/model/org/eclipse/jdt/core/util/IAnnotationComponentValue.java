@@ -88,7 +88,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the annotation component values as described in the JVM specifications.
-	 * This is initialized only of the tag item is '['.
+	 * This is initialized only if the tag item is '['.
 	 * 
 	 * @return the annotation component values
 	 */
@@ -96,7 +96,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the annotation value as described in the JVM specifications.
-	 * This is initialized only of the tag item is '&#064;'.
+	 * This is initialized only if the tag item is '&#064;'.
 	 * 
 	 * @return the attribute value
 	 * @since 3.1
@@ -105,7 +105,7 @@ public interface IAnnotationComponentValue {
 
 	/**
 	 * Answer back the annotation value as described in the JVM specifications.
-	 * This is initialized only of the tag item is '&#064;'.
+	 * This is initialized only if the tag item is '&#064;'.
 	 * 
 	 * @return the attribute value
 	 * TODO (olivier) remove after 3.1M4
@@ -115,7 +115,7 @@ public interface IAnnotationComponentValue {
 
 	/**
 	 * Answer back the class info as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'c'.
+	 * This is initialized only if the tag item is 'c'.
 	 * 
 	 * @return the class info
 	 */
@@ -123,7 +123,7 @@ public interface IAnnotationComponentValue {
 
 	/**
 	 * Answer back the class info index as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'c'.
+	 * This is initialized only if the tag item is 'c'.
 	 * 
 	 * @return the class info index
 	 */
@@ -131,7 +131,7 @@ public interface IAnnotationComponentValue {
 
 	/**
 	 * Answer back the constant value as described in the JVM specifications.
-	 * This is initialized only of the tag item is one of 'B', 'C', 'D', 'F',
+	 * This is initialized only if the tag item is one of 'B', 'C', 'D', 'F',
 	 * 'I', 'J', 'S', 'Z', or 's'.
 	 * 
 	 * @return the constant value
@@ -140,7 +140,7 @@ public interface IAnnotationComponentValue {
 
 	/**
 	 * Answer back the constant value index as described in the JVM specifications.
-	 * This is initialized only of the tag item is one of 'B', 'C', 'D', 'F',
+	 * This is initialized only if the tag item is one of 'B', 'C', 'D', 'F',
 	 * 'I', 'J', 'S', 'Z', or 's'.
 	 * 
 	 * @return the constant value index
@@ -150,7 +150,7 @@ public interface IAnnotationComponentValue {
 	/**
 	 * Answer back the simple name of the enum constant represented
 	 * by this annotation component value as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'e'.
+	 * This is initialized only if the tag item is 'e'.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
@@ -159,7 +159,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the utf8 constant index as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'e'.
+	 * This is initialized only if the tag item is 'e'.
 	 * 
 	 * @return the enum constant index
 	 * @since 3.1
@@ -169,7 +169,7 @@ public interface IAnnotationComponentValue {
 	/**
 	 * Answer back the binary name of the type of the enum constant represented
 	 * by this annotation component value as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'e'.
+	 * This is initialized only if the tag item is 'e'.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
@@ -178,7 +178,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the utf8 constant index as described in the JVM specifications.
-	 * This is initialized only of the tag item is 'e'.
+	 * This is initialized only if the tag item is 'e'.
 	 * 
 	 * @return the enum constant index
 	 * @since 3.1
@@ -194,7 +194,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the number of values as described in the JVM specifications.
-	 * This is initialized only of the tag item is '['.
+	 * This is initialized only if the tag item is '['.
 	 * 
 	 * @return the number of values
 	 */
