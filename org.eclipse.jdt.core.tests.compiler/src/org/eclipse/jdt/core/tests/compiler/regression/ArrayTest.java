@@ -126,8 +126,8 @@ public void test005() {
 		"  // Stack: 1, Locals: 0\n" + 
 		"  static {};\n" + 
 		"    0  iconst_2\n" + 
-		"    1  anewarray #4 java.lang.Object\n" + 
-		"    4  putstatic #10 <Field X#X java.lang.Object[]>\n" + 
+		"    1  anewarray #4 java/lang/Object\n" + 
+		"    4  putstatic #10 <Field X.X [Ljava/lang/Object;>\n" + 
 		"    7  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 2]\n" + 

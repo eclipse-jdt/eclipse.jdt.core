@@ -70,9 +70,9 @@ public void test001() {
 		"     3  astore_1\n" + 
 		"     4  aload_1\n" + 
 		"     5  astore_2\n" + 
-		"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"     9  ldc #23 <String \"SUCCESS\">\n" + 
-		"    11  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"    11  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    14  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -80,9 +80,9 @@ public void test001() {
 		"        [pc: 6, line: 5]\n" + 
 		"        [pc: 14, line: 6]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 4, pc: 15] local: c1 index: 1 type: java.lang.Cloneable\n" + 
-		"        [pc: 6, pc: 15] local: c2 index: 2 type: java.lang.Cloneable\n";
+		"        [pc: 0, pc: 15] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 4, pc: 15] local: c1 index: 1 type: Ljava/lang/Cloneable;\n" + 
+		"        [pc: 6, pc: 15] local: c2 index: 2 type: Ljava/lang/Cloneable;\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
@@ -1231,25 +1231,25 @@ public void test034() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  new #17 java.util.ArrayList\n" + 
+		"     0  new #17 java/util/ArrayList\n" + 
 		"     3  dup\n" + 
-		"     4  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"     4  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
 		"     7  astore_1\n" + 
-		"     8  new #17 java.util.ArrayList\n" + 
+		"     8  new #17 java/util/ArrayList\n" + 
 		"    11  dup\n" + 
-		"    12  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"    12  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
 		"    15  astore_1\n" + 
-		"    16  new #17 java.util.ArrayList\n" + 
+		"    16  new #17 java/util/ArrayList\n" + 
 		"    19  dup\n" + 
-		"    20  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"    20  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
 		"    23  astore_2\n" + 
 		"    24  aload_2\n" + 
 		"    25  astore_3\n" + 
 		"    26  aload_2\n" + 
 		"    27  astore_3\n" + 
-		"    28  getstatic #24 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    28  getstatic #24 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    31  ldc #26 <String \"SUCCESS\">\n" + 
-		"    33  invokevirtual #32 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    33  invokevirtual #32 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 6]\n" + 
@@ -1260,11 +1260,10 @@ public void test034() {
 		"        [pc: 28, line: 13]\n" + 
 		"        [pc: 36, line: 14]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 8, pc: 37] local: list index: 1 type: java.util.List\n" + 
-		"        [pc: 24, pc: 37] local: alist index: 2 type: java.util.ArrayList\n" + 
-		"        [pc: 26, pc: 37] local: list2 index: 3 type: java.util.List\n" + 
-		"}";
+		"        [pc: 0, pc: 37] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 37] local: list index: 1 type: Ljava/util/List;\n" + 
+		"        [pc: 24, pc: 37] local: alist index: 2 type: Ljava/util/ArrayList;\n" + 
+		"        [pc: 26, pc: 37] local: list2 index: 3 type: Ljava/util/List;\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}

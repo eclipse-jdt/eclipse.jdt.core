@@ -285,9 +285,9 @@ public void test007() {
 		"    73  iload 4\n" + 
 		"    75  iload 5\n" + 
 		"    77  if_icmplt 62\n" + 
-		"    80  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    80  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    83  ldc #23 <String \"SUCCESS\">\n" + 
-		"    85  invokevirtual #29 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    85  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    88  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -297,10 +297,10 @@ public void test007() {
 		"        [pc: 80, line: 9]\n" + 
 		"        [pc: 88, line: 10]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 89] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 70, pc: 73] local: i index: 1 type: int\n" + 
-		"        [pc: 48, pc: 89] local: tab index: 2 type: int[]\n" + 
-		"        [pc: 68, pc: 80] local: e index: 3 type: int\n";
+		"        [pc: 0, pc: 89] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 70, pc: 73] local: i index: 1 type: I\n" + 
+		"        [pc: 48, pc: 89] local: tab index: 2 type: [I\n" + 
+		"        [pc: 68, pc: 80] local: e index: 3 type: I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -482,17 +482,17 @@ public void test014() {
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
 		"     7  astore_1\n" + 
-		"     8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    11  ldc #23 <String \"SUCCESS\">\n" + 
-		"    13  invokevirtual #29 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    13  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
 		"        [pc: 8, line: 7]\n" + 
 		"        [pc: 16, line: 8]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 8, pc: 17] local: tab index: 1 type: int[]\n";
+		"        [pc: 0, pc: 17] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 17] local: tab index: 1 type: [I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -541,17 +541,17 @@ public void test015() {
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
 		"     7  astore_1\n" + 
-		"     8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    11  ldc #23 <String \"SUCCESS\">\n" + 
-		"    13  invokevirtual #29 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    13  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
 		"        [pc: 8, line: 6]\n" + 
 		"        [pc: 16, line: 7]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 8, pc: 17] local: tab index: 1 type: int[]\n";
+		"        [pc: 0, pc: 17] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 17] local: tab index: 1 type: [I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -613,9 +613,9 @@ public void test016() {
 		"    23  iload_2\n" + 
 		"    24  iload_3\n" + 
 		"    25  if_icmplt 20\n" + 
-		"    28  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    28  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    31  ldc #23 <String \"SUCCESS\">\n" + 
-		"    33  invokevirtual #29 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    33  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -623,8 +623,8 @@ public void test016() {
 		"        [pc: 28, line: 7]\n" + 
 		"        [pc: 36, line: 8]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 8, pc: 37] local: tab index: 1 type: int[]\n";
+		"        [pc: 0, pc: 37] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 37] local: tab index: 1 type: [I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -705,9 +705,9 @@ public void test018() {
 		"    23  iload_3\n" + 
 		"    24  iaload\n" + 
 		"    25  istore_2\n" + 
-		"    26  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    26  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    29  iload_2\n" + 
-		"    30  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+		"    30  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
 		"    33  goto 42\n" + 
 		"    36  iload_3\n" + 
 		"    37  iload 4\n" + 
@@ -721,9 +721,9 @@ public void test018() {
 		"        [pc: 36, line: 5]\n" + 
 		"        [pc: 42, line: 9]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 43] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 8, pc: 43] local: tab index: 1 type: int[]\n" + 
-		"        [pc: 26, pc: 42] local: e index: 2 type: int\n";
+		"        [pc: 0, pc: 43] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 43] local: tab index: 1 type: [I\n" + 
+		"        [pc: 26, pc: 42] local: e index: 2 type: I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -772,9 +772,9 @@ public void test019() {
 		"     0  iconst_0\n" + 
 		"     1  newarray #10 int\n" + 
 		"     3  astore_1\n" + 
-		"     4  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"     7  ldc #23 <String \"SUC\">\n" + 
-		"     9  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"     9  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    12  aload_1\n" + 
 		"    13  astore 4\n" + 
 		"    15  iconst_0\n" + 
@@ -783,16 +783,16 @@ public void test019() {
 		"    19  arraylength\n" + 
 		"    20  istore_3\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    24  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    27  ldc #31 <String \"1x\">\n" + 
-		"    29  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"    29  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    32  goto 40\n" + 
 		"    35  iload_2\n" + 
 		"    36  iload_3\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    40  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    43  ldc #33 <String \"CESS\">\n" + 
-		"    45  invokevirtual #36 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    45  invokevirtual #36 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -804,8 +804,8 @@ public void test019() {
 		"        [pc: 40, line: 10]\n" + 
 		"        [pc: 48, line: 11]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 49] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 4, pc: 49] local: tab index: 1 type: int[]\n";
+		"        [pc: 0, pc: 49] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 4, pc: 49] local: tab index: 1 type: [I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -854,9 +854,9 @@ public void test020() {
 		"     0  iconst_0\n" + 
 		"     1  newarray #10 int\n" + 
 		"     3  astore_1\n" + 
-		"     4  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"     7  ldc #23 <String \"SUC\">\n" + 
-		"     9  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"     9  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    12  aload_1\n" + 
 		"    13  astore 4\n" + 
 		"    15  iconst_0\n" + 
@@ -865,16 +865,16 @@ public void test020() {
 		"    19  arraylength\n" + 
 		"    20  istore_3\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    24  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    27  ldc #31 <String \"1x\">\n" + 
-		"    29  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"    29  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    32  iinc 2 1\n" + 
 		"    35  iload_2\n" + 
 		"    36  iload_3\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    40  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    43  ldc #33 <String \"CESS\">\n" + 
-		"    45  invokevirtual #36 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"    45  invokevirtual #36 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -885,8 +885,8 @@ public void test020() {
 		"        [pc: 40, line: 10]\n" + 
 		"        [pc: 48, line: 11]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 49] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 4, pc: 49] local: tab index: 1 type: int[]\n";
+		"        [pc: 0, pc: 49] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 4, pc: 49] local: tab index: 1 type: [I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1011,9 +1011,9 @@ public void test021() {
 		"    103  iload 6\n" + 
 		"    105  if_icmplt 69\n" + 
 		"    108  goto 52\n" + 
-		"    111  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"    111  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    114  iload_2\n" + 
-		"    115  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+		"    115  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
 		"    118  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1031,11 +1031,11 @@ public void test021() {
 		"        [pc: 111, line: 19]\n" + 
 		"        [pc: 118, line: 20]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 119] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 48, pc: 119] local: tab index: 1 type: int[]\n" + 
-		"        [pc: 50, pc: 119] local: sum index: 2 type: int\n" + 
-		"        [pc: 52, pc: 119] local: i index: 3 type: int\n" + 
-		"        [pc: 76, pc: 108] local: e index: 4 type: int\n";
+		"        [pc: 0, pc: 119] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 48, pc: 119] local: tab index: 1 type: [I\n" + 
+		"        [pc: 50, pc: 119] local: sum index: 2 type: I\n" + 
+		"        [pc: 52, pc: 119] local: i index: 3 type: I\n" + 
+		"        [pc: 76, pc: 108] local: e index: 4 type: I\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1077,8 +1077,71 @@ public void test022() {
 		},
 		"45");
 		
-/*	String expectedOutput =
-		"toto";
+	String expectedOutput =
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 4, Locals: 6\n" + 
+		"  public static void main(String[] args);\n" + 
+		"     0  new #17 java/util/ArrayList\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
+		"     7  astore_1\n" + 
+		"     8  iconst_0\n" + 
+		"     9  istore_2\n" + 
+		"    10  goto 29\n" + 
+		"    13  aload_1\n" + 
+		"    14  new #20 java/lang/Integer\n" + 
+		"    17  dup\n" + 
+		"    18  iload_2\n" + 
+		"    19  invokespecial #23 <Method java/lang/Integer.<init>(I)V>\n" + 
+		"    22  invokevirtual #27 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"    25  pop\n" + 
+		"    26  iinc 2 1\n" + 
+		"    29  iload_2\n" + 
+		"    30  bipush 10\n" + 
+		"    32  if_icmplt 13\n" + 
+		"    35  iconst_0\n" + 
+		"    36  istore_2\n" + 
+		"    37  aload_1\n" + 
+		"    38  dup\n" + 
+		"    39  astore 5\n" + 
+		"    41  invokevirtual #32 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
+		"    44  astore 4\n" + 
+		"    46  goto 67\n" + 
+		"    49  aload 4\n" + 
+		"    51  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.()Ljava/lang/Object;>\n" + 
+		"    56  checkcast #20 java/lang/Integer\n" + 
+		"    59  astore_3\n" + 
+		"    60  iload_2\n" + 
+		"    61  aload_3\n" + 
+		"    62  invokevirtual #42 <Method java/lang/Integer.intValue()I>\n" + 
+		"    65  iadd\n" + 
+		"    66  istore_2\n" + 
+		"    67  aload 4\n" + 
+		"    69  invokeinterface [nargs : 1] #46 <Interface method java/util/Iterator.()Z>\n" + 
+		"    74  ifne 49\n" + 
+		"    77  getstatic #52 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    80  iload_2\n" + 
+		"    81  invokevirtual #57 <Method java/io/PrintStream.println(I)V>\n" + 
+		"    84  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 8, line: 6]\n" + 
+		"        [pc: 13, line: 7]\n" + 
+		"        [pc: 26, line: 6]\n" + 
+		"        [pc: 35, line: 9]\n" + 
+		"        [pc: 37, line: 10]\n" + 
+		"        [pc: 60, line: 11]\n" + 
+		"        [pc: 67, line: 10]\n" + 
+		"        [pc: 77, line: 13]\n" + 
+		"        [pc: 84, line: 14]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 85] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 8, pc: 85] local: arrayList index: 1 type: Ljava/util/ArrayList;\n" + 
+		"        [pc: 10, pc: 35] local: i index: 2 type: I\n" + 
+		"        [pc: 37, pc: 85] local: sum index: 2 type: I\n" + 
+		"        [pc: 60, pc: 77] local: e index: 3 type: Ljava/lang/Integer;\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 8, pc: 85] local: arrayList index: 1 type: Ljava/util/ArrayList<Ljava/lang/Integer;>;\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1096,7 +1159,7 @@ public void test022() {
 		assertTrue(false);
 	} catch (IOException e) {
 		assertTrue(false);
-	}*/
+	}
 }
 
 /*
