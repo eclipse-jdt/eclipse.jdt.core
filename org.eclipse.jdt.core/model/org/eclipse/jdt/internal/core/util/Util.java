@@ -380,7 +380,7 @@ public class Util {
 		for (int i = 0, length = array.length; i < length; i++) {
 			buffer.append(array[i]);
 			if (i < length - 1)
-				buffer.append('.');
+				buffer.append(separator);
 		}
 		return buffer.toString();
 	}
