@@ -444,31 +444,14 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	public void test011() { // autoboxing method is chosen over private exact match & visible varargs method
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static int bar() {return 1;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	private static void test(int i) { System.out.print('n'); }\n" +
-				"	static void test(int... i) { System.out.print('n'); }\n" +
-				"	public static void test(Integer i) { System.out.print('y'); }\n" +
-				"}\n",
-			},
-			"y"
-		);
+		// constant cases
 		// int -> Integer
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static int bar() {return 1;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		new Y().test(bar());\n" +
+				"		new Y().test(1);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -484,9 +467,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static byte bar() {return 1;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test((byte)127);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -502,9 +484,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static char bar() {return 'c';}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test('b');\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -520,9 +501,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static float bar() {return 0.0f;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test(-0.0f);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -538,9 +518,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static double bar() {return 0.0;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test(0.0);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -556,9 +535,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static long bar() {return 0;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test(Long.MAX_VALUE);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -574,9 +552,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static short bar() {return 0;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test(Short.MAX_VALUE);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -592,9 +569,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"	public static boolean bar() {return true;}\n" +
 				"	public static void main(String[] s) {\n" +
-				"		Y.test(bar());\n" +
+				"		Y.test(false);\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
