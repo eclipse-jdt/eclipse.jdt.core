@@ -22,21 +22,21 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public abstract class JavadocTest extends AbstractRegressionTest {
 		
 	boolean useLibrary = false;
-	static String zipFile = "/TestJavadocVisibility.zip";
+	static String ZIP_FILE = "/TestJavadocVisibility.zip";
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	public static ArrayList allTestClasses = null;
+	public static ArrayList ALL_CLASSES = null;
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 	static boolean debug = false;
 
 	static {
-		allTestClasses = new ArrayList();
-		allTestClasses.add(JavadocTestForMethod.class);
-		allTestClasses.add(JavadocTestMixed.class);
-		allTestClasses.add(JavadocTestForClass.class);
-		allTestClasses.add(JavadocTestForConstructor.class);
-		allTestClasses.add(JavadocTestForField.class);
-		allTestClasses.add(JavadocTestForInterface.class);
-		allTestClasses.add(JavadocTestOptions.class);
+		ALL_CLASSES = new ArrayList();
+		ALL_CLASSES.add(JavadocTestForMethod.class);
+		ALL_CLASSES.add(JavadocTestMixed.class);
+		ALL_CLASSES.add(JavadocTestForClass.class);
+		ALL_CLASSES.add(JavadocTestForConstructor.class);
+		ALL_CLASSES.add(JavadocTestForField.class);
+		ALL_CLASSES.add(JavadocTestForInterface.class);
+		ALL_CLASSES.add(JavadocTestOptions.class);
 		// Reset forgotten subsets tests
 		TESTS_PREFIX = null;
 		TESTS_NAMES = null;
@@ -59,23 +59,20 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		TestCase.TESTS_NUMBERS = null;
 		TestCase.TESTS_RANGE = null;
 	
-		for (int i = 0, l=allTestClasses.size(); i < l; i++) {
-			Class testClass = (Class) allTestClasses.get(i);
+		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
+			Class testClass = (Class) ALL_CLASSES.get(i);
 			Test suite = buildTestSuite(testClass);
 			ts.addTest(suite);
 		}
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			Test suite = buildTestSuite(JavadocTest_1_3.class);
-			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_3));
+			ts.addTest(buildTestSuite(JavadocTest_1_3.class, COMPLIANCE_1_3));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			Test suite = buildTestSuite(JavadocTest_1_4.class);
-			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_4));
+			ts.addTest(buildTestSuite(JavadocTest_1_4.class, COMPLIANCE_1_4));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			Test suite = buildTestSuite(JavadocTest_1_5.class);
-			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_5));
+			ts.addTest(buildTestSuite(JavadocTest_1_5.class, COMPLIANCE_1_5));
 		}
 		return ts;
 	}
@@ -102,7 +99,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			final int length = classLibs.length;
 			String[] newClassPaths = new String[length + 1];
 			System.arraycopy(classLibs, 0, newClassPaths, 0, length);
-			newClassPaths[length] = getClass().getResource(zipFile).getPath();
+			newClassPaths[length] = getClass().getResource(ZIP_FILE).getPath();
 			return newClassPaths;
 		}
 		return super.getDefaultClassPaths();
