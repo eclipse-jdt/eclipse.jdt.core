@@ -340,10 +340,11 @@ public class JavaProject
 		// for the project we add this, in case the project is its own source folder.
 		// we don't want the recursion to end if the source folder has been added
 		// so we might add it as a rootID and as a project
-		if (rootIDs.contains(this)){
+		String projectRootId = this.rootID();
+		if (rootIDs.contains(projectRootId)){
 			return; // break cycles if any
 		}
-		rootIDs.add(this);
+		rootIDs.add(projectRootId);
 
 		IClasspathEntry[] preferredClasspath = preferredClasspaths != null ? (IClasspathEntry[])preferredClasspaths.get(this) : null;
 		IPath preferredOutput = preferredOutputs != null ? (IPath)preferredOutputs.get(this) : null;
@@ -363,7 +364,6 @@ public class JavaProject
 				}
 				
 				accumulatedEntries.add(entry);
-				rootIDs.add(rootID);
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
@@ -383,6 +383,7 @@ public class JavaProject
 						}
 					}
 				}
+				rootIDs.add(rootID);
 			}			
 		}
 	}
