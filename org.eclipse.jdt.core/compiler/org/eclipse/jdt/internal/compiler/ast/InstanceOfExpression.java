@@ -59,8 +59,11 @@ public class InstanceOfExpression extends OperatorExpression {
 		int pc = codeStream.position;
 		expression.generateCode(currentScope, codeStream, true);
 		codeStream.instance_of(type.resolvedType);
-		if (!valueRequired)
+		if (valueRequired) {
+			codeStream.generateImplicitConversion(implicitConversion);
+		} else {
 			codeStream.pop();
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
