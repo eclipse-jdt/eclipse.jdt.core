@@ -465,14 +465,22 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private void format(
 		AbstractMethodDeclaration methodDeclaration,
 		ClassScope scope,
-		boolean isChunkStart) {
+		boolean isChunkStart,
+		boolean isFirstClassBodyDeclaration) {
 
-		final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printEmptyLines(newLineBeforeChunk);
+		if (isFirstClassBodyDeclaration) {
+			int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+			if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+			}
+		} else {
+			final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+			if (newLineBeforeChunk > 0) {
+				this.scribe.printEmptyLines(newLineBeforeChunk);
+			}
 		}
 		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
-		if (newLinesBeforeMethod > 0) {
+		if (newLinesBeforeMethod > 0 && !isFirstClassBodyDeclaration) {
 			this.scribe.printEmptyLines(newLinesBeforeMethod);
 		} else if (this.scribe.line != 0 || this.scribe.column != 1) {
 			this.scribe.printNewLine();
@@ -480,15 +488,22 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		methodDeclaration.traverse(this, scope);
 	}
 	
-	private void format(FieldDeclaration fieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart) {
+	private void format(FieldDeclaration fieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart, boolean isFirstClassBodyDeclaration) {
 		
-		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printEmptyLines(newLineBeforeChunk);
-		}
-		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
-		if (newLinesBeforeField > 0) {
-			this.scribe.printEmptyLines(newLinesBeforeField);
+		if (isFirstClassBodyDeclaration) {
+			int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+			if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+			}
+		} else {
+			int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+			if (newLineBeforeChunk > 0) {
+				this.scribe.printEmptyLines(newLineBeforeChunk);
+			}
+			final int newLinesBeforeField = this.preferences.blank_lines_before_field;
+			if (newLinesBeforeField > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeField);
+			}
 		}
 		Alignment memberAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
@@ -544,28 +559,43 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private void format(
 		TypeDeclaration memberTypeDeclaration,
 		ClassScope scope,
-		boolean isChunkStart) {
+		boolean isChunkStart,
+		boolean isFirstClassBodyDeclaration) {
 
-		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printEmptyLines(newLineBeforeChunk);
-		}
-		final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
-		if (newLinesBeforeMember > 0) {
-			this.scribe.printEmptyLines(newLinesBeforeMember);
+		if (isFirstClassBodyDeclaration) {
+			int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+			if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+			}
+		} else {
+			int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+			if (newLineBeforeChunk > 0) {
+				this.scribe.printEmptyLines(newLineBeforeChunk);
+			}
+			final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
+			if (newLinesBeforeMember > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeMember);
+			}
 		}
 		memberTypeDeclaration.traverse(this, scope);
 	}
 	
-	private void format(MultiFieldDeclaration multiFieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart) {
+	private void format(MultiFieldDeclaration multiFieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart, boolean isFirstClassBodyDeclaration) {
 	
-		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printEmptyLines(newLineBeforeChunk);
-		}
-		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
-		if (newLinesBeforeField > 0) {
-			this.scribe.printEmptyLines(newLinesBeforeField);
+		if (isFirstClassBodyDeclaration) {
+			int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+			if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+			}
+		} else {
+			int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+			if (newLineBeforeChunk > 0) {
+				this.scribe.printEmptyLines(newLineBeforeChunk);
+			}
+			final int newLinesBeforeField = this.preferences.blank_lines_before_field;
+			if (newLinesBeforeField > 0) {
+				this.scribe.printEmptyLines(newLinesBeforeField);
+			}
 		}
 		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
@@ -1140,7 +1170,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 */
 	private void formatClassBodyDeclarations(ASTNode[] nodes) {
 		final int FIELD = 1, METHOD = 2, TYPE = 3;
-		
+		this.scribe.lastNumberOfNewLines = 1;
 		ASTNode[] mergedNodes = computeMergedMemberDeclarations(nodes);
 		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
@@ -1155,20 +1185,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
 						if (member instanceof MultiFieldDeclaration){
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
-							format(multiField, this, null, isChunkStart);
+							format(multiField, this, null, isChunkStart, i == 0);
 						} else if (member instanceof Initializer) {
+							int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+							if (newLineBeforeChunk > 0 && i != 0) {
+								this.scribe.printEmptyLines(newLineBeforeChunk);
+							} else if (i == 0) {
+								int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+								if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+									this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+								}
+							}
 							Initializer initializer = (Initializer) member;
 							initializer.traverse(this, null);
 						} else {
 							FieldDeclaration field = (FieldDeclaration) member;
-							format(field, this, null, isChunkStart);
+							format(field, this, null, isChunkStart, i == 0);
 						}
 					} else if (member instanceof AbstractMethodDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(METHOD, i, this.scribe.scanner.currentPosition);
-						format((AbstractMethodDeclaration) member, null, isChunkStart);
+						format((AbstractMethodDeclaration) member, null, isChunkStart, i == 0);
 					} else {
 						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
-						format((TypeDeclaration)member, null, isChunkStart);
+						format((TypeDeclaration)member, null, isChunkStart, i == 0);
 					}
 					if (isSemiColon()) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -1506,14 +1545,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
 							
 							if (multiField.isStatic()) {
-								format(multiField, this, typeDeclaration.staticInitializerScope, isChunkStart);
+								format(multiField, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
 							} else {
-								format(multiField, this, typeDeclaration.initializerScope, isChunkStart);
+								format(multiField, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
 							}					
 						} else if (member instanceof Initializer) {
 							int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-							if (newLineBeforeChunk > 0) {
+							if (newLineBeforeChunk > 0 && i != 0) {
 								this.scribe.printEmptyLines(newLineBeforeChunk);
+							} else if (i == 0) {
+								int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+								if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+									this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+								}
 							}
 							Initializer initializer = (Initializer) member;
 							if (initializer.isStatic()) {
@@ -1524,17 +1568,17 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						} else {
 							FieldDeclaration field = (FieldDeclaration) member;
 							if (field.isStatic()) {
-								format(field, this, typeDeclaration.staticInitializerScope, isChunkStart);
+								format(field, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
 							} else {
-								format(field, this, typeDeclaration.initializerScope, isChunkStart);
+								format(field, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
 							}					
 						}
 					} else if (member instanceof AbstractMethodDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_METHOD, i, this.scribe.scanner.currentPosition);
-						format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart);
+						format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart, i == 0);
 					} else {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
-						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart);
+						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
 					}
 					if (isSemiColon()) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -2284,7 +2328,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			// dump the package keyword
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
 			if (blankLinesBeforePackage > 0) {
-				this.scribe.printEmptyLines(blankLinesBeforePackage - 1); // we substract 1, because this is the first line 
+				this.scribe.printEmptyLines(blankLinesBeforePackage - 1);
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();

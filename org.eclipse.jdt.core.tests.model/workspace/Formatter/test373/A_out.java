@@ -1,3 +1,4 @@
+
 class Example {
 
     void foo() {

@@ -1,6 +1,4 @@
-
 class Example {
-
     void foo() {
     }
 

@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test065"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test381"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -707,6 +707,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test069() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		preferences.blank_lines_before_method = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test069", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1118,6 +1119,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
 		preferences.blank_lines_after_package = 1;
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		preferences.blank_lines_before_new_chunk = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test111", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1127,6 +1129,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
 		preferences.blank_lines_after_package = 1;
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		preferences.blank_lines_before_new_chunk = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test112", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -3884,6 +3887,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = false;
 		preferences.blank_lines_before_method = 1;
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		preferences.method_throws_clause_alignment = Alignment.M_INDENT_ON_COLUMN | Alignment.M_NEXT_PER_LINE_SPLIT;
 		preferences.insert_new_line_in_empty_method_body = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -3897,6 +3901,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = false;
 		preferences.blank_lines_before_method = 1;
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		preferences.method_throws_clause_alignment = Alignment.M_COMPACT_SPLIT;
 		preferences.insert_new_line_in_empty_method_body = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -3908,6 +3913,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	public void test349() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
+		preferences.blank_lines_before_first_class_body_declaration = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test349", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
@@ -4131,6 +4137,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "0");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, "1");
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(new DefaultCodeFormatterOptions(options));
 		runTest(codeFormatter, "test369", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4142,6 +4149,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, "1");
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(new DefaultCodeFormatterOptions(options));
 		runTest(codeFormatter, "test370", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4175,6 +4183,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "0");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, "1");
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(new DefaultCodeFormatterOptions(options));
 		runTest(codeFormatter, "test373", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4255,7 +4264,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44813
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47997
 	 */
 	public void test379() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
@@ -4267,5 +4276,37 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, JavaCore.INSERT);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(new DefaultCodeFormatterOptions(options));
 		runTest(codeFormatter, "test379", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47997
+	 */
+	public void test380() {
+		Hashtable options = new Hashtable();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION, DefaultCodeFormatterConstants.NEXT_LINE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_BRACE_POSITION, DefaultCodeFormatterConstants.NEXT_LINE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_BRACE_POSITION, DefaultCodeFormatterConstants.NEXT_LINE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION, DefaultCodeFormatterConstants.NEXT_LINE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION, DefaultCodeFormatterConstants.NEXT_LINE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, "1");
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+		options.put(JavaCore.FORMATTER_TAB_SIZE, "4");
+		options.put(JavaCore.FORMATTER_LINE_SPLIT, "100");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test380", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47997
+	 */
+	public void test381() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "0");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, "0");
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(new DefaultCodeFormatterOptions(options));
+		runTest(codeFormatter, "test381", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 }

@@ -33,6 +33,7 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 0;
 	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_IMPORTS = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
@@ -194,6 +195,7 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_after_imports;
 	public int blank_lines_after_package;
 	public int blank_lines_before_field;
+	public int blank_lines_before_first_class_body_declaration;
 	public int blank_lines_before_imports;
 	public int blank_lines_before_member_type;
 	public int blank_lines_before_method;
@@ -355,6 +357,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, Integer.toString(this.blank_lines_after_imports));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, Integer.toString(this.blank_lines_after_package));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD, Integer.toString(this.blank_lines_before_field));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION, Integer.toString(this.blank_lines_before_first_class_body_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS, Integer.toString(this.blank_lines_before_imports));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE, Integer.toString(this.blank_lines_before_member_type));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, Integer.toString(this.blank_lines_before_method));
@@ -527,6 +530,10 @@ public class DefaultCodeFormatterOptions {
 		final Object blankLinesBeforeFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD);
 		if (blankLinesBeforeFieldOption != null) {
 			this.blank_lines_before_field = Integer.parseInt((String) blankLinesBeforeFieldOption);
+		}
+		final Object blankLinesBeforeFirstClassBodyDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION);
+		if (blankLinesBeforeFirstClassBodyDeclarationOption != null) {
+			this.blank_lines_before_first_class_body_declaration = Integer.parseInt((String) blankLinesBeforeFirstClassBodyDeclarationOption);
 		}
 		final Object blankLinesBeforeImportsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS);
 		if (blankLinesBeforeImportsOption != null) {
@@ -1076,6 +1083,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_imports = DEFAULT_BLANK_LINES_AFTER_IMPORTS;
 		this.blank_lines_after_package = DEFAULT_BLANK_LINES_AFTER_PACKAGE;
 		this.blank_lines_before_field = DEFAULT_BLANK_LINES_BEFORE_FIELD;
+		this.blank_lines_before_first_class_body_declaration = DEFAULT_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION;
 		this.blank_lines_before_imports = DEFAULT_BLANK_LINES_BEFORE_IMPORTS;
 		this.blank_lines_before_member_type = DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE;
 		this.blank_lines_before_method = DEFAULT_BLANK_LINES_BEFORE_METHOD;
@@ -1220,6 +1228,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
 		this.blank_lines_before_field = 1;
+		this.blank_lines_before_first_class_body_declaration = 0;
 		this.blank_lines_before_imports= 1;
 		this.blank_lines_before_member_type = 1;
 		this.blank_lines_before_method = 1;
