@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0402"));
+//		suite.addTest(new ASTConverterTest("test0404"));
 		return suite;
 	}
 		
@@ -10003,6 +10003,70 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		checkSourceRange(node, "new A().super();", source);
 	}	
 	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
+	 */
+	public void test0403() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0403", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
+		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length);
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION);
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		assertTrue("Not a simple name", expression2.getNodeType() == ASTNode.SIMPLE_NAME);
+		SimpleName simpleName = (SimpleName) expression2;
+		IBinding binding  = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertTrue("wrong type", binding.getKind() == IBinding.VARIABLE);
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong name", "a", variableBinding.getName());
+		SimpleName simpleName2 = methodInvocation.getName();
+		assertEquals("Wrong name", "clone", simpleName2.getIdentifier());
+		IBinding binding2 = simpleName2.resolveBinding();
+		assertNotNull("no binding2", binding2);
+		assertTrue("Wrong type", binding2.getKind() == IBinding.METHOD);
+		IMethodBinding methodBinding = (IMethodBinding) binding2;
+		assertEquals("Wrong name", "clone", methodBinding.getName());
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
+	 */
+	public void test0404() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0404", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
+		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length);
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION);
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		assertTrue("Not a simple name", expression2.getNodeType() == ASTNode.SIMPLE_NAME);
+		SimpleName simpleName = (SimpleName) expression2;
+		IBinding binding  = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertTrue("wrong type", binding.getKind() == IBinding.VARIABLE);
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong name", "a", variableBinding.getName());
+		SimpleName simpleName2 = methodInvocation.getName();
+		assertEquals("Wrong name", "clone", simpleName2.getIdentifier());
+		IBinding binding2 = simpleName2.resolveBinding();
+		assertNotNull("no binding2", binding2);
+		assertTrue("Wrong type", binding2.getKind() == IBinding.METHOD);
+		IMethodBinding methodBinding = (IMethodBinding) binding2;
+		assertEquals("Wrong name", "clone", methodBinding.getName());
+	}	
+
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);

@@ -28,8 +28,519 @@ import org.eclipse.jdt.core.dom.*;
 // testing
 
 public class ASTTest extends TestCase { 
-
-
+	
+	class CheckPositionsMatcher extends ASTMatcher {
+	
+		private void checkPositions(Object source, Object destination) {
+			assertTrue(source instanceof ASTNode);
+			assertTrue(destination instanceof ASTNode);
+			int startPosition = ((ASTNode)source).getStartPosition();
+			if (startPosition != -1) {
+				assertTrue(startPosition == ((ASTNode)destination).getStartPosition());
+			}
+			int length = ((ASTNode)source).getLength();
+			if (length != 0) {
+				assertTrue(length == ((ASTNode)destination).getLength());
+			}
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(AnonymousClassDeclaration, Object)
+		 */
+		public boolean match(AnonymousClassDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ArrayAccess, Object)
+		 */
+		public boolean match(ArrayAccess node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ArrayCreation, Object)
+		 */
+		public boolean match(ArrayCreation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ArrayInitializer, Object)
+		 */
+		public boolean match(ArrayInitializer node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ArrayType, Object)
+		 */
+		public boolean match(ArrayType node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(AssertStatement, Object)
+		 */
+		public boolean match(AssertStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(Assignment, Object)
+		 */
+		public boolean match(Assignment node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(Block, Object)
+		 */
+		public boolean match(Block node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(BooleanLiteral, Object)
+		 */
+		public boolean match(BooleanLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(BreakStatement, Object)
+		 */
+		public boolean match(BreakStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(CastExpression, Object)
+		 */
+		public boolean match(CastExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(CatchClause, Object)
+		 */
+		public boolean match(CatchClause node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(CharacterLiteral, Object)
+		 */
+		public boolean match(CharacterLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ClassInstanceCreation, Object)
+		 */
+		public boolean match(ClassInstanceCreation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(CompilationUnit, Object)
+		 */
+		public boolean match(CompilationUnit node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ConditionalExpression, Object)
+		 */
+		public boolean match(ConditionalExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ConstructorInvocation, Object)
+		 */
+		public boolean match(ConstructorInvocation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ContinueStatement, Object)
+		 */
+		public boolean match(ContinueStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(DoStatement, Object)
+		 */
+		public boolean match(DoStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(EmptyStatement, Object)
+		 */
+		public boolean match(EmptyStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ExpressionStatement, Object)
+		 */
+		public boolean match(ExpressionStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(FieldAccess, Object)
+		 */
+		public boolean match(FieldAccess node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(FieldDeclaration, Object)
+		 */
+		public boolean match(FieldDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ForStatement, Object)
+		 */
+		public boolean match(ForStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(IfStatement, Object)
+		 */
+		public boolean match(IfStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ImportDeclaration, Object)
+		 */
+		public boolean match(ImportDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(InfixExpression, Object)
+		 */
+		public boolean match(InfixExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(Initializer, Object)
+		 */
+		public boolean match(Initializer node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(InstanceofExpression, Object)
+		 */
+		public boolean match(InstanceofExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(Javadoc, Object)
+		 */
+		public boolean match(Javadoc node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(LabeledStatement, Object)
+		 */
+		public boolean match(LabeledStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodDeclaration, Object)
+		 */
+		public boolean match(MethodDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodInvocation, Object)
+		 */
+		public boolean match(MethodInvocation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(NullLiteral, Object)
+		 */
+		public boolean match(NullLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(NumberLiteral, Object)
+		 */
+		public boolean match(NumberLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(PackageDeclaration, Object)
+		 */
+		public boolean match(PackageDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ParenthesizedExpression, Object)
+		 */
+		public boolean match(ParenthesizedExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(PostfixExpression, Object)
+		 */
+		public boolean match(PostfixExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(PrefixExpression, Object)
+		 */
+		public boolean match(PrefixExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(PrimitiveType, Object)
+		 */
+		public boolean match(PrimitiveType node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(QualifiedName, Object)
+		 */
+		public boolean match(QualifiedName node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ReturnStatement, Object)
+		 */
+		public boolean match(ReturnStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SimpleName, Object)
+		 */
+		public boolean match(SimpleName node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SimpleType, Object)
+		 */
+		public boolean match(SimpleType node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SingleVariableDeclaration, Object)
+		 */
+		public boolean match(SingleVariableDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(StringLiteral, Object)
+		 */
+		public boolean match(StringLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SuperConstructorInvocation, Object)
+		 */
+		public boolean match(SuperConstructorInvocation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SuperFieldAccess, Object)
+		 */
+		public boolean match(SuperFieldAccess node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SuperMethodInvocation, Object)
+		 */
+		public boolean match(SuperMethodInvocation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SwitchCase, Object)
+		 */
+		public boolean match(SwitchCase node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SwitchStatement, Object)
+		 */
+		public boolean match(SwitchStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(SynchronizedStatement, Object)
+		 */
+		public boolean match(SynchronizedStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ThisExpression, Object)
+		 */
+		public boolean match(ThisExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ThrowStatement, Object)
+		 */
+		public boolean match(ThrowStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TryStatement, Object)
+		 */
+		public boolean match(TryStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeDeclaration, Object)
+		 */
+		public boolean match(TypeDeclaration node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeDeclarationStatement, Object)
+		 */
+		public boolean match(TypeDeclarationStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeLiteral, Object)
+		 */
+		public boolean match(TypeLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(VariableDeclarationExpression, Object)
+		 */
+		public boolean match(VariableDeclarationExpression node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(VariableDeclarationFragment, Object)
+		 */
+		public boolean match(VariableDeclarationFragment node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(VariableDeclarationStatement, Object)
+		 */
+		public boolean match(VariableDeclarationStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(WhileStatement, Object)
+		 */
+		public boolean match(WhileStatement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+	}
 	
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTTest.class.getName());
@@ -3609,109 +4120,239 @@ public class ASTTest extends TestCase {
 	 */
 	ASTNode oneOfEach(AST target) {
 		CompilationUnit cu = target.newCompilationUnit();
-		
+		cu.setSourceRange(0, 1000);
 		PackageDeclaration pd = target.newPackageDeclaration();
+		pd.setSourceRange(0, 5);
 		cu.setPackage(pd);
 		
 		ImportDeclaration im = target.newImportDeclaration();
+		im.setSourceRange(6, 5);
 		cu.imports().add(im);
 		
 		TypeDeclaration td = target.newTypeDeclaration();
-		td.setJavadoc(target.newJavadoc());
+		im.setSourceRange(11, 900);
+		Javadoc javadoc = target.newJavadoc();
+		javadoc.setSourceRange(11, 5);
+		td.setJavadoc(javadoc);
 		cu.types().add(td);
 		
+		VariableDeclarationFragment variableDeclarationFragment = target.newVariableDeclarationFragment();
+		variableDeclarationFragment.setSourceRange(16, 5);
 		FieldDeclaration fd = 
-			target.newFieldDeclaration(target.newVariableDeclarationFragment());
+			target.newFieldDeclaration(variableDeclarationFragment);
+		fd.setSourceRange(16, 5);
 		td.bodyDeclarations().add(fd);	
 		
 		Initializer in = target.newInitializer();
+		in.setSourceRange(21, 5);
 		td.bodyDeclarations().add(in);	
 		
 		MethodDeclaration md = target.newMethodDeclaration();
-		md.parameters().add(target.newSingleVariableDeclaration());
+		md.setSourceRange(26, 800);
+		SingleVariableDeclaration singleVariableDeclaration = target.newSingleVariableDeclaration();
+		singleVariableDeclaration.setSourceRange(30, 5);
+		md.parameters().add(singleVariableDeclaration);
 		td.bodyDeclarations().add(md);
 		
 		SimpleName sn1 = target.newSimpleName("one");
+		sn1.setSourceRange(35, 5);
 		SimpleName sn2 =target.newSimpleName("two");
+		sn2.setSourceRange(41, 5);
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
+		qn.setSourceRange(35, 11);
 
 		SimpleType st = target.newSimpleType(qn);
+		st.setSourceRange(35, 11);
 		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
+		pt.setSourceRange(41, 5);
 		ArrayType at = target.newArrayType(st);
+		at.setSourceRange(41, 7);
 
 		md.setReturnType(at);
 		fd.setType(pt);
 		
 		Block b = target.newBlock();
+		b.setSourceRange(46, 700);
 		md.setBody(b);
 		
 		// all statements (in alphabetic order of statement type)
-		b.statements().add(target.newAssertStatement());
-		b.statements().add(target.newBlock());
-		b.statements().add(target.newBreakStatement());
-		b.statements().add(target.newContinueStatement());
-		b.statements().add(target.newConstructorInvocation());
-		b.statements().add(target.newDoStatement());
-		b.statements().add(target.newEmptyStatement());
-		b.statements().add(target.newExpressionStatement(target.newNullLiteral()));
-		b.statements().add(target.newForStatement());
-		b.statements().add(target.newIfStatement());
-		b.statements().add(target.newLabeledStatement());
-		b.statements().add(target.newReturnStatement());
-		b.statements().add(target.newSuperConstructorInvocation());
+		AssertStatement assertStatement = target.newAssertStatement();
+		assertStatement.setSourceRange(46, 5);
+		b.statements().add(assertStatement);
+		Block block = target.newBlock();
+		block.setSourceRange(51, 5);
+		b.statements().add(block);
+		BreakStatement breakStatement = target.newBreakStatement();
+		breakStatement.setSourceRange(55, 5);
+		b.statements().add(breakStatement);
+		ContinueStatement continueStatement = target.newContinueStatement();
+		continueStatement.setSourceRange(61, 5);
+		b.statements().add(continueStatement);
+		ConstructorInvocation constructorInvocation = target.newConstructorInvocation();
+		constructorInvocation.setSourceRange(65, 5);
+		b.statements().add(constructorInvocation);
+		DoStatement doStatement = target.newDoStatement();
+		doStatement.setSourceRange(70, 5);
+		b.statements().add(doStatement);
+		EmptyStatement emptyStatement = target.newEmptyStatement();
+		emptyStatement.setSourceRange(75, 5);
+		b.statements().add(emptyStatement);
+		NullLiteral nullLiteral = target.newNullLiteral();
+		nullLiteral.setSourceRange(80, 5);
+		ExpressionStatement expressionStatement = target.newExpressionStatement(nullLiteral);
+		expressionStatement.setSourceRange(80, 5);
+		b.statements().add(expressionStatement);
+		ForStatement forStatement = target.newForStatement();
+		forStatement.setSourceRange(86, 5);
+		b.statements().add(forStatement);
+		IfStatement ifStatement = target.newIfStatement();
+		ifStatement.setSourceRange(90, 5);
+		b.statements().add(ifStatement);
+		LabeledStatement labeledStatement = target.newLabeledStatement();
+		labeledStatement.setSourceRange(95, 5);
+		b.statements().add(labeledStatement);
+		ReturnStatement returnStatement = target.newReturnStatement();
+		returnStatement.setSourceRange(100, 5);
+		b.statements().add(returnStatement);
+		SuperConstructorInvocation superConstructorInvocation = target.newSuperConstructorInvocation();
+		superConstructorInvocation.setSourceRange(105, 5);
+		b.statements().add(superConstructorInvocation);
 		SwitchStatement ss = target.newSwitchStatement();
-			ss.statements().add(target.newSwitchCase());
-			b.statements().add(ss);
-		b.statements().add(target.newSwitchStatement());
-		b.statements().add(target.newSwitchCase());
-		b.statements().add(target.newSynchronizedStatement());
-		b.statements().add(target.newThrowStatement());
+		ss.setSourceRange(110, 5);
+		SwitchCase switchCase = target.newSwitchCase();
+		switchCase.setSourceRange(110, 5);
+		ss.statements().add(switchCase);
+		b.statements().add(ss);
+		SwitchStatement switchStatement = target.newSwitchStatement();
+		switchStatement.setSourceRange(115, 5);
+		b.statements().add(switchStatement);
+		SwitchCase switchCase2 = target.newSwitchCase();
+		switchCase2.setSourceRange(120, 5);
+		b.statements().add(switchCase2);
+		SynchronizedStatement synchronizedStatement = target.newSynchronizedStatement();
+		synchronizedStatement.setSourceRange(125, 5);
+		b.statements().add(synchronizedStatement);
+		ThrowStatement throwStatement = target.newThrowStatement();
+		throwStatement.setSourceRange(130, 5);
+		b.statements().add(throwStatement);
 		TryStatement tr = target.newTryStatement();
-			tr.catchClauses().add(target.newCatchClause());
+		tr.setSourceRange(135, 5);
+		CatchClause catchClause = target.newCatchClause();
+		catchClause.setSourceRange(135, 5);
+			tr.catchClauses().add(catchClause);
 			b.statements().add(tr);
-		b.statements().add(target.newTypeDeclarationStatement(target.newTypeDeclaration()));
-		b.statements().add(target.newVariableDeclarationStatement(target.newVariableDeclarationFragment()));
-		b.statements().add(target.newWhileStatement());
+		
+		TypeDeclaration typeDeclaration = target.newTypeDeclaration();
+		typeDeclaration.setSourceRange(140, 5);
+		TypeDeclarationStatement typeDeclarationStatement = target.newTypeDeclarationStatement(typeDeclaration);
+		typeDeclarationStatement.setSourceRange(140, 6);
+		b.statements().add(typeDeclarationStatement);
+		VariableDeclarationFragment variableDeclarationFragment2 = target.newVariableDeclarationFragment();
+		variableDeclarationFragment2.setSourceRange(150, 5);
+		VariableDeclarationStatement variableDeclarationStatement = target.newVariableDeclarationStatement(variableDeclarationFragment2);
+		variableDeclarationStatement.setSourceRange(150, 6);
+		b.statements().add(variableDeclarationStatement);
+		WhileStatement whileStatement = target.newWhileStatement();
+		whileStatement.setSourceRange(155, 5);
+		b.statements().add(whileStatement);
 
 		// all expressions (in alphabetic order of expressions type)
 		MethodInvocation inv = target.newMethodInvocation();
-		b.statements().add(target.newExpressionStatement(inv));
+		inv.setSourceRange(200, 300);
+		ExpressionStatement expressionStatement2 = target.newExpressionStatement(inv);
+		expressionStatement2.setSourceRange(400, 5);
+		b.statements().add(expressionStatement2);
 		List z = inv.arguments();
-		z.add(target.newArrayAccess());
-		z.add(target.newArrayCreation());
-		z.add(target.newArrayInitializer());
-		z.add(target.newAssignment());
-		z.add(target.newBooleanLiteral(true));
-		z.add(target.newCastExpression());
-		z.add(target.newCharacterLiteral());
+		ArrayAccess arrayAccess = target.newArrayAccess();
+		arrayAccess.setSourceRange(200, 5);
+		z.add(arrayAccess);
+		ArrayCreation arrayCreation = target.newArrayCreation();
+		arrayCreation.setSourceRange(210, 5);
+		z.add(arrayCreation);
+		ArrayInitializer arrayInitializer = target.newArrayInitializer();
+		arrayInitializer.setSourceRange(220, 5);
+		z.add(arrayInitializer);
+		Assignment assignment = target.newAssignment();
+		assignment.setSourceRange(230, 5);
+		z.add(assignment);
+		BooleanLiteral booleanLiteral = target.newBooleanLiteral(true);
+		booleanLiteral.setSourceRange(240, 5);
+		z.add(booleanLiteral);
+		CastExpression castExpression = target.newCastExpression();
+		castExpression.setSourceRange(250, 5);
+		z.add(castExpression);
+		CharacterLiteral characterLiteral = target.newCharacterLiteral();
+		characterLiteral.setSourceRange(260, 5);
+		z.add(characterLiteral);
 		ClassInstanceCreation cic = target.newClassInstanceCreation();
-		cic.setAnonymousClassDeclaration(target.newAnonymousClassDeclaration());
+		cic.setSourceRange(270, 9);
+		AnonymousClassDeclaration anonymousClassDeclaration = target.newAnonymousClassDeclaration();
+		anonymousClassDeclaration.setSourceRange(270, 5);
+		cic.setAnonymousClassDeclaration(anonymousClassDeclaration);
 		z.add(cic);
-		z.add(target.newConditionalExpression());
-		z.add(target.newFieldAccess());
-		z.add(target.newInfixExpression());
-		z.add(target.newInstanceofExpression());
-		z.add(target.newMethodInvocation());
-		z.add(target.newName(new String[]{"a", "b"}));
-		z.add(target.newNullLiteral());
-		z.add(target.newNumberLiteral("1024"));
-		z.add(target.newParenthesizedExpression());
-		z.add(target.newPostfixExpression());
-		z.add(target.newPrefixExpression());
-		z.add(target.newStringLiteral());
-		z.add(target.newSuperFieldAccess());
-		z.add(target.newSuperMethodInvocation());
-		z.add(target.newThisExpression());
-		z.add(target.newTypeLiteral());
-		z.add(target.newVariableDeclarationExpression(
-				target.newVariableDeclarationFragment()));
+		ConditionalExpression conditionalExpression = target.newConditionalExpression();
+		conditionalExpression.setSourceRange(280, 5);
+		z.add(conditionalExpression);
+		FieldAccess fieldAccess = target.newFieldAccess();
+		fieldAccess.setSourceRange(290, 5);
+		z.add(fieldAccess);
+		InfixExpression infixExpression = target.newInfixExpression();
+		infixExpression.setSourceRange(300, 5);
+		z.add(infixExpression);
+		InstanceofExpression instanceofExpression = target.newInstanceofExpression();
+		instanceofExpression.setSourceRange(310, 5);
+		z.add(instanceofExpression);
+		MethodInvocation methodInvocation = target.newMethodInvocation();
+		methodInvocation.setSourceRange(320, 5);
+		z.add(methodInvocation);
+		Name name = target.newName(new String[]{"a", "b"});
+		name.setSourceRange(330, 5);
+		z.add(name);
+		NullLiteral nullLiteral2 = target.newNullLiteral();
+		nullLiteral2.setSourceRange(336, 3);
+		z.add(nullLiteral2);
+		NumberLiteral numberLiteral = target.newNumberLiteral("1024");
+		numberLiteral.setSourceRange(340, 5);
+		z.add(numberLiteral);
+		ParenthesizedExpression parenthesizedExpression = target.newParenthesizedExpression();
+		parenthesizedExpression.setSourceRange(350, 5);
+		z.add(parenthesizedExpression);
+		PostfixExpression postfixExpression = target.newPostfixExpression();
+		postfixExpression.setSourceRange(360, 5);
+		z.add(postfixExpression);
+		PrefixExpression prefixExpression = target.newPrefixExpression();
+		prefixExpression.setSourceRange(370, 5);
+		z.add(prefixExpression);
+		StringLiteral stringLiteral = target.newStringLiteral();
+		stringLiteral.setSourceRange(380, 5);
+		z.add(stringLiteral);
+		SuperFieldAccess superFieldAccess = target.newSuperFieldAccess();
+		superFieldAccess.setSourceRange(390, 5);
+		z.add(superFieldAccess);
+		SuperMethodInvocation superMethodInvocation = target.newSuperMethodInvocation();
+		superMethodInvocation.setSourceRange(400, 5);
+		z.add(superMethodInvocation);
+		ThisExpression thisExpression = target.newThisExpression();
+		thisExpression.setSourceRange(410, 6);
+		z.add(thisExpression);
+		TypeLiteral typeLiteral = target.newTypeLiteral();
+		typeLiteral.setSourceRange(420, 5);
+		z.add(typeLiteral);
+		VariableDeclarationFragment variableDeclarationFragment3 = target.newVariableDeclarationFragment();
+		variableDeclarationFragment3.setSourceRange(430, 5);
+		VariableDeclarationExpression variableDeclarationExpression = target.newVariableDeclarationExpression(variableDeclarationFragment3);
+		variableDeclarationExpression.setSourceRange(430, 5);
+		z.add(variableDeclarationExpression);
+
+		ASTNode clone = ASTNode.copySubtree(ast, cu);
+		assertTrue(cu.subtreeMatch(new CheckPositionsMatcher(), clone));
 		
 		return cu;
 	}	
 	
 	public void testClone() {
 		ASTNode x = oneOfEach(ast);
-		assertTrue(x.subtreeMatch(new ASTMatcher(), x));
+		assertTrue(x.subtreeMatch(new ASTMatcher(), x));		
 		
 		// same AST clone
 		ASTNode y = ASTNode.copySubtree(ast, x);
