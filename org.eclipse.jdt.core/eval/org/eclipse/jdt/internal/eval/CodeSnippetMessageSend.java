@@ -157,10 +157,6 @@ public void generateCode(
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-// TODO: never used
-public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	// do nothing
-}
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 	if (!flowInfo.isReachable()) return;
