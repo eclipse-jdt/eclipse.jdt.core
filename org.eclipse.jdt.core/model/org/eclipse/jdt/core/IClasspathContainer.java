@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IPath;
  * <p>
  * The set of entries associated with a classpath container may contain any of the following:
  * <ul>
- * <li> source entries (<code>CPE_SOURCE</code>) </li>
  * <li> library entries (<code>CPE_LIBRARY</code>) </li>
  * <li> project entries (<code>CPE_PROJECT</code>) </li>
  * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
@@ -56,7 +55,6 @@ public interface IClasspathContainer {
 	 * <p>
 	 * The set of entries associated with a classpath container may contain any of the following:
 	 * <ul>
-	 * <li> source entries (<code>CPE_SOURCE</code>) </li>
 	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
 	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
 	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>

@@ -231,6 +231,18 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 				// a root's project always refers directly to the root
 				// no need to follow the project reference
 				continue;
+			case IClasspathEntry.CPE_CONTAINER:
+				IClasspathContainer container = JavaCore.getClasspathContainer(entry.getPath(), this.getJavaProject());
+				if (container != null){
+					IClasspathEntry[] containerEntries = container.getClasspathEntries();
+					for (int j = 0; j < containerEntries.length; j++){
+						IClasspathEntry containerEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
+						if (containerEntry != null && path.equals(containerEntry.getPath())) {
+							return entry; // answer original entry
+						}
+					}
+				}
+				break;
 			case IClasspathEntry.CPE_VARIABLE:
 				entry = JavaCore.getResolvedClasspathEntry(entry);
 				// don't break so as to run default
