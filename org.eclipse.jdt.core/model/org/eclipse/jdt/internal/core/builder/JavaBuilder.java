@@ -62,10 +62,19 @@ public static IMarker[] getTasksFor(IResource resource) {
 	return new IMarker[0];
 }
 
-public static void startingBuilding(Map preferredClasspaths, Map preferredOutputs) {
+/**
+ * Hook allowing to initialize some static state before a complete build iteration.
+ * This hook is invoked during PRE_AUTO_BUILD notification
+ */
+public static void buildStarting() {
+	// do nothing
 }
 
-public static void finishedBuilding() {
+/**
+ * Hook allowing to reset some static state after a complete build iteration.
+ * This hook is invoked during POST_AUTO_BUILD notification
+ */
+public static void buildFinished() {
 	BuildNotifier.resetProblemCounters();
 }
 

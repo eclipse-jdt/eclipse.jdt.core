@@ -1827,13 +1827,13 @@ public class DeltaProcessor {
 						Map preferredOutputs = new HashMap(5);
 						performPreBuildCheck(delta, preferredClasspaths, preferredOutputs); 
 						updateClasspathMarkers(preferredClasspaths, preferredOutputs);
-						JavaBuilder.startingBuilding(preferredClasspaths, preferredOutputs);
+						JavaBuilder.buildStarting();
 					}
 					// does not fire any deltas
 					break;
 
 				case IResourceChangeEvent.POST_AUTO_BUILD :
-					JavaBuilder.finishedBuilding();
+					JavaBuilder.buildFinished();
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
