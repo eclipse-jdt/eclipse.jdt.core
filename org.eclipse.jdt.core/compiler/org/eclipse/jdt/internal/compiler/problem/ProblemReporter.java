@@ -991,9 +991,15 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 		case Ambiguous : // 3
 		case InternalNameProvided : // 4
 		case InheritedNameHidesEnclosingName : // 5
+			String argument;
+			if(expectedImport instanceof ProblemReferenceBinding) {
+				argument = CharOperation.toString(((ProblemReferenceBinding)expectedImport).compoundName);
+			} else {
+				argument = CharOperation.toString(importRef.tokens);
+			}
 			this.handle(
 				ImportProblemBase + problemId,
-				new String[] {CharOperation.toString(importRef.tokens)},
+				new String[] {argument},
 				importRef.sourceStart,
 				importRef.sourceEnd);
 			break;

@@ -339,11 +339,15 @@ private Binding findOnDemandImport(char[][] compoundName) {
 	if (binding == null) {
 		if (environment.defaultPackage == null
 				|| environment.options.complianceLevel >= CompilerOptions.JDK1_4){
-			return new ProblemReferenceBinding(compoundName, NotFound);
+			return new ProblemReferenceBinding(
+				CharOperation.subarray(compoundName, 0, i),
+				NotFound);
 		}
 		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(compoundName, NotFound);
+			return new ProblemReferenceBinding(
+				CharOperation.subarray(compoundName, 0, i),
+				NotFound);
 		i = 1; // reset to look for member types inside the default package type
 	} else {
 		type = (ReferenceBinding) binding;
@@ -353,7 +357,9 @@ private Binding findOnDemandImport(char[][] compoundName) {
 		addTypeReference(type);
 		// does not look for inherited member types on purpose
 		if ((type = type.getMemberType(compoundName[i])) == null)
-			return new ProblemReferenceBinding(compoundName, NotFound);
+			return new ProblemReferenceBinding(
+				CharOperation.subarray(compoundName, 0, i + 1),
+				NotFound);
 	}
 	addTypeReference(type);
 	if (!type.canBeSeenBy(fPackage))
