@@ -1299,7 +1299,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 						pattern = CharOperation.toLowerCase(pattern);
 					return CharOperation.match(pattern, name, isCaseSensitive);
 				case R_REGEXP_MATCH :
-					// TODO (jerome) implement regular expression match
+					// TODO (frederic) implement regular expression match
 					return true;
 			}
 		}

@@ -61,7 +61,7 @@ public class JavaSearchPattern extends SearchPattern {
 						pattern = CharOperation.toLowerCase(pattern);
 					return CharOperation.match(pattern, name, this.isCaseSensitive);
 				case R_REGEXP_MATCH :
-					// TODO (jerome) implement regular expression match
+					// TODO (frederic) implement regular expression match
 					return true;
 			}
 		}

@@ -187,7 +187,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	
 	/*
 	 * Ensures that adding index entries through indexDocument() updates the index file.
-	 * TODO (jerome) investigate why this test is failing
+	 * TODO (frederic) investigate why this test is failing
 	 */
 	public synchronized void _testIndexDocument() throws CoreException, InterruptedException {
 		try {
@@ -216,7 +216,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 
 	/*
 	 * Ensures that a simple search that forwards queries to the default participant works as expected
-	 * TODO (jerome) investigate why this test is failing
+	 * TODO (frederic) investigate why this test is failing
 	 */
 	public void _testSearch() throws CoreException {
 		try {
