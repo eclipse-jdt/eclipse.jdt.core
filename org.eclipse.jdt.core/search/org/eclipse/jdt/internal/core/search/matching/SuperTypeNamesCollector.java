@@ -238,7 +238,13 @@ private String[] getPathsOfDeclaringType() {
 	char[] declaringSimpleName = this.pattern.declaringSimpleName;
 	if (declaringQualification != null || declaringSimpleName != null) {
 		final PathCollector pathCollector = new PathCollector();
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, false);
+		IJavaElement[] roots;
+		try {
+			roots = project.getAllPackageFragmentRoots();
+		} catch (JavaModelException e) {
+			return null;
+		}
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(roots);
 	
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
 										.getIndexManager();
