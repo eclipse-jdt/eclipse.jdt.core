@@ -3508,12 +3508,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printTrailingComment();
 				}
 			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
+			if (this.isSemiColon()) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printTrailingComment();
+			}
 		} else {
 			this.scribe.printNewLine();
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
+			if (this.isSemiColon()) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printTrailingComment();
+			}
 		}
 		
 		formatTypeMembers(enumDeclaration);
