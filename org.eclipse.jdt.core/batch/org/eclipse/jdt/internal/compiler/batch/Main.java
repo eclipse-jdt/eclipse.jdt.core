@@ -668,14 +668,14 @@ public class Main implements ProblemSeverities {
 							CompilerOptions.OPTION_ReportDeprecation, 
 							CompilerOptions.WARNING);
 						options.put(
-							CompilerOptions.OPTION_ReportDeprecationInsideDeprecatedCode, 
+							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.DISABLED);
 					} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportDeprecation, 
 							CompilerOptions.WARNING);
 						options.put(
-							CompilerOptions.OPTION_ReportDeprecationInsideDeprecatedCode, 
+							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.ENABLED);
 					} else if (token.equals("unusedLocals")) { //$NON-NLS-1$
 						options.put(

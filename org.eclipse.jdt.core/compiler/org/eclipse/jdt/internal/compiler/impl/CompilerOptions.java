@@ -34,7 +34,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
-	public static final String OPTION_ReportDeprecationInsideDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecationInDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
@@ -317,7 +317,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				continue;
 			} 
 			// Report deprecation inside deprecated code 
-			if(optionID.equals(OPTION_ReportDeprecationInsideDeprecatedCode)){
+			if(optionID.equals(OPTION_ReportDeprecationInDeprecatedCode)){
 				if (optionValue.equals(ENABLED)) {
 					this.reportDeprecationInsideDeprecatedCode = true;
 				} else if (optionValue.equals(DISABLED)) {
