@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core.jdom;
  */
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 

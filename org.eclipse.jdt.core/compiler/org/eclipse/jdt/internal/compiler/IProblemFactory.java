@@ -14,7 +14,10 @@ package org.eclipse.jdt.internal.compiler;
  */
 import java.util.*;
 
+import org.eclipse.jdt.core.compiler.IProblem;
+
 public interface IProblemFactory {
+
 IProblem createProblem(
 	char[] originatingFileName, 
 	int problemId, 

@@ -4,7 +4,7 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * An EvaluationResult is the result of a code snippet evaluation, a global 
@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.IProblem;
  * contains the corresponding compilation problems.
  */
 public class EvaluationResult {
+
 	static final IProblem[] NO_PROBLEMS = new IProblem[0];
 	
 	char[] evaluationID;

@@ -4,7 +4,7 @@ package org.eclipse.jdt.internal.compiler;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -415,7 +415,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					problemReporter
 					.createProblem(
 						result.getFileName(),
-						ProblemIrritants.UnclassifiedProblem,
+						IProblem.UnclassifiedProblem,
 						new String[] {
 							Util.bind("compilation.internalError" ) //$NON-NLS-1$
 								+ "\n"  //$NON-NLS-1$

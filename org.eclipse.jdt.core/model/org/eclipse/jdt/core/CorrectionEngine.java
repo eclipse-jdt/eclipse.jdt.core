@@ -4,9 +4,10 @@ import java.util.Map;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 
@@ -15,7 +16,8 @@ import org.eclipse.jdt.internal.core.*;
  * 
  * @since 2.0 
  */
-public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
+public class CorrectionEngine implements ProblemReasons {
+	
 	protected int correctionStart;
 	protected int correctionEnd;
 	protected int prefixLength;
@@ -120,48 +122,48 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 		try {
 			switch (id) {
 				// Type correction
-				case FieldTypeProblemBase + NotFound :
-				case ArgumentProblemBase + NotFound :
+				case IProblem.FieldTypeProblemBase + NotFound :
+				case IProblem.ArgumentProblemBase + NotFound :
 					filter = CLASSES | INTERFACES;
 					argument = arguments[2];
 					break;
-				case InvalidSuperclassBase + NotFound :
+				case IProblem.InvalidSuperclassBase + NotFound :
 					filter = CLASSES;
 					argument = arguments[0];
 					break;
-				case InvalidInterfaceBase + NotFound :
+				case IProblem.InvalidInterfaceBase + NotFound :
 					filter = INTERFACES;
 					argument = arguments[0];
 					break;
-				case ExceptionTypeProblemBase + NotFound :
+				case IProblem.ExceptionTypeProblemBase + NotFound :
 					filter = CLASSES;
 					argument = arguments[1];
 					break;
-				case ReturnTypeProblemBase + NotFound :
+				case IProblem.ReturnTypeProblemBase + NotFound :
 					filter = CLASSES | INTERFACES;
 					argument = arguments[1];
 					break;
-				case ImportProblemBase + NotFound :
+				case IProblem.ImportProblemBase + NotFound :
 					filter = IMPORT;
 					argument = arguments[0];
 					break;
-				case UndefinedType :
+				case IProblem.UndefinedType :
 					filter = CLASSES | INTERFACES;
 					argument = arguments[0];
 					break;
 					
 				// Method correction
-				case UndefinedMethod :
+				case IProblem.UndefinedMethod :
 					filter = METHOD;
 					argument = arguments[1];
 					break;
 					
 				// Field and local variable correction
-				case UndefinedField :
+				case IProblem.UndefinedField :
 					filter = FIELD;
 					argument = arguments[0];
 					break;
-				case UndefinedName :
+				case IProblem.UndefinedName :
 					filter = FIELD | LOCAL;
 					argument = arguments[0];
 					break;

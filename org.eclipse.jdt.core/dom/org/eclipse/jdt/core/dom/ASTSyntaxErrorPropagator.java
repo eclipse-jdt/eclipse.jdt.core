@@ -11,8 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * Internal AST visitor for propagating syntax errors.
@@ -30,10 +30,10 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 		search: for (int i = 0, max = this.problems.length; i < max; i++) {
 			IProblem problem = this.problems[i];
 			switch(problem.getID()) {
-				case ProblemIrritants.ParsingErrorOnKeywordNoSuggestion :
-				case ProblemIrritants.ParsingErrorOnKeyword :
-				case ProblemIrritants.ParsingError :
-				case ProblemIrritants.ParsingErrorNoSuggestion :
+				case IProblem.ParsingErrorOnKeywordNoSuggestion :
+				case IProblem.ParsingErrorOnKeyword :
+				case IProblem.ParsingError :
+				case IProblem.ParsingErrorNoSuggestion :
 					break;
 				default:
 					continue search;

@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -490,7 +491,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			int maxRegularPos = 0, problemCount = unitResult.problemCount;
 			for (int i = 0; i < this.problemCountBeforeRecovery; i++) {
 				// skip unmatched bracket problems
-				if (unitResult.problems[i].getID() == ProblemIrritants.UnmatchedBracket) continue;
+				if (unitResult.problems[i].getID() == IProblem.UnmatchedBracket) continue;
 				
 				int start = unitResult.problems[i].getSourceStart();
 				if (start > maxRegularPos && start <= this.codeSnippetEnd) {
@@ -500,7 +501,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			int maxRecoveryPos = 0;
 			for (int i = this.problemCountBeforeRecovery; i < problemCount; i++) {
 				// skip unmatched bracket problems
-				if (unitResult.problems[i].getID() == ProblemIrritants.UnmatchedBracket) continue;
+				if (unitResult.problems[i].getID() == IProblem.UnmatchedBracket) continue;
 				
 				int start = unitResult.problems[i].getSourceStart();
 				if (start > maxRecoveryPos && start <= this.codeSnippetEnd) {

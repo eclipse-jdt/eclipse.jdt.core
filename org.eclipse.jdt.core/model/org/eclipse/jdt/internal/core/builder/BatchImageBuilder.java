@@ -9,7 +9,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.core.Util;
 
 import java.util.*;

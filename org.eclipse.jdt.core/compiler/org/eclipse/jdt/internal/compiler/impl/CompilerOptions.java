@@ -11,13 +11,15 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
-public class CompilerOptions implements ProblemIrritants, ProblemReasons, ProblemSeverities {
+public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	
 	/**
 	 * Option IDs

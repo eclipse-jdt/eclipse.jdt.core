@@ -25,6 +25,7 @@ package org.eclipse.jdt.internal.compiler;
  * declaring types and any other types used to locate such fields or methods.
  */
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import java.util.*;

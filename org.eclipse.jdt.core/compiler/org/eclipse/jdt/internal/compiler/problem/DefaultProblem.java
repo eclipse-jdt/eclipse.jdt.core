@@ -5,12 +5,12 @@ package org.eclipse.jdt.internal.compiler.problem;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class DefaultProblem
-	implements IProblem, ProblemSeverities, ProblemIrritants {
+public class DefaultProblem implements ProblemSeverities, IProblem {
 		
 	private char[] fileName;
 	private int id;
@@ -128,7 +128,7 @@ public class DefaultProblem
 
 	/**
 	 * Answer the type of problem.
-	 * @see org.eclipse.jdt.internal.compiler.problem.ProblemIrritants
+	 * @see org.eclipse.jdt.internal.compiler.problem.IProblem
 	 * @return int
 	 */
 	public int getID() {

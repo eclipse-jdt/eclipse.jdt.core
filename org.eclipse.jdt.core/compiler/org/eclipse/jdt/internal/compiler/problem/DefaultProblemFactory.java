@@ -5,6 +5,8 @@ package org.eclipse.jdt.internal.compiler.problem;
  */
 import java.text.*;
 import java.util.*;
+
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
@@ -80,7 +82,7 @@ public Locale getLocale() {
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
 	String message = 
-		messageTemplates[(id & ProblemIrritants.IgnoreCategoriesMask)]; 
+		messageTemplates[(id & IProblem.IgnoreCategoriesMask)]; 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ id
@@ -105,7 +107,7 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
 					return "Corrupted compiler resources for problem id: " //$NON-NLS-1$
-						+ (id & ProblemIrritants.IgnoreCategoriesMask)
+						+ (id & IProblem.IgnoreCategoriesMask)
 						+ ". Check compiler resources.";  //$NON-NLS-1$
 				}
 			} else {

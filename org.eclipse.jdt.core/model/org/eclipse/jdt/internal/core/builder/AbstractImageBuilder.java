@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
@@ -305,26 +306,26 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 		IProblem problem = problems[i];
 		int id = problem.getID();
 		switch (id) {
-			case ProblemIrritants.IsClassPathCorrect :
+			case IProblem.IsClassPathCorrect :
 				JavaBuilder.removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
 				String[] args = problem.getArguments();
 				missingClassFile = args[0];
 				break;
-			case ProblemIrritants.SuperclassMustBeAClass :
-			case ProblemIrritants.SuperInterfaceMustBeAnInterface :
-			case ProblemIrritants.HierarchyCircularitySelfReference :
-			case ProblemIrritants.HierarchyCircularity :
-			case ProblemIrritants.HierarchyHasProblems :
-			case ProblemIrritants.InvalidSuperclassBase :
-			case ProblemIrritants.InvalidSuperclassBase + 1 :
-			case ProblemIrritants.InvalidSuperclassBase + 2 :
-			case ProblemIrritants.InvalidSuperclassBase + 3 :
-			case ProblemIrritants.InvalidSuperclassBase + 4 :
-			case ProblemIrritants.InvalidInterfaceBase :
-			case ProblemIrritants.InvalidInterfaceBase + 1 :
-			case ProblemIrritants.InvalidInterfaceBase + 2 :
-			case ProblemIrritants.InvalidInterfaceBase + 3 :
-			case ProblemIrritants.InvalidInterfaceBase + 4 :
+			case IProblem.SuperclassMustBeAClass :
+			case IProblem.SuperInterfaceMustBeAnInterface :
+			case IProblem.HierarchyCircularitySelfReference :
+			case IProblem.HierarchyCircularity :
+			case IProblem.HierarchyHasProblems :
+			case IProblem.InvalidSuperclassBase :
+			case IProblem.InvalidSuperclassBase + 1 :
+			case IProblem.InvalidSuperclassBase + 2 :
+			case IProblem.InvalidSuperclassBase + 3 :
+			case IProblem.InvalidSuperclassBase + 4 :
+			case IProblem.InvalidInterfaceBase :
+			case IProblem.InvalidInterfaceBase + 1 :
+			case IProblem.InvalidInterfaceBase + 2 :
+			case IProblem.InvalidInterfaceBase + 3 :
+			case IProblem.InvalidInterfaceBase + 4 :
 				// ensure that this file is always retrieved from source for the rest of the build
 				String fileLocation = resource.getLocation().toString();
 				if (!problemTypeLocations.contains(fileLocation))

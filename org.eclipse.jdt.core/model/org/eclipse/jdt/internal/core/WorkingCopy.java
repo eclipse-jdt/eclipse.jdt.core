@@ -9,7 +9,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.core.*;
 
 /**

@@ -7,6 +7,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -16,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
-import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 
@@ -130,7 +131,7 @@ public boolean hasAlreadyDefinedType() {
 	if (result == null) return false;
 	for (int i = 0; i < result.problemCount; i++) {
 		IProblem problem = result.problems[i];
-		if (problem.getID() == ProblemIrritants.DuplicateTypes) {
+		if (problem.getID() == IProblem.DuplicateTypes) {
 			return true;
 		}
 	}

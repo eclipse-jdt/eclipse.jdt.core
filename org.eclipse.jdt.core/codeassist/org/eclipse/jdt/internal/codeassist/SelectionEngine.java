@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.codeassist;
  */
 import java.util.*;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
 import org.eclipse.jdt.internal.compiler.*;

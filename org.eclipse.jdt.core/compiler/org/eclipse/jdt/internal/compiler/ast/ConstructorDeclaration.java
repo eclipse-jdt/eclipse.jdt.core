@@ -5,6 +5,8 @@ package org.eclipse.jdt.internal.compiler.ast;
  * All Rights Reserved.
  */
 import java.util.ArrayList;
+
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;

@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.compiler;
 
+import org.eclipse.jdt.core.compiler.IProblem;
+
 public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 
 	/*

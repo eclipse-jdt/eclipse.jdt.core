@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -130,7 +131,7 @@ public final class CompletionEngine
 				compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault())) {
 			public void record(IProblem problem, CompilationResult unitResult) {
-				if (problem.getID() != ProblemIrritants.UnmatchedBracket) {
+				if (problem.getID() != IProblem.UnmatchedBracket) {
 					unitResult.record(problem);
 					
 					if (true) return; // work-around PR 1GD9RLP: ITPJCORE:WIN2000 - Code assist is slow

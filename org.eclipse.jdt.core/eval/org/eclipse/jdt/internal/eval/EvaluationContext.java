@@ -5,12 +5,13 @@ package org.eclipse.jdt.internal.eval;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import java.io.*;
@@ -278,15 +279,15 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 						packageName = splitDeclaration[splitLength - 2];
 				}
 				if (!environment.isPackage(parentName, packageName)) {
-					problems[0] = problemFactory.createProblem(importDeclaration, ProblemIrritants.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 				}
 			} else {
 				if (environment.findType(splitDeclaration) == null) {
-					problems[0] = problemFactory.createProblem(importDeclaration, ProblemIrritants.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 				}
 			}
 		} else {
-			problems[0] = problemFactory.createProblem(importDeclaration, ProblemIrritants.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+			problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 		}
 		if (problems[0] != null) {
 			requestor.acceptProblem(problems[0], importDeclaration, EvaluationResult.T_IMPORT);
