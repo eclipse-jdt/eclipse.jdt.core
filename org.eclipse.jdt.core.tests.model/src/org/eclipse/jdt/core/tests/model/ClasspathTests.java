@@ -2214,9 +2214,9 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-					long start = System.currentTimeMillis(); // time spent in individual CP setting
+					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					time[0] += System.currentTimeMillis() - start;
+					time[0] += System.currentTimeMillis() - innerStart;
 				};
 				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
@@ -2276,9 +2276,9 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-					long start = System.currentTimeMillis(); // time spent in individual CP setting
+					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					time[0] += System.currentTimeMillis() - start;
+					time[0] += System.currentTimeMillis() - innerStart;
 				}
 				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}

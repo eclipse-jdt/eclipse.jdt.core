@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 
-	private IPackageFragmentRoot root;
+	private IPackageFragmentRoot pkgFragmentRoot;
 	
 public AttachSourceTests(String name) {
 	super(name);
@@ -41,7 +41,7 @@ public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");
+	this.attachSource(this.pkgFragmentRoot, "/AttachSourceTests/attachsrc.zip", "");
 }
 /**
  * Create project and set the jar placeholder.
@@ -50,7 +50,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
 	IJavaProject project = setUpJavaProject("AttachSourceTests");
-	this.root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
+	this.pkgFragmentRoot = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
 }
 protected void tearDown() throws Exception {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
@@ -76,12 +76,12 @@ public void tearDownSuite() throws Exception {
  * Test AST.parseCompilationUnit(IClassFile, boolean).
  */
 public void testASTParsing() throws JavaModelException {
-	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");	
-	IClassFile classFile = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	this.attachSource(this.pkgFragmentRoot, "/AttachSourceTests/attachsrc.zip", "");	
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	ASTNode node = runConversion(classFile, true);
 	assertNotNull("No node", node);
-	this.attachSource(this.root, null, null);
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	this.attachSource(this.pkgFragmentRoot, null, null);
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	assertTrue("source code should no longer exist for A", cf.getSource() == null);
 	try {
 		node = runConversion(classFile, true);
@@ -95,12 +95,12 @@ public void testASTParsing() throws JavaModelException {
  * Test for http://bugs.eclipse.org/bugs/show_bug.cgi?id=30471
  */
 public void testASTParsing2() throws JavaModelException {
-	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");	
-	IClassFile classFile = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	this.attachSource(this.pkgFragmentRoot, "/AttachSourceTests/attachsrc.zip", "");	
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	ASTNode node = runConversion(classFile, false);
 	assertNotNull("No node", node);
-	this.attachSource(this.root, null, null);
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	this.attachSource(this.pkgFragmentRoot, null, null);
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	assertTrue("source code should no longer exist for A", cf.getSource() == null);
 	try {
 		node = runConversion(classFile, false);
@@ -114,7 +114,7 @@ public void testASTParsing2() throws JavaModelException {
  * (regression test for bug 23292 Must restart Eclipse after debug of source in .zip is updated)
  */
 public void testChangeSourceAttachmentFile() throws CoreException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	IMethod method = cf.getType().getMethod("foo", new String[] {});
 	
 	// check initial source
@@ -152,7 +152,7 @@ public void testChangeSourceAttachmentFile() throws CoreException {
  * Ensure that a class file with an attached source can retrieve its children given a source index.
  */
 public void testClassFileGetElementAt() throws JavaModelException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	IJavaElement elt = null;
 	
 	elt = cf.getElementAt(15);
@@ -178,31 +178,31 @@ public void testClassFileGetElementAt() throws JavaModelException {
  * the entire CU for "A.java".
  */
 public void testClassRetrieval() throws JavaModelException {
-	IClassFile objectCF = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile objectCF = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	assertTrue("source code does not exist for the entire attached compilation unit", objectCF.getSource() != null);
 }
 /**
  * Removes the source attachment from the jar.
  */
 public void testDetachSource() throws JavaModelException {
-	this.attachSource(this.root, null, null);
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	this.attachSource(this.pkgFragmentRoot, null, null);
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	assertTrue("source code should no longer exist for A", cf.getSource() == null);
 	assertTrue("name range should no longer exist for A", cf.getType().getNameRange().getOffset() == -1);
 	assertTrue("source range should no longer exist for A", cf.getType().getSourceRange().getOffset() == -1);
-	assertTrue("Source attachment path should be null", null == this.root.getSourceAttachmentPath());
-	assertTrue("Source attachment root path should be null", null ==this.root.getSourceAttachmentRootPath());
+	assertTrue("Source attachment path should be null", null == this.pkgFragmentRoot.getSourceAttachmentPath());
+	assertTrue("Source attachment root path should be null", null ==this.pkgFragmentRoot.getSourceAttachmentRootPath());
 }
 /**
  * Ensures that name ranges exists for BinaryMembers that have
  * mapped source.
  */
 public void testGetNameRange() throws JavaModelException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	IMethod method = cf.getType().getMethod("foo", null);
 	assertTrue("method name range not correct", method.getNameRange().getOffset() != -1 && method.getNameRange().getLength() != 0);
 
-	IClassFile objectCF = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile objectCF = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	ISourceRange range= objectCF.getType().getNameRange();
 	int start, end;
 	start= range.getOffset();
@@ -216,16 +216,16 @@ public void testGetNameRange() throws JavaModelException {
  * Retrieves the source attachment paths for jar root.
  */
 public void testGetSourceAttachmentPath() throws JavaModelException {
-	IPath saPath= this.root.getSourceAttachmentPath();
-	assertEquals("Source attachment path not correct for root " + this.root, "/AttachSourceTests/attachsrc.zip", saPath.toString());
-	assertEquals("Source attachment root path should be empty", new Path(""), this.root.getSourceAttachmentRootPath());
+	IPath saPath= this.pkgFragmentRoot.getSourceAttachmentPath();
+	assertEquals("Source attachment path not correct for root " + this.pkgFragmentRoot, "/AttachSourceTests/attachsrc.zip", saPath.toString());
+	assertEquals("Source attachment root path should be empty", new Path(""), this.pkgFragmentRoot.getSourceAttachmentRootPath());
 }
 /**
  * Ensures that a source range exists for the class file that has
  * mapped source.
  */
 public void testGetSourceRange() throws JavaModelException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	assertTrue("Class file source range not correct", cf.getSourceRange().getOffset() == 0 && cf.getSourceRange().getLength() != 0);
 }
 /**
@@ -233,7 +233,7 @@ public void testGetSourceRange() throws JavaModelException {
  * mapped source.
  */
 public void testGetSourceRangeInnerClass() throws JavaModelException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A$Inner.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A$Inner.class");
 	assertTrue("Inner Class file source range not correct", cf.getSourceRange().getOffset() == 0 && cf.getSourceRange().getLength() != 0);
 }
 /**
@@ -257,7 +257,7 @@ public void testLibFolder() throws JavaModelException {
  * Retrieves the source code for methods of class A.
  */
 public void testMethodRetrieval() throws JavaModelException {
-	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	IMethod[] methods = cf.getType().getMethods();
 	for (int i = 0; i < methods.length; i++) {
 		IMethod method = methods[i];
@@ -270,7 +270,7 @@ public void testMethodRetrieval() throws JavaModelException {
  * attachment still exists.
  */
 public void testPersistence() throws JavaModelException {
-	this.root.close();
+	this.pkgFragmentRoot.close();
 	testClassRetrieval();
 	testMethodRetrieval();
 }

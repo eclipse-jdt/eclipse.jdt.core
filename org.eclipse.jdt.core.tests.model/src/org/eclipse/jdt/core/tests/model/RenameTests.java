@@ -628,10 +628,10 @@ public void testRenamePF() throws CoreException {
 	assertTrue("Old package should not exist", !frag.exists());
 	assertTrue("New package should exist", newFrag.exists());
 
-	ICompilationUnit cu = newFrag.getCompilationUnit("A.java");
-	assertTrue("A.java should exits in new package", cu.exists());
+	ICompilationUnit compilationUnit = newFrag.getCompilationUnit("A.java");
+	assertTrue("A.java should exits in new package", compilationUnit.exists());
 	
-	IType[] types = cu.getTypes();
+	IType[] types = compilationUnit.getTypes();
 	assertTrue(types != null && types.length == 1);
 	IType mainType = types[0];
 	assertEquals(
@@ -668,10 +668,10 @@ public void testRenamePF2() throws CoreException {
 	assertTrue("Old package should not exist", !frag.exists());
 	assertTrue("New package should exist", newFrag.exists());
 
-	ICompilationUnit cu = newFrag.getCompilationUnit("A.java");
-	assertTrue("A.java should exits in new package", cu.exists());
+	ICompilationUnit compilationUnit = newFrag.getCompilationUnit("A.java");
+	assertTrue("A.java should exits in new package", compilationUnit.exists());
 	
-	IType[] types = cu.getTypes();
+	IType[] types = compilationUnit.getTypes();
 	assertTrue(types != null && types.length == 1);
 	IType mainType = types[0];
 	assertEquals(
@@ -705,8 +705,8 @@ public void testRenamePFWithSubPackages() throws CoreException {
 	IPackageFragment newFrag = getPackage("/P/src/newX");
 	assertTrue("New package should exist", newFrag.exists());
 
-	ICompilationUnit cu = oldFrag.getCompilationUnit("A.java");
-	assertTrue("A.java should exits in old inner package", cu.exists());
+	ICompilationUnit compilationUnit = oldFrag.getCompilationUnit("A.java");
+	assertTrue("A.java should exits in old inner package", compilationUnit.exists());
 	
 	assertDeltas(
 		"Unexpected deltas",

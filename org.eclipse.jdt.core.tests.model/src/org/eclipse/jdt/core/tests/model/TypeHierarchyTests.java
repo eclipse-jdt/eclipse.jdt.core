@@ -291,8 +291,8 @@ public void testSourceTypeGetSuperInterfaces() throws JavaModelException {
  */
 public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
 	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
-	ITypeHierarchy typeHierarchy = type.newSupertypeHierarchy(null);
-	IType[] types = typeHierarchy.getSubclasses(type);
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	IType[] types = hierarchy.getSubclasses(type);
 	assertTypesEqual(
 		"Unexpected subclasses of Object", 
 		"", 
@@ -300,8 +300,8 @@ public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
 	
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
 	type = cu.getType("Y");
-	typeHierarchy = type.newSupertypeHierarchy(null);
-	types = typeHierarchy.getSubclasses(type);
+	hierarchy = type.newSupertypeHierarchy(null);
+	types = hierarchy.getSubclasses(type);
 	assertTypesEqual(
 		"Unexpected subclasses of Y", 
 		"", 
@@ -312,8 +312,8 @@ public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
  */
 public void testSupertypeHierarchyGetSubtypes() throws JavaModelException {
 	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
-	ITypeHierarchy typeHierarchy = type.newSupertypeHierarchy(null);
-	IType[] types = typeHierarchy.getSubtypes(type);
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	IType[] types = hierarchy.getSubtypes(type);
 	assertTypesEqual(
 		"Unexpected subtypes of Object", 
 		"", 
@@ -321,8 +321,8 @@ public void testSupertypeHierarchyGetSubtypes() throws JavaModelException {
 	
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
 	type = cu.getType("Y");
-	typeHierarchy = type.newSupertypeHierarchy(null);
-	types = typeHierarchy.getSubtypes(type);
+	hierarchy = type.newSupertypeHierarchy(null);
+	types = hierarchy.getSubtypes(type);
 	assertTypesEqual(
 		"Unexpected subtypes of Y", 
 		"", 
@@ -422,8 +422,8 @@ public void testGetAllInterfacesInRegion() throws JavaModelException {
  */
 public void testGetAllSubtypes() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java").getType("X");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getAllSubtypes(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSubtypes(type);
 	this.assertTypesEqual(
 		"Unexpected sub types of X",
 		"p1.Deep\n" +
@@ -440,8 +440,8 @@ public void testGetAllSubtypesFromBinary() throws JavaModelException {
 	IType type = getClassFile("TypeHierarchy", "lib.jar", "binary", "X.class").getType();
 	IRegion region = JavaCore.newRegion();
 	region.add(type.getPackageFragment());
-	ITypeHierarchy typeHierarchy = type.getJavaProject().newTypeHierarchy(type, region, null);
-	IType[] types = typeHierarchy.getAllSubtypes(type);
+	ITypeHierarchy hierarchy = type.getJavaProject().newTypeHierarchy(type, region, null);
+	IType[] types = hierarchy.getAllSubtypes(type);
 	assertTypesEqual(
 		"Unexpected all subtypes of binary.X", 
 		"binary.Deep\n" +
@@ -456,8 +456,8 @@ public void testGetAllSubtypesFromBinary() throws JavaModelException {
  */
 public void testGetAllSuperclasses() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "Z.java").getType("Z");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getAllSuperclasses(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSuperclasses(type);
 	assertTypesEqual(
 		"Unexpected all super classes of Z", 
 		"java.lang.Object\n" + 
@@ -471,8 +471,8 @@ public void testGetAllSuperclasses() throws JavaModelException {
  */
 public void testGetAllSuperInterfaces() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "Z.java").getType("Z");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getAllSuperInterfaces(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSuperInterfaces(type);
 	assertTypesEqual(
 		"Unexpected super interfaces of Z", 
 		"p1.I1\n" + 
@@ -485,8 +485,8 @@ public void testGetAllSuperInterfaces() throws JavaModelException {
  */
 public void testGetAllSupertypes() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "Z.java").getType("Z");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getAllSupertypes(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super types of Z", 
 		"java.lang.Object\n" + 
@@ -503,8 +503,8 @@ public void testGetAllSupertypes() throws JavaModelException {
  */
 public void testGetAllSupertypes2() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p3", "B.java").getType("B");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getAllSupertypes(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super types of B", 
 		"java.lang.Object\n" +
@@ -519,7 +519,7 @@ public void testGetAllSupertypes2() throws JavaModelException {
  */
 public void testGetAllTypes() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java").getType("Y");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	this.assertTypesEqual(
 		"Unexpected types in hierarchy of Y",
 		"java.lang.Object\n" + 
@@ -529,7 +529,7 @@ public void testGetAllTypes() throws JavaModelException {
 		"p1.X\n" + 
 		"p1.Y\n" + 
 		"p1.Z\n",
-		typeHierarchy.getAllTypes()
+		hierarchy.getAllTypes()
 	);
 }
 /**
@@ -538,8 +538,8 @@ public void testGetAllTypes() throws JavaModelException {
  */
 public void testGetExtendingInterfaces() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p2", "I.java").getType("I");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getExtendingInterfaces(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getExtendingInterfaces(type);
 	this.assertTypesEqual(
 		"Unexpected extending interfaces of I",
 		"p2.I1\n" + 
@@ -548,8 +548,8 @@ public void testGetExtendingInterfaces() throws JavaModelException {
 	);
 
 	type = getCompilationUnit("TypeHierarchy", "src", "p2", "X.java").getType("X");
-	typeHierarchy = type.newTypeHierarchy(null);
-	types = typeHierarchy.getExtendingInterfaces(type);
+	hierarchy = type.newTypeHierarchy(null);
+	types = hierarchy.getExtendingInterfaces(type);
 	this.assertTypesEqual(
 		"Unexpected extending interfaces of X",
 		"", // interfaces cannot extend a class
@@ -562,8 +562,8 @@ public void testGetExtendingInterfaces() throws JavaModelException {
  */
 public void testGetImplementingClasses() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p2", "I.java").getType("I");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getImplementingClasses(type);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getImplementingClasses(type);
 	this.assertTypesEqual(
 		"Unexpected implementing classes of I",
 		"p2.X\n",
@@ -571,8 +571,8 @@ public void testGetImplementingClasses() throws JavaModelException {
 	);
 
 	type = getCompilationUnit("TypeHierarchy", "src", "p2", "X.java").getType("X");
-	typeHierarchy = type.newTypeHierarchy(null);
-	types = typeHierarchy.getImplementingClasses(type);
+	hierarchy = type.newTypeHierarchy(null);
+	types = hierarchy.getImplementingClasses(type);
 	this.assertTypesEqual(
 		"Unexpected implementing classes of X",
 		"", // classes cannot implement a class
@@ -596,8 +596,8 @@ public void testGetRootClasses() throws JavaModelException {
  */
 public void testGetRootInterfaces() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p2", "Y.java").getType("Y");
-	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
-	IType[] types = typeHierarchy.getRootInterfaces();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] types = hierarchy.getRootInterfaces();
 	assertTypesEqual(
 		"Unexpected root classes",
 		"p2.I\n",
@@ -667,10 +667,10 @@ public void testGetSuperclassInRegion() throws JavaModelException {
 	IRegion r = JavaCore.newRegion();
 	IPackageFragment p = getPackageFragment("TypeHierarchy", "src", "p1");
 	r.add(p);
-	ITypeHierarchy typeHierarchy = p.getJavaProject().newTypeHierarchy(r, null);
+	ITypeHierarchy hierarchy = p.getJavaProject().newTypeHierarchy(r, null);
 
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java").getType("Y");
-	IType superclass= typeHierarchy.getSuperclass(type);
+	IType superclass= hierarchy.getSuperclass(type);
 	assertEquals("Unexpected super class of Y", "X", superclass.getElementName());
 }
 
@@ -695,8 +695,8 @@ public void testGetSupertypesWithProjectRegion() throws JavaModelException {
 	IRegion region= JavaCore.newRegion();
 	region.add(project);
 	IType type = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class").getType();
-	ITypeHierarchy typeHierarchy = project.newTypeHierarchy(type, region, null);
-	IType[] superTypes = typeHierarchy.getSupertypes(type);
+	ITypeHierarchy hierarchy = project.newTypeHierarchy(type, region, null);
+	IType[] superTypes = hierarchy.getSupertypes(type);
 	assertTypesEqual(
 		"Unexpected super types of Y",
 		"binary.X\n",

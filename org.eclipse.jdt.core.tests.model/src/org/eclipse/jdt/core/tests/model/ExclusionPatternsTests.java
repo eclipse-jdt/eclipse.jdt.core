@@ -93,11 +93,11 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
  */
 public void testAddExclusionOnFolderUnderProject() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P1", new String[] {""}, "");
+		IJavaProject javaProject = this.createJavaProject("P1", new String[] {""}, "");
 		this.createFolder("/P1/doc");
 
 		clearDeltas();
-		project.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}), null);
+		javaProject.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}), null);
 	
 		assertDeltas(
 			"Unexpected deltas",
@@ -117,7 +117,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 			".classpath\n" +
 			".project\n" +
 			"doc",
-			project.getNonJavaResources());
+			javaProject.getNonJavaResources());
 	} finally {
 		this.deleteProject("P1");
 	}
@@ -671,8 +671,8 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 	try {
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				IJavaProject project = createJavaProject("P2", new String[] {}, "bin");
-				project.setRawClasspath(createClasspath(new String[] {"/P2", "src/", "/P2/src", ""}), null);
+				IJavaProject javaProject = createJavaProject("P2", new String[] {}, "bin");
+				javaProject.setRawClasspath(createClasspath(new String[] {"/P2", "src/", "/P2/src", ""}), null);
 				createFile(
 					"/P2/bin/X.java",
 					"public class X {\n" +

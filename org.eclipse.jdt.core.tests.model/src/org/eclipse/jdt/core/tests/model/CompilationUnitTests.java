@@ -104,9 +104,9 @@ public void testDeprecatedFlag() throws JavaModelException {
  * for a <code>CompilationUnit</code> that is not present
  */
 public void testGetContentsForNotPresent() throws JavaModelException {
-	CompilationUnit cu= (CompilationUnit)getCompilationUnit("/P/src/p/Absent.java");
+	CompilationUnit compilationUnit = (CompilationUnit)getCompilationUnit("/P/src/p/Absent.java");
 	
-	assertSourceEquals("Unexpected contents for non present cu", "", new String(cu.getContents()));
+	assertSourceEquals("Unexpected contents for non present cu", "", new String(compilationUnit.getContents()));
 }
 /**
  * Tests Java element retrieval via source position 
@@ -349,10 +349,10 @@ public void testIsBasedOn() throws JavaModelException {
  * false to #exists() and #isOpen()
  */
 public void testNotPresent1() {
-	ICompilationUnit cu = ((IPackageFragment)this.cu.getParent()).getCompilationUnit("DoesNotExist.java");
-	assertTrue("CU should not be open", !cu.isOpen());
-	assertTrue("CU should not exist", !cu.exists());
-	assertTrue("CU should still not be open", !cu.isOpen());
+	ICompilationUnit compilationUnit = ((IPackageFragment)this.cu.getParent()).getCompilationUnit("DoesNotExist.java");
+	assertTrue("CU should not be open", !compilationUnit.isOpen());
+	assertTrue("CU should not exist", !compilationUnit.exists());
+	assertTrue("CU should still not be open", !compilationUnit.isOpen());
 }
 /**
  * Ensures that a compilation unit that does not exist
@@ -361,10 +361,10 @@ public void testNotPresent1() {
  * (regression test for PR #1G2RKD2)
  */
 public void testNotPresent2() throws CoreException {
-	ICompilationUnit cu = getPackageFragment("P", getExternalJCLPathString(), "java.lang").getCompilationUnit("DoesNotExist.java");
-	assertTrue("CU should not be open", !cu.isOpen());
-	assertTrue("CU should not exist", !cu.exists());
-	assertTrue("CU should still not be open", !cu.isOpen());
+	ICompilationUnit compilationUnit = getPackageFragment("P", getExternalJCLPathString(), "java.lang").getCompilationUnit("DoesNotExist.java");
+	assertTrue("CU should not be open", !compilationUnit.isOpen());
+	assertTrue("CU should not exist", !compilationUnit.exists());
+	assertTrue("CU should still not be open", !compilationUnit.isOpen());
 }
 /**
  * Ensures that the "structure is known" flag is set for a valid compilation unit. 

@@ -1028,9 +1028,9 @@ public void testRenameExternalCompilationUnit() throws JavaModelException, CoreE
 /**
  * Make a note of the change
  */
-public void typeHierarchyChanged(ITypeHierarchy hierarchy) {
+public void typeHierarchyChanged(ITypeHierarchy typeHierarchy) {
 	this.changeReceived= true;
-	this.hierarchy= hierarchy;
+	this.hierarchy= typeHierarchy;
 	this.notifications++;
 }
 }

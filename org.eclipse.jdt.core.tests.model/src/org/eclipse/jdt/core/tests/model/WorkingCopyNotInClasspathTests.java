@@ -93,7 +93,7 @@ public void testExistence() throws CoreException {
 	assertTrue("Working copy should exist", this.workingCopy.exists());
 }
 public void testGetSource() throws CoreException {
-	ICompilationUnit workingCopy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P1", new String[] {}, "bin");
 		this.createFolder("/P1/src/junit/test");
@@ -103,13 +103,13 @@ public void testGetSource() throws CoreException {
 			"}";
 		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = (ICompilationUnit) cu.getWorkingCopy();
 		assertEquals(
 			"Unexpected source",
 			source,
-			workingCopy.getSource());
+			copy.getSource());
 	} finally {
-		if (workingCopy != null) workingCopy.destroy();
+		if (copy != null) copy.destroy();
 		this.deleteProject("P1");
 	}
 }
@@ -121,7 +121,7 @@ public void testParentExistence() throws CoreException {
  * (regression test for bug 33748 Cannot open working copy on .java file in simple project)
  */
 public void testSimpleProject() throws CoreException {
-	IParent workingCopy = null;
+	IParent copy = null;
 	try {
 		createProject("SimpleProject");
 		IFile file = createFile(
@@ -130,15 +130,15 @@ public void testSimpleProject() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		workingCopy = (IParent)cu.getWorkingCopy();
+		copy = (IParent)cu.getWorkingCopy();
 		try {
-			workingCopy.getChildren();
+			copy.getChildren();
 		} catch (JavaModelException e) {
 			assertTrue("Should not get JavaModelException", false);
 		}
 	} finally {
-		if (workingCopy != null) {
-			((IWorkingCopy)workingCopy).destroy();
+		if (copy != null) {
+			((IWorkingCopy)copy).destroy();
 		}
 		deleteProject("SimpleProject");
 	}
@@ -173,7 +173,7 @@ public void testOriginalIsOpen() throws CoreException {
 }
 // 31799 - asking project options on non-Java project populates the perProjectInfo cache incorrectly
 public void testIsOnClasspath() throws CoreException {
-	ICompilationUnit workingCopy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/junit/test");
@@ -183,13 +183,13 @@ public void testIsOnClasspath() throws CoreException {
 			"}";
 		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = (ICompilationUnit) cu.getWorkingCopy();
 		
 		// working creation will cause it to open, and thus request project options
-		boolean isOnClasspath = workingCopy.getJavaProject().isOnClasspath(workingCopy);
+		boolean isOnClasspath = copy.getJavaProject().isOnClasspath(copy);
 		assertTrue("working copy shouldn't answer to isOnClasspath", !isOnClasspath);
 	} finally {
-		if (workingCopy != null) workingCopy.destroy();
+		if (copy != null) copy.destroy();
 		this.deleteProject("SimpleProject");
 	}
 }

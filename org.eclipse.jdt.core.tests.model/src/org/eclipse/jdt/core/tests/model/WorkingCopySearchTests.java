@@ -65,17 +65,17 @@ protected void tearDown() throws Exception {
  */
 public void testHierarchyScopeOnWorkingCopy() throws JavaModelException, CoreException {
 	ICompilationUnit unit = this. getCompilationUnit("JavaSearch", "src", "a9", "A.java");
-	ICompilationUnit workingCopy = (ICompilationUnit)unit.getWorkingCopy();
+	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
 	try {
-		IType type = workingCopy.getType("A");
+		IType type = copy.getType("A");
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		assertTrue("a9.A should be included in hierarchy scope", scope.encloses(type));
-		assertTrue("a9.C should be included in hierarchy scope", scope.encloses(workingCopy.getType("C")));
-		assertTrue("a9.B should be included in hierarchy scope", scope.encloses(workingCopy.getType("B")));
+		assertTrue("a9.C should be included in hierarchy scope", scope.encloses(copy.getType("C")));
+		assertTrue("a9.B should be included in hierarchy scope", scope.encloses(copy.getType("B")));
 		IPath path = unit.getUnderlyingResource().getFullPath();
 		assertTrue("a9/A.java should not be included in hierarchy scope", !scope.encloses(path.toString()));
 	} finally {
-		workingCopy.destroy();
+		copy.destroy();
 	}
 }
 

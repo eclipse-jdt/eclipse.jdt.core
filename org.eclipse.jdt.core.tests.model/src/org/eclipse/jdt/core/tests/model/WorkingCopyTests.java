@@ -757,69 +757,69 @@ public void testMultipleCommit() throws JavaModelException, CoreException, IOExc
  * (regression test for bug 8921  DCR - Need a way to create a working copy ignoring existing files)
  */
 public void testNonExistingCU() throws JavaModelException {
-	ICompilationUnit cu = this.getCompilationUnit("P/src/x/y/NonExisting.java");
-	IWorkingCopy copy = null;
+	ICompilationUnit nonExistingCU = this.getCompilationUnit("P/src/x/y/NonExisting.java");
+	IWorkingCopy workingCopy = null;
 	try {
 		// getBuffer()
-		copy = (IWorkingCopy)cu.getWorkingCopy();
-		assertSourceEquals("Buffer should be empty", "", ((IOpenable)copy).getBuffer().getContents());
+		workingCopy = (IWorkingCopy)nonExistingCU.getWorkingCopy();
+		assertSourceEquals("Buffer should be empty", "", ((IOpenable)workingCopy).getBuffer().getContents());
 		
 		// exists()
-		assertTrue("Working copy should exists", ((IJavaElement)copy).exists());
+		assertTrue("Working copy should exists", ((IJavaElement)workingCopy).exists());
 		
 		// getCorrespondingResource()
-		assertEquals("Corresponding resource should be null", null, ((IJavaElement)copy).getCorrespondingResource());
+		assertEquals("Corresponding resource should be null", null, ((IJavaElement)workingCopy).getCorrespondingResource());
 		
 		// getOriginalElement()
-		assertEquals("Unexpected orginal element", cu, copy.getOriginalElement());
+		assertEquals("Unexpected orginal element", nonExistingCU, workingCopy.getOriginalElement());
 		
 		// getPath()
-		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)copy).getPath());
+		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)workingCopy).getPath());
 		
 		// getResource()
-		assertEquals("Unexpected resource", null, ((IJavaElement)copy).getResource());
+		assertEquals("Unexpected resource", null, ((IJavaElement)workingCopy).getResource());
 		
 		// isConsistent()
-		assertTrue("Working copy should be consistent", ((IOpenable)copy).isConsistent());
+		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
 		
 		// restore()
 		boolean exception = false;
 		try {
-			copy.restore();
+			workingCopy.restore();
 		} catch (JavaModelException e) {
 			exception = true;
 		}
 		assertTrue("Should not be able to restore from original element", exception);
 		
 		// makeConsistent()
-		((IOpenable)copy).getBuffer().setContents(
+		((IOpenable)workingCopy).getBuffer().setContents(
 			"public class X {\n" +
 			"}");
-		assertTrue("Working copy should not be consistent", !((IOpenable)copy).isConsistent());
-		((IOpenable)copy).makeConsistent(null);
-		assertTrue("Working copy should be consistent", ((IOpenable)copy).isConsistent());
+		assertTrue("Working copy should not be consistent", !((IOpenable)workingCopy).isConsistent());
+		((IOpenable)workingCopy).makeConsistent(null);
+		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
 		
 		// save()
-		((IOpenable)copy).getBuffer().setContents(
+		((IOpenable)workingCopy).getBuffer().setContents(
 			"public class Y {\n" +
 			"}");
-		((IOpenable)copy).save(null, false);
-		assertTrue("Working copy should be consistent after save", ((IOpenable)copy).isConsistent());
-		assertTrue("Original cu should not exist", !cu.exists());
+		((IOpenable)workingCopy).save(null, false);
+		assertTrue("Working copy should be consistent after save", ((IOpenable)workingCopy).isConsistent());
+		assertTrue("Original cu should not exist", !nonExistingCU.exists());
 		
 		// commit()
-		copy.commit(false, null);
-		assertTrue("Original cu should exist", cu.exists());
+		workingCopy.commit(false, null);
+		assertTrue("Original cu should exist", nonExistingCU.exists());
 
 		// isBasedOn()
-		assertTrue("Working copy should not be based on original resource", !copy.isBasedOn(cu.getResource()));
+		assertTrue("Working copy should not be based on original resource", !workingCopy.isBasedOn(nonExistingCU.getResource()));
 		
 	} finally {
-		if (copy != null) {
-			copy.destroy();
+		if (workingCopy != null) {
+			workingCopy.destroy();
 		}
-		if (cu.exists()) {
-			cu.delete(true, null);
+		if (nonExistingCU.exists()) {
+			nonExistingCU.delete(true, null);
 		}
 	}
 }
