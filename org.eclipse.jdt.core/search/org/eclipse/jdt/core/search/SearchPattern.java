@@ -69,11 +69,19 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	public static final int R_CASE_SENSITIVE = 8;
 	/**
-	 * Match rule: The search pattern matches search results as raw types or parameterized types with same erasure.
-	 * Example:
+	 * Match rule: The search pattern matches search results as raw/parameterized types/methods with same erasure.
+	 * This mode has no effect on other java elements search.
+	 * Type search example:
 	 * 	<ul>
 	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
+	 * 	</ul>
+	 * Method search example:
+	 * 	TODO (frederic) This mode is not implemented yet. It will be completed in next milestone.
+	 * 	<ul>
+	 * 	<li>declaration: <code>&lt;T&gt;foo(T t)</code></li>
+	 * 	<li>pattern: <code>&lt;Exception&gt;foo(new Exception())</code></li>
+	 * 	<li>match: <code>&lt;Object&gt;foo(new Object())</code></li>
 	 * 	</ul>
 	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_ERASURE_MATCH}
 	 * This rule is not activated by default, so raw types or parameterized types with same erasure will not be found
@@ -83,8 +91,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	public static final int R_ERASURE_MATCH = 16;
 	/**
-	 * Match rule: The search pattern matches search results as raw types or parameterized types with equivalent type parameters.
-	 * Example:
+	 * Match rule: The search pattern matches search results as raw/parameterized types/methods with equivalent type parameters.
+	 * This mode has no effect on other java elements search.
+	 * Type search example:
 	 * <ul>
 	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match:
@@ -92,7 +101,20 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 		<li><code>List&lt;? extends Throwable&gt;</code></li>
 	 * 		<li><code>List&lt;? super RuntimeException&gt;</code></li>
 	 * 		<li><code>List&lt;?&gt;</code></li>
+	 *			</ul>
 	 * 	</li>
+	 * 	</ul>
+	 * Method search example:
+	 * 	TODO (frederic) This mode is not implemented yet. It will be completed in next milestone.
+	 * 	<ul>
+	 * 	<li>declaration: <code>&lt;T&gt;foo(T t)</code></li>
+	 * 	<li>pattern: <code>&lt;Exception&gt;foo(new Exception())</code></li>
+	 * 	<li>match:
+	 * 		<ul>
+	 * 		<li><code>&lt;? extends Throwable&gt;foo(new Exception())</code></li>
+	 * 		<li><code>&lt;? super RuntimeException&gt;foo(new Exception())</code></li>
+	 * 		<li><code>foo(new Exception())</code></li>
+	 *			</ul>
 	 * 	</ul>
 	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_EQUIVALENT_MATCH}
 	 * This rule is not activated by default, so raw types or equivalent parameterized types will not be found
