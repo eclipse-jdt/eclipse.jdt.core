@@ -178,6 +178,39 @@ public class LocalElementTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Anonymous type test.
+	 * (regression test for bug 69028 Anonymous type in argument of super() is not in type hierarchy)
+	 */
+	public void testAnonymousType5() throws CoreException {
+		try {
+			createFile(
+				"/P/X.java",
+				"public class X {\n" +
+				"  X(Object o) {\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"  Y() {\n" +
+				"    super(new Object() {});\n" +
+				"  }\n" +
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+				"Unexpected compilation unit contents",
+				"X.java\n" + 
+				"  class X\n" + 
+				"    X(Object)\n" + 
+				"  class Y\n" + 
+				"    Y()\n" + 
+				"      class <anonymous #1>",
+				cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+	
+	/*
 	 * IType.getSuperclassName() test
 	 */
 	public void testGetSuperclassName() throws CoreException {
