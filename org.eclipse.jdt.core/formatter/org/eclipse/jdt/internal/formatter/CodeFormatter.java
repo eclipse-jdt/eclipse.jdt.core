@@ -1950,6 +1950,13 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 	 * or null if the string cannot be split
 	 */
 	public SplitLine split(String stringToSplit, int offsetInGlobalLine) {
+		/*
+		 * See http://dev.eclipse.org/bugs/show_bug.cgi?id=12540 and
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14387 
+		 */
+		if (stringToSplit.indexOf("//$NON-NLS") != -1) { //$NON-NLS-1$
+			return null;
+		}
 		// local variables
 		int currentToken = 0;
 		int splitTokenType = 0;

@@ -22,10 +22,18 @@ What's new in this drop</h2>
 	<li>An internal buffer factory is now used to create buffers when
 	    clients don't provide one.
 	</li>
+	<li>Special handling in the formatter for //$NON-NLS- comments in the source. When a line contains such comments
+	it is not formatted anymore. The user will need to manually format it. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14387">14387</a> and
+	<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=12540">12540</a>.
+	</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14313">14313</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12540">12540</a>
+Code formatter should leave comments at end of line 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14387">14387</a>
+Formatter isn't //$NON-NLS-1$ aware
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14313">14313</a>
 DCR: AST in methods with missing return type 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14094">14094</a>
 Indexer: Deadlock on delete project  
