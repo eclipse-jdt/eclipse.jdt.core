@@ -164,6 +164,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
+								// missing the right resource
 							}
 						}
 						if (!done) output.append(message.substring(end + 1, start + 1));
@@ -1099,6 +1100,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 									charconv.getAbsolutePath()};
 								bootclasspathCount = 3;
 							} catch (IOException e) {
+								// cannot retrieve libraries
 							}
 				 	 	}
 				 	 }
@@ -1123,6 +1125,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 									bootclasspaths[bootclasspathCount++] = systemLibrariesJars[i].getAbsolutePath();
 								} 
 							} catch (IOException e) {
+								// cannot retrieve libraries
 							}
 				 	 	}
 				 	 }
