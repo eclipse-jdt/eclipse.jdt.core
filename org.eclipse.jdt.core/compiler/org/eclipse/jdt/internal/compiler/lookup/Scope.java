@@ -278,7 +278,7 @@ public abstract class Scope
 	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding() && !type.isParameterizedType())
 			return environment().createArrayType(type, dimension);
-		else
+		else // do not cache obvious invalid types
 			return new ArrayBinding(type, dimension, environment());
 	}
 	
@@ -2134,6 +2134,48 @@ public abstract class Scope
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;
+	}
+	
+	/**
+	 * Returns an array of types, where original types got substituted given a substitution.
+	 * Only allocate an array if anything is different.
+	 */
+	public static TypeBinding[] substitute(Substitution substitution, TypeBinding[] originalTypes) {
+	    TypeBinding[] substitutedTypes = originalTypes;
+	    for (int i = 0, length = originalTypes.length; i < length; i++) {
+	        TypeBinding originalType = originalTypes[i];
+	        TypeBinding substitutedParameter = substitution.substitute(originalType);
+	        if (substitutedParameter != originalType) {
+	            if (substitutedTypes == originalTypes) {
+	                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
+	            }
+	            substitutedTypes[i] = substitutedParameter;
+	        } else if (substitutedTypes != originalTypes) {
+	            substitutedTypes[i] = originalType;
+	        }
+	    }
+	    return substitutedTypes;
+	}
+	
+	/**
+	 * Returns an array of types, where original types got substituted given a substitution.
+	 * Only allocate an array if anything is different.
+	 */
+	public static ReferenceBinding[] substitute(Substitution substitution, ReferenceBinding[] originalTypes) {
+	    ReferenceBinding[] substitutedTypes = originalTypes;
+	    for (int i = 0, length = originalTypes.length; i < length; i++) {
+	        ReferenceBinding originalType = originalTypes[i];
+	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitution.substitute(originalType);
+	        if (substitutedParameter != originalType) {
+	            if (substitutedTypes == originalTypes) {
+	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
+	            }
+	            substitutedTypes[i] = substitutedParameter;
+	        } else if (substitutedTypes != originalTypes) {
+	            substitutedTypes[i] = originalType;
+	        }
+	    }
+	    return substitutedTypes;
 	}
 	
 	/**

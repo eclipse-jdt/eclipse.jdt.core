@@ -45,10 +45,11 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			this.resolvedType = targetType;
 			// must ensure to update any other type bindings that can contain the resolved type
 			// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
-			if (this.wrappers != null)
-				for (int i = 0, l = this.wrappers.length; i < l; i++)
-					this.wrappers[i].swapUnresolved(this, targetType, environment);
-			environment.updateCaches(this, targetType);
+			// TODO (kent) check update is unnecessary here, as already done in LookupEnvironment.createBinaryTypeFrom(IBinaryType, PackageBinding, boolean) which is called by askForType
+//			if (this.wrappers != null)
+//				for (int i = 0, l = this.wrappers.length; i < l; i++)
+//					this.wrappers[i].swapUnresolved(this, targetType, environment);
+//			environment.updateCaches(this, targetType);
 		} else {
 			environment.problemReporter.isClassPathCorrect(this.compoundName, null);
 			return null; // will not get here since the above error aborts the compilation

@@ -307,6 +307,9 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 
 		UnresolvedReferenceBinding unresolvedType = (UnresolvedReferenceBinding) cachedType;
 		unresolvedType.resolvedType = binaryBinding;
+		if (unresolvedType.wrappers != null)
+			for (int i = 0, l = unresolvedType.wrappers.length; i < l; i++)
+				unresolvedType.wrappers[i].swapUnresolved(unresolvedType, binaryBinding, this);
 		updateCaches(unresolvedType, binaryBinding);
 	}
 

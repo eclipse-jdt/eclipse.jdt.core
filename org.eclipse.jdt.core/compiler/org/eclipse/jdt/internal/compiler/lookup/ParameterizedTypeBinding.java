@@ -561,7 +561,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			} else if (originalType.isParameterizedType()) {
 				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
-				TypeBinding[] substitutedArguments = ReferenceBinding.substitute(this, originalArguments);
+				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
 				if (substitutedArguments != originalArguments) {
 					return this.environment.createParameterizedType(
 							originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
@@ -602,7 +602,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public ReferenceBinding[] superInterfaces() {
 	    if (this.superInterfaces == null) {
-	    	this.superInterfaces = ReferenceBinding.substitute(this, this.type.superInterfaces());
+	    	this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
 	    }
 		return this.superInterfaces;
 	}

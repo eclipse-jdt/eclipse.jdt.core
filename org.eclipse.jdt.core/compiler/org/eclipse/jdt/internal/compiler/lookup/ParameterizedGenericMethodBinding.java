@@ -33,8 +33,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = typeArguments;
 	    this.originalMethod = originalMethod;
-	    this.parameters = ReferenceBinding.substitute(this, originalMethod.parameters);
-	    this.thrownExceptions = ReferenceBinding.substitute(this, originalMethod.thrownExceptions);
+	    this.parameters = Scope.substitute(this, originalMethod.parameters);
+	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
 	    this.returnType = this.substitute(originalMethod.returnType);
 	}
 	
@@ -56,7 +56,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     	    } else if (originalType.isParameterizedType()) {
     	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
     	        TypeBinding[] originalArguments = originalParameterizedType.arguments;
-    	        TypeBinding[] substitutedArguments = ReferenceBinding.substitute(this, originalArguments);
+    	        TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
     	        if (substitutedArguments != originalArguments) {
     	            return originalParameterizedType.environment.createParameterizedType(
     	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);

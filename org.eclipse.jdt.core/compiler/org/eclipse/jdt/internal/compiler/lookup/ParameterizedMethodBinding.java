@@ -31,8 +31,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	            originalMethod.modifiers, 
 	            originalMethod.selector, 
 	            parameterizedDeclaringClass.substitute(  originalMethod.returnType),
-	            ReferenceBinding.substitute(parameterizedDeclaringClass, originalMethod.parameters),
-	            ReferenceBinding.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
+	            Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
+	            Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
 	            parameterizedDeclaringClass);
 	    this.originalMethod = originalMethod;
 	    this.typeVariables = originalMethod.typeVariables;
