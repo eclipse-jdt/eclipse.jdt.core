@@ -1033,6 +1033,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			"java.lang.Exception", //$NON-NLS-1$
 			"java.lang.RuntimeException", //$NON-NLS-1$
 			"java.lang.Error", //$NON-NLS-1$
+			"java.lang.Cloneable", //$NON-NLS-1$
+			"java.io.Serializable", //$NON-NLS-1$
 		};
 		
 		// no-so-well-known bindings
