@@ -70,7 +70,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
-	public static final String OPTION_GenerateBytecode_jsr = "org.eclipse.jdt.core.compiler.codegen.jsr"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -200,7 +199,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public boolean checkAnnotation = false; 
 	
 	// generate jsr bytecode (1.5 vms do not allow it on files >= 49.0)
-	public boolean generate_jsr = true; // TODO (philippe) add support for non generating jsr bytecode
+	public boolean generate_jsr = true; // TODO (philippe) should disappear and check against target level
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -256,7 +255,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
-		optionsMap.put(OPTION_GenerateBytecode_jsr, generate_jsr ? ENABLED : DISABLED);
 		if (defaultEncoding != null) {
 			optionsMap.put(OPTION_Encoding, defaultEncoding); 
 		}
@@ -376,13 +374,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.reportSpecialParameterHidingField = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportSpecialParameterHidingField = false;
-			}
-		}
-		if ((optionValue = optionsMap.get(OPTION_GenerateBytecode_jsr)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.generate_jsr = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.generate_jsr = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_MaxProblemPerUnit)) != null) {
