@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
@@ -27,7 +24,6 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -69,13 +65,7 @@ public void setUpSuite() throws Exception {
 	this.pkgFragmentRoot = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
 	setUpGenericJar();
 }
-private void setUpGenericJar() throws IOException, JavaModelException {
-	String externalJar = org.eclipse.jdt.core.tests.util.Util.getOutputDirectory() + File.separator + "generic.jar";
-	String sourceZip = org.eclipse.jdt.core.tests.util.Util.getOutputDirectory() + File.separator + "genericsrc.zip";
-	Map options = new HashMap();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+private void setUpGenericJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
 		"generic/X.java", 
 		"package generic;\n" +
@@ -87,11 +77,10 @@ private void setUpGenericJar() throws IOException, JavaModelException {
 		"  }\n" +
 		"}"
 	};
-	org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, options, externalJar);
-	org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZip);
 	IJavaProject project = getJavaProject("AttachSourceTests");
-	addLibraryEntry(project, externalJar, sourceZip, null, true);
-	this.genericType = project.getPackageFragmentRoot(externalJar).getPackageFragment("generic").getClassFile("X.class").getType();
+	add1_5Library(project, "generic.jar", "genericsrc.zip", pathAndContents);
+	IFile jar = getFile("/AttachSourceTests/generic.jar");
+	this.genericType = project.getPackageFragmentRoot(jar).getPackageFragment("generic").getClassFile("X.class").getType();
 }
 protected void tearDown() throws Exception {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");

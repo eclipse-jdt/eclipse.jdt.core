@@ -10,21 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -145,14 +139,11 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL_LIB", "/Reconciler15/lib15.jar"}, "bin");
-	Map options15 = javaProject.getOptions(true);
-	options15.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options15.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	options15.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-	javaProject.setOptions(options15);
-	IProject project = javaProject.getProject();
-	Util.createJar(
+	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+	add1_5Library(
+		javaProject, 
+		"lib15.jar", 
+		"lib15src.zip", 
 		new String[] {
 			"java/util/List.java",
 			"package java.util;\n" +
@@ -165,13 +156,9 @@ public void setUpSuite() throws Exception {
 			"java/util/Map.java",
 			"package java.util;\n" +
 			"public interface Map<K,V> {\n" +
-			"}",			
-		},
-		options15,
-		project.getLocation().toOSString() + File.separator + "lib15.jar"
+			"}"
+		}
 	);
-	project.refreshLocal(IResource.DEPTH_INFINITE, null);
-	
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	String contents = this.workingCopy.getSource();
@@ -405,33 +392,20 @@ public void testChangeMethodTypeParameters() throws JavaModelException {
  * of a type's type parameter change.
  */
 public void testChangeTypeTypeParameters() throws JavaModelException {
-	IJavaProject project = getJavaProject("Reconciler");
-	Map existingOptions = project.getOptions(true);
-	try {
-		Map options = new HashMap();
-		options.putAll(existingOptions);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-		project.setOptions(options);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		
-		clearDeltas();
-		setWorkingCopyContents(
-			"package p1;\n" +
-			"import p2.*;\n" +
-			"public class X <T> {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}");
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		assertDeltas(
-			"Unexpected delta", 
-			"X[*]: {CONTENT}"
-		);
-	} finally {
-		project.setOptions(existingOptions);
-	}
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X <T> {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CONTENT}"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

@@ -44,7 +44,7 @@ protected void setClasspath(String[] sourceFoldersAndInclusionPatterns) throws J
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	this.project = createJavaProject( "P", new String[] {"src"}, new String[] {}, new String[] {}, new boolean[] {}, "bin", new String[] {"bin"}, new String[][] {new String[] {}}, new String[][] {new String[] {"**"}});
+	this.project = createJavaProject( "P", new String[] {"src"}, new String[] {}, new String[] {}, new boolean[] {}, "bin", new String[] {"bin"}, new String[][] {new String[] {}}, new String[][] {new String[] {"**"}}, "1.4");
 	startDeltas();
 }
 

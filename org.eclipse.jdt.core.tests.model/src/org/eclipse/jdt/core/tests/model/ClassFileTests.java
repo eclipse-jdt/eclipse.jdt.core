@@ -10,16 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -37,15 +30,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		IJavaProject javaProject = createJavaProject("P", new String[] {}, new String[] {"/P/lib.jar"}, "");
-		IProject project = javaProject.getProject();
-		String projectLocation = project.getLocation().toOSString();
-		String jarPath = projectLocation + File.separator + "lib.jar";
-		String sourceZipPath = projectLocation + File.separator + "libsrc.zip";
-		Map options = new HashMap();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+		IJavaProject javaProject = createJavaProject("P");
 		String[] pathAndContents = new String[] {
 			"nongeneric/A.java", 
 			"package nongeneric;\n" +
@@ -78,10 +63,8 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"public class W<T extends X<T> , U extends T> {\n" + 
 			"}",
 		};
-		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, options, jarPath);
-		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
-		project.refreshLocal(IResource.DEPTH_INFINITE, null);
-		this.jarRoot = javaProject.getPackageFragmentRoot(project.getFile("lib.jar"));
+		add1_5Library(javaProject, "lib.jar", "libsrc.zip", pathAndContents);
+		this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 			
 	}
 	

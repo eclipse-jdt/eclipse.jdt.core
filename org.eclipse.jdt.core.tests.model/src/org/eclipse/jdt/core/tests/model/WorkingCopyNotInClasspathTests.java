@@ -97,7 +97,7 @@ public void testCommitWorkingCopy1() throws CoreException {
 public void testCommitWorkingCopy2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		createJavaProject( "P2", new String[] {"src"}, null, null, null, "bin", null, null, new String[][] {new String[] {"p1/"}});
+		createJavaProject( "P2", new String[] {"src"}, null, null, null, "bin", null, null, new String[][] {new String[] {"p1/"}}, "1.4");
 		createFolder("/P2/src/p1/p2");
 		createFile("/P2/src/p1/p2/X.java", "");
 		copy = getCompilationUnit("P2", "src", "p1.p2", "X.java").getWorkingCopy(null);

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -24,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
@@ -161,6 +163,13 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
 	flushDirectoryContent(classesDir);
 	compile(pathsAndContents, options, classesPath);
 	zip(classesDir, jarPath);
+}
+public static void create1_5Jar(String[] pathsAndContents, String jarPath) throws IOException {
+	Map options = new HashMap();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	createJar(pathsAndContents, options, jarPath);
 }
 public static void createFile(String path, String contents) throws IOException {
 	FileOutputStream output = new FileOutputStream(path);

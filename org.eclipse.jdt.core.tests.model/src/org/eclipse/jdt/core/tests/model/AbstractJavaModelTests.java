@@ -14,6 +14,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -167,6 +169,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			expected,
 			actual
 		);
+	}
+	protected void add1_5Library(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents) throws CoreException, IOException {
+		IProject project = javaProject.getProject();
+		String projectLocation = project.getLocation().toOSString();
+		String jarPath = projectLocation + File.separator + jarName;
+		String sourceZipPath = projectLocation + File.separator + sourceZipName;
+		org.eclipse.jdt.core.tests.util.Util.create1_5Jar(pathAndContents, jarPath);
+		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		String projectPath = '/' + project.getName() + '/';
+		addLibraryEntry(javaProject, projectPath + jarName,  projectPath + sourceZipName, null, true);
 	}
 	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(project, new Path(path), null, null, exported);
@@ -419,7 +432,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				output, 
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
-				null/*no exclusion pattern*/
+				null/*no exclusion pattern*/,
+				"1.4"
 			);
 	}
 	/*
@@ -437,7 +451,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				output, 
 				sourceOutputs,
 				null/*no inclusion pattern*/,
-				null/*no exclusion pattern*/
+				null/*no exclusion pattern*/,
+				"1.4"
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
@@ -451,7 +466,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				output, 
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
-				null/*no exclusion pattern*/
+				null/*no exclusion pattern*/,
+				"1.4"
+			);
+	}
+	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output, String compliance) throws CoreException {
+		return 
+			this.createJavaProject(
+				projectName, 
+				sourceFolders, 
+				libraries, 
+				null/*no project*/, 
+				null/*no exported project*/, 
+				output, 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				compliance
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput) throws CoreException {
@@ -465,7 +496,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				projectOutput,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
-				null/*no exclusion pattern*/
+				null/*no exclusion pattern*/,
+				"1.4"
 			);
 	}
 	protected SearchPattern createPattern(IJavaElement element, int limitTo) {
@@ -489,10 +521,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				projectOutput,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
-				null/*no exclusion pattern*/
+				null/*no exclusion pattern*/,
+				"1.4"
 			);
 	}
-	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns) throws CoreException {
+	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns, final String compliance) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -614,6 +647,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				// set classpath and output location
 				IJavaProject javaProject = JavaCore.create(project);
 				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
+				
+				// set compliance level options
+				if ("1.5".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+					javaProject.setOptions(options);
+				}
+				
 				result[0] = javaProject;
 			}
 		};
