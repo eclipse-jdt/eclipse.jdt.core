@@ -56,8 +56,8 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 		}
 		final int length = u2At(classFileBytes, 2, offset);
 		this.componentsNumber = length;
+		this.readOffset = 4;
 		if (length != 0) {
-			this.readOffset = 4;
 			this.components = new IAnnotationComponent[length];
 			for (int i = 0; i < length; i++) {
 				AnnotationComponent component = new AnnotationComponent(classFileBytes, constantPool, offset + readOffset);
