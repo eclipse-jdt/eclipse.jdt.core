@@ -10,20 +10,18 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-
 /**
  * Binding for a type parameter, held by source or binary type..
  */
 public class TypeVariableBinding extends ReferenceBinding {
 	
-	public int id; // declaration rank, can be used to match variable in parameterized type
+	public int rank; // declaration rank, can be used to match variable in parameterized type
 	public ReferenceBinding firstBound;
 	
-	public TypeVariableBinding(char[] sourceName, int id){
+	public TypeVariableBinding(char[] sourceName, int rank){
 
 		this.sourceName = sourceName;
-		this.id = id;
+		this.rank = rank;
 	}
 
 	/**
