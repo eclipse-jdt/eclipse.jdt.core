@@ -1836,8 +1836,14 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	int length = parameters.length;
 	int resolvedPosition = 1;
 	this.aload_0();
-	if (constructorBinding.declaringClass.isNestedType()) {
-		NestedTypeBinding nestedType = (NestedTypeBinding) constructorBinding.declaringClass;
+	// special name&ordinal argument generation for enum constructors
+	TypeBinding declaringClass = constructorBinding.declaringClass;
+	if (declaringClass.erasure().id == T_JavaLangEnum || declaringClass.isEnum()) {
+		this.aload_1(); // pass along name param as name arg
+		this.iload_2(); // pass along ordinal param as ordinal arg
+	}	
+	if (declaringClass.isNestedType()) {
+		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticEnclosingInstances();
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
@@ -1856,8 +1862,8 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 			resolvedPosition++;
 	}
 	
-	if (constructorBinding.declaringClass.isNestedType()) {
-		NestedTypeBinding nestedType = (NestedTypeBinding) constructorBinding.declaringClass;
+	if (declaringClass.isNestedType()) {
+		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;

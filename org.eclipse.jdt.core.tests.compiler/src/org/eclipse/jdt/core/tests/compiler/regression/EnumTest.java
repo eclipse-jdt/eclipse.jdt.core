@@ -1667,5 +1667,25 @@ public class EnumTest extends AbstractComparisonTest {
 		);
 	}			
 
-
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=81262
+	 */
+	public void test059() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	MONDAY {\n" + 
+				"		public void foo() {\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	private X() {\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	  System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }
