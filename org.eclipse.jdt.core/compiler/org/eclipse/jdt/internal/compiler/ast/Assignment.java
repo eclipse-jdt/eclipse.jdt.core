@@ -150,12 +150,15 @@ public class Assignment extends Expression {
 			BlockScope scope,
 			TypeBinding expectedType) {
 
+		TypeBinding type = super.resolveTypeExpecting(scope, expectedType);
 		// signal possible accidental boolean assignment (instead of using '==' operator)
-		if ((this.lhs.bits & IsStrictlyAssignedMASK) != 0 && expectedType == BooleanBinding) {
+		if (expectedType == BooleanBinding 
+				&& this.lhs.resolvedType == BooleanBinding 
+				&& (this.lhs.bits & IsStrictlyAssignedMASK) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}
 
-		return super.resolveTypeExpecting(scope, expectedType);
+		return type;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
