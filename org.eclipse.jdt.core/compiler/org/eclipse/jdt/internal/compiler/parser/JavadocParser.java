@@ -14,20 +14,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.ImplicitDocTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Javadoc;
-import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArrayQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArraySingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
-import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -97,12 +84,13 @@ public class JavadocParser extends AbstractCommentParser {
 					nextCharacter : while (this.index < this.lineEnd) {
 						char c = readChar(); // consider unicodes
 						switch (c) {
-						    default : 
-						        if (Character.isWhitespace(c)) {
-						            continue nextCharacter;
-						        }
-						        break;
-						    case '*' :
+							case '*' :
+							case '\u000c' :	/* FORM FEED               */
+							case ' ' :			/* SPACE                   */
+							case '\t' :			/* HORIZONTAL TABULATION   */
+							case '\n' :			/* LINE FEED   */
+							case '\r' :			/* CR */
+								// do nothing for space or '*' characters
 						        continue nextCharacter;
 						    case '@' :
 						        if ((readChar() == 'd') && (readChar() == 'e') &&
@@ -605,27 +593,29 @@ public class JavadocParser extends AbstractCommentParser {
 		while (this.astLengthPtr >= 0) {
 			int ptr = this.astLengthPtr % ORDERED_TAGS_NUMBER;
 			// Starting with the stack top, so get references (eg. Expression) coming from @see declarations
-			if (ptr == SEE_TAG_EXPECTED_ORDER) {
-				int size = this.astLengthStack[this.astLengthPtr--];
-				for (int i=0; i<size; i++) {
-					this.docComment.references[--sizes[ptr]] = (Expression) this.astStack[this.astPtr--];
-				}
-			}
+			switch(ptr) {
+				case SEE_TAG_EXPECTED_ORDER:
+					int size = this.astLengthStack[this.astLengthPtr--];
+					for (int i=0; i<size; i++) {
+						this.docComment.references[--sizes[ptr]] = (Expression) this.astStack[this.astPtr--];
+					}
+					break;
 
-			// Then continuing with class names (eg. TypeReference) coming from @throw/@exception declarations
-			else if (ptr == THROWS_TAG_EXPECTED_ORDER) {
-				int size = this.astLengthStack[this.astLengthPtr--];
-				for (int i=0; i<size; i++) {
-					this.docComment.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[this.astPtr--];
-				}
-			}
+				// Then continuing with class names (eg. TypeReference) coming from @throw/@exception declarations
+				case THROWS_TAG_EXPECTED_ORDER:
+					size = this.astLengthStack[this.astLengthPtr--];
+					for (int i=0; i<size; i++) {
+						this.docComment.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[this.astPtr--];
+					}
+					break;
 
-			// Finally, finishing with parameters nales (ie. Argument) coming from @param declaration
-			else if (ptr == PARAM_TAG_EXPECTED_ORDER) {
-				int size = this.astLengthStack[this.astLengthPtr--];
-				for (int i=0; i<size; i++) {
-					this.docComment.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[this.astPtr--];
-				}
+				// Finally, finishing with parameters nales (ie. Argument) coming from @param declaration
+				case PARAM_TAG_EXPECTED_ORDER:
+					size = this.astLengthStack[this.astLengthPtr--];
+					for (int i=0; i<size; i++) {
+						this.docComment.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[this.astPtr--];
+					}
+					break;
 			}
 		}
 	}
