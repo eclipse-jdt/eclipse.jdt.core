@@ -486,7 +486,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void selectType(ISourceType sourceType, char[] typeName) {
 		try {
 			acceptedAnswer = false;
-			qualifiedSelection = typeName;
 
 			// find the outer most type
 			ISourceType outerType = sourceType;
@@ -532,6 +531,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						field.type = new SelectionOnSingleTypeReference(typeName, -1);
 						// position not used
 					} else {
+						qualifiedSelection = typeName;
 						char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot - 1);
 						char[] selectionIdentifier =
 							CharOperation.subarray(typeName, dot + 1, typeName.length);
