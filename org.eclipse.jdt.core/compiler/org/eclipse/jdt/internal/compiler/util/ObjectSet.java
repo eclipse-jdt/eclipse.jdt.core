@@ -36,7 +36,7 @@ public final class ObjectSet implements Cloneable {
 		set.threshold = this.threshold;
 		
 		int length = this.elementTable.length;
-		set.elementTable = new Object[length][];
+		set.elementTable = new Object[length];
 		System.arraycopy(this.elementTable, 0, set.elementTable, 0, length);
 		
 		return set;
