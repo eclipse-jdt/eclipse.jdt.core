@@ -330,10 +330,25 @@ public class Disassembler implements IClassFileDisassembler {
 					buffer.append(constantPoolEntry.getDoubleValue());
 					break;
 				case IConstantPoolConstant.CONSTANT_Integer:
-					buffer.append(constantPoolEntry.getIntegerValue());
+					switch(fieldDescriptor[0]) {
+						case 'C' :
+							buffer.append("'" + Character.toString((char) constantPoolEntry.getIntegerValue()) + "'"); //$NON-NLS-1$//$NON-NLS-2$
+							break;
+						case 'Z' :
+							buffer.append(Boolean.toString(constantPoolEntry.getIntegerValue() == 1));
+							break;
+						case 'B' :
+							buffer.append((byte) constantPoolEntry.getIntegerValue());
+							break;
+						case 'S' :
+							buffer.append((short) constantPoolEntry.getIntegerValue());
+							break;
+						case 'I' :
+							buffer.append(constantPoolEntry.getIntegerValue());
+					}
 					break;
 				case IConstantPoolConstant.CONSTANT_String:
-					buffer.append("\"" + constantPoolEntry.getStringValue() + "\"" );//$NON-NLS-1$//$NON-NLS-2$
+					buffer.append("\"" + decodeStringValue(constantPoolEntry.getStringValue()) + "\"" );//$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
@@ -808,5 +823,66 @@ public class Disassembler implements IClassFileDisassembler {
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
-	}	 
+	}	
+
+	private String decodeStringValue(String s) {
+		StringBuffer buffer = new StringBuffer();
+		char[] chars = s.toCharArray();
+		for (int i = 0, max = chars.length; i < max; i++) {
+			char c = chars[i];
+			switch(c) {
+				case '\b' :
+					buffer.append("\\b"); //$NON-NLS-1$
+					break;
+				case '\t' :
+					buffer.append("\\t"); //$NON-NLS-1$
+					break;
+				case '\n' :
+					buffer.append("\\n"); //$NON-NLS-1$
+					break;
+				case '\f' :
+					buffer.append("\\f"); //$NON-NLS-1$
+					break;
+				case '\r' :
+					buffer.append("\\r"); //$NON-NLS-1$
+					break;
+				case '\"':
+					buffer.append("\\\""); //$NON-NLS-1$
+					break;
+				case '\'':
+					buffer.append("\\\'"); //$NON-NLS-1$
+					break;
+				case '\\':
+					buffer.append("\\\\"); //$NON-NLS-1$
+					break;
+				case '\0' :
+					buffer.append("\\0"); //$NON-NLS-1$
+					break;
+				case '\1' :
+					buffer.append("\\1"); //$NON-NLS-1$
+					break;
+				case '\2' :
+					buffer.append("\\2"); //$NON-NLS-1$
+					break;
+				case '\3' :
+					buffer.append("\\3"); //$NON-NLS-1$
+					break;
+				case '\4' :
+					buffer.append("\\4"); //$NON-NLS-1$
+					break;
+				case '\5' :
+					buffer.append("\\5"); //$NON-NLS-1$
+					break;
+				case '\6' :
+					buffer.append("\\6"); //$NON-NLS-1$
+					break;
+				case '\7' :
+					buffer.append("\\7"); //$NON-NLS-1$
+					break;			
+				default:
+					buffer.append(c);
+			}
+		}
+		return buffer.toString();
+	}
 }
