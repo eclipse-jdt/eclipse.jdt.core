@@ -34,9 +34,6 @@ class BindingKeyScanner {
 		this.source = source;
 	}
 	
-	/*
-	 * package[/type[$type][/method | /field]]
-	 */
 	int nextToken() {
 		this.start = ++this.index;
 		int length = this.source.length;
@@ -116,11 +113,20 @@ class BindingKeyScanner {
 	}
 	
 	boolean isAtTypeEnd() {
+		char currentChar;
 		return 
 			this.index == -1
 			|| this.index >= this.source.length-1 
-			|| this.source[this.index] == ',' 
-			|| this.source[this.index] == '(';
+			|| (currentChar = this.source[this.index]) == ',' 
+			|| currentChar == '(' 
+			|| currentChar == '<';
+	}
+	
+	boolean isAtTypeParameterStart() {
+		return 
+			this.start > 0
+			&& this.start < this.source.length
+			&& this.source[this.start-1] == '<';
 	}
 	
 	public String toString() {

@@ -47,7 +47,7 @@ class BindingKey {
 	  * If not already cached, computes and cache the compound name (pkg name + top level name) of this key.
 	  * Returns the package name if key is a pkg key.
 	  * Returns an empty array if malformed.
-	  * This key's scanner should be at the start of the key if first call.
+	  * This key's scanner should be positioned on the package token.
 	  */
 	 char[][] compoundName() {
 	 	if (this.compoundName == null) {
@@ -79,6 +79,7 @@ class BindingKey {
 	 /*
 	  * Finds the compilation unit declaration corresponding to the key in the given lookup environment.
 	  * Returns null if no compilation unit declaration could be found.
+	  * This key's scanner should be positioned on the package token.
 	  */
 	 CompilationUnitDeclaration getCompilationUnitDeclaration(LookupEnvironment lookupEnvironment) {
 		char[][] compundName = compoundName();
@@ -88,6 +89,11 @@ class BindingKey {
 		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
 	 }
 	 
+	 /*
+	  * Returns the compiler binding corresponding to this key.
+	  * Returns null is malformed.
+	  * This key's scanner should be positioned on the package token.
+	  */
 	 Binding getCompilerBinding(CompilationUnitResolver resolver) {
 		CompilationUnitDeclaration parsedUnit = getCompilationUnitDeclaration(resolver.lookupEnvironment);
 		if (parsedUnit != null) {
@@ -101,7 +107,8 @@ class BindingKey {
 	 
 	 /*
 	  * Returns the compiler binding corresponding to this key.
-	  * This key's scanner must be after the top level type. Returns null otherwise.
+	  * This key's scanner should be positioned on the top level type token.
+	  * Returns null otherwise.
 	  */
 	 Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit, CompilationUnitResolver resolver) {
 	 	switch (this.scanner.token) {
@@ -124,9 +131,9 @@ class BindingKey {
 	 				case BindingKeyScanner.ARRAY:
 	 					return getArrayBinding(binding, resolver);
 	 				case BindingKeyScanner.FIELD:
-	 					return getFieldBinding(binding);
+	 					return getFieldBinding(binding.fields);
 	 				case BindingKeyScanner.METHOD:
-	 					return getMethodBinding(binding, resolver);
+	 					return getMethodBinding(binding.methods, resolver);
 	 			}
 	 			break;
 	 		case BindingKeyScanner.ARRAY:
@@ -140,13 +147,22 @@ class BindingKey {
 	 	return null;
 	 }
 	 
+	 /*
+	  * Returns an array binding for the given type binding.
+	  * This key's scanner should be positioned on the array dimension token.
+	  */
 	 Binding getArrayBinding(TypeBinding binding, CompilationUnitResolver resolver) {
 		char[] tokenSource = this.scanner.getTokenSource();
 		int dimension = tokenSource.length / 2;
 		return resolver.lookupEnvironment.createArrayType(binding, dimension);
 	}
 	 
-	 Binding getBinaryBinding(CompilationUnitResolver resolver) {
+	 /*
+	  * Returns a binary binding corresonding to this key's compound name.
+	  * Returns null if not found.
+	  * This key's scanner should be positioned on the token after the top level type.
+	  */
+	Binding getBinaryBinding(CompilationUnitResolver resolver) {
 		TypeBinding binding = resolver.lookupEnvironment.getType(this.compoundName);
 	 	if (this.scanner.nextToken() == BindingKeyScanner.ARRAY)
 			return getArrayBinding(binding, resolver);
@@ -154,8 +170,12 @@ class BindingKey {
 	 		return binding;
 	}
 
-	FieldBinding getFieldBinding(SourceTypeBinding typeBinding) {
-	 	FieldBinding[] fields = typeBinding.fields;
+	/*
+	 * Finds the field binding that corresponds to this key in the given field bindings.
+	 * Returns null if not found.
+	 * This key's scanner should be positioned on the field name.
+	 */
+	FieldBinding getFieldBinding(FieldBinding[] fields) {
 	 	if (fields == null) return null;
 	 	char[] fieldName = this.scanner.getTokenSource();
 	 	for (int i = 0, length = fields.length; i < length; i++) {
@@ -173,28 +193,57 @@ class BindingKey {
 	 	return new String(this.scanner.source);
 	 }
 	 
-	 MethodBinding getMethodBinding(SourceTypeBinding typeBinding, CompilationUnitResolver resolver) {
-	 	MethodBinding[] methods = typeBinding.methods;
+	/*
+	 * Finds the method binding that corresponds to this key in the given method bindings.
+	 * Returns null if not found.
+	 * This key's scanner should be positioned on the selector token.
+	 */
+	 MethodBinding getMethodBinding(MethodBinding[] methods, CompilationUnitResolver resolver) {
 	 	if (methods == null) return null;
 	 	char[] selector = this.scanner.getTokenSource();
+	 	
+	 	// collect parameter type bindings
 	 	ArrayList parameterList = new ArrayList();
 	 	do {
 	 		reset();
 	 		Binding parameterBinding = getCompilerBinding(resolver);
 	 		if (parameterBinding == null) break;
 	 		parameterList.add(parameterBinding);
-	 	} while (this.scanner.token != BindingKeyScanner.END);
+	 	} while (this.scanner.token != BindingKeyScanner.END && !this.scanner.isAtTypeParameterStart());
 	 	int parameterLength = parameterList.size();
 	 	TypeBinding[] parameters = new TypeBinding[parameterLength];
 	 	parameterList.toArray(parameters);
+	 	
+	 	
+	 	// collect type parameter bindings
+	 	ArrayList typeParameterList = new ArrayList();
+	 	do {
+	 		reset();
+	 		Binding typeParameterBinding = getCompilerBinding(resolver);
+	 		if (typeParameterBinding == null) break;
+	 		typeParameterList.add(typeParameterBinding);
+	 	} while (this.scanner.token != BindingKeyScanner.END);
+	 	int typeParameterLength = typeParameterList.size();
+	 	TypeBinding[] typeParameters = new TypeBinding[typeParameterLength];
+	 	typeParameterList.toArray(typeParameters);
+	 	
 	 	nextMethod: for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
 			MethodBinding method = methods[i];
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
 				TypeBinding[] methodParameters = method.parameters;
-				if (methodParameters == null || methodParameters.length != parameterLength)
+				int methodParameterLength = methodParameters == null ? 0 : methodParameters.length;
+				if (methodParameterLength != parameterLength)
 					continue nextMethod;
 				for (int j = 0; j < parameterLength; j++) {
 					if (methodParameters[j] != parameters[j])
+						continue nextMethod;
+				}
+				TypeBinding[] methodTypeParameters = method.typeVariables;
+				int methodTypeParameterLength = methodTypeParameters == null ? 0 : methodTypeParameters.length;
+				if (methodTypeParameterLength != typeParameterLength)
+					continue nextMethod;
+				for (int j = 0; j < typeParameterLength; j++) {
+					if (methodTypeParameters[j] != typeParameters[j])
 						continue nextMethod;
 				}
 				return method;
@@ -203,6 +252,11 @@ class BindingKey {
 	 	return null;
 	 }
 	 
+	/*
+	 * Finds the type binding that corresponds to this key in the given type bindings.
+	 * Returns null if not found.
+	 * This key's scanner should be positioned on the type name token.
+	 */
 	 SourceTypeBinding getTypeBinding(CompilationUnitDeclaration parsedUnit, TypeDeclaration[] types, char[] typeName) {
 	 	if (Character.isDigit(typeName[0])) {
 	 		// anonymous or local type
@@ -231,6 +285,9 @@ class BindingKey {
 		return null;
 	 }
 	 
+	 /*
+	  * Forget about this key's compound name and reset this key's scanner if not positioned after a type.
+	  */
 	 void reset() {
 	 	this.compoundName = null;
 	 	if (this.scanner.isAtTypeEnd())
