@@ -322,7 +322,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.methods != null) {
 			int selectorLength = selector.length;
 			for (int i = 0, length = this.methods.length; i < length; i++) {
-				MethodBinding method = methods[i];
+				MethodBinding method = this.methods[i];
 				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 					if (matchingMethods == null)
 						matchingMethods = new java.util.ArrayList(2);
@@ -348,7 +348,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    	// substitute methods, so as to get updated declaring class at least
 	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
 		    if (this.methods == null) {
-		    	this.methods = parameterizedMethods;
+		    	MethodBinding[] temp = new MethodBinding[length];
+		    	System.arraycopy(parameterizedMethods, 0, temp, 0, length);
+		    	this.methods = temp; // must be a copy of parameterizedMethods since it will be returned below
 		    } else {
 		    	MethodBinding[] temp = new MethodBinding[length + this.methods.length];
 		    	System.arraycopy(parameterizedMethods, 0, temp, 0, length);
