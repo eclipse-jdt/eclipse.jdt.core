@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -1495,6 +1496,77 @@ public void test043() {
 			"}"
 		},
 		"SUCCESS");
+}
+/*
+ * 62639 - check that missing member type is not noticed if no direct connection with compiled type
+ */
+public void test044() {
+	this.runConformTest(
+		new String[] {
+			"p/Dumbo.java",
+			"package p;\n" +
+			"public class Dumbo {\n" +
+			"  public class Clyde { }\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		  System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	// delete binary file Dumbo$Clyde (i.e. simulate removing it from classpath for subsequent compile)
+	new File(OUTPUT_DIR, "p" + File.separator + "Dumbo$Clyde.class").delete();
+	
+	this.runConformTest(
+		new String[] {
+			"q/Main.java",
+			"package q;\n" +
+			"public class Main extends p.Dumbo {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		  p.Dumbo d;\n" +
+			"		  System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		"SUCCESS",
+		null,
+		false,
+		null);
+}
+/*
+ * ensure that can still found binary member types at depth >=2 (enclosing name Dumbo$Clyde $ Fred)
+ */
+public void test045() {
+	this.runConformTest(
+		new String[] {
+			"p/Dumbo.java",
+			"package p;\n" +
+			"public class Dumbo {\n" +
+			"  public class Clyde {\n" +
+			"  	  public class Fred {\n" +
+			"	  }\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		  System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	
+	this.runConformTest(
+		new String[] {
+			"q/Main.java",
+			"package q;\n" +
+			"public class Main extends p.Dumbo {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		  p.Dumbo.Clyde.Fred f;\n" +
+			"		  System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		"SUCCESS",
+		null,
+		false,
+		null);
 }
 public static Class testClass() {
 	return LookupTest.class;
