@@ -24,6 +24,7 @@
  *								   InvalidParenthesizedExpression
  *								   EnclosingInstanceInConstructorCall
  *								   BytecodeExceeds64KLimitForConstructor
+ *								   IncompatibleReturnTypeForNonInheritedInterfaceMethod
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -503,7 +504,9 @@ public interface IProblem {
 	int OverridingNonVisibleMethod = MethodRelated + 410;
 	int AbstractMethodCannotBeOverridden = MethodRelated + 411;
 	int OverridingDeprecatedMethod = MethodRelated + 412;
-
+	/** @since 2.1 */
+	int IncompatibleReturnTypeForNonInheritedInterfaceMethod = MethodRelated + 413;
+	
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
 	int CodeSnippetMissingMethod = Internal + 421;

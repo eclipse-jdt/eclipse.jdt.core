@@ -150,6 +150,9 @@ public class Main implements ProblemSeverities {
 			CompilerOptions.WARNING);
 		options.put(
 			CompilerOptions.OPTION_ReportStaticAccessReceiver,
+			CompilerOptions.WARNING);			
+		options.put(
+			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 			CompilerOptions.WARNING);
 	}
 
@@ -734,6 +737,9 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.OPTION_ReportNoImplicitStringConversion,
 					CompilerOptions.IGNORE);				
 				options.put(
+					CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+					CompilerOptions.IGNORE);				
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -793,6 +799,10 @@ public class Main implements ProblemSeverities {
 					} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportNoEffectAssignment,
+							CompilerOptions.WARNING);
+					} else if (token.equals("interfaceNonInherited")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 							CompilerOptions.WARNING);
 					} else if (token.equals("noImplicitStringConversion")) {//$NON-NLS-1$
 						options.put(

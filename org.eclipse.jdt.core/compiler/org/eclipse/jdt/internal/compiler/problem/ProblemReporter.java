@@ -475,16 +475,6 @@ public int computeSeverity(int problemId){
 			}
 			return Ignore;
 			
-/*		
-		case UnnecessaryEnclosingInstanceSpecification :
-			if ((errorThreshold & UnnecessaryEnclosingInstance) != 0){
-				return Error;
-			}
-			if ((warningThreshold & UnnecessaryEnclosingInstance) != 0){
-				return Warning;
-			}
-			return Ignore;
-*/		
 		case IProblem.MethodButWithConstructorName :
 			if ((errorThreshold & CompilerOptions.MethodWithConstructorName) != 0){
 				return Error;
@@ -499,6 +489,15 @@ public int computeSeverity(int problemId){
 				return Error;
 			}
 			if ((warningThreshold & CompilerOptions.OverriddenPackageDefaultMethod) != 0){
+				return Warning;
+			}
+			return Ignore;
+
+		case IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod :
+			if ((errorThreshold & CompilerOptions.IncompatibleNonInheritedInterfaceMethod) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.IncompatibleNonInheritedInterfaceMethod) != 0){
 				return Warning;
 			}
 			return Ignore;
@@ -1356,10 +1355,15 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		.append('.')
 		.append(inheritedMethod.shortReadableName());
 
+	int id;
+	if (currentMethod.declaringClass.isInterface() 
+			&& inheritedMethod.isProtected()){ // interface inheriting Object protected method
+		id = IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod;
+	} else {
+		id = IProblem.IncompatibleReturnType;
+	}
 	this.handle(
-		// Return type is incompatible with %1
-		// 9.4.2 - The return type from the method is incompatible with the declaration.
-		IProblem.IncompatibleReturnType,
+		id,
 		new String[] {methodSignature.toString()},
 		new String[] {shortSignature.toString()},
 		currentMethod.sourceStart(),

@@ -44,6 +44,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
+	public static final String OPTION_ReportIncompatibleNonInheritedInterfaceMethod = "org.eclipse.jdt.core.compiler.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
@@ -53,6 +54,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
+
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -94,6 +96,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int StaticAccessReceiver = 0x800000;
 	public static final int Task = 0x1000000;
 	public static final int NoEffectAssignment = 0x2000000;
+	public static final int IncompatibleNonInheritedInterfaceMethod = 0x4000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = 
@@ -106,7 +109,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		| UsingDeprecatedAPI 
 		| MaskedCatchBlock 
 		| AssertUsedAsAnIdentifier 
-		| NoImplicitStringConversion;
+		| NoImplicitStringConversion
+		| IncompatibleNonInheritedInterfaceMethod;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -491,6 +495,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				} else if (optionValue.equals(IGNORE)) {
 					this.errorThreshold &= ~StaticAccessReceiver;
 					this.warningThreshold &= ~StaticAccessReceiver;
+				}
+				continue;
+			} 
+			// Report unnecessary receiver for static access
+			if(optionID.equals(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= IncompatibleNonInheritedInterfaceMethod;
+					this.warningThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
+					this.warningThreshold |= IncompatibleNonInheritedInterfaceMethod;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
+					this.warningThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
 				}
 				continue;
 			} 
