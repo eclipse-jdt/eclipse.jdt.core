@@ -16,16 +16,20 @@ public char[] fileName;
 public char[] mainTypeName;
 public char[][] packageName;
 
-public SourceFile(String fileName, char[][] packageName) {
+public SourceFile(String fileName, char[] typeName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
-	int start = CharOperation.lastIndexOf('/', this.fileName) + 1; //$NON-NLS-1$
-	int end = CharOperation.lastIndexOf('.', this.fileName); //$NON-NLS-1$
-	if (end == -1)
-		end = fileName.length();
+	int lastIndex = CharOperation.lastIndexOf('/', typeName);
+	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
+	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
+}
 
-	this.mainTypeName = fileName.substring(start, end).toCharArray();
+public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
+	this.fileName = fileName.toCharArray();
+	CharOperation.replace(this.fileName, '\\', '/');
+
+	this.mainTypeName = mainTypeName;
 	this.packageName = packageName;
 }
 

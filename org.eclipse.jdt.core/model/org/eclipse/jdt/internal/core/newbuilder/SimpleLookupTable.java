@@ -127,10 +127,6 @@ private void rehash() {
 	this.threshold = newLookupTable.threshold;
 }
 
-public int size() {
-	return elementSize;
-}
-
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 	Object object;

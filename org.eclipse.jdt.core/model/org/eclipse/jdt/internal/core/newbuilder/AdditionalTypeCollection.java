@@ -7,11 +7,11 @@ package org.eclipse.jdt.internal.core.newbuilder;
 
 public class AdditionalTypeCollection extends ReferenceCollection {
 
-char[][] additionalTypeNames;
+char[][] definedTypeNames;
 
-protected AdditionalTypeCollection(char[][] additionalTypeNames, char[][][] qualifiedReferences, char[][] simpleNameReferences) {
+protected AdditionalTypeCollection(char[][] definedTypeNames, char[][][] qualifiedReferences, char[][] simpleNameReferences) {
 	super(qualifiedReferences, simpleNameReferences);
-	this.additionalTypeNames = additionalTypeNames; // do not bother interning member type names (ie. 'A$M')
+	this.definedTypeNames = definedTypeNames; // do not bother interning member type names (ie. 'A$M')
 }
 }
 

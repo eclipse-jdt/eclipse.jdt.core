@@ -26,7 +26,7 @@ public void build() {
 
 	try {
 		notifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
-		removeProblemsFor(javaBuilder.currentProject);
+		JavaBuilder.removeProblemsFor(javaBuilder.currentProject);
 		scrubOutputFolder();
 		notifier.updateProgressDelta(0.1f);
 		notifier.checkCancel();
@@ -57,15 +57,15 @@ public void build() {
 
 protected void addAllSourceFiles(final ArrayList locations, final ArrayList typeNames) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
-		final int count = sourceFolders[i].getFullPath().segmentCount();
+		final int srcFolderLength = sourceFolders[i].getLocation().toString().length() + 1; // add the trailing /
 		sourceFolders[i].accept(
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) {
 					if (resource.getType() == IResource.FILE) {
 						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(resource.getFileExtension())) {
-							locations.add(resource.getLocation().toString());
-							typeNames.add(
-								resource.getFullPath().removeFirstSegments(count).removeFileExtension().toString());
+							String sourceLocation = resource.getLocation().toString();
+							locations.add(sourceLocation);
+							typeNames.add(sourceLocation.substring(srcFolderLength, sourceLocation.length() - 5)); // length of .java
 						}
 						return false;
 					}
@@ -81,10 +81,10 @@ protected void scrubOutputFolder() throws CoreException {
 		// outputPath is not on the class path so wipe it clean then copy extra resources back
 		IResource[] members = outputFolder.members(); 
 		for (int i = 0, length = members.length; i < length; i++)
-				members[i].delete(true, null);
+			members[i].delete(true, null);
 		copyExtraResourcesBack();
 	} else {
-		// outputPath == the source folder so just remove class files
+		// outputPath == a source folder so just remove class files
 		outputFolder.accept(
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
@@ -101,10 +101,8 @@ protected void scrubOutputFolder() throws CoreException {
 }
 
 protected void copyExtraResourcesBack() throws CoreException {
-	// When, if ever, does a builder need to copy resources files (not .java
-	// or .class) into the output folder?
-	// If we wipe the output folder at the beginning of the build then all 'extra'
-	// resources must be copied to the output folder.
+	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
+	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
 	final IPath outputPath = outputFolder.getFullPath();
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
@@ -122,13 +120,10 @@ protected void copyExtraResourcesBack() throws CoreException {
 
 							IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 							IResource copiedResource = outputFolder.getFile(partialPath);
-							if (copiedResource.exists()) {
-								IMarker marker = resource.createMarker(ProblemMarkerTag);
-								marker.setAttribute(IMarker.MESSAGE, Util.bind("build.duplicateResource"));
-								marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-							} else {
+							if (copiedResource.exists())
+								createErrorFor(resource, Util.bind("build.duplicateResource"));
+							else
 								resource.copy(copiedResource.getFullPath(), true, null);
-							}
 							return false;
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
@@ -141,17 +136,6 @@ protected void copyExtraResourcesBack() throws CoreException {
 			}
 		);
 	}
-}
-
-protected void updateProblemsFor(CompilationResult result) throws CoreException {
-	IProblem[] problems = result.getProblems();
-	if (problems == null || problems.length == 0) return;
-
-	notifier.updateProblemCounts(problems);
-
-	IPath filePath = new Path(new String(result.getFileName()));
-	IResource resource = javaBuilder.workspaceRoot.getFileForLocation(filePath);
-	storeProblemsFor(resource, problems);
 }
 
 public String toString() {

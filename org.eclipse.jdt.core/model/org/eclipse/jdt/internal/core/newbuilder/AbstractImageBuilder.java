@@ -47,7 +47,6 @@ protected boolean compiledAllAtOnce;
 private boolean inCompiler;
 
 public static int MAX_AT_ONCE = 1000;
-static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.javaBuilder = javaBuilder;
@@ -82,46 +81,47 @@ public void acceptResult(CompilationResult result) {
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
-	String location = new String(result.getFileName()); // the full filesystem path 'd:/xyz/eclipse/Test/p1/p2/A.java'
-	if (!workQueue.isCompiled(location)) {
+	// only need to find resource for the sourceLocation when problems need to be reported against it
+	String sourceLocation = new String(result.getFileName()); // the full filesystem path "d:/xyz/eclipse/src1/Test/p1/p2/A.java"
+	if (!workQueue.isCompiled(sourceLocation)) {
 		try {
-			workQueue.finished(location);
-	
+			workQueue.finished(sourceLocation);
+			updateProblemsFor(sourceLocation, result); // record compilation problems before potentially adding duplicate errors
+
 			ICompilationUnit compilationUnit = result.getCompilationUnit();
 			ClassFile[] classFiles = result.getClassFiles();
 			int length = classFiles.length;
-			ArrayList otherTypeNames = new ArrayList(length);
-			char[] mainTypeName = compilationUnit.getMainTypeName(); // may not match any produced class file
+			ArrayList duplicateTypeNames = null;
+			ArrayList definedTypeNames = new ArrayList(length);
 			for (int i = 0; i < length; i++) {
 				ClassFile classFile = classFiles[i];
 				char[][] compoundName = classFile.getCompoundName();
 				char[] typeName = compoundName[compoundName.length - 1];
-				if (CharOperation.equals(mainTypeName, typeName)) {
-					writeClassFile(classFile, false);
+				boolean isNestedType = CharOperation.contains('$', typeName);
+
+				// Look for a possible collision, if one exists, report an error but do not write the class file
+				if (isNestedType) {
+					String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
+					if (newState.isDuplicateLocation(qualifiedTypeName, sourceLocation))
+						continue;
 				} else {
-					boolean isSecondaryType = !CharOperation.contains('$', typeName);
-					otherTypeNames.add(writeClassFile(classFile, isSecondaryType));
+					String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
+					if (newState.isDuplicateLocation(qualifiedTypeName, sourceLocation)) {
+						if (duplicateTypeNames == null)
+							duplicateTypeNames = new ArrayList();
+						duplicateTypeNames.add(compoundName);
+						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName)));
+						continue;
+					}
+					newState.locationForType(qualifiedTypeName, sourceLocation);
 				}
+				definedTypeNames.add(writeClassFile(classFile, !isNestedType));
 			}
-			updateProblemsFor(result);
-			if (otherTypeNames.isEmpty()) {
-				finishedWith(location, result, new char[0][]);
-			} else {
-				char[][] additionalTypeNames = new char[otherTypeNames.size()][];
-				otherTypeNames.toArray(additionalTypeNames);
-				finishedWith(location, result, additionalTypeNames);
-			}
+
+			finishedWith(sourceLocation, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
-			try {
-				// add another problem to the compilation unit that its class file is inconsistent
-				IResource resource = javaBuilder.workspaceRoot.getFileForLocation(new Path(location));
-				IMarker marker = resource.createMarker(ProblemMarkerTag);
-				marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentClassFile"));
-				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			} catch (CoreException ignore) {
-				throw internalException(e);
-			}
+			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile"));
 		}
 	}
 }
@@ -151,9 +151,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename); //$NON-NLS-1$
-			String typeName = initialTypeNames[i];
-			toCompile[i] = new SourceFile(filename,
-				CharOperation.splitOn('/', typeName.toCharArray(), 0, typeName.lastIndexOf('/') - 1));
+			toCompile[i] = new SourceFile(filename, initialTypeNames[i].toCharArray());
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -173,8 +171,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
 					String typeName = initialTypeNames[i];
 					initialNamesInLoop[index] = typeName;
-					toCompile[index++] = new SourceFile(filename,
-						CharOperation.splitOn('/', typeName.toCharArray(), 0, typeName.lastIndexOf('/') - 1));
+					toCompile[index++] = new SourceFile(filename, typeName.toCharArray());
 				}
 				i++;
 			}
@@ -218,8 +215,55 @@ void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalF
 	notifier.checkCancel();
 }
 
-protected void finishedWith(String location, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
-	newState.record(location, result.qualifiedReferences, result.simpleNameReferences, additionalTypeNames);
+protected void createErrorFor(IResource resource, String message) {
+	try {
+		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER},
+			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1), new Integer(1)});
+	} catch (CoreException e) {
+		throw internalException(e);
+	}
+}
+
+protected String extractTypeNameFrom(String sourceLocation) {
+	for (int j = 0, k = sourceFolders.length; j < k; j++) {
+		String folderLocation = sourceFolders[j].getLocation().toString() + '/';
+		if (sourceLocation.startsWith(folderLocation))
+			return sourceLocation.substring(folderLocation.length(), sourceLocation.length() - 5); // length of ".java"
+	}
+	return sourceLocation; // should not reach here
+}
+
+protected void finishedWith(String sourceLocation, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
+	if (duplicateTypeNames == null) {
+		newState.record(sourceLocation, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
+		return;
+	}
+
+	char[][][] qualifiedRefs = result.qualifiedReferences;
+	char[][] simpleRefs = result.simpleNameReferences;
+	// for each duplicate type p1.p2.A, add the type name A (package was already added)
+	next : for (int i = 0, dLength = duplicateTypeNames.size(); i < dLength; i++) {
+		char[][] compoundName = (char[][]) duplicateTypeNames.get(i);
+		char[] typeName = compoundName[compoundName.length - 1];
+		int sLength = simpleRefs.length;
+		for (int j = 0; j < sLength; j++)
+			if (CharOperation.equals(simpleRefs[j], typeName))
+				continue next;
+		System.arraycopy(simpleRefs, 0, simpleRefs = new char[sLength + 1][], 0, sLength);
+		simpleRefs[sLength] = typeName;
+	}
+	newState.record(sourceLocation, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
+}
+
+protected IContainer getOutputFolder(IPath packagePath) throws CoreException {
+	IFolder folder = outputFolder.getFolder(packagePath);
+	if (!folder.exists()) {
+		getOutputFolder(packagePath.removeLastSegments(1));
+		folder.create(true, true, null);
+	}
+	return folder;
 }
 
 protected RuntimeException internalException(CoreException t) {
@@ -239,19 +283,8 @@ protected Compiler newCompiler() {
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 }
 
-protected IMarker[] getProblemsFor(IResource resource) {
-	try {
-		if (resource != null && resource.exists())
-			return resource.findMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there are no problems
-	return new IMarker[0];
-}
-
-protected void removeProblemsFor(IResource resource) {
-	try {
-		if (resource != null && resource.exists())
-			resource.deleteMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there were no problems
+protected IResource resourceForLocation(String sourceLocation) {
+	return javaBuilder.workspaceRoot.getFileForLocation(new Path(sourceLocation));
 }
 
 /**
@@ -265,7 +298,7 @@ protected void removeProblemsFor(IResource resource) {
  *	 - it has an extra attribute "ID" which holds the problem's id
  */
 protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
-	if (problems == null || problems.length == 0) return;
+	if (resource == null || problems == null || problems.length == 0) return;
 
 	boolean classPathIsIncorrect = false;
 	for (int i = 0, length = problems.length; i < length; i++) {
@@ -273,7 +306,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 		int id = problem.getID();
 		switch (id) {
 			case ProblemIrritants.IsClassPathCorrect :
-				removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
+				JavaBuilder.removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
 				classPathIsIncorrect = true;
 				break;
 			case ProblemIrritants.SuperclassMustBeAClass :
@@ -297,20 +330,18 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 					problemTypeLocations.add(fileLocation);
 		}
 
-		IMarker marker = resource.createMarker(ProblemMarkerTag);
+		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
 		marker.setAttributes(
 			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
 			new Object[] { 
 				problem.getMessage(),
-				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
+				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING),
 				new Integer(id),
 				new Integer(problem.getSourceStart()),
 				new Integer(problem.getSourceEnd() + 1),
 				new Integer(problem.getSourceLineNumber())
 			});
 
-// Do we need to do this?
-//@PM WE SHOULD HAVE IT COME FROM THE PROBLEM ITSELF INSTEAD OF POPULATING THE JAVA MODEL
 		// compute a user-friendly location
 		IJavaElement element = JavaCore.create(resource);
 		if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
@@ -328,28 +359,18 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 	}
 }
 
-protected void updateProblemsFor(CompilationResult result) throws CoreException {
-	// expect subclasses to override
-}
+protected void updateProblemsFor(String sourceLocation, CompilationResult result) throws CoreException {
+	IProblem[] problems = result.getProblems();
+	if (problems == null || problems.length == 0) return;
 
-protected IContainer getOutputFolder(IPath packagePath) throws CoreException {
-	IFolder folder = outputFolder.getFolder(packagePath);
-	if (!folder.exists()) {
-		getOutputFolder(packagePath.removeLastSegments(1));
-		folder.create(true, true, null);
-	}
-	return folder;
-}
-
-protected boolean isClassFileChanged(IFile file, String fileName, byte[] bytes, boolean isSecondaryType) throws CoreException {
-	// In Incremental mode, compare the bytes against the previous file for structural changes
-	return true;
+	notifier.updateProblemCounts(problems);
+	storeProblemsFor(resourceForLocation(sourceLocation), problems);
 }
 
 protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occured then add dependent source files
-	String fileName = new String(classFile.fileName());
+	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);			
 	IContainer container = outputFolder;
 	if (filePath.segmentCount() > 1) {
@@ -359,7 +380,7 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 
 	IFile file = container.getFile(filePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
 	byte[] bytes = classFile.getBytes();
-	if (isClassFileChanged(file, fileName, bytes, isSecondaryType)) {
+	if (writeClassFileCheck(file, fileName, bytes, isSecondaryType)) {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing class file " + file.getName());//$NON-NLS-1$
 		file.create(new ByteArrayInputStream(bytes), true, null);
@@ -368,5 +389,10 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	}
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
+}
+
+protected boolean writeClassFileCheck(IFile file, String fileName, byte[] bytes, boolean isSecondaryType) throws CoreException {
+	// In Incremental mode, compare the bytes against the previous file for structural changes
+	return true;
 }
 }

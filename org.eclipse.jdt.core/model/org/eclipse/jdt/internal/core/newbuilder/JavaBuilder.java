@@ -36,6 +36,23 @@ public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
+static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
+
+public static IMarker[] getProblemsFor(IResource resource) {
+	try {
+		if (resource != null && resource.exists())
+			return resource.findMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
+	} catch (CoreException e) {} // assume there are no problems
+	return new IMarker[0];
+}
+
+public static void removeProblemsFor(IResource resource) {
+	try {
+		if (resource != null && resource.exists())
+			resource.deleteMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
+	} catch (CoreException e) {} // assume there were no problems
+}
+
 public static State readState(DataInputStream in) throws IOException {
 	return State.read(in);
 }
@@ -82,7 +99,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		ok = true;
 	} catch (CoreException e) {
 		try {
-			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		} catch (CoreException ignore) {
@@ -90,14 +107,14 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (ImageBuilderInternalException e) {
 		try {
-			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		} catch (CoreException ignore) {
 			throw e.getThrowable();
 		}
 	} catch (IncompleteClassPathException e) {
-		IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath"));
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} finally {
