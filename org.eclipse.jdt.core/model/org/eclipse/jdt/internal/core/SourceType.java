@@ -219,8 +219,8 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
 /**
  * @see IType
  */
-public IInitializer getInitializer(int occurrenceCount) {
-	return new Initializer(this, occurrenceCount);
+public IInitializer getInitializer(int count) {
+	return new Initializer(this, count);
 }
 /**
  * @see IType
@@ -271,11 +271,17 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
 	}
 	IJavaElement parent = fParent.getPrimaryElement(false);
-	if (parent instanceof IType) {
-		return ((IType)parent).getType(fName);
-	} else {
-		return ((ICompilationUnit)parent).getType(fName);
+	switch (parent.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
+			return ((ICompilationUnit)parent).getType(fName);
+		case IJavaElement.TYPE:
+			return ((IType)parent).getType(fName);
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			return ((IMember)parent).getType(fName, this.occurrenceCount);
 	}
+	return this;
 }
 /**
  * @see IType
@@ -319,11 +325,20 @@ public String getTypeQualifiedName() {
  * @see IType#getTypeQualifiedName(char)
  */
 public String getTypeQualifiedName(char enclosingTypeSeparator) {
-	if (fParent.getElementType() == IJavaElement.COMPILATION_UNIT) {
-		return fName;
-	} else {
-		return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
+	switch (fParent.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
+			return fName;
+		case IJavaElement.TYPE:
+			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			return 
+				((IMember) fParent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
+				+ enclosingTypeSeparator + this.occurrenceCount
+				+ enclosingTypeSeparator + fName;
 	}
+	return null;
 }
 
 /**
@@ -334,12 +349,6 @@ public IType[] getTypes() throws JavaModelException {
 	IType[] array= new IType[list.size()];
 	list.toArray(array);
 	return array;
-}
-/**
- * @see IParent 
- */
-public boolean hasChildren() throws JavaModelException {
-	return getChildren().length > 0;
 }
 /**
  * @see IType#isAnonymous()
@@ -572,10 +581,18 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 			}
 	
-			public void acceptError(IProblem error) {}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {}
-			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {}
-			public void acceptPackage(char[] packageName){}
+			public void acceptError(IProblem error) {
+				// ignore
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
+				// ignore
+			}
+			public void acceptPackage(char[] packageName){
+				// ignore
+			}
 	
 		}
 		TypeResolveRequestor requestor = new TypeResolveRequestor();
@@ -601,6 +618,7 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	// TODO: (jerome) toString incorrect for local types
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		buffer.append(this.getElementName());

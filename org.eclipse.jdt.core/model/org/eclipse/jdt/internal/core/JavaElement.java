@@ -48,7 +48,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * them.  The occurrence count starts at 1 (thus the first 
 	 * occurrence is occurrence 1, not occurrence 0).
 	 */
-	protected int fOccurrenceCount = 1;
+	protected int occurrenceCount = 1;
 
 	/**
 	 * This element's parent, or <code>null</code> if this
@@ -62,6 +62,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected String fName;
 
+	protected static final IJavaElement[] NO_CHILDREN = new IJavaElement[0];
 	protected static final Object NO_INFO = new Object();
 	
 	/**
@@ -112,7 +113,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	
 		// assume instanceof check is done in subclass
 		JavaElement other = (JavaElement) o;		
-		return fOccurrenceCount == other.fOccurrenceCount &&
+		return this.occurrenceCount == other.occurrenceCount &&
 				fName.equals(other.fName) &&
 				fParent.equals(other.fParent);
 	}
@@ -213,7 +214,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IParent 
 	 */
 	public IJavaElement[] getChildren() throws JavaModelException {
-		return ((JavaElementInfo)getElementInfo()).getChildren();
+		Object elementInfo = getElementInfo();
+		if (elementInfo instanceof JavaElementInfo) {
+			return ((JavaElementInfo)elementInfo).getChildren();
+		} else {
+			return NO_CHILDREN;
+		}
 	}
 	/**
 	 * Returns a collection of (immediate) children of this node of the
@@ -320,7 +326,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns the occurrence count of the handle.
 	 */
 	protected int getOccurrenceCount() {
-		return fOccurrenceCount;
+		return this.occurrenceCount;
 	}
 	/*
 	 * @see IJavaElement
@@ -395,6 +401,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public SourceMapper getSourceMapper() {
 		return ((JavaElement)getParent()).getSourceMapper();
+	}
+
+	/**
+	 * @see IParent 
+	 */
+	public boolean hasChildren() throws JavaModelException {
+		return getChildren().length > 0;
 	}
 
 	/**
@@ -505,7 +518,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Sets the occurrence count of the handle.
 	 */
 	protected void setOccurrenceCount(int count) {
-		fOccurrenceCount = count;
+		this.occurrenceCount = count;
 	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();

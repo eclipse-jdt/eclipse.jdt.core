@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
@@ -135,6 +136,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	public static CompilationUnitDeclaration process(
 		CompilationUnitDeclaration unit,
 		ICompilationUnit unitElement, 
+		Parser parser,
 		IProblemRequestor problemRequestor,
 		IProblemFactory problemFactory,
 		IProgressMonitor monitor)
@@ -150,6 +152,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 				project.getOptions(true),
 				getRequestor(),
 				problemFactory);
+		if (parser != null) {
+			problemFinder.parser = parser;
+		}
 
 		try {
 			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
@@ -197,7 +202,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null, unitElement, problemRequestor, new DefaultProblemFactory(), monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/,problemRequestor, new DefaultProblemFactory(), monitor);
 	}
 
 	

@@ -811,16 +811,16 @@ public class JavaProject
 	 * @see JavaElement#equals
 	 */
 	public boolean equals(Object o) {
-
+	
 		if (this == o)
 			return true;
-
+	
 		if (!(o instanceof JavaProject))
 			return false;
-
+	
 		JavaProject other = (JavaProject) o;
 		return getProject().equals(other.getProject())
-			&& fOccurrenceCount == other.fOccurrenceCount;
+			&& this.occurrenceCount == other.occurrenceCount;
 	}
 
 	public boolean exists() {

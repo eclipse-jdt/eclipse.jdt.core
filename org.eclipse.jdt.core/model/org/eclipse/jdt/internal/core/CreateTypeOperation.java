@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -64,12 +65,16 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
  */
 protected IJavaElement generateResultHandle() {
 	IJavaElement parent= getParentElement();
-	int type= parent.getElementType();
-	if (type == IJavaElement.TYPE) {
-		return ((IType)parent).getType(fDOMNode.getName());
-	} else if (type == IJavaElement.COMPILATION_UNIT) {
-		return ((ICompilationUnit)parent).getType(fDOMNode.getName());
-	} 
+	switch (parent.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
+			return ((ICompilationUnit)parent).getType(fDOMNode.getName());
+		case IJavaElement.TYPE:
+			return ((IType)parent).getType(fDOMNode.getName());
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			return ((IMember)parent).getType(fDOMNode.getName(), 1); // TODO: (jerome) compute occurenceCount
+	}
 	return null;
 }
 /**
@@ -93,21 +98,31 @@ protected IType getType() {
  */
 protected IJavaModelStatus verifyNameCollision() {
 	IJavaElement parent = getParentElement();
-	int type = parent.getElementType();
-	if (type == IJavaElement.TYPE) {
-		if (((IType) parent).getType(fDOMNode.getName()).exists()) {
-			return new JavaModelStatus(
-				IJavaModelStatusConstants.NAME_COLLISION, 
-				Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
-		}
-	} else
-		if (type == IJavaElement.COMPILATION_UNIT) {
+	switch (parent.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
 			if (((ICompilationUnit) parent).getType(fDOMNode.getName()).exists()) {
 				return new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
 					Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
 			}
-		}
+			break;
+		case IJavaElement.TYPE:
+			if (((IType) parent).getType(fDOMNode.getName()).exists()) {
+				return new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
+			}
+			break;
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			if (((IMember) parent).getType(fDOMNode.getName(), 1).exists()) { // TODO: (jerome) compute occurenceCount
+				return new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
+			}
+			break;
+	}
 	return JavaModelStatus.VERIFIED_OK;
 }
 }

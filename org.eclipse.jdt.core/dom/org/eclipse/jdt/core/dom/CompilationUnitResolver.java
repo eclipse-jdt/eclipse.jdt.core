@@ -611,7 +611,7 @@ class CompilationUnitResolver extends Compiler {
 				// binding resolution
 				lookupEnvironment.completeTypeBindings();
 			}
-			getMethodBodies(unit, 0);
+			this.parser.getMethodBodies(unit);
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();

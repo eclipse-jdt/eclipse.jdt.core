@@ -660,13 +660,15 @@ protected MessageSend newMessageSend() {
 }
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int start, int end) {
 
+	if (end == -1) return super.parse(sourceUnit, compilationResult, start, end);
+	
 	this.selectionStart = start;
 	this.selectionEnd = end;	
 	SelectionScanner selectionScanner = (SelectionScanner)this.scanner;
 	selectionScanner.selectionIdentifier = null;
 	selectionScanner.selectionStart = start;
 	selectionScanner.selectionEnd = end;	
-	return this.parse(sourceUnit, compilationResult);
+	return super.parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
 /*
  * Reset context so as to resume to regular parse loop

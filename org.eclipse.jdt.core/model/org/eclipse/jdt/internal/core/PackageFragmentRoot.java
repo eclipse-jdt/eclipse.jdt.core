@@ -320,7 +320,7 @@ public boolean equals(Object o) {
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return this.resource.equals(other.resource) &&
-			fOccurrenceCount == other.fOccurrenceCount;
+			this.occurrenceCount == other.occurrenceCount;
 }
 
 /**

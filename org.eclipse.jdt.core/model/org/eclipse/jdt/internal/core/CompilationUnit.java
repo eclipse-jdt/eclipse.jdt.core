@@ -32,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
+	public static final boolean USE_LOCAL_ELEMENTS = false;
+	
 	public WorkingCopyOwner owner;
 
 /**
@@ -110,7 +112,11 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
 	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
 	IProblemFactory problemFactory = new DefaultProblemFactory();
-	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, new CompilerOptions(getJavaProject().getOptions(true)));
+	SourceElementParser parser = new SourceElementParser(
+		requestor, 
+		problemFactory, 
+		new CompilerOptions(getJavaProject().getOptions(true)),
+		USE_LOCAL_ELEMENTS/*report local declarations*/);
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
@@ -125,7 +131,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			public char[] getFileName() {
 				return CompilationUnit.this.getFileName();
 			}
-		}, false /*diet parse*/);
+		}, USE_LOCAL_ELEMENTS /*full parse if use local elements only*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
@@ -136,9 +142,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// compute other problems if needed
 	if (computeProblems){
 		perWorkingCopyInfo.beginReporting();
-		CompilationUnitProblemFinder.process(unit, this, perWorkingCopyInfo, problemFactory, pm);
+		CompilationUnitProblemFinder.process(unit, this, parser, perWorkingCopyInfo, problemFactory, pm);
 		perWorkingCopyInfo.endReporting();
-	}		
+	}
 	
 	return unitInfo.isStructureKnown();
 }
@@ -424,7 +430,7 @@ public IJavaElement[] findElements(IJavaElement element) {
 	if (element == null) return null;
 	IJavaElement currentElement = this;
 	for (int i = children.size()-1; i >= 0; i--) {
-		IJavaElement child = (IJavaElement)children.get(i);
+		JavaElement child = (JavaElement)children.get(i);
 		switch (child.getElementType()) {
 			case IJavaElement.PACKAGE_DECLARATION:
 				currentElement = ((ICompilationUnit)currentElement).getPackageDeclaration(child.getElementName());
@@ -436,20 +442,29 @@ public IJavaElement[] findElements(IJavaElement element) {
 				currentElement = ((IImportContainer)currentElement).getImport(child.getElementName());
 				break;
 			case IJavaElement.TYPE:
-				if (currentElement.getElementType() == IJavaElement.COMPILATION_UNIT) {
-					currentElement = ((ICompilationUnit)currentElement).getType(child.getElementName());
-				} else {
-					currentElement = ((IType)currentElement).getType(child.getElementName());
+				switch (currentElement.getElementType()) {
+					case IJavaElement.COMPILATION_UNIT:
+						currentElement = ((ICompilationUnit)currentElement).getType(child.getElementName());
+						break;
+					case IJavaElement.TYPE:
+						currentElement = ((IType)currentElement).getType(child.getElementName());
+						break;
+					case IJavaElement.FIELD:
+					case IJavaElement.INITIALIZER:
+					case IJavaElement.METHOD:
+						currentElement =  ((IMember)currentElement).getType(child.getElementName(), child.occurrenceCount);
+						break;
 				}
 				break;
 			case IJavaElement.INITIALIZER:
-				currentElement = ((IType)currentElement).getInitializer(((JavaElement)child).getOccurrenceCount());
+				currentElement = ((IType)currentElement).getInitializer(child.occurrenceCount);
 				break;
 			case IJavaElement.FIELD:
 				currentElement = ((IType)currentElement).getField(child.getElementName());
 				break;
 			case IJavaElement.METHOD:
-				return ((IType)currentElement).findMethods((IMethod)child);
+				currentElement = ((IType)currentElement).getMethod(child.getElementName(), ((IMethod)child).getParameterTypes());
+				break;
 		}
 		
 	}

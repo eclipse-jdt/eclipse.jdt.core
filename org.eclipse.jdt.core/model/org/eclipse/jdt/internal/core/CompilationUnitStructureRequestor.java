@@ -167,7 +167,9 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
  * A line separator might corresponds to several characters in the source,
  * 
  */
-public void acceptLineSeparatorPositions(int[] positions) {}
+public void acceptLineSeparatorPositions(int[] positions) {
+	// ignore line separator positions
+}
 /**
  * @see ISourceElementRequestor
  */
@@ -420,7 +422,6 @@ protected void enterType(
 	char[] superclass,
 	char[][] superinterfaces) {
 
-	char[] enclosingTypeName= null;
 	char[] qualifiedName= null;
 	
 	JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
@@ -428,21 +429,29 @@ protected void enterType(
 	IType handle = null;
 	String nameString= new String(name);
 	
-	if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
-		handle = ((ICompilationUnit) parentHandle).getType(nameString);
-		if (packageName == null) {
-			qualifiedName= nameString.toCharArray();
-		} else {
-			qualifiedName= (new String(packageName) + "." + nameString).toCharArray(); //$NON-NLS-1$
-		}
-	}
-	else if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = ((IType) parentHandle).getType(nameString);
-		enclosingTypeName= ((SourceTypeElementInfo)parentInfo).getName();
-		qualifiedName= (new String(((SourceTypeElementInfo)parentInfo).getQualifiedName()) + "." + nameString).toCharArray(); //$NON-NLS-1$
-	}
-	else {
-		Assert.isTrue(false); // Should not happen
+	switch(parentHandle.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
+			handle = ((ICompilationUnit) parentHandle).getType(nameString);
+			if (packageName == null) {
+				qualifiedName= nameString.toCharArray();
+			} else {
+				qualifiedName= (new String(packageName) + "." + nameString).toCharArray(); //$NON-NLS-1$
+			}
+			break;
+		case IJavaElement.TYPE:
+			handle = ((IType) parentHandle).getType(nameString);
+			qualifiedName= (new String(((SourceTypeElementInfo)parentInfo).getQualifiedName()) + "." + nameString).toCharArray(); //$NON-NLS-1$
+			break;
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			handle = ((IMember) parentHandle).getType(nameString, 1); //NB: occurenceCount is computed in resolveDuplicates
+			IType declaringType = (IType)parentHandle.getParent();
+			// TODO: (jerome) compute qualified name
+			qualifiedName= (declaringType.getFullyQualifiedName() + ".1." + nameString).toCharArray(); //$NON-NLS-1$
+			break;
+		default:
+			Assert.isTrue(false); // Should not happen
 	}
 	resolveDuplicates(handle);
 	
@@ -455,7 +464,6 @@ protected void enterType(
 	info.setNameSourceEnd(nameSourceEnd);
 	info.setSuperclassName(superclass);
 	info.setSuperInterfaceNames(superinterfaces);
-	info.setEnclosingTypeName(enclosingTypeName);
 	info.setSourceFileName(sourceFileName);
 	info.setPackageName(packageName);
 	info.setQualifiedName(qualifiedName);

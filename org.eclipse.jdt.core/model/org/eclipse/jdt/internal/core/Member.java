@@ -166,6 +166,14 @@ public ISourceRange getNameRange() throws JavaModelException {
 /**
  * @see IMember
  */
+public IType getType(String name, int count) {
+	SourceType type = new SourceType(this, name);
+	type.occurrenceCount = count;
+	return type;
+}
+/**
+ * @see IMember
+ */
 public boolean isBinary() {
 	return false;
 }

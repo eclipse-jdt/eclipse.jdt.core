@@ -26,12 +26,12 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /* package */ class Initializer extends Member implements IInitializer {
 
-protected Initializer(JavaElement parent, int occurrenceCount) {
+protected Initializer(JavaElement parent, int count) {
 	super(parent, ""); //$NON-NLS-1$
 	// 0 is not valid: this first occurrence is occurrence 1.
-	if (occurrenceCount <= 0)
+	if (count <= 0)
 		throw new IllegalArgumentException();
-	fOccurrenceCount = occurrenceCount;
+	this.occurrenceCount = count;
 }
 public boolean equals(Object o) {
 	if (!(o instanceof Initializer)) return false;
@@ -63,7 +63,7 @@ public int getElementType() {
 public String getHandleMemento(){
 	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 	buff.append(getHandleMementoDelimiter());
-	buff.append(fOccurrenceCount);
+	buff.append(this.occurrenceCount);
 	return buff.toString();
 }
 /**
@@ -73,7 +73,7 @@ protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_INITIALIZER;
 }
 public int hashCode() {
-	return Util.combineHashCodes(fParent.hashCode(), fOccurrenceCount);
+	return Util.combineHashCodes(fParent.hashCode(), this.occurrenceCount);
 }
 /**
  */
@@ -102,7 +102,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
 	}
 	IJavaElement parent = fParent.getPrimaryElement(false);
-	return ((IType)parent).getInitializer(fOccurrenceCount);
+	return ((IType)parent).getInitializer(this.occurrenceCount);
 }
 /**
  * @private Debugging purposes

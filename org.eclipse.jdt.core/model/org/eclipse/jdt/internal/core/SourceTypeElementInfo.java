@@ -45,13 +45,6 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	protected char[][] superInterfaceNames;
 	
 	/**
-	 * The enclosing type name for this type.
-	 *
-	 * @see getEnclosingTypeName
-	 */
-	protected char[] enclosingTypeName;
-
-	/**
 	 * The name of the source file this type is declared in.
 	 */
 	protected char[] sourceFileName;
@@ -92,12 +85,6 @@ public ISourceType getEnclosingType() {
 	} else {
 		return null;
 	}
-}
-/**
- * @see ISourceType
- */
-public char[] getEnclosingTypeName() {
-	return enclosingTypeName;
 }
 /**
  * @see ISourceType
@@ -241,12 +228,6 @@ public boolean isClass() {
  */
 public boolean isInterface() {
 	return (this.flags & IConstants.AccInterface) != 0;
-}
-/**
- * Sets the (unqualified) name of the type that encloses this type.
- */
-protected void setEnclosingTypeName(char[] enclosingTypeName) {
-	this.enclosingTypeName = enclosingTypeName;
 }
 /**
  * Sets the handle for this type info

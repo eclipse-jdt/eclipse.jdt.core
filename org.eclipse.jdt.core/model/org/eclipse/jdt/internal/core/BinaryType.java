@@ -275,8 +275,8 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
 /**
  * @see IType#getInitializer(int occurrenceCount)
  */
-public IInitializer getInitializer(int occurrenceCount) {
-	return new Initializer(this, occurrenceCount);
+public IInitializer getInitializer(int count) {
+	return new Initializer(this, count);
 }
 /**
  * @see IType#getInitializers()

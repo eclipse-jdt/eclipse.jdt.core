@@ -361,27 +361,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 	}
 
-	protected void getMethodBodies(CompilationUnitDeclaration unit, int place) {
-		//fill the methods bodies in order for the code to be generated
-
-		if (unit.ignoreMethodBodies) {
-			unit.ignoreFurtherInvestigation = true;
-			return;
-			// if initial diet parse did not work, no need to dig into method bodies.
-		}
-
-		if (place < parseThreshold)
-			return; //work already done ...
-
-		//real parse of the method....
-		parser.scanner.setSource(
-			unit.compilationResult.compilationUnit.getContents());
-		if (unit.types != null) {
-			for (int i = unit.types.length; --i >= 0;)
-				unit.types[i].parseMethod(parser, unit);
-		}
-	}
-
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
 	 */
@@ -522,7 +501,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
 
-		getMethodBodies(unit, i);
+		this.parser.getMethodBodies(unit);
 
 		// fault in fields & methods
 		if (unit.scope != null)
@@ -579,7 +558,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// binding resolution
 				lookupEnvironment.completeTypeBindings();
 			}
-			getMethodBodies(unit, 0);
+			this.parser.getMethodBodies(unit);
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();

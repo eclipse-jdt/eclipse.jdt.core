@@ -18,7 +18,7 @@ package org.eclipse.jdt.core;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation {
+public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation, IParent {
 /**
  * Returns the class file in which this member is declared, or <code>null</code>
  * if this member is not declared in a class file (for example, a source type).
@@ -74,6 +74,18 @@ int getFlags() throws JavaModelException;
  * associated source code (for example, a binary type)
  */
 ISourceRange getNameRange() throws JavaModelException;
+/**
+ * Returns the local or anonymous type declared in this member with the given simple name and/or
+ * with the specified position relative to the order they are defined in the source.
+ * The name is empty if it is an anonymous type.
+ * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0)..
+ * This is a handle-only method. The type may or may not exist.
+ * 
+ * @param the given simple name
+ * @param occurrenceCount the specified position
+ * @return the type with the given name and/or with the specified position relative to the order they are defined in the source
+ */
+IType getType(String name, int occurrenceCount);
 /**
  * Returns whether this member is from a class file.
  * This is a handle-only method.

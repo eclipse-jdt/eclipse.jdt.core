@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface IType extends IMember, IParent {
+public interface IType extends IMember {
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 * 

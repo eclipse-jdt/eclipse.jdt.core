@@ -4900,7 +4900,7 @@ public int[] getJavaDocPositions() {
 	}
 	return positions;
 }
-	protected void getMethodBodies(CompilationUnitDeclaration unit) {
+	public void getMethodBodies(CompilationUnitDeclaration unit) {
 		//fill the methods bodies in order for the code to be generated
 
 		if (unit == null) return;
@@ -4911,6 +4911,9 @@ public int[] getJavaDocPositions() {
 			// if initial diet parse did not work, no need to dig into method bodies.
 		}
 
+		if ((unit.bits & AstNode.HasAllMethodBodies) != 0)
+			return; //work already done ...
+
 		//real parse of the method....
 		this.scanner.setSource(
 			unit.compilationResult.compilationUnit.getContents());
@@ -4918,6 +4921,9 @@ public int[] getJavaDocPositions() {
 			for (int i = unit.types.length; --i >= 0;)
 				unit.types[i].parseMethod(this, unit);
 		}
+		
+		// tag unit has having read bodies
+		unit.bits |= AstNode.HasAllMethodBodies;
 	}
 protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
 This variable is a type reference and dim will be its dimensions*/
@@ -5907,29 +5913,7 @@ public CompilationUnitDeclaration parse(
 	CompilationResult compilationResult) {
 	// parses a compilation unit and manages error handling (even bugs....)
 
-	CompilationUnitDeclaration unit;
-	try {
-		/* automaton initialization */
-		initialize();
-		goForCompilationUnit();
-
-		/* scanner initialization */
-		scanner.setSource(sourceUnit.getContents());
-
-		/* unit creation */
-		referenceContext = 
-			compilationUnit = 
-				new CompilationUnitDeclaration(
-					problemReporter, 
-					compilationResult, 
-					scanner.source.length);
-		/* run automaton */
-		parse();
-	} finally {
-		unit = compilationUnit;
-		compilationUnit = null; // reset parser
-	}
-	return unit;
+	return parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
 // A P I
 
@@ -5948,7 +5932,7 @@ public CompilationUnitDeclaration parse(
 
 		/* scanner initialization */
 		scanner.setSource(sourceUnit.getContents());
-		scanner.resetTo(start, end);
+		if (end != -1) scanner.resetTo(start, end);
 		/* unit creation */
 		referenceContext = 
 			compilationUnit = 
@@ -5961,6 +5945,8 @@ public CompilationUnitDeclaration parse(
 	} finally {
 		unit = compilationUnit;
 		compilationUnit = null; // reset parser
+		// tag unit has having read bodies
+		if (!this.diet) unit.bits |= AstNode.HasAllMethodBodies;		
 	}
 	return unit;
 }

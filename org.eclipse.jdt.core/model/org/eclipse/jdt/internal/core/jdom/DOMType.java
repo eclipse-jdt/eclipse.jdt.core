@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
@@ -381,12 +382,17 @@ public int getInsertionPosition() {
  * @see IDOMNode#getJavaElement
  */
 public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentException {
-	if (parent.getElementType() == IJavaElement.TYPE) {
-		return ((IType)parent).getType(getName());
-	} else if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
-		return ((ICompilationUnit)parent).getType(getName());
-	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+	switch (parent.getElementType()) {
+		case IJavaElement.COMPILATION_UNIT:
+			return ((ICompilationUnit)parent).getType(getName());
+		case IJavaElement.TYPE:
+			return ((IType)parent).getType(getName());
+		case IJavaElement.FIELD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.METHOD:
+			return ((IMember)parent).getType(getName(), 1); // TODO: (jerome) compute occurenceCount
+		default:
+			throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
