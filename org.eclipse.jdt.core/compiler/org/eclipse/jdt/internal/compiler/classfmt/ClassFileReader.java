@@ -233,9 +233,6 @@ public int accessFlags() {
 	return this.accessFlags;
 }
 /**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
  * Answer the char array that corresponds to the class name of the constant class.
  * constantPoolIndex is the index in the constant pool that is a constant class entry.
  *
@@ -460,28 +457,9 @@ public boolean isMember() {
 public boolean isNestedType() {
 	return this.innerInfo != null;
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param file java.io.File
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param file java.io.File
- * @param fullyInitialize boolean
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(File file, boolean fullyInitialize) throws ClassFormatException, IOException {
 	byte classFileBytes[] = Util.getFileByteContent(file);
 	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
@@ -490,58 +468,18 @@ public static ClassFileReader read(File file, boolean fullyInitialize) throws Cl
 	}
 	return classFileReader;
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param fileName java.lang.String
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
 	return read(fileName, false);
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param fileName java.lang.String
- * @param fullyInitialize boolean
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
 	return read(new File(fileName), fullyInitialize);
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param zip java.util.zip.ZipFile
- * @param filename java.lang.String
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip, 
 	String filename)
 	throws ClassFormatException, java.io.IOException {
 		return read(zip, filename, false);
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
- * @param zip java.util.zip.ZipFile
- * @param filename java.lang.String
- * @param fullyInitialize boolean
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
- * @throws ClassFormatException
- * @throws IOException
- */
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip, 
 	String filename,
@@ -559,9 +497,6 @@ public static ClassFileReader read(
 }
 
 /**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- *
  * Answer the source file name attribute. Return null if there is no source file attribute for the receiver.
  * 
  * @return char[]
@@ -569,12 +504,6 @@ public static ClassFileReader read(
 public char[] sourceFileName() {
 	return this.sourceFileName;
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- * 
- * 
- */
 public String toString() {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);

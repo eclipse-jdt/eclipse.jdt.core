@@ -46,21 +46,9 @@ public class ClassFormatException extends Exception {
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
     
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- * 
- * 
- */
 public ClassFormatException(int code) {
 	errorCode = code;
 }
-/**
- * (c)1998 Object Technology International.
- * (c)1998 International Business Machines Corporation.
- * 
- * 
- */
 public ClassFormatException(int code, int bufPos) {
 	errorCode = code;
 	bufferPosition = bufPos;
