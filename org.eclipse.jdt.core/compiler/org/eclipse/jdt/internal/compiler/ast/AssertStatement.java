@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 
@@ -47,17 +48,22 @@ public class AssertStatement extends Statement {
 		FlowInfo flowInfo) {
 			
 		preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
-		FlowInfo assertInfo = assertExpression.analyseCode(currentScope, flowContext, flowInfo.copy()).unconditionalInits();
-			
+
+		Constant cst = this.assertExpression.optimizedBooleanConstant();		
+		boolean isOptimizedTrueAssertion = cst != NotAConstant && cst.booleanValue() == true;
+		FlowInfo assertInfo = flowInfo.copy();
+		if (isOptimizedTrueAssertion) {
+			assertInfo.setReachMode(FlowInfo.UNREACHABLE);
+		}
+		assertInfo = assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits();
+		
 		if (exceptionArgument != null) {
-			assertInfo = exceptionArgument.analyseCode(currentScope, flowContext, assertInfo);
+			exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); //dead branch
 		}
 		
 		// add the assert support in the clinit
 		manageSyntheticAccessIfNecessary(currentScope);
-
-		FlowInfo mergedInfo = flowInfo.mergedWith(assertInfo.unconditionalInits());
-		return mergedInfo;
+		return flowInfo.mergedWith(assertInfo.unconditionalInits()); 
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
