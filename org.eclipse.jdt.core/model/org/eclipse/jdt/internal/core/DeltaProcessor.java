@@ -1936,8 +1936,8 @@ public class DeltaProcessor {
 							if (!isValidParent) continue; 
 							if (parent == null) {
 								// find the parent of the non-java resource to attach to
-								if (this.currentElement == null 
-										|| !this.currentElement.getJavaProject().equals(rootInfo.project)) {
+								if (this.currentElement == null
+										|| !rootInfo.project.equals(this.currentElement.getJavaProject())) { // note if currentElement is the IJavaModel, getJavaProject() is null
 									// force the currentProject to be used
 									this.currentElement = (Openable)rootInfo.project;
 								}
