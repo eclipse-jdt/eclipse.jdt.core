@@ -95,6 +95,7 @@ public class CompilationUnitDeclaration
 			}
 			if (this.allLocalTypes != null) {
 				for (int i = 0, max = this.allLocalTypes.length; i < max; i++) {
+					// null out the type's scope backpointers
 					allLocalTypes[i].scope = null; // local members are already in the list
 				}
 			}
@@ -103,8 +104,6 @@ public class CompilationUnitDeclaration
 		for (int i = 0, max = classFiles.length; i < max; i++) {
 			// clear the classFile back pointer to the bindings
 			ClassFile classFile = classFiles[i];
-			// null out the type's scope backpointers
-			((SourceTypeBinding) classFile.referenceBinding).scope = null; // TODO: should no longer be necessary
 			// null out the classfile backpointer to a type binding
 			classFile.referenceBinding = null;
 			classFile.codeStream = null; // codeStream holds onto ast and scopes
@@ -118,6 +117,7 @@ public class CompilationUnitDeclaration
 			}
 		}
 		if (type.binding != null) {
+			// null out the type's scope backpointers
 			type.binding.scope = null;
 		}
 	}
