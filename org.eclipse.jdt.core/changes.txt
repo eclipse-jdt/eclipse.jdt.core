@@ -108,10 +108,12 @@ STREAM: 2.0
 
   What's new in this drop
   ================================================================================
-
+  * JavaModel is no longer performing smart classpath updates when Java package
+  	fragment roots are either moved or removed.
 
   PRs Fixed in this Release
   ================================================================================
+  3434      Deleting a project from the ws removes it from the buildpath! (1GKZNBS)  
   5021      Refactoring trashed my code  
   5136		ArrayIndexOutOfBoundsException when a field declaration is an anonymous class 
   3440		Classfile comparator should be able to ignore order (1GL2I7E) 
