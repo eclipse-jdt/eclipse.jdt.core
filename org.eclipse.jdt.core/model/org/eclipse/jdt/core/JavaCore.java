@@ -1304,7 +1304,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "100"
 	 * 
 	 * COMPILER / Define the Automatic Task Tags
-	 *    When the tag list is non empty, the compiler will issue a task marker whenever it encounters
+	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters
 	 *    one of the corresponding tag inside any comment in Java source code.
 	 *    Generated task messages will include the tag, and range until the next line separator or comment ending.
 	 *    Note that tasks messages are trimmed.
