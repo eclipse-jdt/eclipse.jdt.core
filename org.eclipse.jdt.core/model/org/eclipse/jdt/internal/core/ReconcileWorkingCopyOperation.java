@@ -66,7 +66,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			
 			// register the deltas
 			if (deltaBuilder != null){
-				if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
+				if (deltaBuilder.delta != null) {
 					addReconcileDelta(workingCopy, deltaBuilder.delta);
 				}
 			}
