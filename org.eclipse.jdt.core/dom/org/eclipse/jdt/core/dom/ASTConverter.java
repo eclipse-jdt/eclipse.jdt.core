@@ -51,6 +51,7 @@ class ASTConverter {
 	private boolean insideComments;
 	private DocCommentParser docParser;
 	private Comment[] commentsTable;
+	private DefaultCommentMapper commentMapper;
 
 	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
@@ -3017,8 +3018,10 @@ class ASTConverter {
 	public void convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, BodyDeclaration bodyDeclaration) {
 		if (bodyDeclaration.getJavadoc() == null) {
 			if (javadoc != null) {
-				DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
-				Comment comment = mapper.getComment(javadoc.sourceStart);
+				if (this.commentMapper == null || !this.commentMapper.hasSameTable(this.commentsTable)) {
+					this.commentMapper = new DefaultCommentMapper(this.commentsTable);
+				}
+				Comment comment = this.commentMapper.getComment(javadoc.sourceStart);
 				if (comment != null && comment.isDocComment() && comment.getParent() == null) {
 					Javadoc docComment = (Javadoc) comment;
 					if (this.resolveBindings) {
