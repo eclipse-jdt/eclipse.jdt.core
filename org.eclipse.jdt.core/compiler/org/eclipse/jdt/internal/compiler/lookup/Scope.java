@@ -1686,6 +1686,7 @@ public abstract class Scope
 			MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
 			if (methodBinding != null) return methodBinding;
 	
+			// TODO (kent) performance - we are accumulating super methods which are *hidden* during the walk (see testcase from bug 69141)
 			// answers closest approximation, may not check argumentTypes or visibility
 			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite);
 			if (methodBinding == null)
