@@ -88,6 +88,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		addProperty(JAVADOC_PROPERTY);
 		addProperty(MODIFIERS2_PROPERTY);
 		addProperty(NAME_PROPERTY);
+		addProperty(SUPER_INTERFACE_TYPES_PROPERTY);
 		addProperty(BODY_DECLARATIONS_PROPERTY);
 		PROPERTY_DESCRIPTORS = reapPropertyList();
 	}
