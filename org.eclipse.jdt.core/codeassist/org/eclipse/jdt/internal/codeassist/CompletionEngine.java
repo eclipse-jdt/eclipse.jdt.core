@@ -2015,7 +2015,8 @@ public final class CompletionEngine
 
 			if (method.isConstructor()) continue next;
 
-			if (expectedTypesPtr > -1 && method.returnType == BaseTypes.VoidBinding) continue next;
+			//TODO (david) perhaps the relevance of a void method must be lesser than other methods
+			//if (expectedTypesPtr > -1 && method.returnType == BaseTypes.VoidBinding) continue next;
 			
 			if (onlyStaticMethods && !method.isStatic()) continue next;
 
