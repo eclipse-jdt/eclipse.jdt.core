@@ -1252,14 +1252,6 @@ public class ClassFile
 			 * according to the table of start line indexes and the pcToSourceMap table
 			 * contained into the codestream
 			 */
-			/** OLD CODE
-					int[][] pcToSourceMapTable;
-			int previousLineNumber;
-			int[] flatTable;
-			int index;
-			int startLineIndexes[] = codeStream.methodDeclaration.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
-			int max = startLineIndexes.length;
-			*/
 			int[] pcToSourceMapTable;
 			if (((pcToSourceMapTable = codeStream.pcToSourceMap) != null)
 				&& (codeStream.pcToSourceMapSize != 0)) {
@@ -1278,45 +1270,8 @@ public class ClassFile
 				int lineNumberTableOffset = localContentsOffset;
 				localContentsOffset += 6;
 				// leave space for attribute_length and line_number_table_length
-				/** OLD CODE
-				previousLineNumber = 0;
-				
-				// Seems like do would be better, but this preserves the existing behavior.
-				
-				flatTable = new int[code_length];
-				for (int i = codeStream.pcToSourceMapSize - 1; i >= 0; i--) {
-					// entry contains the following structure:
-					// position 1: startPC
-					// position 2: endPC
-					// position 3: sourceStart
-					// position 4: sourceEnd
-					// Compute the line number for a given source position
-					index = searchLineNumber(startLineIndexes, pcToSourceMapTable[i][2]);
-					for (int j = pcToSourceMapTable[i][0]; j < pcToSourceMapTable[i][1]; j++)
-						flatTable[j] = index;
-				}
-				previousLineNumber = -1;
-				
-				*/
 				int numberOfEntries = 0;
 				int length = codeStream.pcToSourceMapSize;
-				/** OLD CODE
-					int length = flatTable.length;
-							for (int i = 0; i < length; i++) {
-					if (flatTable[i] != previousLineNumber) {
-						previousLineNumber = flatTable[i];
-						// write the entry
-						if (localContentsOffset + 4 >= (contentsLength = localContents.length)) {
-							System.arraycopy(contents, 0, (localContents = contents = new byte[contentsLength + INCREMENT_SIZE]), 0, contentsLength);
-						}
-						localContents[localContentsOffset++] = (byte) (i >> 8);
-						localContents[localContentsOffset++] = (byte) i;
-						localContents[localContentsOffset++] = (byte) (previousLineNumber >> 8);
-						localContents[localContentsOffset++] = (byte) previousLineNumber;
-						numberOfEntries++;
-					}
-				}
-				*/
 				for (int i = 0; i < length;) {
 					// write the entry
 					if (localContentsOffset + 4 >= (contentsLength = localContents.length)) {
