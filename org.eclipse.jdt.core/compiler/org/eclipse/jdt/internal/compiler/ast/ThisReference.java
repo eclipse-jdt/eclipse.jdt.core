@@ -16,58 +16,70 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ThisReference extends Reference {
 	
-private final static int ImplicitThisStart = -1;
+	public static ThisReference implicitThis(){
+
+		ThisReference implicitThis = new ThisReference(0, 0);
+		implicitThis.bits |= IsImplicitThisMask;
+		return implicitThis;
+	}
+		
+	public ThisReference(int sourceStart, int sourceEnd) {
 	
-public static ThisReference implicitThis(){
-	return new ThisReference(ImplicitThisStart, 0);
-}
-	
-public ThisReference(int sourceStart, int sourceEnd) {
-	this.sourceStart = sourceStart;
-	this.sourceEnd = sourceEnd;
-}
-protected boolean checkAccess(MethodScope methodScope) {
-	// this/super cannot be used in constructor call
-	if (methodScope.isConstructorCall) {
-		methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
-		return false;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
-	// static may not refer to this/super
-	if (methodScope.isStatic) {
-		methodScope.problemReporter().errorThisSuperInStatic(this);
-		return false;
+	protected boolean checkAccess(MethodScope methodScope) {
+	
+		// this/super cannot be used in constructor call
+		if (methodScope.isConstructorCall) {
+			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+			return false;
+		}
+	
+		// static may not refer to this/super
+		if (methodScope.isStatic) {
+			methodScope.problemReporter().errorThisSuperInStatic(this);
+			return false;
+		}
+		return true;
 	}
-	return true;
-}
-public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-	int pc = codeStream.position;
-	if (valueRequired)
-		codeStream.aload_0();
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
-}
-public boolean isImplicitThis() {
-	
-	return this.sourceStart == ImplicitThisStart;
-}
-public boolean isThis() {
-	
-	return true ;
-}
-public TypeBinding resolveType(BlockScope scope) {
 
-	constant = NotAConstant;
-	if (!this.isImplicitThis() && !checkAccess(scope.methodScope()))
-		return null;
-	return this.resolvedType = scope.enclosingSourceType();
-}
-public String toStringExpression(){
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	
+		int pc = codeStream.position;
+		if (valueRequired)
+			codeStream.aload_0();
+		if ((this.bits & IsImplicitThisMask) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+	
+	public boolean isImplicitThis() {
+		
+		return (this.bits & IsImplicitThisMask) != 0;
+	}
 
-	if (this.isImplicitThis()) return "" ; //$NON-NLS-1$
-	return "this"; //$NON-NLS-1$
-}
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
-	visitor.visit(this, blockScope);
-	visitor.endVisit(this, blockScope);
-}
+	public boolean isThis() {
+		
+		return true ;
+	}
+
+	public TypeBinding resolveType(BlockScope scope) {
+	
+		constant = NotAConstant;
+		if (!this.isImplicitThis() && !checkAccess(scope.methodScope()))
+			return null;
+		return this.resolvedType = scope.enclosingSourceType();
+	}
+
+	public String toStringExpression(){
+	
+		if (this.isImplicitThis()) return "" ; //$NON-NLS-1$
+		return "this"; //$NON-NLS-1$
+	}
+
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+
+		visitor.visit(this, blockScope);
+		visitor.endVisit(this, blockScope);
+	}
 }
