@@ -5,7 +5,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.tests.model.*;
 
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {

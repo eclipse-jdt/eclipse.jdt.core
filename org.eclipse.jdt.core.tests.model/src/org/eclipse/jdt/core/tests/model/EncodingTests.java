@@ -10,7 +10,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.tests.model.*;
 import org.eclipse.jdt.internal.core.Util;
 
 /**
