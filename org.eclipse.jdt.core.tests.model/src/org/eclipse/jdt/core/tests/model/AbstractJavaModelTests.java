@@ -825,15 +825,15 @@ public void setupExternalJCL() throws IOException {
 		}
 	} else {
 		//check that the two files, jclMin.jar and jclMinsrc.zip are present
-		//copy either file that is missing
-		if (!jclMin.exists()) {
-			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "jclMin.jar");
+		//copy either file that is missing or less recent than the one in workspace
+		java.io.File resourceJCLMin =
+			new java.io.File(resourceJCLDir + separator + "jclMin.jar");
+		if (jclMin.lastModified() < resourceJCLMin.lastModified()) {
 			copy(resourceJCLMin, jclMin);
 		}
-		if (!jclMinsrc.exists()) {
-			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
+		java.io.File resourceJCLMinsrc =
+			new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
+		if (jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified()) {
 			copy(resourceJCLMinsrc, jclMinsrc);
 		}
 	}
