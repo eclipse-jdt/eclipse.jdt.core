@@ -885,10 +885,13 @@ public class ClassScope extends Scope {
 					superType.tagBits |= HierarchyHasProblems;
 					return true;
 				}
-				hasCycle |= detectCycle(sourceType, superType.superclass(), reference);
-				if ((superType.superclass().tagBits & HierarchyHasProblems) != 0) {
+				ReferenceBinding parent = superType.superclass();
+				if (parent.isParameterizedType())
+					parent = ((ParameterizedTypeBinding) parent).type;
+				hasCycle |= detectCycle(sourceType, parent, reference);
+				if ((parent.tagBits & HierarchyHasProblems) != 0) {
 					sourceType.tagBits |= HierarchyHasProblems;
-					superType.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
+					parent.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
 				}
 			}
 
@@ -902,6 +905,8 @@ public class ClassScope extends Scope {
 						superType.tagBits |= HierarchyHasProblems;
 						return true;
 					}
+					if (anInterface.isParameterizedType())
+						anInterface = ((ParameterizedTypeBinding) anInterface).type;
 					hasCycle |= detectCycle(sourceType, anInterface, reference);
 					if ((anInterface.tagBits & HierarchyHasProblems) != 0) {
 						sourceType.tagBits |= HierarchyHasProblems;

@@ -114,6 +114,18 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
+	// need enclosing type to access type variables
+	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
+	if (enclosingTypeName != null) {
+		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
+		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1);
+		this.tagBits |= MemberTypeMask;   // must be a member type not a top-level or local type
+		if (this.enclosingType().isStrictfp())
+			this.modifiers |= AccStrictfp;
+		if (this.enclosingType().isDeprecated())
+			this.modifiers |= AccDeprecatedImplicitly;
+	}
+
 	boolean checkGenericSignatures = environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 	char[] typeSignature = checkGenericSignatures ? binaryType.getGenericSignature() : null;
 	if (typeSignature == null) {
@@ -149,29 +161,18 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 
 		// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
-		this.superclass = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, this.typeVariables, NoTypeVariables);
+		this.superclass = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
 
 		this.superInterfaces = NoSuperInterfaces;
 		if (!wrapper.atEnd()) {
 			// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
 			java.util.ArrayList types = new java.util.ArrayList(2);
 			do {
-				types.add(environment.getTypeFromTypeSignature(wrapper, this.typeVariables, NoTypeVariables));
+				types.add(environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this));
 			} while (!wrapper.atEnd());
 			this.superInterfaces = new ReferenceBinding[types.size()];
 			types.toArray(this.superInterfaces);
 		}
-	}
-
-	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
-	if (enclosingTypeName != null) {
-		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
-		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1);
-		this.tagBits |= MemberTypeMask;   // must be a member type not a top-level or local type
-		if (this.enclosingType().isStrictfp())
-			this.modifiers |= AccStrictfp;
-		if (this.enclosingType().isDeprecated())
-			this.modifiers |= AccDeprecatedImplicitly;
 	}
 
 	this.memberTypes = NoMemberTypes;
@@ -205,7 +206,7 @@ private void createFields(IBinaryField[] iFields, boolean checkGenericSignatures
 				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
-					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), this.typeVariables, NoTypeVariables);
+					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), NoTypeVariables, this);
 				this.fields[i] =
 					new FieldBinding(
 						field.getName(),
@@ -292,9 +293,9 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 				java.util.ArrayList types = new java.util.ArrayList(2);
 				int startIndex = (method.isConstructor() && isMemberType() && !isStatic()) ? 1 : 0;
 				if (startIndex == 1)
-					environment.getTypeFromTypeSignature(wrapper, staticVariables, this.typeVariables); // skip synthetic argument
+					environment.getTypeFromTypeSignature(wrapper, staticVariables, this); // skip synthetic argument
 				while (wrapper.signature[wrapper.start] != ')') {
-					types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this.typeVariables));
+					types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this));
 				}
 				wrapper.start++; // skip ')'
 				parameters = new TypeBinding[types.size()];
@@ -303,14 +304,14 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 		}
 
 		if (!method.isConstructor())
-			returnType = environment.getTypeFromTypeSignature(wrapper, staticVariables, this.typeVariables);
+			returnType = environment.getTypeFromTypeSignature(wrapper, staticVariables, this);
 
 		if (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^') {
 			// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
 			java.util.ArrayList types = new java.util.ArrayList(2);
 			do {
 				wrapper.start++; // skip '^'
-				types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this.typeVariables));
+				types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this));
 			} while (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^');
 			exceptions = new ReferenceBinding[types.size()];
 			types.toArray(exceptions);
@@ -381,14 +382,14 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 	wrapper.start = colon + 1; // skip name + ':'
 	ReferenceBinding type = wrapper.signature[wrapper.start] == ':'
 		? environment.getType(JAVA_LANG_OBJECT)
-		: (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, NoTypeVariables);
+		: (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
 
 	ReferenceBinding[] bounds = null;
 	if (wrapper.signature[wrapper.start] == ':') {
 		java.util.ArrayList types = new java.util.ArrayList(2);
 		do {
 			wrapper.start++; // skip ':'
-			types.add(environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, NoTypeVariables));
+			types.add(environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this));
 		} while (wrapper.signature[wrapper.start] == ':');
 		bounds = new ReferenceBinding[types.size()];
 		types.toArray(bounds);

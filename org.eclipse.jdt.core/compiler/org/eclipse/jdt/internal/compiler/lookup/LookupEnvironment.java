@@ -604,7 +604,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 	else
 		return createArrayType(binding, dimension);
 }
-TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] variables, TypeVariableBinding[] secondaryVariables) {
+TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
 	// TypeVariableSignature = 'T' Identifier ';'
 	// ArrayTypeSignature = '[' TypeSignature
 	// ClassTypeSignature = 'L' Identifier TypeArgs(optional) ';'
@@ -618,12 +618,15 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 
 	if (wrapper.signature[wrapper.start] == 'T') {
 		char[] variableName = CharOperation.subarray(wrapper.signature, wrapper.start + 1, wrapper.computeEnd());
-		for (int i = variables.length; --i >= 0;)
-			if (CharOperation.equals(variables[i].sourceName, variableName))
-				return dimension == 0 ? (TypeBinding) variables[i] : createArrayType(variables[i], dimension);
-		for (int i = secondaryVariables.length; --i >= 0;)
-			if (CharOperation.equals(secondaryVariables[i].sourceName, variableName))
-				return dimension == 0 ? (TypeBinding) secondaryVariables[i] : createArrayType(secondaryVariables[i], dimension);
+		for (int i = staticVariables.length; --i >= 0;)
+			if (CharOperation.equals(staticVariables[i].sourceName, variableName))
+				return dimension == 0 ? (TypeBinding) staticVariables[i] : createArrayType(staticVariables[i], dimension);
+		do {
+			TypeVariableBinding[] enclosingVariables = enclosingType.typeVariables();
+			for (int i = enclosingVariables.length; --i >= 0;)
+				if (CharOperation.equals(enclosingVariables[i].sourceName, variableName))
+					return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
+		} while ((enclosingType = enclosingType.enclosingType()) != null);
 		throw new Error(Util.bind("error.undefinedTypeVariable", new String(variableName))); //$NON-NLS-1$
 	}
 
@@ -633,7 +636,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, variables, secondaryVariables));
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start += 2; // skip '>' and ';'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
@@ -642,7 +645,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
-TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] variables, TypeVariableBinding[] secondaryVariables) {
+TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
 	//   or TypeSignature
@@ -652,17 +655,17 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 		case '-' :
 			// ? super aType
 			wrapper.start++;
-			return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
-			return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 		case '*' :
 			// ?
 			wrapper.start++;
 			return getType(JAVA_LANG_OBJECT);
 	}
-	return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+	return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 }
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
