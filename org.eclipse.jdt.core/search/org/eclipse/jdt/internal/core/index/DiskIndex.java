@@ -250,7 +250,7 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 	}
 	return newDocNames;
 }
-private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition) throws IOException {
+private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition) {
 	char[][] categoryNames = categoryToWords.keyTable;
 	Object[] wordSets = categoryToWords.valueTable;
 	for (int i = 0, l = categoryNames.length; i < l; i++) {

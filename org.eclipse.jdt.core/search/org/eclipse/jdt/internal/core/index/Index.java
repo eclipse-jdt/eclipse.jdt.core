@@ -173,11 +173,11 @@ public void save() throws IOException {
 	if (numberOfChanges > 1000)
 		System.gc(); // reclaim space if the MemoryIndex was very BIG
 }
-public void startQuery() throws IOException {
+public void startQuery() {
 	if (this.diskIndex != null)
 		this.diskIndex.startQuery();
 }
-public void stopQuery() throws IOException {
+public void stopQuery() {
 	if (this.diskIndex != null)
 		this.diskIndex.stopQuery();
 }

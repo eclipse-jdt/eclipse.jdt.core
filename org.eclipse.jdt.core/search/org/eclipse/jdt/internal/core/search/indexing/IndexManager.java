@@ -263,7 +263,7 @@ private IPath getJavaPluginWorkingLocation() {
 	
 	return this.javaPluginLocation = stateLocation;
 }
-public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) throws IOException {
+public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) {
 	try {
 		((InternalSearchDocument) searchDocument).index = index;
 		searchParticipant.indexDocument(searchDocument, indexLocation);
@@ -579,12 +579,6 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			try {
 				monitor.enterWrite(); // ask permission to write
 				indexDocument(searchDocument, searchParticipant, index, new Path(indexLocation));
-			} catch (IOException e) {
-				if (JobManager.VERBOSE) {
-					Util.verbose("-> failed to index " + searchDocument.getPath() + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
-					e.printStackTrace();
-				}
-				return false;
 			} finally {
 				monitor.exitWrite(); // free write lock
 			}

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -25,24 +23,16 @@ public SubTypeSearchJob(SearchPattern pattern, SearchParticipant participant, IJ
 	super(pattern, participant, scope, requestor);
 }
 public void finished() {
-	try {
-		Object[] values = this.indexes.values;
-		for (int i = 0, l = values.length; i < l; i++)
-			if (values[i] != null)
-				((Index) values[i]).stopQuery();
-	} catch(IOException e) {
-		// ignore
-	} 
+	Object[] values = this.indexes.values;
+	for (int i = 0, l = values.length; i < l; i++)
+		if (values[i] != null)
+			((Index) values[i]).stopQuery();
 }
 public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
-	try {
-		if (!indexes.includes(index)) {
-			indexes.add(index);
-			index.startQuery();
-		}
-	} catch (IOException e) {
-		return FAILED;
+	if (!indexes.includes(index)) {
+		indexes.add(index);
+		index.startQuery();
 	}
 	return super.search(index, progressMonitor);
 }
