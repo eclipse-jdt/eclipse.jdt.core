@@ -107,6 +107,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 
 	static class PerProjectInfo {
 		IProject project;
+		Object savedState;
 		IDevelopmentContext developmentContext = new JavaDevelopmentContextImpl();
 		byte[] savedStateFingerprint;
 		boolean triedRead = false;
@@ -423,6 +424,22 @@ public void doneSaving(ISaveContext context){
 		}
 		return state;
 	}
+	public Object getLastBuiltState2(IProject project, IProgressMonitor monitor) {
+		PerProjectInfo info= getPerProjectInfo(project);
+		Object state= info.savedState;
+//		if (state == null && JavaBuilder.SAVE_ENABLED && !info.triedRead) {
+//			info.triedRead= true;
+//			try {
+//				if (monitor != null) monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
+//				state= readState(info);
+//				info.setLastBuiltState(state);
+//			} catch (CoreException e) {
+//				e.printStackTrace();
+//			}
+//		}
+		return state;
+	}
+
 	/**
 	 * Returns the last built state for the given project, or null if there is none.
 	 * Deserializes the state if necessary.
@@ -993,6 +1010,11 @@ public void saving(ISaveContext context) throws CoreException {
 		PerProjectInfo info= getPerProjectInfo(project);
 		info.triedRead= true; // no point trying to re-read once using setter
 		info.developmentContext.setCurrentState(state);
+	}
+	public void setLastBuiltState2(IProject project, Object state) {
+		PerProjectInfo info = getPerProjectInfo(project);
+//		info.triedRead= true; // no point trying to re-read once using setter
+		info.savedState = state;
 	}
 	public void shutdown () {
 		if (fDeltaProcessor.indexManager != null){ // no more indexing

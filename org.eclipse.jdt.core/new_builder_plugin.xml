@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin
+    name = "%pluginName"
+    id = "org.eclipse.jdt.core"
+    version = "0.9"
+    provider-name = "Object Technology International, Inc."
+    class="org.eclipse.jdt.core.JavaCore">
+
+<requires>
+    <import plugin="org.eclipse.core.resources"/>
+    <import plugin="org.apache.xerces"/>
+  <import plugin="org.eclipse.ant.core" /> 
+</requires>
+	
+<runtime>
+  <library name="jdtcore.jar">  
+     <export name = "*"/>
+  </library> 
+</runtime>
+
+<extension 
+	point="org.eclipse.core.resources.natures" 
+	id="javanature"
+	name="%javaNatureName">
+	<runtime>
+		<run class="org.eclipse.jdt.internal.core.JavaProject">
+		</run>
+	</runtime>
+</extension>
+
+<extension 
+	point="org.eclipse.core.resources.builders" 
+	id="javabuilder"
+	name="%javaBuilderName">
+	<builder>
+		<run class="org.eclipse.jdt.internal.core.newbuilder.JavaBuilder">
+		</run>
+	</builder>
+</extension>
+
+<extension id="problem" point="org.eclipse.core.resources.markers" name="%javaProblemName">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+	<attribute name="id"/>
+	<attribute name="flags"/>
+</extension>   
+<extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="%buildPathProblemName">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+</extension>   
+<extension id="transient_problem" point="org.eclipse.core.resources.markers" name="%transientJavaProblemName">
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="false"/>
+	<attribute name="id"/>
+	<attribute name="flags"/>
+	<attribute name="cycleDetected"/>	
+</extension>
+    
+</plugin>
