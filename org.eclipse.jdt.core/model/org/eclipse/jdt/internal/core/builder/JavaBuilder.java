@@ -109,7 +109,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		ok = true;
 	} catch (CoreException e) {
 		if (DEBUG){
-			System.out.println("Builder handling CoreException");
+			System.out.println("Builder handling CoreException"); //$NON-NLS-1$
 			 e.printStackTrace();
 		}
 		try {
@@ -121,7 +121,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (ImageBuilderInternalException e) {
 		if (DEBUG){
-			System.out.println("Builder handling ImageBuilderInternalException");
+			System.out.println("Builder handling ImageBuilderInternalException"); //$NON-NLS-1$
 			 e.printStackTrace();
 		}
 		try {
@@ -133,7 +133,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (IncompleteClassPathException e) {
 		if (DEBUG){
-			System.out.println("Builder handling IncompleteClassPathException");
+			System.out.println("Builder handling IncompleteClassPathException"); //$NON-NLS-1$
 			 e.printStackTrace();
 		}
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
@@ -141,7 +141,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (MissingSourceFileException e) {
 		if (DEBUG){
-			System.out.println("Builder handling MissingSourceFileException");
+			System.out.println("Builder handling MissingSourceFileException"); //$NON-NLS-1$
 			 e.printStackTrace();
 		}
 		removeProblemsFor(currentProject); // make this the only problem for this project
