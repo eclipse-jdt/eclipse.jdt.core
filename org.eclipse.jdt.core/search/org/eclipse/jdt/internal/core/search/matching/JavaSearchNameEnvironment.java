@@ -97,7 +97,11 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
-				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
+				if (target == null) {
+					// target doesn't exist any longer
+					// just resize cpLocations
+					System.arraycopy(cpLocations, 0, cpLocations = new ClasspathLocation[cpLocations.length-1], 0, index);
+				} else if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
 				} else {
 					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
