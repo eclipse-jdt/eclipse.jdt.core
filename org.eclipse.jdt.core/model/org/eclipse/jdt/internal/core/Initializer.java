@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 /* package */ class Initializer extends Member implements IInitializer {
 
 protected Initializer(JavaElement parent, int occurrenceCount) {
-	super(INITIALIZER, parent, ""); //$NON-NLS-1$
+	super(parent, ""); //$NON-NLS-1$
 	// 0 is not valid: this first occurrence is occurrence 1.
 	if (occurrenceCount <= 0)
 		throw new IllegalArgumentException();
@@ -42,6 +42,12 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	} else {
 		return false;
 	}
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return INITIALIZER;
 }
 /**
  * @see JavaElement#getHandleMemento()

@@ -189,7 +189,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		 * that lives in the given cache, and opens it.
 		 */
 		public OverflowingTestOpenable(OverflowingTestBuffer buffer, OverflowingLRUCache cache) {
-			super(IJavaElement.JAVA_MODEL, null, "OverflowingTestOpenable");
+			super(null, "OverflowingTestOpenable");
 			this.buffer = buffer;
 			buffer.owner = this;
 			this.cache= cache;
@@ -209,6 +209,10 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		public IBuffer getBuffer() {
 			// This functionality not required for testing element cache - returns <code>null</code>.
 			return null;
+		}
+
+		public int getElementType() {
+			return 0;
 		}
 
 		protected char getHandleMementoDelimiter() {

@@ -176,11 +176,11 @@ public class JavaProject
 	 * @see #setProject
 	 */
 	public JavaProject() {
-		super(JAVA_PROJECT, null, null);
+		super(null, null);
 	}
 
 	public JavaProject(IProject project, JavaElement parent) {
-		super(JAVA_PROJECT, parent, project.getName());
+		super(parent, project.getName());
 		fProject = project;
 	}
 
@@ -1212,6 +1212,13 @@ public class JavaProject
 		} catch (CoreException e) {
 		}
 		return null;
+	}
+
+	/**
+	 * @see IJavaElement
+	 */
+	public int getElementType() {
+		return JAVA_PROJECT;
 	}
 
 	/**

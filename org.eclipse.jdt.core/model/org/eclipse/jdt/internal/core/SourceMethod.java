@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 	 */
 	protected static final String[] fgEmptyList= new String[] {};
 protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
-	super(METHOD, parent, name);
+	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
 		fParameterTypes= fgEmptyList;
@@ -65,6 +65,12 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 		return false;
 	}
 
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return METHOD;
 }
 /**
  * @see IMethod

@@ -27,8 +27,8 @@ import org.eclipse.jdt.core.JavaModelException;
  * Abstract class for Java elements which implement ISourceReference.
  */
 /* package */ abstract class SourceRefElement extends JavaElement implements ISourceReference {
-protected SourceRefElement(int type, JavaElement parent, String name) {
-	super(type, parent, name);
+protected SourceRefElement(JavaElement parent, String name) {
+	super(parent, name);
 }
 /**
  * This element is being closed.  Do any necessary cleanup.

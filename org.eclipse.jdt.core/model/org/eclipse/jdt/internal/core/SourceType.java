@@ -40,7 +40,7 @@ public class SourceType extends Member implements IType {
 	 */
 	protected static final String[] fgEmptyList= new String[] {};
 protected SourceType(JavaElement parent, String name) {
-	super(TYPE, parent, name);
+	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 }
 /**
@@ -171,6 +171,12 @@ public IType getDeclaringType() {
 			}
 	}
 	return null;
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return TYPE;
 }
 /**
  * @see IType#getField

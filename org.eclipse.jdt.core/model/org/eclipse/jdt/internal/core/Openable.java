@@ -38,8 +38,8 @@ import org.eclipse.jdt.internal.codeassist.SelectionEngine;
  */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
 
-protected Openable(int type, JavaElement parent, String name) {
-	super(type, parent, name);
+protected Openable(JavaElement parent, String name) {
+	super(parent, name);
 }
 /**
  * The buffer associated with this element has changed. Registers
@@ -313,10 +313,11 @@ public boolean hasUnsavedChanges() throws JavaModelException{
 	}
 	// for package fragments, package fragment roots, and projects must check open buffers
 	// to see if they have an child with unsaved changes
-	if (fLEType == PACKAGE_FRAGMENT ||
-		fLEType == PACKAGE_FRAGMENT_ROOT ||
-		fLEType == JAVA_PROJECT ||
-		fLEType == JAVA_MODEL) { // fix for 1FWNMHH
+	int elementType = getElementType();
+	if (elementType == PACKAGE_FRAGMENT ||
+		elementType == PACKAGE_FRAGMENT_ROOT ||
+		elementType == JAVA_PROJECT ||
+		elementType == JAVA_MODEL) { // fix for 1FWNMHH
 		Enumeration openBuffers= getBufferManager().getOpenBuffers();
 		while (openBuffers.hasMoreElements()) {
 			IBuffer buffer= (IBuffer)openBuffers.nextElement();

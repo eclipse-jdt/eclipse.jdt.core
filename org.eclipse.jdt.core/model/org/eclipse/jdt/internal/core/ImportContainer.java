@@ -22,7 +22,13 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class ImportContainer extends SourceRefElement implements IImportContainer {
 protected ImportContainer(CompilationUnit parent) {
-	super(IMPORT_CONTAINER, parent, ""); //$NON-NLS-1$
+	super(parent, ""); //$NON-NLS-1$
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return IMPORT_CONTAINER;
 }
 /**
  * @see JavaElement#getHandleMemento()

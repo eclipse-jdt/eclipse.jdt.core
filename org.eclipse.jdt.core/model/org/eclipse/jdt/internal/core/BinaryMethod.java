@@ -87,7 +87,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 	protected String[] fExceptionTypes;
 	protected String fReturnType;
 protected BinaryMethod(JavaElement parent, String name, String[] parameterTypes) {
-	super(METHOD, parent, name);
+	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
 		fParameterTypes= fgEmptyList;
@@ -122,6 +122,12 @@ public String[] getExceptionTypes() throws JavaModelException {
 		}
 	}
 	return fExceptionTypes;
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return METHOD;
 }
 /**
  * @see IMember

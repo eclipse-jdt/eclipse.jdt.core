@@ -60,7 +60,7 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
  * @exception IllegalArgumentExcpetion if the name does not end with ".class"
  */
 protected ClassFile(PackageFragment parent, String name) {
-	super(CLASS_FILE, parent, name);
+	super(parent, name);
 	if (!Util.isClassFileName(name)) {
 		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
 	}
@@ -271,6 +271,12 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		IType type = getType();
 		return findElement(type, position, mapper);
 	}
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return CLASS_FILE;
 }
 /**
  * @see JavaElement#getHandleMemento()

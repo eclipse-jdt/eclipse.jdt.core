@@ -30,8 +30,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  */
 
 /* package */ abstract class Member extends SourceRefElement implements IMember {
-protected Member(int type, JavaElement parent, String name) {
-	super(type, parent, name);
+protected Member(JavaElement parent, String name) {
+	super(parent, name);
 }
 protected boolean areSimilarMethods(
 	String name1, String[] params1, 
@@ -138,7 +138,7 @@ public IClassFile getClassFile() {
  */
 public IType getDeclaringType() {
 	JavaElement parent = (JavaElement)getParent();
-	if (parent.fLEType == TYPE) {
+	if (parent.getElementType() == TYPE) {
 		return (IType) parent;
 	}
 	return null;

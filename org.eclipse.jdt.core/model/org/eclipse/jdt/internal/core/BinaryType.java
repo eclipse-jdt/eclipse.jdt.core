@@ -38,7 +38,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final String[] NO_STRINGS = new String[0];
 	
 protected BinaryType(JavaElement parent, String name) {
-	super(TYPE, parent, name);
+	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 }
 /**
@@ -216,6 +216,12 @@ public IType getDeclaringType() {
 					enclosingName.substring(enclosingName.lastIndexOf('$')+1));
 		}
 	}
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return TYPE;
 }
 /**
  * @see IType#getField(String name)

@@ -44,7 +44,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
  * does not end with ".java"
  */
 protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
-	super(COMPILATION_UNIT, parent, name);
+	super(parent, name);
 	if (!Util.isJavaFileName(name)) {
 		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
@@ -587,6 +587,12 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 	} else {
 		return e;
 	}
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return COMPILATION_UNIT;
 }
 public char[] getFileName(){
 	return getElementName().toCharArray();

@@ -21,13 +21,19 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /* package */ class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
 protected PackageDeclaration(CompilationUnit parent, String name) {
-	super(PACKAGE_DECLARATION, parent, name);
+	super(parent, name);
 }
 /**
  * @see JavaElement#equalsDOMNode
  */
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return (node.getNodeType() == IDOMNode.PACKAGE) && getElementName().equals(node.getName());
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return PACKAGE_DECLARATION;
 }
 /**
  * @see JavaElement#getHandleMemento()

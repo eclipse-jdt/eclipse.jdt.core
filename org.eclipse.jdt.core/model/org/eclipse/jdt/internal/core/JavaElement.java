@@ -50,13 +50,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected int fOccurrenceCount = 1;
 
-
-	/**
-	 * This element's type - one of the constants defined
-	 * in IJavaLanguageElementTypes.
-	 */
-	protected int fLEType = 0;
-
 	/**
 	 * This element's parent, or <code>null</code> if this
 	 * element does not have a parent.
@@ -72,7 +65,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected static final Object NO_INFO = new Object();
 	
 	/**
-	 * Constructs a handle for a java element of the specified type, with
+	 * Constructs a handle for a java element with
 	 * the given parent element and name.
 	 *
 	 * @param type - one of the constants defined in IJavaLanguageElement
@@ -81,11 +74,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *		Java element type constants
 	 *
 	 */
-	protected JavaElement(int type, JavaElement parent, String name) throws IllegalArgumentException {
-		if (type < JAVA_MODEL || type > IMPORT_DECLARATION) {
-			throw new IllegalArgumentException(Util.bind("element.invalidType")); //$NON-NLS-1$
-		}
-		fLEType= type;
+	protected JavaElement(JavaElement parent, String name) throws IllegalArgumentException {
 		fParent= parent;
 		fName= name;
 	}
@@ -123,7 +112,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	
 		if (o instanceof JavaElement) {
 			JavaElement other = (JavaElement) o;
-			if (fLEType != other.fLEType) return false;
+			if (getElementType() != other.getElementType()) return false;
 			
 			return fName.equals(other.fName) &&
 					fParent.equals(other.fParent) &&
@@ -297,12 +286,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public String getElementName() {
 		return fName;
-	}
-	/**
-	 * @see IJavaElement
-	 */
-	public int getElementType() {
-		return fLEType;
 	}
 	/**
 	 * @see IJavaElement

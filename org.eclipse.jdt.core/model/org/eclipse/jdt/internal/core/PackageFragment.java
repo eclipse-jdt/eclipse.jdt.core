@@ -48,7 +48,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
  * @see IPackageFragment
  */
 protected PackageFragment(PackageFragmentRoot root, String name) {
-	super(PACKAGE_FRAGMENT, root, name);
+	super(root, name);
 }
 /**
  * @see Openable
@@ -221,6 +221,12 @@ public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) throws Jav
 		System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
 	}
 	return result;
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return PACKAGE_FRAGMENT;
 }
 /**
  * @see JavaElement#getHandleMementoDelimiter()

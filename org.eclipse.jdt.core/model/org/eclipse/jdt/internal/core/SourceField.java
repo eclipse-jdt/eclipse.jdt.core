@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
  * Constructs a handle to the field with the given name in the specified type. 
  */
 protected SourceField(JavaElement parent, String name) {
-	super(FIELD, parent, name);
+	super(parent, name);
 }
 /**
  * @see JavaElement#equalsDOMNode
@@ -41,6 +41,12 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 public Object getConstant() throws JavaModelException {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
 	return info.initializationSource;
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return FIELD;
 }
 /**
  * @see JavaElement#getHandleMemento()

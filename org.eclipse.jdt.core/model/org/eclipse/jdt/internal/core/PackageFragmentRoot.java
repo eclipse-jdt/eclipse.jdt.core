@@ -55,7 +55,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  * directory hierarchy.
  */
 protected PackageFragmentRoot(IResource resource, JavaProject project, String name) {
-	super(PACKAGE_FRAGMENT_ROOT, project, name);
+	super(project, name);
 	this.resource = resource;
 }
 
@@ -441,7 +441,12 @@ char[][] fullExclusionPatternChars() {
 		return null;
 	}
 }		
-
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return PACKAGE_FRAGMENT_ROOT;
+}
 /**
  * @see JavaElement#getHandleMemento()
  */

@@ -21,12 +21,12 @@ import org.eclipse.jdt.core.JavaModelException;
 /**
  * Common functionality for Binary member handles.
  */
-public class BinaryMember extends Member {
+public abstract class BinaryMember extends Member {
 /**
  * Constructs a binary member.
  */
-protected BinaryMember(int type, JavaElement parent, String name) {
-	super(type, parent, name);
+protected BinaryMember(JavaElement parent, String name) {
+	super(parent, name);
 }
 /**
  * @see ISourceManipulation

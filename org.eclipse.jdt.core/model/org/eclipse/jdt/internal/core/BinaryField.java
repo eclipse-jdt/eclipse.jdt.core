@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
  * Constructs a handle to the field with the given name in the specified type. 
  */
 protected BinaryField(JavaElement parent, String name) {
-	super(FIELD, parent, name);
+	super(parent, name);
 }
 /**
  * @see IField
@@ -40,6 +40,12 @@ public Object getConstant() throws JavaModelException {
 public int getFlags() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return info.getModifiers();
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return FIELD;
 }
 /**
  * @see JavaElement#getHandleMemento()

@@ -28,13 +28,19 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
  * with the given name.
  */
 protected ImportDeclaration(ImportContainer parent, String name) {
-	super(IMPORT_DECLARATION, parent, name);
+	super(parent, name);
 }
 /**
  * @see JavaElement#equalsDOMNode
  */
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return (node.getNodeType() == IDOMNode.IMPORT) && getElementName().equals(node.getName());
+}
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return IMPORT_DECLARATION;
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.IImportDeclaration#getFlags()

@@ -63,7 +63,7 @@ public class JavaModel extends Openable implements IJavaModel {
  * @exception Error if called more than once
  */
 protected JavaModel() throws Error {
-	super(JAVA_MODEL, null, "" /*workspace has empty name*/); //$NON-NLS-1$
+	super(null, "" /*workspace has empty name*/); //$NON-NLS-1$
 }
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)	throws JavaModelException {
 
@@ -148,7 +148,12 @@ public IJavaProject findJavaProject(IProject project) {
 	}
 	return null;
 }
-
+/**
+ * @see IJavaElement
+ */
+public int getElementType() {
+	return JAVA_MODEL;
+}
 /**
  * Flushes the cache of external files known to be existing.
  */
