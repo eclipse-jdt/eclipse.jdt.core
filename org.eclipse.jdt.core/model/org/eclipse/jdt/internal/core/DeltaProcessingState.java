@@ -46,20 +46,20 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	private ThreadLocal deltaProcessors = new ThreadLocal();
 	
 	/* A table from IPath (from a classpath entry) to RootInfo */
-	public HashMap roots;
+	public HashMap roots = new HashMap();
 	
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * Used when an IPath corresponds to more than one root */
-	public HashMap otherRoots;
+	public HashMap otherRoots = new HashMap();
 	
 	/* A table from IPath (from a classpath entry) to RootInfo
 	 * from the last time the delta processor was invoked. */
-	public HashMap oldRoots;
+	public HashMap oldRoots = new HashMap();
 	
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * from the last time the delta processor was invoked.
 	 * Used when an IPath corresponds to more than one root */
-	public HashMap oldOtherRoots;
+	public HashMap oldOtherRoots = new HashMap();
 	
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
 	public HashMap sourceAttachments;
@@ -68,7 +68,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	public boolean rootsAreStale = true;
 	
 	/* Threads that are currently running initializeRoots() */
-	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	public Hashtable externalTimeStamps = new Hashtable();
+	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	
+	
+	public Hashtable externalTimeStamps = new Hashtable();
 
 	/**
 	 * Workaround for bug 15168 circular errors not reported  
@@ -192,8 +194,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			}
 		}
 		synchronized(this) {
-			this.oldRoots = this.roots == null ? new HashMap() : this.roots;
-			this.oldOtherRoots = this.otherRoots == null ? new HashMap() : this.otherRoots;			
+			this.oldRoots = this.roots;
+			this.oldOtherRoots = this.otherRoots;			
 			if (this.rootsAreStale && newRoots != null) { // double check again
 				this.roots = newRoots;
 				this.otherRoots = newOtherRoots;
