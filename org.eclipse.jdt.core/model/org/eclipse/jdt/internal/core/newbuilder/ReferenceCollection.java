@@ -16,7 +16,7 @@ char[][][] qualifiedReferences; // contains no simple names as in just 'a' which
 char[][] simpleNameReferences;
 
 public ReferenceCollection(char[][][] qualifiedReferences, char[][] simpleNameReferences) {
-	this.qualifiedReferences = internQualifiedNames(qualifiedReferences, true);
+	this.qualifiedReferences = internQualifiedNames(qualifiedReferences);
 	this.simpleNameReferences = internSimpleNames(simpleNameReferences, true);
 }
 
@@ -37,23 +37,27 @@ boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 	if (simpleNames == null) {
 		if (JavaBuilder.DEBUG) System.out.println("  found well known match"); //$NON-NLS-1$
 		return true;
-	}
-	for (int i = 0, l = simpleNames.length; i < l; i++) {
-		if (includes(simpleNames[i])) {
-			if (qualifiedNames == null) {
+	} else if (qualifiedNames == null) {
+		for (int i = 0, l = simpleNames.length; i < l; i++) {
+			if (includes(simpleNames[i])) {
 				if (JavaBuilder.DEBUG) System.out.println("  found match in well known package to " + new String(simpleNames[i])); //$NON-NLS-1$
 				return true;
 			}
-			for (int j = 0, m = qualifiedNames.length; j < m; j++) {
-				char[][] qualifiedName = qualifiedNames[j];
-				if (qualifiedName.length == 1 ? includes(qualifiedName[0]) : includes(qualifiedName)) {
-					if (JavaBuilder.DEBUG)
-						System.out.println("  found match in " + CharOperation.toString(qualifiedName) //$NON-NLS-1$
-							+ " to " + new String(simpleNames[i])); //$NON-NLS-1$
-					return true;
+		}
+	} else {
+		for (int i = 0, l = simpleNames.length; i < l; i++) {
+			if (includes(simpleNames[i])) {
+				for (int j = 0, m = qualifiedNames.length; j < m; j++) {
+					char[][] qualifiedName = qualifiedNames[j];
+					if (qualifiedName.length == 1 ? includes(qualifiedName[0]) : includes(qualifiedName)) {
+						if (JavaBuilder.DEBUG)
+							System.out.println("  found match in " + CharOperation.toString(qualifiedName) //$NON-NLS-1$
+								+ " to " + new String(simpleNames[i])); //$NON-NLS-1$
+						return true;
+					}
 				}
+				return false;
 			}
-			return false;
 		}
 	}
 	return false;
@@ -63,19 +67,20 @@ boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 // When any type is compiled, its methods are verified for certain problems
 // the MethodVerifier requests 3 well known types which end up in the reference collection
 // having WellKnownQualifiedNames & WellKnownSimpleNames, saves every type 40 bytes
+// NOTE: These collections are sorted by length
 static final char[][][] WellKnownQualifiedNames = new char[][][] {
-	TypeConstants.NoCharChar, // default package
-	new char[][] {TypeConstants.JAVA},
-	TypeConstants.JAVA_LANG,
-	TypeConstants.JAVA_LANG_OBJECT,
 	TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION,
-	TypeConstants.JAVA_LANG_THROWABLE};
+	TypeConstants.JAVA_LANG_THROWABLE,
+	TypeConstants.JAVA_LANG_OBJECT,
+	TypeConstants.JAVA_LANG,
+	new char[][] {TypeConstants.JAVA},
+	TypeConstants.NoCharChar}; // default package
 static final char[][] WellKnownSimpleNames = new char[][] {
-	TypeConstants.JAVA,
-	TypeConstants.LANG,
-	TypeConstants.JAVA_LANG_OBJECT[2],
 	TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION[2],
-	TypeConstants.JAVA_LANG_THROWABLE[2]};
+	TypeConstants.JAVA_LANG_THROWABLE[2],
+	TypeConstants.JAVA_LANG_OBJECT[2],
+	TypeConstants.JAVA,
+	TypeConstants.LANG};
 
 static final char[][][] EmptyQualifiedNames = new char[0][][];
 static final char[][] EmptySimpleNames = new char[0][];
@@ -90,38 +95,42 @@ static char[][][] internQualifiedNames(ArrayList qualifiedStrings) {
 	char[][][] result = new char[length][][];
 	for (int i = 0; i < length; i++)
 		result[i] = CharOperation.splitOn('/', ((String) qualifiedStrings.get(i)).toCharArray());
-	return internQualifiedNames(result, true);
+	return internQualifiedNames(result);
 }
 
-static char[][][] internQualifiedNames(char[][][] qualifiedNames, boolean removeWellKnown) {
+static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	if (qualifiedNames == null) return EmptyQualifiedNames;
 	int length = qualifiedNames.length;
 	if (length == 0) return EmptyQualifiedNames;
 
-	ArrayList keepers = new ArrayList(length);
+	char[][][] keepers = new char[length][][];
+	int index = 0;
 	next : for (int i = 0; i < length; i++) {
 		char[][] qualifiedName = qualifiedNames[i];
+		int qLength = qualifiedName.length;
 		for (int j = 0, k = InternedQualifiedNames.size(); j < k; j++) {
 			char[][] internedName = (char[][]) InternedQualifiedNames.get(j);
-			if (CharOperation.equals(qualifiedName, internedName)) {
-				keepers.add(internedName);
+			if (qLength == internedName.length && CharOperation.equals(qualifiedName, internedName)) {
+				keepers[index++] = internedName;
 				continue next;
 			}
 		}
 		for (int j = 0, k = WellKnownQualifiedNames.length; j < k; j++) {
-			if (CharOperation.equals(qualifiedName, WellKnownQualifiedNames[j])) {
-				if (!removeWellKnown)
-					keepers.add(WellKnownQualifiedNames[j]);
+			char[][] wellKnownName = WellKnownQualifiedNames[j];
+			if (qLength > wellKnownName.length)
+				break; // all other well known names are shorter
+			if (qLength == wellKnownName.length && CharOperation.equals(qualifiedName, wellKnownName))
 				continue next;
-			}
 		}
 		qualifiedName = internSimpleNames(qualifiedName, false);
 		InternedQualifiedNames.add(qualifiedName);
-		keepers.add(qualifiedName);
+		keepers[index++] = qualifiedName;
 	}
-	char[][][] result = new char[keepers.size()][][];
-	keepers.toArray(result);
-	return result;
+	if (length > index) {
+		if (length == 0) return EmptyQualifiedNames;
+		System.arraycopy(keepers, 0, keepers = new char[index][][], 0, index);
+	}
+	return keepers;
 }
 
 static char[][] internSimpleNames(ArrayList simpleStrings) {
@@ -140,28 +149,35 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown)
 	int length = simpleNames.length;
 	if (length == 0) return EmptySimpleNames;
 
-	ArrayList keepers = new ArrayList(length);
+	char[][] keepers = new char[length][];
+	int index = 0;
 	next : for (int i = 0; i < length; i++) {
 		char[] name = simpleNames[i];
+		int sLength = name.length;
 		for (int j = 0, k = InternedSimpleNames.size(); j < k; j++) {
 			char[] internedName = (char[]) InternedSimpleNames.get(j);
-			if (CharOperation.equals(name, internedName)) {
-				keepers.add(internedName);
+			if (sLength == internedName.length && CharOperation.equals(name, internedName)) {
+				keepers[index++] = internedName;
 				continue next;
 			}
 		}
 		for (int j = 0, k = WellKnownSimpleNames.length; j < k; j++) {
-			if (CharOperation.equals(name, WellKnownSimpleNames[j])) {
+			char[] wellKnownName = WellKnownSimpleNames[j];
+			if (sLength > wellKnownName.length)
+				break; // all other well known names are shorter
+			if (sLength == wellKnownName.length && CharOperation.equals(name, wellKnownName)) {
 				if (!removeWellKnown)
-					keepers.add(WellKnownSimpleNames[j]);
+					keepers[index++] = WellKnownSimpleNames[j];
 				continue next;
 			}
 		}
 		InternedSimpleNames.add(name);
-		keepers.add(name);
+		keepers[index++] = name;
 	}
-	char[][] result = new char[keepers.size()][];
-	keepers.toArray(result);
-	return result;
+	if (length > index) {
+		if (index == 0) return EmptySimpleNames;
+		System.arraycopy(keepers, 0, keepers = new char[index][], 0, index);
+	}
+	return keepers;
 }
 }
