@@ -113,7 +113,7 @@ void buildTypeBindings() {
 	nextType: for (int i = 0; i < typeLength; i++) {
 		TypeDeclaration typeDecl = types[i];
 		ReferenceBinding typeBinding = fPackage.getType0(typeDecl.name);
-		recordReference(currentPackageName, typeDecl.name); // needed to detect collision cases
+		recordSimpleReference(typeDecl.name); // needed to detect collision cases
 		if (typeBinding != null && !(typeBinding instanceof UnresolvedReferenceBinding)) {
 			// if a type exists, it must be a valid type - cannot be a NotFound problem type
 			// unless its an unresolved type which is now being defined

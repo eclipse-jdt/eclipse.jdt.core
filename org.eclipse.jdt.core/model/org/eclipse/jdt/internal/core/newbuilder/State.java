@@ -99,8 +99,8 @@ void locationForType(String qualifiedName, String location) {
 }
 
 void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
-	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
-		references.put(location, new ReferenceCollection(qualifiedRefs, simpleRefs));
+	if (typeNames.isEmpty() || (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0)))) {
+			references.put(location, new ReferenceCollection(qualifiedRefs, simpleRefs));
 	} else {
 		char[][] definedTypeNames = new char[typeNames.size()][];
 		typeNames.toArray(definedTypeNames);
