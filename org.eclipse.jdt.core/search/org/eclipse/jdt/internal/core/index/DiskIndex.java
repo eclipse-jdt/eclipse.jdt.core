@@ -32,7 +32,7 @@ private int cacheUserCount;
 private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
 
-public static final String SIGNATURE= "INDEX FILE 0.010"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX FILE 0.011"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;
@@ -111,24 +111,19 @@ SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOE
 	}
 	return results;
 }
-private void addQueryResult(HashtableOfObject results, char[] word, Object offset, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
+private void addQueryResult(HashtableOfObject results, char[] word, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
 	// must skip over documents which have been added/changed/deleted in the memory index
-	int[] docNumbers = readDocumentNumbers(offset);
-	if (docNumbers != offset)
-		wordsToDocNumbers.put(word, docNumbers); // replace offset with docNumbers
-
 	EntryResult result = (EntryResult) results.get(word);
 	if (memoryIndex == null) {
-		if (result == null) {
-			results.put(word, new EntryResult(word, docNumbers));
-		} else {
-			for (int i = 0, l = docNumbers.length; i < l; i++)
-				result.addDocumentNumber(docNumbers[i]);
-		}
+		if (result == null)
+			results.put(word, new EntryResult(word, wordsToDocNumbers));
+		else
+			result.addDocumentTable(wordsToDocNumbers);
 	} else {
 		SimpleLookupTable docsToRefs = memoryIndex.docsToReferences;
 		if (result == null)
 			result = new EntryResult(word, null);
+		int[] docNumbers = readDocumentNumbers(wordsToDocNumbers.get(word));
 		for (int i = 0, l = docNumbers.length; i < l; i++) {
 			String docName = readDocumentName(docNumbers[i]);
 			if (!docsToRefs.containsKey(docName))
@@ -140,30 +135,25 @@ private void addQueryResult(HashtableOfObject results, char[] word, Object offse
 }
 HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule, MemoryIndex memoryIndex) throws IOException {
 	// assumes sender has called startQuery() & will call stopQuery() when finished
-	HashtableOfObject results = new HashtableOfObject(3);
+	HashtableOfObject results = new HashtableOfObject(13);
 	if (this.categoryOffsets == null)
 		return results; // file is empty
 
 	if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
-			if (wordsToDocNumbers != null) {
-				Object offset = wordsToDocNumbers.get(key);
-				if (offset != null)
-					addQueryResult(results, key, offset, wordsToDocNumbers, memoryIndex);
-			}
+			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
+				addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
 		}
 	} else {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
 			if (wordsToDocNumbers != null) {
 				char[][] words = wordsToDocNumbers.keyTable;
-				Object[] arrayOffsets = wordsToDocNumbers.valueTable;
 				for (int j = 0, m = words.length; j < m; j++) {
 					char[] word = words[j];
-					if (word != null && Index.isMatch(key, word, matchRule)) {
-						addQueryResult(results, word, arrayOffsets[j], wordsToDocNumbers, memoryIndex);
-					}
+					if (word != null && Index.isMatch(key, word, matchRule))
+						addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
 				}
 			}
 		}
@@ -615,7 +605,7 @@ synchronized String readDocumentName(int docNumber) throws IOException {
 	}
 	return chunk[docNumber - (chunkNumber * CHUNK_SIZE)];
 }
-private synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
+synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 	// arrayOffset is either a cached array of docNumbers or an Integer offset in the file
 	if (arrayOffset instanceof int[])
 		return (int[]) arrayOffset;

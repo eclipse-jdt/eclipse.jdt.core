@@ -10,66 +10,60 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
+
 public class EntryResult {
 
 private char[] word;
-private int[] documentNumbers;
-private String[] documentNames;
+private HashtableOfObject[] documentTables;
+private SimpleSet documentNames;
 
-public EntryResult(char[] word, int[] docNumbers) {
+public EntryResult(char[] word, HashtableOfObject table) {
 	this.word = word;
-	this.documentNumbers = docNumbers;
-}
-public void addDocumentNumber(int docNumber) {
-	if (this.documentNumbers == null) {
-		this.documentNumbers = new int[]{docNumber};
-		return;
-	}
-
-	int length = this.documentNumbers.length;
-	for (int i = 0; i < length; i++)
-		if (docNumber == this.documentNumbers[i]) return;
-
-	System.arraycopy(this.documentNumbers, 0, this.documentNumbers = new int[length + 1], 0, length);
-	this.documentNumbers[length] = docNumber;
+	if (table != null)
+		this.documentTables = new HashtableOfObject[] {table};
 }
 public void addDocumentName(String documentName) {
-	if (this.documentNames == null) {
-		this.documentNames = new String[]{documentName};
+	if (this.documentNames == null)
+		this.documentNames = new SimpleSet();
+	this.documentNames.add(documentName);
+}
+public void addDocumentTable(HashtableOfObject table) {
+	if (this.documentTables == null) {
+		this.documentTables = new HashtableOfObject[] {table};
 		return;
 	}
 
-	int length = this.documentNames.length;
-	for (int i = 0; i < length; i++)
-		if (documentName.equals(this.documentNames[i])) return;
-
-	System.arraycopy(this.documentNames, 0, this.documentNames = new String[length + 1], 0, length);
-	this.documentNames[length] = documentName;
+	int length = this.documentTables.length;
+	System.arraycopy(this.documentTables, 0, this.documentTables = new HashtableOfObject[length + 1], 0, length);
+	this.documentTables[length] = table;
 }
 public char[] getWord() {
 	return this.word;
 }
 public String[] getDocumentNames(Index index) throws java.io.IOException {
-	if (this.documentNumbers != null)
-		for (int i = 0, l = this.documentNumbers.length; i < l; i++)
-			addDocumentName(index.diskIndex.readDocumentName(this.documentNumbers[i]));
-		
-	return this.documentNames != null ? this.documentNames : new String[0];
+	if (this.documentTables != null) {
+		for (int i = 0, l = this.documentTables.length; i < l; i++) {
+			Object offset = this.documentTables[i].get(word);
+			int[] numbers = index.diskIndex.readDocumentNumbers(offset);
+			for (int j = 0, k = numbers.length; j < k; j++)
+				addDocumentName(index.diskIndex.readDocumentName(numbers[j]));
+		}
+	}
+
+	if (this.documentNames == null)
+		return new String[0];
+
+	String[] names = new String[this.documentNames.elementSize];
+	int count = 0;
+	Object[] values = this.documentNames.values;
+	for (int i = 0, l = values.length; i < l; i++)
+		if (values[i] != null)
+			names[count++] = (String) values[i];
+	return names;
 }
 public boolean isEmpty() {
-	return this.documentNumbers == null && this.documentNames == null;
-}
-public String toString() {
-	StringBuffer buffer = new StringBuffer(word.length * 2);
-	buffer.append("EntryResult: word = "); //$NON-NLS-1$
-	buffer.append(this.word);
-	buffer.append(", document names = {"); //$NON-NLS-1$
-	for (int i = 0; i < this.documentNames.length; i++){
-		if (i > 0) buffer.append(',');
-		buffer.append(' ');
-		buffer.append(this.documentNames[i]);
-	}
-	buffer.append(" }"); //$NON-NLS-1$
-	return buffer.toString();
+	return this.documentTables == null && this.documentNames == null;
 }
 }
