@@ -27,9 +27,10 @@ public interface TagBits {
 	long IsBinaryBinding = ASTNode.Bit7;
 	
 	// for the type cycle hierarchy check used by ClassScope
-	long BeginHierarchyCheck = ASTNode.Bit9;
-	long EndHierarchyCheck = ASTNode.Bit10;
-
+	long BeginHierarchyCheck = ASTNode.Bit9;  // type
+	long EndHierarchyCheck = ASTNode.Bit10; // type
+	long HasParameterAnnotations = ASTNode.Bit11; // method
+	
 	// test bit to see if default abstract methods were computed
 	long KnowsDefaultAbstractMethods = ASTNode.Bit11;
 

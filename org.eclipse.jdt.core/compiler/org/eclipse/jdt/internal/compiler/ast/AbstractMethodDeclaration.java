@@ -84,7 +84,11 @@ public abstract class AbstractMethodDeclaration
 			int length = this.arguments.length;
 			for (int i = 0; i < length; i++) {
 				TypeBinding argType = this.binding == null ? null : this.binding.parameters[i];
-				this.arguments[i].bind(this.scope, argType, used);
+				Argument argument = this.arguments[i];
+				argument.bind(this.scope, argType, used);
+				if (argument.annotations != null) {
+					this.binding.tagBits |= TagBits.HasParameterAnnotations;
+				}
 			}
 		}
 	}
