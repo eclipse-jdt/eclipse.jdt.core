@@ -444,8 +444,6 @@ public final class NamingConventions {
 				char[] prefixName = CharOperation.concat(prefixes[j], tempName);
 				for (int k = 0; k < suffixes.length; k++) {
 					char[] suffixName = CharOperation.concat(prefixName, suffixes[k]);
-					int count;
-					int m;
 					suffixName =
 						excludeNames(
 							suffixName,
