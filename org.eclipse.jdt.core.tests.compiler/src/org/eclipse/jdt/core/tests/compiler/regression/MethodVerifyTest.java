@@ -1536,4 +1536,81 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// hashCode() in X cannot override hashCode() in java.lang.Object; attempting to use incompatible return type
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736
+	public void test032() {
+		// NOTE: javac only reports these errors when the problem type follows the bounds
+		// if the type X is defined first, then no errors are reported
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I { Float foo(); }\n" +
+				"interface J { Integer foo(); }\n" +
+				"public class X<T extends I&J> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	public class X<T extends I&J> {}\r\n" + 
+			"	             ^\n" + 
+			"The return type is incompatible with J.foo(), I.foo()\n" + 
+			"----------\n"
+			// types J and I are incompatible; both define foo(), but with unrelated return types
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I { String foo(); }\n" +
+				"class A { public Object foo() { return null; } }" +
+				"public class X<T extends A&I> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	class A { public Object foo() { return null; } }public class X<T extends A&I> {}\r\n" + 
+			"	                                                             ^\n" + 
+			"The return type is incompatible with I.foo(), A.foo()\n" + 
+			"----------\n"
+			// foo() in A cannot implement foo() in I; attempting to use incompatible return type
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I { Number foo(); }\n" +
+				"interface J { Integer foo(); }\n" +
+				"public class X implements I, J {\n" +
+				"	public Integer foo() {return 1;}\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		I i = null;\n" +
+				"		J j = null;\n" +
+				"		System.out.print(i instanceof J);\n" +
+				"		System.out.print('=');\n" +
+				"		System.out.print(j instanceof I);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"false=false"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I { Number foo(A a); }\n" +
+				"interface J<T> { Integer foo(A<T> a); }\n" +
+				"class A<T>{}\n" +
+				"public class X implements I, J {\n" +
+				"	public Integer foo(A a) {return 1;}\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		I i = null;\n" +
+				"		J j = null;\n" +
+				"		System.out.print(i instanceof J);\n" +
+				"		System.out.print('=');\n" +
+				"		System.out.print(j instanceof I);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"false=false"
+		);
+	}
 }

@@ -332,6 +332,12 @@ void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 	// non visible abstract methods cannot be overridden so the type must be defined abstract
 	problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
 }
+void computeInheritedMethods() {
+	ReferenceBinding superclass = (this.type.modifiers & IConstants.AccInterface) == 0
+		? this.type.superclass() // class or enum
+		: this.type.scope.getJavaLangObject(); // check interface methods against Object
+	computeInheritedMethods(superclass, type.superInterfaces());
+}
 /*
 Binding creation is responsible for reporting:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations)
@@ -344,20 +350,18 @@ Binding creation is responsible for reporting:
 	- check the type of any array is not void
 	- check that each exception type is Throwable or a subclass of it
 */
-void computeInheritedMethods() {
+void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	// only want to remember inheritedMethods that can have an impact on the current type
 	// if an inheritedMethod has been 'replaced' by a supertype's method then skip it
 
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
 	int lastPosition = -1;
-	ReferenceBinding[] itsInterfaces = type.superInterfaces();
+	ReferenceBinding[] itsInterfaces = superInterfaces;
 	if (itsInterfaces != NoSuperInterfaces)
 		interfacesToVisit[++lastPosition] = itsInterfaces;
 
-	ReferenceBinding superType = (this.type.modifiers & IConstants.AccInterface) == 0
-		? this.type.superclass() // class or enum
-		: this.type.scope.getJavaLangObject(); // check interface methods against Object
+	ReferenceBinding superType = superclass;
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
 	boolean allSuperclassesAreAbstract = true;
 
@@ -497,6 +501,11 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	return areReturnTypesEqual(method, inheritedMethod) && areParametersEqual(method, inheritedMethod);
+}
+public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inheritedMethod) {
+	return method.returnType != inheritedMethod.returnType
+		&& org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
+		&& method.areParametersEqual(inheritedMethod);
 }
 ReferenceBinding errorException() {
 	if (errorException == null)

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 class MethodVerifier15 extends MethodVerifier {
 
@@ -155,6 +156,36 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 
 	super.checkInheritedMethods(methods, length);
 }
+void checkTypeVariableMethods() {
+	char[][] methodSelectors = this.inheritedMethods.keyTable;
+	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
+		if (methodSelectors[s] == null) continue nextSelector;
+		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
+		if (inherited.length == 1) continue nextSelector;
+
+		int index = -1;
+		MethodBinding[] matchingInherited = new MethodBinding[inherited.length];
+		for (int i = 0, length = inherited.length; i < length; i++) {
+			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
+			MethodBinding inheritedMethod = inherited[i];
+			if (inheritedMethod != null) {
+				matchingInherited[++index] = inheritedMethod;
+				for (int j = i + 1; j < length; j++) {
+					MethodBinding otherInheritedMethod = inherited[j];
+					if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
+						continue;
+					otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
+					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+						matchingInherited[++index] = otherInheritedMethod;
+						inherited[j] = null; // do not want to find it again
+					}
+				}
+			}
+			if (index > 0)
+				checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
+		}
+	}
+}
 MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
 	if (inheritedMethod == null) return null;
 
@@ -221,6 +252,12 @@ boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 	}
 	return false;
 }
+public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inheritedMethod) {
+	MethodBinding sub = computeSubstituteMethod(inheritedMethod, method);
+	return org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, sub.selector)
+		&& method.areParameterErasuresEqual(sub)
+		&& !areReturnTypesEqual(method, sub);
+}
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	TypeBinding[] currentVars = one.typeVariables;
 	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
@@ -230,5 +267,29 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+}
+void verify(SourceTypeBinding someType) {
+	super.verify(someType);
+
+	for (int i = someType.typeVariables.length; --i >= 0;) {
+		TypeVariableBinding var = someType.typeVariables[i];
+		// must verify bounds if the variable has more than 1
+		if (var.superInterfaces == NoSuperInterfaces) continue;
+		if (var.superInterfaces.length == 1 && var.superclass.id == TypeIds.T_JavaLangObject) continue;
+
+		this.currentMethods = new HashtableOfObject(0);
+		ReferenceBinding superclass = var.superclass();
+		if (superclass.kind() == Binding.TYPE_PARAMETER)
+			superclass = (ReferenceBinding) superclass.erasure();
+		ReferenceBinding[] itsInterfaces = var.superInterfaces();
+		ReferenceBinding[] superInterfaces = new ReferenceBinding[itsInterfaces.length];
+		for (int j = itsInterfaces.length; --j >= 0;) {
+			superInterfaces[j] = itsInterfaces[j].kind() == Binding.TYPE_PARAMETER
+				? (ReferenceBinding) itsInterfaces[j].erasure()
+				: itsInterfaces[j];
+		}
+		computeInheritedMethods(superclass, superInterfaces);
+		checkTypeVariableMethods();
+	}
 }
 }
