@@ -15,7 +15,12 @@ Eclipse SDK Build ?? - ??th December 2001
 <br>Project org.eclipse.jdt.core v_???
 <h2>
 What's new in this drop</h2>
-
+<ul>
+<li> Added new compiler option to toggle JCK compliance level (can be either "1.3" or "1.4" - 1.3 being the default), and it will
+affect the behavior of the compiler with respect to JLS 8.1.5 (inherited member shadows enclosing one).
+Option is located on <code>JavaCore#getOptions()</code> and named <code>"org.eclipse.jdt.core.compiler.compliance"</code>
+Accordingly, the batch compiler accepts an extra command line argument "-jck 1.3" or "-jck 1.4" (1.3 compliance being the default).
+</ul>
 <h3>
 Problem Reports Fixed</h3>
 <a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3361">3361</a>
@@ -55,7 +60,49 @@ JCK 1.4 - ICLS - class from outer and public class from superclass in nested cla
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3383">3383</a>
 JCK 1.4 - ICLS - class from outer and class from superclass in nested class (1GK7GQA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3384">3384</a>
+JCK 1.4 - ICLS - static class from outer and public static class from superclass in top-level nested class. (1GK7CTV)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3387">3387</a>
 JCK 1.4 - ICLS - static field from outer class and inherited public field in top-level nested class (1GK7H0B)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3388">3388</a>
+JCK 1.4 - ICLS - static class from outer and protected static class from superclass in top-level nested class (1GK7BGP)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3389">3389</a>
+JCK 1.4 - ICLS - static class from outer and static class from superclass in top-level nested class (1GK7D2P)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3390">3390</a>
+JCK 1.4 - ICLS - static class from outer and protected class from superclass in top-level nested class (1GK7D7Q) 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3391">3391</a>
+JCK 1.4 - ICLS - static class from outer and public class from superclass in top-level nested class (1GK7DBD)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3392">3392</a>
+JCK 1.4 - ICLS - static class from outer and static class from superclass in nested class (1GK7ERE)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3393">3393</a>
+JCK 1.4 - ICLS - static class from outer and protected class from superclass in nested class (1GK7EVB)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3394">3394</a>
+JCK 1.4 - ICLS - static class from outer and public class from superclass in nested class (1GK7EZB)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3395">3395</a>
+JCK 1.4 - ICLS - static class from outer and class from superclass in nested class (1GK7F4S)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3396">3396</a>
+JCK 1.4 - ICLS - class from outer and protected static class from superclass in top-level nested class (1GK7F8L)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3397">3397</a>
+JCK 1.4 - ICLS - class from outer and public static class from superclass in top-level nested class (1GK7FCN)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3398">3398</a>
+JCK 1.4 - ICLS - class from outer and static class from superclass in top-level nested class (1GK7FHB)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3399">3399</a>
+JCK 1.4 - ICLS - static field from outer class and inherited field in top-level nested class (1GK7H2Z)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3400">3400</a>
+JCK 1.4 - ICLS - static field from outer class and inherited protected field in top-level nested class (1GK7GW6)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3401">3401</a>
+JCK 1.4 - ICLS - field from outer class and inherited field in top-level nested class (1GK7HEF)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3402">3402</a>
+JCK 1.4 - ICLS - static field from outer class and inherited protected field in nested class (1GK7HH1)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3403">3403</a>
+JCK 1.4 - ICLS - field from outer class and inherited protected field in top-level nested class (1GK7H5X)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3404">3404</a>
+JCK 1.4 - ICLS - field from outer class and inherited public field in top-level nested class (1GK7HBJ)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3405">3405</a>
+JCK 1.4 - ICLS - static field from outer class and inherited public field in nested class (1GK7HKE)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3406">3406</a>
+JCK 1.4 - ICLS - static field from outer class and inherited field in nested class (1GK7HMN)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3407">3407</a>
+JCK 1.4 - ICLS - field from outer class and inherited protected field in nested class (1GK7L79)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6061">6061</a>
 unreachable code/unused temp ? 
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6443">6443</a>
