@@ -87,6 +87,14 @@ public static State readState(IProject project, DataInputStream in) throws IOExc
 	return State.read(project, in);
 }
 
+/**
+ * Notification that a build may be initiated, i.e. the JavaModel got notified of PRE_AUTO_BUILD event
+ * Note that if auto-build is off, then notification may occur though no actual build will take place.
+ * Allow, for instance, to reset compilation problem counters.
+ */
+public static void prepareToBuild(IResourceChangeEvent event) { // TODO: (kent) add support for global problem count
+}
+
 public static void writeState(Object state, DataOutputStream out) throws IOException {
 	((State) state).write(out);
 }

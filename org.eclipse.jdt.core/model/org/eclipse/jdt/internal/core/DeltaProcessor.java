@@ -1660,6 +1660,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
 					this.manager.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
+					JavaBuilder.prepareToBuild(event);
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
