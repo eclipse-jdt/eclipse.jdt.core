@@ -196,12 +196,20 @@ public class BinaryTypeConverter {
 		if (neededCount != 0) { // add default constructor in first position
 			typeDeclaration.methods[0] = typeDeclaration.createDefaultConstructor(false, false);
 		}
+		boolean hasAbstractMethods = false;
 		for (int i = 0; i < methodCount; i++) {
 			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult);
-			if (isInterface || method.isAbstract()) { // fix-up flag 
+			boolean isAbstract;
+			if ((isAbstract = method.isAbstract()) || isInterface) { // fix-up flag 
 				method.modifiers |= CompilerModifiers.AccSemicolonBody;
 			}
+			if (isAbstract) {
+				hasAbstractMethods = true;
+			}
 			typeDeclaration.methods[neededCount + i] = method;
+		}
+		if (hasAbstractMethods) {
+			typeDeclaration.bits |= ASTNode.HasAbstractMethods;
 		}
 		return typeDeclaration;
 	}

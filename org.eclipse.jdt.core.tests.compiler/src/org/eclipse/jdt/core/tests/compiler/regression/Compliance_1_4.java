@@ -927,7 +927,7 @@ public void test025() {
 		"1. ERROR in p1\\X.java (at line 2)\n" + 
 		"	public class X extends AbstractY {	\n" + 
 		"	             ^\n" + 
-		"Class must implement the inherited abstract method I.init(String, int)\n" + 
+		"The type X must implement the inherited abstract method I.init(String, int)\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\X.java (at line 4)\n" + 
 		"	init(\"hello\");	\n" + 
@@ -966,7 +966,7 @@ public void test026() {
 		"2. ERROR in p1\\X.java (at line 7)\n" + 
 		"	class AbstractY implements I {	\n" + 
 		"	      ^^^^^^^^^\n" + 
-		"Class must implement the inherited abstract method I.init(String, int)\n" + 
+		"The type AbstractY must implement the inherited abstract method I.init(String, int)\n" + 
 		"----------\n"
 );
 }
@@ -1693,7 +1693,7 @@ public void test046() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends Y {\n" + 
 		"	             ^\n" + 
-		"Class must implement the inherited abstract method Y.foo()\n" + 
+		"The type X must implement the inherited abstract method Y.foo()\n" + 
 		"----------\n"
 	);
 }

@@ -489,9 +489,13 @@ public class SourceTypeConverter implements CompilerModifiers {
 				type.methods[0] = type.createDefaultConstructor(false, false);
 			}
 			int index = 0;
+			boolean hasAbstractMethods = false;
 			for (int i = 0; i < sourceMethodCount; i++) {
 				ISourceMethod sourceMethod = sourceMethods[i];
 				boolean isConstructor = sourceMethod.isConstructor();
+				if ((sourceMethod.getModifiers() & Flags.AccAbstract) != 0) {
+					hasAbstractMethods = true;
+				}
 				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
 					AbstractMethodDeclaration method =convert(sourceMethod, compilationResult);
 					if (isInterface || method.isAbstract()) { // fix-up flag 
@@ -500,6 +504,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 					type.methods[extraConstructor + index++] = method;
 				}
 			}
+			if (hasAbstractMethods) type.bits |= ASTNode.HasAbstractMethods;
 		}
 		
 		return type;

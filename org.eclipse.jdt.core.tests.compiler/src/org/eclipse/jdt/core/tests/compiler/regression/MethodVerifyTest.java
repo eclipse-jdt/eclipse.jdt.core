@@ -47,12 +47,12 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in ALL.java (at line 5)\n" + 
 			"	class J<T> implements I<B> { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I<B>.foo(B)\n" + 
+			"The type J<T> must implement the inherited abstract method I<B>.foo(B)\n" + 
 			"----------\n" + 
 			"2. ERROR in ALL.java (at line 7)\n" + 
 			"	class L<T> implements I { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Object)\n" + 
+			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
 			"3. ERROR in ALL.java (at line 8)\n" + 
 			"	class Y<T> extends X<A> { public void foo(T t) { super.foo(t); } }\n" + 
@@ -103,13 +103,13 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in J.java (at line 1)\n" + 
 			"	class J<T> implements I<B> { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I<B>.foo(B)\n" + 
+			"The type J<T> must implement the inherited abstract method I<B>.foo(B)\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in L.java (at line 1)\n" + 
 			"	class L<T> implements I { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Object)\n" + 
+			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 1)\n" + 
@@ -166,13 +166,13 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in J.java (at line 1)\n" + 
 			"	class J<T> implements I<B> { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I<B>.foo(B)\n" + 
+			"The type J<T> must implement the inherited abstract method I<B>.foo(B)\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in L.java (at line 1)\n" + 
 			"	class L<T> implements I { public void foo(T t) {} }\n" + 
 			"	      ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Object)\n" + 
+			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 1)\n" + 

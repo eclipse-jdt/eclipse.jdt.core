@@ -7741,7 +7741,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	public class X<V> implements Map<String, V> {\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method Map<String,V>.putAll(Map<? extends String,? extends V>)\n" + 
+			"The type X<V> must implement the inherited abstract method Map<String,V>.putAll(Map<? extends String,? extends V>)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	public void putAll(Map<String, ? extends V> t) { }\n" + 
@@ -9053,7 +9053,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	X<R> xr = new X<R>(){  \n" + 
 			"	              ^^^^^^\n" + 
-			"Class must implement the inherited abstract method X<R>.bar(T)\n" + 
+			"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
 			"----------\n");
 	}
 	//74594
@@ -10000,7 +10000,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
+			"The type X must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -10028,7 +10028,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
+			"The type X must implement the inherited abstract method I.foo(Class<T>)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
@@ -10556,7 +10556,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 33)\n" + 
 			"	class M2<I> implements M1<I> { \n" + 
 			"	      ^^\n" + 
-			"Class must implement the inherited abstract method M1<I>.mm(M1<? extends I>)\n" + 
+			"The type M2<I> must implement the inherited abstract method M1<I>.mm(M1<? extends I>)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 34)\n" + 
 			"	public <J extends I> void mm(M1<J> q) { \n" + 

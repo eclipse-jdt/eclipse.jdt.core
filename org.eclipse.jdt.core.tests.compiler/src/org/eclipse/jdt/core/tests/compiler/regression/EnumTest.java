@@ -459,7 +459,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public enum X implements Runnable { \n" + 
 			"	            ^\n" + 
-			"Class must implement the inherited abstract method Runnable.run()\n" + 
+			"The type X must implement the inherited abstract method Runnable.run()\n" + 
 			"----------\n");
 	}
 	// check enum constants with wrong arguments
@@ -747,12 +747,12 @@ public class EnumTest extends AbstractComparisonTest {
 				"}\n" + 
 				"\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public final enum X {\n" + 
-			"	                  ^\n" + 
-			"Illegal modifier for the enum X; only public & abstract are permitted\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public final enum X {\n" + 
+		"	                  ^\n" + 
+		"Illegal modifier for the enum X; only public is permitted\n" + 
+		"----------\n");
 	}	
 	
 	// values is using arraycopy instead of clone 
@@ -1406,13 +1406,18 @@ public class EnumTest extends AbstractComparisonTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78915
 	 */
-	public void _test049() {
+	public void test049() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public abstract enum X {}"
 			},
-			"ERROR"
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public abstract enum X {}\n" + 
+		"	                     ^\n" + 
+		"Illegal modifier for the enum X; only public is permitted\n" + 
+		"----------\n"
 		);
 	}
 	/**
@@ -1449,6 +1454,92 @@ public class EnumTest extends AbstractComparisonTest {
 			""
 		);
 	}	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916
+	 */
+	public void test052() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	A\n" + 
+				"	;\n" + 
+				"	\n" + 
+				"	public abstract void foo();\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	public abstract void foo();\n" + 
+		"	                     ^^^^^\n" + 
+		"The enum X can only define the abstract method foo() if it also defines enum constants with corresponding implementations\n" + 
+		"----------\n"
+		);
+	}		
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916 - variation
+	 */
+	public void test053() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	A () { public void foo() {} }\n" + 
+				"	;\n" + 
+				"	\n" + 
+				"	public abstract void foo();\n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
+		
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916 - variation
+	 */
+	public void test054() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	A() {}\n" + 
+				"	;\n" + 
+				"	\n" + 
+				"	public abstract void foo();\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	A() {}\n" + 
+		"	    ^\n" + 
+		"The class new X(){} must implement the inherited abstract method X.foo()\n" + 
+		"----------\n"
+		);
+	}			
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916 - variation
+	 */
+	public void test055() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	;\n" + 
+				"	\n" + 
+				"	public abstract void foo();\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public abstract void foo();\n" + 
+		"	                     ^^^^^\n" + 
+		"The enum X can only define the abstract method foo() if it also defines enum constants with corresponding implementations\n" + 
+		"----------\n"
+		);
+	}		
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

@@ -85,18 +85,18 @@ public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBindin
 		// Must implement the inherited abstract method %1
 		// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
 		IProblem.AbstractMethodMustBeImplemented,
-		new String[] {
-			new String(
-				CharOperation.concat(
-					abstractMethod.declaringClass.readableName(),
-					abstractMethod.readableName(),
-					'.'))},
-		new String[] {
-			new String(
-				CharOperation.concat(
-					abstractMethod.declaringClass.shortReadableName(),
-					abstractMethod.shortReadableName(),
-					'.'))},
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
+		        new String(abstractMethod.declaringClass.readableName()), 
+		        new String(type.readableName()), 
+		},
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
+		        new String(abstractMethod.declaringClass.shortReadableName()), 
+		        new String(type.shortReadableName()), 
+		},
 		type.sourceStart(),
 		type.sourceEnd());
 }
@@ -1048,6 +1048,26 @@ public void emptyControlFlowStatement(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
+public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method) {
+	MethodBinding abstractMethod = method.binding;
+	this.handle(
+		// Must implement the inherited abstract method %1
+		// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
+		IProblem.EnumAbstractMethodMustBeImplemented,
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
+		        new String(abstractMethod.declaringClass.readableName()), 
+		},
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
+		        new String(abstractMethod.declaringClass.shortReadableName()), 
+		},
+		method.sourceStart(),
+		method.sourceEnd());
+}
+
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
 	StringBuffer buffer = new StringBuffer();
 	StringBuffer shortBuffer = new StringBuffer();

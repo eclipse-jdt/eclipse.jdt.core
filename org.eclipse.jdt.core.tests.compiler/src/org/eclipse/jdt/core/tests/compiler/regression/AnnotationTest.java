@@ -217,12 +217,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"	Runnable value();\n" + 
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	Runnable value();\n" + 
-			"	^^^^^^^^\n" + 
-			"Invalid type Runnable for the annotation attribute X.value; only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Runnable value();\n" + 
+		"	^^^^^^^^\n" + 
+		"Invalid type Runnable for the annotation attribute X.value; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
+		"----------\n");
 	}
 	
 	// check annotation method missing return type
@@ -1122,4 +1122,25 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"The value for annotation attribute I.value must be a constant expression\n" + 
 		"----------\n");
 	}			
+	
+	// 79349
+	public void test049() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"\n" + 
+				"@Documented\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@Target(ElementType.TYPE)\n" + 
+				"@interface MyAnn {\n" + 
+				"  String value() default \"Default Message\";\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public @MyAnn void something() { }	\n" + 
+				"}\n"
+			},
+		"");
+	}		
 }

@@ -393,7 +393,7 @@ public void test011() {
 		"1. ERROR in p2\\Aa.java (at line 3)\n" + 
 		"	class B implements p1.A.C {						\n" + 
 		"	      ^\n" + 
-		"Class must implement the inherited abstract method A.C.sMethod()\n" + 
+		"The type Aa.B must implement the inherited abstract method A.C.sMethod()\n" + 
 		"----------\n"
 	);
 }
@@ -456,17 +456,17 @@ public void test013() {
 		"1. ERROR in p1\\A.java (at line 9)\n" + 
 		"	public class aClass implements B, B.C {			\n" + 
 		"	             ^^^^^^\n" + 
-		"Class must implement the inherited abstract method A.B.C.anotherMethod(int)\n" + 
+		"The type A.aClass must implement the inherited abstract method A.B.C.anotherMethod(int)\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 11)\n" + 
 		"	public void anotherMethod(int A) {};	\n" + 
 		"	                         ^\n" + 
 		"Syntax error on token \"(\", ; expected\n" + 
-		"----------\n" +
-		"3. ERROR in p1\\A.java (at line 11)\n" +
-		"	public void anotherMethod(int A) {};	\n" +
-		"	                               ^\n" +
-		"Syntax error on token \")\", ; expected\n" +
+		"----------\n" + 
+		"3. ERROR in p1\\A.java (at line 11)\n" + 
+		"	public void anotherMethod(int A) {};	\n" + 
+		"	                               ^\n" + 
+		"Syntax error on token \")\", ; expected\n" + 
 		"----------\n"
 	);
 }

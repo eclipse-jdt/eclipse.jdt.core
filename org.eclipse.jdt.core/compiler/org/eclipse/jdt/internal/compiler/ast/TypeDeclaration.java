@@ -940,12 +940,17 @@ public class TypeDeclaration
 			}
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
+			boolean hasEnumConstants = false;
+			boolean hasEnumConstantsWithoutBody = false;
 			if (this.fields != null) {
 				for (int i = 0, count = this.fields.length; i < count; i++) {
 					FieldDeclaration field = this.fields[i];
 					switch(field.getKind()) {
-						case AbstractVariableDeclaration.FIELD:
 						case AbstractVariableDeclaration.ENUM_CONSTANT:
+							hasEnumConstants = true;
+							if (!(field.initialization instanceof QualifiedAllocationExpression))
+								hasEnumConstantsWithoutBody = true;
+						case AbstractVariableDeclaration.FIELD:
 							FieldBinding fieldBinding = field.binding;
 							if (fieldBinding == null) {
 								// still discover secondary errors
@@ -972,6 +977,16 @@ public class TypeDeclaration
 			}
 			if (needSerialVersion) {
 				this.scope.problemReporter().missingSerialVersion(this);
+			}
+			// check enum abstract methods
+			if (getKind() == IGenericType.ENUM && this.binding.isAbstract()) {
+				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
+					for (int i = 0, count = this.methods.length; i < count; i++) {
+						if (this.methods[i].isAbstract()) {
+							this.scope.problemReporter().enumAbstractMethodMustBeImplemented(this.methods[i]);
+						}
+					}
+				}
 			}
 			if (this.memberTypes != null) {
 				for (int i = 0, count = this.memberTypes.length; i < count; i++) {

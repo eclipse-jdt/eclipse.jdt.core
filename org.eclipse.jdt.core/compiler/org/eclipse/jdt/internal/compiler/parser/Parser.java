@@ -7327,12 +7327,16 @@ protected void dispatchDeclarationInto(int length) {
 		return;
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0;
+	boolean hasAbstractMethods = false;
 	for (int i = length - 1; i >= 0; i--) {
 		ASTNode astNode = this.astStack[this.astPtr--];
 		if (astNode instanceof AbstractMethodDeclaration) {
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 2;
 			size2++;
+			if (((AbstractMethodDeclaration) astNode).isAbstract()) {
+				hasAbstractMethods = true;
+			}
 		} else if (astNode instanceof TypeDeclaration) {
 			flag[i] = 3;
 			size3++;
@@ -7350,6 +7354,7 @@ protected void dispatchDeclarationInto(int length) {
 	}
 	if (size2 != 0) {
 		typeDecl.methods = new AbstractMethodDeclaration[size2];
+		if (hasAbstractMethods) typeDecl.bits |= ASTNode.HasAbstractMethods;
 	}
 	if (size3 != 0) {
 		typeDecl.memberTypes = new TypeDeclaration[size3];
@@ -7409,12 +7414,16 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
    int[] flag = new int[length + 1]; //plus one -- see <HERE>
    int size1 = 0, size2 = 0, size3 = 0;
    TypeDeclaration enumDeclaration = (TypeDeclaration) this.astStack[this.astPtr - length];
+   boolean hasAbstractMethods = false;
    for (int i = length - 1; i >= 0; i--) {
       ASTNode astNode = this.astStack[this.astPtr--];
       if (astNode instanceof AbstractMethodDeclaration) {
          //methods and constructors have been regrouped into one single list
          flag[i] = 2;
          size2++;
+		if (((AbstractMethodDeclaration) astNode).isAbstract()) {
+			hasAbstractMethods = true;
+		}         
       } else if (astNode instanceof TypeDeclaration) {
          flag[i] = 3;
          size3++;
@@ -7435,6 +7444,7 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
    }
    if (size2 != 0) {
       enumDeclaration.methods = new AbstractMethodDeclaration[size2];
+      if (hasAbstractMethods) enumDeclaration.bits |= ASTNode.HasAbstractMethods;
    }
    if (size3 != 0) {
       enumDeclaration.memberTypes = new TypeDeclaration[size3];

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -452,18 +453,22 @@ public class ClassScope extends Scope {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccStrictfp | AccEnum);
+					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 			} else if (sourceType.isLocalType()) {
-				int unexpectedModifiers = ~(AccAbstract | AccStrictfp | AccFinal | AccEnum); // add final since implicitly set for anonymous type
+				int unexpectedModifiers = ~(AccStrictfp | AccFinal | AccEnum); // add final since implicitly set for anonymous type
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForLocalEnum(sourceType);
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(AccPublic | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
+			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
+				modifiers |= AccAbstract;
+			}
+			
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types

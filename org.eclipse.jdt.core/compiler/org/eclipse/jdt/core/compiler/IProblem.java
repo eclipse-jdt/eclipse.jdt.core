@@ -1021,6 +1021,8 @@ public interface IProblem {
 	int CannotExtendEnum = TypeRelated + 756;
 	/** @since 3.1 */
 	int CannotInvokeSuperConstructorInEnum = MethodRelated + 757;
+	/** @since 3.1 */
+	int EnumAbstractMethodMustBeImplemented = MethodRelated + 758;
 
 	/**
 	 * Var args

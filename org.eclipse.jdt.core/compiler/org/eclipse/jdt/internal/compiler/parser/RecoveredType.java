@@ -330,12 +330,14 @@ public TypeDeclaration updatedTypeDeclaration(){
 	/* update methods */
 	int existingCount = typeDeclaration.methods == null ? 0 : typeDeclaration.methods.length;
 	boolean hasConstructor = false, hasRecoveredConstructor = false;
+	boolean hasAbstractMethods = false;
 	int defaultConstructorIndex = -1;
 	if (methodCount > 0){
 		AbstractMethodDeclaration[] methodDeclarations = new AbstractMethodDeclaration[existingCount + methodCount];
 		for (int i = 0; i < existingCount; i++){
 			AbstractMethodDeclaration m = typeDeclaration.methods[i];
 			if (m.isDefaultConstructor()) defaultConstructorIndex = i;
+			if (m.isAbstract()) hasAbstractMethods = true;
 			methodDeclarations[i] = m;
 		}
 		// may need to update the declarationSourceEnd of the last method
@@ -347,9 +349,11 @@ public TypeDeclaration updatedTypeDeclaration(){
 		for (int i = 0; i < methodCount; i++){
 			AbstractMethodDeclaration updatedMethod = methods[i].updatedMethodDeclaration();			
 			if (updatedMethod.isConstructor()) hasRecoveredConstructor = true;
+			if (updatedMethod.isAbstract()) hasAbstractMethods = true;
 			methodDeclarations[existingCount + i] = updatedMethod;			
 		}
 		typeDeclaration.methods = methodDeclarations;
+		if (hasAbstractMethods) typeDeclaration.bits |= ASTNode.HasAbstractMethods;
 		hasConstructor = typeDeclaration.checkConstructors(this.parser());
 	} else {
 		for (int i = 0; i < existingCount; i++){
