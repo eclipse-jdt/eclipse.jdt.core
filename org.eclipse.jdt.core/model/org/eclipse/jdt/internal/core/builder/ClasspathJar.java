@@ -62,25 +62,24 @@ boolean isPackage(String qualifiedPackageName) {
 	packageCache.put("", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	try {
 		this.zipFile = new ZipFile(zipFilename);
-	} catch(IOException e) {
-		return false;
-	}
 
-	nextEntry : for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
-
-		// add the package name & all of its parent packages
-		int last = fileName.lastIndexOf('/');
-		while (last > 0) {
-			// extract the package name
-			String packageName = fileName.substring(0, last);
-			if (packageCache.containsKey(packageName))
-				continue nextEntry;
-			packageCache.put(packageName, packageName);
-			last = packageName.lastIndexOf('/');
+		nextEntry : for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = ((ZipEntry) e.nextElement()).getName();
+	
+			// add the package name & all of its parent packages
+			int last = fileName.lastIndexOf('/');
+			while (last > 0) {
+				// extract the package name
+				String packageName = fileName.substring(0, last);
+				if (packageCache.containsKey(packageName))
+					continue nextEntry;
+				packageCache.put(packageName, packageName);
+				last = packageName.lastIndexOf('/');
+			}
 		}
-	}
-	return packageCache.containsKey(qualifiedPackageName);
+		return packageCache.containsKey(qualifiedPackageName);
+	} catch(Exception e) {}
+	return false;
 }
 
 public String toString() {
