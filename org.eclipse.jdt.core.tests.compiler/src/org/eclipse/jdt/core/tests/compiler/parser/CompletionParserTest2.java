@@ -7149,4 +7149,70 @@ public void test0127(){
 		expectedReplacedSource,
 		"diet ast");
 }
+public void test0128(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    new Object() {\n" +
+		"      void bar() {\n" +
+		"        a[zzz\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	expectedParentNodeToString = "a[<CompleteOnName:zzz>]";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    new Object() {\n" +
+		"      () {\n" +
+		"      }\n" +
+		"      void bar() {\n" +
+		"        a[<CompleteOnName:zzz>];\n" +
+		"      }\n" +
+		"    };\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
 }

@@ -471,7 +471,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				break nextElement;
 			case K_BETWEEN_LEFT_AND_RIGHT_BRACKET :
 				ArrayReference arrayReference;
-				if(expressionPtr > 0 && expressionStack[expressionPtr] == expression) {
+				if(identifierPtr < 0 && expressionPtr > 0 && expressionStack[expressionPtr] == expression) {
 					arrayReference =
 						new ArrayReference(
 							expressionStack[expressionPtr-1],
