@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 152 };
+//		TESTS_NUMBERS = new int[] { 153 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4695,4 +4695,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No constant", constant);
 		assertEquals("Wrong value", "1", String.valueOf(constant));
    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88841
+    public void test0153() throws CoreException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0153", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+    }
 }

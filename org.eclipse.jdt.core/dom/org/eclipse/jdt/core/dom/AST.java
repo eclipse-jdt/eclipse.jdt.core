@@ -196,17 +196,20 @@ public final class AST {
      * @since 3.0
 	 */
 	private AST(int level) {
-		if ((level != AST.JLS2)
-			&& (level != AST.JLS3)) {
-			throw new IllegalArgumentException();
+		switch (level) {
+			case AST.JLS3:
+			case AST.JLS2:
+				break;
+			default:
+				throw new IllegalArgumentException();
 		}
-		this.apiLevel = level;
 		// initialize a scanner
 		this.scanner = new Scanner(
 				true /*comment*/, 
 				true /*whitespace*/, 
 				false /*nls*/, 
 				ClassFileConstants.JDK1_3 /*sourceLevel*/, 
+				ClassFileConstants.JDK1_5 /*complianceLevel*/, 
 				null/*taskTag*/, 
 				null/*taskPriorities*/,
 				true/*taskCaseSensitive*/);
@@ -296,12 +299,20 @@ public final class AST {
 		} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
 			sourceLevel = ClassFileConstants.JDK1_5;
 		}
+		Object complianceLevelOption = options.get(JavaCore.COMPILER_COMPLIANCE);
+		long complianceLevel = ClassFileConstants.JDK1_3;
+		if (JavaCore.VERSION_1_4.equals(complianceLevelOption)) {
+			complianceLevel = ClassFileConstants.JDK1_4;
+		} else if (JavaCore.VERSION_1_5.equals(complianceLevelOption)) {
+			complianceLevel = ClassFileConstants.JDK1_5;
+		}
 		// override scanner if 1.4 or 1.5 asked for
 		this.scanner = new Scanner(
 			true /*comment*/, 
 			true /*whitespace*/, 
 			false /*nls*/, 
 			sourceLevel /*sourceLevel*/,
+			complianceLevel /*complianceLevel*/,
 			null/*taskTag*/, 
 			null/*taskPriorities*/,
 			true/*taskCaseSensitive*/);
