@@ -1220,16 +1220,14 @@ public ProblemReporter problemReporter() {
 }
 protected void pushOnIntArrayStack(int[] positions) {
 
-	try {
-		intArrayStack[++intArrayPtr] = positions;
-	} catch (IndexOutOfBoundsException e) {
-		//intPtr is correct 
-		int oldStackLength = intArrayStack.length;
-		int oldStack[][] = intArrayStack;
-		intArrayStack = new int[oldStackLength + StackIncrement][];
-		System.arraycopy(oldStack, 0, intArrayStack, 0, oldStackLength);
-		intArrayStack[intArrayPtr] = positions;
+	int stackLength = this.intArrayStack.length;
+	if (++this.intArrayPtr >= stackLength) {
+		System.arraycopy(
+			this.intArrayStack, 0,
+			this.intArrayStack = new int[stackLength + StackIncrement][], 0,
+			stackLength);
 	}
+	intArrayStack[intArrayPtr] = positions;
 }
 protected void resetModifiers() {
 	super.resetModifiers();

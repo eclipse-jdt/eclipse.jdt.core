@@ -321,16 +321,14 @@ protected void consumeOpenBlock() {
 	// OpenBlock ::= $empty
 
 	super.consumeOpenBlock();
-	try {
-		blockStarts[realBlockPtr] = scanner.startPosition;
-	} catch (IndexOutOfBoundsException e) {
-		//realBlockPtr is correct 
-		int oldStackLength = blockStarts.length;
-		int oldStack[] = blockStarts;
-		blockStarts = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, blockStarts, 0, oldStackLength);
-		blockStarts[realBlockPtr] = scanner.startPosition;
+	int stackLength = this.blockStarts.length;
+	if (this.realBlockPtr >= stackLength) {
+		System.arraycopy(
+			this.blockStarts, 0,
+			this.blockStarts = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.blockStarts[this.realBlockPtr] = scanner.startPosition;
 }
 protected void consumePackageDeclarationName() {
 	// PackageDeclarationName ::= 'package' Name
@@ -1033,21 +1031,19 @@ protected void pushOnElementStack(int kind, int info){
 	this.previousKind = 0;
 	this.previousInfo = 0;
 	
-	try {
-		this.elementPtr++;
-		this.elementKindStack[this.elementPtr] = kind;
-		this.elementInfoStack[this.elementPtr] = info;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.elementKindStack.length;
-		int oldElementStack[] = this.elementKindStack;
-		int oldElementInfoStack[] = this.elementInfoStack;
-		this.elementKindStack = new int[oldStackLength + StackIncrement];
-		this.elementInfoStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldElementStack, 0, this.elementKindStack, 0, oldStackLength);
-		System.arraycopy(oldElementInfoStack, 0, this.elementInfoStack, 0, oldStackLength);
-		this.elementKindStack[this.elementPtr] = kind;
-		this.elementInfoStack[this.elementPtr] = info;
+	int stackLength = this.elementKindStack.length;
+	if (++this.elementPtr >= stackLength) {
+		System.arraycopy(
+			this.elementKindStack, 0,
+			this.elementKindStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
+		System.arraycopy(
+			this.elementInfoStack, 0,
+			this.elementInfoStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.elementKindStack[this.elementPtr] = kind;
+	this.elementInfoStack[this.elementPtr] = info;
 }
 public void recoveryExitFromVariable() {
 	if(currentElement != null && currentElement instanceof RecoveredField

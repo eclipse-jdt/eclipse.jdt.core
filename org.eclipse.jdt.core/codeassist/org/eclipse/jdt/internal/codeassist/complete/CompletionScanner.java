@@ -85,6 +85,9 @@ public char[] getCurrentIdentifierSource() {
  */
 public boolean getNextCharAsJavaIdentifierPart() {
 
+	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+		return false;
+
 	int temp = this.currentPosition;
 	try {
 		if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
