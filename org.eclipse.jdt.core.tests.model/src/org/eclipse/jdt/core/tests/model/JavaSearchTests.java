@@ -292,7 +292,8 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testMethodReference5"));
+		System.err.println("WARNING: Only subset of test cases are running for "+JavaSearchTests.class.getName());
+		suite.addTest(new JavaSearchTests("testPatternMatchPackageReference2"));
 		return suite;
 	}
 	
@@ -309,6 +310,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testVariousPackageReference"));
 	suite.addTest(new JavaSearchTests("testAccuratePackageReference"));
 	suite.addTest(new JavaSearchTests("testPatternMatchPackageReference"));
+	suite.addTest(new JavaSearchTests("testPatternMatchPackageReference2"));
 
 	// type declaration
 	suite.addTest(new JavaSearchTests("testSimpleTypeDeclaration"));
@@ -2190,6 +2192,21 @@ public void testPatternMatchPackageReference() throws CoreException {
 		"src/PackageReference/I.java void PackageReference.I.foo() [p3.p2.p]\n" + 
 		"src/PackageReference/J.java void PackageReference.J.foo() [p3.p2.p]",
 		resultCollector);
+}
+/**
+ * Test pattern match package references
+ * Just verify that there's no ArrayOutOfBoundException to validate fix for
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=64421
+ */
+public void testPatternMatchPackageReference2() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"*", 
+		PACKAGE,
+		REFERENCES,
+		getJavaSearchScope(), 
+		resultCollector);
+	resultCollector.toString();
 }
 /**
  * Test pattern match type declaration

@@ -192,8 +192,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	}
 	if (last == -1) {
 		last = this.pattern.segments.length;
-		if (last > positions.length) last = positions.length;
 	}
+	if (last == 0) return;
+	if (last > positions.length) last = positions.length;
 	int sourceStart = (int) (positions[0] >>> 32);
 	int sourceEnd = ((int) positions[last - 1]);
 	SearchMatch match = locator.newPackageReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, reference);

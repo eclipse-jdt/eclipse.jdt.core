@@ -661,6 +661,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			resource.delete(true, null);
 		} catch (CoreException e) {
 			lastException = e;
+		} catch (IllegalArgumentException iae) {
+			// just print for info
+			System.out.println(iae.getMessage());
 		}
 		int retryCount = 60; // wait 1 minute at most
 		while (resource.isAccessible() && --retryCount >= 0) {
@@ -672,6 +675,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				resource.delete(true, null);
 			} catch (CoreException e) {
 				lastException = e;
+			} catch (IllegalArgumentException iae) {
+				// just print for info
+				System.out.println("Retry "+retryCount+": "+iae.getMessage());
 			}
 		}
 		if (!resource.isAccessible()) return;
