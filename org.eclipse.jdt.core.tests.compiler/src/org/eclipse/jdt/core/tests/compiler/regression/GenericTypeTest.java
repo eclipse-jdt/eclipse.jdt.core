@@ -10871,4 +10871,28 @@ class C extends B implements IDoubles {
 			},
 			"SUCCESS");	
 	}		
+	
+	// 78467 
+	public void _test412() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"    public static <T> T first(T... args) {\n" + 
+				"        return args[0];\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	if (false) { \n" + 
+				"    		String s = first(); \n" + 
+				"    		int i; \n" + 
+				"    		i++; \n" + 
+				"    	}\n" + 
+				"        System.out.println(first(\"SUCCESS\", \"List\"));\n" + 
+				"    }\n" + 
+				"}",
+			},
+			"should warn about unchecked array conversion for T[]");	
+	}			
 }
