@@ -123,6 +123,11 @@ public final class JavaCore extends Plugin {
 	protected static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
+	/**
+	 * Name of the User Library Container id.
+	 */
+	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
+	
 	// *************** Possible IDs for configurable options. ********************
 
 	/**
@@ -2337,6 +2342,15 @@ public final class JavaCore extends Plugin {
 	}
 	
 	/**
+	 * Returns the names of all defined user libraries. The corresponding classpath container path
+	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
+	 * @return Return an array containing the names of all known user defined.
+	 */
+	public static String[] getUserLibraryNames() {
+		return UserLibraryManager.getUserLibraryNames();
+	}
+
+	/**
 	 * Returns the working copies that have the given owner. 
 	 * Only compilation units in working copy mode are returned.
 	 * If the owner is <code>null</code>, primary working copies are returned.
@@ -3582,7 +3596,7 @@ public final class JavaCore extends Plugin {
 		// persist options
 		getPlugin().savePluginPreferences();
 	}
-	
+
 	/**
 	 * Shutdown the JavaCore plug-in.
 	 * <p>

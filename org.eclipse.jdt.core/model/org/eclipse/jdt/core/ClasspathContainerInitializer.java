@@ -147,5 +147,25 @@ public abstract class ClasspathContainerInitializer {
     	// By default, a container path is the only available description
     	return containerPath.makeRelative().toString();
     }
+
+	/**
+	 * Returns an object which identifies a container for comparison purpose. This allows
+	 * to eliminate redundant containers when accumulating classpath entries (e.g. 
+	 * runtime classpath computation). When requesting a container comparison ID, one
+	 * should ensure using its corresponding container initializer. Indeed, a random container
+	 * initializer cannot be held responsible for determining comparison IDs for arbitrary 
+	 * containers.
+	 * <p>
+	 * @param containerPath the path of the container which is being checked
+	 * @param project the project for which the container is to being checked
+	 * @return returns an Object identifying the container for comparison
+	 * @since 3.0
+	 */
+	public Object getComparisonID(IPath containerPath, IJavaProject project) {
+
+		// By default, containers are identical if they have the same containerPath,
+		// but this may be refined by other container initializer implementations.
+		return containerPath; 
+	}
 }
 
