@@ -1,14 +1,18 @@
 package org.eclipse.jdt.internal.formatter;
 
 /*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
+ * Licensed Materials - Property of IBM,
+ * WebSphere Studio Workbench
+ * (c) Copyright IBM Corp 2000
  */
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.formatter.impl.*;
-import java.util.*;
-
+import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
+import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
+import org.eclipse.jdt.internal.formatter.impl.SplitLine;
+import java.util.Locale;
 /** <h2>How to format a piece of code ?</h2>
  * <ul><li>Create an instance of <code>CodeFormatter</code>
  * <li>Use the method <code>void format(aString)</code>
@@ -240,7 +244,7 @@ private void format() {
 	// openBracketCount is used to count the number of open brackets not closed yet.
 	int openBracketCount = 0;
 	
-	int unarySignModifier = 0;
+ 	int unarySignModifier = 0;
 
 	// openParenthesis[0] is used to count the parenthesis not belonging to a condition
 	// (eg foo();). parenthesis in for (...) are count elsewhere in the array.
@@ -372,11 +376,27 @@ private void format() {
 				} else {
 					if (token == TokenNameLBRACE && options.newLineBeforeOpeningBraceMode) {
 						newLine(1);
-						currentLineIndentationLevel = indentationLevel;
+						if (constructionsCount > 0
+							&& constructions[constructionsCount - 1] != BLOCK
+							&& constructions[constructionsCount - 1] != NONINDENT_BLOCK) {
+							currentLineIndentationLevel = indentationLevel - 1;
+						} else {
+							currentLineIndentationLevel = indentationLevel;
+						}
 						pendingNewLines = 0;
 						pendingSpace = false;
 					}
 				}
+			}
+
+			if (token == TokenNameLBRACE
+				&& options.newLineBeforeOpeningBraceMode
+				&& constructionsCount > 0
+				&& constructions[constructionsCount - 1] == TokenNamedo) {
+				newLine(1);
+				currentLineIndentationLevel = indentationLevel - 1;
+				pendingNewLines = 0;
+				pendingSpace = false;
 			}
 
 			// see PR 1G5G8EC
@@ -576,17 +596,6 @@ private void format() {
 					indentationLevel += pushControlStatement(token);
 					nlicsToken = token;
 					break;
-				case TokenNamenew :
-
-					// The flag inAssigment is used to properly format
-					// array assignments, and if a non-array assignment
-					// statement is in progress, it is no longer
-					// beneficial to know this, so set the flag to false.
-
-/*                  if (!inArrayAssignment) {
-						inAssignment = false;
-					}*/
-					break;
 				case TokenNameLPAREN :
 
 					// Put a space between the previous and current token if the
@@ -701,6 +710,9 @@ private void format() {
 					// if there is no left bracket to close, the right bracket is ignored.
 					pendingSpace = false;
 					break;
+				case TokenNamenew:
+					unarySignModifier = 0;
+					break;
 				case TokenNameCOMMA :
 				case TokenNameDOT :
 					pendingSpace = false;
@@ -746,7 +758,6 @@ private void format() {
 					}
 					break;
 				case TokenNameCOLON :
-
 					// In a switch/case statement, add a newline & indent
 					// when a colon is encountered.
 					if (tokenBeforeColonCount > 0) {
@@ -798,7 +809,7 @@ private void format() {
 
 						// Do not put a space between a unary operator
 						// (eg: ++, --, +, -) and the identifier being modified.
-
+		
 						unarySignModifier -= (unarySignModifier > 0) ? 1 : 0;
 						if (previousToken == TokenNamePLUS_PLUS
 							|| previousToken == TokenNameMINUS_MINUS
