@@ -142,29 +142,39 @@ public static String displayString(String inputString, int indent) {
 	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
 	for (int i = 0; i < indent; i++) buffer.append("\t");
 	buffer.append("\"");
-	boolean wasACr = false;
-	boolean newLine = false;
 	while (tokenizer.hasMoreTokens()){
 
 		String token = tokenizer.nextToken();
 		if (token.equals("\r")) {
-			wasACr = true;
-			newLine = true;
-		} else if (token.equals("\n")) {
-			if (!wasACr) { // \r\n --> \n
-				newLine = true;
-			}
-		}	
-		if (newLine) {
-			newLine = false;
+			buffer.append("\\r");
 			if (tokenizer.hasMoreTokens()) {
-				buffer.append("\\n\" + \n");
+				token = tokenizer.nextToken();
+				if (token.equals("\n")) {
+					buffer.append("\\n");
+					if (tokenizer.hasMoreTokens()) {
+						buffer.append("\" + \n");
+						for (int i = 0; i < indent; i++) buffer.append("\t");
+						buffer.append("\"");
+					}
+					continue;
+				} else {
+					buffer.append("\" + \n");
+					for (int i = 0; i < indent; i++) buffer.append("\t");
+					buffer.append("\"");
+				}
+			} else {
+				continue;
+			}
+		} else if (token.equals("\n")) {
+			buffer.append("\\n");
+			if (tokenizer.hasMoreTokens()) {
+				buffer.append("\" + \n");
 				for (int i = 0; i < indent; i++) buffer.append("\t");
 				buffer.append("\"");
 			}
 			continue;
-		}
-		wasACr = false;
+		}	
+
 		StringBuffer tokenBuffer = new StringBuffer();
 		for (int i = 0; i < token.length(); i++){ 
 			char c = token.charAt(i);
@@ -199,8 +209,6 @@ public static String displayString(String inputString, int indent) {
 		}
 		buffer.append(tokenBuffer.toString());
 	}
-	char lastChar = length == 0 ? 0 : inputString.charAt(length-1);
-	if ((lastChar == '\n') || (lastChar == '\r')) buffer.append("\\n");
 	buffer.append("\"");
 	return buffer.toString();
 }
