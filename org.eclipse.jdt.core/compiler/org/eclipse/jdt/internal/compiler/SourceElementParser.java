@@ -413,13 +413,13 @@ protected TypeReference getTypeReference(int dim) {
 		return ref;
 	} else {
 		int numberOfIdentifiers = intStack[intPtr--];
-		if (length != numberOfIdentifiers || astLengthStack[astLengthPtr] != 0) {
+		if (length != numberOfIdentifiers || genericsLengthStack[genericsLengthPtr] != 0) {
 			// generic type
 			// TODO handle accept of generic types
 			return getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
 		} else if (length == 1) {
 			// single variable reference
-			astLengthPtr--; // pop the 0
+			genericsLengthPtr--; // pop the 0
 			if (dim == 0) {
 				SingleTypeReference ref = 
 						new SingleTypeReference(
@@ -442,7 +442,7 @@ protected TypeReference getTypeReference(int dim) {
 				return ref;
 			}
 		} else {
-			astLengthPtr--;
+			genericsLengthPtr--;
 			//Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;

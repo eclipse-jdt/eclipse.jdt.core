@@ -693,14 +693,14 @@ protected TypeReference getTypeReference(int dim) {
 	TypeReference reference;
 	if (index == 0) {
 		intPtr--;
-		astLengthPtr--;
+		genericsLengthPtr--;
 		/* assist inside first identifier */
 		reference = this.createSingleAssistTypeReference(
 						assistIdentifier(), 
 						positions[0]);
 	} else {
 		intPtr--;
-		astLengthPtr--;
+		genericsLengthPtr--;
 		/* assist inside subsequent identifier */
 		reference =	this.createQualifiedAssistTypeReference(
 						subset,  

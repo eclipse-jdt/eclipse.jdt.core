@@ -52,6 +52,8 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 	//expression stack
 	final static int ExpressionStackIncrement = 100;
+
+	final static int GenericsStackIncrement = 255;
     
 	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
     public static char in_symb[] = null;
@@ -63,7 +65,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public static char nasr[] = null;
 	public static char non_terminal_index[] = null;
 	private final static String READABLE_NAMES_FILE = "readableNames"; //$NON-NLS-1$
-	private final static String READABLE_NAMES =
+	private final static String READABLE_NAMES_FILE_NAME =
 		"org.eclipse.jdt.internal.compiler.parser." + READABLE_NAMES_FILE; //$NON-NLS-1$
 	public static String readableName[] = null;
 	
@@ -92,6 +94,79 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
 	public static boolean VERBOSE_RECOVERY = false;
+	public Annotation annotation;
+
+	// annotation
+	public AnnotationParser annotationParser;
+	protected int astLengthPtr;
+	protected int[] astLengthStack;
+	protected int astPtr;
+	protected AstNode[] astStack = new AstNode[AstStackIncrement];
+	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
+	protected RecoveredElement currentElement;
+	public int currentToken;
+	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
+	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
+	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
+	protected int endStatementPosition;
+	protected int expressionLengthPtr;
+	protected int[] expressionLengthStack;
+	protected int expressionPtr;
+	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
+	public int firstToken ; // handle for multiple parsing goals
+
+	// generics management
+	protected int genericsLengthPtr;
+	protected int[] genericsLengthStack = new int[GenericsStackIncrement];
+	protected int genericsPtr;
+	protected AstNode[] genericsStack = new AstNode[GenericsStackIncrement];
+	
+	protected boolean hasError;
+	protected boolean hasReportedError;
+
+	//identifiers stacks 
+	protected int identifierLengthPtr;
+	protected int[] identifierLengthStack;
+	protected long[] identifierPositionStack;
+	protected int identifierPtr;
+	protected char[][] identifierStack;
+	
+	protected boolean ignoreNextOpeningBrace;
+	//positions , dimensions , .... (int stacks)
+	protected int intPtr;
+	protected int[] intStack;
+	public int lastAct ; //handle for multiple parsing goals
+
+	//error recovery management
+	protected int lastCheckPoint;
+	protected int lastErrorEndPosition;
+	protected int lastIgnoredToken, nextIgnoredToken;
+	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
+	protected int lParenPos,rParenPos; //accurate only when used !
+	protected int modifiers;
+	protected int modifiersSourceStart;
+	protected int[] nestedMethod; //the ptr is nestedType
+	protected int nestedType, dimensions;
+	AstNode [] noAstNodes = new AstNode[AstStackIncrement];
+	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
+	//modifiers dimensions nestedType etc.......
+	protected boolean optimizeStringLiterals =true;
+	protected CompilerOptions options;
+	protected ProblemReporter problemReporter;
+	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
+	protected int realBlockPtr;
+	protected int[] realBlockStack;
+	protected int recoveredStaticInitializerStart;
+	public ReferenceContext referenceContext;
+	public boolean reportOnlyOneSyntaxError = false;
+	public boolean reportSyntaxErrorIsRequired = true;
+	protected boolean restartRecovery;
+	//scanner token 
+	public Scanner scanner;
+	protected int[] stack = new int[StackIncrement];
+	protected int stateStackTop;
+	private int synchronizedBlockSourceStart;
+	protected int[] variablesCounter;
 
 	static {
 		try{
@@ -389,7 +464,7 @@ public final static void initTables() throws java.io.IOException {
 	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
 	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	readableName = readReadableNameTable(READABLE_NAMES);
+	readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
 	
 	base_action = lhs;
 }
@@ -503,70 +578,6 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 public static int tAction(int state, int sym) {
 	return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
 }
-	public Annotation annotation;
-
-	// annotation
-	public AnnotationParser annotationParser;
-	protected int astLengthPtr;
-	protected int[] astLengthStack;
-	protected int astPtr;
-	protected AstNode[] astStack = new AstNode[AstStackIncrement];
-	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
-	protected RecoveredElement currentElement;
-	public int currentToken;
-	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
-	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
-	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
-	protected int endStatementPosition;
-	protected int expressionLengthPtr;
-	protected int[] expressionLengthStack;
-	protected int expressionPtr;
-	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
-	public int firstToken ; // handle for multiple parsing goals
-	protected boolean hasError;
-	protected boolean hasReportedError;
-	protected int identifierLengthPtr;
-	protected int[] identifierLengthStack;
-	protected long[] identifierPositionStack;
-	//identifiers stacks 
-	protected int identifierPtr;
-	protected char[][] identifierStack;
-	protected boolean ignoreNextOpeningBrace;
-	//positions , dimensions , .... (int stacks)
-	protected int intPtr;
-	protected int[] intStack;
-	public int lastAct ; //handle for multiple parsing goals
-
-	//error recovery management
-	protected int lastCheckPoint;
-	protected int lastErrorEndPosition;
-	protected int lastIgnoredToken, nextIgnoredToken;
-	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
-	protected int lParenPos,rParenPos; //accurate only when used !
-	protected int modifiers;
-	protected int modifiersSourceStart;
-	protected int[] nestedMethod; //the ptr is nestedType
-	protected int nestedType, dimensions;
-	AstNode [] noAstNodes = new AstNode[AstStackIncrement];
-	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
-	//modifiers dimensions nestedType etc.......
-	protected boolean optimizeStringLiterals =true;
-	protected CompilerOptions options;
-	protected ProblemReporter problemReporter;
-	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
-	protected int realBlockPtr;
-	protected int[] realBlockStack;
-	protected int recoveredStaticInitializerStart;
-	public ReferenceContext referenceContext;
-	public boolean reportOnlyOneSyntaxError = false;
-	public boolean reportSyntaxErrorIsRequired = true;
-	protected boolean restartRecovery;
-	//scanner token 
-	public Scanner scanner;
-	protected int[] stack = new int[StackIncrement];
-	protected int stateStackTop;
-	private int synchronizedBlockSourceStart;
-	protected int[] variablesCounter;
 
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 		
@@ -837,7 +848,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		if (alwaysQualified) {
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnAstLengthStack(0);
+			pushOnGenericsLengthStack(0);
 		}
 		alloc.type = getTypeReference(0);
 		
@@ -866,6 +877,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 protected final void concatExpressionLists() {
 	expressionLengthStack[--expressionLengthPtr]++;
 }
+private final void concatGenericsLists() {
+	genericsLengthStack[genericsLengthPtr - 1] += genericsLengthStack[genericsLengthPtr--];
+}
 private final void concatNodeLists() {
 	/*
 	 * This is a case where you have two sublists into the astStack that you want
@@ -888,10 +902,10 @@ protected void consumeAdditionalBound() {
 protected void consumeAdditionalBound1() {
 }
 protected void consumeAdditionalBoundList() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeAdditionalBoundList1() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeAllocationHeader() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -1270,7 +1284,7 @@ protected void consumeCastExpressionWithNameArray() {
 	int end = intStack[intPtr--];
 	
 	// handle type arguments
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 	int dim = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 	
@@ -1339,10 +1353,10 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
 	}
 
-	int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+	int currentTypeArgumentsLength = genericsLengthStack[genericsLengthPtr--];
 	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
-	astPtr -= currentTypeArgumentsLength;
-	System.arraycopy(astStack, astPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
+	genericsPtr -= currentTypeArgumentsLength;
+	System.arraycopy(genericsStack, genericsPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
 	
 	if (nameSize == 1) {
 		tokens[0] = identifierStack[identifierPtr];
@@ -1408,10 +1422,10 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
 	}
 
-	int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+	int currentTypeArgumentsLength = genericsLengthStack[genericsLengthPtr--];
 	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
-	astPtr -= currentTypeArgumentsLength;
-	System.arraycopy(astStack, astPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
+	genericsPtr -= currentTypeArgumentsLength;
+	System.arraycopy(genericsStack, genericsPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
 	
 	identifierPtr -= nameSize;
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, nameSize);
@@ -1636,9 +1650,9 @@ protected void consumeClassHeaderNameWithTypeParameters() {
 	}
 
 	// consume type parameters
-	int length = astLengthStack[astLengthPtr--];
-	astPtr-= length;
-	System.arraycopy(astStack, astPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
 	
 	
 	//highlight the name of the type
@@ -1716,12 +1730,12 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 				length); 
 		}
 		pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-		pushOnAstLengthStack(0);
+		pushOnGenericsLengthStack(0);
 		alloc.type = getTypeReference(0);
 
-		length = astLengthStack[astLengthPtr--];
-		astPtr -= length;
-		System.arraycopy(astStack, astPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		length = genericsLengthStack[genericsLengthPtr--];
+		genericsPtr -= length;
+		System.arraycopy(genericsStack, genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -1743,9 +1757,9 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 			anonymousTypeDeclarationAllocationExpression.sourceEnd = endStatementPosition;
 			// handle type arguments
 			anonymousTypeDeclarationAllocationExpression = ParameterizedQualifiedAllocationExpression.copyInto(anonymousTypeDeclarationAllocationExpression);
-			length = astLengthStack[astLengthPtr--];
-			astPtr -= length;
-			System.arraycopy(astStack, astPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
+			length = genericsLengthStack[genericsLengthPtr--];
+			genericsPtr -= length;
+			System.arraycopy(genericsStack, genericsPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
 		}
 		
 		// mark initializers with local type mark if needed
@@ -1781,9 +1795,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		}
 		alloc.type = getTypeReference(0);
 
-		length = astLengthStack[astLengthPtr--];
-		astPtr -= length;
-		System.arraycopy(astStack, astPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		length = genericsLengthStack[genericsLengthPtr--];
+		genericsPtr -= length;
+		System.arraycopy(genericsStack, genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -1805,9 +1819,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 			anonymousTypeDeclarationAllocationExpression.sourceEnd = endStatementPosition;
 			// handle type arguments
 			anonymousTypeDeclarationAllocationExpression = ParameterizedQualifiedAllocationExpression.copyInto(anonymousTypeDeclarationAllocationExpression);
-			length = astLengthStack[astLengthPtr--];
-			astPtr -= length;
-			System.arraycopy(astStack, astPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
+			length = genericsLengthStack[genericsLengthPtr--];
+			genericsPtr -= length;
+			System.arraycopy(genericsStack, genericsPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
 		}
 		
 		// mark initializers with local type mark if needed
@@ -1816,11 +1830,11 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 }
 protected void consumeClassOrInterface() {
 	intStack[intPtr] += identifierLengthStack[identifierLengthPtr];
-	pushOnAstLengthStack(0); // handle type arguments
+	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeClassOrInterfaceName() {
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnAstLengthStack(0); // handle type arguments
+	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeClassTypeElt() {
 	// ClassTypeElt ::= ClassType
@@ -2039,9 +2053,9 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 	identifierLengthPtr--;
 
 	// consume type parameters
-	int length = astLengthStack[astLengthPtr--];
-	astPtr-= length;
-	System.arraycopy(astStack, astPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
 	
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
@@ -2286,7 +2300,7 @@ protected void consumeEnterAnonymousClassBody() {
 }
 protected void consumeEnterAnonymousClassBodySimpleName() {
 	// EnterAnonymousClassBody ::= $empty
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 	TypeReference typeReference = getTypeReference(0);
 
@@ -2548,9 +2562,9 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 		expressionPtr -= length;
 		System.arraycopy(expressionStack, expressionPtr + 1, ecc.arguments = new Expression[length], 0, length);
 	}
-	length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	System.arraycopy(astStack, astPtr + 1, ecc.typeArguments = new TypeReference[length], 0, length);
+	length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, ecc.typeArguments = new TypeReference[length], 0, length);
 
 	switch (flag) {
 		case 0 :
@@ -2703,7 +2717,7 @@ protected void consumeFormalParameterListopt() {
 protected void consumeGenericTypeArrayType() {
 }
 protected void consumeGenericTypeNameArrayType() {
-	pushOnAstLengthStack(0); // handle type arguments
+	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
@@ -2910,9 +2924,9 @@ protected void consumeInterfaceHeaderNameWithTypeParameters() {
 	}
 
 	// consume type parameters
-	int length = astLengthStack[astLengthPtr--];
-	astPtr-= length;
-	System.arraycopy(astStack, astPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
 	
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
@@ -3202,9 +3216,9 @@ protected void consumeMethodHeaderNameWithTypeParameters() {
 	md.returnType = getTypeReference(intStack[intPtr--]);
 	
 	// consume type parameters
-	int length = astLengthStack[astLengthPtr--];
-	astPtr-= length;
-	System.arraycopy(astStack, astPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
 	
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
@@ -3319,9 +3333,9 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	m.selector = identifierStack[identifierPtr--];
 
 	// handle type arguments
-	int length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 	
 	if (identifierLengthStack[identifierLengthPtr] == 1) {
 		m.receiver = ThisReference.implicitThis();
@@ -3358,9 +3372,9 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	identifierLengthPtr--;
 	
 	// handle type arguments
-	int length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 
 	m.receiver = expressionStack[expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
@@ -3390,9 +3404,9 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	identifierLengthPtr--;
 	
 	// handle type arguments
-	int length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	int length = genericsLengthStack[genericsLengthPtr--];
+	genericsPtr -= length;
+	System.arraycopy(genericsStack, genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 
 	m.receiver = new SuperReference(m.sourceStart, endPosition);
 	pushOnExpressionStack(m);
@@ -3408,7 +3422,7 @@ protected void consumeModifiers() {
 	resetModifiers();
 }
 protected void consumeNameArrayType() {
-	pushOnAstLengthStack(0); // handle type arguments
+	pushOnGenericsLengthStack(0); // handle type arguments
 	int dim = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnIntStack(dim);
@@ -3529,7 +3543,7 @@ protected void consumePrimaryNoNewArrayArrayType() {
 
 	int dims = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 
 	pushOnExpressionStack(
 		new ClassLiteralAccess(classEndPosition, getTypeReference(dims)));
@@ -3540,7 +3554,7 @@ protected void consumePrimaryNoNewArrayName() {
 
 	// handle type arguments
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 	TypeReference typeReference = getTypeReference(0);
 	
 	pushOnExpressionStack(
@@ -3551,7 +3565,7 @@ protected void consumePrimaryNoNewArrayNameSuper() {
 	// handle type arguments
 	int sourceStart = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 	TypeReference typeReference = getTypeReference(0);
 
 	pushOnExpressionStack(
@@ -3565,7 +3579,7 @@ protected void consumePrimaryNoNewArrayNameThis() {
 	// handle type arguments
 	int sourceStart = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnAstLengthStack(0); // handle type arguments
+	pushOnGenericsLengthStack(0); // handle type arguments
 
 	TypeReference typeReference = getTypeReference(0);
 	
@@ -3627,13 +3641,13 @@ protected void consumeReferenceType() {
 	pushOnIntStack(0); // handle array type
 }
 protected void consumeReferenceType1() {
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
+	pushOnGenericsStack(getTypeReference(intStack[intPtr--]));	
 }
 protected void consumeReferenceType2() {
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
+	pushOnGenericsStack(getTypeReference(intStack[intPtr--]));	
 }
 protected void consumeReferenceType3() {
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
+	pushOnGenericsStack(getTypeReference(intStack[intPtr--]));	
 }
 protected void consumeRestoreDiet() {
 	// RestoreDiet ::= $empty
@@ -5890,30 +5904,30 @@ protected void consumeToken(int type) {
 	}
 }
 protected void consumeTypeArgument() {
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
+	pushOnGenericsStack(getTypeReference(intStack[intPtr--]));	
 }
 protected void consumeTypeArgumentList() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeArgumentList1() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeArgumentList2() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeArgumentList3() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeArgumentReferenceType1() {
-	concatNodeLists();
-	pushOnAstStack(getTypeReference(0));	
+	concatGenericsLists();
+	pushOnGenericsStack(getTypeReference(0));	
 }
 protected void consumeTypeArgumentReferenceType2() {
-	concatNodeLists();
-	pushOnAstStack(getTypeReference(0));	
+	concatGenericsLists();
+	pushOnGenericsStack(getTypeReference(0));	
 }
 protected void consumeTypeArguments() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
@@ -5966,7 +5980,7 @@ protected void consumeTypeParameter() {
 	typeParameter.name = identifierStack[identifierPtr--];
 	identifierLengthPtr--;
 	
-	pushOnAstStack(typeParameter);
+	pushOnGenericsStack(typeParameter);
 }
 protected void consumeTypeParameter1() {
 	TypeParameter typeParameter = new TypeParameter();
@@ -5976,11 +5990,11 @@ protected void consumeTypeParameter1() {
 	typeParameter.name = identifierStack[identifierPtr--];
 	identifierLengthPtr--;
 	
-	pushOnAstStack(typeParameter);
+	pushOnGenericsStack(typeParameter);
 }
 protected void consumeTypeParameter1WithExtends() {
 	TypeParameter typeParameter = new TypeParameter();
-	TypeReference superType = (TypeReference) astStack[astPtr];
+	TypeReference superType = (TypeReference) genericsStack[genericsPtr];
 	
 	long pos = identifierPositionStack[identifierPtr];
 	typeParameter.declarationSourceEnd = (int) pos;
@@ -5989,14 +6003,14 @@ protected void consumeTypeParameter1WithExtends() {
 	identifierLengthPtr--;
 	
 	typeParameter.type = superType;
-	astStack[astPtr] = typeParameter;
+	genericsStack[genericsPtr] = typeParameter;
 }
 protected void consumeTypeParameter1WithExtendsAndBounds() {
 	TypeParameter typeParameter = new TypeParameter();
-	int additionalBoundsLength = astLengthStack[astLengthPtr--];
+	int additionalBoundsLength = genericsLengthStack[genericsLengthPtr--];
 	TypeReference[] bounds = new TypeReference[additionalBoundsLength];
-	astPtr -= additionalBoundsLength;
-	System.arraycopy(astStack, astPtr + 1, bounds, 0, additionalBoundsLength);
+	genericsPtr -= additionalBoundsLength;
+	System.arraycopy(genericsStack, genericsPtr + 1, bounds, 0, additionalBoundsLength);
 
 	TypeReference superType = getTypeReference(intStack[intPtr--]);
 	
@@ -6008,19 +6022,19 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	
 	typeParameter.type = superType;
 	typeParameter.bounds = bounds;
-	pushOnAstStack(typeParameter);
+	pushOnGenericsStack(typeParameter);
 }
 protected void consumeTypeParameterList() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeParameterList1() {
-	concatNodeLists();
+	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
 }
 protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = new TypeParameter();
-	TypeReference superType = (TypeReference) astStack[astPtr];
+	TypeReference superType = (TypeReference) genericsStack[genericsPtr];
 	
 	long pos = identifierPositionStack[identifierPtr];
 	typeParameter.declarationSourceEnd = (int) pos;
@@ -6029,14 +6043,14 @@ protected void consumeTypeParameterWithExtends() {
 	identifierLengthPtr--;
 	
 	typeParameter.type = superType;
-	astStack[astPtr] = typeParameter;
+	genericsStack[genericsPtr] = typeParameter;
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeParameter typeParameter = new TypeParameter();
-	int additionalBoundsLength = astLengthStack[astLengthPtr--];
+	int additionalBoundsLength = genericsLengthStack[genericsLengthPtr--];
 	TypeReference[] bounds = new TypeReference[additionalBoundsLength];
-	astPtr -= additionalBoundsLength;
-	System.arraycopy(astStack, astPtr + 1, bounds, 0, additionalBoundsLength);
+	genericsPtr -= additionalBoundsLength;
+	System.arraycopy(genericsStack, genericsPtr + 1, bounds, 0, additionalBoundsLength);
 
 	TypeReference superType = getTypeReference(intStack[intPtr--]);
 	
@@ -6048,7 +6062,7 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	
 	typeParameter.type = superType;
 	typeParameter.bounds = bounds;
-	pushOnAstStack(typeParameter);
+	pushOnGenericsStack(typeParameter);
 }
 protected void consumeUnaryExpression(int op) {
 	// UnaryExpression ::= '+' PushPosition UnaryExpression
@@ -6126,65 +6140,65 @@ protected void consumeVariableInitializers() {
 	concatExpressionLists();
 }
 protected void consumeWildcard() {
-	pushOnAstStack(new Wildcard(false));
+	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard1() {
-	pushOnAstStack(new Wildcard(false));
+	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard1WithBounds() {
 }
 protected void consumeWildcard2() {
-	pushOnAstStack(new Wildcard(false));
+	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard2WithBounds() {
 }
 protected void consumeWildcard3() {
-	pushOnAstStack(new Wildcard(false));
+	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard3WithBounds() {
 }
 protected void consumeWildcardBounds1Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) astStack[astPtr];
-	astStack[astPtr] = wildcard;
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds1Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
 	intPtr--; // remove the starting position of the super keyword
-	astStack[astPtr] = wildcard;
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) astStack[astPtr];
-	astStack[astPtr] = wildcard;
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
 	intPtr--; // remove the starting position of the super keyword
-	astStack[astPtr] = wildcard;
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) astStack[astPtr];
-	astStack[astPtr] = wildcard;
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) genericsStack[genericsPtr];
 	intPtr--; // remove the starting position of the super keyword
-	astStack[astPtr] = wildcard;
+	genericsStack[genericsPtr] = wildcard;
 }
 protected void consumeWildcardBoundsExtends() {
 	Wildcard wildcard = new Wildcard(false);
 	wildcard.type = getTypeReference(intStack[intPtr--]);
-	pushOnAstStack(wildcard);
+	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardBoundsSuper() {
 	Wildcard wildcard = new Wildcard(true);
 	wildcard.type = getTypeReference(intStack[intPtr--]);
-	pushOnAstStack(wildcard);
+	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardWithBounds() {
 }
@@ -6551,12 +6565,12 @@ protected TypeReference getTypeReference(int dim) {
 		}
 	} else {
 		int numberOfIdentifiers = intStack[intPtr--];
-		if (length != numberOfIdentifiers || astLengthStack[astLengthPtr] != 0) {
+		if (length != numberOfIdentifiers || genericsLengthStack[genericsLengthPtr] != 0) {
 			// generic type
 			ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
 		} else if (length == 1) {
 			// single variable reference
-			astLengthPtr--; // pop the 0
+			genericsLengthPtr--; // pop the 0
 			if (dim == 0) {
 				ref = 
 					new SingleTypeReference(
@@ -6571,7 +6585,7 @@ protected TypeReference getTypeReference(int dim) {
 				ref.sourceEnd = endPosition;			
 			}
 		} else {
-			astLengthPtr--;
+			genericsLengthPtr--;
 			//Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
@@ -6595,10 +6609,10 @@ protected TypeReference getTypeReference(int dim) {
 }
 protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	if (identifierLength == 1 && numberOfIdentifiers == 1) {
-		int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+		int currentTypeArgumentsLength = genericsLengthStack[genericsLengthPtr--];
 		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
-		astPtr -= currentTypeArgumentsLength;
-		System.arraycopy(astStack, astPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
+		genericsPtr -= currentTypeArgumentsLength;
+		System.arraycopy(genericsStack, genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
 		return new SingleParameterizedTypeReference(identifierStack[identifierPtr], typeArguments, dim, identifierPositionStack[identifierPtr--]);
 	} else {
 		TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];
@@ -6607,10 +6621,10 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		int index = numberOfIdentifiers;
 		int currentIdentifiersLength = identifierLength;
 		while (index > 0) {
-			int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+			int currentTypeArgumentsLength = genericsLengthStack[genericsLengthPtr--];
 			if (currentTypeArgumentsLength != 0) {
-				astPtr -= currentTypeArgumentsLength;
-				System.arraycopy(astStack, astPtr + 1, typeArguments[index - 1] = new TypeReference[currentTypeArgumentsLength], 0, currentTypeArgumentsLength);
+				genericsPtr -= currentTypeArgumentsLength;
+				System.arraycopy(genericsStack, genericsPtr + 1, typeArguments[index - 1] = new TypeReference[currentTypeArgumentsLength], 0, currentTypeArgumentsLength);
 			}
 			switch(currentIdentifiersLength) {
 				case 1 :
@@ -7650,6 +7664,42 @@ protected void pushOnExpressionStackLengthStack(int pos) {
 		expressionLengthStack = new int[oldStackLength + StackIncrement];
 		System.arraycopy(oldPos, 0, expressionLengthStack, 0, oldStackLength);
 		expressionLengthStack[expressionLengthPtr] = pos;
+	}
+}
+protected void pushOnGenericsStack(AstNode node) {
+	/*add a new obj on top of the generics stack
+	genericsPtr points on the top*/
+
+	try {
+		genericsStack[++genericsPtr] = node;
+	} catch (IndexOutOfBoundsException e) {
+		int oldStackLength = genericsStack.length;
+		AstNode[] oldStack = genericsStack;
+		genericsStack = new AstNode[oldStackLength + GenericsStackIncrement];
+		System.arraycopy(oldStack, 0, genericsStack, 0, oldStackLength);
+		genericsPtr = oldStackLength;
+		genericsStack[genericsPtr] = node;
+	}
+
+	try {
+		genericsLengthStack[++genericsLengthPtr] = 1;
+	} catch (IndexOutOfBoundsException e) {
+		int oldStackLength = genericsLengthStack.length;
+		int[] oldPos = genericsLengthStack;
+		genericsLengthStack = new int[oldStackLength + GenericsStackIncrement];
+		System.arraycopy(oldPos, 0, genericsLengthStack, 0, oldStackLength);
+		genericsLengthStack[genericsLengthPtr] = 1;
+	}
+}
+protected void pushOnGenericsLengthStack(int pos) {
+	try {
+		genericsLengthStack[++genericsLengthPtr] = pos;
+	} catch (IndexOutOfBoundsException e) {
+		int oldStackLength = genericsLengthStack.length;
+		int[] oldPos = genericsLengthStack;
+		genericsLengthStack = new int[oldStackLength + GenericsStackIncrement];
+		System.arraycopy(oldPos, 0, genericsLengthStack, 0, oldStackLength);
+		genericsLengthStack[genericsLengthPtr] = pos;
 	}
 }
 protected void pushOnIntStack(int pos) {
