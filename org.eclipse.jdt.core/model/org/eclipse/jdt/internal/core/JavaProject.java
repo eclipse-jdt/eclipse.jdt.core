@@ -1003,9 +1003,9 @@ public class JavaProject
 			IClasspathEntry[] fileEntries = readClasspathFile(true/*create markers*/, false/*don't log problems*/);
 			if (fileEntries == null)
 				return; // could not read, ignore 
-			JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getProject());
-			if (info.classpath != null) { // if there is an in-memory classpath
-				if (isClasspathEqualsTo(info.classpath, info.outputLocation, fileEntries)) {
+			JavaModelManager.PerProjectInfo info = getPerProjectInfo();
+			if (info.rawClasspath != null) { // if there is an in-memory classpath
+				if (isClasspathEqualsTo(info.rawClasspath, info.outputLocation, fileEntries)) {
 					wasSuccessful = true;
 					return;
 				}
@@ -1062,7 +1062,7 @@ public class JavaProject
 		} finally {
 			if (!wasSuccessful) { 
 				try {
-					setRawClasspath0(JavaProject.INVALID_CLASSPATH);
+					this.getPerProjectInfo().updateClasspathInformation(JavaProject.INVALID_CLASSPATH);
 					updatePackageFragmentRoots();
 				} catch (JavaModelException e) {
 				}
@@ -1290,7 +1290,7 @@ public class JavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo perProjectInfo = getPerProjectInfo();
 		IPath outputLocation = perProjectInfo.outputLocation;
 		if (outputLocation != null) return outputLocation;
 
@@ -1470,6 +1470,10 @@ public class JavaProject
 		return this.getProject().getFullPath();
 	}
 	
+	public JavaModelManager.PerProjectInfo getPerProjectInfo() throws JavaModelException {
+		return JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+	}
+	
 	/**
 	 * @see IJavaProject
 	 */
@@ -1499,8 +1503,8 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
-		IClasspathEntry[] classpath = perProjectInfo.classpath;
+		JavaModelManager.PerProjectInfo perProjectInfo = getPerProjectInfo();
+		IClasspathEntry[] classpath = perProjectInfo.rawClasspath;
 		if (classpath != null) return classpath;
 		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 		
@@ -1524,7 +1528,7 @@ public class JavaProject
 			classpath = INVALID_CLASSPATH;
 		}
 		*/
-		perProjectInfo.classpath = classpath;
+		perProjectInfo.rawClasspath = classpath;
 		perProjectInfo.outputLocation = outputLocation;
 		return classpath;
 	}
@@ -1558,13 +1562,12 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		JavaModelManager.PerProjectInfo perProjectInfo = manager.getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo perProjectInfo = getPerProjectInfo();
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
 		if (ignoreUnresolvedEntry && !generateMarkerOnError && perProjectInfo != null){
 			// resolved path is cached on its info
-			IClasspathEntry[] infoPath = perProjectInfo.lastResolvedClasspath;
+			IClasspathEntry[] infoPath = perProjectInfo.resolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
 		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
@@ -1576,7 +1579,7 @@ public class JavaProject
 			reverseMap);
 
 		if (perProjectInfo != null){
-			if (perProjectInfo.classpath == null // .classpath file could not be read
+			if (perProjectInfo.rawClasspath == null // .classpath file could not be read
 				&& generateMarkerOnError 
 				&& JavaProject.hasJavaNature(fProject)) {
 					this.createClasspathProblemMarker(new JavaModelStatus(
@@ -1584,7 +1587,7 @@ public class JavaProject
 						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
 				}
 
-			perProjectInfo.lastResolvedClasspath = resolvedPath;
+			perProjectInfo.resolvedClasspath = resolvedPath;
 			perProjectInfo.resolvedPathToRawEntries = reverseMap;
 		}
 		return resolvedPath;
@@ -2310,28 +2313,6 @@ public class JavaProject
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
 			true, // needValidation
 			true); // need to save
-	}
-
-	/**
-	 * NOTE: <code>null</code> specifies default classpath, and an empty
-	 * array specifies an empty classpath.
-	 *
-	 * @exception NotPresentException if this project does not exist.
-	 */
-	protected void setRawClasspath0(IClasspathEntry[] rawEntries)
-		throws JavaModelException {
-
-		JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
-	
-		synchronized (info) {
-			if (rawEntries != null) {
-				info.classpath = rawEntries;
-			}
-			
-			// clear cache of resolved classpath
-			info.lastResolvedClasspath = null;
-			info.resolvedPathToRawEntries = null;
-		}
 	}
 
 	/**

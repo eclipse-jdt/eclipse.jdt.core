@@ -573,7 +573,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
 		// SIDE-EFFECT: from thereon, the classpath got modified
-		project.setRawClasspath0(this.newRawPath);
+		project.getPerProjectInfo().updateClasspathInformation(this.newRawPath);
 
 		// resolve new path (asking for marker creation if problems)
 		if (this.newResolvedPath == null) {
@@ -706,7 +706,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		}
 
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+		JavaModelManager.PerProjectInfo perProjectInfo = project.getPerProjectInfo();
 		synchronized (perProjectInfo) {
 			perProjectInfo.outputLocation = this.newOutputLocation;
 		}

@@ -500,19 +500,29 @@ public class JavaModelManager implements ISaveParticipant {
 	protected WeakHashMap searchScopes = new WeakHashMap();
 
 	public static class PerProjectInfo {
+		
 		public IProject project;
 		public Object savedState;
 		public boolean triedRead;
-		public IClasspathEntry[] classpath;
-		public IClasspathEntry[] lastResolvedClasspath;
+		public IClasspathEntry[] rawClasspath;
+		public IClasspathEntry[] resolvedClasspath;
 		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
 		public IPath outputLocation;
 		public Preferences preferences;
+		
 		public PerProjectInfo(IProject project) {
 
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
+		}
+		
+		// updating raw classpath need to flush obsoleted cached information about resolved entries
+		public synchronized void updateClasspathInformation(IClasspathEntry[] newRawClasspath) {
+
+			this.rawClasspath = newRawClasspath;
+			this.resolvedClasspath = null;
+			this.resolvedPathToRawEntries = null;
 		}
 	}
 	public static boolean VERBOSE = false;

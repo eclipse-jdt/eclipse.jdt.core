@@ -1702,9 +1702,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 			switch (delta.getKind()) {
 				case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
 					try {
-						JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
-						if (info.classpath != null) { // if there is an in-memory classpath
-							project.saveClasspath(info.classpath, info.outputLocation);
+						JavaModelManager.PerProjectInfo info = project.getPerProjectInfo();
+						if (info.rawClasspath != null) { // if there is an in-memory classpath
+							project.saveClasspath(info.rawClasspath, info.outputLocation);
 						}
 					} catch (JavaModelException e) {
 						if (project.getProject().isAccessible()) {
