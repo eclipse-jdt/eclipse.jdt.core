@@ -459,10 +459,10 @@ public void constantOutOfFormat(NumberLiteral lit) {
 			final int radix;
 			if ((source[1] == 'x') || (source[1] == 'X')) {
 				radix = 16;
-				Radix = "Hexa";
+				Radix = "Hexa"/*nonNLS*/;
 			} else {
 				radix = 8;
-				Radix = "Octal";
+				Radix = "Octal"/*nonNLS*/;
 			}
 			//look for the first digit that is incorrect
 			int place = -1;
@@ -475,7 +475,7 @@ public void constantOutOfFormat(NumberLiteral lit) {
 
 			this.handle(
 				NumericValueOutOfRange,
-				new String[] {Radix + " " + new String(source) + " (digit " + new String(new char[] {source[place]}) + ")"},
+				new String[] {Radix + " "/*nonNLS*/ + new String(source) + " (digit "/*nonNLS*/ + new String(new char[] {source[place]}) + ")"/*nonNLS*/},
 				lit.sourceStart,
 				lit.sourceEnd);
 			return;
@@ -1188,7 +1188,7 @@ public void invalidEnclosingType(Expression expression, TypeBinding type, TypeBi
 
 	this.handle(
 		flag,
-		new String[] {new String(enclosingType.readableName()) + "." + new String(type.readableName())},
+		new String[] {new String(enclosingType.readableName()) + "."/*nonNLS*/ + new String(type.readableName())},
 		expression.sourceStart,
 		expression.sourceEnd);
 }
@@ -1604,7 +1604,7 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 		methodDecl.sourceEnd());
 }
 public void needImplementation() {
-	this.abortDueToInternalError("Missing code implementation in the compiler");
+	this.abortDueToInternalError(Util.bind("abort.missingCode"/*nonNLS*/));
 }
 public void needToEmulateFieldReadAccess(FieldBinding field, AstNode location) {
 	this.handle(

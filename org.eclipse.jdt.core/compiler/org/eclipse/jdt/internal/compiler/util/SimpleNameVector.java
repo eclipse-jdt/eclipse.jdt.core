@@ -52,7 +52,7 @@ public void removeAll() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < size; i++) {
-		buffer.append(elements[i]).append("\n");
+		buffer.append(elements[i]).append("\n"/*nonNLS*/);
 	}
 	return buffer.toString();
 }

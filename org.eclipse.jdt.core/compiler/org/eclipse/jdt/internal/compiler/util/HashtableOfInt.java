@@ -68,11 +68,11 @@ public int size() {
 	return elementSize;
 }
 public String toString() {
-	String s = "";
+	String s = ""/*nonNLS*/;
 	Object object;
 	for (int i = 0, length = valueTable.length; i < length; i++)
 		if ((object = valueTable[i]) != null)
-			s += keyTable[i] + " -> " + object.toString() + "\n";
+			s += keyTable[i] + " -> "/*nonNLS*/ + object.toString() + "\n"/*nonNLS*/;
 	return s;
 }
 }
