@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.core.*;
  
+// TODO: (jerome) Remove when switching to MatchLocator2
 public class MatchingOpenable {
 	static final CompilationUnitDeclaration ALREADY_RESOLVED = new CompilationUnitDeclaration(null, null, 0);
 	private MatchLocator locator;

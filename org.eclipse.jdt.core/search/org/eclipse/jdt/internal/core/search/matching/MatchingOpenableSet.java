@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 /**
  * A set of MatchingOPenables that is sorted by package fragment roots.
  */
+// TODO: (jerome) Remove when switching to MatchLocator2
 public class MatchingOpenableSet {
 	private HashtableOfObject rootsToOpenable = new HashtableOfObject(5);
 	private int elementCount = 0;

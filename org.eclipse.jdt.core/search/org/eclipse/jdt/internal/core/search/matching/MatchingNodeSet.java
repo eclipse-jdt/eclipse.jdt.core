@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -41,10 +41,9 @@ import org.eclipse.jdt.internal.core.Util;
 /**
  * A set of matches and potential matches.
  */
-// TODO: (jerome) Remove when switching to MatchLocator2
-public class MatchSet {
+public class MatchingNodeSet extends MatchSet { // TODO: (jerome) remove extends
 	
-	MatchLocator locator;
+	MatchLocator2 locator;
 	int matchContainer;
 	boolean cuHasBeenResolved = false;
 
@@ -115,7 +114,8 @@ public class WrappedCoreException extends RuntimeException {
 	}
 }
 
-public MatchSet(MatchLocator locator) {
+public MatchingNodeSet(MatchLocator2 locator) {
+	super(locator);
 	this.locator = locator;
 	this.matchContainer = locator.pattern.matchContainer();
 }

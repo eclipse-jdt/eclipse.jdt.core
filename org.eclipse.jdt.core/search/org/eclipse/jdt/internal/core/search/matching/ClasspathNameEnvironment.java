@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000-2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -28,12 +28,14 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.ClasspathJar;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 
-// TODO: (jerome) Remove when switching to JavaSearchNameEnvironment2
-public class JavaSearchNameEnvironment implements INameEnvironment {
+/*
+ * A name environment based on the classpath of a Java project.
+ */
+public class ClasspathNameEnvironment implements INameEnvironment {
 	
 	ClasspathLocation[] locations;
 	
-public JavaSearchNameEnvironment(IJavaProject javaProject) {
+public ClasspathNameEnvironment(IJavaProject javaProject) {
 	try {
 		computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject);
 	} catch(CoreException e) {
