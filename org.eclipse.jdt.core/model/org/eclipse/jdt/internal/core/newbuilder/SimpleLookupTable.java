@@ -47,56 +47,58 @@ public Object clone() throws CloneNotSupportedException {
 }
 
 public boolean containsKey(Object key) {
-	int index = (key.hashCode() & 0x7FFFFFFF) % keyTable.length;
+	int length = keyTable.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % length;
 	Object currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.equals(key)) return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) index = 0;
 	}
 	return false;
 }
 
 public Object get(Object key) {
-	int index = (key.hashCode() & 0x7FFFFFFF) % keyTable.length;
+	int length = keyTable.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % length;
 	Object currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.equals(key)) return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) index = 0;
 	}
 	return null;
 }
 
 public Object put(Object key, Object value) {
-	int index = (key.hashCode() & 0x7FFFFFFF) % keyTable.length;
+	int length = keyTable.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % length;
 	Object currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.equals(key)) return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) index = 0;
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;
 
 	// assumes the threshold is never equal to the size of the table
-	if (++elementSize > threshold)
-		rehash();
+	if (++elementSize > threshold) rehash();
 	return value;
 }
 
-public Object removeKey(Object key) {
-	int index = (key.hashCode() & 0x7FFFFFFF) % keyTable.length;
+public void removeKey(Object key) {
+	int length = keyTable.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % length;
 	Object currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.equals(key)) {
-				Object value = valueTable[index];
-				elementSize--;
-				keyTable[index] = null;
-				valueTable[index] = null;
-				rehash();
-				return value;
-			}
-		index = (index + 1) % keyTable.length;
+			elementSize--;
+			keyTable[index] = null;
+			valueTable[index] = null;
+			if (keyTable[index + 1 == length ? 0 : index + 1] != null)
+				rehash(); // only needed if a possible collision existed
+			return;
+		}
+		if (++index == length) index = 0;
 	}
-	return null;
 }
 
 public void removeValue(Object valueToRemove) {
@@ -107,11 +109,11 @@ public void removeValue(Object valueToRemove) {
 			elementSize--;
 			keyTable[i] = null;
 			valueTable[i] = null;
-			rehash = true;
+			if (!rehash && keyTable[i + 1 == l ? 0 : i + 1] != null)
+				rehash = true; // only needed if a possible collision existed
 		}
 	}
-	if (rehash)
-		rehash();
+	if (rehash) rehash();
 }
 
 private void rehash() {
