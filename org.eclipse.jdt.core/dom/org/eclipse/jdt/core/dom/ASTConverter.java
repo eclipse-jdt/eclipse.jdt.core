@@ -1095,6 +1095,7 @@ class ASTConverter {
 		}
 		literal.setEscapedValue(new String(tokens));
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1108,6 +1109,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1121,6 +1123,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1134,6 +1137,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1147,6 +1151,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1160,6 +1165,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -1173,6 +1179,7 @@ class ASTConverter {
 			this.recordNodes(literal, expression);
 		}
 		literal.setSourceRange(sourceStart, length);
+		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
 	}
 
@@ -2594,6 +2601,32 @@ class ASTConverter {
 							int end = scanner.currentPosition - 1;
 							node.setSourceRange(start, end - start + 1);
 						}
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+	}
+
+	/**
+	 * Remove potential trailing comment by settings the source end on the closing parenthesis
+	 */
+	private void removeLeadingAndTrailingCommentsFromLiteral(ASTNode node) {
+		int start = node.getStartPosition();
+		scanner.resetTo(start, start + node.getLength());
+		int token;
+		int parenCounter = 0;
+		try {
+			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
+				switch(token) {
+					case Scanner.TokenNameIntegerLiteral :
+					case Scanner.TokenNameFloatingPointLiteral :
+					case Scanner.TokenNameLongLiteral :
+					case Scanner.TokenNameDoubleLiteral :
+					case Scanner.TokenNameCharacterLiteral :
+						int startPosition = scanner.startPosition;
+						int end = scanner.currentPosition;
+						node.setSourceRange(startPosition, end - startPosition);
+						return;
 				}
 			}
 		} catch(InvalidInputException e) {
