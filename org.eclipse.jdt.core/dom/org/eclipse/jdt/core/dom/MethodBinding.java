@@ -41,6 +41,7 @@ class MethodBinding implements IMethodBinding {
 	
 	/*
 	 * @see IMethodBinding#isDefaultConstructor()
+	 * @since 3.0
 	 */
 	public boolean isDefaultConstructor() {
 		if (this.binding.declaringClass.isBinaryBinding()) {

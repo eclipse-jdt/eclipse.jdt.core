@@ -109,10 +109,17 @@ public interface IBinding {
 	/**
 	 * Returns whether this binding is synthetic. A synthetic binding is one that
 	 * was made up by the compiler, rather than something declared in the 
-	 * source code.
+	 * source code. Note that default constructors (the 0-argument constructor that
+	 * the compiler generates for class declarations with no explicit constructors
+	 * declarations) are not generally considered synthetic (although they
+	 * may be if the class itself is synthetic). 
+	 * But see {@link IMethodBinding#isDefaultConstructor IMethodBinding.isDefaultConstructor}
+	 * for cases where the compiled-generated default constructor can be recognized
+	 * instead.
 	 * 
 	 * @return <code>true</code> if this binding is synthetic, and 
 	 *    <code>false</code> otherwise
+	 * @see IMethodBinding#isDefaultConstructor
 	 */
 	public boolean isSynthetic();
 	
