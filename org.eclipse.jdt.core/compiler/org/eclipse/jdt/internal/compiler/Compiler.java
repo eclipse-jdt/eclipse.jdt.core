@@ -468,7 +468,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					if (distantProblem instanceof DefaultProblem) { // fixup filename TODO (philippe) should improve API to make this official
 						((DefaultProblem) distantProblem).setOriginatingFileName(result.getFileName());
 					}
-					result	.record(distantProblem, unit);
+					result.record(distantProblem, unit);
 				}
 			} else {
 				/* distant internal exception which could not be reported back there */
