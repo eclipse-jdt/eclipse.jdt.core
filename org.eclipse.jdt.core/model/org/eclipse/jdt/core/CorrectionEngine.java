@@ -89,8 +89,6 @@ public class CorrectionEngine implements ProblemReasons {
 		
 	}
 	
-	// TODO: add WorkingCopyOwner to constructor
-	
 	/**
 	 * Performs code correction for the given marker,
 	 * reporting results to the given correction requestor.

@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IImportDeclaration;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.eval.IGlobalVariable;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompletionRequestorWrapper;
@@ -84,29 +86,69 @@ protected void checkBuilderState() throws JavaModelException {
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, ICompletionRequestor)
  */
 public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor) throws JavaModelException {
-	this.context.complete(
-		codeSnippet.toCharArray(),
-		position,
-		this.project.getSearchableNameEnvironment(),
-		new CompletionRequestorWrapper(requestor,this.project.getNameLookup()),
-		this.project.getOptions(true),
-		this.project
-	);
+	codeComplete(codeSnippet, position, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, ICompletionRequestor, WorkingCopyOwner)
+ */
+public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+	NameLookup lookup = null;
+	try {
+		// set the units to look inside
+		lookup = this.project.getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		lookup.setUnitsToLookInside(workingCopies);
+
+		// code complete
+		this.context.complete(
+			codeSnippet.toCharArray(),
+			position,
+			this.project.getSearchableNameEnvironment(),
+			new CompletionRequestorWrapper(requestor, lookup),
+			this.project.getOptions(true),
+			this.project
+		);
+	} finally {
+		if (lookup != null) {
+			lookup.setUnitsToLookInside(null);
+		}
+	}
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int)
  */
 public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) throws JavaModelException {
-	SelectionRequestor requestor= new SelectionRequestor(this.project.getNameLookup(), null); // null because there is no need to look inside the code snippet itself
-	this.context.select(
-		codeSnippet.toCharArray(),
-		offset,
-		offset + length - 1,
-		this.project.getSearchableNameEnvironment(),
-		requestor,
-		this.project.getOptions(true)
-	);
-	return requestor.getElements();
+	return codeSelect(codeSnippet, offset, length, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int, WorkingCopyOwner)
+ */
+public IJavaElement[] codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
+	NameLookup lookup = null;
+	try {
+		// set the units to look inside
+		lookup = this.project.getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		lookup.setUnitsToLookInside(workingCopies);
+
+		// code select
+		SelectionRequestor requestor= new SelectionRequestor(lookup, null); // null because there is no need to look inside the code snippet itself
+		this.context.select(
+			codeSnippet.toCharArray(),
+			offset,
+			offset + length - 1,
+			this.project.getSearchableNameEnvironment(),
+			requestor,
+			this.project.getOptions(true)
+		);
+		return requestor.getElements();
+	} finally {
+		if (lookup != null) {
+			lookup.setUnitsToLookInside(null);
+		}
+	}
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable(IGlobalVariable)

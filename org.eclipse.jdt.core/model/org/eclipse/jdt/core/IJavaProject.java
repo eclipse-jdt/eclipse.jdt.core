@@ -569,7 +569,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Creates a new evaluation context.
 	 * @return a new evaluation context.
 	 */
-	// TODO: add WorkingCopyOwner
 	IEvaluationContext newEvaluationContext();
 
 	/**
