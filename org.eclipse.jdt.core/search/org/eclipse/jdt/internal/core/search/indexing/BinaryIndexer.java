@@ -37,8 +37,24 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	public BinaryIndexer(SearchDocument document) {
 		super(document);
 	}
-	public void addTypeReference(char[] typeName){
-	 
+	public void addTypeReference(char[] typeName) {
+		int length = typeName.length;
+		if (length > 2 && typeName[length - 2] == '$') {
+			switch (typeName[length - 1]) {
+				case '0' :
+				case '1' :
+				case '2' :
+				case '3' :
+				case '4' :
+				case '5' :
+				case '6' :
+				case '7' :
+				case '8' :
+				case '9' :
+					return; // skip local type names
+			}
+		}
+
 	 	// consider that A$B is a member type: so replace '$' with '.'
 	 	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=40116)
 	 	typeName = CharOperation.replace(typeName, ONE_DOLLAR, ONE_DOT); // note this doesn't create a new array if no replacement is needed
@@ -411,8 +427,11 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					}
 					break;
 				case ClassFileConstants.ClassTag :
-					// add a type reference 
-					name = replace('/', '.', extractClassReference(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
+					// add a type reference
+					name = extractClassReference(constantPoolOffsets, reader, i);
+					if (name.length > 0 && name[0] == '[')
+						break; // skip over array references
+					name = replace('/', '.', name); // so that it looks like java.lang.String
 					addTypeReference(name);
 					
 					// also add a simple reference on each segment of the qualification (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741)
