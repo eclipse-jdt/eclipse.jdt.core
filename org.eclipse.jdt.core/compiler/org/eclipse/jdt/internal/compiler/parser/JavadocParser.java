@@ -44,7 +44,7 @@ public class JavadocParser extends AbstractCommentParser {
 	private int invParamsPtr = -1;
 	private JavadocSingleNameReference[] invParamsStack;
 
-	JavadocParser(Parser sourceParser) {
+	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.checkDocComment = this.sourceParser.options.docCommentSupport;
 		this.kind = COMPIL_PARSER;
