@@ -2138,11 +2138,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 					"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in test\\X1.java (at line 3)\n" + 
-			"	public class X1 < A1 > > > {\n" + 
-			"	                     ^^^\n" + 
-			"Syntax error on tokens, delete these tokens\n" + 
-			"----------\n"
+		"1. ERROR in test\\X1.java (at line 3)\n" + 
+		"	public class X1 < A1 > > > {\n" + 
+		"	                       ^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n"
 		);
 	}
 	
@@ -2944,38 +2944,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X  <T extends AX<? super int>> {\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 1)\n" + 
-		"	public class X  <T extends AX<? super int>> {\n" + 
-		"	                                            ^\n" + 
-		"Syntax error, insert \"}\" to complete Block\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		AX<String> ax;\n" + 
-		"		System.out.println(\"SUCCESS\");\n" + 
-		"	}\n" + 
-		"	void foo(X<?> x) {\n" + 
-		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 6)\n" + 
-		"	void foo(X<?> x) {\n" + 
-		"	            ^\n" + 
-		"Syntax error, insert \"ClassBody\" to complete TypeDeclarations\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 6)\n" + 
-		"	void foo(X<?> x) {\n" + 
-		"	            ^\n" + 
-		"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 6)\n" + 
-		"	void foo(X<?> x) {\n" + 
-		"	            ^\n" + 
-		"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+		"	                                      ^^^\n" + 
+		"Syntax error on token \"int\", Dimensions expected after this token\n" + 
 		"----------\n");		
 	}		
 

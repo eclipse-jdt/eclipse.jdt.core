@@ -762,4 +762,112 @@ public void test0015() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0016() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X <A super int> {				\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+							
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+public void test0017() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X <A<B super int>> {			\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+public void test0018() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X <A<B<C super int>>> {			\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X<A> {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }
