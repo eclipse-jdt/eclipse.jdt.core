@@ -631,6 +631,7 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 	//   or '+' TypeSignature
 	//   or TypeSignature
 	//   or '*'
+	// TODO (philippe) plug in wildcards
 	switch (wrapper.signature[wrapper.start]) {
 		case '-' :
 			// ? super aType
@@ -643,7 +644,7 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 		case '*' :
 			// ?
 			wrapper.start++;
-			return null;
+			return getType(JAVA_LANG_OBJECT);
 	}
 	return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
 }
