@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -879,6 +880,42 @@ public static String bind(String id, String binding1, String binding2) {
 			if (c != SUFFIX_class[suffixIndex] && c != SUFFIX_CLASS[suffixIndex]) return false;
 		}
 		return true;		
+	}
+
+	/**
+	 * Validate the given compilation unit name.
+	 * A compilation unit name must obey the following rules:
+	 * <ul>
+	 * <li> it must not be null
+	 * <li> it must include the <code>".java"</code> suffix
+	 * <li> its prefix must be a valid identifier
+	 * </ul>
+	 * </p>
+	 * @param name the name of a compilation unit
+	 * @return a status object with code <code>IStatus.OK</code> if
+	 *		the given name is valid as a compilation unit name, otherwise a status 
+	 *		object indicating what is wrong with the name
+	 */
+	public static boolean isValidCompilationUnitName(String name) {
+		return JavaConventions.validateCompilationUnitName(name).isOK();
+	}
+
+	/**
+	 * Validate the given .class file name.
+	 * A .class file name must obey the following rules:
+	 * <ul>
+	 * <li> it must not be null
+	 * <li> it must include the <code>".class"</code> suffix
+	 * <li> its prefix must be a valid identifier
+	 * </ul>
+	 * </p>
+	 * @param name the name of a .class file
+	 * @return a status object with code <code>IStatus.OK</code> if
+	 *		the given name is valid as a .class file name, otherwise a status 
+	 *		object indicating what is wrong with the name
+	 */
+	public static boolean isValidClassFileName(String name) {
+		return JavaConventions.validateClassFileName(name).isOK();
 	}
 
 	/**

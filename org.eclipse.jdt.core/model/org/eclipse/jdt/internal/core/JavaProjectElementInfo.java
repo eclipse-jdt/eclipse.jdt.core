@@ -89,14 +89,13 @@ private Object[] computeNonJavaResources(JavaProject project) {
 					// check if this file might be a jar or a zip inside the build path
 					IPath resFullPath = res.getFullPath();
 					if (project.findPackageFragmentRoot(resFullPath) == null) {
-						String extension = res.getFileExtension();
-						if (extension != null) extension = extension.toLowerCase();
+						String resName = res.getName();
 						// ignore .java file if src == project
-						if (srcIsProject && "java".equals(extension)) { //$NON-NLS-1$
+						if (srcIsProject && Util.isValidCompilationUnitName(resName)) {
 							break;
 						}
 						// ignore .class file if bin == project
-						if (binIsProject && "class".equals(extension)) { //$NON-NLS-1$
+						if (binIsProject && Util.isValidClassFileName(resName)) {
 							break;
 						}
 						// else add non java resource

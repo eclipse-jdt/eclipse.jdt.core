@@ -132,6 +132,42 @@ public static IStatus validateCompilationUnitName(String name) {
 	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }
 /**
+ * Validate the given .class file name.
+ * A .class file name must obey the following rules:
+ * <ul>
+ * <li> it must not be null
+ * <li> it must include the <code>".class"</code> suffix
+ * <li> its prefix must be a valid identifier
+ * </ul>
+ * </p>
+ * @param name the name of a .class file
+ * @return a status object with code <code>IStatus.OK</code> if
+ *		the given name is valid as a .class file name, otherwise a status 
+ *		object indicating what is wrong with the name
+ */
+public static IStatus validateClassFileName(String name) {
+	if (name == null) {
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
+	}
+	String extension;
+	String identifier;
+	int index;
+	index = name.lastIndexOf('.');
+	if (index == -1) {
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notJavaName"), null); //$NON-NLS-1$
+	}
+	identifier = name.substring(0, index);
+	extension = name.substring(index + 1);
+	IStatus status = validateIdentifier(identifier);
+	if (!status.isOK()) {
+		return status;
+	}
+	if (!Util.isClassFileName(name)) {
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
+	}
+	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+}
+/**
  * Validate the given field name.
  * <p>
  * Syntax of a field name corresponds to VariableDeclaratorId (JLS2 8.3).

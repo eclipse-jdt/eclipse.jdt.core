@@ -115,10 +115,12 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GFK8YT: ITPJUI:ALL - Rename CU A.B.java to AB.java fails (NPE)
 
   PRs Closed in this Release
   ===============================================================================
   1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
+  1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
 
 **********************************************************************************
 *** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************

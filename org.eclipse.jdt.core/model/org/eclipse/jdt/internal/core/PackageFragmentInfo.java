@@ -42,8 +42,8 @@ private Object[] computeNonJavaResources(IResource resource) {
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
 			if (child.getType() != IResource.FOLDER) {
-				String extension = child.getProjectRelativePath().getFileExtension();
-				if (!"java".equalsIgnoreCase(extension) && !"class".equalsIgnoreCase(extension)) { //$NON-NLS-1$ //$NON-NLS-2$
+				String fileName = child.getName();
+				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
 					if (nonJavaResources.length == nonJavaResourcesCounter) {
 						// resize
 						System.arraycopy(

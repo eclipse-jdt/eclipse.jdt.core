@@ -79,8 +79,9 @@ IClassFile[] getClassFiles() throws JavaModelException;
 /**
  * Returns the compilation unit with the specified name
  * in this package (for example, <code>"Object.java"</code>).
- * The ".java" suffix is required.
+ * The name has to be a valid compilation unit name.
  * This is a handle-only method.  The compilation unit may or may not be present.
+ * @See JavaConventions#validateCompilationUnitName
  */
 ICompilationUnit getCompilationUnit(String name);
 /**

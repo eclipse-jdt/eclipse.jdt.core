@@ -164,15 +164,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		String extension = file.getProjectRelativePath().getFileExtension();
 		if (extension != null) {
-			extension = extension.toLowerCase();
-			if (extension.equals("java"  //$NON-NLS-1$
-				)) {
+			if (Util.isValidCompilationUnitName(file.getName())) {
 				return createCompilationUnitFrom(file);
-			} else if (extension.equals("class"  //$NON-NLS-1$
-				)) {
+			} else if (Util.isValidClassFileName(file.getName())) {
 				return createClassFileFrom(file);
-			} else if (extension.equals("jar"  //$NON-NLS-1$
-				) || extension.equals("zip"  //$NON-NLS-1$
+			} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
+				) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
 				)) {
 				return createJarPackageFragmentRootFrom(file);
 			}

@@ -58,12 +58,13 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 				if (extension != null) {
 					if (extension.equalsIgnoreCase(extType)) {
 						IJavaElement childElement;
-						if (kind == IPackageFragmentRoot.K_SOURCE) {
+						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
 							childElement = getCompilationUnit(child.getName());
-						} else {
+							vChildren.addElement(childElement);
+						} else if (Util.isValidClassFileName(child.getName())) {
 							childElement = getClassFile(child.getName());
+							vChildren.addElement(childElement);
 						}
-						vChildren.addElement(childElement);
 					}
 				}
 			}
