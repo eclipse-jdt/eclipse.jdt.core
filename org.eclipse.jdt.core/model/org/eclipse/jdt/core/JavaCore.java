@@ -2798,23 +2798,51 @@ public final class JavaCore extends Plugin {
 	 *       class="com.example.MyInitializer"/&gt; 
 	 * </pre>
 	 * <p>
-	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
-	 * and type arising from this entry are available with the project itself.
-	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
-	 * Need to describe the format of the patterns and how there are applied.
-	 * Nees to describe how package names and type names are mapper to IPaths.
-	 * Nees to describe how wildcarding works.
-	 * Need to cover what happens when one, the other, or both are empty.]
+	 * The inclusion patterns determines the initial set of accessible source and class files in 
+	 * the container; the exclusion patterns are then used to reduce this
+	 * set. A source or class file that is not accessible can still be refered to but it is 
+	 * tagged as being not accessible - the Java builder will create a problem 
+	 * marker for example. The severity of this marker is controled through
+	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
+	 * Note this is different from inclusion and 
+	 * exclusion patterns on source folders - a source file that is excluded 
+	 * cannot be refered to.
+	 * When no inclusion patterns are specified, all source and class files
+	 * in the container are initially accessible. On the other hand, specifying one 
+	 * or more inclusion patterns means that all <b>and only</b> source and
+	 * class files matching at least one of the specified patterns are accessible. 
+	 * If exclusion patterns are specified, the initial set of accessible source and 
+	 * class files is then reduced by eliminating source and class files matched 
+	 * by at least one of the exclusion patterns. Inclusion and exclusion 
+	 * patterns look like relative file paths with wildcards and are interpreted 
+	 * relative to each entry's path of the container. Patterns are case-sensitive 
+	 * and they can contain '**', '*' or '?' wildcards (see 
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics).
+	 * </p>
+	 * <p>
+	 * For example, if one of the container's entry path is 
+	 * <code>/Project/someLib.jar</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
+	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
+	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
+	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
+	 * accessible. 
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
 	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
-	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * If exported, dependent projects will concatenate the inclusion patterns of this entry with the
+	 * inclusion patterns of the projects, and they will concatenate the exclusion patterns of this entry
+	 * with the exclusion patterns of the project. 
 	 * </p>
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
-	 * <p>
+	 * </p>
+	 * 
 	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
 	 * @param inclusionPatterns the possibly empty list of inclusion patterns
@@ -2938,18 +2966,46 @@ public final class JavaCore extends Plugin {
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
 	 * <p>
-	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
-	 * and type arising from this entry are available with the project itself.
-	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
-	 * Need to describe the format of the patterns and how there are applied.
-	 * Nees to describe how package names and type names are mapper to IPaths.
-	 * Nees to describe how wildcarding works.
-	 * Need to cover what happens when one, the other, or both are empty.]
+	 * The inclusion patterns determines the initial set of accessible class files in 
+	 * the library; the exclusion patterns are then used to reduce this
+	 * set. A class file that is not accessible can still be refered to but it is 
+	 * tagged as being not accessible - the Java builder will create a problem 
+	 * marker for example. The severity of this marker is controled through
+	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
+	 * Note this is different from inclusion and 
+	 * exclusion patterns on source folders - a source file that is excluded 
+	 * cannot be refered to.
+	 * When no inclusion patterns are specified, all class files
+	 * in the resource tree (or in the jar file) rooted at the library
+	 * entry's path are initially accessible. On the other hand, specifying one 
+	 * or more inclusion patterns means that all <b>and only</b> class 
+	 * files matching at least one of the specified patterns are accessible. 
+	 * If exclusion patterns are specified, the initial set of accessible class files is 
+	 * then reduced by eliminating class files matched by at least one of 
+	 * the exclusion patterns. Inclusion and exclusion patterns look like 
+	 * relative file paths with wildcards and are interpreted relative to the 
+	 * library entry's path. Patterns are case-sensitive and they can 
+	 * contain '**', '*' or '?' wildcards (see 
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics).
+	 * </p>
+	 * <p>
+	 * For example, if the library path is 
+	 * <code>/Project/someLib.jar</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
+	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
+	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
+	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
+	 * accessible. 
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
 	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
-	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * If exported, dependent projects will concatenate the inclusion patterns of this entry with the
+	 * inclusion patterns of the projects, and they will concatenate the exclusion patterns of this entry
+	 * with the exclusion patterns of the project. 
 	 * </p>
 	 * 
 	 * @param path the absolute path of the binary archive
@@ -3042,24 +3098,52 @@ public final class JavaCore extends Plugin {
 	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
 	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
 	 * whole output location).
+	 * </p>
 	 * <p>
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * <p>
+	 * </p><p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
+	 * </p>
 	 * <p>
+	 * The inclusion patterns determines the initial set of accessible source and class files in 
+	 * the project; the exclusion patterns are then used to reduce this
+	 * set. A source or class file that is not accessible can still be refered to but it is 
+	 * tagged as being not accessible - the Java builder will create a problem 
+	 * marker for example. The severity of this marker is controled through
+	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
+	 * Note this is different from inclusion and 
+	 * exclusion patterns on source folders - a source file that is excluded 
+	 * cannot be refered to.
+	 * When no inclusion patterns are specified, all source and class files
+	 * in the project are initially accessible. On the other hand, specifying one 
+	 * or more inclusion patterns means that all <b>and only</b> source and
+	 * class files matching at least one of the specified patterns are accessible. 
+	 * If exclusion patterns are specified, the initial set of accessible source and 
+	 * class files is then reduced by eliminating source and class files matched 
+	 * by at least one of the exclusion patterns. Inclusion and exclusion 
+	 * patterns look like relative file paths with wildcards and are interpreted 
+	 * relative to each entry's path of the project. Patterns are case-sensitive 
+	 * and they can contain '**', '*' or '?' wildcards (see 
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics).
+	 * </p>
 	 * <p>
-	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
-	 * and type arising from this entry are available with the project itself.
-	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
-	 * Need to describe the format of the patterns and how there are applied.
-	 * Nees to describe how package names and type names are mapper to IPaths.
-	 * Nees to describe how wildcarding works.
-	 * Need to cover what happens when one, the other, or both are empty.]
+	 * For example, if one of the project's entry path is 
+	 * <code>/Project/someLib.jar</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
+	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
+	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
+	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
+	 * accessible. 
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
 	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
-	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * If exported, dependent projects will concatenate the inclusion patterns of this entry with the
+	 * inclusion patterns of the projects, and they will concatenate the exclusion patterns of this entry
+	 * with the exclusion patterns of the project. 
 	 * </p>
 	 * 
 	 * @param path the absolute path of the prerequisite project
@@ -3340,22 +3424,50 @@ public final class JavaCore extends Plugin {
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
 	 * <p>
-	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
-	 * and type arising from this entry are available with the project itself.
-	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
-	 * Need to describe the format of the patterns and how there are applied.
-	 * Nees to describe how package names and type names are mapper to IPaths.
-	 * Nees to describe how wildcarding works.
-	 * Need to cover what happens when one, the other, or both are empty.]
+	 * The inclusion patterns determines the initial set of accessible source and class files in 
+	 * the project or library; the exclusion patterns are then used to reduce this
+	 * set. A source or class file that is not accessible can still be refered to but it is 
+	 * tagged as being not accessible - the Java builder will create a problem 
+	 * marker for example. The severity of this marker is controled through
+	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
+	 * Note this is different from inclusion and 
+	 * exclusion patterns on source folders - a source file that is excluded 
+	 * cannot be refered to.
+	 * When no inclusion patterns are specified, all source and class files
+	 * in the project or library are initially accessible. On the other hand, specifying one 
+	 * or more inclusion patterns means that all <b>and only</b> source and
+	 * class files matching at least one of the specified patterns are accessible. 
+	 * If exclusion patterns are specified, the initial set of accessible source and 
+	 * class files is then reduced by eliminating source and class files matched 
+	 * by at least one of the exclusion patterns. Inclusion and exclusion 
+	 * patterns look like relative file paths with wildcards and are interpreted 
+	 * relative to the resolved entry's path. Patterns are case-sensitive 
+	 * and they can contain '**', '*' or '?' wildcards (see 
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics).
+	 * </p>
+	 * <p>
+	 * For example, if the resolved entry path is 
+	 * <code>/Project/someLib.jar</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
+	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
+	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
+	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
+	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
+	 * accessible. 
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
 	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
-	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * If exported, dependent projects will concatenate the inclusion patterns of this entry with the
+	 * inclusion patterns of the projects, and they will concatenate the exclusion patterns of this entry
+	 * with the exclusion patterns of the project. 
 	 * </p>
+	 * <p>
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
-	 * <p>
+	 * </p>
 	 *
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
