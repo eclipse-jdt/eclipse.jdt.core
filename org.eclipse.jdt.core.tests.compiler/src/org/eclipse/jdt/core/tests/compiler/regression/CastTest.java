@@ -1343,7 +1343,37 @@ public void test034() {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
 }
-
+// javac incorrectly accepts it
+public void test035() {
+	this.runNegativeTest(
+		new String[] {
+			"Test231.java",
+			"public class Test231 implements Test231i\n" + 
+			"{\n" + 
+			"	void	foo()\n" + 
+			"	{\n" + 
+			"		new Object()\n" + 
+			"		{\n" + 
+			"			Test231i	bar()\n" + 
+			"			{\n" + 
+			"				return	(Test231i)this;\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"\n" + 
+			"interface Test231i\n" + 
+			"{\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Test231.java (at line 9)\n" + 
+		"	return	(Test231i)this;\n" + 
+		"	      	^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from new Object(){} to Test231i\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

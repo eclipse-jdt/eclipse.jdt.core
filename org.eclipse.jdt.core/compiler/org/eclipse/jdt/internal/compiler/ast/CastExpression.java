@@ -253,7 +253,7 @@ public class CastExpression extends Expression {
 			}
 			return true;
 		}
-		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
+		if (match != null && (castType.isBoundParameterizedType() || castType.isGenericType() || expressionType.isBoundParameterizedType() || expressionType.isGenericType())) {
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 
 			}
