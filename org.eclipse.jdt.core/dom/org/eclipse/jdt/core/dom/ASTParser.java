@@ -689,8 +689,8 @@ public class ASTParser {
 							String fileName = type.sourceFileName(binaryType);
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileName, this.project);
 						} catch(JavaModelException e) {
-							// class file doesn't exist
-							needToResolveBindings = false;
+							// an error occured accessing the java element
+							throw new IllegalStateException();
 						}
 					} else if (this.rawSource != null) {
 						needToResolveBindings = this.unitName != null && this.project != null && this.compilerOptions != null;

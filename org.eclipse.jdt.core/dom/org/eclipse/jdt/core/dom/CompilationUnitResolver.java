@@ -321,7 +321,7 @@ class CompilationUnitResolver extends Compiler {
 	
 	public static CompilationUnitDeclaration parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, NodeSearcher nodeSearcher, Map settings) {
 		if (sourceUnit == null) {
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		Parser parser = new CommentRecorderParser(
