@@ -304,6 +304,7 @@ class TypeBinding implements ITypeBinding {
 	
 	/*
 	 * @see ITypeBinding#getBinaryName()
+	 * @since 3.0
 	 */
 	public String getBinaryName() {
 		char[] constantPoolName = this.binding.constantPoolName();

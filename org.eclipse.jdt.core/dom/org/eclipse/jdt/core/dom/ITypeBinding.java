@@ -25,13 +25,18 @@ package org.eclipse.jdt.core.dom;
 public interface ITypeBinding extends IBinding {
 
 	/**
-	 * Returns the binary name (as defined in the Java Language 
-	 * Specification Chapter 13 Section 1) of this type binding.
-	 * It is however slash ('/') separated instead of dot ('.') separated as said
-	 * in the specification.
-	 * Returns <code>null</code> if the type is defined in code that is unreachable.
+	 * Returns the binary name of this type binding.
+	 * The binary name of a class is defined in the Java Language 
+	 * Specification 2nd edition, section 13.1.
+	 * <p>
+	 * Note that in some cases, the binary name may be unavailable.
+	 * This may happen, for example, for a local type declared in 
+	 * unreachable code.
+	 * </p>
 	 *
-	 * @return the binary name of this type or <code>null</code> if this type is unreachable
+	 * @return the binary name of this type, or <code>null</code> 
+	 * if the binary name is unknown
+	 * @since 3.0
 	 */
 	public String getBinaryName();
 	
