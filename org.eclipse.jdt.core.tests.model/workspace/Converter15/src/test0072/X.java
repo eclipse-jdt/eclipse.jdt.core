@@ -43,7 +43,7 @@ public class X {
 	
 	public void bar3(int var9) {
 		int[] var10 = new int[] {};
-		for (int var11 : tab) {
+		for (int var11 : var10) {
 		}
 	}
 
