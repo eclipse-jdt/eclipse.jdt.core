@@ -1324,14 +1324,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.localVariableHiding"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"
+	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Field Declaration Hiding another Variable
 	 *    When enabled, the compiler will issue an error or a warning whenever a field
 	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fieldHiding"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"
+	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Special Parameter Hiding another Field
 	 *    When enabled, the compiler will signal cases where a constructor or setter method parameter declaration 
