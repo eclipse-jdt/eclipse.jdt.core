@@ -6646,4 +6646,46 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from int to boolean\n" + 
 			"----------\n");
 	}	
+	// 69776 - missing checkcast on cast operation
+	public void test241() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"public class X {\n" + 
+				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
+				"    public static void main(String[] args) throws Exception {\n" + 
+				"    	classes.put(\"test\", X.class);\n" + 
+				"        final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+				"        Object o = clazz.newInstance();\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	// 69776 - variation: no unsafe type operation warning
+	public void test242() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"public class X {\n" + 
+				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
+				"    public static void main(String[] args) throws Exception {\n" + 
+				"    	classes.put(\"test\", X.class);\n" + 
+				"        final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+				"        Object o = clazz.newInstance();\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type Class<? extends Object> for expression of type Class\n" + 
+		"----------\n");
+	}		
 }

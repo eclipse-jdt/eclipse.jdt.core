@@ -494,7 +494,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			scope.problemReporter().invalidField(this, this.receiverType);
 			return null;
 		}
-
+		this.receiver.computeConversion(scope, this.receiverType, this.receiverType);
 		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
 			scope.problemReporter().deprecatedField(binding, this);
 		}

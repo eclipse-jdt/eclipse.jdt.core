@@ -77,7 +77,6 @@ public class CastExpression extends Expression {
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
-					expression.computeConversion(scope, castType, expressionType);
 					constant = expression.constant; //use the same constant
 					return false;
 				}
@@ -521,6 +520,7 @@ public class CastExpression extends Expression {
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
+				expression.computeConversion(scope, this.resolvedType, expressionType);
 				if (!necessary && this.expression.resolvedType != null) { // cannot do better if expression is not bound
 					this.bits |= UnnecessaryCastMask;
 					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {

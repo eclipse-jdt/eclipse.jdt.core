@@ -351,7 +351,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
 				TypeBinding someArgument = someArguments[i];
-				if (!someArgument.isWildcard() || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
+				if (!someArgument.isWildcard() || ((WildcardBinding) someArgument).isEquivalentToUnboundWildcard()) {
 					this.tagBits |= IsBoundParameterizedType;
 				}
 			    this.tagBits |= someArgument.tagBits & (HasTypeVariable | HasWildcard);

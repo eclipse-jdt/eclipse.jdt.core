@@ -117,7 +117,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     }
 		}
 		if (argHasError) return null;
-		// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
+		//if ((this.bits & ASTNode.IsSuperType) != 0)
 		if (isClassScope)
 			if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
 				return null;
