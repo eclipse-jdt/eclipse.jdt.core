@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0505"));
+		suite.addTest(new ASTConverterTest2("test0511"));
 		return suite;
 	}
 	/**
@@ -3131,5 +3131,124 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("A constructor", !declaration.isConstructor());
 		checkSourceRange(declaration, "public method(final int parameter) {     }", source);
 	}
-}
 
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0506() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0506", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertTrue("is default constructor", binding.isDefaultConstructor());
+		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0507() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0507", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertTrue("is default constructor", binding.isDefaultConstructor());
+		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0508() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0508", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertTrue("not a default constructor", !binding.isDefaultConstructor());
+		assertNotNull("Has no declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0509() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0509", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertTrue("not a default constructor", !binding.isDefaultConstructor());
+		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0510() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0510", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertFalse("is default constructor", binding.isDefaultConstructor());
+		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=46699
+	 */
+	public void test0511() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0511", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		assertTrue("Not a class instance creation", expressionStatement.getExpression().getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertFalse("is synthetic", binding.isSynthetic());
+		assertFalse("is default constructor", binding.isDefaultConstructor());
+		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+}

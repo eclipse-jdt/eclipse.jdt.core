@@ -29,6 +29,17 @@ public interface IMethodBinding extends IBinding {
 	 *    and <code>false</code> if this is the binding for a method
 	 */ 
 	public boolean isConstructor();
+
+	/**
+	 * TODO Jim, please review this comment
+	 * Returns whether this binding is for a default constructor. The default
+	 * constructor has no corresponding source. It is added by the compiler.
+	 * Always return false if it is defined in a binary type.
+	 * 
+	 * @return <code>true</code> if this is the binding for a default constructor,
+	 *    and <code>false</code> otherwise
+	 */ 
+	public boolean isDefaultConstructor();
 	
 	/**
 	 * Returns the name of the method declared in this binding. The method name
