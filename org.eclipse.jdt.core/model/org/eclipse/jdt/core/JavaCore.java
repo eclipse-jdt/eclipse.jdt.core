@@ -1216,13 +1216,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			if (remaining > 1){
 				try {
 					// use workspace runnable so as to allow marker creation - workaround bug 14733
-					ResourcesPlugin.getWorkspace().run(
-						new IWorkspaceRunnable() {
-							public void run(IProgressMonitor monitor) throws CoreException {
+//					ResourcesPlugin.getWorkspace().run(
+//						new IWorkspaceRunnable() {
+//							public void run(IProgressMonitor monitor) throws CoreException {
 								JavaProject.updateAllCycleMarkers(); // update them all at once
-							}
-						}, 
-						monitor);					
+//							}
+//						}, 
+//						monitor);					
 				} catch(CoreException e){
 					throw new JavaModelException(e);
 				}
@@ -1521,15 +1521,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 				if (size > 1 && mayChangeProjectDependencies){
 					try {
-						// TOFIX
-						// use workspace runnable so as to allow marker creation - workaround bug 14733
-						ResourcesPlugin.getWorkspace().run(
-							new IWorkspaceRunnable() {
-								public void run(IProgressMonitor monitor) throws CoreException {
+						// use workspace runnable for protecting marker manipulation
+//						ResourcesPlugin.getWorkspace().run(
+//							new IWorkspaceRunnable() {
+//								public void run(IProgressMonitor monitor) throws CoreException {
 									JavaProject.updateAllCycleMarkers(); // update them all at once
-								}
-							}, 
-							monitor);					
+//								}
+//							}, 
+//							monitor);					
 					} catch(CoreException e){
 						throw new JavaModelException(e);
 					}
