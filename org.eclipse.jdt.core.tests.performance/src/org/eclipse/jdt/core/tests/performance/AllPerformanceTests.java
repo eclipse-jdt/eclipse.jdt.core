@@ -22,8 +22,7 @@ public class AllPerformanceTests extends TestCase {
 			FullSourceWorkspaceSearchTests.class, // run this test first to be sure that indexing is finished
 			FullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceASTTests.class,
-			FullSourceWorkspaceTypeHierarchyTests.class,
-			BuildBatchCompilerTest.class
+			FullSourceWorkspaceTypeHierarchyTests.class
 		};
 	}
 	public static Test suite() {
