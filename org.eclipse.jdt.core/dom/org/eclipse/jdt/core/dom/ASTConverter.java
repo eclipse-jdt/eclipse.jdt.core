@@ -1246,7 +1246,13 @@ class ASTConverter {
 	
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
 		this.compilationUnitSource = source;
-		this.scanner.setSource(unit.compilationResult);
+		// do not use setSource(CompilationResult) as contents may have changed (bug 65632)
+		this.scanner.setSource(source);
+		int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
+		if (lineSeparatorPositions != null) {
+			this.scanner.lineEnds = lineSeparatorPositions;
+			this.scanner.linePtr = lineSeparatorPositions.length - 1;
+		}
 		CompilationUnit compilationUnit = this.ast.newCompilationUnit();
 		// handle the package declaration immediately
 		// There is no node corresponding to the package declaration

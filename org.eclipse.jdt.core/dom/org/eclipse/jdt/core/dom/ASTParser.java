@@ -682,6 +682,7 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
+					char[] sourceContents = sourceUnit.getContents();
 					if (needToResolveBindings && this.project != null) {
 						try {
 							// parse and resolve
@@ -709,7 +710,7 @@ public class ASTParser {
 					}
 					return CompilationUnitResolver.convert(
 						compilationUnitDeclaration, 
-						sourceUnit.getContents(), 
+						sourceContents,
 						this.apiLevel, 
 						this.compilerOptions,
 						needToResolveBindings,
