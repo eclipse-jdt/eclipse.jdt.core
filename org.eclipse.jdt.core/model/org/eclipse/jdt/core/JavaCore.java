@@ -53,6 +53,7 @@
  *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_VISIBILITY
  *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING
  *                                 COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD
+ *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -326,6 +327,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1624,6 +1631,15 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Unused Declared Thrown Exception in Overridind Method
+	 *    When disabled, the compiler will not include overriding methods in its diagnosis for unused declared
+	 *    thrown exceptions.
+	 *    <br>
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
 	 * COMPILER / Reporting Unqualified Access to Field
 	 *    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
 	 *    In order to improve code readability, it should be qualified, e.g. 'x' should rather be written 'this.x'.
@@ -2047,7 +2063,7 @@ public final class JavaCore extends Plugin {
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 *///TODO should return a Map for 3.0
+	 */
 	public static Hashtable getOptions() {
 		
 		Hashtable options = new Hashtable(10);
@@ -2112,7 +2128,8 @@ public final class JavaCore extends Plugin {
 		}
 		return options;
 	}
-	
+
+
 	/**
 	 * Returns the single instance of the Java core plug-in runtime class.
 	 * 
