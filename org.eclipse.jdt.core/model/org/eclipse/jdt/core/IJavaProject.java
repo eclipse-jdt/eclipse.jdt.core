@@ -295,11 +295,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <p>
 	 * 
 	 * @return the raw classpath for the project, as a list of classpath entries
-	 * @exception JavaModelException in one of the corresponding situation:
-	 * <ul>
-	 *    <li> an exception occurs while accessing the associated <tt>.classpath</tt> file </li>
-	 *    <li> an exception occurs while accessing its corresponding resource </li>
-	 * </ul>
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
 	 * @see IClasspathEntry
 	 */
 	IClasspathEntry[] getRawClasspath() throws JavaModelException;

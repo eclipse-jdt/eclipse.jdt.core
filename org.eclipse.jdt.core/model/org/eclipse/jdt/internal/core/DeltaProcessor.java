@@ -543,18 +543,20 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			case IJavaElement.JAVA_PROJECT:
 				this.popUntilPrefixOf(path);
 				if (this.currentElement != null) return this.currentElement;
+				if  (project != null){
+					element = (Openable)project;
+					break;
+				}
+				
 				IProject proj = (IProject)resource;
 				boolean isOpened = proj.isOpen();
 				if (isOpened && this.hasJavaNature(proj)) {
-					element = project == null ? JavaCore.create(proj) : project;
-				} else if (!isOpened) {
-					if (project == null) {
-						project = JavaCore.create(proj);
-					}
-					if (project.isOpen()) {
-						element = project; // java project is being closed or removed
-					} 
-				} // else not a java-project
+					element = JavaCore.create(proj);
+				} else {
+					// java project may have been been closed or removed (look for
+					// element amongst old java project s list).
+					element =  (Openable) manager.getJavaModel().findJavaProject(proj);
+				}
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 				element = project == null ? JavaCore.create(resource) : project.getPackageFragmentRoot(resource);

@@ -81,10 +81,12 @@ public abstract class JobManager implements Runnable {
 	public void discardJobs(String jobFamily) {
 		boolean wasEnabled = isEnabled();
 		try {
-			disable();
-
+			IJob currentJob;
 			// cancel current job if it belongs to the given family
-			IJob currentJob = this.currentJob();
+			synchronized(this){
+				currentJob = this.currentJob();
+				disable();
+			}
 			if (currentJob != null 
 					&& (jobFamily == null || currentJob.belongsTo(jobFamily))) {
 	
