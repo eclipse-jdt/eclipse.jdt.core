@@ -1971,7 +1971,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType() == t);
 		assertTrue(x.getType().getParent() == x);
-		assertTrue(x.getName().getParent() == x);
 		assertTrue(!x.isSimpleType());
 		assertTrue(!x.isArrayType());
 		assertTrue(!x.isPrimitiveType());
@@ -1984,21 +1983,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
-				if (parented) {
-					targetAst.newExpressionStatement(result);
-				}
-				return result;
-			}
-			public ASTNode get() {
-				return x.getName();
-			}
-			public void set(ASTNode value) {
-				x.setName((Name) value);
-			}
-		});
 		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = 

@@ -640,15 +640,6 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 	
 	/**
-	 * @since 3.0
-	 * @deprecated Renamed isVarargs
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public boolean isVariableArity() {
-		return isVarargs();
-	}
-	
-	/**
 	 * Returns the live ordered list of thrown exception names in this method 
 	 * declaration.
 	 * 

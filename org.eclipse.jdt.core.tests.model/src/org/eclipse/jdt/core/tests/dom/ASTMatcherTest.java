@@ -181,8 +181,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
 			PT1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("Z"))); //$NON-NLS-1$
-			PT1.setName(ast.newSimpleName("W"));
-			PT1S = "[(tM[(nSWWnS)][(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
+			PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
 			TP1 = ast.newTypeParameter();
 			TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$

@@ -35,14 +35,6 @@ import java.util.List;
 public class ParameterizedType extends Type {
 	
 	/**
-	 * @since 3.0
-	 * @deprecated Replaced by TYPE_PROPERTY
-	 * TODO (jeem) - Remove before M9
-	 */
-	public static final ChildPropertyDescriptor NAME_PROPERTY = 
-		new ChildPropertyDescriptor(ParameterizedType.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
-
-	/**
 	 * The "type" structural property of this node type.
 	 * @since 3.0
 	 */
@@ -65,7 +57,6 @@ public class ParameterizedType extends Type {
 	
 	static {
 		createPropertyList(ParameterizedType.class);
-		addProperty(NAME_PROPERTY);
 		addProperty(TYPE_PROPERTY);
 		addProperty(TYPE_ARGUMENTS_PROPERTY);
 		PROPERTY_DESCRIPTORS = reapPropertyList();
@@ -86,13 +77,6 @@ public class ParameterizedType extends Type {
 		return PROPERTY_DESCRIPTORS;
 	}
 			
-	/** 
-	 * @since 3.0
-	 * @deprecated Replaced by TYPE_PROPERTY
-	 * TODO (jeem) - Remove before M9
-	 */
-	private Name typeName = null;
-	
 	/** 
 	 * The type node; lazily initialized; defaults to an unspecfied, but legal,
 	 * type.
@@ -132,14 +116,6 @@ public class ParameterizedType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == NAME_PROPERTY) {
-			if (get) {
-				return getName();
-			} else {
-				setName((Name) child);
-				return null;
-			}
-		}
 		if (property == TYPE_PROPERTY) {
 			if (get) {
 				return getType();
@@ -176,7 +152,6 @@ public class ParameterizedType extends Type {
 	ASTNode clone0(AST target) {
 		ParameterizedType result = new ParameterizedType(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setName((Name) ((ASTNode) getName()).clone(target));
 		result.setType((Type) ((ASTNode) getType()).clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
@@ -198,42 +173,12 @@ public class ParameterizedType extends Type {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getName());
 			acceptChild(visitor, getType());
 			acceptChildren(visitor, this.typeArguments);
 		}
 		visitor.endVisit(this);
 	}
 	
-	/**
-	 * @since 3.0
-	 * deprecated Replaced by getType(), which returns a Type
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public Name getName() {
-		if (this.typeName == null) {
-			preLazyInit();
-			this.typeName = new SimpleName(this.ast);
-			postLazyInit(this.typeName, NAME_PROPERTY);
-		}
-		return this.typeName;
-	}
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Replaced by setType(), which takes a Type
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public void setName(Name typeName) {
-		if (typeName == null) {
-			throw new IllegalArgumentException();
-		}
-		ASTNode oldChild = this.typeName;
-		preReplaceChild(oldChild, typeName, NAME_PROPERTY);
-		this.typeName = typeName;
-		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
-	}
-
 	/**
 	 * Returns the type of this parameterized type.
 	 * 
