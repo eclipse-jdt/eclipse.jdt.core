@@ -317,6 +317,11 @@ private boolean checkInvocation() {
 					messageSend.receiver = ThisReference.ThisImplicit;
 					break;
 				case NAME_RECEIVER:
+					// remove special flags for primitive types
+					while (this.identifierLengthPtr >= 0 && this.identifierLengthStack[this.identifierLengthPtr] < 0) {
+						this.identifierLengthPtr--;
+					}
+				
 					// remove selector 
 					this.identifierPtr--; 
 					this.identifierLengthStack[this.identifierLengthPtr]--;
