@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -48,11 +49,13 @@ public CodeSnippetClassFile(
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-		long targetJDK = referenceBinding.scope.environment().options.targetJDK;
-		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
-		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
-		header[headerOffset++] = (byte) (targetJDK >> 24); // major high
-		header[headerOffset++] = (byte) (targetJDK >> 16); // major low
+	long targetJDK = referenceBinding.scope.environment().options.targetJDK;
+	// TODO[1.5]  until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
+	if (targetJDK == ClassFileConstants.JDK1_5) targetJDK = ClassFileConstants.JDK1_4;
+	header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
+	header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
+	header[headerOffset++] = (byte) (targetJDK >> 24); // major high
+	header[headerOffset++] = (byte) (targetJDK >> 16); // major low
 
 	constantPoolOffset = headerOffset;
 	headerOffset += 2;

@@ -22,7 +22,6 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -70,7 +69,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 	public static Test setupSuite(Class clazz) {
 		ArrayList testClasses = new ArrayList();
 		testClasses.add(clazz);
-		return AbstractCompilerTest.suite(clazz.getName(), DebugEvaluationSetup.class, testClasses);
+		return suite(clazz.getName(), DebugEvaluationSetup.class, testClasses);
 	}
 	public static Test suite() {
 		return setupSuite(testClass());
