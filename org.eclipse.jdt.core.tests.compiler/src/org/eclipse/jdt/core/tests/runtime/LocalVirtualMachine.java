@@ -85,7 +85,7 @@ protected void cleanupTargetPath() throws TargetException {
 				break;
 			} else {
 				try {
-					Thread.currentThread().sleep(count * 100);
+					Thread.sleep(count * 100);
 				} catch (InterruptedException e) {
 				}
 			}

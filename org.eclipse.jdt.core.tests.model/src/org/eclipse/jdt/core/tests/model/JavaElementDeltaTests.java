@@ -299,7 +299,7 @@ public void testAddPackageSourceIsBin() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "src");
 		this.startDeltas();
 		this.createFolder("P/src/x");
-		this.assertEquals(
+		assertEquals(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
