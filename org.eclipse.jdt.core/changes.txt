@@ -15,9 +15,6 @@ STREAM: 2.0
   1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types
   1GK9B5Q: ITPJCORE:WINNT - Class reference search broken
   1GK96A0: ITPJCORE:WINNT - NPE during search operation
-  1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
-  1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
-  1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
 
   KJ
   ================================================================================
@@ -149,6 +146,9 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
+  1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
+  1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
   1GKCJIL: ITPJCORE:WIN2000 - build exception in 135
   1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
   1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
