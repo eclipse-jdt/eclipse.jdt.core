@@ -1057,4 +1057,76 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"true"
 		);
 	}
+	
+	public void _test034() { // postfix expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    int i = b++;\n" + 
+				"		System.out.print(i);\n" + 
+				"		System.out.print(b);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"12"
+		);
+	}
+	
+	public void _test035() { // postfix expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    int i = b--;\n" + 
+				"		System.out.print(i);\n" + 
+				"		System.out.print(b);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"10"
+		);
+	}
+	
+	public void _test036() { // prefix expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    int i = ++b;\n" + 
+				"		System.out.print(i);\n" + 
+				"		System.out.print(b);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"22"
+		);
+	}
+	
+	public void _test037() { // prefix expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    int i = --b;\n" + 
+				"		System.out.print(i);\n" + 
+				"		System.out.print(b);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"00"
+		);
+	}
 }
