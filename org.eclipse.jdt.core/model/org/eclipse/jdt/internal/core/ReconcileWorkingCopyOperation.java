@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
@@ -43,7 +44,8 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 		if (this.progressMonitor != null){
-			if (this.progressMonitor.isCanceled()) return;
+			if (this.progressMonitor.isCanceled()) 
+				throw new OperationCanceledException();
 			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 2); //$NON-NLS-1$
 		}
 	

@@ -15,6 +15,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -343,6 +344,37 @@ public void testBufferOpenAfterReconcile() throws CoreException {
 	} finally {
 		deleteFile("/Reconciler/src/p1/Super.java");
 	}
+}
+/*
+ * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
+ */
+public void testCancel() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  void foo(String s) {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	// count the number of time isCanceled() is called when converting this source unit
+	CancelCounter counter = new CancelCounter();
+	this.workingCopy.reconcile(AST.JLS2, true, null, counter);
+	
+	// throw an OperatonCanceledException at each point isCanceled() is called
+	for (int i = 0; i < counter.count; i++) {
+		boolean gotException = false;
+		try {
+			this.workingCopy.reconcile(AST.JLS2, true, null, new Canceler(i));
+		} catch (OperationCanceledException e) {
+			gotException = true;
+		}
+		assertTrue("Should get an OperationCanceledException (" + i + ")", gotException);
+	}
+	
+	// last should not throw an OperationCanceledException
+	this.workingCopy.reconcile(AST.JLS2, true, null, new Canceler(counter.count));
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

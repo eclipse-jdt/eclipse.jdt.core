@@ -14,13 +14,10 @@ package org.eclipse.jdt.core.dom;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -32,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -41,61 +37,13 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
+import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 class CompilationUnitResolver extends Compiler {
 	
-	static class CancelableNameEnvironment extends SearchableEnvironment {
-		IProgressMonitor monitor;
-
-		CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
-			super(project, owner);
-			this.monitor = monitor;
-		}
-
-		private void checkCanceled() {
-			if (monitor != null && monitor.isCanceled()) 
-				throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
-		}
-
-		public void findPackages(char[] prefix, ISearchRequestor requestor) {
-			checkCanceled();
-			super.findPackages(prefix, requestor);
-		}
-
-		public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
-			checkCanceled();
-			return super.findType(name, packageName);
-		}
-
-		public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
-			checkCanceled();
-			return super.findType(compoundTypeName);
-		}
-
-		public void findTypes(char[] prefix, ISearchRequestor storage) {
-			checkCanceled();
-			super.findTypes(prefix, storage);
-		}
-	}
-
-	static class CancelableProblemFactory extends DefaultProblemFactory {
-		IProgressMonitor monitor;
-
-		CancelableProblemFactory(IProgressMonitor monitor) {
-			super();
-			this.monitor = monitor;
-		}
-
-		public IProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber) {
-			if (monitor != null && monitor.isCanceled()) 
-				throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
-			return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber);
-		}
-	}
-
 	/**
 	 * Answer a new CompilationUnitVisitor using the given name environment and compiler options.
 	 * The environment and options will be in effect for the lifetime of the compiler.

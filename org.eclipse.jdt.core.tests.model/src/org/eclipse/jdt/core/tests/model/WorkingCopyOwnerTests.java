@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -150,6 +151,40 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"X.java [in <default> [in <project root> [in P]]]\n" +
 				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 				getPackage("/P").getChildren());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
+	 */
+	public void testBecomeWorkingCopy4() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/X.java");
+
+			// count the number of time isCanceled() is called when converting this source unit
+			CancelCounter counter = new CancelCounter();
+			workingCopy.becomeWorkingCopy(null, counter);
+			workingCopy.discardWorkingCopy();
+
+			// throw an OperatonCanceledException at each point isCanceled() is called
+			for (int i = 0; i < counter.count; i++) {
+				boolean gotException = false;
+				try {
+					workingCopy.becomeWorkingCopy(null, new Canceler(i));
+				} catch (OperationCanceledException e) {
+					gotException = true;
+				}
+				assertTrue("Should get an OperationCanceledException (" + i + ")", gotException);
+				workingCopy.discardWorkingCopy();
+			}
+			
+			// last should not throw an OperationCanceledException
+			workingCopy.becomeWorkingCopy(null, new Canceler(counter.count));
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();

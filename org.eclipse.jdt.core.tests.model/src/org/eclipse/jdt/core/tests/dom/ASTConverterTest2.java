@@ -19,7 +19,6 @@ import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -84,6 +83,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.tests.model.CancelCounter;
+import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
@@ -3557,21 +3558,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		
 		// count the number of time isCanceled() is called when converting this source unit
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		class Counter implements IProgressMonitor {
-			int count = 0;
-			public void beginTask(String name, int totalWork) {}
-			public void done() {}
-			public void internalWorked(double work) {}
-			public boolean isCanceled() {
-				count++;
-				return false;
-			}
-			public void setCanceled(boolean value) {}
-			public void setTaskName(String name) {}
-			public void subTask(String name) {}
-			public void worked(int work) {}
-		}
-		Counter counter = new Counter();
+		CancelCounter counter = new CancelCounter();
 		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(sourceUnit);
 		parser.setResolveBindings(true);
@@ -3579,22 +3566,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		parser.createAST(counter);
 		
 		// throw an OperatonCanceledException at each point isCanceled() is called
-		class Canceler implements IProgressMonitor {
-			int count;
-			Canceler(int count) {
-				this.count = count;
-			}
-			public void beginTask(String name, int totalWork) {}
-			public void done() {}
-			public void internalWorked(double work) {}
-			public boolean isCanceled() {
-				return --count < 0;
-			}
-			public void setCanceled(boolean value) {}
-			public void setTaskName(String name) {}
-			public void subTask(String name) {}
-			public void worked(int work) {}
-		}
 		for (int i = 0; i < counter.count; i++) {
 			boolean gotException = false;
 			try {

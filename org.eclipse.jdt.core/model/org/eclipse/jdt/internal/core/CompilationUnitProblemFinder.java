@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -29,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -136,25 +136,26 @@ public class CompilationUnitProblemFinder extends Compiler {
 		Parser parser,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
-		IProblemFactory problemFactory,
 		boolean cleanupCU,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
 		JavaProject project = (JavaProject) unitElement.getJavaProject();
-		CompilationUnitProblemFinder problemFinder =
-			new CompilationUnitProblemFinder(
-				project.newSearchableNameEnvironment(workingCopyOwner),
+		CancelableNameEnvironment environment = null;
+		CancelableProblemFactory problemFactory = null;
+		CompilationUnitProblemFinder problemFinder = null;
+		try {
+			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor);
+			problemFactory = new CancelableProblemFactory(monitor);
+			problemFinder = new CompilationUnitProblemFinder(
+				environment,
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
 				problemFactory);
-		if (parser != null) {
-			problemFinder.parser = parser;
-		}
-
-		try {
-			
+			if (parser != null) {
+				problemFinder.parser = parser;
+			}
 			PackageFragment packageFragment = (PackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;
 			if (packageFragment != null){
@@ -180,15 +181,21 @@ public class CompilationUnitProblemFinder extends Compiler {
 			}
 			reportProblems(unit, problemRequestor, monitor);
 			return unit;
+		} catch (OperationCanceledException e) {
+			throw e;
 		} catch(RuntimeException e) { 
 			// avoid breaking other tools due to internal compiler failure (40334)
 			Util.log(e, "Exception occurred during problem detection: "); //$NON-NLS-1$ 
 			throw new JavaModelException(e, IJavaModelStatusConstants.COMPILER_FAILURE);
 		} finally {
-			if (cleanupCU && unit != null) {
+			if (environment != null)
+				environment.monitor = null; // don't hold a reference to this external object
+			if (problemFactory != null)
+				problemFactory.monitor = null; // don't hold a reference to this external object
+			if (cleanupCU && unit != null)
 				unit.cleanUp();
-			}
-			problemFinder.lookupEnvironment.reset();			
+			if (problemFinder != null)
+				problemFinder.lookupEnvironment.reset();			
 		}
 	}
 
@@ -201,7 +208,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), cleanupCU, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, cleanupCU, monitor);
 	}
 
 	

@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -185,7 +186,8 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	
 	// open the parent if necessary
 	openParent(info, newElements, monitor);
-	if (monitor != null && monitor.isCanceled()) return;
+	if (monitor != null && monitor.isCanceled()) 
+		throw new OperationCanceledException();
 
 	 // puts the info before building the structure so that questions to the handle behave as if the element existed
 	 // (case of compilation units becoming working copies)
