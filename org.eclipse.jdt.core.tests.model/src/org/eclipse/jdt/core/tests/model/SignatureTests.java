@@ -42,6 +42,13 @@ public void testCreateArraySignature() {
 		"Signature#createArraySignature not correct", 
 		"[[[[QString",
 		Signature.createArraySignature("QString", 4));
+		
+	// tests with 1.5-specific elements
+	assertEquals(
+		"Signature#createArraySignature not correct", 
+		"[[[[Qlist<Qstring;>;",
+		Signature.createArraySignature("Qlist<Qstring;>;", 4));
+		
 }
 /**
  * @see Signature
@@ -56,6 +63,21 @@ public void testCreateMethodSignature() {
 		"()Ljava.lang.String;", 
 		Signature.createMethodSignature(new String[] {}, "Ljava.lang.String;"));
 
+	// tests involving 1.5 formal type parameters and thrown exceptions
+	assertEquals(
+			"Signature#createMethodSignature is not correct 3", 
+			"()V", 
+			Signature.createMethodSignature(new String[0], "V", new String[0], new String[0]));
+	assertEquals(
+			"Signature#createMethodSignature is not correct 4", 
+			"<x:y:>()V", 
+			Signature.createMethodSignature(new String[0], "V",
+					new String[] {"x:", "y:"}, new String[0]));
+	assertEquals(
+			"Signature#createMethodSignature is not correct 5", 
+			"()V^Qexception;^Qerror;", 
+			Signature.createMethodSignature(new String[0], "V",
+					new String[0], new String[] {"Qexception;", "Qerror;"}));
 }
 /**
  * @see Signature
@@ -97,11 +119,17 @@ public void testGetArrayCount() {
 	assertTrue("Signature#getArrayCount is not correct", Signature.getArrayCount("[[[[QString;") == 4);
 	try {
 		Signature.getArrayCount("");
+		assertTrue("Signature#getArrayCount is not correct, exception", false);
 	} catch (IllegalArgumentException iae) {
-		return;
+		// do nothing
 	}
-	assertTrue("Signature#getArrayCount is not correct, exception", false);
+
+	// tests with 1.5-specific elements
+	assertTrue(
+		"Signature#getArrayCount not correct", 
+		Signature.getArrayCount("[[[[Qlist<Qstring;>;") == 4);
 }
+
 /**
  * @see Signature
  */
@@ -111,10 +139,15 @@ public void testGetElementType() {
 	assertTrue("Signature#getElementType is not correct2", Signature.getElementType("[[I").equals("I"));
 	try {
 		Signature.getElementType("");
+		assertTrue("Signature#getArrayCount is not correct, exception", false);
 	} catch (IllegalArgumentException iae) {
-		return;
+		// do nothing
 	}
-	assertTrue("Signature#getArrayCount is not correct, exception", false);
+	
+	// tests with 1.5-specific elements
+	assertTrue(
+		"Signature#getElementType not correct", 
+		Signature.getElementType("[[[[Qlist<Qstring;>;").equals("Qlist<Qstring;>;"));
 }
 /**
  * @see Signature
@@ -124,10 +157,16 @@ public void testGetParameterCount() {
 	assertTrue("Signature#getParameterCount is not correct1", Signature.getParameterCount(methodSig) == 3);
 	try {
 		Signature.getParameterCount("");
+		assertTrue("Signature#getParameterCount is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
-		return;
+		// do nothing
 	}
-	assertTrue("Signature#getParameterCount is not correct: exception", false);
+
+	// tests with 1.5-specific elements
+	methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertTrue("Signature#getParameterCount is not correct3", Signature.getParameterCount(methodSig) == 3);
+//	methodSig = "<X:Qlist<Qstring;>;>(Ilist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+//	assertTrue("Signature#getParameterCount is not correct4", Signature.getParameterCount(methodSig) == 3);
 }
 /**
  * @see Signature
@@ -139,10 +178,22 @@ public void testGetParameterTypes() {
 	assertTrue("Signature#getParameterTypes is not correct2", types[1].equals("QObject;"));
 	try {
 		Signature.getParameterTypes("");
+		assertTrue("Signature#getParameterTypes is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
-		return;
+		// do nothing
 	}
-	assertTrue("Signature#getParameterTypes is not correct: exception", false);
+
+	// tests with 1.5-specific elements
+	methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertTrue("Signature#getParameterTypes is not correct3", Signature.getParameterTypes(methodSig).length == 3);
+	assertEquals("Signature#getParameterTypes is not correct3a", Signature.getParameterTypes(methodSig)[0], "I");
+	assertEquals("Signature#getParameterTypes is not correct3b", Signature.getParameterTypes(methodSig)[1], "Qlist;");
+	assertEquals("Signature#getParameterTypes is not correct3c", Signature.getParameterTypes(methodSig)[2], "Tww;");
+//	methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+//	assertTrue("Signature#getParameterTypes is not correct3", Signature.getParameterTypes(methodSig).length == 3);
+//	assertEquals("Signature#getParameterTypes is not correct3a", Signature.getParameterTypes(methodSig)[0], "I");
+//	assertEquals("Signature#getParameterTypes is not correct3b", Signature.getParameterTypes(methodSig)[1], "Qlist;");
+//	assertEquals("Signature#getParameterTypes is not correct3c", Signature.getParameterTypes(methodSig)[2], "Tww;");
 }
 /**
  * @see Signature
@@ -160,11 +211,66 @@ public void testGetReturnType() {
 	assertTrue("Signature#getReturnType is not correct1", Signature.getReturnType(methodSig).equals("I"));
 	try {
 		Signature.getReturnType("");
+		assertTrue("Signature#getReturnType is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
-		return;
+		// do nothing
 	}
-	assertTrue("Signature#getReturnType is not correct: exception", false);
+	
+	// tests with 1.5-specific elements
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
+	assertTrue("Signature#getReturnType is not correct2", Signature.getReturnType(methodSig).equals("I"));
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertTrue("Signature#getReturnType is not correct3", Signature.getReturnType(methodSig).equals("Qlist<Qxxx;>;"));
 }
+
+/**
+ * @see Signature
+ * @since 3.0
+ */
+public void testGetTypeVariable() {
+	// tests with 1.5-specific elements
+	String formalTypeParameterSignature = "Hello:";
+	assertTrue("Signature#getTypeVariable is not correct1", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
+	assertTrue("Signature#getTypeVariable is not correct2", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
+	assertTrue("Signature#getTypeVariable is not correct3", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	try {
+		Signature.getTypeVariable("");
+		assertTrue("Signature#getTypeVariable is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+}
+
+/**
+ * @see Signature
+ * @since 3.0
+ */
+public void testGetTypeParameterBounds() {
+	// tests with 1.5-specific elements
+	String formalTypeParameterSignature = "Hello:";
+	assertTrue("Signature#getTypeParameterBounds is not correct1", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 0);
+	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
+	assertTrue("Signature#getTypeParameterBounds is not correct2", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 2);
+	assertEquals("Signature#getTypeParameterBounds is not correct2a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
+	assertEquals("Signature#getTypeParameterBounds is not correct2b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi2;");
+	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
+	assertTrue("Signature#getTypeParameterBounds is not correct3", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 3);
+	assertEquals("Signature#getTypeParameterBounds is not correct3a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qlist<Qstring;>;");
+	assertEquals("Signature#getTypeParameterBounds is not correct3b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi1;");
+	assertEquals("Signature#getTypeParameterBounds is not correct3c", Signature.getTypeParameterBounds(formalTypeParameterSignature)[2], "Qi2;");
+	formalTypeParameterSignature = "Hello:Qi1;";
+	assertTrue("Signature#getTypeParameterBounds is not correct4", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 1);
+	assertEquals("Signature#getTypeParameterBounds is not correct4a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
+	try {
+		Signature.getTypeParameterBounds("");
+		assertTrue("Signature#getTypeParameterBounds is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+}
+
 /**
  * @see Signature
  */

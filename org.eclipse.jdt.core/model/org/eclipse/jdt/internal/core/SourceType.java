@@ -355,6 +355,20 @@ public String getSuperclassName() throws JavaModelException {
 	}
 	return new String(superclassName);
 }
+
+/**
+ * @see IType#getSuperclassType()
+ * @since 3.0
+ */
+public String getSuperclassType() throws JavaModelException {
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	char[] superclassName= info.getSuperclassName();
+	if (superclassName == null) {
+		return null;
+	}
+	return new String(Signature.createTypeSignature(superclassName, false));
+}
+
 /**
  * @see IType
  */
@@ -370,6 +384,33 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	}
 	return strings;
 }
+
+/**
+ * @see IType#getSuperInterfaceTypes()
+ * @since 3.0
+ */
+public String[] getSuperInterfaceTypes() throws JavaModelException {
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	char[][] names= info.getInterfaceNames();
+	if (names == null) {
+		return fgEmptyList;
+	}
+	String[] strings= new String[names.length];
+	for (int i= 0; i < names.length; i++) {
+		strings[i]= new String(Signature.createTypeSignature(names[i], false));
+	}
+	return strings;
+}
+
+/**
+ * @see IType#getTypeParameters()
+ * @since 3.0
+ */
+public String[] getTypeParameters() throws JavaModelException {
+	// TODO (jerome) - missing implementation
+	return new String[0];
+}
+
 /**
  * @see IType
  */
@@ -418,19 +459,42 @@ public IType[] getTypes() throws JavaModelException {
 public boolean isAnonymous() {
 	return this.name.length() == 0;
 }
+
 /**
  * @see IType
  */
 public boolean isClass() throws JavaModelException {
+	// TODO (jerome) - isClass should only return true for classes other than enum classes
 	return !isInterface();
 }
+
+/**
+ * @see IType#isEnum()
+ * @since 3.0
+ */
+public boolean isEnum() throws JavaModelException {
+	// TODO (jerome) - missing implementation - should only return true for enum classes
+	return false;
+}
+
 /**
  * @see IType
  */
 public boolean isInterface() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	// TODO (jerome) - isInterface should not return true for annotation types
 	return info.isInterface();
 }
+
+/**
+ * @see IType#isAnnotation()
+ * @since 3.0
+ */
+public boolean isAnnotation() throws JavaModelException {
+	// TODO (jerome) - missing implementation - should only return true for annotation types
+	return false;
+}
+
 /**
  * @see IType#isLocal()
  */

@@ -61,6 +61,19 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	}
 
 	/*
+	 * @see ICompilationUnit#createImport(String, IJavaElement, int, IProgressMonitor)
+     * @since 3.0
+	 */
+	public IImportDeclaration createImport(
+		String name,
+		IJavaElement sibling,
+		int flags,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/*
 	 * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
 	 */
 	public IPackageDeclaration createPackageDeclaration(
@@ -527,17 +540,6 @@ public IType findPrimaryType() {
 	}
 
 	/**
-	 * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
-	 */
-	public void reconcile(
-		boolean forceProblemDetection,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.IWorkingCopy#restore()
 	 */
 	public void restore() throws JavaModelException {
@@ -625,6 +627,22 @@ public IType findPrimaryType() {
 	public void codeComplete(int offset, org.eclipse.jdt.core.ICodeCompletionRequestor requestor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+	 */
+	public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+		// TODO (jerome) - Missing implementation
+		throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+	 */
+	public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
+		// TODO (jerome) - Missing implementation
+		throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
 	}
 
 	/**

@@ -19,8 +19,15 @@ import org.eclipse.jdt.core.IJavaElement;
  */
 public class MethodReferenceMatch extends JavaSearchMatch {
 
-	public MethodReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+	private boolean insideDocComment;
+
+	public MethodReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
+		this.insideDocComment = insideDocComment;
 	}
 
+	public boolean insideDocComment() {
+		return this.insideDocComment;
+	}
+	
 }

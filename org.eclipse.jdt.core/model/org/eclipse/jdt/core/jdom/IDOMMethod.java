@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.jdom;
  * ConstructorDeclaration (JLS2 8.8), and AbstractMethodDeclaration (JLS2 9.4).
  * A method has no children and its parent is a type.
  * Local classes are considered to be part of the body of a method, not a child.
+ * Annotation type members, added in J2SE 1.5, are represented as methods.
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
@@ -58,6 +59,25 @@ public void addParameter(String type, String name) throws IllegalArgumentExcepti
  *   example, for an abstract or native method)
  */
 public String getBody();
+
+/**
+ * Sets the default value expression for an annotation type member.
+ *
+ * @param defaultValue the default value expression, or <code>null</code> indicating
+ *   the member does not have a default value
+ * @since 3.0
+ */
+public void setDefault(String defaultValue);
+
+/**
+ * Returns the default value expression for an annotation type member.
+ *
+ * @return the default value expression, or <code>null</code> indicating
+ *   the member does not have a default value
+ * @since 3.0
+ */
+public String getDefault();
+
 /**
  * Returns the names of the exception types this method throws
  * in the order in which they are declared in the source, or an empty array
@@ -69,6 +89,21 @@ public String getBody();
  * @return the list of exception types
  */
 public String[] getExceptions();
+
+/**
+ * Returns the formal type parameters for this method.
+ * Returns an empty array if this method has no formal type parameters.
+ * <p>Formal type parameters are as they appear in the source
+ * code; for example: 
+ * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * </p>
+ *
+ * @return the formal type parameters of this method,
+ * in the order declared in the source, an empty array if none
+ * @since 3.0
+ */
+String[] getTypeParameters();
+
 /**
  * The <code>IDOMMethod</code> refinement of this <code>IDOMNode</code>
  * method returns the name of this method. Returns <code>null</code> for
@@ -110,12 +145,14 @@ public String[] getParameterTypes();
  * @return the return type
  */
 public String getReturnType();
+
 /**
  * Returns whether this method is a constructor.
  *
  * @return <code>true</code> for constructors, and <code>false</code> for methods
  */
 public boolean isConstructor();
+
 /**
  * Sets the body of this method. The method body includes all code following
  * the method declaration, including the enclosing braces. No formatting or
@@ -142,6 +179,20 @@ public void setConstructor(boolean b);
  * @param exceptionTypes the list of exception types
  */
 public void setExceptions(String[] exceptionTypes);
+
+/**
+ * Sets the formal type parameters for this method.
+ * <p>Formal type parameters are given as they appear in the source
+ * code; for example: 
+ * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * </p>
+ *
+ * @param typeParameters the formal type parameters of this method,
+ * in the order to appear in the source, an empty array if none
+ * @since 3.0
+ */
+void setTypeParameters(String[] typeParameters);
+
 /**
  * The <code>IDOMMethod</code> refinement of this <code>IDOMNode</code>
  * method sets the name of this method. The syntax for a method 
@@ -171,6 +222,7 @@ public void setName(String name) throws IllegalArgumentException;
  *   match, or if either argument is <code>null</code>
  */
 public void setParameters(String[] types, String[] names) throws IllegalArgumentException;
+
 /**
  * Sets the return type name. This has no effect on constructors.
  * The syntax for return type name corresponds to ReturnType in 
@@ -182,4 +234,5 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
  * @exception IllegalArgumentException if <code>null</code> is specified
  */
 public void setReturnType(String type) throws IllegalArgumentException;
+
 }

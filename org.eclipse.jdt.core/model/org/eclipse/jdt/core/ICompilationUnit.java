@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -87,6 +88,29 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  */
 void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
+ * Creates and returns an non-static import declaration in this compilation unit
+ * with the given name. This method is equivalent to 
+ * <code>createImport(name, Flags.AccDefault, sibling, monitor)</code>.
+ *
+ * @param name the name of the import declaration to add as defined by JLS2 7.5. (For example: <code>"java.io.File"</code> or
+ *  <code>"java.awt.*"</code>)
+ * @param sibling the existing element which the import declaration will be inserted immediately before (if
+ *	<code> null </code>, then this import will be inserted as the last import declaration.
+ * @param monitor the progress monitor to notify
+ * @return the newly inserted import declaration (or the previously existing one in case attempting to create a duplicate)
+ *
+ * @throws JavaModelException if the element could not be created. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist or the specified sibling does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
+ * <li> The name is not a valid import name (INVALID_NAME)
+ * </ul>
+ * @see #createImport(String, int, IJavaElement, IProgressMonitor)
+ */
+IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
+
+/**
  * Creates and returns an import declaration in this compilation unit
  * with the given name.
  * <p>
@@ -103,11 +127,20 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * Importing <code>"java.lang.*"</code>, or the package in which the compilation unit
  * is defined, are not treated as special cases.  If they are specified, they are
  * included in the result.
+ * <p>
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  *
  * @param name the name of the import declaration to add as defined by JLS2 7.5. (For example: <code>"java.io.File"</code> or
  *  <code>"java.awt.*"</code>)
  * @param sibling the existing element which the import declaration will be inserted immediately before (if
  *	<code> null </code>, then this import will be inserted as the last import declaration.
+ * @param flags <code>Flags.AccStatic</code> for static imports, or
+ * <code>Flags.AccDefault</code> for regular imports; other modifier flags
+ * are ignored
  * @param monitor the progress monitor to notify
  * @return the newly inserted import declaration (or the previously existing one in case attempting to create a duplicate)
  *
@@ -118,8 +151,11 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The name is not a valid import name (INVALID_NAME)
  * </ul>
+ * @see Flags
+ * @since 3.0
  */
-IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
+IImportDeclaration createImport(String name, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException;
+
 /**
  * Creates and returns a package declaration in this compilation unit
  * with the given package name.
@@ -465,46 +501,6 @@ boolean isWorkingCopy();
  * TODO (jerome) remove after M8
  */
 void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
-/**
- * Reconciles the contents of this working copy, and sends out a Java delta
- * notification indicating the nature of the change of the working copy since
- * the last time it was either reconciled or made consistent 
- * (see <code>IOpenable#makeConsistent()</code>).
- * .<p>.
- * It performs the reconciliation by locally caching the contents of 
- * the working copy, updating the contents, then creating a delta 
- * over the cached contents and the new contents, and finally firing
- * this delta.
- * <p>
- * The boolean argument allows to force problem detection even if the
- * working copy is already consistent.
- * </p><p>
- * This functionality allows to specify a working copy owner which is used during problem detection.
- * All references contained in the working copy are resolved against other units; for which corresponding 
- * owned working copies are going to take precedence over their original compilation units. 
- * </p><p>
- * Compilation problems found in the new contents are notified through the
- * <code>IProblemRequestor</code> interface which was passed at
- * creation, and no longer as transient markers. Therefore this API answers
- * nothing.
- * </p><p>
- * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
- * </p>
- *
- * @param forceProblemDetection boolean indicating whether problem should be recomputed
- *   even if the source hasn't changed.
- * @param owner the owner of working copies that take precedence over the original compilation units
- * @param monitor a progress monitor
- * @throws JavaModelException if the contents of the original element
- *		cannot be accessed. Reasons include:
- * <ul>
- * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * </ul>
- * @since 3.0
- * @deprecated Use reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor) instead
- * TODO (jerome) remove after M8
- */
-void reconcile(boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 /**
  * Reconciles the contents of this working copy, sends out a Java delta
  * notification indicating the nature of the change of the working copy since

@@ -96,7 +96,7 @@ public IDOMField createField();
 public IDOMField createField(String sourceCode);
 /**
  * Creates an empty import document fragment. Initially the import will have
- * name <code>"java.lang.*"</code>.
+ * name <code>"java.lang.*"</code> and be non-static.
  *
  * @return the new import
  */

@@ -149,6 +149,20 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 protected Object createElementInfo() {
 	return new OpenableElementInfo();
 }
+/**
+ * @see IJavaElement
+ */
+public boolean exists() {
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	if (manager.getInfo(this) != null) return true;
+	if (!parentExists()) return false;
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root != null
+			&& (root == this || !root.isArchive())) {
+		return resourceExists();
+	}
+	return super.exists();
+}
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 
 	if (JavaModelManager.VERBOSE){

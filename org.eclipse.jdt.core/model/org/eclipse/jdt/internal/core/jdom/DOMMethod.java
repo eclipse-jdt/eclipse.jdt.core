@@ -23,8 +23,8 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  *
  * @see IDOMMethod
  * @see DOMNode
+ * TODO (jerome) - add implementation support for 1.5 features
  */
- 
 class DOMMethod extends DOMMember implements IDOMMethod {
 
 	/**
@@ -110,6 +110,18 @@ class DOMMethod extends DOMMember implements IDOMMethod {
 	 */
 	protected String[] fExceptions;
 
+	/**
+	 * The formal type parameters.
+	 * @since 3.0
+	 */
+	protected String[] fTypeParameters = new String[0];
+
+	/**
+	 * Default value for this attotation type member (only),
+	 * or <code>null</code> if none.
+	 * @since 3.0
+	 */
+	protected String fDefaultValue = null;
 	
 /**
  * Constructs an empty method node.
@@ -713,5 +725,37 @@ public String toString() {
 	} else {
 		return "METHOD: " + getName(); //$NON-NLS-1$
 	}
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMMethod#setDefault(java.lang.String)
+ * @since 3.0
+ */
+public void setDefault(String defaultValue) {
+	this.fDefaultValue =  defaultValue;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMMethod#getDefault()
+ * @since 3.0
+ */
+public String getDefault() {
+	return this.fDefaultValue;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMMethod#getTypeParameters()
+ * @since 3.0
+ */
+public String[] getTypeParameters() {
+	return this.fTypeParameters;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMMethod#setTypeParameters(java.lang.String[])
+ * @since 3.0
+ */
+public void setTypeParameters(String[] typeParameters) {
+	this.fTypeParameters = typeParameters;
 }
 }

@@ -11,11 +11,12 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a local variable type attribute as described in the JVM specifications.
+ * Description of a local variable type attribute as described in the JVM specifications
+ * (added in J2SE 1.5).
  *  
  * This interface may be implemented by clients. 
  * 
- * @since 3.1
+ * @since 3.0
  */
 public interface ILocalVariableTypeTableAttribute extends IClassFileAttribute {
 

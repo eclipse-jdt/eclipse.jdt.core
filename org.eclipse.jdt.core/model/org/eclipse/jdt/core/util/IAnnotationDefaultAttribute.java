@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of a annotation default attribute as described in the JVM 
- * specifications.
+ * specifications (added in J2SE 1.5).
  * 
  * This interface may be implemented by clients.
  *  

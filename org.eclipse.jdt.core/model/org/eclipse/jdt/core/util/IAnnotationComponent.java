@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of an annotation component as described in the JVM specifications.
+ * (added in J2SE 1.5).
  * 
  * This interface may be implemented by clients. 
  *  

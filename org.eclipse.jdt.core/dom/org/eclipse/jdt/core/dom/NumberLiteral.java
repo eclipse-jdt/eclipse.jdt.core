@@ -177,11 +177,11 @@ public class NumberLiteral extends Expression {
 						case TerminalTokens.TokenNameLongLiteral:
 							break;
 						default:
-							throw new IllegalArgumentException();
+							throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
 					}
 					break;		
 				default:
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("Invalid number literal : >" + token + "<");//$NON-NLS-1$//$NON-NLS-2$
 			}
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();

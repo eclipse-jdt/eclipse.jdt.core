@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 

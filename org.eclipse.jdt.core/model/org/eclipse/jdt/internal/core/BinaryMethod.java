@@ -215,6 +215,16 @@ public String[] getParameterNames() throws JavaModelException {
 public String[] getParameterTypes() {
 	return this.parameterTypes;
 }
+
+/**
+ * @see IMethod#getTypeParameters()
+ * @since 3.0
+ */
+public String[] getTypeParameters() throws JavaModelException {
+	// TODO (jerome) - missing implementation
+	return new String[0];
+}
+
 /*
  * @see IMethod
  */

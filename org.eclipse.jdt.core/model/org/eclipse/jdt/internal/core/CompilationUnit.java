@@ -269,6 +269,23 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			}
 		});
 }
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */
@@ -320,6 +337,15 @@ protected Object createElementInfo() {
  * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
  */
 public IImportDeclaration createImport(String importName, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
+	return createImport(importName, sibling, Flags.AccDefault, monitor);
+}
+
+/**
+ * @see ICompilationUnit#createImport(String, IJavaElement, int, IProgressMonitor)
+ * @since 3.0
+ */
+public IImportDeclaration createImport(String importName, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException {
+	// TODO (jerome) - consult flags to create static imports
 	CreateImportOperation op = new CreateImportOperation(importName, this);
 	if (sibling != null) {
 		op.createBefore(sibling);
@@ -327,6 +353,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 	op.runOperation(monitor);
 	return getImport(importName);
 }
+
 /**
  * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
  */
@@ -426,7 +453,8 @@ public boolean exists() {
 	// working copy always exists in the model until it is gotten rid of
 	if (getPerWorkingCopyInfo() != null) return true;	
 	
-	return super.exists();
+	// if not a working copy, it exists only if it is a primary compilation unit
+	return isPrimary() && super.exists() && isValidCompilationUnit();
 }
 /**
  * @see IWorkingCopy#findElements(IJavaElement)
@@ -1025,14 +1053,14 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	reconcile(false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
+	reconcile(false/*don't create AST*/, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
 }
 /**
  * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(forceProblemDetection, null/*use primary owner*/, monitor);
+	reconcile(false/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);
 }
 /**
  * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
@@ -1050,17 +1078,6 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
 	return op.ast;
-}
-/**
- * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
- */
-public void reconcile(
-	boolean forceProblemDetection,
-	WorkingCopyOwner workingCopyOwner,
-	IProgressMonitor monitor)
-	throws JavaModelException {
-
-	reconcile(false/*don't create AST*/, forceProblemDetection, workingCopyOwner, monitor);
 }
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)

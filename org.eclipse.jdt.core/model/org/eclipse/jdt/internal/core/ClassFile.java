@@ -112,6 +112,23 @@ public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopy
 		codeComplete(cu, cu, offset, requestor, owner);
 	}
 }
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */
@@ -144,8 +161,7 @@ public boolean equals(Object o) {
 	return super.equals(o);
 }
 public boolean exists() {
-	if (!isValidClassFile()) return false;
-	return super.exists();
+	return super.exists() && isValidClassFile();
 }
 
 /**
@@ -310,11 +326,11 @@ protected char getHandleMementoDelimiter() {
  * @see IJavaElement
  */
 public IPath getPath() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	PackageFragmentRoot root = getPackageFragmentRoot();
 	if (root.isArchive()) {
 		return root.getPath();
 	} else {
-		return this.getParent().getPath().append(this.getElementName());
+		return getParent().getPath().append(getElementName());
 	}
 }
 /*
