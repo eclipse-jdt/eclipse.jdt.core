@@ -301,6 +301,15 @@ class TypeBinding implements ITypeBinding {
 			return NO_DECLARED_TYPES;
 		}
 	}
+	
+	/*
+	 * @see ITypeBinding#getBinaryName()
+	 */
+	public String getBinaryName() {
+		char[] constantPoolName = this.binding.constantPoolName();
+		if (constantPoolName == null) return null;
+		return new String(constantPoolName);
+	}
 
 	/*
 	 * @see ITypeBinding#getDeclaredFields()

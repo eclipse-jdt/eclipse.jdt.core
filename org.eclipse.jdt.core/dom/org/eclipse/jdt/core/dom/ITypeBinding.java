@@ -331,9 +331,9 @@ public interface ITypeBinding extends IBinding {
 	 * Specification Chapter 13 Section 1) of this type binding.
 	 * It is however slash ('/') separated instead of dot ('.') serarated as in
 	 * says in the specification.
-	 * Returns null if the type is defined in code that is unreachable.
+	 * Returns <code>null</code> if the type is defined in code that is unreachable.
 	 *
-	 * @return the binary name of this type
+	 * @return the binary name of this type or <code>null</code> if this type is unreachable
 	 */
 	public String getBinaryName();
 
