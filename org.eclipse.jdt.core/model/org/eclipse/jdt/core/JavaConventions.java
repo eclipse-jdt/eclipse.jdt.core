@@ -430,11 +430,12 @@ public final class JavaConventions {
 	 *   <li> Classpath entries cannot collide with each other, i.e. all entry paths must be unique.
 	 *   <li> The project output location path cannot be null, must be absolute and located inside the project.
 	 *   <li> Specific output locations (specified on source entries) can be null, if not they must be located inside the project,
-	 *   <li> A project entry cannot refer to itself directly.
+	 *   <li> A project entry cannot refer to itself directly (i.e. a project cannot prerequisite itself).
      *   <li> Classpath entries or output locations cannot coincidate or be nested in each other, except for the following scenarii listed below:
-	 *      <ul><li> A source folder can coincidate with an output location, in which case this output can then contain library archives.
-	 *          <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one.
-	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself.
+	 *      <ul><li> A source folder can coincidate with its own output location, in which case this output can then contain library archives. 
+	 *                     However, an output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li> 
+	 *              <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one. </li>
+	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself. </li>
 	 *      </ul>
 	 * </ul>
 	 * 
@@ -545,19 +546,20 @@ public final class JavaConventions {
 		
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry resolvedEntry = classpath[i];
+			IPath path = resolvedEntry.getPath();
 			int index;
 			switch(resolvedEntry.getEntryKind()){
 				
 				case IClasspathEntry.CPE_SOURCE :
 					hasSource = true;
-					if ((index = indexOfMatchingPath(resolvedEntry.getPath(), outputLocations, outputCount)) != -1){
+					if ((index = indexOfMatchingPath(path, outputLocations, outputCount)) != -1){
 						allowNestingInOutputLocations[index] = true;
 					}
 					break;
 
 				case IClasspathEntry.CPE_LIBRARY:
-					hasLibFolder |= !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedEntry.getPath().lastSegment());
-					if ((index = indexOfMatchingPath(resolvedEntry.getPath(), outputLocations, outputCount)) != -1){
+					hasLibFolder |= !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment());
+					if ((index = indexOfMatchingPath(path, outputLocations, outputCount)) != -1){
 						allowNestingInOutputLocations[index] = true;
 					}
 					break;
@@ -572,9 +574,7 @@ public final class JavaConventions {
 		// check all entries
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
-	
 			if (entry == null) continue;
-	
 			IPath entryPath = entry.getPath();
 			int kind = entry.getEntryKind();
 	
@@ -640,6 +640,36 @@ public final class JavaConventions {
 					}
 				}
 			}
+		}
+		// ensure that no output is coincidating with another source folder (only allowed if matching current source folder)
+		// perform one separate iteration so as to not take precedence over previously checked scenarii (in particular should
+		// diagnose nesting source folder issue before this one, e.g. [src]"Project/", [src]"Project/source/" and output="Project/" should
+		// first complain about missing exclusion pattern
+		for (int i = 0 ; i < length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry == null) continue;
+			IPath entryPath = entry.getPath();
+			int kind = entry.getEntryKind();
+
+			if (kind == IClasspathEntry.CPE_SOURCE) {
+				IPath output = entry.getOutputLocation();
+				if (output == null) output = projectOutputLocation; // if no specific output, still need to check using default output
+				for (int j = 0; j < length; j++) {
+					IClasspathEntry otherEntry = classpath[j];
+					if (otherEntry == entry) continue;
+					switch (otherEntry.getEntryKind()) {
+						case IClasspathEntry.CPE_SOURCE :
+							if (otherEntry.getPath().equals(output)) {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotUseDistinctSourceFolderAsOutput", entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString())); //$NON-NLS-1$
+							}
+							break;
+						case IClasspathEntry.CPE_LIBRARY :
+							if (otherEntry.getPath().equals(output)) {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotUseLibraryAsOutput", entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString())); //$NON-NLS-1$
+							}
+					}
+				}
+			}			
 		}
 		return JavaModelStatus.VERIFIED_OK;	
 	}

@@ -1077,6 +1077,122 @@ public void testClasspathValidation21() throws CoreException {
 }
 
 /**
+ * 33207 - Reject output folder that coincidate with distinct source folder
+ */
+public void testClasspathValidation22() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/P/src2"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src2"), new IPath[0], new Path("/P/src"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Source folder 'P/src' cannot output to distinct source folder 'P/src2'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * 33207 - Reject output folder that coincidate with distinct source folder
+ * default output scenarii
+ */
+public void testClasspathValidation23() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/"), new IPath[]{new Path("src/")}, null);
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], null);
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Source folder 'P/src' cannot output to distinct source folder 'P/'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Ensure one cannot nest source entry inside default output folder
+ */
+public void testClasspathValidation24() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], null);
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest 'P/src' inside output folder 'P'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Reject output folder that coincidate with library folder
+ */
+public void testClasspathValidation25() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/P/lib2"));
+		newCP[originalCP.length+1] = JavaCore.newLibraryEntry(new Path("/P/lib2"), null, null);
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Source folder 'P/src' cannot output to library 'P/lib2'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Reject output folder that coincidate with library folder
+ * default output scenarii
+ */
+public void testClasspathValidation26() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newLibraryEntry(new Path("/P/"), null, null);
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], null);
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest 'P/src' inside library 'P/'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
  * Setting the classpath with two entries specifying the same path
  * should fail.
  */
