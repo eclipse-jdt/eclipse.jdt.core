@@ -183,10 +183,10 @@
 <extension 
 	point="org.eclipse.ant.core.antObjects">
 	<antObject
-		name="org.eclipse.jdt.internal.core.JDTCompilerAdapter"
-		class="org.eclipse.jdt.internal.core.JDTCompilerAdapter"
+		name="org.eclipse.jdt.core.JDTCompilerAdapter"
+		class="org.eclipse.jdt.core.JDTCompilerAdapter"
 		library="jdtCompilerAdapter.jar">
 	</antObject>
-</extension>    
+</extension> 
    
 </plugin>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.jdt.internal.core;
+package org.eclipse.jdt.core;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -20,9 +20,20 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.Util;
 
 /**
- * Compiler adapter for the JDT Compiler. 
+ * Ant compiler adapter for the Eclipse Java compiler. This adapter permits the
+ * Eclipse Java compiler to be used with the <code>javac</code> task in Ant scripts. In order
+ * to use it, just set the property <code>build.compiler</code> as follows:
+ * <p>
+ * <code>&lt;property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/&gt;</code>
+ * </p>
+ * <p>
+ * For more information on Ant check out the website at http://jakarta.apache.org/ant/ .
+ * </p>
+ * 
+ * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
