@@ -45,13 +45,13 @@ public abstract class CodeFormatter {
 	public static final int K_COMPILATION_UNIT = 0x08;
 
 	/** 
-	 * Formats the String <code>sourceString</code>,
+	 * Format <code>source</code>,
 	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
 	 * It returns null if the given string cannot be formatted.
 	 * 
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
-	 * @param string the string to format
+	 * @param source the source to format
 	 * @param offset the given offset to start recording the edits (inclusive).
 	 * @param length the given length to stop recording the edits (exclusive).
 	 * @param indentationLevel the initial indentation level, used 
@@ -61,5 +61,5 @@ public abstract class CodeFormatter {
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @return the text edit
 	 */
-	public abstract TextEdit format(int kind, String string, int offset, int length, int indentationLevel, String lineSeparator);
+	public abstract TextEdit format(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator);
 }
