@@ -80,17 +80,10 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 	
 	AST ast = this.cuAST.getAST();
 	ImportDeclaration importDeclaration = ast.newImportDeclaration();
-	// split import name into individual fragments
-	char[][] charFragments = CharOperation.splitOn('.', this.importName.toCharArray());
+	// split import name into individual fragments, checking for on demand imports
+	boolean onDemand = this.importName.endsWith("*"); //$NON-NLS-1$
+	char[][] charFragments = CharOperation.splitOn('.', this.importName.toCharArray(), 0, onDemand ? this.importName.length()-2 : this.importName.length());
 	int length = charFragments.length;
-	// check whether on demand
-	boolean onDemand;
-	if (charFragments[length-1].length == 1 && charFragments[length-1][0] == '*') {
-		onDemand = true;
-		length--;
-	} else {
-		onDemand = false;
-	}
 	String[] strFragments = new String[length];
 	for (int i = 0; i < length; i++) {
 		strFragments[i] = String.valueOf(charFragments[i]);
