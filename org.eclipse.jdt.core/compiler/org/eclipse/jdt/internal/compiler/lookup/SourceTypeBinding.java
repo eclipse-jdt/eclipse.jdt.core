@@ -251,7 +251,7 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 			AccDefault | AccStatic | AccSynthetic | AccFinal,
 			this,
 			Constant.NotAConstant,
-			0);
+			synthetics[FIELD].size());
 		synthetics[FIELD].put("assertionEmulation", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
