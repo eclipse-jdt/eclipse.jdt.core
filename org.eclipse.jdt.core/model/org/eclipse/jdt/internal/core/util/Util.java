@@ -2118,10 +2118,6 @@ public class Util {
 			case Signature.C_SHORT :
 			case Signature.C_VOID :
 				return scanBaseTypeSignature(string, start);
-			case Signature.C_EXTENDS:
-			case Signature.C_SUPER:
-			case Signature.C_STAR:
-				return scanTypeBoundSignature(string, start);
 			default :
 				throw new IllegalArgumentException();
 		}
@@ -2291,50 +2287,6 @@ public class Util {
 	}
 
 	/**
-	 * Scans the given string for a type bound signature starting at the given
-	 * index and returns the index of the last character.
-	 * <pre>
-	 * TypeBoundSignature:
-	 *     <b>[-+]</b> TypeSignature <b>;</b>
-	 *     <b>*</b></b>
-	 * </pre>
-	 * 
-	 * @param string the signature string
-	 * @param start the 0-based character index of the first character
-	 * @return the 0-based character index of the last character
-	 * @exception IllegalArgumentException if this is not a type variable signature
-	 */
-	public static int scanTypeBoundSignature(char[] string, int start) {
-		// need a minimum 1 char for wildcard
-		if (start >= string.length) {
-			throw new IllegalArgumentException();
-		}
-		char c = string[start];
-		if (c == Signature.C_STAR) { //$NON-NLS-1$
-			return start;
-		}
-	
-		// need a minimum 4 chars "+Lx;"
-		if (start >= string.length - 3) { 
-			throw new IllegalArgumentException();
-		}
-		// must start in "+/-"
-		if (c != Signature.C_SUPER && c != Signature.C_EXTENDS) {
-			throw new IllegalArgumentException();
-		}
-		c = string[start + 1];
-		switch (c) {
-			case Signature.C_RESOLVED :
-			case Signature.C_UNRESOLVED :
-				return scanClassTypeSignature(string, start + 1);
-			case Signature.C_TYPE_VARIABLE :
-				return scanTypeVariableSignature(string, start + 1);
-			default:
-				throw new IllegalArgumentException();
-		}
-	}
-	
-	/**
 	 * Scans the given string for a list of type argument signatures starting at
 	 * the given index and returns the index of the last character.
 	 * <pre>
@@ -2401,8 +2353,8 @@ public class Util {
 		if (c == Signature.C_STAR) {
 			return start;
 		}
-		if (c == Signature.C_EXTENDS || c == Signature.C_SUPER) {
-			return scanTypeBoundSignature(string, start);
+		if (c == '+' || c == '-') {
+			return scanTypeSignature(string, start + 1);
 		} else {
 			return scanTypeSignature(string, start);
 		}
