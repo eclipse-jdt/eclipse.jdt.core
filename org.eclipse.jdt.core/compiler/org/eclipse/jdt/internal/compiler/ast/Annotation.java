@@ -17,6 +17,7 @@ public class Annotation extends AstNode {
 
 	public Argument[] parameters; 						// @param
 	public TypeReference[] thrownExceptions; 	// @throws, @exception
+	public TypeReference returnType;					// @return
 	public Reference[] references; 						// @see
 	
 	public Annotation(int sourceStart, int sourceEnd) {
@@ -34,6 +35,10 @@ public class Annotation extends AstNode {
 				printIndent(indent+1, output).append(" * @param "); //$NON-NLS-1$		
 				this.parameters[i].print(indent, output).append('\n');
 			}
+		}
+		if (this.returnType != null) {
+			printIndent(indent+1, output).append(" * @return "); //$NON-NLS-1$		
+			this.returnType.print(indent, output).append('\n');
 		}
 		if (this.thrownExceptions != null) {
 			for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
