@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest2("test0416"));
+//		suite.addTest(new ASTConverterTest2("test0417"));
 		return suite;
 	}
 	/**
@@ -530,6 +530,30 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) variableDeclarationFragment.getParent();
 		assertEquals("Wrong modifier", fieldDeclaration.getModifiers(), Modifier.NONE);
 	}
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24347
+	 */
+	public void test0417() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0417", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("not a simple type", type.getNodeType() == ASTNode.SIMPLE_TYPE); //$NON-NLS-1$
+		SimpleType simpleType = (SimpleType) type;
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.isQualifiedName());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		Name qualifier = qualifiedName.getQualifier();
+		assertTrue("Not a simple name", qualifier.isSimpleName());
+		IBinding binding = qualifier.resolveBinding();
+		assertNull("No binding", binding);
+	}
 }
 
