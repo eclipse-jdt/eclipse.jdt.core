@@ -999,6 +999,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		if (typeDeclaration.getKind() == IGenericType.ENUM) {
 			FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
+			boolean hasConstants = false;
 			if (fieldDeclarations != null) {
 				int length = fieldDeclarations.length;
 				loop: for (int i = 0; i < length; i++) {
@@ -1007,6 +1008,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						break loop;
 					}
 					if (i < length) {
+						hasConstants = true;
 						fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
 					}
 					if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
@@ -1015,13 +1017,18 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							this.scribe.space();
 						}
 						this.scribe.printTrailingComment();
+						if (fieldDeclaration.initialization instanceof QualifiedAllocationExpression) {
+							this.scribe.printNewLine();
+						}
 					}
-				}
-				this.scribe.printNewLine();				
+				}			
 			}
 			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
+			}
+			if (hasConstants) {
+				this.scribe.printNewLine();	
 			}
 		}
 
