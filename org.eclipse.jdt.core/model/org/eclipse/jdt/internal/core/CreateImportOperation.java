@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
@@ -117,7 +118,7 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	if (!JavaConventions.validateImportDeclaration(fImportName).isOK()) {
+	if (JavaConventions.validateImportDeclaration(fImportName).getSeverity() == IStatus.ERROR) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fImportName);
 	}
 	return JavaModelStatus.VERIFIED_OK;

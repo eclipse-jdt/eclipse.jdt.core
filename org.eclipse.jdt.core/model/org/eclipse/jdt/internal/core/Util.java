@@ -481,7 +481,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 	 * false if it is not.
 	 */
 	public static boolean isValidFolderNameForPackage(String folderName) {
-		return JavaConventions.validateIdentifier(folderName).isOK();
+		return JavaConventions.validateIdentifier(folderName).getSeverity() != IStatus.ERROR;
 	}	
 
 /**
@@ -952,7 +952,7 @@ public static String bind(String id, String binding1, String binding2) {
 	 *		object indicating what is wrong with the name
 	 */
 	public static boolean isValidCompilationUnitName(String name) {
-		return JavaConventions.validateCompilationUnitName(name).isOK();
+		return JavaConventions.validateCompilationUnitName(name).getSeverity() != IStatus.ERROR;
 	}
 
 	/**
@@ -970,7 +970,7 @@ public static String bind(String id, String binding1, String binding2) {
 	 *		object indicating what is wrong with the name
 	 */
 	public static boolean isValidClassFileName(String name) {
-		return JavaConventions.validateClassFileName(name).isOK();
+		return JavaConventions.validateClassFileName(name).getSeverity() != IStatus.ERROR;
 	}
 
 	/**

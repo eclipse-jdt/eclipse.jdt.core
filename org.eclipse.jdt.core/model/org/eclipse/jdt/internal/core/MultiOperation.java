@@ -8,6 +8,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -289,16 +290,16 @@ protected void verifyRenaming(IJavaElement element) throws JavaModelException {
 				// don't allow renaming of default package (see PR #1G47GUM)
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, element));
 			}
-			isValid = JavaConventions.validatePackageName(newName).isOK();
+			isValid = JavaConventions.validatePackageName(newName).getSeverity() != IStatus.ERROR;
 			break;
 		case IJavaElement.COMPILATION_UNIT :
-			isValid = JavaConventions.validateCompilationUnitName(newName).isOK();
+			isValid = JavaConventions.validateCompilationUnitName(newName).getSeverity() != IStatus.ERROR;
 			break;
 		case IJavaElement.INITIALIZER :
 			isValid = false; //cannot rename initializers
 			break;
 		default :
-			isValid = JavaConventions.validateIdentifier(newName).isOK();
+			isValid = JavaConventions.validateIdentifier(newName).getSeverity() != IStatus.ERROR;
 			break;
 	}
 

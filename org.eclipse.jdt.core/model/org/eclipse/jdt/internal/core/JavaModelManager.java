@@ -253,7 +253,7 @@ public static IJavaElement determineIfOnClasspath(
 				}
 				String pkgName = Util.packageName(pkgPath);
 				if (pkgName == null
-					|| !JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
+					|| JavaConventions.validatePackageName(pkgName.toString()).getSeverity() == IStatus.ERROR) {
 					return null;
 				}
 				return root.getPackageFragment(pkgName.toString());

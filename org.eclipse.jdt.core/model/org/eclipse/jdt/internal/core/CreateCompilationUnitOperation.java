@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.DOMFactory;
@@ -92,7 +93,7 @@ public IJavaModelStatus verify() {
 	if (getParentElement() == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
-	if (!JavaConventions.validateCompilationUnitName(fName).isOK()) {
+	if (JavaConventions.validateCompilationUnitName(fName).getSeverity() == IStatus.ERROR) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
 	}
 	if (fSource == null) {

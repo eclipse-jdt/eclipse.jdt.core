@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
@@ -101,7 +102,7 @@ public IJavaModelStatus verify() {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
 	
-	if (fName == null || (fName.length() > 0 && !JavaConventions.validatePackageName(fName).isOK())) {
+	if (fName == null || (fName.length() > 0 && JavaConventions.validatePackageName(fName).getSeverity() == IStatus.ERROR)) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
 	}
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
