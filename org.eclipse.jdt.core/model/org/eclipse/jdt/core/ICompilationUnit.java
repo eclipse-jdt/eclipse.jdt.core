@@ -466,8 +466,8 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * working copy is already consistent.
  * </p><p>
  * This functionality allows to specify a working copy owner which is used during problem detection.
- * All references contained in the working copy are resolved against other units; for which corresponding owned
- * working copies are taking precedence over their original compilation units. 
+ * All references contained in the working copy are resolved against other units; for which corresponding 
+ * owned working copies are going to take precedence over their original compilation units. 
  * </p><p>
  * Compilation problems found in the new contents are notified through the
  * <code>IProblemRequestor</code> interface which was passed at
