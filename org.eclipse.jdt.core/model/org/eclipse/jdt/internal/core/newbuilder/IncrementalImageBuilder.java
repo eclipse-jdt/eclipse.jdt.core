@@ -61,7 +61,7 @@ public boolean build(SimpleLookupTable deltas) {
 		notifier.subTask(Util.bind("build.analyzingDeltas")); //$NON-NLS-1$
 		IResourceDelta sourceDelta = (IResourceDelta) deltas.get(javaBuilder.currentProject);
 		if (sourceDelta != null)
-			findSourceFiles(sourceDelta);
+			if (!findSourceFiles(sourceDelta)) return false;
 		notifier.updateProgressDelta(0.10f);
 		notifier.checkCancel();
 
@@ -72,7 +72,7 @@ public boolean build(SimpleLookupTable deltas) {
 			if (prereqProject != null) {
 				IResourceDelta binaryDelta = (IResourceDelta) deltas.get(prereqProject);
 				if (binaryDelta != null)
-					findAffectedSourceFiles(binaryDelta, (IResource) valueTable[i]);
+					if (!findAffectedSourceFiles(binaryDelta, (IResource) valueTable[i])) return false;
 			}
 		}
 		notifier.updateProgressDelta(0.10f);
@@ -190,14 +190,16 @@ protected void cleanUp() {
 	this.simpleStrings = null;
 }
 
-protected void findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
+protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
 	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
-	if (binaryDelta != null && binaryDelta.getKind() == IResourceDelta.CHANGED) {
+	if (binaryDelta != null) {
+		if (binaryDelta.getKind() != IResourceDelta.CHANGED) return false;
 		int outputFolderSegmentCount = prereqOutputFolder.getLocation().segmentCount();
 		IResourceDelta[] children = binaryDelta.getAffectedChildren();
 		for (int i = 0, length = children.length; i < length; ++i)
 			findAffectedSourceFiles(children[i], outputFolderSegmentCount);
 	}
+	return true;
 }
 
 protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFolderSegmentCount) {
@@ -253,16 +255,18 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 	}
 }
 
-protected void findSourceFiles(IResourceDelta delta) throws CoreException {
+protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
-		if (sourceDelta != null && sourceDelta.getKind() == IResourceDelta.CHANGED) {
+		if (sourceDelta != null) {
+			if (sourceDelta.getKind() != IResourceDelta.CHANGED) return false;
 			int sourceFolderSegmentCount = sourceFolders[i].getLocation().segmentCount();
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
 				findSourceFiles(children[c], sourceFolderSegmentCount);
 		}
 	}
+	return true;
 }
 
 protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegmentCount) throws CoreException {
