@@ -182,8 +182,8 @@ public void testContainerInitializer3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta on startup", 
 			"P2[*]: {CHILDREN}\n" + 
-			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	lib2.jar[*]: {ADDED TO CLASSPATH}"
+			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
 		this.deleteProject("P1");
@@ -413,8 +413,8 @@ public void testVariableInitializer7() throws CoreException {
 		assertDeltas(
 			"Unexpected delta on startup", 
 			"P2[*]: {CHILDREN}\n" + 
-			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	lib2.jar[*]: {ADDED TO CLASSPATH}"
+			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		

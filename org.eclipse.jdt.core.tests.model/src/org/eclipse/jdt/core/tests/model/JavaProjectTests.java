@@ -257,7 +257,7 @@ public void testDeletePackageWithAutobuild() throws JavaModelException, CoreExce
  */
 public void testExternalArchiveCorrespondingResource() throws JavaModelException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
-	IPackageFragmentRoot element= project.getPackageFragmentRoot(getExternalJCLPath());
+	IPackageFragmentRoot element= project.getPackageFragmentRoot(getExternalJCLPathString());
 	IResource corr= element.getCorrespondingResource();
 	assertTrue("incorrect corresponding resource", corr == null);
 }
@@ -352,7 +352,7 @@ public void testFindPackageFragmentRootFromClasspathEntry() throws JavaModelExce
 	IClasspathEntry entry = JavaCore.newLibraryEntry(new Path("/JavaProjectTests/lib.jar"), null, null);
 	IPackageFragmentRoot[] roots = project.findPackageFragmentRoots(entry);
 	assertEquals("Unexpected number of roots for existing entry", 1, roots.length);
-	assertEquals("Unexpected root", "lib.jar", roots[0].getElementName());
+	assertEquals("Unexpected root", "/JavaProjectTests/lib.jar", roots[0].getElementName());
 	
 	// non-existing classpath entry
 	entry = JavaCore.newSourceEntry(new Path("/JavaProjectTests/nonExisting"));
@@ -587,8 +587,8 @@ public void testPackageFragmentHasSubpackages() throws JavaModelException {
 	assertTrue("x should have subpackages",								x.hasSubpackages());
 	assertTrue("x.y should NOT have subpackages",		!y.hasSubpackages());
 
-	IPackageFragment java = getPackageFragment("JavaProjectTests", getExternalJCLPath(), "java");
-	IPackageFragment lang= getPackageFragment("JavaProjectTests", getExternalJCLPath(), "java.lang");
+	IPackageFragment java = getPackageFragment("JavaProjectTests", getExternalJCLPathString(), "java");
+	IPackageFragment lang= getPackageFragment("JavaProjectTests", getExternalJCLPathString(), "java.lang");
 
 	assertTrue("java should have subpackages",					java.hasSubpackages());
 	assertTrue("java.lang  should NOT have subpackages",			!lang.hasSubpackages());

@@ -35,7 +35,7 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPath()}, "bin");
+	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
 	this.createFolder("/P/src/p");
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {

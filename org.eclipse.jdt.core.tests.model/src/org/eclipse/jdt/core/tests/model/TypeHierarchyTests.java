@@ -138,7 +138,7 @@ public void testContains() throws JavaModelException {
 	assertTrue("X must be included", this.typeHierarchy.contains(type));
 
 	// root class
-	cf = getClassFile("TypeHierarchy", getExternalJCLPath(), "java.lang", "Object.class");
+	cf = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class");
 	type = cf.getType();
 	assertTrue("Object must be included", this.typeHierarchy.contains(type));
 
@@ -290,7 +290,7 @@ public void testSourceTypeGetSuperInterfaces() throws JavaModelException {
  * Ensures that no subclasses exist in a super type hierarchy for the focus type.
  */
 public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
-	IType type = getClassFile("TypeHierarchy", getExternalJCLPath(), "java.lang", "Object.class").getType();
+	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 	ITypeHierarchy typeHierarchy = type.newSupertypeHierarchy(null);
 	IType[] types = typeHierarchy.getSubclasses(type);
 	assertTypesEqual(
@@ -311,7 +311,7 @@ public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
  * Ensures that no subtypes exist in a super type hierarchy for the focus type.
  */
 public void testSupertypeHierarchyGetSubtypes() throws JavaModelException {
-	IType type = getClassFile("TypeHierarchy", getExternalJCLPath(), "java.lang", "Object.class").getType();
+	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 	ITypeHierarchy typeHierarchy = type.newSupertypeHierarchy(null);
 	IType[] types = typeHierarchy.getSubtypes(type);
 	assertTypesEqual(

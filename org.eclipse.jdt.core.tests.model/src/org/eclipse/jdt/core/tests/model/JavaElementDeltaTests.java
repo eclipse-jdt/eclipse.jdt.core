@@ -445,7 +445,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
-			"	bin1[*]: {CHILDREN}\n" + 
+			"	/P1/bin1[*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 
 			"			X.class[+]: {}"
 			);
@@ -464,7 +464,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 
-			"	bin1[*]: {CHILDREN}\n" + 
+			"	/P1/bin1[*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 
 			"			X.class[*]: {CONTENT}\n" + 
 			"			Y.class[+]: {}"
@@ -564,7 +564,7 @@ public void testDeleteInnerJar() throws CoreException {
 		assertDeltas(
 			"Unexpected deltas",
 			"P[*]: {CHILDREN}\n" + 
-			"	lib/x.jar[-]: {}"
+			"	/P/lib/x.jar[-]: {}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -664,7 +664,7 @@ public void testCloseNonJavaProjectUpdateDependent() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"JP[*]: {CHILDREN}\n" + 
-			"	x.jar[-]: {}\n" + 
+			"	/SP/x.jar[-]: {}\n" + 
 			"ResourceDelta(/SP)"
 		);
 	} finally {
@@ -1370,7 +1370,7 @@ public void testRemoveAddBinaryProject() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/.project)[*]\n" + 
@@ -1555,7 +1555,7 @@ public void testRemoveNonJavaProjectUpdateDependent() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"JP[*]: {CHILDREN}\n" + 
-			"	x.jar[-]: {}\n" + 
+			"	/SP/x.jar[-]: {}\n" + 
 			"ResourceDelta(/SP)"
 		);
 	} finally {
@@ -1742,8 +1742,8 @@ public void testSetClasspathVariable1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after setting classpath variable", 
 			"P[*]: {CHILDREN}\n" +
-			"	mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	otherlib.jar[*]: {ADDED TO CLASSPATH}"
+			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
+			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1768,11 +1768,11 @@ public void testSetClasspathVariable2() throws CoreException {
 		assertEquals(
 			"Unexpected delta after setting classpath variable", 
 			"P1[*]: {CHILDREN}\n" +
-			"	mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	otherlib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
+			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"P2[*]: {CHILDREN}\n" +
-			"	mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	otherlib.jar[*]: {ADDED TO CLASSPATH}", 
+			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
+			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}", 
 			this.getSortedByProjectDeltas());
 	} finally {
 		this.stopDeltas();
@@ -1810,7 +1810,7 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
-			"	mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]");
 	} finally {
 		this.stopDeltas();

@@ -612,7 +612,7 @@ public void testDeclarationOfReferencedTypes1() throws JavaModelException, CoreE
 		"src/a3/b/A.java a3.b.A [A]\n" +
 		"src/a3/b/A.java a3.b.A$B$C [C]\n" +
 		"src/a3/b/A.java a3.b.A$B [B]\n" +
-		getExternalJCLPath() + " java.lang.Object\n" +
+		getExternalJCLPathString() + " java.lang.Object\n" +
 		"src/a3/Y.java a3.Y [Y]\n" +
 		"src/a3/b/B.java a3.b.B [B]", 
 		resultCollector.toString());
@@ -1565,7 +1565,7 @@ public void testMethodReference4() throws JavaModelException, CoreException {
  * (regression test for 1GHDA2V: ITPJCORE:WINNT - ClassCastException when doing a search)
  */
 public void testMethodReferenceThroughArray() throws JavaModelException, CoreException {
-	IType type = getClassFile("JavaSearch", getExternalJCLPath(), "java.lang", "Object.class").getType();
+	IType type = getClassFile("JavaSearch", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 	IMethod method = type.getMethod("clone", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2277,7 +2277,7 @@ public void testTypeDeclarationInJar3() throws CoreException {
 			resultCollector);
 		assertEquals(
 			"Unexpected result in scope of P1",
-			getExternalJCLPath() + " [in P1] java.lang.Object", 
+			getExternalJCLPathString() + " [in P1] java.lang.Object", 
 			resultCollector.toString());
 			
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
@@ -2292,7 +2292,7 @@ public void testTypeDeclarationInJar3() throws CoreException {
 			resultCollector);
 		assertEquals(
 			"Unexpected result in scope of P2",
-			getExternalJCLPath() + " [in P2] java.lang.Object", 
+			getExternalJCLPathString() + " [in P2] java.lang.Object", 
 			resultCollector.toString());
 		} finally {
 		this.deleteProject("P1");

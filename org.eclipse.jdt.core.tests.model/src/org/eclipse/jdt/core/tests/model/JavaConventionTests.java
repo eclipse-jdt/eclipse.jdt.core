@@ -77,7 +77,7 @@ public void testInvalidImportDeclaration3() {
 public void testPackageFragmentRootOverlap() throws Exception {
 	try {
 		IJavaProject project = this.createJavaProject("P1", new String[] {"src"}, new String[] {"/P1/jclMin.jar"}, "bin");
-		this.copy(new java.io.File(getExternalJCLPath()), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
+		this.copy(new java.io.File(getExternalJCLPathString()), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		
 		IPackageFragmentRoot p1Zip= getPackageFragmentRoot("P1", "jclMin.jar");

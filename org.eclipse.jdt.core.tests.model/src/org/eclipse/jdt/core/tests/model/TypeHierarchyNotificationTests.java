@@ -288,7 +288,7 @@ public void testAddCompilationUnitInRegion() throws JavaModelException, CoreExce
 			assertCreation(newCU3);
 			this.assertOneChange(h);
 			h.refresh(null);
-			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPath(), "java.lang", "Throwable.class").getType();
+			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
 			assertEquals("Superclass of Z3 should be java.lang.Throwable", throwableClass, h.getSuperclass(newCU3.getType("Z3")));
 		} finally {
 			// cleanup	

@@ -25,7 +25,7 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPath()}, "bin");
+	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
 	this.createFolder("/P/src/p");
 	this.createFile(
 		"/P/src/p/X.java",
@@ -342,7 +342,7 @@ public void testNotPresent1() {
  * (regression test for PR #1G2RKD2)
  */
 public void testNotPresent2() throws CoreException {
-	ICompilationUnit cu = getPackageFragment("P", getExternalJCLPath(), "java.lang").getCompilationUnit("DoesNotExist.java");
+	ICompilationUnit cu = getPackageFragment("P", getExternalJCLPathString(), "java.lang").getCompilationUnit("DoesNotExist.java");
 	assertTrue("CU should not be open", !cu.isOpen());
 	assertTrue("CU should not exist", !cu.exists());
 	assertTrue("CU should still not be open", !cu.isOpen());

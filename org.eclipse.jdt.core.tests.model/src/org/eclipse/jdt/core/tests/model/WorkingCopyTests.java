@@ -247,7 +247,7 @@ protected void setUp() {
 		this.createJavaProject(
 			"P", 
 			new String[] {"src"}, 
-			new String[] {this.getExternalJCLPath(), "lib"}, 
+			new String[] {this.getExternalJCLPathString(), "lib"}, 
 			"bin");
 		this.createFolder("P/src/x/y");
 		this.createFile("P/src/x/y/A.java", 
@@ -336,8 +336,8 @@ public void testContents() throws CoreException {
  * Test creating a working copy on a class file with a customized buffer.
  */
 public void testOnClassFile() throws JavaModelException {
-	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPath()), this.getExternalJCLSourcePath(), "src");
-	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPath(), "java.lang", "Object.class");
+	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPathString()), this.getExternalJCLSourcePath().toOSString(), "src");
+	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPathString(), "java.lang", "Object.class");
 	IBufferFactory factory = new BufferFactory();
 	IJavaElement customizedCopy = classFile.getWorkingCopy(null, factory);
 	try {

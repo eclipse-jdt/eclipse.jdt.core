@@ -42,9 +42,9 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 
 	/**
 	 * The resource associated with this root.
-	 * @see IResource
+	 * (an IResource or a java.io.File (for external jar only))
 	 */
-	protected IResource fResource;
+	protected Object resource;
 	
 /**
  * Constructs a package fragment root which is the root of the java package
@@ -52,7 +52,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  */
 protected PackageFragmentRoot(IResource resource, IJavaProject project) {
 	this(resource, project, resource.getProjectRelativePath().toString());
-	fResource = resource;
+	this.resource = resource;
 }
 
 /**
@@ -61,7 +61,7 @@ protected PackageFragmentRoot(IResource resource, IJavaProject project) {
  */
 protected PackageFragmentRoot(IResource resource, IJavaProject project, String path) {
 	super(PACKAGE_FRAGMENT_ROOT, project, path);
-	fResource = resource;
+	this.resource = resource;
 }
 
 /**
@@ -192,10 +192,11 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
-		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
+		IResource resource = getResource();
+		if (resource.getType() == IResource.FOLDER || resource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
 			char[][] exclusionPatterns = fullExclusionPatternChars();
-			computeFolderChildren((IContainer) fResource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
+			computeFolderChildren((IContainer) resource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -309,7 +310,7 @@ public boolean equals(Object o) {
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return getJavaModel().equals(other.getJavaModel()) && 
-			fResource.equals(other.fResource) &&
+			this.resource.equals(other.resource) &&
 			fOccurrenceCount == other.fOccurrenceCount;
 }
 
@@ -482,7 +483,7 @@ protected String getPackageName(IFolder folder) throws JavaModelException {
  * @see IJavaElement
  */
 public IPath getPath() {
-	return fResource.getFullPath();
+	return getResource().getFullPath();
 }
 
 /*
@@ -527,7 +528,7 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
  * @see IJavaElement
  */
 public IResource getResource() {
-	return fResource;
+	return (IResource)this.resource;
 }
 
 /**
@@ -669,11 +670,11 @@ public SourceMapper getSourceMapper() {
  */
 public IResource getUnderlyingResource() throws JavaModelException {
 	if (!exists()) throw newNotPresentException();
-	return fResource;
+	return getResource();
 }
 
 public int hashCode() {
-	return fResource.hashCode();
+	return this.resource.hashCode();
 }
 
 /**
@@ -742,7 +743,7 @@ public void refreshChildren() {
 public IJavaElement rootedAt(IJavaProject project) {
 	return
 		new PackageFragmentRoot(
-			fResource,
+			getResource(),
 			project, 
 			fName);
 }

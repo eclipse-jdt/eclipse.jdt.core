@@ -210,6 +210,8 @@ public class JavaProject
 		super.closing(info);
 	}
 	
+
+
 	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
 	 * of exported classpath entries to avoid possible side-effects ever after.
@@ -364,7 +366,7 @@ public class JavaProject
 					// external target - only JARs allowed
 					if (((java.io.File)target).isFile() && (Util.isArchiveFileName(entryPath.lastSegment()))) {
 						accumulatedRoots.add(
-							new JarPackageFragmentRoot(entryPath.toOSString(), this));
+							new JarPackageFragmentRoot(entryPath, this));
 						rootIDs.add(rootID);
 					}
 				}
@@ -1081,39 +1083,26 @@ public class JavaProject
 	 * @return A handle to the package fragment root identified by the given path.
 	 * This method is handle-only and the element may or may not exist. Returns
 	 * <code>null</code> if unable to generate a handle from the path (for example,
-	 * an absolute path that has less than 2 segments. The path may be relative or
+	 * an absolute path that has less than 1 segment. The path may be relative or
 	 * absolute.
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IPath path) {
-		Object target = JavaModel.getTarget(getProject().getWorkspace().getRoot(), path, false);
-		if (target == null) {
-			if (path.segmentCount() > 0) {
-				String ext = path.getFileExtension();
-				if (ext == null) {
-					return getPackageFragmentRoot(getProject().getFolder(path));
-				} else {
-					// resource jar
-					return getPackageFragmentRoot(getProject().getFile(path));
-				}
-			} else {
+		if (!path.isAbsolute()) {
+			path = getPath().append(path);
+		}
+		int segmentCount = path.segmentCount();
+		switch (segmentCount) {
+			case 0:
+				return null;
+			case 1:
 				// default root
 				return getPackageFragmentRoot(getProject());
-			}
-		} else {
-			if (target instanceof IResource) {
-				return this.getPackageFragmentRoot((IResource)target);
-			} else {
-				String ext = path.getFileExtension();
-				if (((java.io.File)target).isFile()
-					&& ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
-						|| "zip".equalsIgnoreCase(ext))) { //$NON-NLS-1$
-					// external jar
-					return getPackageFragmentRoot0(path.toOSString());
+			default:
+				if (Util.isArchiveFileName(path.lastSegment())) {
+					return getPackageFragmentRoot0(path);
 				} else {
-					// unknown path
-					return null;
+					return getPackageFragmentRoot(getProject().getWorkspace().getRoot().getFolder(path));
 				}
-			}
 		}
 	}
 	
@@ -1122,13 +1111,17 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 
-		String name = resource.getName();
 		if (resource.getType() == IResource.FILE
-			&& (Util.endsWithIgnoreCase(name, ".jar") //$NON-NLS-1$
-				|| Util.endsWithIgnoreCase(name, ".zip"))) { //$NON-NLS-1$ 
+			&& (Util.isArchiveFileName(resource.getName()))) {
 			return new JarPackageFragmentRoot(resource, this);
 		} else {
-			return new PackageFragmentRoot(resource, this);
+			if (resource.getProject().equals(getProject())) {
+				// name of root will be the project relative path (source forlders and library folder in same project)
+				return new PackageFragmentRoot(resource, this);
+			} else {
+				// name of root will be the full path (library folder in another project)
+				return new PackageFragmentRoot(resource, this, resource.getFullPath().toString());
+			}
 		}
 	}
 
@@ -1137,13 +1130,13 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(String jarPath) {
 
-		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(jarPath)).toString());
+		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(jarPath)));
 	}
 	
 	/**
 	 * no path canonicalization
 	 */
-	public IPackageFragmentRoot getPackageFragmentRoot0(String jarPath) {
+	public IPackageFragmentRoot getPackageFragmentRoot0(IPath jarPath) {
 
 		return new JarPackageFragmentRoot(jarPath, this);
 	}

@@ -199,6 +199,26 @@ protected IJavaElement getHandleFromMementoForBinaryMembers(String memento, IPac
 	return cf.getType();
 }
 /**
+ * Returns the <code>IPackageFragmentRoot</code> represented by the <code>String</code>
+ * memento.
+ * @see getHandleMemento()
+ */
+protected IPackageFragmentRoot getHandleFromMementoForRoot(String memento, JavaProject project, int projectEnd, int rootEnd) {
+	String rootName = null;
+	if (rootEnd == projectEnd - 1) {
+		//default root
+		rootName = IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
+	} else {
+		rootName = memento.substring(projectEnd + 1, rootEnd);
+	}
+	IPath rootPath = new Path(rootName);
+	if (rootPath.isAbsolute()) {
+		return project.getPackageFragmentRoot(rootPath);
+	} else {
+		return project.getPackageFragmentRoot(project.getProject().getFullPath().append(rootName));
+	}
+}
+/**
  * Returns the <code>IJavaElement</code> represented by the <code>String</code>
  * memento.
  * @see getHandleMemento()

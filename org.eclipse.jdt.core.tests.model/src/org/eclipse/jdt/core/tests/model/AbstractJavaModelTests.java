@@ -337,7 +337,7 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 					if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 						JavaCore.setClasspathVariables(
 							new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-							new Path[] {new Path(getExternalJCLPath()), new Path(getExternalJCLSourcePath()), new Path(getExternalJCLRootSourcePath())},
+							new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 							null);
 					}
 				}
@@ -560,22 +560,28 @@ protected IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirs
 	return result;
 }
 /**
+ * Returns the IPath to the external java class library (e.g. jclMin.jar)
+ */
+protected IPath getExternalJCLPath() {
+	return new Path(getExternalJCLPathString());
+}
+/**
  * Returns the java.io path to the external java class library (e.g. jclMin.jar)
  */
-protected String getExternalJCLPath() {
+protected String getExternalJCLPathString() {
 	return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin.jar";
 }
 /**
- * Returns the java.io path to the root source of the external java class library (e.g. "src")
+ * Returns the IPath to the root source of the external java class library (e.g. "src")
  */
-protected String getExternalJCLRootSourcePath() {
-	return "";
+protected IPath getExternalJCLRootSourcePath() {
+	return Path.EMPTY;
 }
 /**
- * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
+ * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
  */
-protected String getExternalJCLSourcePath() {
-	return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip";
+protected IPath getExternalJCLSourcePath() {
+	return new Path(EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip");
 }
 /**
  * Returns the Java Model this test suite is running on.
@@ -796,7 +802,7 @@ protected IJavaProject setUpJavaProject(final String projectName) throws CoreExc
 	if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 		JavaCore.setClasspathVariables(
 			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new Path[] {new Path(getExternalJCLPath()), new Path(getExternalJCLSourcePath()), new Path(getExternalJCLRootSourcePath())},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 			null);
 	}
 

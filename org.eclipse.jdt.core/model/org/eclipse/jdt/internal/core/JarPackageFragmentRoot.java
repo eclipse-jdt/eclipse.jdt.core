@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -48,16 +47,16 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * based on a JAR file that is not contained in a <code>IJavaProject</code> and
 	 * does not have an associated <code>IResource</code>.
 	 */
-	protected JarPackageFragmentRoot(String jarPath, IJavaProject project) {
-		super(null, project, jarPath);
-		this.jarPath = new Path(jarPath);
+	protected JarPackageFragmentRoot(IPath jarPath, IJavaProject project) {
+		super(null, project, jarPath.toString());
+		this.jarPath = jarPath;
 	}
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy 
 	 * based on a JAR file.
 	 */
 	protected JarPackageFragmentRoot(IResource resource, IJavaProject project) {
-		super(resource, project);
+		super(resource, project, resource.getFullPath().toString());
 		this.jarPath = resource.getFullPath();
 	}
 
@@ -255,18 +254,30 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	 * @see IPackageFragmentRoot
 	 */
 	public IPath getPath() {
-		if (fResource == null) {
+		if (isExternal()) {
 			return this.jarPath;
 		} else {
 			return super.getPath();
 		}
 	}
+	public IResource getResource() {
+		if (this.resource == null) {
+			this.resource = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.jarPath, false);
+		}
+		if (this.resource instanceof IResource) {
+			return super.getResource();
+		} else {
+			// external jar
+			return null;
+		}
+	}
+
 
 	/**
 	 * @see IJavaElement
 	 */
 	public IResource getUnderlyingResource() throws JavaModelException {
-		if (fResource == null) {
+		if (isExternal()) {
 			if (!exists()) throw newNotPresentException();
 			return null;
 		} else {
@@ -298,7 +309,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	 * @see IPackageFragmentRoot
 	 */
 	public boolean isExternal() {
-		return fResource == null;
+		return getResource() == null;
 	}
 	/**
 	 * Jars and jar entries are all read only
@@ -331,15 +342,15 @@ protected boolean resourceExists() {
  * @see JavaElement#rootedAt(IJavaProject)
  */
 public IJavaElement rootedAt(IJavaProject project) {
-	if (fResource == null) {
+	if (isExternal()) {
 		return
 			new JarPackageFragmentRoot(
-				this.jarPath.toString(),
+				this.jarPath,
 				project);
 	} else {
 		return
 			new JarPackageFragmentRoot(
-				fResource,
+				getResource(),
 				project);
 	}
 }

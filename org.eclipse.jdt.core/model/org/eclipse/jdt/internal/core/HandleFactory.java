@@ -167,7 +167,7 @@ public class HandleFactory {
 			if (index < length) {
 				System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
 			}
-			IPackageFragmentRoot root = getJarPkgFragmentRoot(jarPathString, jarPath, target, projects);
+			IPackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
 			if (root != null) {
 				return root;
 			}
@@ -180,10 +180,9 @@ public class HandleFactory {
 			// java model is not accessible
 			return null;
 		}
-		return getJarPkgFragmentRoot(jarPathString, jarPath, target, projects);
+		return getJarPkgFragmentRoot(jarPath, target, projects);
 	}
 	private IPackageFragmentRoot getJarPkgFragmentRoot(
-		String jarPathString,
 		IPath jarPath,
 		Object target,
 		IJavaProject[] projects) {
@@ -198,7 +197,7 @@ public class HandleFactory {
 							return javaProject.getPackageFragmentRoot((IFile)target);
 						} else {
 							// external jar
-							return javaProject.getPackageFragmentRoot0(jarPathString);
+							return javaProject.getPackageFragmentRoot0(jarPath);
 						}
 					}
 				}

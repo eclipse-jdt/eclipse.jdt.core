@@ -846,22 +846,9 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		int rootEnd= memento.indexOf(JavaElement.JEM_PACKAGEFRAGMENT, projectEnd + 1);
 		if (rootEnd == -1) {
-			return proj.getPackageFragmentRoot(new Path(Path.SEPARATOR + memento.substring(modelEnd + 1)));
+			return model.getHandleFromMementoForRoot(memento, proj, projectEnd, memento.length());
 		}
-		String rootName= null;
-		if (rootEnd == projectEnd - 1) {
-			//default root
-			rootName= IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
-		} else {
-			rootName= memento.substring(projectEnd + 1, rootEnd);
-		}
-		IPath rootPath= new Path(rootName);
-		IPackageFragmentRoot root= null;
-		if (rootPath.isAbsolute()) {
-			root= proj.getPackageFragmentRoot(rootPath);
-		} else {
-			root= proj.getPackageFragmentRoot(proj.getProject().getFullPath().append(rootName));
-		}
+		IPackageFragmentRoot root = model.getHandleFromMementoForRoot(memento, proj, projectEnd, rootEnd);
 		if (root == null)
 			return null;
 

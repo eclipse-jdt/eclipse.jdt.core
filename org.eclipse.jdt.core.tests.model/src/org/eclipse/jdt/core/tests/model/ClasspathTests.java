@@ -146,8 +146,8 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin");
 
 		IClasspathEntry[] newEntries = new IClasspathEntry[2];
-		newEntries[0] = JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null, false);
-		newEntries[1] = JavaCore.newLibraryEntry(new Path(getExternalJCLSourcePath()), null, null, false);
+		newEntries[0] = JavaCore.newLibraryEntry(getExternalJCLPath(), null, null, false);
+		newEntries[1] = JavaCore.newLibraryEntry(getExternalJCLSourcePath(), null, null, false);
 		setClasspath(proj, newEntries);
 		startDeltas();
 		IClasspathEntry[] swappedEntries = new IClasspathEntry[2];
@@ -270,9 +270,9 @@ public void testClasspathCreateLibraryEntry() throws CoreException {
 public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 	IJavaProject proj = this.createJavaProject("P", new String[] {""}, "");
 	IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
-	IClasspathEntry newEntry= JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null, false);
+	IClasspathEntry newEntry= JavaCore.newLibraryEntry(getExternalJCLPath(), null, null, false);
 	IClasspathEntry[] newEntries= new IClasspathEntry[]{newEntry};
-	IPackageFragmentRoot newRoot= proj.getPackageFragmentRoot(getExternalJCLPath());
+	IPackageFragmentRoot newRoot= proj.getPackageFragmentRoot(getExternalJCLPathString());
 
 	startDeltas();
 	
@@ -329,7 +329,7 @@ public void testClasspathCrossProject() throws CoreException {
  * Delete a root and ensure the classpath is not updated (i.e. entry isn't removed).
  */
 public void testClasspathDeleteNestedRoot() throws CoreException {
-	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
+	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPathString()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
@@ -373,7 +373,7 @@ public void testClasspathDiamond() throws CoreException {
  * not updated (i.e. entry isn't removed).
  */
 public void testClasspathDeleteNestedRootParent() throws CoreException {
-	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
+	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPathString()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
@@ -400,7 +400,7 @@ public void testClasspathDeleteNestedRootParent() throws CoreException {
  */
 public void testClasspathExternalize() throws CoreException {
 	try {
-		IJavaProject project= this.createJavaProject("P", new String[] {}, new String[] {getExternalJCLPath()}, "");
+		IJavaProject project= this.createJavaProject("P", new String[] {}, new String[] {getExternalJCLPathString()}, "");
 		IClasspathEntry[] classpath= project.getRawClasspath();
 		IClasspathEntry jar= null;
 		for (int i= 0; i < classpath.length; i++) {
@@ -427,7 +427,7 @@ public void testClasspathExternalize() throws CoreException {
  * Move a root and ensure the classpath is not updated (i.e. entry not renamed).
  */
 public void testClasspathMoveNestedRoot() throws CoreException {
-	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
+	IJavaProject project = this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPathString()}, "bin");
 	IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
@@ -469,7 +469,7 @@ public void testClasspathMoveNestedRoot() throws CoreException {
  */
 public void testClasspathMoveNestedRootParent() throws CoreException {
 	try {
-		IJavaProject project =this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPath()}, "bin");
+		IJavaProject project =this.createJavaProject("P", new String[] {"nested/src"}, new String[] {getExternalJCLPathString()}, "bin");
 		IPackageFragmentRoot root= getPackageFragmentRoot("P", "nested/src");
 		IClasspathEntry[] originalCP= project.getRawClasspath();
 	
@@ -527,7 +527,7 @@ public void testClasspathNoChanges() throws CoreException {
  * the correct deltas.
  */
 public void testClasspathReordering() throws CoreException {
-	IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPath()}, "bin");
+	IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
 	IClasspathEntry[] originalCP = proj.getRawClasspath();
 	IPackageFragmentRoot root = getPackageFragmentRoot("P", "src");
 	try {
@@ -1214,7 +1214,7 @@ public void testExportContainer() throws CoreException {
 				new TestContainer(
 					new Path("container/default"),
 					new IClasspathEntry[] {
-						JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null)
+						JavaCore.newLibraryEntry(getExternalJCLPath(), null, null)
 					}) 
 			}, 
 			null);
@@ -1230,7 +1230,7 @@ public void testExportContainer() throws CoreException {
 		// ensure container is exported to P2
 		assertEquals("Unexpected number of classpath entries", 2, classpath.length);
 		assertEquals("Unexpected first entry", "/P1", classpath[0].getPath().toString());
-		assertEquals("Unexpected second entry", getExternalJCLPath(), classpath[1].getPath().toOSString());
+		assertEquals("Unexpected second entry", getExternalJCLPathString(), classpath[1].getPath().toOSString());
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
