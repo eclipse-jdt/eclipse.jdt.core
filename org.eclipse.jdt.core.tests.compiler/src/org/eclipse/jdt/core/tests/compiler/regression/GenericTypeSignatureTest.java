@@ -1008,4 +1008,26 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+	// 65953 - incorrect signature for generic interface
+	public void test015() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public interface X<T> {\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			char[] signature = classFileReader.getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
 }

@@ -447,7 +447,12 @@ public char[] genericSignature() {
 	    }
 	    sig = new StringBuffer(10);
 	}
-	if (this.superclass != null) sig.append(this.superclass.genericTypeSignature());
+	if (this.superclass != null) {
+		sig.append(this.superclass.genericTypeSignature());
+	} else {
+		// interface scenario only (as Object cannot be generic) - 65953
+		sig.append(scope.getJavaLangObject().genericTypeSignature());
+	}
     for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
         sig.append(this.superInterfaces[i].genericTypeSignature());
     }

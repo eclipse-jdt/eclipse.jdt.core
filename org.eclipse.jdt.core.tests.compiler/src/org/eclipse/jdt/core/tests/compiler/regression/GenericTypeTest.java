@@ -5786,4 +5786,30 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Map cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+	// test compilation against binaries
+	public void test211() {
+		this.runConformTest(
+			new String[] {
+				"p/Top.java",
+				"package p;\n" +
+				"public interface Top<T> {}\n",
+			},
+			"");
+
+		this.runConformTest(
+			new String[] {
+				"p/Super.java",
+				"package p;\n" +
+				"public class Super<T> implements Top<T>{\n" +
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false, // do not flush output
+			null);		
+	}			
+	
 }
