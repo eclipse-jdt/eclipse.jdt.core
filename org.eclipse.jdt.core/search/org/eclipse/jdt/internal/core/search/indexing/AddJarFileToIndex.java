@@ -28,69 +28,67 @@ import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class AddJarFileToIndex extends IndexRequest {
-
-	IndexManager manager;
-	String projectName;
 	IFile resource;
-	private String toString;
-	IPath path;
+	String projectName;
+	IPath indexPath;
+	IndexManager manager;
 
-	public AddJarFileToIndex(
-		IFile resource,
-		IndexManager manager,
-		String projectName) {
+	public AddJarFileToIndex(IFile resource, IndexManager manager, String projectName) {
 		this.resource = resource;
-		this.path = resource.getFullPath();
-		this.manager = manager;
 		this.projectName = projectName;
+		this.indexPath = resource.getFullPath();
+		this.manager = manager;
 	}
-	// can be found either by project name or JAR path name
+	public AddJarFileToIndex(IPath indexPath, IndexManager manager, String projectName) {
+		// external JAR scenario - no resource
+		this.projectName = projectName;
+		this.indexPath = indexPath;
+		this.manager = manager;
+	}
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(projectName) || this.path.toString().equals(jobFamily);
+		// can be found either by project name or JAR path name
+		return jobFamily.equals(projectName) || this.indexPath.toString().equals(jobFamily);
 	}
-public boolean equals(Object o) {
-	if (!(o instanceof AddJarFileToIndex)) return false;
-	if (this.resource != null) {
-		return this.resource.equals(((AddJarFileToIndex)o).resource);
+	public boolean equals(Object o) {
+		if (o instanceof AddJarFileToIndex) {
+			if (this.resource != null)
+				return this.resource.equals(((AddJarFileToIndex) o).resource);
+			if (this.indexPath != null)
+				return this.indexPath.equals(((AddJarFileToIndex) o).indexPath);
+		}
+		return false;
 	}
-	if (this.path != null) {
-		return this.path.equals(((AddJarFileToIndex)o).path);
+	public int hashCode() {
+		if (this.resource != null)
+			return this.resource.hashCode();
+		if (this.indexPath != null)
+			return this.indexPath.hashCode();
+		return -1;
 	}
-	return false;
-}
-public int hashCode() {
-	if (this.resource != null) {
-		return this.resource.hashCode();
-	}
-	if (this.path != null) {
-		return this.path.hashCode();
-	}
-	return -1;
-}	
 	public boolean execute(IProgressMonitor progressMonitor) {
-		
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+
+		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+
 		try {
-			IPath indexedPath = this.path;
 			// if index already cached, then do not perform any check
-			IIndex index = (IIndex) manager.getIndex(indexedPath, false /*do not reuse index file*/, false /*do not create if none*/);
+			IIndex index = (IIndex) manager.getIndex(this.indexPath, false, /*do not reuse index file*/ false /*do not create if none*/);
 			if (index != null) {
-				if (JobManager.VERBOSE) 
-					JobManager.verbose("-> no indexing required (index already exists) for " + this.path); //$NON-NLS-1$
-				return COMPLETE;
+				if (JobManager.VERBOSE)
+					JobManager.verbose("-> no indexing required (index already exists) for " + this.indexPath); //$NON-NLS-1$
+				return true;
 			}
 
-			index = manager.getIndex(indexedPath, true /*reuse index file*/, true /*create if none*/);
+			index = manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) {
-				if (JobManager.VERBOSE) 
-					JobManager.verbose("-> index could not be created for " + this.path); //$NON-NLS-1$
-				return COMPLETE;
+				if (JobManager.VERBOSE)
+					JobManager.verbose("-> index could not be created for " + this.indexPath); //$NON-NLS-1$
+				return true;
 			}
 			ReadWriteMonitor monitor = manager.getMonitorFor(index);
 			if (monitor == null) {
-				if (JobManager.VERBOSE) 
-					JobManager.verbose("-> index for " + this.path + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
-				return COMPLETE; // index got deleted since acquired
+				if (JobManager.VERBOSE)
+					JobManager.verbose("-> index for " + this.indexPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
+				return true; // index got deleted since acquired
 			}
 			ZipFile zip = null;
 			try {
@@ -101,20 +99,17 @@ public int hashCode() {
 				monitor.enterWrite(); // ask permission to write
 				if (resource != null) {
 					IPath location = this.resource.getLocation();
-					if (location == null)
-						return FAILED;
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+					if (location == null) return false;
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location); //$NON-NLS-1$	//$NON-NLS-2$
-					}
 					zip = new ZipFile(location.toFile());
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.path); //$NON-NLS-1$	//$NON-NLS-2$
-					}
-					zip = new ZipFile(this.path.toFile());
-					zipFilePath = (Path) this.path;
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.indexPath); //$NON-NLS-1$	//$NON-NLS-2$
+					zip = new ZipFile(this.indexPath.toFile());
+					zipFilePath = (Path) this.indexPath;
 					// path is already canonical since coming from a library classpath entry
 				}
 
@@ -140,8 +135,7 @@ public int hashCode() {
 						// iterate each entry to index it
 						ZipEntry ze = (ZipEntry) e.nextElement();
 						if (Util.isClassFileName(ze.getName())) {
-							JarFileEntryDocument entryDocument =
-								new JarFileEntryDocument(ze, null, zipFilePath);
+							JarFileEntryDocument entryDocument = new JarFileEntryDocument(ze, null, zipFilePath);
 							if (!indexedFileNames.remove(entryDocument.getName())) {
 								needToReindex = true;
 								break;
@@ -150,11 +144,10 @@ public int hashCode() {
 					}
 					if (!needToReindex && indexedFileNames.size() == 0) {
 						if (JobManager.VERBOSE)
-							JobManager.verbose(
-								"-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
-								+ zip.getName() + " (" //$NON-NLS-1$
-								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
-						return COMPLETE;
+							JobManager.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
+							+zip.getName() + " (" //$NON-NLS-1$
+							+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+						return true;
 					}
 				}
 
@@ -163,19 +156,17 @@ public int hashCode() {
 				 */
 				if (index != null) {
 					// index already existed: recreate it so that we forget about previous entries
-					index = manager.recreateIndex(indexedPath);
+					index = manager.recreateIndex(this.indexPath);
 				}
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE) {
-							JobManager.verbose(
-								"-> indexing of " //$NON-NLS-1$
-								+ zip.getName() 
-								+ " has been cancelled"); //$NON-NLS-1$
+							JobManager.verbose("-> indexing of " //$NON-NLS-1$
+							+zip.getName() + " has been cancelled"); //$NON-NLS-1$
 						}
-						return FAILED;
+						return false;
 					}
-					
+
 					// iterate each entry to index it
 					ZipEntry ze = (ZipEntry) e.nextElement();
 					if (Util.isClassFileName(ze.getName())) {
@@ -189,10 +180,9 @@ public int hashCode() {
 				}
 				index.save();
 				if (JobManager.VERBOSE)
-					JobManager.verbose(
-						"-> done indexing of " //$NON-NLS-1$
-						+ zip.getName() + " (" //$NON-NLS-1$
-						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+					JobManager.verbose("-> done indexing of " //$NON-NLS-1$
+					+zip.getName() + " (" //$NON-NLS-1$
+					+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
 				if (zip != null) {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -204,33 +194,15 @@ public int hashCode() {
 			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to index " + this.path + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				JobManager.verbose("-> failed to index " + this.indexPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			manager.removeIndex(this.path);
-			return FAILED;
+			manager.removeIndex(this.indexPath);
+			return false;
 		}
-		return COMPLETE;
+		return true;
 	}
-	/**
-	 * Insert the method's description here.
-	 * Creation date: (10/10/00 1:27:18 PM)
-	 * @return java.lang.String
-	 */
 	public String toString() {
-		if (toString == null) {
-			toString = "indexing " + this.path.toString(); //$NON-NLS-1$
-		}
-		return toString;
-	}
-
-	public AddJarFileToIndex(
-		IPath path,
-		IndexManager manager,
-		String projectName) {
-		// external JAR scenario - no resource
-		this.path = path;
-		this.manager = manager;
-		this.projectName = projectName;
+		return "indexing " + this.indexPath.toString(); //$NON-NLS-1$
 	}
 }

@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -23,6 +22,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
@@ -32,10 +32,8 @@ public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
 	IndexManager manager;
 	IProject project;
-	public IndexBinaryFolder(
-		IFolder folder,
-		IndexManager manager,
-		IProject project) {
+
+	public IndexBinaryFolder(IFolder folder, IndexManager manager, IProject project) {
 		this.folder = folder;
 		this.manager = manager;
 		this.project = project;
@@ -43,13 +41,11 @@ public class IndexBinaryFolder extends IndexRequest {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(this.project.getName());
 	}
-public boolean equals(Object o) {
-	if (!(o instanceof IndexBinaryFolder)) return false;
-	return this.folder.equals(((IndexBinaryFolder)o).folder);
-}
-public int hashCode() {
-	return this.folder.hashCode();
-}
+	public boolean equals(Object o) {
+		if (o instanceof IndexBinaryFolder)
+			return this.folder.equals(((IndexBinaryFolder) o).folder);
+		return false;
+	}
 	/**
 	 * Ensure consistency of a folder index. Need to walk all nested resources,
 	 * and discover resources which have either been changed, added or deleted
@@ -57,108 +53,105 @@ public int hashCode() {
 	 */
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (!this.folder.isAccessible()) return true; // nothing to do
 
-		if (!this.folder.isAccessible())
-			return COMPLETE; // nothing to do
+		IPath folderPath = this.folder.getFullPath();
+		IIndex index = this.manager.getIndex(folderPath, true, /*reuse index file*/ true /*create if none*/);
+		if (index == null) return true;
+		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
+		if (monitor == null) return true; // index got deleted since acquired
 
-		IIndex index = manager.getIndex(this.folder.getFullPath(), true /*reuse index file*/, true /*create if none*/);
-		if (index == null)
-			return COMPLETE;
-		ReadWriteMonitor monitor = manager.getMonitorFor(index);
-		if (monitor == null)
-			return COMPLETE; // index got deleted since acquired
 		try {
 			monitor.enterRead(); // ask permission to read
+			saveIfNecessary(index, monitor);
 
-			/* if index has changed, commit these before querying */
-			if (index.hasChanged()) {
-				try {
-					monitor.exitRead(); // free read lock
-					monitor.enterWrite(); // ask permission to write
-					if (IndexManager.VERBOSE)
-						JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
-					index.save();
-				} catch (IOException e) {
-					return FAILED;
-				} finally {
-					monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
-				}
-			}
+			IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+			int max = results == null ? 0 : results.length;
+			final Hashtable indexedFileNames = new Hashtable(100);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
-			final long indexLastModified = index.getIndexFile().lastModified();
-
-			final Hashtable indexedFileNames = new Hashtable(100);
-			IQueryResult[] results = index.queryInDocumentNames("");// all file names //$NON-NLS-1$
-			for (int i = 0, max = results == null ? 0 : results.length; i < max; i++) {
-				String fileName = results[i].getPath();
-				indexedFileNames.put(fileName, DELETED);
-			}
-			this.folder.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) {
-					if (isCancelled) return false;
-					if (resource.getType() == IResource.FILE) {
-						String extension = resource.getFileExtension();
-						if ((extension != null)
-							&& extension.equalsIgnoreCase("class")) { //$NON-NLS-1$
-							IPath path = resource.getLocation();
-							if (path != null) {
-								File resourceFile = path.toFile();
+			if (max == 0) {
+				this.folder.accept(new IResourceVisitor() {
+					public boolean visit(IResource resource) {
+						if (isCancelled) return false;
+						if (resource.getType() == IResource.FILE) {
+							if (Util.isClassFileName(resource.getName()) && resource.getLocation() != null) {
 								String name = new IFileDocument((IFile) resource).getName();
-								if (indexedFileNames.get(name) == null) {
-									indexedFileNames.put(name, resource);
-								} else {
-									indexedFileNames.put(
-										name,
-										resourceFile.lastModified() > indexLastModified
+								indexedFileNames.put(name, resource);
+							}
+							return false;
+						}
+						return true;
+					}
+				});
+			} else {
+				for (int i = 0; i < max; i++)
+					indexedFileNames.put(results[i].getPath(), DELETED);
+
+				final long indexLastModified = index.getIndexFile().lastModified();
+				this.folder.accept(new IResourceVisitor() {
+					public boolean visit(IResource resource) {
+						if (isCancelled) return false;
+						if (resource.getType() == IResource.FILE) {
+							if (Util.isClassFileName(resource.getName())) {
+								IPath path = resource.getLocation();
+								if (path != null) {
+									String name = new IFileDocument((IFile) resource).getName();
+									indexedFileNames.put(name,
+										indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
 											? (Object) resource
 											: (Object) OK);
 								}
 							}
+							return false;
 						}
-						return false;
+						return true;
 					}
-					return true;
-				}
-			});
+				});
+			}
 
-			IPath folderPath = this.folder.getFullPath();
-			IPath projectPath = this.project.getFullPath();
 			Enumeration names = indexedFileNames.keys();
+			boolean shouldSave = false;
 			while (names.hasMoreElements()) {
-				if (this.isCancelled) return FAILED;
-				
+				if (this.isCancelled) return false;
+
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
-				if (value instanceof IFile) {
-					manager.addBinary((IFile) value, folderPath);
-				} else if (value == DELETED) {
-					manager.remove(name, projectPath);
+				if (value != OK) {
+					shouldSave = true;
+					if (value == DELETED)
+						this.manager.remove(name, folderPath);
+					else
+						this.manager.addBinary((IFile) value, folderPath);
 				}
 			}
 
 			// request to save index when all class files have been indexed
-			manager.request(new SaveIndex(folderPath, manager));
+			if (shouldSave)
+				this.manager.request(new SaveIndex(folderPath, manager));
 
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			manager.removeIndex(this.folder.getFullPath());
-			return FAILED;
+			this.manager.removeIndex(folderPath);
+			return false;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			manager.removeIndex(this.folder.getFullPath());
-			return FAILED;
+			this.manager.removeIndex(folderPath);
+			return false;
 		} finally {
 			monitor.exitRead(); // free read lock
 		}
-		return COMPLETE;
+		return true;
+	}
+	public int hashCode() {
+		return this.folder.hashCode();
 	}
 	public String toString() {
 		return "indexing binary folder " + this.folder.getFullPath(); //$NON-NLS-1$
