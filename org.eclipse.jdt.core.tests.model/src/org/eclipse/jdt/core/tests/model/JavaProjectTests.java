@@ -596,8 +596,14 @@ public void testOutputLocationNestedInRoot() throws JavaModelException, CoreExce
 public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelException, CoreException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IJavaElement[] packages= root.getChildren();
-	assertEquals("unepected number of packages", 4, packages.length);
-	assertTrue("should be default", packages[0].getElementName().equals(""));
+	assertElementsEqual(
+		"unexpected package fragments in source folder",
+		"<default> [in <project root> [in JavaProjectTests]]\n" + 
+		"p [in <project root> [in JavaProjectTests]]\n" + 
+		"q [in <project root> [in JavaProjectTests]]\n" + 
+		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"x.y [in <project root> [in JavaProjectTests]]",
+		packages);
 
 
 	// create a nested folder in the output location and make sure it does not appear
@@ -874,7 +880,21 @@ public void testProjectGetChildren() throws JavaModelException {
 public void testProjectGetPackageFragments() throws JavaModelException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
 	IPackageFragment[] fragments= project.getPackageFragments();
-	assertTrue("should be package 12 package fragments in 'JavaProjectTests', were " + fragments.length , fragments.length == 11);
+	assertElementsEqual(
+		"unexpected package fragments",
+		"<default> [in <project root> [in JavaProjectTests]]\n" + 
+		"p [in <project root> [in JavaProjectTests]]\n" + 
+		"q [in <project root> [in JavaProjectTests]]\n" + 
+		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"x.y [in <project root> [in JavaProjectTests]]\n" + 
+		"java [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
+		"java.lang [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
+		"META-INF [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
+		"<default> [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
+		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
+		"p [in lib.jar [in JavaProjectTests]]\n" + 
+		"<default> [in lib.jar [in JavaProjectTests]]",
+		fragments);
 }
 /**
  * Test that the correct package fragments exist in the project.
@@ -882,11 +902,23 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 public void testRootGetPackageFragments() throws JavaModelException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IJavaElement[] fragments= root.getChildren();
-	assertTrue("should be package 5 package fragments in source root, were " + fragments.length , fragments.length == 4);
+	assertElementsEqual(
+		"unexpected package fragments in source folder",
+		"<default> [in <project root> [in JavaProjectTests]]\n" + 
+		"p [in <project root> [in JavaProjectTests]]\n" + 
+		"q [in <project root> [in JavaProjectTests]]\n" + 
+		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"x.y [in <project root> [in JavaProjectTests]]",
+		fragments);
 
 	root= getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	fragments= root.getChildren();	
-	assertTrue("should be package 3 package fragments in lib.jar, were " + fragments.length , fragments.length == 3);
+	assertSortedElementsEqual(
+		"unexpected package fragments in library",
+		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
+		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
+		"p [in lib.jar [in JavaProjectTests]]",
+		fragments);
 }
 /**
  * Test that the correct package fragments exist in the project.
