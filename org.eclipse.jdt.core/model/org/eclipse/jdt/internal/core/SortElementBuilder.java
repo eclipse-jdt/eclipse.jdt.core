@@ -250,7 +250,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		SortMethodDeclaration(int sourceStart, int modifiers, char[] name, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions, char[] returnType) {			
 			super(sourceStart, modifiers, name, parametersNames, parametersTypes, thrownExceptions);
 			this.id = METHOD;
-			this.returnType = new String(returnType);
+			if (returnType != null) {
+				this.returnType = new String(returnType);
+			}
 		}
 		
 		void display(StringBuffer buffer, int tab) {
@@ -258,8 +260,12 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				.append(tab(tab))
 				.append("method ") //$NON-NLS-1$
 				.append(name)
-				.append(decodeSignature())
-				.append(" " + returnType + LINE_SEPARATOR); //$NON-NLS-1$
+				.append(decodeSignature());
+			if (returnType != null) {
+				buffer.append(" " + returnType + LINE_SEPARATOR); //$NON-NLS-1$
+			} else {
+				buffer.append(LINE_SEPARATOR); //$NON-NLS-1$
+			}
 		}
 		
 		ASTNode convert() {
@@ -288,23 +294,25 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			// set return type
 			int indexOfArrayBrace;
 			String currentReturnType = this.returnType;
-			if (currentReturnType.indexOf('.') != -1) {
-				String[] returnTypeSubstrings = splitOn('.', currentReturnType);
-				int length = returnTypeSubstrings.length;
-				indexOfArrayBrace = returnTypeSubstrings[length - 1].indexOf('[');
-				if (indexOfArrayBrace != -1) {
-					int dimensions = occurencesOf('[', returnTypeSubstrings[length - 1]);
-					returnTypeSubstrings[length - 1] = returnTypeSubstrings[length - 1].substring(0, indexOfArrayBrace);
-					methodDeclaration.setReturnType(ast.newArrayType(ast.newSimpleType(ast.newName(returnTypeSubstrings)), dimensions));
+			if (currentReturnType != null) {
+				if (currentReturnType.indexOf('.') != -1) {
+					String[] returnTypeSubstrings = splitOn('.', currentReturnType);
+					int length = returnTypeSubstrings.length;
+					indexOfArrayBrace = returnTypeSubstrings[length - 1].indexOf('[');
+					if (indexOfArrayBrace != -1) {
+						int dimensions = occurencesOf('[', returnTypeSubstrings[length - 1]);
+						returnTypeSubstrings[length - 1] = returnTypeSubstrings[length - 1].substring(0, indexOfArrayBrace);
+						methodDeclaration.setReturnType(ast.newArrayType(ast.newSimpleType(ast.newName(returnTypeSubstrings)), dimensions));
+					} else {
+						methodDeclaration.setReturnType(ast.newSimpleType(ast.newName(returnTypeSubstrings)));
+					}
+				} else if ((indexOfArrayBrace = currentReturnType.indexOf('[')) != -1) {
+					int dimensions = occurencesOf('[', currentReturnType);
+					currentReturnType = currentReturnType.substring(0, indexOfArrayBrace);
+					methodDeclaration.setReturnType(ast.newArrayType(newType(currentReturnType), dimensions));
 				} else {
-					methodDeclaration.setReturnType(ast.newSimpleType(ast.newName(returnTypeSubstrings)));
+					methodDeclaration.setReturnType(newType(currentReturnType));
 				}
-			} else if ((indexOfArrayBrace = currentReturnType.indexOf('[')) != -1) {
-				int dimensions = occurencesOf('[', currentReturnType);
-				currentReturnType = currentReturnType.substring(0, indexOfArrayBrace);
-				methodDeclaration.setReturnType(ast.newArrayType(newType(currentReturnType), dimensions));
-			} else {
-				methodDeclaration.setReturnType(newType(currentReturnType));
 			}
 			return methodDeclaration;				
 		}
