@@ -471,7 +471,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								this.canChangeResource, 
 								false, 
 								project.getResolvedClasspath(true), 
-								false);
+								false); // no further cycle check
 							break;
 						}
 					}

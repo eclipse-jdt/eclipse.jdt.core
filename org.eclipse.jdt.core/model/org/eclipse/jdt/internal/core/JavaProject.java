@@ -487,9 +487,6 @@ public class JavaProject
 		int severity,
 		boolean cycleDetected) {
 		try {
-			if (cycleDetected){
-				String dummy = null;
-			}
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
 				new String[] { 
@@ -2066,11 +2063,12 @@ public class JavaProject
 			JavaProject project = (JavaProject)projects[i];
 			
 			if (cycleParticipants.contains(project)){
-				
-				project.createClasspathProblemMarker(
-					Util.bind("classpath.cycle"), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					true); 
+				if (!project.hasCycleMarker()){
+					project.createClasspathProblemMarker(
+						Util.bind("classpath.cycle"), //$NON-NLS-1$
+						IMarker.SEVERITY_ERROR,
+						true); 
+				}
 			} else {
 				project.flushClasspathProblemMarkers(true);
 			}			
