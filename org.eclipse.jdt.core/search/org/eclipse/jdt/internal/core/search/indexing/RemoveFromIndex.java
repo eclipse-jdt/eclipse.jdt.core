@@ -16,20 +16,20 @@ import java.io.*;
 
 class RemoveFromIndex implements IJob, IJobConstants {
 	String resourceName;
-	IProject project;
+	IResource indexedContainer;
 	IndexManager manager;
-public RemoveFromIndex(String resourceName, IProject project, IndexManager manager){
+public RemoveFromIndex(String resourceName, IResource indexedContainer, IndexManager manager){
 	this.resourceName = resourceName;
-	this.project = project;
+	this.indexedContainer = indexedContainer;
 	this.manager = manager;
 }
 public boolean belongsTo(String jobFamily){
-	return jobFamily.equals(project.getName());
+	return jobFamily.equals(indexedContainer.getProject().getName());
 }
 public boolean execute(){
 	try {
-		if (project.exists() && project.isOpen()){
-			IIndex index = manager.getIndex(project.getFullPath());
+		if (this.indexedContainer.isAccessible()){
+			IIndex index = manager.getIndex(this.indexedContainer.getFullPath());
 			if (index == null) return COMPLETE;
 			
 			/* ensure no concurrent write access to index */

@@ -625,7 +625,14 @@ public static IPath canonicalizedPath(IPath externalPath) {
 				return getPackageFragmentRoot(getProject());
 			}
 		} else {
-			return getPackageFragmentRoot(path.toString()); // external jar
+			String ext= path.getFileExtension();
+			if ("jar".equalsIgnoreCase(ext) || "class".equalsIgnoreCase(ext)) {
+				// external jar
+				return getPackageFragmentRoot(path.toString()); 
+			} else {
+				// unknown path
+				return null;
+			}
 		}
 	}
 	/**
@@ -673,10 +680,10 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		IPath path= entry.getPath();
 		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
 
-		if (entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
-			String ext= path.getFileExtension();
+		String ext= path.getFileExtension();
+		if (ext != null && entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
 			IPackageFragmentRoot root= null;
-			if (ext != null && (ext.equalsIgnoreCase("zip") || ext.equalsIgnoreCase("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (ext.equalsIgnoreCase("zip") || ext.equalsIgnoreCase("jar")) { //$NON-NLS-1$ //$NON-NLS-2$
 				// jar
 				// removeFirstSegment removes the part relative to the project which is retrieve 
 				// through workspace.getDefaultContentLocation
@@ -689,7 +696,7 @@ public static IPath canonicalizedPath(IPath externalPath) {
 				}
 				return new IPackageFragmentRoot[] {root};
 			}
-		}
+		} 
 		IPath projectPath= getProject().getFullPath();
 		if (projectPath.isPrefixOf(path)) {
 			// local to this project
@@ -706,29 +713,43 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		} else {
 			// another project
 			// change zrh
-			if (path.segmentCount() != 1)
-				return new IPackageFragmentRoot[] {}; // invalid path for a project
-			String project= path.segment(0);
-			IJavaProject javaProject= getJavaModel().getJavaProject(project);
-			Vector sourceRoots= new Vector();
-			IPackageFragmentRoot[] roots= null;
-			try {
-				roots= javaProject.getPackageFragmentRoots();
-			} catch (JavaModelException e) {
-				return new IPackageFragmentRoot[]{};
-			}
-			for (int i= 0; i < roots.length; i++) {
-				try {
-					if (roots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
-						sourceRoots.addElement(roots[i]);
+			if (path.segmentCount() != 1) {
+				if (entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
+					// binary folder in another project
+					IResource resource= workspaceRoot.getFolder(path);
+					if (resource == null) {
+						 return new IPackageFragmentRoot[]{};
+					} else {
+						IPackageFragmentRoot root= new PackageFragmentRoot(resource, this);
+						return new IPackageFragmentRoot[] {root};
 					}
-				} catch (JavaModelException e) {
-					// do nothing if the root does not exist
+				} else {
+					// invalid path for a project
+					return new IPackageFragmentRoot[] {}; 
 				}
-			}
+			} else {
+				String project= path.segment(0);
+				IJavaProject javaProject= getJavaModel().getJavaProject(project);
+				Vector sourceRoots= new Vector();
+				IPackageFragmentRoot[] roots= null;
+				try {
+					roots= javaProject.getPackageFragmentRoots();
+				} catch (JavaModelException e) {
+					return new IPackageFragmentRoot[]{};
+				}
+				for (int i= 0; i < roots.length; i++) {
+					try {
+						if (roots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
+							sourceRoots.addElement(roots[i]);
+						}
+					} catch (JavaModelException e) {
+						// do nothing if the root does not exist
+					}
+				}
 			IPackageFragmentRoot[] copy= new IPackageFragmentRoot[sourceRoots.size()];
-			sourceRoots.copyInto(copy);
-			return copy;
+				sourceRoots.copyInto(copy);
+				return copy;
+			}
 		}
 	}
 	/**
@@ -1348,8 +1369,12 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 				for (int j= 0; j < roots.length; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
 					if (root.exists0()){
-						if (root.isArchive()){
-							if (indexManager != null) indexManager.indexJarFile(root.getPath(), getUnderlyingResource().getName());
+						if (root.getKind() == IPackageFragmentRoot.K_BINARY && indexManager != null) {
+							if (root.isArchive()){
+								indexManager.indexJarFile(root.getPath(), getUnderlyingResource().getName());
+							} else {
+								indexManager.indexBinaryFolder((IFolder)root.getUnderlyingResource(), (IProject)this.getUnderlyingResource());
+							}
 						}
 						info.addChild(roots[j]);
 					}

@@ -864,19 +864,35 @@ protected void updateIndex(Openable element, IResourceDelta delta){
 			}
 			break;
 		case IJavaElement.CLASS_FILE :
-			break;
-		case IJavaElement.COMPILATION_UNIT :
 			IFile file = (IFile)delta.getResource();
-			String extension;
+			IFolder binaryFolder;
+			try {
+				binaryFolder = (IFolder)element.getPackageFragmentRoot().getUnderlyingResource();
+			} catch (JavaModelException e) {
+				break;
+			}
 			switch (delta.getKind()) {
 				case IResourceDelta.CHANGED:
 					// no need to index if the content has not changed
 					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) break;
 				case IResourceDelta.ADDED:
-					if (file.isLocal(IResource.DEPTH_ZERO)) indexManager.add(file);
+					if (file.isLocal(IResource.DEPTH_ZERO)) indexManager.add(file, binaryFolder);
 					break;
 				case IResourceDelta.REMOVED:
-					extension = file.getFileExtension();
+					indexManager.remove(file.getFullPath().toString(), binaryFolder);
+					break;
+			}
+			break;
+		case IJavaElement.COMPILATION_UNIT :
+			file = (IFile)delta.getResource();
+			switch (delta.getKind()) {
+				case IResourceDelta.CHANGED:
+					// no need to index if the content has not changed
+					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) break;
+				case IResourceDelta.ADDED:
+					if (file.isLocal(IResource.DEPTH_ZERO)) indexManager.add(file, file.getProject());
+					break;
+				case IResourceDelta.REMOVED:
 					indexManager.remove(file.getFullPath().toString(), file.getProject());
 					break;
 			}

@@ -355,6 +355,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				} else if (rootPath.isPrefixOf(resourcePath)) {
 					IPackageFragmentRoot root =
 						((JavaProject) project).getPackageFragmentRoot(rootPath);
+					if (root == null) return null;
 					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 					if (resource.getType() == IResource.FILE) {
 						// if the resource is a file, then remove the last segment which

@@ -56,17 +56,17 @@ public void activateProcessing() {
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void add(IFile resource){
+public void add(IFile resource, IResource indexedContainer){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
 	if ("java".equals(extension)){ //$NON-NLS-1$
-		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this);
+		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this, indexedContainer);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
 		}
 		request(job);
 	} else if ("class".equals(extension)){ //$NON-NLS-1$
-		AddClassFileToIndex job = new AddClassFileToIndex(resource, this);
+		AddClassFileToIndex job = new AddClassFileToIndex(resource, this, indexedContainer);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
 		}
@@ -240,6 +240,16 @@ public void indexAll(IProject project){
 	request(new IndexAllProject(project, this));
 }
 /**
+ * Trigger addition of the entire content of a binary folder
+ * Note: the actual operation is performed in background 
+ */
+public void indexBinaryFolder(IFolder folder, IProject referingProject){
+	if (JavaCore.getPlugin() == null || this.workspace == null) return;
+
+	request(new IndexBinaryFolder(folder, this, referingProject));
+}
+
+/**
  * Advance to the next available job, once the current one has been completed.
  * Note: clients awaiting until the job count is zero are still waiting at this point.
  */
@@ -292,8 +302,8 @@ public synchronized IIndex recreateIndex(IPath path) {
  * Trigger removal of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void remove(String resourceName, IProject project){
-	request(new RemoveFromIndex(resourceName, project, this));
+public void remove(String resourceName, IResource indexedContainer){
+	request(new RemoveFromIndex(resourceName, indexedContainer, this));
 }
 /**
  * Flush current state

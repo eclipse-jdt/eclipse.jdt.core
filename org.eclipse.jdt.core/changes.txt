@@ -117,6 +117,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GE14NN: ITPJUI:WINNT - Unable to find/search for .class files
   1GJYFUO: ITPDUI:ALL - Evaluation hangs, evaluation thread is suspended
   1FWG453: ITPJCORE:WIN98 - OpenOnSelection - fails for default constructors
   1GDQD37: ITPJUI:WIN2000 - OpenOnSelection - Open on selection failure

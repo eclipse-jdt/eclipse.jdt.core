@@ -14,26 +14,28 @@ import org.eclipse.jdt.internal.core.index.impl.*;
 import java.io.*;
 import java.util.*;
 
-public class IndexAllProject implements IJob, IJobConstants {
-	IProject project;
+public class IndexBinaryFolder implements IJob, IJobConstants {
+	IFolder folder;
 	IndexManager manager;
-public IndexAllProject(IProject project, IndexManager manager){
-	this.project = project;
+	IProject project;
+public IndexBinaryFolder(IFolder folder, IndexManager manager, IProject project){
+	this.folder = folder;
 	this.manager = manager;	
+	this.project = project;
 }
 public boolean belongsTo(String jobFamily){
-	return jobFamily.equals(project.getName());
+	return jobFamily.equals(this.project.getName());
 }
 /**
- * Ensure consistency of a project index. Need to walk all nested resources,
+ * Ensure consistency of a folder index. Need to walk all nested resources,
  * and discover resources which have either been changed, added or deleted
  * since the index was produced.
  */
 public boolean execute(){
 
-	if (!project.isOpen()) return COMPLETE; // nothing to do
+	if (!this.folder.isAccessible()) return COMPLETE; // nothing to do
 	
-	IIndex index = manager.getIndex(project.getFullPath());
+	IIndex index = manager.getIndex(this.folder.getFullPath());
 	if (index == null) return COMPLETE;
 	ReadWriteMonitor monitor = manager.getMonitorFor(index);
 	if (monitor == null) return COMPLETE; // index got deleted since acquired
@@ -64,11 +66,11 @@ public boolean execute(){
 			String fileName = results[i].getPath();
 			indexedFileNames.put(fileName, DELETED);
 		}
-		project.accept(new IResourceVisitor(){
+		this.folder.accept(new IResourceVisitor(){
 			public boolean visit(IResource resource) {
 				if (resource.getType() == IResource.FILE) {
 					String extension = resource.getFileExtension();
-					if ((extension != null) && extension.equalsIgnoreCase("java")) { //$NON-NLS-1$
+					if ((extension != null) && extension.equalsIgnoreCase("class")) { //$NON-NLS-1$
 						IPath path = resource.getLocation();
 						if (path != null){
 							File resourceFile = path.toFile();
@@ -93,7 +95,7 @@ public boolean execute(){
 			String name = (String)names.nextElement();
 			Object value = indexedFileNames.get(name);
 			if (value instanceof IFile){
-				manager.add((IFile)value, this.project);
+				manager.add((IFile)value, this.folder);
 			} else if (value == DELETED){
 				manager.remove(name, this.project);
 			}
@@ -108,6 +110,6 @@ public boolean execute(){
 	return COMPLETE;
 }
 public String toString(){
-	return "indexing project " + project.getName(); //$NON-NLS-1$
+	return "indexing binary folder " + this.folder.getFullPath(); //$NON-NLS-1$
 }
 }

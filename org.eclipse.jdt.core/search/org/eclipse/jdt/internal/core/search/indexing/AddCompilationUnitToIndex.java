@@ -19,18 +19,19 @@ import org.eclipse.core.runtime.IPath;
 class AddCompilationUnitToIndex implements IJob, IJobConstants {
 	IFile resource;
 	IndexManager manager;
+	IResource indexedContainer;
 	char[] contents;
-public AddCompilationUnitToIndex(IFile resource, IndexManager manager){
+public AddCompilationUnitToIndex(IFile resource, IndexManager manager, IResource indexedContainer){
 	this.resource = resource;
 	this.manager = manager;
+	this.indexedContainer = indexedContainer;
 }
 public boolean belongsTo(String jobFamily){
-	return jobFamily.equals(resource.getProject().getName());
+	return jobFamily.equals(this.indexedContainer.getProject().getName());
 }
 public boolean execute(){
 	try {
-		IProject project = resource.getProject();
-		IIndex index = manager.getIndex(project.getFullPath());
+		IIndex index = manager.getIndex(this.indexedContainer.getFullPath());
 		if (!resource.isLocal(IResource.DEPTH_ZERO)){
 			return FAILED;
 		}
