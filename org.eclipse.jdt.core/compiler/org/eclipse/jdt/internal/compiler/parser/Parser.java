@@ -53,7 +53,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	//expression stack
 	final static int ExpressionStackIncrement = 100;
 
-	final static int GenericsStackIncrement = 255;
+	final static int GenericsStackIncrement = 10;
     
 	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
     public static char in_symb[] = null;
