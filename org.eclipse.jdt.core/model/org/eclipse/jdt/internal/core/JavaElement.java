@@ -521,12 +521,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return false;
 	}
 	/**
-	 * @see IJavaElement
-	 */
-	public boolean isStructureKnown() throws JavaModelException {
-		return ((JavaElementInfo)getElementInfo()).isStructureKnown();
-	}
-	/**
 	 * Creates and returns a new not present exception for this element.
 	 */
 	public JavaModelException newNotPresentException() {

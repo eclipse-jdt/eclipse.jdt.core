@@ -355,6 +355,12 @@ protected boolean isSourceElement() {
 	return false;
 }
 /**
+ * @see IJavaElement
+ */
+public boolean isStructureKnown() throws JavaModelException {
+	return ((OpenableElementInfo)getElementInfo()).isStructureKnown();
+}
+/**
  * @see IOpenable
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {

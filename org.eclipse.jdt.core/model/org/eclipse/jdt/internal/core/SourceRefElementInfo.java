@@ -17,9 +17,6 @@ import org.eclipse.jdt.core.ISourceRange;
  */
 /* package */ class SourceRefElementInfo extends JavaElementInfo {
 	protected int fSourceRangeStart, fSourceRangeEnd;
-protected SourceRefElementInfo() {
-	setIsStructureKnown(true);
-}
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getDeclarationSourceEnd()
  * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getDeclarationSourceEnd()

@@ -10,7 +10,29 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.IJavaElement;
+
 /** Element info for IOpenable elements. */
 public class OpenableElementInfo extends JavaElementInfo {
-	// root of all openable element infos
+
+	/**
+	 * Is the structure of this element known
+	 * @see IJavaElement#isStructureKnown()
+	 */
+	protected boolean isStructureKnown = false;
+
+	/**
+	 * @see IJavaElement#isStructureKnown()
+	 */
+	public boolean isStructureKnown() {
+		return this.isStructureKnown;
+	}
+	
+	/**
+	 * Sets whether the structure of this element known
+	 * @see IJavaElement#isStructureKnown()
+	 */
+	public void setIsStructureKnown(boolean newIsStructureKnown) {
+		this.isStructureKnown = newIsStructureKnown;
+	}
 }

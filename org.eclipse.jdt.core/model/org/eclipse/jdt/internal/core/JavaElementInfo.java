@@ -26,12 +26,6 @@ import org.eclipse.jdt.core.IJavaElement;
 	protected IJavaElement[] children;
 
 	/**
-	 * Is the structure of this element known
-	 * @see IJavaElement#isStructureKnown()
-	 */
-	protected boolean isStructureKnown = false;
-
-	/**
 	 * Shared empty collection used for efficiency.
 	 */
 	static Object[] NO_NON_JAVA_RESOURCES = new Object[] {};	
@@ -83,12 +77,6 @@ import org.eclipse.jdt.core.IJavaElement;
 		return false;
 	}
 	/**
-	 * @see IJavaElement#isStructureKnown()
-	 */
-	public boolean isStructureKnown() {
-		return this.isStructureKnown;
-	}
-	/**
 	 * Returns an array with all the same elements as the specified array except for
 	 * the element to remove. Assumes that the deletion is contained in the array.
 	 */
@@ -114,12 +102,5 @@ import org.eclipse.jdt.core.IJavaElement;
 	}
 	public void setChildren(IJavaElement[] children) {
 		this.children = children;
-	}
-	/**
-	 * Sets whether the structure of this element known
-	 * @see IJavaElement#isStructureKnown()
-	 */
-	public void setIsStructureKnown(boolean newIsStructureKnown) {
-		this.isStructureKnown = newIsStructureKnown;
 	}
 }

@@ -128,7 +128,6 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	ImportContainer importContainer= (ImportContainer)parentCU.getImportContainer();
 	if (this.importContainerInfo == null) {
 		this.importContainerInfo= new JavaElementInfo();
-		this.importContainerInfo.setIsStructureKnown(true);
 		parentInfo.addChild(importContainer);
 		this.newElements.put(importContainer, this.importContainerInfo);
 	}

@@ -209,6 +209,13 @@ public boolean hasChildren() throws JavaModelException {
 	return getChildren().length > 0;
 }
 /**
+ * @see IJavaElement
+ */
+public boolean isStructureKnown() throws JavaModelException {
+	// structure is always known inside an openable
+	return true;
+}
+/**
  * @see ISourceManipulation
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
