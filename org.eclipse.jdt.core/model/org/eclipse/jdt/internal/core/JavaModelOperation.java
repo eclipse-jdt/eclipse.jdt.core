@@ -589,6 +589,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		ArrayList stack = getCurrentOperationStack();
 		int size = stack.size();
 		if (size > 0) {
+			if (size == 1) { // top level operation 
+				operationStacks.setCurrent(null); // release reference (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=33927)
+			}
 			return (JavaModelOperation)stack.remove(size-1);
 		} else {
 			return null;
