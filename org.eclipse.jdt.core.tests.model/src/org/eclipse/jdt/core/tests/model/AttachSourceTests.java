@@ -93,7 +93,7 @@ public void testASTParsing() throws JavaModelException {
 	try {
 		node = runConversion(classFile, true);
 		assertTrue("Should not be here", false);
-	} catch(IllegalArgumentException e) {
+	} catch(IllegalStateException e) {
 		assertTrue(true);
 	}
 }
@@ -112,7 +112,7 @@ public void testASTParsing2() throws JavaModelException {
 	try {
 		node = runConversion(classFile, false);
 		assertTrue("Should not be here", false);
-	} catch(IllegalArgumentException e) {
+	} catch(IllegalStateException e) {
 		assertTrue(true);
 	}
 }

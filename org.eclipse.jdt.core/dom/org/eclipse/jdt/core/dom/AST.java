@@ -720,11 +720,15 @@ public final class AST {
 		ICompilationUnit unit,
 		boolean resolveBindings) {
 
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(unit);
-		c.setResolveBindings(resolveBindings);
-		ASTNode result = c.createAST(null);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(unit);
+			c.setResolveBindings(resolveBindings);
+			ASTNode result = c.createAST(null);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -822,12 +826,16 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(unit);
-		c.setResolveBindings(resolveBindings);
-		c.setWorkingCopyOwner(owner);
-		ASTNode result = c.createAST(monitor);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(unit);
+			c.setResolveBindings(resolveBindings);
+			c.setWorkingCopyOwner(owner);
+			ASTNode result = c.createAST(monitor);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 
 	/**
@@ -896,11 +904,15 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(classFile);
-		c.setResolveBindings(resolveBindings);
-		ASTNode result = c.createAST(null);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(classFile);
+			c.setResolveBindings(resolveBindings);
+			ASTNode result = c.createAST(null);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -945,12 +957,16 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(classFile);
-		c.setResolveBindings(resolveBindings);
-		c.setWorkingCopyOwner(owner);
-		ASTNode result = c.createAST(monitor);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(classFile);
+			c.setResolveBindings(resolveBindings);
+			c.setWorkingCopyOwner(owner);
+			ASTNode result = c.createAST(monitor);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 			
 	/**
@@ -1356,13 +1372,17 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(unit);
-		c.setFocalPosition(position);
-		c.setResolveBindings(resolveBindings);
-		c.setWorkingCopyOwner(owner);
-		ASTNode result = c.createAST(monitor);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(unit);
+			c.setFocalPosition(position);
+			c.setResolveBindings(resolveBindings);
+			c.setWorkingCopyOwner(owner);
+			ASTNode result = c.createAST(monitor);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -1404,13 +1424,17 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-		c.setSource(classFile);
-		c.setFocalPosition(position);
-		c.setResolveBindings(resolveBindings);
-		c.setWorkingCopyOwner(owner);
-		ASTNode result = c.createAST(monitor);
-		return (CompilationUnit) result;
+		try {
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(classFile);
+			c.setFocalPosition(position);
+			c.setResolveBindings(resolveBindings);
+			c.setWorkingCopyOwner(owner);
+			ASTNode result = c.createAST(monitor);
+			return (CompilationUnit) result;
+		} catch (IllegalStateException e) {
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	/**
