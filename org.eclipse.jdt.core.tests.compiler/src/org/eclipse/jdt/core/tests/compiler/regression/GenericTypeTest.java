@@ -73,6 +73,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 		return options;
 	}
 	// Use this static initializer to specify subset for tests
@@ -2770,17 +2771,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 10)\n" + 
-		"	((X)xs).t = this;\n" + 
-		"	        ^\n" + 
-		"Unsafe type operation: Should not assign expression of type X<T> to the field t of raw type X. References to generic type X<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 12)\n" + 
-		"	System.out.prinln((T) this.t);\n" + 
-		"	           ^^^^^^\n" + 
-		"The method prinln(T) is undefined for the type PrintStream\n" + 
-		"----------\n");		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	X<String> xs2 = (X<String>) xs;\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not cast from X<String> to X<String>. Generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	X<String> xs2 = (X<String>) xs;\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type X<String> for expression of type X<String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	((X)xs).t = this;\n" + 
+			"	        ^\n" + 
+			"Unsafe type operation: Should not assign expression of type X<T> to the field t of raw type X. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	System.out.prinln((T) this.t);\n" + 
+			"	           ^^^^^^\n" + 
+			"The method prinln(T) is undefined for the type PrintStream\n" + 
+			"----------\n");
 	}		
 
 	public void test093() {
@@ -4719,5 +4730,104 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
-	}		
+	}
+	public void test170() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"        AX<String> as = new AX<String>(\"\");\n" + 
+				"        ax = (AX)bar(ax);\n" + // shouldn't complain about unnecessary cast
+				"	}\n" + 
+				"    public static <T> T bar(AX<?> a) {\n" + 
+				"		return a.get();\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	ax = (AX)bar(ax);\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not assign expression of raw type AX to type AX<X>. References to generic type AX<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from ? to T\n" + 
+			"----------\n");
+	}
+	public void test171() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"        AX<String> as = new AX<String>(\"\");\n" + 
+				"        ax = (AX<X>)bar(ax);\n" + // should still complain about unnecessary cast as return type inference would have
+				"	}\n" +                                         // worked the same without the cast due to assignment
+				"    public static <T> T bar(AX<?> a) {\n" + 
+				"		return a.get();\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	ax = (AX<X>)bar(ax);\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not cast from AX<X> to AX<X>. Generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	ax = (AX<X>)bar(ax);\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type AX<X> for expression of type AX<X>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from ? to T\n" + 
+			"----------\n");
+	}
+	public void test172() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"        AX<String> as = new AX<String>(\"SUCCESS\");\n" + 
+				"        ax = (AX<X>)bar(ax);\n" + // no warn for unsafe cast, since forbidden cast
+				"	}\n" + 
+				"    public static <T> String bar(AX<?> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	ax = (AX<X>)bar(ax);\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from String to AX<X>\n" + 
+			"----------\n");
+	}
 }

@@ -524,7 +524,8 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeConstructorWithRawArguments:
 		case IProblem.UnsafeMethodWithRawArguments:
 		case IProblem.UnsafeRawFieldAssignment:
-			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
+		case IProblem.UnsafeGenericCast:
+		return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
 		
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
@@ -3587,6 +3588,15 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		severity,
 		nameRef.sourceStart,
 		end);
+}
+public void unsafeCast(CastExpression castExpression) {
+	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
+	this.handle(
+		IProblem.UnsafeGenericCast,
+		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
+		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		castExpression.sourceStart,
+		castExpression.sourceEnd);
 }
 public void unsafeRawAssignment(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
