@@ -272,6 +272,14 @@ public class JavaProject
 				((JarPackageFragmentRoot) roots[i]).setSourceAttachmentProperty(null); 
 			}
 		}
+		
+		// forget cached classpath
+		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfo(fProject, false /*no need to create*/);
+		if (perProjectInfo != null) {
+			perProjectInfo.classpath = null;
+			perProjectInfo.lastResolvedClasspath = null;
+		}
+		
 		super.closing(info);
 	}
 	
@@ -1229,19 +1237,9 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
 
-		IClasspathEntry[] classpath = null;
-		if (this.isOpen()) {
-			JavaProjectElementInfo info = getJavaProjectElementInfo();
-			classpath = info.getRawClasspath();
-			if (classpath != null) {
-				return classpath;
-			}
-			return defaultClasspath();
-		}
-		// if not already opened, then read from file (avoid populating the model for CP question)
-		if (!this.getProject().exists()){
-			throw newNotPresentException();
-		}
+		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		IClasspathEntry[] classpath = info.classpath;
+		if (classpath != null) return classpath;
 		try {
 			String sharedClasspath = loadClasspath();
 			if (sharedClasspath != null) {
@@ -1270,6 +1268,7 @@ public class JavaProject
 			}
 		}
 		if (classpath != null) {
+			info.classpath = classpath;
 			return classpath;
 		}
 		return defaultClasspath();
@@ -1303,26 +1302,18 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaProjectElementInfo projectInfo;
-		if (this.isOpen()){
-			projectInfo = getJavaProjectElementInfo();
-		} else {
-			// avoid populating the model for only retrieving the resolved classpath (13395)
-			projectInfo = null;
-		}
+		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
-		if (ignoreUnresolvedEntry && !generateMarkerOnError && projectInfo != null){
+		if (ignoreUnresolvedEntry && !generateMarkerOnError){
 			// resolved path is cached on its info
-			IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
+			IClasspathEntry[] infoPath = info.lastResolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
 
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
 
-		if (projectInfo != null){
-			projectInfo.lastResolvedClasspath = resolvedPath;
-		}
+		info.lastResolvedClasspath = resolvedPath;
 		return resolvedPath;
 	}
 	
@@ -2040,8 +2031,7 @@ public class JavaProject
 	protected void setRawClasspath0(IClasspathEntry[] rawEntries)
 		throws JavaModelException {
 
-		// if not open, will cause opening with default path
-		JavaProjectElementInfo info = getJavaProjectElementInfo();
+		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 	
 		synchronized (info) {
 			if (rawEntries == null) {
@@ -2050,7 +2040,7 @@ public class JavaProject
 			// clear cache of resolved classpath
 			info.lastResolvedClasspath = null;
 			
-			info.setRawClasspath(rawEntries);
+			info.classpath = rawEntries;
 				
 			// compute the new roots
 			updatePackageFragmentRoots();				

@@ -31,11 +31,6 @@ import org.eclipse.jdt.core.JavaModelException;
 class JavaProjectElementInfo extends OpenableElementInfo {
 
 	/**
-	 * The classpath for this project
-	 */
-	protected IClasspathEntry[] fClasspath;
-
-	/**
 	 * The name lookup facility to use with this project.
 	 */
 	protected NameLookup fNameLookup = null;
@@ -55,8 +50,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 * A array with all the non-java resources contained by this PackageFragment
 	 */
 	private Object[] fNonJavaResources;
-
-	public IClasspathEntry[] lastResolvedClasspath = null;
 
 	/**
 	 * Create and initialize a new instance of the receiver
@@ -184,14 +177,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	}
 	
 	/**
-	 * Returns the classpath for this project
-	 */
-	protected IClasspathEntry[] getRawClasspath() {
-
-		return fClasspath;
-	}
-	
-	/**
 	 * @see IJavaProject 
 	 */
 	protected SearchableEnvironment getSearchableEnvironment() {
@@ -219,14 +204,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	protected void setOutputLocation(IPath newOutputLocation) {
 
 		fOutputLocation = newOutputLocation;
-	}
-	/**
-	 * Sets the classpath for this project
-	 */
-
-	protected void setRawClasspath(IClasspathEntry[] newClasspath) {
-
-		this.fClasspath = newClasspath;
 	}
 	
 	protected void setSearchableEnvironment(SearchableEnvironment newSearchableEnvironment) {
