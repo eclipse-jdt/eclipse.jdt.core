@@ -16,7 +16,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -117,9 +117,9 @@ public class BlocksIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#getIndexedFile(IDocument)
 	 */
-	public IndexedFile getIndexedFile(IDocument document) throws java.io.IOException {
+	public IndexedFile getIndexedFile(SearchDocument document) throws java.io.IOException {
 		setFirstFile();
-		String name= document.getName();
+		String name= document.getPath();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
 			String path= file.getPath();

@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
+import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
@@ -67,11 +67,9 @@ public class IndexBinaryFolder extends IndexRequest {
 						if (isCancelled) return false;
 						if (proxy.getType() == IResource.FILE) {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-								IResource resource = proxy.requestResource();
-								if (resource.getLocation() != null) {
-									String name = new IFileDocument((IFile) resource).getName();
-									indexedFileNames.put(name, resource);
-								}
+								IFile file = (IFile) proxy.requestResource();
+								if (file.getLocation() != null)
+									indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
 							}
 							return false;
 						}
@@ -89,13 +87,13 @@ public class IndexBinaryFolder extends IndexRequest {
 							if (isCancelled) return false;
 							if (proxy.getType() == IResource.FILE) {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-									IResource resource = proxy.requestResource();
-									IPath path = resource.getLocation();
-									if (path != null) {
-										String name = new IFileDocument((IFile) resource).getName();
-										indexedFileNames.put(name,
-											indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
-												? (Object) resource
+									IFile file = (IFile) proxy.requestResource();
+									IPath location = file.getLocation();
+									if (location != null) {
+										String path = new JavaSearchDocument(file, null).getPath();
+										indexedFileNames.put(path,
+											indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
+												? (Object) file
 												: (Object) OK);
 									}
 								}

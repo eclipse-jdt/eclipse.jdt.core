@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.index.impl.EntryResult;
 
 /**
@@ -24,7 +25,7 @@ public interface IIndex {
 	/**
 	 * Adds the given document to the index.
 	 */
-	void add(IDocument document, IIndexer indexer) throws IOException;
+	void add(SearchDocument document, IIndexer indexer) throws IOException;
 	/**
 	 * Returns the index file on the disk.
 	 */

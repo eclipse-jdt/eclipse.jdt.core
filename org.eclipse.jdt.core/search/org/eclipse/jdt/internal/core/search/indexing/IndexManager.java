@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IIndexer;
 import org.eclipse.jdt.internal.core.index.impl.Index;
@@ -244,50 +243,18 @@ public ReadWriteMonitor getMonitorFor(IIndex index){
 	return (ReadWriteMonitor) monitors.get(index);
 }
 public void indexDocument(final SearchDocument searchDocument, final SearchParticipant searchParticipant, final IIndex index) throws IOException {
-	final String documentPath = searchDocument.getPath();
-	int lastDot = documentPath.lastIndexOf('.');
-	final String fileType = lastDot == -1 ? "" : documentPath.substring(lastDot + 1); //$NON-NLS-1$
-	index.add(
-		new IDocument() {
-			public byte[] getByteContent() throws IOException {
-				return searchDocument.getByteContents();
-			}
-			public char[] getCharContent() throws IOException {
-				return searchDocument.getCharContents();
-			}
-			public String getEncoding() {
-				return searchDocument.getEncoding();
-			}
-			public String getName() {
-				return documentPath;
-			}
-			public String getStringContent() throws IOException {
-				return new String(getCharContent());
-			}
-			public String getType() {
-				return fileType;
-			}
-		},
+	index.add(searchDocument,
 		new IIndexer() {
-			public String[] getFileTypes() {
-				return new String[] {fileType};
-			}
-			public void index(IDocument document, IIndexerOutput output) throws IOException {
+			public void index(SearchDocument document, IIndexerOutput output) throws IOException {
 				output.addDocument(document); // Add the name of the file to the index
 				String indexPath = index.getIndexFile().toString();
-				String outputKey = documentPath + indexPath;
+				String outputKey = searchDocument.getPath() + indexPath;
 				try {
 					indexerOutputs.put(outputKey, output);
 					searchParticipant.indexDocument(searchDocument, indexPath);
 				} finally {
 					indexerOutputs.remove(outputKey);
 				}
-			}
-			public void setFileTypes(String[] fileTypes) {
-				// implement interface method
-			}
-			public boolean shouldIndex(IDocument document) {
-				return true;
 			}
 		});
 }

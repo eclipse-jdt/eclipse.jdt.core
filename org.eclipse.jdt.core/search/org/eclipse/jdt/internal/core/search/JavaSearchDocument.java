@@ -7,18 +7,28 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.*;
 
 public class JavaSearchDocument extends SearchDocument {
 	
 	private String documentPath;
 	private SearchParticipant participant;
+	private IFile file;
 	protected byte[] byteContents;
 	protected char[] charContents;
 	
 	public JavaSearchDocument(String documentPath, SearchParticipant participant) {
 		this.documentPath = documentPath;
+		this.participant = participant;
+	}
+	public JavaSearchDocument(IFile file, SearchParticipant participant) {
+		this.documentPath = file.getFullPath().toString();
+		this.participant = participant;
+		this.file = file;
+	}
+	public JavaSearchDocument(java.util.zip.ZipEntry zipEntry, IPath zipFilePath, byte[] contents, SearchParticipant participant) {
+		this.documentPath = zipFilePath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName();
+		this.byteContents = contents;
 		this.participant = participant;
 	}
 	
@@ -42,23 +52,20 @@ public class JavaSearchDocument extends SearchDocument {
 	}
 	public String getEncoding() {
 		IFile file = getFile();
-		if (file == null) {
-			return JavaCore.getOption(JavaCore.CORE_ENCODING);
-		} else {
+		if (file != null)
 			return JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
-		}
+		return JavaCore.getOption(JavaCore.CORE_ENCODING);
 	}
 	private IFile getFile() {
-		IPath path = new Path(this.documentPath);
-		return (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+		if (this.file == null)
+			this.file = (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(this.documentPath));
+		return this.file;
 	}
 	private IPath getLocation() {
 		IFile file = getFile();
-		if (file == null) {
-			return new Path(this.documentPath); // extenal file
-		} else {
+		if (file != null)
 			return file.getLocation();
-		}
+		return new Path(this.documentPath); // external file
 	}
 	public SearchParticipant getParticipant() {
 		return this.participant;

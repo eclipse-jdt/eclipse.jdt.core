@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 
 /**
  * A simpleIndexInput is an input on an in memory Index. 
@@ -60,8 +60,8 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#getIndexedFile(IDocument)
 	 */
-	public IndexedFile getIndexedFile(IDocument document) {
-		String name= document.getName();
+	public IndexedFile getIndexedFile(SearchDocument document) {
+		String name= document.getPath();
 		for (int i= index.getNumFiles(); i >= 1; i--) {
 			IndexedFile file= getIndexedFile(i);
 			if (name.equals(file.getPath()))

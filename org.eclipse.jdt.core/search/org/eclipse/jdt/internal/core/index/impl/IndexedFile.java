@@ -11,7 +11,8 @@
 package org.eclipse.jdt.internal.core.index.impl;
 
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchDocument;
 
 /**
  * An indexedFile associates a number to a document path, and document properties. 
@@ -28,10 +29,10 @@ public class IndexedFile {
 		this.fileNumber= fileNum;
 		this.path= path;
 	}
-	public IndexedFile(IDocument document, int fileNum) {
+	public IndexedFile(SearchDocument document, int fileNum) {
 		if (fileNum < 1)
 			throw new IllegalArgumentException();
-		this.path= document.getName();
+		this.path= document.getPath();
 		this.fileNumber= fileNum;
 	}
 	/**
@@ -57,7 +58,7 @@ public class IndexedFile {
 	 * </ul>
 	 */
 	public static String convertPath(String pathString) {
-		int index = pathString.indexOf(JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR);
+		int index = pathString.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
 		if (index == -1)
 			return pathString;
 			

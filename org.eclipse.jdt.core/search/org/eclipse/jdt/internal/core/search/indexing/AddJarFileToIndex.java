@@ -19,13 +19,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -133,8 +131,8 @@ class AddJarFileToIndex extends IndexRequest {
 						// iterate each entry to index it
 						ZipEntry ze = (ZipEntry) e.nextElement();
 						if (Util.isClassFileName(ze.getName())) {
-							JarFileEntryDocument entryDocument = new JarFileEntryDocument(ze, null, zipFilePath);
-							indexedFileNames.put(entryDocument.getName(), EXISTS);
+							JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, null, null);
+							indexedFileNames.put(entryDocument.getPath(), EXISTS);
 						}
 					}
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
@@ -158,6 +156,7 @@ class AddJarFileToIndex extends IndexRequest {
 
 				// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				// index already existed: recreate it so that we forget about previous entries
+				SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 				index = manager.recreateIndex(this.containerPath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
@@ -170,17 +169,8 @@ class AddJarFileToIndex extends IndexRequest {
 					ZipEntry ze = (ZipEntry) e.nextElement();
 					if (Util.isClassFileName(ze.getName())) {
 						final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
-						SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
-						JarFileEntryDocument entryDocument = new JarFileEntryDocument(ze, null, zipFilePath);
-						SearchDocument document = new JavaSearchDocument(entryDocument.getName(), participant) {
-							public byte[] getByteContents() {
-								return classFileBytes;
-							}
-							public String toString() {
-								return "JarEntryDocument for " + getPath(); //$NON-NLS-1$
-							}
-						};
-						this.manager.indexDocument(document, participant, index);
+						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
+						this.manager.indexDocument(entryDocument, participant, index);
 					}
 				}
 				this.manager.saveIndex(index);

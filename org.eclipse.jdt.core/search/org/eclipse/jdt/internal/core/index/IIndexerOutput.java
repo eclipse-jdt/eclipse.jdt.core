@@ -9,13 +9,15 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
+
+import org.eclipse.jdt.core.search.SearchDocument;
+
 /**
  * This class represents the output from an indexer to an index 
  * for a single document.
  */
 
 public interface IIndexerOutput {
-	public void addDocument(IDocument document);
+	public void addDocument(SearchDocument document);
 	public void addRef(char[] word);
-	public void addRef(String word);
 }

@@ -54,7 +54,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -91,7 +90,7 @@ public class HandleFactory {
 	 */
 	public Openable createOpenable(String resourcePath, IJavaSearchScope scope) {
 		int separatorIndex;
-		if ((separatorIndex= resourcePath.indexOf(JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
+		if ((separatorIndex= resourcePath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
 			// path to a class file inside a jar
 			String jarPath= resourcePath.substring(0, separatorIndex);
 			// Optimization: cache package fragment root handle and package handles

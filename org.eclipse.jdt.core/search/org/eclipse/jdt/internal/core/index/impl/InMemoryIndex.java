@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -44,7 +44,7 @@ public class InMemoryIndex {
 		init();
 	}
 
-	public IndexedFile addDocument(IDocument document) {
+	public IndexedFile addDocument(SearchDocument document) {
 		IndexedFile indexedFile= this.files.add(document);
 		this.footprint += indexedFile.footprint() + 4;
 		this.sortedFiles = null;

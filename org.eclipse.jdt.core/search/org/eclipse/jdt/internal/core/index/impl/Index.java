@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IIndexer;
 
@@ -87,11 +87,11 @@ public class Index implements IIndex {
 	 * If the document already exists in the index, it overrides the previous one. The changes will be 
 	 * taken into account after a merge.
 	 */
-	public void add(IDocument document, IIndexer indexer) throws IOException {
+	public void add(SearchDocument document, IIndexer indexer) throws IOException {
 		if (timeToMerge()) {
 			merge();
 		}
-		IndexedFile indexedFile= addsIndex.getIndexedFile(document.getName());
+		IndexedFile indexedFile= addsIndex.getIndexedFile(document.getPath());
 		if (indexedFile != null /*&& removedInAdds.get(document.getName()) == null*/
 			)
 			remove(indexedFile, MergeFactory.ADDS_INDEX);

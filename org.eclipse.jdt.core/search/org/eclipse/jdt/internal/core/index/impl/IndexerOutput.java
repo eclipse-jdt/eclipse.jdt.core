@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.index.IIndexerOutput;
 
 /**
@@ -33,7 +33,7 @@ public class IndexerOutput implements IIndexerOutput {
 	 * Adds the given document to the inMemoryIndex.
 	 */
 
-	public void addDocument(IDocument document) {
+	public void addDocument(SearchDocument document) {
 		if (indexedFile == null) {
 			indexedFile= index.addDocument(document);
 		} else {
@@ -48,11 +48,5 @@ public class IndexerOutput implements IIndexerOutput {
 			throw new IllegalStateException();
 		}
 		index.addRef(indexedFile, word);
-	}
-	/**
-	 * Adds a reference to the given word to the inMemoryIndex.
-	 */
-	public void addRef(String word) {
-		addRef(word.toCharArray());
 	}
 }
