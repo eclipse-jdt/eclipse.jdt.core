@@ -542,7 +542,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				scope.problemReporter().unnecessaryReceiverForStaticField(this, binding);
 			}
 		}
-		return this.expressionType = binding.type;
+		return this.resolvedType = binding.type;
 	}
 
 	public void setActualReceiverType(ReferenceBinding receiverType) {

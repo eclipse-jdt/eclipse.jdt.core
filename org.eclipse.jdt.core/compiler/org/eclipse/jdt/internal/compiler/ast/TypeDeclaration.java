@@ -910,10 +910,10 @@ public class TypeDeclaration
 					scope.problemReporter().deprecatedType(binding.superclass, superclass);
 			if (superInterfaces != null)
 				for (int i = superInterfaces.length; --i >= 0;)
-					if (superInterfaces[i].binding != null)
-						if (isTypeUseDeprecated(superInterfaces[i].binding, scope))
+					if (superInterfaces[i].resolvedType != null)
+						if (isTypeUseDeprecated(superInterfaces[i].resolvedType, scope))
 							scope.problemReporter().deprecatedType(
-								superInterfaces[i].binding,
+								superInterfaces[i].resolvedType,
 								superInterfaces[i]);
 			maxFieldCount = 0;
 			int lastFieldID = -1;

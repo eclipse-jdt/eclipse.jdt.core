@@ -58,7 +58,7 @@ public class ClassLiteralAccess extends Expression {
 
 		// in interface case, no caching occurs, since cannot make a cache field for interface
 		if (valueRequired)
-			codeStream.generateClassLiteralAccessForType(type.binding, syntheticField);
+			codeStream.generateClassLiteralAccessForType(type.resolvedType, syntheticField);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
@@ -74,7 +74,7 @@ public class ClassLiteralAccess extends Expression {
 			return null;
 		}
 
-		return this.expressionType = scope.getJavaLangClass();
+		return this.resolvedType = scope.getJavaLangClass();
 	}
 
 	public String toStringExpression() {

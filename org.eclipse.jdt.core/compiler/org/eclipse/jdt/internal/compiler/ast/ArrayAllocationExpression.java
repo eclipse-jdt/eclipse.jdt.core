@@ -25,8 +25,6 @@ public class ArrayAllocationExpression extends Expression {
 	public Expression[] dimensions;
 	public ArrayInitializer initializer;
 
-	public ArrayBinding arrayTb;
-
 	/**
 	 * ArrayAllocationExpression constructor comment.
 	 */
@@ -75,13 +73,13 @@ public class ArrayAllocationExpression extends Expression {
 			}
 
 		// Generate a sequence of bytecodes corresponding to an array allocation
-		if ((arrayTb.isArrayType())
-			&& ((arrayBinding = (ArrayBinding) arrayTb).dimensions == 1)) {
+		if ((this.resolvedType.isArrayType())
+			&& ((arrayBinding = (ArrayBinding) this.resolvedType).dimensions == 1)) {
 			// Mono-dimensional array
 			codeStream.newArray(currentScope, arrayBinding);
 		} else {
 			// Multi-dimensional array
-			codeStream.multianewarray(arrayTb, nonNullDimensionsLength);
+			codeStream.multianewarray(this.resolvedType, nonNullDimensionsLength);
 		}
 
 		if (valueRequired) {
@@ -100,58 +98,57 @@ public class ArrayAllocationExpression extends Expression {
 		// only at the -end- like new int [4][][]. The parser allows new int[][4][]
 		// so this must be checked here......(this comes from a reduction to LL1 grammar)
 
-		TypeBinding referenceTb = type.resolveType(scope);
+		TypeBinding referenceType = type.resolveType(scope);
+		
 		// will check for null after dimensions are checked
 		constant = Constant.NotAConstant;
-		if (referenceTb == VoidBinding) {
+		if (referenceType == VoidBinding) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
-			referenceTb = null; // will return below
+			referenceType = null;
 		}
 
 		// check the validity of the dimension syntax (and test for all null dimensions)
-		int lengthDim = -1;
+		int explicitDimIndex = -1;
 		for (int i = dimensions.length; --i >= 0;) {
 			if (dimensions[i] != null) {
-				if (lengthDim == -1)
-					lengthDim = i;
-			} else if (
-				lengthDim != -1) {
+				if (explicitDimIndex < 0) explicitDimIndex = i;
+			} else if (explicitDimIndex> 0) {
 				// should not have an empty dimension before an non-empty one
 				scope.problemReporter().incorrectLocationForEmptyDimension(this, i);
-				return null;
 			}
 		}
-		if (referenceTb == null)
-			return null;
 
-		// lengthDim == -1 says if all dimensions are nulled
+		// explicitDimIndex < 0 says if all dimensions are nulled
 		// when an initializer is given, no dimension must be specified
 		if (initializer == null) {
-			if (lengthDim == -1) {
+			if (explicitDimIndex < 0) {
 				scope.problemReporter().mustDefineDimensionsOrInitializer(this);
-				return null;
 			}
-		} else if (lengthDim != -1) {
+		} else if (explicitDimIndex >= 0) {
 			scope.problemReporter().cannotDefineDimensionsAndInitializer(this);
-			return null;
 		}
 
 		// dimensions resolution 
-		for (int i = 0; i <= lengthDim; i++) {
-			TypeBinding dimTb = dimensions[i].resolveTypeExpecting(scope, IntBinding);
-			if (dimTb == null)
-				return null;
-			dimensions[i].implicitWidening(IntBinding, dimTb);
+		for (int i = 0; i <= explicitDimIndex; i++) {
+			if (dimensions[i] != null) {
+				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, IntBinding);
+				if (dimensionType != null) {
+					dimensions[i].implicitWidening(IntBinding, dimensionType);
+				}
+			}
 		}
 
 		// building the array binding
-		this.expressionType = arrayTb = scope.createArray(referenceTb, dimensions.length);
+		if (referenceType != null) {
+			this.resolvedType = scope.createArray(referenceType, dimensions.length);
 
-		// check the initializer
-		if (initializer != null)
-			if ((initializer.resolveTypeExpecting(scope, arrayTb)) != null)
-				initializer.binding = arrayTb;
-		return arrayTb;
+			// check the initializer
+			if (initializer != null) {
+				if ((initializer.resolveTypeExpecting(scope, this.resolvedType)) != null)
+					initializer.binding = (ArrayBinding)this.resolvedType;
+			}
+		}
+		return this.resolvedType;
 	}
 
 	public String toStringExpression() {

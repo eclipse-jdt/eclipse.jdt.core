@@ -150,7 +150,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			if (isTypeUseDeprecated(this.binding.type, initializationScope))
 				initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
 
-			this.type.binding = this.binding.type; // update binding for type reference
+			this.type.resolvedType = this.binding.type; // update binding for type reference
 
 			// the resolution of the initialization hasn't been done
 			if (this.initialization == null) {

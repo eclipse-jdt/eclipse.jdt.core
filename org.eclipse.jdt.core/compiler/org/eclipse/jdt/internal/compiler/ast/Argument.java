@@ -26,7 +26,7 @@ public class Argument extends LocalDeclaration {
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		if (this.type != null)
-			this.type.binding = typeBinding;
+			this.type.resolvedType = typeBinding;
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
 		if ((this.binding = scope.duplicateName(this.name)) != null) {

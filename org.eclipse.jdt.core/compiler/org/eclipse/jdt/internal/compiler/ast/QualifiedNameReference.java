@@ -752,7 +752,7 @@ public class QualifiedNameReference extends NameReference {
 								this);
 						bits &= ~RestrictiveFlagMASK; // clear bits
 						bits |= LOCAL;
-						return this.expressionType = getOtherFieldBindings(scope);
+						return this.resolvedType = getOtherFieldBindings(scope);
 					}
 					if (binding instanceof FieldBinding) {
 						// check for forward references
@@ -767,7 +767,7 @@ public class QualifiedNameReference extends NameReference {
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits
 						bits |= FIELD;
-						return this.expressionType = getOtherFieldBindings(scope);
+						return this.resolvedType = getOtherFieldBindings(scope);
 					}
 					// thus it was a type
 					bits &= ~RestrictiveFlagMASK; // clear bits
@@ -776,11 +776,11 @@ public class QualifiedNameReference extends NameReference {
 					//deprecated test
 					if (isTypeUseDeprecated((TypeBinding) binding, scope))
 						scope.problemReporter().deprecatedType((TypeBinding) binding, this);
-					return this.expressionType = (TypeBinding) binding;
+					return this.resolvedType = (TypeBinding) binding;
 			}
 		}
 		//========error cases===============
-		return this.expressionType = this.reportError(scope);
+		return this.resolvedType = this.reportError(scope);
 	}
 	public void setFieldIndex(int index) {
 		this.indexOfFirstFieldBinding = index;

@@ -244,7 +244,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (receiver instanceof NameReference 
 				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
-			return this.expressionType = binding.returnType;
+			return this.resolvedType = binding.returnType;
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
@@ -263,14 +263,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (binding.isAbstract()) {
 		if (receiver.isSuper()) {
 			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, binding);
-			return this.expressionType = binding.returnType;
+			return this.resolvedType = binding.returnType;
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
-	return this.expressionType = binding.returnType;
+	return this.resolvedType = binding.returnType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.qualifyingType = receiverType;

@@ -50,18 +50,18 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (enclosingType == null || !(enclosingType instanceof ReferenceBinding)) {
 			throw new CompletionNodeFound();
 		}
-		this.expressionType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
-		if (!(this.expressionType instanceof ReferenceBinding))
+		this.resolvedType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
+		if (!(this.resolvedType instanceof ReferenceBinding))
 			throw new CompletionNodeFound(); // no need to continue if its an array or base type
-		if (this.expressionType.isInterface()) // handle the anonymous class definition case
-			this.expressionType = scope.getJavaLangObject();
+		if (this.resolvedType.isInterface()) // handle the anonymous class definition case
+			this.resolvedType = scope.getJavaLangObject();
 	} else {
-		this.expressionType = type.resolveType(scope);
-		if (!(this.expressionType instanceof ReferenceBinding))
+		this.resolvedType = type.resolveType(scope);
+		if (!(this.resolvedType instanceof ReferenceBinding))
 			throw new CompletionNodeFound(); // no need to continue if its an array or base type
 	}
 
-	throw new CompletionNodeFound(this, this.expressionType, scope);
+	throw new CompletionNodeFound(this, this.resolvedType, scope);
 }
 public String toStringExpression(int tab) {
 	return 

@@ -157,11 +157,11 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (node instanceof QualifiedTypeReference) {
 			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
-			if (qualifiedTypeReference.binding == null) {
+			if (qualifiedTypeReference.resolvedType == null) {
 				return null;
 			}
 			if (index == 0) {
-				return this.getTypeBinding(qualifiedTypeReference.binding.leafComponentType());
+				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				int qualifiedTypeLength = qualifiedTypeReference.tokens.length;
 				int indexInQualifiedName = qualifiedTypeLength - index; // one-based
@@ -266,14 +266,14 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (node instanceof QualifiedSuperReference) {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
-			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
+			return this.getTypeBinding(qualifiedSuperReference.qualification.resolvedType);
 		} else if (node instanceof LocalDeclaration) {
 			return this.getVariableBinding(((LocalDeclaration)node).binding);
 		} else if (node instanceof FieldReference) {
 			return getVariableBinding(((FieldReference) node).binding);
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
-			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.binding;
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
 			if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 				return this.getTypeBinding(binding.leafComponentType());
 			}
@@ -297,13 +297,13 @@ class DefaultBindingResolver extends BindingResolver {
 		if (node != null) {
 			if (node instanceof TypeReference) {
 				TypeReference typeReference = (TypeReference) node;
-				binding = typeReference.binding;
+				binding = typeReference.resolvedType;
 			} else if (node instanceof SingleNameReference && ((SingleNameReference)node).isTypeReference()) {
 				binding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) (((SingleNameReference)node).binding);
 			} else if (node instanceof QualifiedNameReference && ((QualifiedNameReference)node).isTypeReference()) {
 				binding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) (((QualifiedNameReference)node).binding);
 			} else if (node instanceof ArrayAllocationExpression) {
-				binding = ((ArrayAllocationExpression) node).arrayTb;
+				binding = ((ArrayAllocationExpression) node).resolvedType;
 			}
 			if (binding != null) {
 				if (type.isArrayType()) {
@@ -502,7 +502,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(oldAst.binding);
 		} else if (expression instanceof ArrayCreation) {
 			ArrayAllocationExpression arrayAllocationExpression = (ArrayAllocationExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(arrayAllocationExpression.arrayTb);
+			return this.getTypeBinding(arrayAllocationExpression.resolvedType);
 		} else if (expression instanceof Assignment) {
 			Assignment assignment = (Assignment) expression;
 			return this.resolveExpressionType(assignment.getLeftHandSide());
@@ -514,7 +514,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.resolveExpressionType(preFixExpression.getOperand());
 		} else if (expression instanceof CastExpression) {
 			org.eclipse.jdt.internal.compiler.ast.CastExpression castExpression = (org.eclipse.jdt.internal.compiler.ast.CastExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(castExpression.castTb);
+			return this.getTypeBinding(castExpression.resolvedType);
 		} else if (expression instanceof StringLiteral) {
 			return this.getTypeBinding(this.scope.getJavaLangString());
 		} else if (expression instanceof TypeLiteral) {
@@ -539,10 +539,10 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(literal.literalType(null));
 		} else if (expression instanceof InfixExpression) {
 			OperatorExpression operatorExpression = (OperatorExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(operatorExpression.expressionType);
+			return this.getTypeBinding(operatorExpression.resolvedType);
 		} else if (expression instanceof InstanceofExpression) {
 			org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression instanceOfExpression = (org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(instanceOfExpression.expressionType);
+			return this.getTypeBinding(instanceOfExpression.resolvedType);
 		} else if (expression instanceof FieldAccess) {
 			FieldReference fieldReference = (FieldReference) this.newAstToOldAst.get(expression);
 			IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
@@ -561,7 +561,7 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (expression instanceof ArrayAccess) {
 			ArrayReference arrayReference = (ArrayReference) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(arrayReference.arrayElementBinding);
+			return this.getTypeBinding(arrayReference.resolvedType);
 		} else if (expression instanceof ThisExpression) {
 			ThisReference thisReference = (ThisReference) this.newAstToOldAst.get(expression);
 			BlockScope blockScope = (BlockScope) this.astNodesToBlockScope.get(expression);
@@ -583,7 +583,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.resolveExpressionType(parenthesizedExpression.getExpression());
 		} else if (expression instanceof ConditionalExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ConditionalExpression conditionalExpression = (org.eclipse.jdt.internal.compiler.ast.ConditionalExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(conditionalExpression.expressionType);
+			return this.getTypeBinding(conditionalExpression.resolvedType);
 		} else if (expression instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
 			Type type = variableDeclarationExpression.getType();

@@ -863,7 +863,7 @@ public final class CompletionEngine
 		int argsLength = arguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argsLength];
 		for (int a = argsLength; --a >= 0;)
-			argTypes[a] = arguments[a].expressionType;
+			argTypes[a] = arguments[a].resolvedType;
 		return argTypes;
 	}
 	
@@ -2540,9 +2540,9 @@ public final class CompletionEngine
 	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames){
 
 		if(type != null &&
-			type.binding != null &&
-			type.binding.problemId() == Binding.NoError){
-			TypeBinding tb = type.binding;
+			type.resolvedType != null &&
+			type.resolvedType.problemId() == Binding.NoError){
+			TypeBinding tb = type.resolvedType;
 			findVariableName(
 				name,
 				tb.leafComponentType().qualifiedPackageName(),
@@ -2603,12 +2603,12 @@ public final class CompletionEngine
 		
 		// find types from parent
 		if(parent instanceof AbstractVariableDeclaration) {
-			TypeBinding binding = ((AbstractVariableDeclaration)parent).type.binding;
+			TypeBinding binding = ((AbstractVariableDeclaration)parent).type.resolvedType;
 			if(binding != null) {
 				addExpectedType(binding);
 			}
 		} else if(parent instanceof Assignment) {
-			TypeBinding binding = ((Assignment)parent).lhsType;
+			TypeBinding binding = ((Assignment)parent).resolvedType;
 			if(binding != null) {
 				addExpectedType(binding);
 			}
@@ -2620,7 +2620,7 @@ public final class CompletionEngine
 			}
 		} else if(parent instanceof CastExpression) {
 			Expression e = ((CastExpression)parent).type;
-			TypeBinding binding = e.expressionType;
+			TypeBinding binding = e.resolvedType;
 			if(binding != null){
 				addExpectedType(binding);
 				expectedTypesFilter = SUBTYPE | SUPERTYPE;
@@ -2653,7 +2653,7 @@ public final class CompletionEngine
 		} else if(parent instanceof AllocationExpression) {
 			AllocationExpression allocationExpression = (AllocationExpression) parent;
 			
-			ReferenceBinding binding = (ReferenceBinding)allocationExpression.type.binding;
+			ReferenceBinding binding = (ReferenceBinding)allocationExpression.type.resolvedType;
 
 			if(binding != null) {	
 				computeExpectedTypesForAllocationExpression(
@@ -2693,7 +2693,7 @@ public final class CompletionEngine
 			
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
-				TypeBinding argType = argument.expressionType;
+				TypeBinding argType = argument.resolvedType;
 				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
 					continue nextMethod;
 			}
@@ -2799,7 +2799,7 @@ public final class CompletionEngine
 			
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
-				TypeBinding argType = argument.expressionType;
+				TypeBinding argType = argument.resolvedType;
 				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
 					continue nextMethod;
 			}

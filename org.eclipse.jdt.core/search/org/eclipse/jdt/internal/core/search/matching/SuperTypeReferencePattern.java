@@ -262,7 +262,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 
 	TypeReference typeRef = (TypeReference)node;
 	if (resolve) {
-		TypeBinding binding = typeRef.binding;
+		TypeBinding binding = typeRef.resolvedType;
 		if (binding == null) {
 			return INACCURATE_MATCH;
 		} else {

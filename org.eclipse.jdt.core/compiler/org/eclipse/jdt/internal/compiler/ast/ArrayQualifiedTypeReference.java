@@ -27,8 +27,8 @@ public int dimensions() {
 	return dimensions;
 }
 public TypeBinding getTypeBinding(Scope scope) {
-	if (binding != null)
-		return binding;
+	if (this.resolvedType != null)
+		return this.resolvedType;
 	return scope.createArray(scope.getType(tokens), dimensions);
 }
 public String toStringExpression(int tab){

@@ -587,7 +587,7 @@ public class ClassScope extends Scope {
 				return true;
 			} else {
 				// only want to reach here when no errors are reported
-				referenceContext.superclass.binding = superclass;
+				referenceContext.superclass.resolvedType = superclass;
 				sourceType.superclass = superclass;
 				return true;
 			}
@@ -651,7 +651,7 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
-			referenceContext.superInterfaces[i].binding = superInterface;
+			referenceContext.superInterfaces[i].resolvedType = superInterface;
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
 		}

@@ -155,7 +155,7 @@ public abstract class AbstractMethodDeclaration
 			int length = this.binding.thrownExceptions.length;
 			if (length == thrownExceptionLength) {
 				for (int i = 0; i < length; i++) {
-					this.thrownExceptions[i].binding = this.binding.thrownExceptions[i];
+					this.thrownExceptions[i].resolvedType = this.binding.thrownExceptions[i];
 				}
 			} else {
 				int bindingIndex = 0;
@@ -168,13 +168,13 @@ public abstract class AbstractMethodDeclaration
 						int lengthName = bindingCompoundName.length;
 						char[] thrownExceptionTypeName = thrownException.getTypeName()[0];
 						if (CharOperation.equals(thrownExceptionTypeName, bindingCompoundName[lengthName - 1])) {
-							thrownException.binding = thrownExceptionBinding;
+							thrownException.resolvedType = thrownExceptionBinding;
 							bindingIndex++;
 						}
 					} else {
 						// qualified type reference
 						if (CharOperation.equals(thrownException.getTypeName(), bindingCompoundName)) {
-							thrownException.binding = thrownExceptionBinding;
+							thrownException.resolvedType = thrownExceptionBinding;
 							bindingIndex++;
 						}						
 					}

@@ -181,7 +181,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		}
 	} else if (reference instanceof QualifiedTypeReference) {
 		QualifiedTypeReference qTypeRef = (QualifiedTypeReference)reference;
-		TypeBinding typeBinding = qTypeRef.binding;
+		TypeBinding typeBinding = qTypeRef.resolvedType;
 		if (typeBinding instanceof ArrayBinding) {
 			typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
 		}
@@ -388,7 +388,7 @@ private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 			}
 		}
 	} else {
-		return this.matchLevel(typeRef.binding);
+		return this.matchLevel(typeRef.resolvedType);
 	}
 }
 /**

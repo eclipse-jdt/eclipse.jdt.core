@@ -40,7 +40,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
-			this.returnType.binding = this.binding.returnType;
+			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}
 		// look if the name of the method is correct

@@ -21,7 +21,6 @@ public class CastExpression extends Expression {
 	public Expression expression;
 	public Expression type;
 	public boolean needRuntimeCheckcast;
-	public TypeBinding castTb;
 
 	//expression.implicitConversion holds the cast for baseType casting 
 	public CastExpression(Expression e, Expression t) {
@@ -220,7 +219,7 @@ public class CastExpression extends Expression {
 				|| needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
-					codeStream.checkcast(castTb);
+					codeStream.checkcast(this.resolvedType);
 					if (!valueRequired)
 						codeStream.pop();
 				}
@@ -233,7 +232,7 @@ public class CastExpression extends Expression {
 			codeStream,
 			valueRequired || needRuntimeCheckcast);
 		if (needRuntimeCheckcast) {
-			codeStream.checkcast(castTb);
+			codeStream.checkcast(this.resolvedType);
 			if (!valueRequired)
 				codeStream.pop();
 		} else {
@@ -253,18 +252,15 @@ public class CastExpression extends Expression {
 		constant = Constant.NotAConstant;
 		implicitConversion = T_undefined;
 		if ((type instanceof TypeReference) || (type instanceof NameReference)) {
-			TypeBinding castTypeBinding = type.resolveType(scope);
-			if(castTypeBinding == null)
-				return null;
-			TypeBinding expressionTb = expression.resolveType(scope);
-			if (expressionTb == null)
-				return null;
-			areTypesCastCompatible(scope, castTypeBinding, expressionTb);
-			return this.expressionType = castTb = castTypeBinding;
+			this.resolvedType = type.resolveType(scope);
+			TypeBinding castedExpressionType = expression.resolveType(scope);
+			if (this.resolvedType != null && castedExpressionType != null) {
+				areTypesCastCompatible(scope, this.resolvedType, castedExpressionType);
+			}
+			return this.resolvedType;
 		} else { // expression as a cast !!!!!!!!
-			TypeBinding expressionTb = expression.resolveType(scope);
-			if (expressionTb == null)
-				return null;
+			TypeBinding castedExpressionType = expression.resolveType(scope);
+			if (castedExpressionType == null) return null;
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}

@@ -32,12 +32,11 @@ public int dimensions() {
 	return dimensions;
 }
 public TypeBinding getTypeBinding(Scope scope) {
-	if (binding != null)
-		return binding;
+	if (this.resolvedType != null)
+		return this.resolvedType;
 	return scope.createArray(scope.getType(token), dimensions);
 }
 public String toStringExpression(int tab){
-	/* slow speed */
 
 	String s = super.toStringExpression(tab)  ;
 	if (dimensions == 1 ) return s + "[]" ; //$NON-NLS-1$

@@ -51,12 +51,12 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 	super.resolveTypeEnclosing(scope, enclosingType);
 
 		// tolerate some error cases
-		if (binding == null || 
-				!(binding.isValidBinding() || 
-					binding.problemId() == ProblemReasons.NotVisible))
+		if (this.resolvedType == null || 
+				!(this.resolvedType.isValidBinding() || 
+					this.resolvedType.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	else
-		throw new SelectionNodeFound(binding);
+		throw new SelectionNodeFound(this.resolvedType);
 }
 public String toStringExpression(int tab){
 

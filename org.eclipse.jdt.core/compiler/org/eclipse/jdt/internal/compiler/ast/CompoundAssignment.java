@@ -122,7 +122,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	lhs.implicitConversion = result >>> 12;
 	expression.implicitConversion = (result >>> 4) & 0x000FF;
 	assignmentImplicitConversion = (lhsId << 4) + (result & 0x0000F);
-	return this.expressionType = lhsType;
+	return this.resolvedType = lhsType;
 }
 public boolean restrainUsageToNumericTypes(){
 	return false ;}

@@ -277,6 +277,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
-	return this.expressionType = binding.returnType;
+	return this.resolvedType = binding.returnType;
 }
 }

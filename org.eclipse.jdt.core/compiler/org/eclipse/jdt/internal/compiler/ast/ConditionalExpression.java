@@ -302,7 +302,7 @@ public class ConditionalExpression extends OperatorExpression {
 			if (valueIfTrueType == LongBinding || valueIfTrueType == DoubleBinding) {
 				returnTypeSlotSize = 2;
 			}
-			this.expressionType = valueIfTrueType;
+			this.resolvedType = valueIfTrueType;
 			return valueIfTrueType;
 		}
 		// Determine the return type depending on argument types
@@ -313,7 +313,7 @@ public class ConditionalExpression extends OperatorExpression {
 				|| (valueIfTrueType == ShortBinding && valueIfFalseType == ByteBinding)) {
 				valueIfTrue.implicitWidening(ShortBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(ShortBinding, valueIfFalseType);
-				this.expressionType = ShortBinding;
+				this.resolvedType = ShortBinding;
 				return ShortBinding;
 			}
 			// <Byte|Short|Char> x constant(Int)  ---> <Byte|Short|Char>   and reciprocally
@@ -322,7 +322,7 @@ public class ConditionalExpression extends OperatorExpression {
 					&& valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
 				valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
 				valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
-				this.expressionType = valueIfTrueType;
+				this.resolvedType = valueIfTrueType;
 				return valueIfTrueType;
 			}
 			if ((valueIfFalseType == ByteBinding
@@ -332,7 +332,7 @@ public class ConditionalExpression extends OperatorExpression {
 					&& valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
 				valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
 				valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
-				this.expressionType = valueIfFalseType;
+				this.resolvedType = valueIfFalseType;
 				return valueIfFalseType;
 			}
 			// Manual binary numeric promotion
@@ -341,7 +341,7 @@ public class ConditionalExpression extends OperatorExpression {
 				&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_int)) {
 				valueIfTrue.implicitWidening(IntBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(IntBinding, valueIfFalseType);
-				this.expressionType = IntBinding;
+				this.resolvedType = IntBinding;
 				return IntBinding;
 			}
 			// long
@@ -350,7 +350,7 @@ public class ConditionalExpression extends OperatorExpression {
 				valueIfTrue.implicitWidening(LongBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(LongBinding, valueIfFalseType);
 				returnTypeSlotSize = 2;
-				this.expressionType = LongBinding;
+				this.resolvedType = LongBinding;
 				return LongBinding;
 			}
 			// float
@@ -358,14 +358,14 @@ public class ConditionalExpression extends OperatorExpression {
 				&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_float)) {
 				valueIfTrue.implicitWidening(FloatBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(FloatBinding, valueIfFalseType);
-				this.expressionType = FloatBinding;
+				this.resolvedType = FloatBinding;
 				return FloatBinding;
 			}
 			// double
 			valueIfTrue.implicitWidening(DoubleBinding, valueIfTrueType);
 			valueIfFalse.implicitWidening(DoubleBinding, valueIfFalseType);
 			returnTypeSlotSize = 2;
-			this.expressionType = DoubleBinding;
+			this.resolvedType = DoubleBinding;
 			return DoubleBinding;
 		}
 		// Type references (null null is already tested)
@@ -380,13 +380,13 @@ public class ConditionalExpression extends OperatorExpression {
 		if (Scope.areTypesCompatible(valueIfFalseType, valueIfTrueType)) {
 			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
-			this.expressionType = valueIfTrueType;
+			this.resolvedType = valueIfTrueType;
 			return valueIfTrueType;
 		}
 		if (Scope.areTypesCompatible(valueIfTrueType, valueIfFalseType)) {
 			valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
-			this.expressionType = valueIfFalseType;
+			this.resolvedType = valueIfFalseType;
 			return valueIfFalseType;
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(

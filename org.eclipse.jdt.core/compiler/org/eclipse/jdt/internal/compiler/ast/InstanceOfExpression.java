@@ -209,7 +209,7 @@ public class InstanceOfExpression extends OperatorExpression {
 
 		int pc = codeStream.position;
 		expression.generateCode(currentScope, codeStream, true);
-		codeStream.instance_of(type.binding);
+		codeStream.instance_of(type.resolvedType);
 		if (!valueRequired)
 			codeStream.pop();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -227,7 +227,7 @@ public class InstanceOfExpression extends OperatorExpression {
 			scope.problemReporter().notCompatibleTypesError(this, expressionTb, checkTb);
 			return null;
 		}
-		this.expressionType = BooleanBinding;
+		this.resolvedType = BooleanBinding;
 		return BooleanBinding;
 	}
 

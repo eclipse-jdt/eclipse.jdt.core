@@ -278,7 +278,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
  */
 protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] tokens = null;
-	TypeBinding typeBinding = qTypeRef.binding;
+	TypeBinding typeBinding = qTypeRef.resolvedType;
 	if (typeBinding instanceof ArrayBinding) {
 		typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
 	}
@@ -539,7 +539,7 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 			}				
 		} 
 	} else {
-		TypeBinding typeBinding = typeRef.binding;
+		TypeBinding typeBinding = typeRef.resolvedType;
 		if (typeBinding == null) {
 			return INACCURATE_MATCH;
 		} else {

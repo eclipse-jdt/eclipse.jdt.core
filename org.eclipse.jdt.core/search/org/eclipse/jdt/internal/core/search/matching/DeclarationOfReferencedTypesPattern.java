@@ -74,7 +74,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	int maxType = -1;
 	TypeBinding typeBinding = null;
 	if (reference instanceof TypeReference) {
-		typeBinding = ((TypeReference)reference).binding;
+		typeBinding = ((TypeReference)reference).resolvedType;
 		maxType = Integer.MAX_VALUE;
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference)reference;

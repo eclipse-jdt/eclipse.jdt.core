@@ -23,9 +23,9 @@ public SingleTypeReference(char[] source, long pos) {
 		sourceEnd = (int) (pos & 0x00000000FFFFFFFFL) ;
 	
 }
-public SingleTypeReference(char[] source ,TypeBinding tb, long pos) {
+public SingleTypeReference(char[] source ,TypeBinding type, long pos) {
 	this(source, pos) ;
-	binding = tb ;
+	this.resolvedType = type ;
 }
 public TypeReference copyDims(int dim){
 	//return a type reference copy of me with some dimensions
@@ -34,8 +34,8 @@ public TypeReference copyDims(int dim){
 	return new ArrayTypeReference(token,null,dim,(((long)sourceStart)<<32)+sourceEnd) ;
 }
 public TypeBinding getTypeBinding(Scope scope) {
-	if (binding != null)
-		return binding;
+	if (this.resolvedType != null)
+		return this.resolvedType;
 	return scope.getType(token);
 }
 public char [][] getTypeName() {
@@ -49,7 +49,7 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 	}
 	if (isTypeUseDeprecated(memberTb, scope))
 		scope.problemReporter().deprecatedType(memberTb, this);
-	return binding = memberTb;
+	return this.resolvedType = memberTb;
 }
 public String toStringExpression(int tab){
 	return new String(token) ;

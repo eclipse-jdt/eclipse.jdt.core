@@ -659,10 +659,10 @@ public TypeBinding resolveType(BlockScope scope) {
 						constant = vb.constant;
 						if ((!vb.isFinal()) && ((bits & DepthMASK) != 0))
 							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)vb, this);
-						return this.expressionType = vb.type;
+						return this.resolvedType = vb.type;
 					}
 					// a field
-					return this.expressionType = checkFieldAccess(scope);
+					return this.resolvedType = checkFieldAccess(scope);
 				}
 
 				// thus it was a type
@@ -673,12 +673,12 @@ public TypeBinding resolveType(BlockScope scope) {
 				//deprecated test
 				if (isTypeUseDeprecated((TypeBinding) binding, scope))
 					scope.problemReporter().deprecatedType((TypeBinding) binding, this);
-				return this.expressionType = (TypeBinding) binding;
+				return this.resolvedType = (TypeBinding) binding;
 		}
 	}
 
 	// error scenarii
-	return this.expressionType = this.reportError(scope);
+	return this.resolvedType = this.reportError(scope);
 }
 public String toStringExpression(){
 

@@ -409,6 +409,7 @@ final static public char[] lastSegment(char[] array, char separator) {
 	if (pos < 0) return array;
 	return subarray(array, pos+1, array.length);
 }
+
 /**
  * char[] pattern matching, accepting wild-cards '*' and '?'.
  *
@@ -419,8 +420,22 @@ public static final boolean match(char[] pattern, char[] name, boolean isCaseSen
 
 	if (name == null) return false; // null name cannot match
 	if (pattern == null) return true; // null pattern is equivalent to '*'
-	int iPattern = 0, patternLength = pattern.length;
-	int iName = 0, nameLength = name.length;
+
+	return match(pattern, 0, pattern.length, name, 0, name.length, isCaseSensitive);
+}
+
+/**
+ * char[] pattern matching, accepting wild-cards '*' and '?'. Can match only subset of name/pattern.
+ *
+ * When not case sensitive, the pattern is assumed to already be lowercased, the
+ * name will be lowercased character per character as comparing.
+ */
+public static final boolean match(char[] pattern, int patternStart, int patternLength, char[] name, int nameStart, int nameLength, boolean isCaseSensitive) {
+
+	if (name == null) return false; // null name cannot match
+	if (pattern == null) return true; // null pattern is equivalent to '*'
+	int iPattern = patternStart;
+	int iName = nameStart;
 
 	/* check first segment */
 	char patternChar = 0;
@@ -467,6 +482,70 @@ public static final boolean match(char[] pattern, char[] name, boolean isCaseSen
 			|| (iName == nameLength && iPattern == patternLength)	
 			|| (iPattern == patternLength - 1 && pattern[iPattern] == '*'); 
 }
+
+/**
+ * Path char[] pattern matching, accepting wild-cards '**', '*' and '?'.
+ * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
+ * any folder combination.
+ * Special rules: 
+ * - foo\  is equivalent to foo\**
+ * - *.java is equivalent to **\*.java
+ * When not case sensitive, the pattern is assumed to already be lowercased, the
+ * name will be lowercased character per character as comparing.
+ */
+public static final boolean pathMatch(char[] pattern, char[] path, boolean isCaseSensitive, char pathSeparator) {
+
+	if (path == null) return false; // null name cannot match
+	if (pattern == null) return true; // null pattern is equivalent to '*'
+	int iPattern = 0, patternLength = pattern.length;
+	int iPath = 0, pathLength = path.length;
+
+	/* check first segment */
+	char patternChar = 0;
+	while ((iPattern < patternLength) && (patternChar = pattern[iPattern]) != '*'){
+		if (iPath == pathLength) return false;
+		if (patternChar != (isCaseSensitive 
+								? path[iPath] 
+								: Character.toLowerCase(path[iPath]))
+				&& patternChar != '?'){
+			return false;
+		}
+		iPath++;
+		iPattern++;
+	}
+	/* check sequence of star+segment */
+	int segmentStart;
+	if (patternChar == '*'){
+		segmentStart = ++iPattern; // skip star
+	} else {
+		segmentStart = 0; // force iName check
+	}
+	int prefixStart = iPath;
+	checkSegment: while (iPath < pathLength && iPattern < patternLength){
+		/* segment is ending */
+		if ((patternChar = pattern[iPattern]) == '*'){
+			segmentStart = ++iPattern; // skip start
+			prefixStart = iPath;
+			continue checkSegment;
+		}
+		/* chech current name character */
+		if ((isCaseSensitive 
+				? path[iPath] 
+				: Character.toLowerCase(path[iPath]))!= patternChar
+					&& patternChar != '?'){
+			iPattern = segmentStart; // mismatch - restart current segment
+			iPath = ++prefixStart;
+			continue checkSegment;
+		}
+		iPath++;
+		iPattern++;
+	}
+
+	return (segmentStart == patternLength)
+			|| (iPath == pathLength && iPattern == patternLength)	
+			|| (iPattern == patternLength - 1 && pattern[iPattern] == '*'); 
+}
+
 public static final int occurencesOf(char toBeFound, char[] array) {
 	int count = 0;
 	for (int i = 0; i < array.length; i++)

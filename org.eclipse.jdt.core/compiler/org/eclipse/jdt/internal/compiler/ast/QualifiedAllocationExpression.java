@@ -188,7 +188,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
 					enclosingInstanceType,
 					enclosingInstance);
-			} else if ((this.expressionType = receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
+			} else if ((this.resolvedType = receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
 							scope,
 							(ReferenceBinding) enclosingInstanceType)) == null) {
 				hasError = true;
