@@ -973,9 +973,10 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
 	);
 }
 /**
- * Check that forcing a make consistent action is leading the next reconcile to not notice changes.
+ * Test bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60689
+ * AST on reconcile: AST without Javadoc comments created
  */
-public void testBug60689() throws JavaModelException {
+public void _testBug60689() throws JavaModelException {
 	setWorkingCopyContents("public class X {\n" +
 		"	/**\n" +
 		"	 * Returns the length of the string representing the number of \n" +

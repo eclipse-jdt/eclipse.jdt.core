@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Parser parser;
@@ -503,7 +502,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 	public void initializeParser() {
 
-		this.parser = new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
+		this.parser = new Parser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
 	}
 	
 	/**
