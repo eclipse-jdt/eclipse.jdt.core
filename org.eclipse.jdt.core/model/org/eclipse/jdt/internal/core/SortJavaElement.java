@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.core.SortElementBuilder.SortElement;
 
 /**
  * 
+ * @since 2.1
  */
 public abstract class SortJavaElement implements Comparable {
 

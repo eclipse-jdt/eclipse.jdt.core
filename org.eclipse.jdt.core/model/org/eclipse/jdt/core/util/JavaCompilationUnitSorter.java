@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
 
 /**
- * 
+ * @since 2.1
  */
 public class JavaCompilationUnitSorter {
 

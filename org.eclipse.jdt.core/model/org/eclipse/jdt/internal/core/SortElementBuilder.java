@@ -32,6 +32,10 @@ import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
+/**
+ * 
+ * @since 2.1
+ */
 public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 	public static int getCategory(ASTNode node) {
