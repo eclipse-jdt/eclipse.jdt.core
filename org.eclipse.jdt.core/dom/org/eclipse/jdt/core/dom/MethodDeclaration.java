@@ -42,7 +42,9 @@ import java.util.List;
  * 		     { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
  *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
  * ConstructorDeclaration:
- *    [ Javadoc ] { ExtendedModifier } Identifier <b>(</b>
+ *    [ Javadoc ] { ExtendedModifier }
+ *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *        Identifier <b>(</b>
  * 		  [ FormalParameter
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
@@ -529,12 +531,6 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the live ordered list of type parameters of this method
 	 * declaration (added in JLS3 API). This list is non-empty for parameterized methods.
-	 * <p>
-	 * Note that these children are not relevant for constructor declarations
-	 * (although it does still figure in subtree equality comparisons
-	 * and visits), and is devoid of the binding information ordinarily
-	 * available.
-	 * </p>
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
