@@ -1265,10 +1265,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			CompilerOptions.IGNORE);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportLocalVariableHiding,
-			CompilerOptions.WARNING);
+			CompilerOptions.IGNORE);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportFieldHiding,
-			CompilerOptions.WARNING);
+			CompilerOptions.IGNORE);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
 			CompilerOptions.DISABLED);

@@ -1943,10 +1943,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION, WARNING); 
 		optionNames.add(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION);
 
-		preferences.setDefault(COMPILER_PB_LOCAL_VARIABLE_HIDING, WARNING);
+		preferences.setDefault(COMPILER_PB_LOCAL_VARIABLE_HIDING, IGNORE);
 		optionNames.add(COMPILER_PB_LOCAL_VARIABLE_HIDING);
 
-		preferences.setDefault(COMPILER_PB_FIELD_HIDING, WARNING);
+		preferences.setDefault(COMPILER_PB_FIELD_HIDING, IGNORE);
 		optionNames.add(COMPILER_PB_FIELD_HIDING);
 
 		preferences.setDefault(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD, DISABLED);
