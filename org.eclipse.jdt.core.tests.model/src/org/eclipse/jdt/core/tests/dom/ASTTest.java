@@ -1058,7 +1058,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		SimpleName x = ast.newSimpleName("foo"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Name);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("foo".equals(x.getIdentifier())); //$NON-NLS-1$
@@ -1145,7 +1144,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ast.newSimpleName("i")); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Name);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getQualifier().getParent() == x);
@@ -1204,7 +1202,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		NullLiteral x = ast.newNullLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.NULL_LITERAL);
@@ -1218,7 +1215,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		BooleanLiteral x = ast.newBooleanLiteral(true);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.booleanValue() == true);
@@ -1243,7 +1239,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		StringLiteral x = ast.newStringLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("\"\"".equals(x.getEscapedValue())); //$NON-NLS-1$
@@ -1341,7 +1336,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		CharacterLiteral x = ast.newCharacterLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getEscapedValue().startsWith("\'")); //$NON-NLS-1$
@@ -1360,7 +1354,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		CharacterLiteral y = ast.newCharacterLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue(y instanceof Expression);
 		assertTrue(y.getAST() == ast);
 		assertTrue(y.getParent() == null);
 		String v = y.getEscapedValue();
@@ -1421,7 +1414,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		NumberLiteral x = ast.newNumberLiteral("1234"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("1234".equals(x.getToken())); //$NON-NLS-1$
@@ -1472,7 +1464,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SimpleType x = ast.newSimpleType(ast.newSimpleName("String")); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -1505,7 +1496,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		PrimitiveType x = ast.newPrimitiveType(PrimitiveType.INT);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getPrimitiveTypeCode().equals(PrimitiveType.INT));
@@ -1577,7 +1567,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ArrayType x = ast.newArrayType(x2);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getComponentType().getParent() == x);
@@ -1817,7 +1806,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final TypeDeclaration x = ast.newTypeDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
@@ -1964,7 +1952,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testSingleVariableDeclaration() {
 		long previousCount = ast.modificationCount();
 		final SingleVariableDeclaration x = ast.newSingleVariableDeclaration();
-		assertTrue(x instanceof VariableDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
@@ -2065,7 +2052,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testVariableDeclarationFragment() {
 		long previousCount = ast.modificationCount();
 		final VariableDeclarationFragment x = ast.newVariableDeclarationFragment();
-		assertTrue(x instanceof VariableDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
@@ -2145,7 +2131,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final MethodDeclaration x = ast.newMethodDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
@@ -2301,7 +2286,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testInitializer() {
 		long previousCount = ast.modificationCount();
 		final Initializer x = ast.newInitializer();
-		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
@@ -2408,7 +2392,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final Block x = ast.newBlock();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.statements().size() == 0);
@@ -2446,7 +2429,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final MethodInvocation x = ast.newMethodInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -2510,7 +2492,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ExpressionStatement x = ast.newExpressionStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == x1);
@@ -2562,7 +2543,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ast.newVariableDeclarationStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
@@ -2650,7 +2630,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ast.newTypeDeclarationStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getTypeDeclaration() == x1);
@@ -2705,7 +2684,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ast.newVariableDeclarationExpression(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
@@ -2790,7 +2768,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final FieldDeclaration x = ast.newFieldDeclaration(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getJavadoc() == null);
@@ -2876,7 +2853,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final Assignment x = ast.newAssignment();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getOperator() == Assignment.Operator.ASSIGN);
@@ -3009,7 +2985,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final BreakStatement x = ast.newBreakStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLabel() == null);
@@ -3042,7 +3017,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ContinueStatement x = ast.newContinueStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLabel() == null);
@@ -3075,7 +3049,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final IfStatement x = ast.newIfStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
@@ -3182,7 +3155,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final WhileStatement x = ast.newWhileStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
@@ -3261,7 +3233,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final DoStatement x = ast.newDoStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
@@ -3340,13 +3311,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final TryStatement x = ast.newTryStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getBody().getParent() == x);
-		assertTrue(x.getBody() instanceof Block);  // TODO (olivier) getBody() is already of type Block
 		assertTrue((x.getBody()).statements().isEmpty());
 		assertTrue(x.getFinally() == null);
 		assertTrue(x.catchClauses().size() == 0);
@@ -3521,7 +3489,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final EmptyStatement x = ast.newEmptyStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
@@ -3690,7 +3657,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ReturnStatement x = ast.newReturnStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
@@ -3738,7 +3704,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ThrowStatement x = ast.newThrowStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -3787,7 +3752,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final AssertStatement x = ast.newAssertStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -3869,7 +3833,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SwitchStatement x = ast.newSwitchStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -3941,7 +3904,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SwitchCase x = ast.newSwitchCase();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -3991,7 +3953,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SynchronizedStatement x = ast.newSynchronizedStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -4068,7 +4029,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final LabeledStatement x = ast.newLabeledStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLabel().getParent() == x);
@@ -4468,7 +4428,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ForStatement x = ast.newForStatement();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.initializers().isEmpty());
@@ -4603,7 +4562,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ConstructorInvocation x = ast.newConstructorInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.arguments().isEmpty());
@@ -4644,7 +4602,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SuperConstructorInvocation x = ast.newSuperConstructorInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
@@ -4718,7 +4675,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ThisExpression x = ast.newThisExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getQualifier() == null);
@@ -4750,7 +4706,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final FieldAccess x = ast.newFieldAccess();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -4807,7 +4762,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SuperFieldAccess x = ast.newSuperFieldAccess();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -4856,7 +4810,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final SuperMethodInvocation x = ast.newSuperMethodInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -4927,7 +4880,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final TypeLiteral x = ast.newTypeLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
@@ -4958,7 +4910,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final CastExpression x = ast.newCastExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
@@ -5015,7 +4966,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final PrefixExpression x = ast.newPrefixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getOperand().getParent() == x);
@@ -5102,7 +5052,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final PostfixExpression x = ast.newPostfixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getOperand().getParent() == x);
@@ -5181,7 +5130,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final InfixExpression x = ast.newInfixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeftOperand().getParent() == x);
@@ -5342,7 +5290,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final InstanceofExpression x = ast.newInstanceofExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeftOperand().getParent() == x);
@@ -5407,7 +5354,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ConditionalExpression x = ast.newConditionalExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
@@ -5498,7 +5444,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ArrayAccess x = ast.newArrayAccess();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getArray().getParent() == x);
@@ -5563,7 +5508,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ArrayInitializer x = ast.newArrayInitializer();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.expressions().isEmpty());
@@ -5598,7 +5542,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ClassInstanceCreation x = ast.newClassInstanceCreation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
@@ -5708,7 +5651,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final AnonymousClassDeclaration x = ast.newAnonymousClassDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof ASTNode);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.bodyDeclarations().isEmpty());
@@ -5754,7 +5696,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ArrayCreation x = ast.newArrayCreation();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
@@ -5834,7 +5775,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final ParenthesizedExpression x = ast.newParenthesizedExpression();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
-		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
