@@ -63,28 +63,26 @@
 	<delete dir="${plugin-dir}" />
 	<mkdir dir="${plugin-dir}" />
 
-	<echo message="UPDATE jdtcore.jar" />
-	<jar 
-		jarfile="${plugin-dir}/jdtcore.jar"
-		basedir="bin"
-		manifest="batch/META-INF/MANIFEST.MF"/>
-		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
-	<jar 
+  	<jar 
 		jarfile="${plugin-dir}/jdtCompilerAdapter.jar"
 		basedir="antbin"/>
 
-	<echo message="UPDATE plugin.xml" />
-	<copy file="plugin.xml" todir="${plugin-dir}" />
-	<echo message="UPDATE plugin.properties" />
-	<copy file="plugin.properties" todir="${plugin-dir}" />
+	<echo message="UPDATE ${plugin}_${jdt_core_version}.jar" />
+	<jar 
+		jarfile="${plugin-dir}/${plugin}_${jdt_core_version}.jar"
+		basedir="bin"
+		manifest="META-INF/MANIFEST.MF">
+       <fileset dir="bin"/>
+       <fileset file="plugin.xml"/>
+       <fileset file=".options"/>
+       <fileset file="component.xml"/>
+       <fileset file="about.html"/>
+       <fileset file="plugin.properties"/>
+       <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
+	</jar>
 
-	<echo message="UPDATE .options" />
-	<copy file=".options" todir="${plugin-dir}" />
-
-	<echo message="UPDATE about.html" />
-	<copy file="about.html" todir="${plugin-dir}" />
-
+	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${plugin-dir}/jdtcoresrc.zip">
 	    <fileset dir="batch" />

@@ -20,7 +20,7 @@
 			jarfile="${dest}/jdtcom.jar"
 			basedir="bin"
 			includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"
-			manifest="batch/META-INF/MANIFEST.MF"
+			manifest="META-INF/MANIFEST.MF"
 			index="true"/>
 		
 		<echo message="UPDATE jdtcomsrc.zip" />
