@@ -476,6 +476,55 @@ public static final void replace(
 		}
 	}
 }
+
+/*
+ * Returns a char[] with substitutions. No side-effect is operated on the original
+ * array, in case no substitution happened, then the result might be the same as the
+ * original one.
+ * 
+ */
+public static final char[] replace(
+	char[] array, 
+	char[] toBeReplaced, 
+	char[] replacementChars) {
+
+
+	int max = array.length;
+	int replacedLength = toBeReplaced.length;
+	int replacementLength = replacementChars.length;
+
+	int[] starts = new int[5];
+	int occurrenceCount = 0;
+	
+	if (!equals(toBeReplaced,replacementChars)) {
+		
+		next: for (int i = 0; i < max; i++) {
+			int j = 0;
+			while (j < replacedLength){
+				if (i+j == max) continue next;
+				if (array[i + j] != toBeReplaced[j++]) continue next;
+			}
+			if (occurrenceCount == starts.length){
+				System.arraycopy(starts, 0, starts = new int[occurrenceCount * 2], 0, occurrenceCount);
+			}
+			starts[occurrenceCount++] = i;
+		}
+	}
+	if (occurrenceCount == 0) return array;
+	char[] result = new char[max + occurrenceCount * (replacementLength - replacedLength)];
+	int inStart = 0, outStart = 0;
+	for( int i = 0; i < occurrenceCount; i++){
+		int offset = starts[i] - inStart;
+		System.arraycopy(array, inStart, result, outStart, offset);
+		inStart += offset;
+		outStart += offset;
+		System.arraycopy(replacementChars, 0, result, outStart, replacementLength);
+		inStart += replacedLength;
+		outStart += replacementLength;
+	}
+	System.arraycopy(array, inStart, result, outStart, max - inStart);
+	return result;
+}
 public static final char[][] splitOn(char divider, char[] array) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0)

@@ -31,6 +31,7 @@ public class SelectionParser extends AssistParser {
 	public AstNode selectionNode;
 
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
+	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
 
 /** @deprecated - should use constructor with assertMode */
 public SelectionParser(ProblemReporter problemReporter) {
@@ -205,11 +206,22 @@ protected void consumeMethodInvocationName() {
 	// when the name is only an identifier...we have a message send to "this" (implicit)
 
 	char[] selector = identifierStack[identifierPtr];
-	if (!(selector == this.assistIdentifier() && CharOperation.equals(selector, SUPER))){
+	int accessMode;
+	if(selector == this.assistIdentifier()) {
+		if(CharOperation.equals(selector, SUPER)) {
+			accessMode = ExplicitConstructorCall.Super;
+		} else if(CharOperation.equals(selector, THIS)) {
+			accessMode = ExplicitConstructorCall.This;
+		} else {
+			super.consumeMethodInvocationName();
+			return;
+		}
+	} else {
 		super.consumeMethodInvocationName();
 		return;
-	}	
-	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(ExplicitConstructorCall.Super);
+	}
+	
+	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
 	constructorCall.sourceEnd = rParenPos;
 	constructorCall.sourceStart = (int) (identifierPositionStack[identifierPtr] >>> 32);
 	int length;
@@ -229,11 +241,22 @@ protected void consumeMethodInvocationPrimary() {
 	//MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
 
 	char[] selector = identifierStack[identifierPtr];
-	if (!(selector == this.assistIdentifier() && CharOperation.equals(selector, SUPER))){
+	int accessMode;
+	if(selector == this.assistIdentifier()) {
+		if(CharOperation.equals(selector, SUPER)) {
+			accessMode = ExplicitConstructorCall.Super;
+		} else if(CharOperation.equals(selector, THIS)) {
+			accessMode = ExplicitConstructorCall.This;
+		} else {
+			super.consumeMethodInvocationPrimary();
+			return;
+		}
+	} else {
 		super.consumeMethodInvocationPrimary();
 		return;
 	}
-	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(ExplicitConstructorCall.Super);
+	
+	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
 	constructorCall.sourceEnd = rParenPos;
 	int length;
 	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {

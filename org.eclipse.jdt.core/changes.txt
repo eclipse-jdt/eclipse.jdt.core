@@ -113,6 +113,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  3568      no hoverhelp over constructor referrences (1GAJ0KP)
   5218      AccSuper is not set properly
   5200      SetClasspathOperation must close root only when root is removed
   3449      CodeAssist - two type with same name must be qualified (1GLDN3Z)
