@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 class NodeSearcher extends AbstractSyntaxTreeVisitorAdapter {
 	public AstNode found;
 	public TypeDeclaration enclosingType;
-	private int position;
+	public int position;
 	
 	NodeSearcher(int position) {
 		this.position = position;

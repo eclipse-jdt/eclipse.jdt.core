@@ -288,7 +288,13 @@ class CompilationUnitResolver extends Compiler {
 			// if initial diet parse did not work, no need to dig into method bodies.
 			return null; 
 		}
-				
+		
+		int searchPosition = nodeSearcher.position;
+		if (searchPosition < 0 || searchPosition > source.length) {
+			// the position is out of range. There is no need to search for a node.
+ 			return compilationUnitDeclaration;
+		}
+	
 		compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
 		
 		AstNode node = nodeSearcher.found;
@@ -444,23 +450,26 @@ class CompilationUnitResolver extends Compiler {
 			beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilationUnit});
 			// process all units (some more could be injected in the loop by the lookup environment)
 			unit = unitsToProcess[0];
-		
-			unit.traverse(nodeSearcher, unit.scope);
-			
-			AstNode node = nodeSearcher.found;
-			
- 			if (node != null) {
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
-  				if (node instanceof AbstractMethodDeclaration) {
-					((AbstractMethodDeclaration)node).parseStatements(parser, unit);
- 				} else if (enclosingTypeDeclaration != null) {
-					if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-	 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, unit);
- 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
-						((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, unit);
-					} 				
- 				}
- 			}
+
+			int searchPosition = nodeSearcher.position;
+			if (searchPosition >= 0 && searchPosition <= compilationUnit.getContents().length) {
+				unit.traverse(nodeSearcher, unit.scope);
+				
+				AstNode node = nodeSearcher.found;
+				
+	 			if (node != null) {
+					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+	  				if (node instanceof AbstractMethodDeclaration) {
+						((AbstractMethodDeclaration)node).parseStatements(parser, unit);
+	 				} else if (enclosingTypeDeclaration != null) {
+						if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+		 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, unit);
+	 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
+							((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, unit);
+						} 				
+	 				}
+	 			}
+			}
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
