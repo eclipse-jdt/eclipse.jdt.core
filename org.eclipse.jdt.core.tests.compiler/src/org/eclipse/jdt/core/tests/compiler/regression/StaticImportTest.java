@@ -901,4 +901,27 @@ public class StaticImportTest extends AbstractComparableTest {
 			"14"
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83376
+	public void test024() {
+		this.runNegativeTest(
+			new String[] {
+				"p/B.java",
+				"package p;\n" + 
+				"import static p.A.m;\n" + 
+				"import static p2.C.m;\n" + 
+				"class A { static void m() {} }\n" + 
+				"public class B { public static void main(String[] args) { m(); } }\n",
+				"p2/C.java",
+				"package p2;\n" + 
+				"public class C { public static void m() {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\B.java (at line 5)\r\n" + 
+			"	public class B { public static void main(String[] args) { m(); } }\r\n" + 
+			"	                                                          ^\n" + 
+			"The method m() is ambiguous for the type B\n" + 
+			"----------\n"
+		);
+	}
 }

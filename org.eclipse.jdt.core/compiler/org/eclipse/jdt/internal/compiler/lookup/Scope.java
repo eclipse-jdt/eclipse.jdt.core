@@ -1835,7 +1835,7 @@ public abstract class Scope
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
-				boolean foundInImport = false;
+				int importLevel = -1; // -1 = not found, 0 = on demand match, 1 = single import match
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
 					if (importBinding.isStatic()) {
@@ -1859,7 +1859,7 @@ public abstract class Scope
 										possible = findMethod((ReferenceBinding) referencedType, selector, argumentTypes, invocationSite);
 								}
 							}
-						} else if (resolvedImport instanceof ReferenceBinding && importBinding.onDemand) {
+						} else if (importBinding.onDemand && importLevel < 1 && resolvedImport instanceof ReferenceBinding) {
 							// answers closest approximation, may not check argumentTypes or visibility
 							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
 						}
@@ -1874,13 +1874,21 @@ public abstract class Scope
 										if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
 											ImportReference importReference = importBinding.reference;
 											if (importReference != null) importReference.used = true;
-											if (!importBinding.onDemand) // single method selector import
-												return compatibleMethod;
-											if (foundInImport)
-												// Answer error binding -- import on demand conflict; name found in two import on demand types.
-												return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
+											int matchingImportLevel = importBinding.onDemand ? 0 : 1;
+											if (matchingImportLevel == importLevel) {
+												scope = this;
+												while (true) {
+													switch (scope.kind) {
+														case CLASS_SCOPE :
+															return new ProblemMethodBinding(selector, argumentTypes, ((ClassScope) scope).referenceContext.binding, Ambiguous);
+														case COMPILATION_UNIT_SCOPE :
+															return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
+													}
+													scope = scope.parent;
+												}
+											}
 											foundMethod = compatibleMethod;
-											foundInImport = true;
+											importLevel = matchingImportLevel;
 										} else if (foundMethod == null) {
 											foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
 										}
