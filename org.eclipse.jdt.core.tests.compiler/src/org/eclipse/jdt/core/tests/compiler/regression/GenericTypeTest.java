@@ -5934,8 +5934,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 26] local: args index: 0 type: [Ljava/lang/String;\n" + 
 			"        [pc: 6, pc: 9] local: i index: 1 type: Ljava/util/ArrayList;\n" + 
+			"        [pc: 10, pc: 26] local: i index: 1 type: Ljava/util/ArrayList;\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 6, pc: 9] local: i index: 1 type: Ljava/util/ArrayList<Ljava/lang/Object;>;\n";
+			"        [pc: 6, pc: 9] local: i index: 1 type: Ljava/util/ArrayList<Ljava/lang/Object;>;\n" + 
+			"        [pc: 10, pc: 26] local: i index: 1 type: Ljava/util/ArrayList<Ljava/lang/Object;>;\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
