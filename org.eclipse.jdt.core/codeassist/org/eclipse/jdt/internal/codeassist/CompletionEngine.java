@@ -910,70 +910,72 @@ public final class CompletionEngine
 
 		// No visibility checks can be performed without the scope & invocationSite
 		MethodBinding[] methods = currentType.availableMethods();
-		int minArgLength = argTypes == null ? 0 : argTypes.length;
-		next : for (int f = methods.length; --f >= 0;) {
-			MethodBinding constructor = methods[f];
-			if (constructor.isConstructor()) {
-				
-				if (constructor.isSynthetic()) continue next;
+		if(methods != null) {
+			int minArgLength = argTypes == null ? 0 : argTypes.length;
+			next : for (int f = methods.length; --f >= 0;) {
+				MethodBinding constructor = methods[f];
+				if (constructor.isConstructor()) {
 					
-				if (options.checkVisibility
-					&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
-
-				TypeBinding[] parameters = constructor.parameters;
-				int paramLength = parameters.length;
-				if (minArgLength > paramLength)
-					continue next;
-				for (int a = minArgLength; --a >= 0;)
-					if (argTypes[a] != null) // can be null if it could not be resolved properly
-						if (!scope.areTypesCompatible(argTypes[a], constructor.parameters[a]))
-							continue next;
-
-				char[][] parameterPackageNames = new char[paramLength][];
-				char[][] parameterTypeNames = new char[paramLength][];
-				for (int i = 0; i < paramLength; i++) {
-					TypeBinding type = parameters[i];
-					parameterPackageNames[i] = type.qualifiedPackageName();
-					parameterTypeNames[i] = type.qualifiedSourceName();
-				}
-				char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
-				
-				char[] completion = TypeConstants.NoChar;
-				// nothing to insert - do not want to replace the existing selector & arguments
-				if (source == null
-					|| source.length <= endPosition
-					|| source[endPosition] != ')')
-					completion = new char[] { ')' };
-				
-				int relevance = DEFAULTRELEVANCE;
-				
-				if(forAnonymousType){
-					requestor.acceptAnonymousType(
-						currentType.qualifiedPackageName(),
-						currentType.qualifiedSourceName(),
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterNames,
-						completion,
-						constructor.modifiers,
-						endPosition - offset,
-						endPosition - offset,
-						relevance);
-				} else {
-					requestor.acceptMethod(
-						currentType.qualifiedPackageName(),
-						currentType.qualifiedSourceName(),
-						currentType.sourceName(),
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterNames,
-						TypeConstants.NoChar,
-						TypeConstants.NoChar,
-						completion,
-						constructor.modifiers,
-						endPosition - offset,
-						endPosition - offset,
-						relevance);
+					if (constructor.isSynthetic()) continue next;
+						
+					if (options.checkVisibility
+						&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
+	
+					TypeBinding[] parameters = constructor.parameters;
+					int paramLength = parameters.length;
+					if (minArgLength > paramLength)
+						continue next;
+					for (int a = minArgLength; --a >= 0;)
+						if (argTypes[a] != null) // can be null if it could not be resolved properly
+							if (!scope.areTypesCompatible(argTypes[a], constructor.parameters[a]))
+								continue next;
+	
+					char[][] parameterPackageNames = new char[paramLength][];
+					char[][] parameterTypeNames = new char[paramLength][];
+					for (int i = 0; i < paramLength; i++) {
+						TypeBinding type = parameters[i];
+						parameterPackageNames[i] = type.qualifiedPackageName();
+						parameterTypeNames[i] = type.qualifiedSourceName();
+					}
+					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
+					
+					char[] completion = TypeConstants.NoChar;
+					// nothing to insert - do not want to replace the existing selector & arguments
+					if (source == null
+						|| source.length <= endPosition
+						|| source[endPosition] != ')')
+						completion = new char[] { ')' };
+					
+					int relevance = DEFAULTRELEVANCE;
+					
+					if(forAnonymousType){
+						requestor.acceptAnonymousType(
+							currentType.qualifiedPackageName(),
+							currentType.qualifiedSourceName(),
+							parameterPackageNames,
+							parameterTypeNames,
+							parameterNames,
+							completion,
+							constructor.modifiers,
+							endPosition - offset,
+							endPosition - offset,
+							relevance);
+					} else {
+						requestor.acceptMethod(
+							currentType.qualifiedPackageName(),
+							currentType.qualifiedSourceName(),
+							currentType.sourceName(),
+							parameterPackageNames,
+							parameterTypeNames,
+							parameterNames,
+							TypeConstants.NoChar,
+							TypeConstants.NoChar,
+							completion,
+							constructor.modifiers,
+							endPosition - offset,
+							endPosition - offset,
+							relevance);
+					}
 				}
 			}
 		}
@@ -1104,17 +1106,20 @@ public final class CompletionEngine
 				interfacesToVisit[lastPosition] = itsInterfaces;
 			}
 
-			findFields(
-				fieldName,
-				currentType.availableFields(),
-				scope,
-				fieldsFound,
-				localsFound,
-				onlyStaticFields,
-				receiverType,
-				invocationSite,
-				invocationScope,
-				implicitCall);
+			FieldBinding[] fields = currentType.availableFields();
+			if(fields != null) {
+				findFields(
+					fieldName,
+					fields,
+					scope,
+					fieldsFound,
+					localsFound,
+					onlyStaticFields,
+					receiverType,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+			}
 			currentType = currentType.superclass();
 		} while (currentType != null);
 
@@ -1128,17 +1133,20 @@ public final class CompletionEngine
 						// if interface as not already been visited
 						anInterface.tagBits |= TagBits.InterfaceVisited;
 
-						findFields(
-							fieldName,
-							anInterface.availableFields(),
-							scope,
-							fieldsFound,
-							localsFound,
-							onlyStaticFields,
-							receiverType,
-							invocationSite,
-							invocationScope,
-							implicitCall);
+						FieldBinding[] fields = anInterface.availableFields();
+						if(fields !=  null) {
+							findFields(
+								fieldName,
+								fields,
+								scope,
+								fieldsFound,
+								localsFound,
+								onlyStaticFields,
+								receiverType,
+								invocationSite,
+								invocationScope,
+								implicitCall);
+						}
 
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
@@ -1478,31 +1486,34 @@ public final class CompletionEngine
 						// if interface as not already been visited
 						currentType.tagBits |= TagBits.InterfaceVisited;
 
-						if(isCompletingDeclaration){
-
-							findLocalMethodDeclarations(
-								selector,
-								currentType.availableMethods(),
-								scope,
-								methodsFound,
-								onlyStaticMethods,
-								exactMatch,
-								receiverType);
-
-						} else {
-
-							findLocalMethods(
-								selector,
-								argTypes,
-								currentType.availableMethods(),
-								scope,
-								methodsFound,
-								onlyStaticMethods,
-								exactMatch,
-								receiverType,
-								invocationSite,
-								invocationScope,
-								implicitCall);
+						MethodBinding[] methods = currentType.availableMethods();
+						if(methods != null) {
+							if(isCompletingDeclaration){
+	
+								findLocalMethodDeclarations(
+									selector,
+									methods,
+									scope,
+									methodsFound,
+									onlyStaticMethods,
+									exactMatch,
+									receiverType);
+	
+							} else {
+	
+								findLocalMethods(
+									selector,
+									argTypes,
+									methods,
+									scope,
+									methodsFound,
+									onlyStaticMethods,
+									exactMatch,
+									receiverType,
+									invocationSite,
+									invocationScope,
+									implicitCall);
+							}
 						}
 
 						itsInterfaces = currentType.superInterfaces();
@@ -1967,28 +1978,32 @@ public final class CompletionEngine
 		}
 		boolean hasPotentialDefaultAbstractMethods = true;
 		while (currentType != null) {
-			if(isCompletingDeclaration){
-				findLocalMethodDeclarations(
-					selector,
-					currentType.availableMethods(),
-					scope,
-					methodsFound,
-					onlyStaticMethods,
-					exactMatch,
-					receiverType);
-			} else{
-				findLocalMethods(
-					selector,
-					argTypes,
-					currentType.availableMethods(),
-					scope,
-					methodsFound,
-					onlyStaticMethods,
-					exactMatch,
-					receiverType,
-					invocationSite,
-					invocationScope,
-					implicitCall);
+			
+			MethodBinding[] methods = currentType.availableMethods();
+			if(methods != null) {
+				if(isCompletingDeclaration){
+					findLocalMethodDeclarations(
+						selector,
+						methods,
+						scope,
+						methodsFound,
+						onlyStaticMethods,
+						exactMatch,
+						receiverType);
+				} else{
+					findLocalMethods(
+						selector,
+						argTypes,
+						methods,
+						scope,
+						methodsFound,
+						onlyStaticMethods,
+						exactMatch,
+						receiverType,
+						invocationSite,
+						invocationScope,
+						implicitCall);
+				}
 			}
 			
 			if(hasPotentialDefaultAbstractMethods && currentType.isAbstract()){
