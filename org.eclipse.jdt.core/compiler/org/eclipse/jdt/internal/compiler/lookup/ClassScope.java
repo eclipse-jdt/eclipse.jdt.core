@@ -868,10 +868,9 @@ public class ClassScope extends Scope {
 			superType.tagBits |= HierarchyHasProblems;
 			return true;
 		}
-		if ((superType.tagBits & BeginHierarchyCheck) == 0)
+		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
 			// ensure if this is a source superclass that it has already been checked
-			if (superType instanceof SourceTypeBinding)
-				 ((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+			 ((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
 		if ((superType.tagBits & HierarchyHasProblems) != 0)
 			sourceType.tagBits |= HierarchyHasProblems;
 		return false;
