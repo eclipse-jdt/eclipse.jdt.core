@@ -780,8 +780,10 @@ public class JavaModelManager implements ISaveParticipant {
 		for (int i= 0; i < listenerCount; i++) {
 			if ((listenerMask[i] & eventType) != 0){
 				final IElementChangedListener listener = listeners[i];
+				long start = -1;
 				if (DeltaProcessor.VERBOSE) {
-					System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+					System.out.print("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+					start = System.currentTimeMillis();
 				}
 				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
 				Platform.run(new ISafeRunnable() {
@@ -792,6 +794,9 @@ public class JavaModelManager implements ISaveParticipant {
 						listener.elementChanged(extraEvent);
 					}
 				});
+				if (DeltaProcessor.VERBOSE) {
+					System.out.println(" -> " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 	}
