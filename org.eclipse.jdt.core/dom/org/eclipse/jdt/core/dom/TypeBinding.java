@@ -502,6 +502,7 @@ class TypeBinding implements ITypeBinding {
 							CharOperation.replace(qualifiedSourceName, '.', '$');
 							buffer
 								.append(getPackage().getName())
+								.append('/')
 								.append(qualifiedSourceName);
 						} else {
 							buffer
