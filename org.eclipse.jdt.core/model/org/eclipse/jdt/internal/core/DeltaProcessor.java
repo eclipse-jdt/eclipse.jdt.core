@@ -377,6 +377,18 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			}
 		} else {
 			addToParentInfo(element);
+			
+			// Force the element to be closed as it might have been opened 
+			// before the resource modification came in and it might have a new child
+			// For example, in an IWorkspaceRunnable:
+			// 1. create a package fragment p using a java model operation
+			// 2. open package p
+			// 3. add file X.java in folder p
+			// When the resource delta comes in, only the addition of p is notified, 
+			// but the package p is already opened, thus its children are not recomputed
+			// and it appears empty.
+			close(element);
+			
 			fCurrentDelta.added(element);
 			
 			switch (elementType) {
