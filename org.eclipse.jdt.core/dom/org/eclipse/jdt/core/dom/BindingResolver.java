@@ -312,27 +312,6 @@ class BindingResolver {
 	}
 
 	/**
-	 * Resolves the given field declaration and returns the binding for it.
-	 * <p>
-	 * The implementation of <code>FieldDeclaration.resolveBinding</code>
-	 * forwards to this method. How the field declaration resolves is often
-	 * a function of the context in which the variable declaration node is 
-	 * embedded as well as the variable declaration subtree itself.
-	 * </p>
-	 * <p>
-	 * The default implementation of this method returns <code>null</code>.
-	 * Subclasses may reimplement.
-	 * </p>
-	 * 
-	 * @param variable the field declaration of interest
-	 * @return the binding for the given field declaration, or 
-	 *    <code>null</code> if no binding is available
-	 */
-	IVariableBinding resolveVariable(FieldDeclaration variable) {
-		return null;
-	}
-		
-	/**
 	 * Resolves the given enum constant declaration and returns the binding for
 	 * the field.
 	 * <p>

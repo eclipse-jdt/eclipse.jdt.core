@@ -547,26 +547,6 @@ class DefaultBindingResolver extends BindingResolver {
 	/*
 	 * Method declared on BindingResolver.
 	 */
-	synchronized IVariableBinding resolveVariable(FieldDeclaration variable) {
-		final Object node = this.newAstToOldAst.get(variable);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
-			IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
-			if (variableBinding == null) {
-				return null;
-			}
-			this.bindingsToAstNodes.put(variableBinding, variable);
-			String key = variableBinding.getKey();
-			if (key != null) {
-				this.bindingKeysToAstNodes.put(key, variable);				
-			}
-			return variableBinding;
-		}
-		return null;
-	}
-	/*
-	 * Method declared on BindingResolver.
-	 */
 	synchronized ITypeBinding resolveExpressionType(Expression expression) {
 		if (expression instanceof ClassInstanceCreation) {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
