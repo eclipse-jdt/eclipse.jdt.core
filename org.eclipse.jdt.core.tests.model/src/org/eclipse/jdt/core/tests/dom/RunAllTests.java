@@ -37,7 +37,7 @@ public static Test suite() {
 
 		// call the suite() method and add the resulting suite to the suite
 		try {
-			Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]);
+			Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
 			Test suite = (Test)suiteMethod.invoke(null, new Object[0]);
 			ts.addTest(suite);
 		} catch (IllegalAccessException e) {

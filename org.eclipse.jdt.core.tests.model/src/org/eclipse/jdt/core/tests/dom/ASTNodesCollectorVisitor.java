@@ -112,7 +112,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ClassInstanceCreation)
 	 */
 	public void endVisit(ClassInstanceCreation node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -163,7 +163,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.FieldAccess)
 	 */
 	public void endVisit(FieldAccess node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -190,7 +190,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(ImportDeclaration node) {
 		add(node);
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -227,7 +227,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.MethodDeclaration)
 	 */
 	public void endVisit(MethodDeclaration node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -235,7 +235,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(MethodInvocation node) {
 		add(node);
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -255,7 +255,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(PackageDeclaration node) {
 		add(node);
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -287,8 +287,8 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(QualifiedName node) {
 		add(node);
-		node.setQualifier(node.getAST().newSimpleName("sss"));
-		node.setName(node.getAST().newSimpleName("sss"));
+		node.setQualifier(node.getAST().newSimpleName("sss")); //$NON-NLS-1$
+		node.setName(node.getAST().newSimpleName("sss")); //$NON-NLS-1$
 	}
 
 	/**
@@ -316,14 +316,14 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SimpleType)
 	 */
 	public void endVisit(SimpleType node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SingleVariableDeclaration)
 	 */
 	public void endVisit(SingleVariableDeclaration node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -342,16 +342,16 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperFieldAccess)
 	 */
 	public void endVisit(SuperFieldAccess node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
-		node.setQualifier(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		node.setQualifier(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperMethodInvocation)
 	 */
 	public void endVisit(SuperMethodInvocation node) {
-		node.setName(node.getAST().newSimpleName("XXX"));
-		node.setQualifier(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		node.setQualifier(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -376,7 +376,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ThisExpression)
 	 */
 	public void endVisit(ThisExpression node) {
-		node.setQualifier(node.getAST().newSimpleName("XXX"));
+		node.setQualifier(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**
@@ -396,8 +396,8 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(TypeDeclaration node) {
 		add(node);
-		node.setName(node.getAST().newSimpleName("XXX"));
-		node.setSuperclass(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		node.setSuperclass(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 		detachedListElement(node.bodyDeclarations());
 	}
 
@@ -425,7 +425,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(VariableDeclarationFragment node) {
 		add(node);
-		node.setName(node.getAST().newSimpleName("XXX"));
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 	}
 
 	/**

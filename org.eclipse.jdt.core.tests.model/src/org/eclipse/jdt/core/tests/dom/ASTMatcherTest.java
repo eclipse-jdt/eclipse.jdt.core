@@ -30,7 +30,7 @@ public class ASTMatcherTest extends TestCase {
 		Class c = ASTMatcherTest.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTMatcherTest(methods[i].getName()));
 			}
 		}
@@ -93,77 +93,77 @@ public class ASTMatcherTest extends TestCase {
 	
 	protected void setUp() {
 		ast = new AST();
-		N1 = ast.newSimpleName("N");
-		N1S = "(nSNNnS)";
-		N2 = ast.newSimpleName("M");
-		N2S = "(nSMMnS)";
-		N3 = ast.newSimpleName("O");
-		N3S = "(nSOOnS)";
-		E1 = ast.newSimpleName("X");
-		E1S = "(nSXXnS)";
-		E2 = ast.newSimpleName("Y");
-		E2S = "(nSYYnS)";
-		T1 = ast.newSimpleType(ast.newSimpleName("Z"));
-		T1S = "(tS(nSZZnS)tS)";
+		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
+		N1S = "(nSNNnS)"; //$NON-NLS-1$
+		N2 = ast.newSimpleName("M"); //$NON-NLS-1$
+		N2S = "(nSMMnS)"; //$NON-NLS-1$
+		N3 = ast.newSimpleName("O"); //$NON-NLS-1$
+		N3S = "(nSOOnS)"; //$NON-NLS-1$
+		E1 = ast.newSimpleName("X"); //$NON-NLS-1$
+		E1S = "(nSXXnS)"; //$NON-NLS-1$
+		E2 = ast.newSimpleName("Y"); //$NON-NLS-1$
+		E2S = "(nSYYnS)"; //$NON-NLS-1$
+		T1 = ast.newSimpleType(ast.newSimpleName("Z")); //$NON-NLS-1$
+		T1S = "(tS(nSZZnS)tS)"; //$NON-NLS-1$
 		S1 = ast.newContinueStatement();
-		S1S = "(sCNsCN)";
+		S1S = "(sCNsCN)"; //$NON-NLS-1$
 		S2 = ast.newBreakStatement();
-		S2S = "(sBRsBR)";
+		S2S = "(sBRsBR)"; //$NON-NLS-1$
 		B1 = ast.newBlock();
-		B1S = "(sBsB)";
+		B1S = "(sBsB)"; //$NON-NLS-1$
 		V1 = ast.newSingleVariableDeclaration();
 		V1.setType(ast.newPrimitiveType(PrimitiveType.INT));
-		V1.setName(ast.newSimpleName("a"));
-		V1S = "(VD(tPintinttP)(nSaanS)VD)";
+		V1.setName(ast.newSimpleName("a")); //$NON-NLS-1$
+		V1S = "(VD(tPintinttP)(nSaanS)VD)"; //$NON-NLS-1$
 		V2 = ast.newSingleVariableDeclaration();
 		V2.setType(ast.newPrimitiveType(PrimitiveType.BYTE));
-		V2.setName(ast.newSimpleName("b"));
-		V2S = "(VD(tPbytebytetP)(nSbbnS)VD)";
+		V2.setName(ast.newSimpleName("b")); //$NON-NLS-1$
+		V2S = "(VD(tPbytebytetP)(nSbbnS)VD)"; //$NON-NLS-1$
 		W1 = ast.newVariableDeclarationFragment();
-		W1.setName(ast.newSimpleName("a"));
-		W1S = "(VS(nSaanS)VS)";
+		W1.setName(ast.newSimpleName("a")); //$NON-NLS-1$
+		W1S = "(VS(nSaanS)VS)"; //$NON-NLS-1$
 		W2 = ast.newVariableDeclarationFragment();
-		W2.setName(ast.newSimpleName("b"));
-		W2S = "(VS(nSbbnS)VS)";
+		W2.setName(ast.newSimpleName("b")); //$NON-NLS-1$
+		W2S = "(VS(nSbbnS)VS)"; //$NON-NLS-1$
 		{
 			VariableDeclarationFragment temp = ast.newVariableDeclarationFragment();
-			temp.setName(ast.newSimpleName("f"));
+			temp.setName(ast.newSimpleName("f")); //$NON-NLS-1$
 			FD1 = ast.newFieldDeclaration(temp);
 			FD1.setType(ast.newPrimitiveType(PrimitiveType.INT));
-			FD1S = "(FD(tPintinttP)(VS(nSffnS)VS)FD)";
+			FD1S = "(FD(tPintinttP)(VS(nSffnS)VS)FD)"; //$NON-NLS-1$
 		}
 		{
 			VariableDeclarationFragment temp = ast.newVariableDeclarationFragment();
-			temp.setName(ast.newSimpleName("g"));
+			temp.setName(ast.newSimpleName("g")); //$NON-NLS-1$
 			FD2 = ast.newFieldDeclaration(temp);
 			FD2.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
-			FD2S = "(FD(tPcharchartP)(VS(nSggnS)VS)FD)";
+			FD2S = "(FD(tPcharchartP)(VS(nSggnS)VS)FD)"; //$NON-NLS-1$
 		}
 		PD1 = ast.newPackageDeclaration();
-		PD1.setName(ast.newSimpleName("p"));
-		PD1S = "(PD(nSppnS)PD)";
+		PD1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
+		PD1S = "(PD(nSppnS)PD)"; //$NON-NLS-1$
 		ID1 = ast.newImportDeclaration();
-		ID1.setName(ast.newSimpleName("i"));
-		ID1S = "(ID(nSiinS)ID)";
+		ID1.setName(ast.newSimpleName("i")); //$NON-NLS-1$
+		ID1S = "(ID(nSiinS)ID)"; //$NON-NLS-1$
 		ID2 = ast.newImportDeclaration();
-		ID2.setName(ast.newSimpleName("j"));
-		ID2S = "(ID(nSjjnS)ID)";
+		ID2.setName(ast.newSimpleName("j")); //$NON-NLS-1$
+		ID2S = "(ID(nSjjnS)ID)"; //$NON-NLS-1$
 		TD1 = ast.newTypeDeclaration();
-		TD1.setName(ast.newSimpleName("c"));
-		TD1S = "(TD(nSccnS)TD)";
+		TD1.setName(ast.newSimpleName("c")); //$NON-NLS-1$
+		TD1S = "(TD(nSccnS)TD)"; //$NON-NLS-1$
 		TD2 = ast.newTypeDeclaration();
-		TD2.setName(ast.newSimpleName("d"));
-		TD2S = "(TD(nSddnS)TD)";
+		TD2.setName(ast.newSimpleName("d")); //$NON-NLS-1$
+		TD2S = "(TD(nSddnS)TD)"; //$NON-NLS-1$
 		
 		ACD1 = ast.newAnonymousClassDeclaration();
-		ACD1S = "(ACDACD)";
+		ACD1S = "(ACDACD)"; //$NON-NLS-1$
 		
 		JD1 = ast.newJavadoc();
-		JD1.setComment("/**X*/");
-		JD1S = "(JD/**X*//**X*/JD)";
+		JD1.setComment("/**X*/"); //$NON-NLS-1$
+		JD1S = "(JD/**X*//**X*/JD)"; //$NON-NLS-1$
 		JD2 = ast.newJavadoc();
-		JD2.setComment("/**Y*/");
-		JD2S = "(JD/**Y*//**Y*/JD)";
+		JD2.setComment("/**Y*/"); //$NON-NLS-1$
+		JD2S = "(JD/**Y*//**Y*/JD)"; //$NON-NLS-1$
 
 	}
 	
@@ -453,12 +453,12 @@ public class ASTMatcherTest extends TestCase {
 
 	// NAMES
 	public void testSimpleName() {
-		Name x1 = ast.newName(new String[]{"Z"});
+		Name x1 = ast.newName(new String[]{"Z"}); //$NON-NLS-1$
 		basicMatch(x1);
 	}
 
 	public void testQualifiedName() {
-		Name x1 = ast.newName(new String[]{"X", "Y"});
+		Name x1 = ast.newName(new String[]{"X", "Y"}); //$NON-NLS-1$ //$NON-NLS-2$
 		basicMatch(x1);
 	}
 
@@ -470,7 +470,7 @@ public class ASTMatcherTest extends TestCase {
 	}
 
 	public void testSimpleType() {
-		Type x1 = ast.newSimpleType(ast.newName(new String[]{"Z"}));
+		Type x1 = ast.newSimpleType(ast.newName(new String[]{"Z"})); //$NON-NLS-1$
 		basicMatch(x1);
 	}
 
@@ -652,7 +652,7 @@ public class ASTMatcherTest extends TestCase {
 	}
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
-		x1.setComment("/**?*/");
+		x1.setComment("/**?*/"); //$NON-NLS-1$
 		basicMatch(x1);
 	}
 
@@ -687,7 +687,7 @@ public class ASTMatcherTest extends TestCase {
 		basicMatch(x1);
 	}
 	public void testNumberLiteral() {
-		NumberLiteral x1 = ast.newNumberLiteral("1.0");
+		NumberLiteral x1 = ast.newNumberLiteral("1.0"); //$NON-NLS-1$
 		basicMatch(x1);
 	}
 	public void testPackageDeclaration() {
@@ -724,7 +724,7 @@ public class ASTMatcherTest extends TestCase {
 	}
 	public void testStringLiteral() {
 		StringLiteral x1 = ast.newStringLiteral();
-		x1.setLiteralValue("H");
+		x1.setLiteralValue("H"); //$NON-NLS-1$
 		basicMatch(x1);
 	}
 	public void testSuperConstructorInvocation() {
@@ -796,7 +796,7 @@ public class ASTMatcherTest extends TestCase {
 		x1.setName(N1);
 		x1.setSuperclass(N2);
 		x1.superInterfaces().add(N3);
-		x1.superInterfaces().add(ast.newSimpleName("J"));
+		x1.superInterfaces().add(ast.newSimpleName("J")); //$NON-NLS-1$
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
 		basicMatch(x1);

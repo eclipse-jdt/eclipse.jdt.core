@@ -35,7 +35,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		Class c = ASTConverterTest.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
@@ -43,7 +43,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 		
 	public void test0001() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0001", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		
@@ -104,7 +104,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new Object() ==> ClassInstanceCreation
 	 */
 	public void test0002() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0002", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0002", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -119,7 +119,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new java.lang.Object() ==> ClassInstanceCreation
 	 */
 	public void test0003() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0003", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0003", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -140,7 +140,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new java.lang.Exception("ERROR") ==> ClassInstanceCreation
 	 */
 	public void test0004() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0004", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0004", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -154,7 +154,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 				this.ast.newSimpleName("Exception"));//$NON-NLS-1$
 		classInstanceCreation.setName(name);
 		StringLiteral literal = this.ast.newStringLiteral();
-		literal.setLiteralValue("ERROR");
+		literal.setLiteralValue("ERROR"); //$NON-NLS-1$
 		classInstanceCreation.arguments().add(literal);
 		assertTrue("Both AST trees should be identical", classInstanceCreation.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "new java.lang.Exception(\"ERROR\")", source); //$NON-NLS-1$
@@ -164,7 +164,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new java.lang.Object() {} ==> ClassInstanceCreation
 	 */
 	public void test0005() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0005", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0005", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -183,7 +183,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		checkSourceRange(expression, "new java.lang.Object() {}", source); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation2 = (ClassInstanceCreation) expression;
 		Name name2 = classInstanceCreation2.getName();
-		checkSourceRange(name2, "java.lang.Object", source);
+		checkSourceRange(name2, "java.lang.Object", source); //$NON-NLS-1$
 	}
 	
 				
@@ -191,7 +191,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new java.lang.Runnable() { public void run() {}} ==> ClassInstanceCreation
 	 */
 	public void test0006() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0006", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0006", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -221,11 +221,11 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new Test().new D() ==> ClassInstanceCreation
 	 */
 	public void test0007() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0007", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0007", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		ASTNode expression = (ASTNode) ((MethodInvocation) expressionStatement.getExpression()).arguments().get(0);
 		assertNotNull("Expression should not be null", expression); //$NON-NLS-1$
@@ -242,7 +242,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new int[] {1, 2, 3, 4} ==> ArrayCreation
 	 */
 	public void test0008() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0008", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0008", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -263,7 +263,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new int[][] {{1}, {2}} ==> ArrayCreation
 	 */
 	public void test0009() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0009", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0009", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -286,7 +286,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new int[3] ==> ArrayCreation
 	 */
 	public void test0010() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0010", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0010", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -302,7 +302,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new int[3][] ==> ArrayCreation
 	 */
 	public void test0011() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0011", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0011", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -318,7 +318,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Test allocation expression: new int[][] {{},{}} ==> ArrayCreation
 	 */
 	public void test0012() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0012", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0012", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -339,7 +339,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * int i; ==> VariableDeclarationFragment
 	 */
 	public void test0013() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0013", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0013", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -357,7 +357,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * int i = 0; ==> VariableDeclarationFragment
 	 */
 	public void test0014() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0014", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0014", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -377,7 +377,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i = 1; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0015() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0015", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0015", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -395,7 +395,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i += 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0016() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0016", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0016", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -413,7 +413,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i -= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0017() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0017", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0017", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -431,7 +431,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i *= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0018() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0018", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0018", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -449,7 +449,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i /= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0019() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0019", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0019", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -467,7 +467,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i &= 2 ==> ExpressionStatement(Assignment)
 	 */
 	public void test0020() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0020", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0020", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -485,7 +485,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i |= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0021() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0021", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0021", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -503,7 +503,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i ^= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0022() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0022", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0022", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -521,7 +521,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i %= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0023() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0023", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0023", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -539,7 +539,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i <<= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0024() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0024", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0024", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -557,7 +557,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i >>= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0025() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0025", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0025", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -575,7 +575,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i >>>= 2; ==> ExpressionStatement(Assignment)
 	 */
 	public void test0026() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0026", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0026", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -593,7 +593,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * --i; ==> ExpressionStatement(PrefixExpression)
 	 */
 	public void test0027() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0027", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0027", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -610,7 +610,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * --i; ==> ExpressionStatement(PrefixExpression)
 	 */
 	public void test0028() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0028", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0028", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -627,7 +627,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i--; ==> ExpressionStatement(PostfixExpression)
 	 */
 	public void test0029() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0029", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0029", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -644,7 +644,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i++; ==> ExpressionStatement(PostfixExpression)
 	 */
 	public void test0030() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0030", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0030", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -661,7 +661,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (String) o; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0031() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0031", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0031", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -683,7 +683,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (int) d; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0032() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0032", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0032", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -705,7 +705,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (float) d; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0033() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0033", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0033", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -729,7 +729,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (byte) d; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0034() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0034", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0034", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -753,7 +753,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (short) d; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0035() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0035", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0035", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -777,7 +777,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (long) d; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0036() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0036", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0036", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -801,7 +801,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * (char) i; ==> ExpressionStatement(CastExpression)
 	 */
 	public void test0037() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0037", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0037", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -825,7 +825,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * int.class; ==> ExpressionStatement(TypeLiteral)
 	 */
 	public void test0038() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0038", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0038", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -848,7 +848,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * void.class; ==> ExpressionStatement(TypeLiteral)
 	 */
 	public void test0039() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0039", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0039", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -871,7 +871,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * double.class; ==> ExpressionStatement(TypeLiteral)
 	 */
 	public void test0040() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0040", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0040", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -894,7 +894,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * long.class; ==> ExpressionStatement(TypeLiteral)
 	 */
 	public void test0041() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0041", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0041", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -917,7 +917,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * false ==> BooleanLiteral
 	 */
 	public void test0042() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0042", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0042", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -931,7 +931,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * true ==> BooleanLiteral
 	 */
 	public void test0043() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0043", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0043", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -945,7 +945,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * null ==> NullLiteral
 	 */
 	public void test0044() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0044", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0044", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -959,13 +959,13 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * CharLiteral ==> CharacterLiteral
 	 */
 	public void test0045() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0045", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0045", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
 		assertNotNull("Expression should not be null", expression); //$NON-NLS-1$
 		CharacterLiteral literal = this.ast.newCharacterLiteral();
-		literal.setEscapedValue("'c'");
+		literal.setEscapedValue("'c'"); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", literal.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "'c'", source); //$NON-NLS-1$
 	}
@@ -974,7 +974,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * DoubleLiteral ==> NumberLiteral
 	 */
 	public void test0046() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0046", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0046", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -988,7 +988,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * FloatLiteral ==> NumberLiteral
 	 */
 	public void test0047() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0047", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0047", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1002,7 +1002,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IntLiteral ==> NumberLiteral
 	 */
 	public void test0048() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0048", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0048", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1016,7 +1016,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IntLiteralMinValue ==> NumberLiteral
 	 */
 	public void test0049() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0049", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0049", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1030,7 +1030,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LongLiteral ==> NumberLiteral
 	 */
 	public void test0050() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0050", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0050", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1044,7 +1044,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LongLiteral ==> NumberLiteral (negative value)
 	 */
 	public void test0051() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0051", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0051", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1061,7 +1061,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LongLiteralMinValue ==> NumberLiteral
 	 */
 	public void test0052() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0052", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0052", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1075,7 +1075,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ExtendedStringLiteral ==> StringLiteral
 	 */
 	public void test0053() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0053", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0053", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -1100,7 +1100,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * AND_AND_Expression ==> InfixExpression
 	 */
 	public void test0054() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0054", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0054", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1125,7 +1125,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * OR_OR_Expression ==> InfixExpression
 	 */
 	public void test0055() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0055", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0055", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1150,7 +1150,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * EqualExpression ==> InfixExpression
 	 */
 	public void test0056() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0056", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0056", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1175,7 +1175,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (+) ==> InfixExpression
 	 */
 	public void test0057() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0057", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0057", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1200,7 +1200,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (-) ==> InfixExpression
 	 */
 	public void test0058() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0058", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0058", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1225,7 +1225,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (*) ==> InfixExpression
 	 */
 	public void test0059() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0059", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0059", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1250,7 +1250,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (/) ==> InfixExpression
 	 */
 	public void test0060() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0060", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0060", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1275,7 +1275,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (%) ==> InfixExpression
 	 */
 	public void test0061() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0061", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0061", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1300,7 +1300,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (^) ==> InfixExpression
 	 */
 	public void test0062() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0062", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0062", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1325,7 +1325,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (&) ==> InfixExpression
 	 */
 	public void test0063() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0063", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0063", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1350,7 +1350,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (|) ==> InfixExpression
 	 */
 	public void test0064() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0064", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0064", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1375,7 +1375,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (<) ==> InfixExpression
 	 */
 	public void test0065() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0065", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0065", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1400,7 +1400,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (<=) ==> InfixExpression
 	 */
 	public void test0066() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0066", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0066", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1425,7 +1425,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (>) ==> InfixExpression
 	 */
 	public void test0067() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0067", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0067", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1450,7 +1450,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (>=) ==> InfixExpression
 	 */
 	public void test0068() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0068", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0068", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1475,7 +1475,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression (!=) ==> InfixExpression
 	 */
 	public void test0069() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0069", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0069", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 2);
@@ -1500,7 +1500,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * InstanceofExpression ==> InfixExpression
 	 */
 	public void test0070() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0070", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0070", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -1524,7 +1524,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * InstanceofExpression ==> InfixExpression
 	 */
 	public void test0071() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0071", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0071", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -1555,7 +1555,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * UnaryExpression (!) ==> PrefixExpression
 	 */
 	public void test0072() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0072", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0072", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -1578,7 +1578,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * UnaryExpression (~) ==> PrefixExpression
 	 */
 	public void test0073() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0073", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0073", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
@@ -1601,7 +1601,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * UnaryExpression (+) ==> PrefixExpression
 	 */
 	public void test0074() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0074", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0074", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1625,7 +1625,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * UnaryExpression (-) ==> PrefixExpression
 	 */
 	public void test0075() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0075", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0075", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1650,7 +1650,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ConditionalExpression ==> ConditionalExpression
 	 */
 	public void test0076() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0076", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0076", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1678,7 +1678,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ConditionalExpression ==> ConditionalExpression
 	 */
 	public void test0077() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0077", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0077", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1706,7 +1706,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * MessageSend ==> SuperMethodInvocation
 	 */
 	public void test0078() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0078", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0078", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1722,7 +1722,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * MessageSend ==> SuperMethodInvocation
 	 */
 	public void test0079() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0079", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0079", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1739,7 +1739,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * MessageSend ==> MethodInvocation
 	 */
 	public void test0080() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0080", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0080", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1756,7 +1756,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * MessageSend ==> MethodInvocation
 	 */
 	public void test0081() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0081", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0081", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1774,7 +1774,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0082() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0082", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0082", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1789,7 +1789,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0083() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0083", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0083", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1808,9 +1808,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 		forStatement.updaters().add(postfixExpression);
 		forStatement.setBody(this.ast.newBlock());
 		InfixExpression infixExpression = this.ast.newInfixExpression();
-		infixExpression.setLeftOperand(this.ast.newSimpleName("i"));
+		infixExpression.setLeftOperand(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
-		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
+		infixExpression.setRightOperand(this.ast.newNumberLiteral("10")); //$NON-NLS-1$
 		forStatement.setExpression(infixExpression);
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (int i = 0; i < 10; i++) {}", source); //$NON-NLS-1$
@@ -1820,7 +1820,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0084() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0084", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0084", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1840,9 +1840,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 		postfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
 		forStatement.updaters().add(postfixExpression);
 		InfixExpression infixExpression = this.ast.newInfixExpression();
-		infixExpression.setLeftOperand(this.ast.newSimpleName("i"));
+		infixExpression.setLeftOperand(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
-		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
+		infixExpression.setRightOperand(this.ast.newNumberLiteral("10")); //$NON-NLS-1$
 		forStatement.setExpression(infixExpression);
 		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1853,7 +1853,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0085() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0085", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0085", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1881,7 +1881,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0086() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0086", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0086", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1892,9 +1892,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 		postfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
 		forStatement.updaters().add(postfixExpression);
 		InfixExpression infixExpression = this.ast.newInfixExpression();
-		infixExpression.setLeftOperand(this.ast.newSimpleName("i"));
+		infixExpression.setLeftOperand(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
-		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
+		infixExpression.setRightOperand(this.ast.newNumberLiteral("10")); //$NON-NLS-1$
 		forStatement.setExpression(infixExpression);
 		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1905,7 +1905,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement ==> ForStatement
 	 */
 	public void test0087() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0087", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0087", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1924,7 +1924,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LocalDeclaration ==> VariableDeclarationStatement
 	 */
 	public void test0088() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0088", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0088", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1945,7 +1945,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LocalDeclaration ==> VariableDeclarationStatement
 	 */
 	public void test0089() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0089", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0089", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1974,7 +1974,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * LocalDeclaration ==> VariableDeclarationStatement
 	 */
 	public void test0090() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0090", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0090", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -1998,7 +1998,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Argument ==> SingleVariableDeclaration
 	 */
 	public void test0091() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0091", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0091", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		MethodDeclaration method = (MethodDeclaration)((TypeDeclaration) ((CompilationUnit) result).types().get(0)).bodyDeclarations().get(0);
@@ -2016,7 +2016,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Argument ==> SingleVariableDeclaration
 	 */
 	public void test0092() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0092", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0092", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		MethodDeclaration method = (MethodDeclaration)((TypeDeclaration) ((CompilationUnit) result).types().get(0)).bodyDeclarations().get(0);
@@ -2028,14 +2028,14 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclaration.setName(this.ast.newSimpleName("s")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", variableDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "final String s", source); //$NON-NLS-1$
-		assertEquals("Wrong dimension", 0, node.getExtraDimensions());
+		assertEquals("Wrong dimension", 0, node.getExtraDimensions()); //$NON-NLS-1$
 	}
 
 	/**
 	 * Break ==> BreakStatement
 	 */
 	public void test0093() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0093", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0093", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2051,7 +2051,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Continue ==> ContinueStatement
 	 */
 	public void test0094() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0094", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0094", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2067,7 +2067,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Continue with Label ==> ContinueStatement
 	 */
 	public void test0095() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0095", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0095", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		LabeledStatement labeledStatement = (LabeledStatement) getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2075,7 +2075,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ContinueStatement statement = (ContinueStatement) ((Block) forStatement.getBody()).statements().get(0);
 		assertNotNull("Expression should not be null", statement); //$NON-NLS-1$
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
-		continueStatement.setLabel(this.ast.newSimpleName("label"));
+		continueStatement.setLabel(this.ast.newSimpleName("label")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", continueStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
 		checkSourceRange(statement, "continue label;", source); //$NON-NLS-1$
 	}
@@ -2084,7 +2084,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Break + label  ==> BreakStatement
 	 */
 	public void test0096() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0096", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0096", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		LabeledStatement labeledStatement = (LabeledStatement) getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2101,7 +2101,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * SwitchStatement ==> SwitchStatement
 	 */
 	public void test0097() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0097", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0097", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2150,22 +2150,22 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "              break;\n" +//$NON-NLS-1$
 			 "          default:\n" +//$NON-NLS-1$
 			 "				System.out.println(\"default\");\n" +//$NON-NLS-1$
-			 "		}";
+			 "		}"; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 		SwitchStatement switchStatement2 = (SwitchStatement) node;
 		List statements = switchStatement2.statements();
-		assertEquals("wrong size", 7, statements.size());
+		assertEquals("wrong size", 7, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(5);
-		assertTrue("Not a case statement", stmt instanceof SwitchCase);
+		assertTrue("Not a case statement", stmt instanceof SwitchCase); //$NON-NLS-1$
 		SwitchCase switchCase = (SwitchCase) stmt;
-		assertTrue("Not the default case", switchCase.isDefault());
+		assertTrue("Not the default case", switchCase.isDefault()); //$NON-NLS-1$
 	}
 
 	/**
 	 * EmptyStatement ==> EmptyStatement
 	 */
 	public void test0098() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0098", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0098", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2179,7 +2179,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * DoStatement ==> DoStatement
 	 */
 	public void test0099() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0099", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0099", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2199,7 +2199,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * WhileStatement ==> WhileStatement
 	 */
 	public void test0100() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0100", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0100", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2215,7 +2215,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * WhileStatement ==> WhileStatement
 	 */
 	public void test0101() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0101", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0101", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2231,7 +2231,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ExtendedStringLiteral ==> StringLiteral
 	 */
 	public void test0102() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0102", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0102", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2239,13 +2239,13 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		StringLiteral literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("Hello");
+		literal.setLiteralValue("Hello"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue(" World");
+		literal.setLiteralValue(" World"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("!");
+		literal.setLiteralValue("!"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "\"Hello\" + \" World\" + \"!\"", source);//$NON-NLS-1$
@@ -2255,7 +2255,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ExtendedStringLiteral ==> StringLiteral
 	 */
 	public void test0103() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0103", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0103", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2263,16 +2263,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		StringLiteral literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("Hello");
+		literal.setLiteralValue("Hello"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue(" World");
+		literal.setLiteralValue(" World"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("!");
+		literal.setLiteralValue("!"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("!");
+		literal.setLiteralValue("!"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "\"Hello\" + \" World\" + \"!\" + \"!\"", source);//$NON-NLS-1$
@@ -2282,7 +2282,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ExtendedStringLiteral ==> StringLiteral
 	 */
 	public void test0104() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0104", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0104", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2290,16 +2290,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		StringLiteral literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("Hello");
+		literal.setLiteralValue("Hello"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue(" World");
+		literal.setLiteralValue(" World"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newStringLiteral();//$NON-NLS-1$
-		literal.setLiteralValue("!");
+		literal.setLiteralValue("!"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		NumberLiteral numberLiteral = this.ast.newNumberLiteral();//$NON-NLS-1$
-		numberLiteral.setToken("4");
+		numberLiteral.setToken("4"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(numberLiteral);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "\"Hello\" + \" World\" + \"!\" + 4", source);//$NON-NLS-1$
@@ -2309,7 +2309,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * NumberLiteral ==> InfixExpression
 	 */
 	public void test0105() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0105", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0105", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2317,16 +2317,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		NumberLiteral literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("5");
+		literal.setToken("5"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("6");
+		literal.setToken("6"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "4 + 5 + 6 + 4", source);//$NON-NLS-1$
@@ -2336,7 +2336,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * NumberLiteral ==> InfixExpression
 	 */
 	public void test0106() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0106", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0106", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2344,24 +2344,24 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.MINUS);
 		NumberLiteral literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("5");
+		literal.setToken("5"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		
 		InfixExpression infixExpression2 = this.ast.newInfixExpression();
 		infixExpression2.setOperator(InfixExpression.Operator.PLUS);
 		infixExpression2.setLeftOperand(infixExpression);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("6");
+		literal.setToken("6"); //$NON-NLS-1$
 		infixExpression2.setRightOperand(literal);		
 		
 		InfixExpression infixExpression3 = this.ast.newInfixExpression();
 		infixExpression3.setOperator(InfixExpression.Operator.PLUS);
 		infixExpression3.setLeftOperand(infixExpression2);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression3.setRightOperand(literal);		
 		
 		assertTrue("Both AST trees should be identical", infixExpression3.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
@@ -2372,7 +2372,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * NumberLiteral ==> InfixExpression
 	 */
 	public void test0107() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0107", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0107", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2380,16 +2380,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.MINUS);
 		NumberLiteral literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("5");
+		literal.setToken("5"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("6");
+		literal.setToken("6"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "4 - 5 - 6 - 4", source);//$NON-NLS-1$
@@ -2399,7 +2399,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * NumberLiteral ==> InfixExpression
 	 */
 	public void test0108() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0108", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0108", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2407,16 +2407,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		StringLiteral stringLiteral = this.ast.newStringLiteral();//$NON-NLS-1$
-		stringLiteral.setLiteralValue("4");
+		stringLiteral.setLiteralValue("4"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(stringLiteral);
 		NumberLiteral literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("5");
+		literal.setToken("5"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("6");
+		literal.setToken("6"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression.extendedOperands().add(literal);
 		assertTrue("Both AST trees should be identical", infixExpression.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "\"4\" + 5 + 6 + 4", source);//$NON-NLS-1$
@@ -2426,7 +2426,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * NumberLiteral ==> InfixExpression
 	 */
 	public void test0109() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0109", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0109", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -2434,24 +2434,24 @@ public class ASTConverterTest extends ConverterTestSetup {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.MINUS);
 		StringLiteral stringLiteral = this.ast.newStringLiteral();//$NON-NLS-1$
-		stringLiteral.setLiteralValue("4");
+		stringLiteral.setLiteralValue("4"); //$NON-NLS-1$
 		infixExpression.setLeftOperand(stringLiteral);
 		NumberLiteral literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("5");
+		literal.setToken("5"); //$NON-NLS-1$
 		infixExpression.setRightOperand(literal);		
 		
 		InfixExpression infixExpression2 = this.ast.newInfixExpression();
 		infixExpression2.setOperator(InfixExpression.Operator.PLUS);
 		infixExpression2.setLeftOperand(infixExpression);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("6");
+		literal.setToken("6"); //$NON-NLS-1$
 		infixExpression2.setRightOperand(literal);		
 		
 		InfixExpression infixExpression3 = this.ast.newInfixExpression();
 		infixExpression3.setOperator(InfixExpression.Operator.PLUS);
 		infixExpression3.setLeftOperand(infixExpression2);
 		literal = this.ast.newNumberLiteral();//$NON-NLS-1$
-		literal.setToken("4");
+		literal.setToken("4"); //$NON-NLS-1$
 		infixExpression3.setRightOperand(literal);		
 		
 		assertTrue("Both AST trees should be identical", infixExpression3.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
@@ -2462,7 +2462,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ReturnStatement ==> ReturnStatement
 	 */
 	public void test0110() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0110", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0110", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2479,7 +2479,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ReturnStatement ==> ReturnStatement
 	 */
 	public void test0111() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0111", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0111", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2496,7 +2496,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * SynchronizedStatement ==> SynchronizedStatement
 	 */
 	public void test0112() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0112", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0112", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2514,7 +2514,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * TryStatement ==> TryStatement
 	 */
 	public void test0113() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0113", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0113", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2542,7 +2542,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * TryStatement ==> TryStatement
 	 */
 	public void test0114() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0114", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0114", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2568,7 +2568,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * TryStatement ==> TryStatement
 	 */
 	public void test0115() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0115", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0115", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2601,7 +2601,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ThrowStatement ==> ThrowStatement
 	 */
 	public void test0116() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0116", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0116", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2616,7 +2616,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ThrowStatement ==> ThrowStatement
 	 */
 	public void test0117() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0117", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0117", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2631,7 +2631,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ThrowStatement ==> ThrowStatement
 	 */
 	public void test0118() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0118", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0118", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2646,7 +2646,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IfStatement ==> IfStatement
 	 */
 	public void test0119() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0119", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0119", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2662,7 +2662,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IfStatement ==> IfStatement
 	 */
 	public void test0120() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0120", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0120", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2681,7 +2681,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IfStatement ==> IfStatement
 	 */
 	public void test0121() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0121", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0121", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2700,7 +2700,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IfStatement ==> IfStatement
 	 */
 	public void test0122() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0122", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0122", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2720,7 +2720,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * IfStatement ==> IfStatement
 	 */
 	public void test0123() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0123", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0123", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2747,7 +2747,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Multiple local declaration => VariabledeclarationStatement
 	 */
 	public void test0124() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0124", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0124", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2776,7 +2776,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		statement.setModifiers(Modifier.NONE);
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		VariableDeclarationFragment[] fragments = (VariableDeclarationFragment[])((VariableDeclarationStatement) node).fragments().toArray(new VariableDeclarationFragment[4]);
-		assertTrue("fragments.length != 4", fragments.length == 4);
+		assertTrue("fragments.length != 4", fragments.length == 4); //$NON-NLS-1$
 		checkSourceRange(fragments[0], "x= 10", source);//$NON-NLS-1$
 		checkSourceRange(fragments[1], "z[] = null", source);//$NON-NLS-1$
 		checkSourceRange(fragments[2], "i", source);//$NON-NLS-1$
@@ -2788,7 +2788,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Multiple local declaration => VariabledeclarationStatement
 	 */
 	public void test0125() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0125", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0125", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2816,9 +2816,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 		statement.setType(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 1));
 		statement.setModifiers(Modifier.NONE);
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
-		checkSourceRange(node, "int[] x= 10, z[] = null, i, j[][];", source);
+		checkSourceRange(node, "int[] x= 10, z[] = null, i, j[][];", source); //$NON-NLS-1$
 		VariableDeclarationFragment[] fragments = (VariableDeclarationFragment[])((VariableDeclarationStatement) node).fragments().toArray(new VariableDeclarationFragment[4]);
-		assertTrue("fragments.length != 4", fragments.length == 4);
+		assertTrue("fragments.length != 4", fragments.length == 4); //$NON-NLS-1$
 		checkSourceRange(fragments[0], "x= 10", source);//$NON-NLS-1$
 		checkSourceRange(fragments[1], "z[] = null", source);//$NON-NLS-1$
 		checkSourceRange(fragments[2], "i", source);//$NON-NLS-1$
@@ -2829,7 +2829,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement
 	 */
 	public void test0126() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0126", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0126", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2858,7 +2858,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement
 	 */
 	public void test0127() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0127", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0127", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2887,7 +2887,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ForStatement
 	 */
 	public void test0128() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0128", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0128", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2916,16 +2916,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * FieldDeclaration
 	 */
 	public void test0129() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0129", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0129", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		VariableDeclarationFragment frag = (VariableDeclarationFragment) ((FieldDeclaration) node).fragments().get(0);
-		assertTrue("Not a declaration", frag.getName().isDeclaration());
+		assertTrue("Not a declaration", frag.getName().isDeclaration()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = this.ast.newVariableDeclarationFragment();
-		fragment.setName(this.ast.newSimpleName("i"));
+		fragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		fragment.setExtraDimensions(0);
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(fragment);
 		fieldDeclaration.setModifiers(Modifier.NONE);
@@ -2938,16 +2938,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * FieldDeclaration
 	 */
 	public void test0130() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0130", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0130", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = this.ast.newVariableDeclarationFragment();
-		fragment.setName(this.ast.newSimpleName("x"));
+		fragment.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
 		NumberLiteral literal = this.ast.newNumberLiteral();
-		literal.setToken("10");
+		literal.setToken("10"); //$NON-NLS-1$
 		fragment.setInitializer(literal);
 		fragment.setExtraDimensions(0);
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(fragment);
@@ -2969,7 +2969,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("Both AST trees should be identical", fieldDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "public int x= 10, y[] = null, i, j[][];", source); //$NON-NLS-1$
 		VariableDeclarationFragment[] fragments = (VariableDeclarationFragment[])((FieldDeclaration) node).fragments().toArray(new VariableDeclarationFragment[4]);
-		assertTrue("fragments.length != 4", fragments.length == 4);
+		assertTrue("fragments.length != 4", fragments.length == 4); //$NON-NLS-1$
 		checkSourceRange(fragments[0], "x= 10", source);//$NON-NLS-1$
 		checkSourceRange(fragments[1], "y[] = null", source);//$NON-NLS-1$
 		checkSourceRange(fragments[2], "i", source);//$NON-NLS-1$
@@ -2980,13 +2980,13 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Argument with final modifier
 	 */
 	public void test0131() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0131", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0131", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
-		assertTrue("Not a declaration", ((MethodDeclaration) node).getName().isDeclaration());
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
+		assertTrue("Not a declaration", ((MethodDeclaration) node).getName().isDeclaration()); //$NON-NLS-1$
 		List parameters = ((MethodDeclaration) node).parameters();
 		assertTrue("Parameters.length != 1", parameters.size() == 1);		//$NON-NLS-1$
 		SingleVariableDeclaration arg = (SingleVariableDeclaration) ((MethodDeclaration) node).parameters().get(0);
@@ -2996,37 +2996,37 @@ public class ASTConverterTest extends ConverterTestSetup {
 		singleVariableDeclaration.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", singleVariableDeclaration.subtreeMatch(new ASTMatcher(), arg));		//$NON-NLS-1$
 		checkSourceRange(node, "void foo(final int i) {}", source); //$NON-NLS-1$
-		checkSourceRange(arg, "final int i", source);
+		checkSourceRange(arg, "final int i", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0132() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0132", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0132", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
 		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  void foo(final int i) {}", source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0133() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0133", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0133", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "void foo(final int i) {}", source); //$NON-NLS-1$
@@ -3036,12 +3036,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0134() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0134", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0134", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "void foo(final int i) {}", source); //$NON-NLS-1$
@@ -3051,12 +3051,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0135() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0135", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0135", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -3068,12 +3068,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0136() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0136", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0136", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -3083,12 +3083,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0137() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0137", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0137", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -3098,12 +3098,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0138() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0138", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0138", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
@@ -3116,12 +3116,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0139() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0139", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0139", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
@@ -3134,12 +3134,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0140() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0140", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0140", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -3150,19 +3150,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 			"  int i;\n"  +//$NON-NLS-1$
 			"}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0141() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0141", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0141", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -3171,19 +3171,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  class B {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0142() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0142", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0142", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "class B {}", source); //$NON-NLS-1$
@@ -3193,12 +3193,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0143() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0143", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0143", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "public static class B {}", source); //$NON-NLS-1$
@@ -3208,12 +3208,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0144() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0144", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0144", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "public static class B {}", source); //$NON-NLS-1$
@@ -3223,7 +3223,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0145() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0145", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0145", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3235,7 +3235,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0146() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0146", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0146", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3247,7 +3247,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0147() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0147", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0147", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3261,7 +3261,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  static {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 		
 	}
 
@@ -3269,7 +3269,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0148() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0148", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0148", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3283,7 +3283,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 		
 	}
 
@@ -3291,7 +3291,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0149() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0149", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0149", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3305,71 +3305,71 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking syntax error
 	 */
 	public void test0150() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0150", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0150", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertTrue("The compilation unit is malformed", !isMalformed(unit));
-		assertTrue("The package declaration is malformed", !isMalformed(unit.getPackage()));
+		assertTrue("The compilation unit is malformed", !isMalformed(unit)); //$NON-NLS-1$
+		assertTrue("The package declaration is malformed", !isMalformed(unit.getPackage())); //$NON-NLS-1$
 		List imports = unit.imports();
-		assertTrue("The imports list size is not one", imports.size() == 1);
-		assertTrue("The first import is not malformed", isMalformed((ASTNode) imports.get(0)));
+		assertTrue("The imports list size is not one", imports.size() == 1); //$NON-NLS-1$
+		assertTrue("The first import is not malformed", isMalformed((ASTNode) imports.get(0))); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking syntax error
 	 */
 	public void test0151() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0151", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0151", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The compilation unit is malformed", !isMalformed(result));
+		assertTrue("The compilation unit is malformed", !isMalformed(result)); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking syntax error
 	 */
 	public void test0152() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0152", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0152", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The compilation unit is malformed", !isMalformed(result));
+		assertTrue("The compilation unit is malformed", !isMalformed(result)); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The type is malformed", !isMalformed(node));
+		assertTrue("The type is malformed", !isMalformed(node)); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The field is not malformed", isMalformed(node));
+		assertTrue("The field is not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking syntax error
 	 */
 	public void test0153() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0153", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0153", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The compilation unit is malformed", !isMalformed(result));
+		assertTrue("The compilation unit is malformed", !isMalformed(result)); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The method is not malformed", isMalformed(node));
+		assertTrue("The method is not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking binding of package declaration
 	 */
 	public void test0154() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0154", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0154", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		IBinding binding = compilationUnit.getPackage().getName().resolveBinding();
 		assertNotNull("The package binding is null", binding); //$NON-NLS-1$
 		assertTrue("The binding is not a package binding", binding instanceof IPackageBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = (IPackageBinding) binding;
-		assertEquals("The package name is incorrect", "test0154", packageBinding.getName());
+		assertEquals("The package name is incorrect", "test0154", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding2 = compilationUnit.getPackage().getName().resolveBinding();
 		assertTrue("The package binding is not canonical", binding == binding2); //$NON-NLS-1$
 	}
@@ -3378,7 +3378,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking arguments positions
 	 */
 	public void test0155() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0155", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0155", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
@@ -3390,17 +3390,17 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The parameters size is different from 2", parameters.size() == 2);  //$NON-NLS-1$
 		Object parameter = parameters.get(0);
 		assertTrue("The parameter is not a SingleVariableDeclaration", parameter instanceof SingleVariableDeclaration);  //$NON-NLS-1$
-		checkSourceRange((ASTNode) parameter, "int i", source);
+		checkSourceRange((ASTNode) parameter, "int i", source); //$NON-NLS-1$
 		parameter = parameters.get(1);
 		assertTrue("The parameter is not a SingleVariableDeclaration", parameter instanceof SingleVariableDeclaration);  //$NON-NLS-1$
-		checkSourceRange((ASTNode) parameter, "final boolean b", source);
+		checkSourceRange((ASTNode) parameter, "final boolean b", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Checking arguments positions
 	 */
 	public void test0156() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0156", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0156", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
@@ -3412,7 +3412,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The parameters size is different from 1", parameters.size() == 1);  //$NON-NLS-1$
 		Object parameter = parameters.get(0);
 		assertTrue("The parameter is not a SingleVariableDeclaration", parameter instanceof SingleVariableDeclaration);  //$NON-NLS-1$
-		checkSourceRange((ASTNode) parameter, "int i", source);
+		checkSourceRange((ASTNode) parameter, "int i", source); //$NON-NLS-1$
 		Block block = methodDecl.getBody();
 		List statements = block.statements();
 		assertTrue("The statements size is different from 2", statements.size() == 2);  //$NON-NLS-1$
@@ -3424,130 +3424,130 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check canonic binding for fields
 	 */
 	public void test0157() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0157.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0157.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Type binding is null", typeBinding);
-		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding());
+		assertNotNull("Type binding is null", typeBinding); //$NON-NLS-1$
+		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding()); //$NON-NLS-1$
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
-		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0);
+		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration);
+		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) bodyDeclaration;
 		List variableFragments = fieldDeclaration.fragments();
-		assertTrue("The fragment list is empty", variableFragments.size() != 0);
+		assertTrue("The fragment list is empty", variableFragments.size() != 0); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableFragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertNotNull("the field binding is null", variableBinding);
-		assertTrue("The field binding is not canonical", variableBinding == fragment.resolveBinding());
+		assertNotNull("the field binding is null", variableBinding); //$NON-NLS-1$
+		assertTrue("The field binding is not canonical", variableBinding == fragment.resolveBinding()); //$NON-NLS-1$
 		typeBinding = variableBinding.getType();
-		assertTrue("The type is not an array type", typeBinding.isArray());
-		assertTrue("The type binding for the field is not canonical", typeBinding == variableBinding.getType());
+		assertTrue("The type is not an array type", typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("The type binding for the field is not canonical", typeBinding == variableBinding.getType()); //$NON-NLS-1$
 		SimpleName name = fragment.getName();
-		assertTrue("is a declaration", name.isDeclaration());
+		assertTrue("is a declaration", name.isDeclaration()); //$NON-NLS-1$
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong type", IBinding.VARIABLE, binding.getKind());
-		assertTrue("not a field", ((IVariableBinding) binding).isField());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.VARIABLE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("not a field", ((IVariableBinding) binding).isField()); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check canonic bindings for fields
 	 */
 	public void test0158() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0158.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0158.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Type binding is null", typeBinding);
-		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding());
+		assertNotNull("Type binding is null", typeBinding); //$NON-NLS-1$
+		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding()); //$NON-NLS-1$
 		SimpleName simpleName = typeDeclaration.getName();
-		assertTrue("is a declaration", simpleName.isDeclaration());
+		assertTrue("is a declaration", simpleName.isDeclaration()); //$NON-NLS-1$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong name", simpleName.getIdentifier(), binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong name", simpleName.getIdentifier(), binding.getName()); //$NON-NLS-1$
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
-		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0);
+		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration);
+		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) bodyDeclaration;
 		List variableFragments = fieldDeclaration.fragments();
-		assertTrue("The fragment list is empty", variableFragments.size() != 0);
+		assertTrue("The fragment list is empty", variableFragments.size() != 0); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableFragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertNotNull("the field binding is null", variableBinding);
-		assertTrue("The field binding is not canonical", variableBinding == fragment.resolveBinding());
+		assertNotNull("the field binding is null", variableBinding); //$NON-NLS-1$
+		assertTrue("The field binding is not canonical", variableBinding == fragment.resolveBinding()); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = variableBinding.getType();
-		assertTrue("The type is not an array type", typeBinding2.isArray());
-		assertTrue("The type binding for the field is not canonical", typeBinding2 == variableBinding.getType());
-		assertTrue("The type binding for the field is not canonical with the declaration type binding", typeBinding == typeBinding2.getElementType());
+		assertTrue("The type is not an array type", typeBinding2.isArray()); //$NON-NLS-1$
+		assertTrue("The type binding for the field is not canonical", typeBinding2 == variableBinding.getType()); //$NON-NLS-1$
+		assertTrue("The type binding for the field is not canonical with the declaration type binding", typeBinding == typeBinding2.getElementType()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Define an anonymous type
 	 */
 	public void test0159() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0159", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0159", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check bindings for multiple field declarations
 	 */
 	public void test0160() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0160", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0160", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Type binding is null", typeBinding);
-		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding());
+		assertNotNull("Type binding is null", typeBinding); //$NON-NLS-1$
+		assertTrue("The type binding is canonical", typeBinding == typeDeclaration.resolveBinding()); //$NON-NLS-1$
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
-		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0);
+		assertTrue("The body declaration list is empty", bodyDeclarations.size() != 0); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration);
+		assertTrue("This is not a field", bodyDeclaration instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) bodyDeclaration;
 		List variableFragments = fieldDeclaration.fragments();
-		assertTrue("The fragment list size is not 2", variableFragments.size() == 2);
+		assertTrue("The fragment list size is not 2", variableFragments.size() == 2); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableFragments.get(0);
 		IVariableBinding variableBinding1 = fragment.resolveBinding();
-		assertNotNull("the field binding is null", variableBinding1);
-		assertTrue("The field binding is not canonical", variableBinding1 == fragment.resolveBinding());
+		assertNotNull("the field binding is null", variableBinding1); //$NON-NLS-1$
+		assertTrue("The field binding is not canonical", variableBinding1 == fragment.resolveBinding()); //$NON-NLS-1$
 		ITypeBinding type1 = variableBinding1.getType();
-		assertNotNull("The type is null", type1);
-		assertTrue("The field type is canonical", type1 == variableBinding1.getType());
-		assertTrue("The type is not an array type",type1.isArray());
-		assertTrue("The type dimension is 1", type1.getDimensions() == 1);
+		assertNotNull("The type is null", type1); //$NON-NLS-1$
+		assertTrue("The field type is canonical", type1 == variableBinding1.getType()); //$NON-NLS-1$
+		assertTrue("The type is not an array type",type1.isArray()); //$NON-NLS-1$
+		assertTrue("The type dimension is 1", type1.getDimensions() == 1); //$NON-NLS-1$
 		fragment = (VariableDeclarationFragment) variableFragments.get(1);
 		IVariableBinding variableBinding2 = fragment.resolveBinding();
-		assertNotNull("the field binding is null", variableBinding2);
-		assertTrue("The field binding is not canonical", variableBinding2 == fragment.resolveBinding());
+		assertNotNull("the field binding is null", variableBinding2); //$NON-NLS-1$
+		assertTrue("The field binding is not canonical", variableBinding2 == fragment.resolveBinding()); //$NON-NLS-1$
 		ITypeBinding type2 = variableBinding2.getType();
 		type2 = variableBinding2.getType();
-		assertNotNull("The type is null", type2);
-		assertTrue("The field type is canonical", type2 == variableBinding2.getType());
-		assertTrue("The type is not an array type",type2.isArray());
-		assertTrue("The type dimension is 2", type2.getDimensions() == 2);
-		assertTrue("Element type is canonical", type1.getElementType() == type2.getElementType());
-		assertTrue("type1.id < type2.id", variableBinding1.getVariableId() < variableBinding2.getVariableId());
+		assertNotNull("The type is null", type2); //$NON-NLS-1$
+		assertTrue("The field type is canonical", type2 == variableBinding2.getType()); //$NON-NLS-1$
+		assertTrue("The type is not an array type",type2.isArray()); //$NON-NLS-1$
+		assertTrue("The type dimension is 2", type2.getDimensions() == 2); //$NON-NLS-1$
+		assertTrue("Element type is canonical", type1.getElementType() == type2.getElementType()); //$NON-NLS-1$
+		assertTrue("type1.id < type2.id", variableBinding1.getVariableId() < variableBinding2.getVariableId()); //$NON-NLS-1$
 				
 	}
 	
@@ -3570,44 +3570,44 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 *  - getSuperclass()
 	 */
 	public void test0161() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0161", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0161", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("The type binding should not be null", typeBinding);
-		assertEquals("The modifier is PUBLIC", Modifier.PUBLIC, typeBinding.getModifiers());
-		assertNull("There is no element type", typeBinding.getElementType());
-		assertEquals("There is no dimension", 0, typeBinding.getDimensions());
-		assertNull("This is not a member type", typeBinding.getDeclaringClass());
+		assertNotNull("The type binding should not be null", typeBinding); //$NON-NLS-1$
+		assertEquals("The modifier is PUBLIC", Modifier.PUBLIC, typeBinding.getModifiers()); //$NON-NLS-1$
+		assertNull("There is no element type", typeBinding.getElementType()); //$NON-NLS-1$
+		assertEquals("There is no dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertNull("This is not a member type", typeBinding.getDeclaringClass()); //$NON-NLS-1$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("Contains the default constructor", 1, methods.length);
-		assertEquals("The name is not Test", "Test", typeBinding.getName());
-		assertTrue("An anonymous class", !typeBinding.isAnonymous());
-		assertTrue("A local class", !typeBinding.isLocal());
-		assertTrue("A nested class", !typeBinding.isNested());
-		assertTrue("A member class", !typeBinding.isMember());
-		assertTrue("An array", !typeBinding.isArray());
-		assertTrue("Not a class", typeBinding.isClass());
-		assertTrue("An interface", !typeBinding.isInterface());
-		assertTrue("Not from source", typeBinding.isFromSource());
-		assertTrue("Is nested", typeBinding.isTopLevel());
-		assertTrue("A primitive type", !typeBinding.isPrimitive());
+		assertEquals("Contains the default constructor", 1, methods.length); //$NON-NLS-1$
+		assertEquals("The name is not Test", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("An anonymous class", !typeBinding.isAnonymous()); //$NON-NLS-1$
+		assertTrue("A local class", !typeBinding.isLocal()); //$NON-NLS-1$
+		assertTrue("A nested class", !typeBinding.isNested()); //$NON-NLS-1$
+		assertTrue("A member class", !typeBinding.isMember()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("Not a class", typeBinding.isClass()); //$NON-NLS-1$
+		assertTrue("An interface", !typeBinding.isInterface()); //$NON-NLS-1$
+		assertTrue("Not from source", typeBinding.isFromSource()); //$NON-NLS-1$
+		assertTrue("Is nested", typeBinding.isTopLevel()); //$NON-NLS-1$
+		assertTrue("A primitive type", !typeBinding.isPrimitive()); //$NON-NLS-1$
 		ITypeBinding superclass = typeBinding.getSuperclass();
-		assertNotNull("No superclass", superclass);
-		assertTrue("From source", !superclass.isFromSource());
+		assertNotNull("No superclass", superclass); //$NON-NLS-1$
+		assertTrue("From source", !superclass.isFromSource()); //$NON-NLS-1$
 		ITypeBinding supersuperclass = superclass.getSuperclass();
-		assertNull("No superclass for java.lang.Object", supersuperclass);
+		assertNull("No superclass for java.lang.Object", supersuperclass); //$NON-NLS-1$
 		ITypeBinding[] interfaces = typeBinding.getInterfaces();
-		assertNotNull("No interfaces", interfaces);
-		assertEquals("More then one super interface", 1, interfaces.length);
-		assertTrue("is not an interface", interfaces[0].isInterface());
-		assertTrue("From source", !interfaces[0].isFromSource());
-		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
+		assertNotNull("No interfaces", interfaces); //$NON-NLS-1$
+		assertEquals("More then one super interface", 1, interfaces.length); //$NON-NLS-1$
+		assertTrue("is not an interface", interfaces[0].isInterface()); //$NON-NLS-1$
+		assertTrue("From source", !interfaces[0].isFromSource()); //$NON-NLS-1$
+		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length); //$NON-NLS-1$
 	}
 
 	/**
@@ -3629,229 +3629,229 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 *  - getSuperclass()
 	 */
 	public void test0162() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0162", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0162", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("The type binding should not be null", typeBinding);
-		assertEquals("The modifier is PUBLIC", Modifier.PUBLIC, typeBinding.getModifiers());
-		assertNull("There is no element type", typeBinding.getElementType());
-		assertEquals("There is no dimension", 0, typeBinding.getDimensions());
-		assertNull("This is not a member type", typeBinding.getDeclaringClass());
+		assertNotNull("The type binding should not be null", typeBinding); //$NON-NLS-1$
+		assertEquals("The modifier is PUBLIC", Modifier.PUBLIC, typeBinding.getModifiers()); //$NON-NLS-1$
+		assertNull("There is no element type", typeBinding.getElementType()); //$NON-NLS-1$
+		assertEquals("There is no dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertNull("This is not a member type", typeBinding.getDeclaringClass()); //$NON-NLS-1$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("Contains no methos", 0, methods.length);
-		assertEquals("The name is not Test", "Test", typeBinding.getName());
-		assertTrue("An anonymous class", !typeBinding.isAnonymous());
-		assertTrue("A local class", !typeBinding.isLocal());
-		assertTrue("A nested class", !typeBinding.isNested());
-		assertTrue("A member class", !typeBinding.isMember());
-		assertTrue("An array", !typeBinding.isArray());
-		assertTrue("A class", !typeBinding.isClass());
-		assertTrue("Not an interface", typeBinding.isInterface());
-		assertTrue("Not from source", typeBinding.isFromSource());
-		assertTrue("Is nested", typeBinding.isTopLevel());
-		assertTrue("A primitive type", !typeBinding.isPrimitive());
+		assertEquals("Contains no methos", 0, methods.length); //$NON-NLS-1$
+		assertEquals("The name is not Test", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("An anonymous class", !typeBinding.isAnonymous()); //$NON-NLS-1$
+		assertTrue("A local class", !typeBinding.isLocal()); //$NON-NLS-1$
+		assertTrue("A nested class", !typeBinding.isNested()); //$NON-NLS-1$
+		assertTrue("A member class", !typeBinding.isMember()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("A class", !typeBinding.isClass()); //$NON-NLS-1$
+		assertTrue("Not an interface", typeBinding.isInterface()); //$NON-NLS-1$
+		assertTrue("Not from source", typeBinding.isFromSource()); //$NON-NLS-1$
+		assertTrue("Is nested", typeBinding.isTopLevel()); //$NON-NLS-1$
+		assertTrue("A primitive type", !typeBinding.isPrimitive()); //$NON-NLS-1$
 		ITypeBinding superclass = typeBinding.getSuperclass();
-		assertNull("No superclass", superclass);
-		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
+		assertNull("No superclass", superclass); //$NON-NLS-1$
+		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * Test binding for anonymous declaration: new java.lang.Object() {}
 	 */
 	public void test0163() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0163", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0163", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
 		assertNotNull("Expression should not be null", expression); //$NON-NLS-1$
-		assertTrue("Not an anonymous type declaration", expression instanceof ClassInstanceCreation);
+		assertTrue("Not an anonymous type declaration", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation anonymousClass = (ClassInstanceCreation) expression;
 		ITypeBinding typeBinding = anonymousClass.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertTrue("Not an anonymous class", typeBinding.isAnonymous());
-		assertEquals("The modifier is not default", Modifier.NONE, typeBinding.getModifiers());
-		assertNull("There is no element type", typeBinding.getElementType());
-		assertEquals("There is no dimension", 0, typeBinding.getDimensions());
-		assertNotNull("This is a member type", typeBinding.getDeclaringClass());
-		assertEquals("The name is not empty", "", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not an anonymous class", typeBinding.isAnonymous()); //$NON-NLS-1$
+		assertEquals("The modifier is not default", Modifier.NONE, typeBinding.getModifiers()); //$NON-NLS-1$
+		assertNull("There is no element type", typeBinding.getElementType()); //$NON-NLS-1$
+		assertEquals("There is no dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertNotNull("This is a member type", typeBinding.getDeclaringClass()); //$NON-NLS-1$
+		assertEquals("The name is not empty", "", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("Contains the default constructor", 1, methods.length);
-		assertTrue("Not a local class", typeBinding.isLocal());
-		assertTrue("Not a nested class", typeBinding.isNested());
-		assertTrue("A member class", !typeBinding.isMember());
-		assertTrue("An array", !typeBinding.isArray());
-		assertTrue("Not a class", typeBinding.isClass());
-		assertTrue("An interface", !typeBinding.isInterface());
-		assertTrue("Not from source", typeBinding.isFromSource());
-		assertTrue("Is a top level", !typeBinding.isTopLevel());
-		assertTrue("A primitive type", !typeBinding.isPrimitive());
-		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName());
+		assertEquals("Contains the default constructor", 1, methods.length); //$NON-NLS-1$
+		assertTrue("Not a local class", typeBinding.isLocal()); //$NON-NLS-1$
+		assertTrue("Not a nested class", typeBinding.isNested()); //$NON-NLS-1$
+		assertTrue("A member class", !typeBinding.isMember()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("Not a class", typeBinding.isClass()); //$NON-NLS-1$
+		assertTrue("An interface", !typeBinding.isInterface()); //$NON-NLS-1$
+		assertTrue("Not from source", typeBinding.isFromSource()); //$NON-NLS-1$
+		assertTrue("Is a top level", !typeBinding.isTopLevel()); //$NON-NLS-1$
+		assertTrue("A primitive type", !typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding superclass = typeBinding.getSuperclass();
-		assertNotNull("No superclass", superclass);
-		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
+		assertNotNull("No superclass", superclass); //$NON-NLS-1$
+		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Test binding for member type declaration
 	 */
 	public void test0164() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0164", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0164", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Not an type declaration", node instanceof TypeDeclaration);
+		assertTrue("Not an type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No binding", typeBinding);
-		assertTrue("An anonymous class", !typeBinding.isAnonymous());
-		assertEquals("The modifier is not default", Modifier.PRIVATE, typeBinding.getModifiers());
-		assertNull("There is no element type", typeBinding.getElementType());
-		assertEquals("There is no dimension", 0, typeBinding.getDimensions());
-		assertNotNull("This is not a member type", typeBinding.getDeclaringClass());
-		assertEquals("The name is not 'B'", "B", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertTrue("An anonymous class", !typeBinding.isAnonymous()); //$NON-NLS-1$
+		assertEquals("The modifier is not default", Modifier.PRIVATE, typeBinding.getModifiers()); //$NON-NLS-1$
+		assertNull("There is no element type", typeBinding.getElementType()); //$NON-NLS-1$
+		assertEquals("There is no dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertNotNull("This is not a member type", typeBinding.getDeclaringClass()); //$NON-NLS-1$
+		assertEquals("The name is not 'B'", "B", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("Contains the default constructor", 1, methods.length);
-		assertTrue("A local class", !typeBinding.isLocal());
-		assertTrue("Not a nested class", typeBinding.isNested());
-		assertTrue("Not a member class", typeBinding.isMember());
-		assertTrue("An array", !typeBinding.isArray());
-		assertTrue("Not a class", typeBinding.isClass());
-		assertTrue("An interface", !typeBinding.isInterface());
-		assertTrue("Not from source", typeBinding.isFromSource());
-		assertTrue("Is a top level", !typeBinding.isTopLevel());
-		assertTrue("A primitive type", !typeBinding.isPrimitive());
+		assertEquals("Contains the default constructor", 1, methods.length); //$NON-NLS-1$
+		assertTrue("A local class", !typeBinding.isLocal()); //$NON-NLS-1$
+		assertTrue("Not a nested class", typeBinding.isNested()); //$NON-NLS-1$
+		assertTrue("Not a member class", typeBinding.isMember()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("Not a class", typeBinding.isClass()); //$NON-NLS-1$
+		assertTrue("An interface", !typeBinding.isInterface()); //$NON-NLS-1$
+		assertTrue("Not from source", typeBinding.isFromSource()); //$NON-NLS-1$
+		assertTrue("Is a top level", !typeBinding.isTopLevel()); //$NON-NLS-1$
+		assertTrue("A primitive type", !typeBinding.isPrimitive()); //$NON-NLS-1$
 		ITypeBinding superclass = typeBinding.getSuperclass();
-		assertNotNull("No superclass", superclass);
-		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
+		assertNotNull("No superclass", superclass); //$NON-NLS-1$
+		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Test binding for local type declaration
 	 */
 	public void test0165() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0165", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0165", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Not an type declaration", node instanceof TypeDeclarationStatement);
+		assertTrue("Not an type declaration", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDeclaration = statement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No binding", typeBinding);
-		assertTrue("An anonymous class", !typeBinding.isAnonymous());
-		assertEquals("The modifier is not default", Modifier.NONE, typeBinding.getModifiers());
-		assertNull("There is no element type", typeBinding.getElementType());
-		assertEquals("There is no dimension", 0, typeBinding.getDimensions());
-		assertNotNull("This is not a member type", typeBinding.getDeclaringClass());
-		assertEquals("The name is not 'C'", "C", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertTrue("An anonymous class", !typeBinding.isAnonymous()); //$NON-NLS-1$
+		assertEquals("The modifier is not default", Modifier.NONE, typeBinding.getModifiers()); //$NON-NLS-1$
+		assertNull("There is no element type", typeBinding.getElementType()); //$NON-NLS-1$
+		assertEquals("There is no dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertNotNull("This is not a member type", typeBinding.getDeclaringClass()); //$NON-NLS-1$
+		assertEquals("The name is not 'C'", "C", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("Contains the default constructor", 1, methods.length);
-		assertTrue("Not a local class", typeBinding.isLocal());
-		assertTrue("Not a nested class", typeBinding.isNested());
-		assertTrue("A member class", !typeBinding.isMember());
-		assertTrue("An array", !typeBinding.isArray());
-		assertTrue("Not a class", typeBinding.isClass());
-		assertTrue("An interface", !typeBinding.isInterface());
-		assertTrue("Not from source", typeBinding.isFromSource());
-		assertTrue("Is a top level", !typeBinding.isTopLevel());
-		assertTrue("A primitive type", !typeBinding.isPrimitive());
-		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName());
+		assertEquals("Contains the default constructor", 1, methods.length); //$NON-NLS-1$
+		assertTrue("Not a local class", typeBinding.isLocal()); //$NON-NLS-1$
+		assertTrue("Not a nested class", typeBinding.isNested()); //$NON-NLS-1$
+		assertTrue("A member class", !typeBinding.isMember()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertTrue("Not a class", typeBinding.isClass()); //$NON-NLS-1$
+		assertTrue("An interface", !typeBinding.isInterface()); //$NON-NLS-1$
+		assertTrue("Not from source", typeBinding.isFromSource()); //$NON-NLS-1$
+		assertTrue("Is a top level", !typeBinding.isTopLevel()); //$NON-NLS-1$
+		assertTrue("A primitive type", !typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding superclass = typeBinding.getSuperclass();
-		assertNotNull("No superclass", superclass);
-		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
+		assertNotNull("No superclass", superclass); //$NON-NLS-1$
+		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * Multiple local declaration => VariabledeclarationStatement
 	 */
 	public void test0166() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0166", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0166", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("Fragment list is not 4 ", fragments.size() == 4);
+		assertTrue("Fragment list is not 4 ", fragments.size() == 4); //$NON-NLS-1$
 		VariableDeclarationFragment fragment1 = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding binding1 = fragment1.resolveBinding();
-		assertNotNull("Binding is null", binding1);
-		assertEquals("wrong name for binding1", "x", binding1.getName());
-		assertEquals("wrong modifier for binding1", 0, binding1.getModifiers());
-		assertTrue("a field", !binding1.isField());
-		assertNull("declaring class is not null", binding1.getDeclaringClass());
+		assertNotNull("Binding is null", binding1); //$NON-NLS-1$
+		assertEquals("wrong name for binding1", "x", binding1.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong modifier for binding1", 0, binding1.getModifiers()); //$NON-NLS-1$
+		assertTrue("a field", !binding1.isField()); //$NON-NLS-1$
+		assertNull("declaring class is not null", binding1.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding typeBinding1 = binding1.getType();
-		assertNotNull("typeBinding1 is null", typeBinding1);
-		assertTrue("typeBinding1 is not a primitive type", typeBinding1.isPrimitive());
-		assertTrue("typeBinding1 is not canonical", typeBinding1 == binding1.getType());
+		assertNotNull("typeBinding1 is null", typeBinding1); //$NON-NLS-1$
+		assertTrue("typeBinding1 is not a primitive type", typeBinding1.isPrimitive()); //$NON-NLS-1$
+		assertTrue("typeBinding1 is not canonical", typeBinding1 == binding1.getType()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment2 = (VariableDeclarationFragment) fragments.get(1);
 		IVariableBinding binding2 = fragment2.resolveBinding();
-		assertNotNull("Binding is null", binding2);
-		assertEquals("wrong name for binding2", "z", binding2.getName());
-		assertEquals("wrong modifier for binding2", 0, binding2.getModifiers());
-		assertTrue("a field", !binding2.isField());
-		assertNull("declaring class is not null", binding2.getDeclaringClass());
+		assertNotNull("Binding is null", binding2); //$NON-NLS-1$
+		assertEquals("wrong name for binding2", "z", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong modifier for binding2", 0, binding2.getModifiers()); //$NON-NLS-1$
+		assertTrue("a field", !binding2.isField()); //$NON-NLS-1$
+		assertNull("declaring class is not null", binding2.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = binding2.getType();
-		assertNotNull("typeBinding2 is null", typeBinding2);
-		assertTrue("typeBinding2 is not an array type", typeBinding2.isArray());
-		assertTrue("typeBinding2 is not canonical", typeBinding2 == binding2.getType());
-		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding2.getElementType());
-		assertEquals("dimension is 1", 1, typeBinding2.getDimensions());
-		assertEquals("it is not int[]", "int[]", typeBinding2.getName());		
+		assertNotNull("typeBinding2 is null", typeBinding2); //$NON-NLS-1$
+		assertTrue("typeBinding2 is not an array type", typeBinding2.isArray()); //$NON-NLS-1$
+		assertTrue("typeBinding2 is not canonical", typeBinding2 == binding2.getType()); //$NON-NLS-1$
+		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding2.getElementType()); //$NON-NLS-1$
+		assertEquals("dimension is 1", 1, typeBinding2.getDimensions()); //$NON-NLS-1$
+		assertEquals("it is not int[]", "int[]", typeBinding2.getName());		 //$NON-NLS-1$ //$NON-NLS-2$
 		VariableDeclarationFragment fragment3 = (VariableDeclarationFragment) fragments.get(2);
 		IVariableBinding binding3 = fragment3.resolveBinding();
-		assertNotNull("Binding is null", binding3);
-		assertEquals("wrong name for binding3", "i", binding3.getName());
-		assertEquals("wrong modifier for binding3", 0, binding3.getModifiers());
-		assertTrue("a field", !binding3.isField());
-		assertNull("declaring class is not null", binding3.getDeclaringClass());
+		assertNotNull("Binding is null", binding3); //$NON-NLS-1$
+		assertEquals("wrong name for binding3", "i", binding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong modifier for binding3", 0, binding3.getModifiers()); //$NON-NLS-1$
+		assertTrue("a field", !binding3.isField()); //$NON-NLS-1$
+		assertNull("declaring class is not null", binding3.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = binding3.getType();
-		assertNotNull("typeBinding3 is null", typeBinding3);
-		assertTrue("typeBinding3 is not an primitive type", typeBinding3.isPrimitive());
-		assertTrue("typeBinding3 is not canonical", typeBinding3 == binding3.getType());
-		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding3);
-		assertEquals("dimension is 0", 0, typeBinding3.getDimensions());
-		assertEquals("it is not the primitive type int", "int", typeBinding3.getName());
+		assertNotNull("typeBinding3 is null", typeBinding3); //$NON-NLS-1$
+		assertTrue("typeBinding3 is not an primitive type", typeBinding3.isPrimitive()); //$NON-NLS-1$
+		assertTrue("typeBinding3 is not canonical", typeBinding3 == binding3.getType()); //$NON-NLS-1$
+		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding3); //$NON-NLS-1$
+		assertEquals("dimension is 0", 0, typeBinding3.getDimensions()); //$NON-NLS-1$
+		assertEquals("it is not the primitive type int", "int", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		VariableDeclarationFragment fragment4 = (VariableDeclarationFragment) fragments.get(3);
 		IVariableBinding binding4 = fragment4.resolveBinding();
-		assertNotNull("Binding is null", binding4);
-		assertEquals("wrong name for binding4", "j", binding4.getName());
-		assertEquals("wrong modifier for binding4", 0, binding4.getModifiers());
-		assertTrue("a field", !binding4.isField());
-		assertNull("declaring class is not null", binding4.getDeclaringClass());
+		assertNotNull("Binding is null", binding4); //$NON-NLS-1$
+		assertEquals("wrong name for binding4", "j", binding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong modifier for binding4", 0, binding4.getModifiers()); //$NON-NLS-1$
+		assertTrue("a field", !binding4.isField()); //$NON-NLS-1$
+		assertNull("declaring class is not null", binding4.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = binding4.getType();
-		assertNotNull("typeBinding4 is null", typeBinding4);
-		assertTrue("typeBinding4 is not an array type", typeBinding4.isArray());
-		assertTrue("typeBinding4 is not canonical", typeBinding4 == binding4.getType());
-		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding4.getElementType());
-		assertEquals("dimension is 2", 2, typeBinding4.getDimensions());
-		assertEquals("it is not int[][]", "int[][]", typeBinding4.getName());
-		assertTrue("ids in the wrong order", binding1.getVariableId() < binding2.getVariableId());
-		assertTrue("ids in the wrong order", binding2.getVariableId() < binding3.getVariableId());
-		assertTrue("ids in the wrong order", binding3.getVariableId() < binding4.getVariableId());
+		assertNotNull("typeBinding4 is null", typeBinding4); //$NON-NLS-1$
+		assertTrue("typeBinding4 is not an array type", typeBinding4.isArray()); //$NON-NLS-1$
+		assertTrue("typeBinding4 is not canonical", typeBinding4 == binding4.getType()); //$NON-NLS-1$
+		assertTrue("primitive type is not canonical", typeBinding1 == typeBinding4.getElementType()); //$NON-NLS-1$
+		assertEquals("dimension is 2", 2, typeBinding4.getDimensions()); //$NON-NLS-1$
+		assertEquals("it is not int[][]", "int[][]", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("ids in the wrong order", binding1.getVariableId() < binding2.getVariableId()); //$NON-NLS-1$
+		assertTrue("ids in the wrong order", binding2.getVariableId() < binding3.getVariableId()); //$NON-NLS-1$
+		assertTrue("ids in the wrong order", binding3.getVariableId() < binding4.getVariableId()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check source position for new Test[1+2].length.
 	 */
 	public void test0167() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0167", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0167", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Instance of VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Instance of VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("fragment list size is not 1", fragments.size() == 1);
+		assertTrue("fragment list size is not 1", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertNotNull("No initialization", initialization);
-		assertTrue("Not a FieldAccess", initialization instanceof FieldAccess);
+		assertNotNull("No initialization", initialization); //$NON-NLS-1$
+		assertTrue("Not a FieldAccess", initialization instanceof FieldAccess); //$NON-NLS-1$
 		checkSourceRange(initialization, "new Test[1+2].length", source); //$NON-NLS-1$
 	}
 	
@@ -3859,215 +3859,215 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check package binding: test0168.test
 	 */
 	public void test0168() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0168.test1", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0168.test1", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = typeBinding.getPackage();
-		assertNotNull("No package binding", packageBinding);
-		assertEquals("wrong name", "test0168.test1", packageBinding.getName());
+		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "test0168.test1", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] components = packageBinding.getNameComponents();
-		assertNotNull("no components", components);
-		assertTrue("components size != 2", components.length == 2);
-		assertEquals("wrong component name", "test0168", components[0]);
-		assertEquals("wrong component name", "test1", components[1]);
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind());
-		assertTrue("Unnamed package", !packageBinding.isUnnamed());
-		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage());
+		assertNotNull("no components", components); //$NON-NLS-1$
+		assertTrue("components size != 2", components.length == 2); //$NON-NLS-1$
+		assertEquals("wrong component name", "test0168", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong component name", "test1", components[1]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
+		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check package binding: test0169
 	 */
 	public void test0169() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0169", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0169", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = typeBinding.getPackage();
-		assertNotNull("No package binding", packageBinding);
-		assertEquals("wrong name", "test0169", packageBinding.getName());
+		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "test0169", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] components = packageBinding.getNameComponents();
-		assertNotNull("no components", components);
-		assertTrue("components size != 1", components.length == 1);
-		assertEquals("wrong component name", "test0169", components[0]);
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind());
-		assertTrue("Unnamed package", !packageBinding.isUnnamed());
-		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage());
+		assertNotNull("no components", components); //$NON-NLS-1$
+		assertTrue("components size != 1", components.length == 1); //$NON-NLS-1$
+		assertEquals("wrong component name", "test0169", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
+		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check package binding: test0170
 	 */
 	public void test0170() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0170.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test0170.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = typeBinding.getPackage();
-		assertNotNull("No package binding", packageBinding);
-		assertEquals("wrong name", "UNNAMED", packageBinding.getName());
+		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "UNNAMED", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] components = packageBinding.getNameComponents();
-		assertNotNull("no components", components);
-		assertTrue("components size != 0", components.length == 0);
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind());
-		assertTrue("Not an unnamed package", packageBinding.isUnnamed());
-		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage());
+		assertNotNull("no components", components); //$NON-NLS-1$
+		assertTrue("components size != 0", components.length == 0); //$NON-NLS-1$
+		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertTrue("Not an unnamed package", packageBinding.isUnnamed()); //$NON-NLS-1$
+		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check package binding: test0171
 	 */
 	public void test0171() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0171", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0171", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() == 2);
+		assertTrue("The types list is empty", types.size() == 2); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = typeBinding.getPackage();
-		assertNotNull("No package binding", packageBinding);
-		assertEquals("wrong name", "test0171", packageBinding.getName());
+		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "test0171", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] components = packageBinding.getNameComponents();
-		assertNotNull("no components", components);
-		assertTrue("components size != 1", components.length == 1);
-		assertEquals("wrong component name", "test0171", components[0]);
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind());
-		assertTrue("Unnamed package", !packageBinding.isUnnamed());
-		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage());
+		assertNotNull("no components", components); //$NON-NLS-1$
+		assertTrue("components size != 1", components.length == 1); //$NON-NLS-1$
+		assertEquals("wrong component name", "test0171", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
+		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 		
 		typeDeclaration = (TypeDeclaration) types.get(1);
 		typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding2 = typeBinding.getPackage();
-		assertNotNull("No package binding", packageBinding);
-		assertTrue("Package binding is not canonical", packageBinding == packageBinding2);
+		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
+		assertTrue("Package binding is not canonical", packageBinding == packageBinding2); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check method binding
 	 */
 	public void test0172() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0172", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0172", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		List types = compilationUnit.types();
-		assertTrue("The types list is empty", types.size() != 0);
+		assertTrue("The types list is empty", types.size() != 0); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("Binding not null", typeBinding);
+		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("methods.length != 4", 4, methods.length);
+		assertEquals("methods.length != 4", 4, methods.length); //$NON-NLS-1$
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
-		assertEquals("body declaration size != 3", 3, bodyDeclarations.size());
+		assertEquals("body declaration size != 3", 3, bodyDeclarations.size()); //$NON-NLS-1$
 		MethodDeclaration method1 = (MethodDeclaration) bodyDeclarations.get(0);
 		IMethodBinding methodBinding1 = method1.resolveBinding();
-		assertNotNull("No method binding for foo", methodBinding1);
+		assertNotNull("No method binding for foo", methodBinding1); //$NON-NLS-1$
 		SimpleName simpleName = method1.getName();
-		assertTrue("not a declaration", simpleName.isDeclaration());
+		assertTrue("not a declaration", simpleName.isDeclaration()); //$NON-NLS-1$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong name", binding.getName(), simpleName.getIdentifier());
-		assertTrue("Canonical method binding", methodBinding1 == methods[1]);
-		assertTrue("declaring class is canonical", typeBinding == methodBinding1.getDeclaringClass());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong name", binding.getName(), simpleName.getIdentifier()); //$NON-NLS-1$
+		assertTrue("Canonical method binding", methodBinding1 == methods[1]); //$NON-NLS-1$
+		assertTrue("declaring class is canonical", typeBinding == methodBinding1.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes = methodBinding1.getExceptionTypes();
-		assertNotNull("No exception types", exceptionTypes);
-		assertEquals("One exception", 1, exceptionTypes.length);
-		assertEquals("wrong name for exception", "IOException", exceptionTypes[0].getName());
-		assertEquals("wrong modifier", Modifier.NONE, methodBinding1.getModifiers());
-		assertEquals("wrong name for method", "foo", methodBinding1.getName());
+		assertNotNull("No exception types", exceptionTypes); //$NON-NLS-1$
+		assertEquals("One exception", 1, exceptionTypes.length); //$NON-NLS-1$
+		assertEquals("wrong name for exception", "IOException", exceptionTypes[0].getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong modifier", Modifier.NONE, methodBinding1.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name for method", "foo", methodBinding1.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding[] parameters = methodBinding1.getParameterTypes();
-		assertNotNull("No parameters", parameters);
-		assertEquals("wrong size", 1, parameters.length);
-		assertEquals("wrong type", "int[]", parameters[0].getName());
-		assertEquals("wrong return type", "void", methodBinding1.getReturnType().getName());
-		assertTrue("A constructor", !methodBinding1.isConstructor());
+		assertNotNull("No parameters", parameters); //$NON-NLS-1$
+		assertEquals("wrong size", 1, parameters.length); //$NON-NLS-1$
+		assertEquals("wrong type", "int[]", parameters[0].getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong return type", "void", methodBinding1.getReturnType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("A constructor", !methodBinding1.isConstructor()); //$NON-NLS-1$
 		
 		MethodDeclaration method2 = (MethodDeclaration) bodyDeclarations.get(1);
 		IMethodBinding methodBinding2 = method2.resolveBinding();
-		assertNotNull("No method binding for main", methodBinding2);
-		assertTrue("Canonical method binding", methodBinding2 == methods[2]);
-		assertTrue("declaring class is canonical", typeBinding == methodBinding2.getDeclaringClass());
+		assertNotNull("No method binding for main", methodBinding2); //$NON-NLS-1$
+		assertTrue("Canonical method binding", methodBinding2 == methods[2]); //$NON-NLS-1$
+		assertTrue("declaring class is canonical", typeBinding == methodBinding2.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes2 = methodBinding2.getExceptionTypes();
-		assertNotNull("No exception types", exceptionTypes2);
-		assertEquals("No exception", 0, exceptionTypes2.length);
-		assertEquals("wrong modifier", Modifier.PUBLIC | Modifier.STATIC, methodBinding2.getModifiers());
-		assertEquals("wrong name for method", "main", methodBinding2.getName());
+		assertNotNull("No exception types", exceptionTypes2); //$NON-NLS-1$
+		assertEquals("No exception", 0, exceptionTypes2.length); //$NON-NLS-1$
+		assertEquals("wrong modifier", Modifier.PUBLIC | Modifier.STATIC, methodBinding2.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name for method", "main", methodBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding[] parameters2 = methodBinding2.getParameterTypes();
-		assertNotNull("No parameters", parameters2);
-		assertEquals("wrong size", 1, parameters2.length);
-		assertEquals("wrong type for parameter2[0]", "String[]", parameters2[0].getName());
-		assertEquals("wrong return type", "void", methodBinding2.getReturnType().getName());
-		assertTrue("A constructor", !methodBinding2.isConstructor());
+		assertNotNull("No parameters", parameters2); //$NON-NLS-1$
+		assertEquals("wrong size", 1, parameters2.length); //$NON-NLS-1$
+		assertEquals("wrong type for parameter2[0]", "String[]", parameters2[0].getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong return type", "void", methodBinding2.getReturnType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("A constructor", !methodBinding2.isConstructor()); //$NON-NLS-1$
 		
 		MethodDeclaration method3 = (MethodDeclaration) bodyDeclarations.get(2);
 		IMethodBinding methodBinding3 = method3.resolveBinding();
-		assertNotNull("No method binding for main", methodBinding3);
-		assertTrue("Canonical method binding", methodBinding3 == methods[3]);
-		assertTrue("declaring class is canonical", typeBinding == methodBinding3.getDeclaringClass());
+		assertNotNull("No method binding for main", methodBinding3); //$NON-NLS-1$
+		assertTrue("Canonical method binding", methodBinding3 == methods[3]); //$NON-NLS-1$
+		assertTrue("declaring class is canonical", typeBinding == methodBinding3.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes3 = methodBinding3.getExceptionTypes();
-		assertNotNull("No exception types", exceptionTypes3);
-		assertEquals("No exception", 1, exceptionTypes3.length);
-		assertEquals("wrong modifier", Modifier.PRIVATE, methodBinding3.getModifiers());
-		assertEquals("wrong name for method", "bar", methodBinding3.getName());
+		assertNotNull("No exception types", exceptionTypes3); //$NON-NLS-1$
+		assertEquals("No exception", 1, exceptionTypes3.length); //$NON-NLS-1$
+		assertEquals("wrong modifier", Modifier.PRIVATE, methodBinding3.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name for method", "bar", methodBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding[] parameters3 = methodBinding3.getParameterTypes();
-		assertNotNull("No parameters", parameters3);
-		assertEquals("wrong size", 1, parameters3.length);
-		assertEquals("wrong type", "String", parameters3[0].getName());
-		assertEquals("wrong return type", "String", methodBinding3.getReturnType().getName());
-		assertTrue("A constructor", !methodBinding3.isConstructor());
-		assertTrue("The binding is not canonical", parameters3[0] == methodBinding3.getReturnType());
+		assertNotNull("No parameters", parameters3); //$NON-NLS-1$
+		assertEquals("wrong size", 1, parameters3.length); //$NON-NLS-1$
+		assertEquals("wrong type", "String", parameters3[0].getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong return type", "String", methodBinding3.getReturnType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("A constructor", !methodBinding3.isConstructor()); //$NON-NLS-1$
+		assertTrue("The binding is not canonical", parameters3[0] == methodBinding3.getReturnType()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * i++; IVariableBinding
 	 */
 	public void test0173() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0173", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0173", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression);
+		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression); //$NON-NLS-1$
 		PostfixExpression postfixExpression = (PostfixExpression) ex;
 		Expression expr = postfixExpression.getOperand();
-		assertTrue("Not a simpleName", expr instanceof SimpleName);
+		assertTrue("Not a simpleName", expr instanceof SimpleName); //$NON-NLS-1$
 		SimpleName name = (SimpleName) expr;
-		assertTrue("a declaration", !name.isDeclaration());
+		assertTrue("a declaration", !name.isDeclaration()); //$NON-NLS-1$
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		assertTrue(variableBinding == binding);
@@ -4077,26 +4077,26 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * i++; IVariableBinding (field)
 	 */
 	public void test0174() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0174", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0174", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 1, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression);
+		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression); //$NON-NLS-1$
 		PostfixExpression postfixExpression = (PostfixExpression) ex;
 		Expression expr = postfixExpression.getOperand();
-		assertTrue("Not a simpleName", expr instanceof SimpleName);
+		assertTrue("Not a simpleName", expr instanceof SimpleName); //$NON-NLS-1$
 		SimpleName name = (SimpleName) expr;
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration);
+		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node2;
 		List fragments = fieldDeclaration.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		assertTrue(variableBinding == binding);
@@ -4106,19 +4106,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * int i = 0; Test IntBinding for the field declaration and the 0 literal
 	 */
 	public void test0175() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0175", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0175", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof FieldDeclaration);
+		assertTrue("VariableDeclarationStatement", node2 instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node2;
 		List fragments = fieldDeclaration.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		ITypeBinding typeBinding = fragment.getInitializer().resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not a primitive type", typeBinding.isPrimitive());
-		assertEquals("Not int", "int", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not a primitive type", typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(variableBinding.getType() == typeBinding);
 	}
 	
@@ -4126,52 +4126,52 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * ThisReference
 	 */
 	public void test0176() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0176", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0176", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("Return statement", node2 instanceof ReturnStatement);
+		assertTrue("Return statement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
-		assertTrue("Not a field access", returnStatement.getExpression() instanceof FieldAccess);
+		assertTrue("Not a field access", returnStatement.getExpression() instanceof FieldAccess); //$NON-NLS-1$
 		FieldAccess fieldAccess = (FieldAccess) returnStatement.getExpression();
 		ITypeBinding typeBinding = fieldAccess.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not a primitive type", typeBinding.isPrimitive());
-		assertEquals("Not int", "int", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not a primitive type", typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Expression expr = fieldAccess.getExpression();
-		assertTrue("Not a this expression", expr instanceof ThisExpression);
+		assertTrue("Not a this expression", expr instanceof ThisExpression); //$NON-NLS-1$
 		ThisExpression thisExpression = (ThisExpression) expr;
 		ITypeBinding typeBinding2 = thisExpression.resolveTypeBinding();
-		assertNotNull("No type binding2", typeBinding2);
-		assertEquals("Not Test", "Test", typeBinding2.getName());
+		assertNotNull("No type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * i++; IVariableBinding
 	 */
 	public void test0177() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0177", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0177", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 1, 1);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an expressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression);
+		assertTrue("Not a postfixexpression", ex instanceof PostfixExpression); //$NON-NLS-1$
 		PostfixExpression postfixExpression = (PostfixExpression) ex;
 		Expression expr = postfixExpression.getOperand();
-		assertTrue("Not a simpleName", expr instanceof SimpleName);
+		assertTrue("Not a simpleName", expr instanceof SimpleName); //$NON-NLS-1$
 		SimpleName name = (SimpleName) expr;
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertEquals("return type is not int", "int", variableBinding.getType().getName());
+		assertEquals("return type is not int", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(variableBinding == binding);
 	}
 
@@ -4179,36 +4179,36 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * SuperReference
 	 */
 	public void test0178() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0178", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0178", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 1, 0, 0);
-		assertTrue("Return statement", node2 instanceof ReturnStatement);
+		assertTrue("Return statement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a field access", expr instanceof SuperFieldAccess);
+		assertTrue("Not a field access", expr instanceof SuperFieldAccess); //$NON-NLS-1$
 		SuperFieldAccess fieldAccess = (SuperFieldAccess) expr;
 		ITypeBinding typeBinding = fieldAccess.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not a primitive type", typeBinding.isPrimitive());
-		assertEquals("Not int", "int", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not a primitive type", typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
 	/**
 	 * Allocation expression
 	 */
 	public void test0179() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0179", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0179", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
 	}	
 
@@ -4216,20 +4216,20 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Allocation expression
 	 */
 	public void test0180() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0180", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0180", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
-		assertTrue("No an array creation", initialization instanceof ArrayCreation);
+		assertTrue("No an array creation", initialization instanceof ArrayCreation); //$NON-NLS-1$
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not an array", typeBinding.isArray());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not an array", typeBinding.isArray()); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
 	}	
 
@@ -4237,19 +4237,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Allocation expression
 	 */
 	public void test0181() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0181", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0181", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not an array", typeBinding.isArray());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not an array", typeBinding.isArray()); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
 	}	
 
@@ -4257,502 +4257,502 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * BinaryExpression
 	 */
 	public void test0182() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0182", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0182", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node2;
 		Expression expr = ifStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i < 10", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i < 10", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0183() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0183", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0183", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node2;
 		Expression expr = ifStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i < 10 && i < 20", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i < 10 && i < 20", source); //$NON-NLS-1$
 	}	
 	
 	/**
 	 * BinaryExpression
 	 */
 	public void test0184() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0184", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0184", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node2;
 		Expression expr = ifStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i < 10 || i < 20", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i < 10 || i < 20", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0185() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0185", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0185", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node2;
 		Expression expr = ifStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i == 10", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i == 10", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0186() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0186", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0186", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node2;
 		Expression expr = ifStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "o == o", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "o == o", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0187() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0187", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0187", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("IfStatement", node2 instanceof WhileStatement);
+		assertTrue("IfStatement", node2 instanceof WhileStatement); //$NON-NLS-1$
 		WhileStatement whileStatement = (WhileStatement) node2;
 		Expression expr = whileStatement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i <= 10", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i <= 10", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0188() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0188", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0188", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 2);
-		assertTrue("DoStatement", node2 instanceof DoStatement);
+		assertTrue("DoStatement", node2 instanceof DoStatement); //$NON-NLS-1$
 		DoStatement statement = (DoStatement) node2;
 		Expression expr = statement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i <= 10", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i <= 10", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0189() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0189", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0189", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("ForStatement", node2 instanceof ForStatement);
+		assertTrue("ForStatement", node2 instanceof ForStatement); //$NON-NLS-1$
 		ForStatement statement = (ForStatement) node2;
 		Expression expr = statement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "i < 10", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "i < 10", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0190() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0190", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0190", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 2, 1);
-		assertTrue("IfStatement", node2 instanceof IfStatement);
+		assertTrue("IfStatement", node2 instanceof IfStatement); //$NON-NLS-1$
 		IfStatement statement = (IfStatement) node2;
 		Expression expr = statement.getExpression();
-		assertNotNull("No condition", expr);
+		assertNotNull("No condition", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "scanner.x < selection.start && selection.start < scanner.y", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "scanner.x < selection.start && selection.start < scanner.y", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * BinaryExpression
 	 */
 	public void test0191() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0191", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0191", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("Assignment", ex instanceof Assignment);
+		assertTrue("Assignment", ex instanceof Assignment); //$NON-NLS-1$
 		Assignment statement = (Assignment) ex;
 		Expression rightExpr = statement.getRightHandSide();
-		assertTrue("Not an infix expression", rightExpr instanceof InfixExpression);
+		assertTrue("Not an infix expression", rightExpr instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) rightExpr;
 		Expression expr = infixExpression.getRightOperand();
-		assertNotNull("No right hand side expression", expr);
+		assertNotNull("No right hand side expression", expr); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "boolean", typeBinding.getName());
-		checkSourceRange(expr, "2 < 20", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(expr, "2 < 20", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0192() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0192", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0192", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
-		checkSourceRange(initialization, "0", source);
+		checkSourceRange(initialization, "0", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0193() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0193", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0193", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
-		checkSourceRange(initialization, "new Inner()", source);
-		assertEquals("Wrong type", "Inner", typeBinding.getName());
+		checkSourceRange(initialization, "new Inner()", source); //$NON-NLS-1$
+		assertEquals("Wrong type", "Inner", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0194() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0194", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0194", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		Expression initialization = fragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertTrue(variableBinding.getType() == typeBinding);
-		checkSourceRange(initialization, "new Inner[10]", source);
-		assertTrue("Not an array", typeBinding.isArray());
-		assertEquals("Wrong type", "Inner[]", typeBinding.getName());
+		checkSourceRange(initialization, "new Inner[10]", source); //$NON-NLS-1$
+		assertTrue("Not an array", typeBinding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong type", "Inner[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0195() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0195", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0195", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 1, 0, 1);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("MethodInvocation", ex instanceof MethodInvocation);
+		assertTrue("MethodInvocation", ex instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) ex;
-		checkSourceRange(methodInvocation, "a.useFile(/*]*/a.getFile()/*[*/)", source);
+		checkSourceRange(methodInvocation, "a.useFile(/*]*/a.getFile()/*[*/)", source); //$NON-NLS-1$
 		List list = methodInvocation.arguments();
-		assertTrue("Parameter list not empty", list.size() == 1);
+		assertTrue("Parameter list not empty", list.size() == 1); //$NON-NLS-1$
 		Expression parameter = (Expression) list.get(0);
-		assertTrue("Not a method invocation", parameter instanceof MethodInvocation);
+		assertTrue("Not a method invocation", parameter instanceof MethodInvocation); //$NON-NLS-1$
 		ITypeBinding typeBinding = parameter.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not a boolean", "File", typeBinding.getName());
-		checkSourceRange(parameter, "a.getFile()", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not a boolean", "File", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(parameter, "a.getFile()", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0196() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0196", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0196", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 2);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("Assignment", ex instanceof Assignment);
+		assertTrue("Assignment", ex instanceof Assignment); //$NON-NLS-1$
 		Assignment statement = (Assignment) ex;
 		Expression rightExpr = statement.getRightHandSide();
-		assertTrue("Not an instanceof expression", rightExpr instanceof InstanceofExpression);
+		assertTrue("Not an instanceof expression", rightExpr instanceof InstanceofExpression); //$NON-NLS-1$
 		ITypeBinding typeBinding = rightExpr.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("wrong type", "boolean", typeBinding.getName());
-		checkSourceRange(rightExpr, "inner instanceof Inner", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong type", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(rightExpr, "inner instanceof Inner", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0197() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0197", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0197", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 1, 0, 1);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression ex = expressionStatement.getExpression();
-		assertTrue("MethodInvocation", ex instanceof MethodInvocation);
+		assertTrue("MethodInvocation", ex instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) ex;
-		checkSourceRange(methodInvocation, "a.getFile()/*[*/.getName()", source);
+		checkSourceRange(methodInvocation, "a.getFile()/*[*/.getName()", source); //$NON-NLS-1$
 		Expression receiver = methodInvocation.getExpression();
-		assertTrue("Not a method invocation", receiver instanceof MethodInvocation);
+		assertTrue("Not a method invocation", receiver instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation2 = (MethodInvocation) receiver;
 		ITypeBinding typeBinding = methodInvocation2.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong name", "File", typeBinding.getName());
-		checkSourceRange(methodInvocation2, "a.getFile()", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "File", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(methodInvocation2, "a.getFile()", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0198() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0198", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0198", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("ReturnStatement", node2 instanceof ReturnStatement);
+		assertTrue("ReturnStatement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not an infixExpression", expr instanceof InfixExpression);
+		assertTrue("Not an infixExpression", expr instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) expr;
 		Expression left = infixExpression.getLeftOperand();
-		assertTrue("Not an InfixExpression", left instanceof InfixExpression);
+		assertTrue("Not an InfixExpression", left instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression2 = (InfixExpression) left;
 		Expression right = infixExpression2.getRightOperand();
-		assertTrue("Not an InfixExpression", right instanceof InfixExpression);
+		assertTrue("Not an InfixExpression", right instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression3 = (InfixExpression) right;
-		assertEquals("A multiplication", InfixExpression.Operator.TIMES, infixExpression3.getOperator());
+		assertEquals("A multiplication", InfixExpression.Operator.TIMES, infixExpression3.getOperator()); //$NON-NLS-1$
 		ITypeBinding typeBinding = infixExpression3.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not int", "int", typeBinding.getName());
-		checkSourceRange(infixExpression3, "20 * 30", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(infixExpression3, "20 * 30", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0199() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0199", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0199", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertTrue("Not an infixExpression", initialization instanceof InfixExpression);
+		assertTrue("Not an infixExpression", initialization instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) initialization;
 		Expression left = infixExpression.getLeftOperand();
-		assertTrue("Not an InfixExpression", left instanceof InfixExpression);
+		assertTrue("Not an InfixExpression", left instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression2 = (InfixExpression) left;
 		Expression right = infixExpression2.getRightOperand();
-		assertTrue("Not an InfixExpression", right instanceof InfixExpression);
+		assertTrue("Not an InfixExpression", right instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression3 = (InfixExpression) right;
-		assertEquals("A multiplication", InfixExpression.Operator.TIMES, infixExpression3.getOperator());
+		assertEquals("A multiplication", InfixExpression.Operator.TIMES, infixExpression3.getOperator()); //$NON-NLS-1$
 		ITypeBinding typeBinding = infixExpression3.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not int", "int", typeBinding.getName());
-		checkSourceRange(infixExpression3, "10 * 30", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(infixExpression3, "10 * 30", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Initializer
 	 */
 	public void test0200() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0200", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0200", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 1, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertTrue("No fragment", fragments.size() == 1);
+		assertTrue("No fragment", fragments.size() == 1); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertTrue("Not an infixExpression", initialization instanceof FieldAccess);
+		assertTrue("Not an infixExpression", initialization instanceof FieldAccess); //$NON-NLS-1$
 		FieldAccess fieldAccess = (FieldAccess) initialization;
 		Expression receiver = fieldAccess.getExpression();
-		assertTrue("ArrayCreation", receiver instanceof ArrayCreation);
+		assertTrue("ArrayCreation", receiver instanceof ArrayCreation); //$NON-NLS-1$
 		ArrayCreation arrayCreation = (ArrayCreation) receiver;
 		List dimensions = arrayCreation.dimensions();
-		assertEquals("Wrong dimension", 1, dimensions.size());
+		assertEquals("Wrong dimension", 1, dimensions.size()); //$NON-NLS-1$
 		Expression dim = (Expression) dimensions.get(0);
-		assertTrue("InfixExpression", dim instanceof InfixExpression);
+		assertTrue("InfixExpression", dim instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) dim;
 		ITypeBinding typeBinding = infixExpression.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Not int", "int", typeBinding.getName());
-		checkSourceRange(infixExpression, "1 + 2", source);
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(infixExpression, "1 + 2", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * Position inside for statement: PR 3300
 	 */
 	public void test0201() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0201", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0201", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("ForStatement", node2 instanceof ForStatement);
+		assertTrue("ForStatement", node2 instanceof ForStatement); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node2;
 		List initializers = forStatement.initializers();
-		assertTrue("wrong size", initializers.size() == 1);
+		assertTrue("wrong size", initializers.size() == 1); //$NON-NLS-1$
 		Expression init = (Expression) initializers.get(0);
-		checkSourceRange(init, "int i= 0", source);
+		checkSourceRange(init, "int i= 0", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * PR 7386
 	 */
 	public void test0202() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0202", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0202", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration);
+		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node2;
-		checkSourceRange(fieldDeclaration, "int f= (2);", source);
+		checkSourceRange(fieldDeclaration, "int f= (2);", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression);
-		checkSourceRange(initialization, "(2)", source);
+		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression); //$NON-NLS-1$
+		checkSourceRange(initialization, "(2)", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("no binding", typeBinding);
-		assertEquals("not int", "int", typeBinding.getName());
+		assertNotNull("no binding", typeBinding); //$NON-NLS-1$
+		assertEquals("not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}		
 
 	/**
 	 * PR 7386
 	 */
 	public void test0203() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0203", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0203", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration);
+		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node2;
-		checkSourceRange(fieldDeclaration, "int f= (2);", source);
+		checkSourceRange(fieldDeclaration, "int f= (2);", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression);
+		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression); //$NON-NLS-1$
 		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) initialization;
-		checkSourceRange(parenthesizedExpression, "(2)", source);
+		checkSourceRange(parenthesizedExpression, "(2)", source); //$NON-NLS-1$
 		Expression expr = parenthesizedExpression.getExpression();
-		checkSourceRange(expr, "2", source);
+		checkSourceRange(expr, "2", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("no binding", typeBinding);
-		assertEquals("not int", "int", typeBinding.getName());
-		assertTrue("type binding is canonical", typeBinding == parenthesizedExpression.resolveTypeBinding());
+		assertNotNull("no binding", typeBinding); //$NON-NLS-1$
+		assertEquals("not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("type binding is canonical", typeBinding == parenthesizedExpression.resolveTypeBinding()); //$NON-NLS-1$
 	}		
 
 	/**
 	 * PR 7386
 	 */
 	public void test0204() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0204", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0204", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration);
+		assertTrue("FieldDeclaration", node2 instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node2;
-		checkSourceRange(fieldDeclaration, "int f= ((2));", source);
+		checkSourceRange(fieldDeclaration, "int f= ((2));", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = fragment.getInitializer();
-		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression);
+		assertTrue("Not a parenthesized expression", initialization instanceof ParenthesizedExpression); //$NON-NLS-1$
 		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) initialization;
-		checkSourceRange(parenthesizedExpression, "((2))", source);
+		checkSourceRange(parenthesizedExpression, "((2))", source); //$NON-NLS-1$
 		Expression expr = parenthesizedExpression.getExpression();
-		assertTrue("Not a parenthesized expression", expr instanceof ParenthesizedExpression);
+		assertTrue("Not a parenthesized expression", expr instanceof ParenthesizedExpression); //$NON-NLS-1$
 		ParenthesizedExpression parenthesizedExpression2 = (ParenthesizedExpression) expr;
-		checkSourceRange(parenthesizedExpression2, "(2)", source);
+		checkSourceRange(parenthesizedExpression2, "(2)", source); //$NON-NLS-1$
 		expr = parenthesizedExpression2.getExpression();
-		checkSourceRange(expr, "2", source);
+		checkSourceRange(expr, "2", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("no binding", typeBinding);
-		assertEquals("not int", "int", typeBinding.getName());
+		assertNotNull("no binding", typeBinding); //$NON-NLS-1$
+		assertEquals("not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		typeBinding = parenthesizedExpression.resolveTypeBinding();
-		assertNotNull("no binding", typeBinding);
-		assertEquals("not int", "int", typeBinding.getName());
-		assertTrue("type binding is canonical", typeBinding == parenthesizedExpression2.resolveTypeBinding());
+		assertNotNull("no binding", typeBinding); //$NON-NLS-1$
+		assertEquals("not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("type binding is canonical", typeBinding == parenthesizedExpression2.resolveTypeBinding()); //$NON-NLS-1$
 	}		
 
 
@@ -4760,117 +4760,117 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Local class end position when trailing comment
 	 */
 	public void test0205() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0205", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0205", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("TypeDeclarationStatement", node2 instanceof TypeDeclarationStatement);
+		assertTrue("TypeDeclarationStatement", node2 instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node2;
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
-		assertEquals("wrong name", "AA", typeDeclaration.getName().getIdentifier());
-		checkSourceRange(typeDeclaration, "class AA extends Test {}", source);
+		assertEquals("wrong name", "AA", typeDeclaration.getName().getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(typeDeclaration, "class AA extends Test {}", source); //$NON-NLS-1$
 	}		
 
 	/**
 	 * QualifiedName
 	 */
 	public void test0206() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0206", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0206", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 2, 0);
-		assertTrue("ReturnStatement", node2 instanceof ReturnStatement);
+		assertTrue("ReturnStatement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a qualifiedName", expr instanceof QualifiedName);
+		assertTrue("Not a qualifiedName", expr instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expr;
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Not an int (typeBinding)", "int", typeBinding.getName());
-		checkSourceRange(qualifiedName, "field.field.field.field.i", source);
-		assertTrue("Not a simple name", qualifiedName.getName().isSimpleName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not an int (typeBinding)", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(qualifiedName, "field.field.field.field.i", source); //$NON-NLS-1$
+		assertTrue("Not a simple name", qualifiedName.getName().isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = qualifiedName.getName();
-		assertTrue("a declaration", !simpleName.isDeclaration());
-		checkSourceRange(simpleName, "i", source);
+		assertTrue("a declaration", !simpleName.isDeclaration()); //$NON-NLS-1$
+		checkSourceRange(simpleName, "i", source); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		assertNotNull("No typebinding2", typeBinding2);
-		assertEquals("Not an int (typeBinding2)", "int", typeBinding2.getName());
+		assertNotNull("No typebinding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Not an int (typeBinding2)", "int", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("VariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Not Test", "Test", variableBinding.getDeclaringClass().getName());
-		assertEquals("Not default", Modifier.PUBLIC, variableBinding.getModifiers());
+		assertEquals("Not Test", "Test", variableBinding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not default", Modifier.PUBLIC, variableBinding.getModifiers()); //$NON-NLS-1$
 		Name qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a qualified name", qualifierName.isQualifiedName());
-		checkSourceRange(qualifierName, "field.field.field.field", source);
+		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field.field.field.field", source); //$NON-NLS-1$
 		ITypeBinding typeBinding5 = qualifierName.resolveTypeBinding();
-		assertNotNull("No binding5", typeBinding5);
-		assertEquals("Not Test", "Test", typeBinding5.getName());
+		assertNotNull("No binding5", typeBinding5); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding5.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source);
+		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
 		ITypeBinding typeBinding6 = simpleName.resolveTypeBinding();
-		assertNotNull("No binding6", typeBinding6);
-		assertEquals("Not Test", "Test", typeBinding6.getName());
+		assertNotNull("No binding6", typeBinding6); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding6.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a qualified name", qualifierName.isQualifiedName());
-		checkSourceRange(qualifierName, "field.field.field", source);
+		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field.field.field", source); //$NON-NLS-1$
 		ITypeBinding typeBinding7 = qualifierName.resolveTypeBinding();
-		assertNotNull("No binding7", typeBinding7);
-		assertEquals("Not Test", "Test", typeBinding7.getName());
+		assertNotNull("No binding7", typeBinding7); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding7.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source);
+		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
 		qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a qualified name", qualifierName.isQualifiedName());
-		checkSourceRange(qualifierName, "field.field", source);
+		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field.field", source); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = qualifierName.resolveTypeBinding();
-		assertNotNull("No binding3", typeBinding3);
-		assertEquals("Not Test", "Test", typeBinding3.getName());
+		assertNotNull("No binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source);
+		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
 		qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a simple name", qualifierName.isSimpleName());
-		assertTrue("a declaration", !((SimpleName)qualifierName).isDeclaration());
-		checkSourceRange(qualifierName, "field", source);
+		assertTrue("Not a simple name", qualifierName.isSimpleName()); //$NON-NLS-1$
+		assertTrue("a declaration", !((SimpleName)qualifierName).isDeclaration()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field", source); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = qualifierName.resolveTypeBinding();
-		assertNotNull("No binding4", typeBinding4);
-		assertEquals("Not Test", "Test", typeBinding4.getName());
+		assertNotNull("No binding4", typeBinding4); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0207() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0207", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0207", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
 		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  void foo(final int i) {}", source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0208() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0208", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0208", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "void foo(final int i) {}", source); //$NON-NLS-1$
@@ -4880,12 +4880,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MethodDeclaration
 	 */
 	public void test0209() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0209", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0209", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "void foo(final int i) {}", source); //$NON-NLS-1$
@@ -4895,12 +4895,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0210() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0210", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0210", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -4912,12 +4912,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0211() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0211", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0211", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -4927,12 +4927,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for FieldDeclaration
 	 */
 	public void test0212() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0212", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0212", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -4942,12 +4942,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0213() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0213", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0213", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
@@ -4960,12 +4960,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0214() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0214", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0214", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
@@ -4978,12 +4978,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for TypeDeclaration
 	 */
 	public void test0215() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0215", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0215", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -4994,19 +4994,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 			"  int i;\n"  +//$NON-NLS-1$
 			"}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0216() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0216", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0216", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
 		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
@@ -5015,19 +5015,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  class B {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0217() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0217", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0217", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "class B {}", source); //$NON-NLS-1$
@@ -5037,12 +5037,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0218() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0218", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0218", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "public static class B {}", source); //$NON-NLS-1$
@@ -5052,12 +5052,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check javadoc for MemberTypeDeclaration
 	 */
 	public void test0219() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0219", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0219", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
 		checkSourceRange(node, "public static class B {}", source); //$NON-NLS-1$
@@ -5067,7 +5067,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0220() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0220", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0220", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -5079,7 +5079,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0221() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0221", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0221", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -5091,7 +5091,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0222() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0222", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0222", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -5105,7 +5105,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  static {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 		
 	}
 
@@ -5113,7 +5113,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0223() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0223", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0223", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -5127,7 +5127,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  {}";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
-		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source);
+		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 		
 	}
 
@@ -5135,7 +5135,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Checking initializers
 	 */
 	public void test0224() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0224", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0224", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -5149,30 +5149,30 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Continue ==> ContinueStatement
 	 */
 	public void test0225() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0225", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0225", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		LabeledStatement labeledStatement = (LabeledStatement) getASTNode((CompilationUnit) result, 0, 0, 0);
-		checkSourceRange(labeledStatement.getLabel(), "label", source);
+		checkSourceRange(labeledStatement.getLabel(), "label", source); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) labeledStatement.getBody();
 		ContinueStatement statement = (ContinueStatement) ((Block) forStatement.getBody()).statements().get(0);
 		assertNotNull("Expression should not be null", statement); //$NON-NLS-1$
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
-		continueStatement.setLabel(this.ast.newSimpleName("label"));
+		continueStatement.setLabel(this.ast.newSimpleName("label")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", continueStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
 		checkSourceRange(statement, "continue label;", source); //$NON-NLS-1$
-		checkSourceRange(statement.getLabel(), "label", source);
+		checkSourceRange(statement.getLabel(), "label", source); //$NON-NLS-1$
 	}
 		
 	/**
 	 * Break + label  ==> BreakStatement
 	 */
 	public void test0226() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0226", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0226", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		LabeledStatement labeledStatement = (LabeledStatement) getASTNode((CompilationUnit) result, 0, 0, 0);
-		checkSourceRange(labeledStatement.getLabel(), "label", source);
+		checkSourceRange(labeledStatement.getLabel(), "label", source); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) labeledStatement.getBody();
 		BreakStatement statement = (BreakStatement) ((Block) forStatement.getBody()).statements().get(0);
 		assertNotNull("Expression should not be null", statement); //$NON-NLS-1$
@@ -5180,121 +5180,121 @@ public class ASTConverterTest extends ConverterTestSetup {
 		breakStatement.setLabel(this.ast.newSimpleName("label")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", breakStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
 		checkSourceRange(statement, "break label;", source); //$NON-NLS-1$
-		checkSourceRange(statement.getLabel(), "label", source);
+		checkSourceRange(statement.getLabel(), "label", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * QualifiedName
 	 */
 	public void test0227() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0227", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0227", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 3, 2, 0);
-		assertTrue("ReturnStatement", node2 instanceof ReturnStatement);
+		assertTrue("ReturnStatement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a qualifiedName", expr instanceof QualifiedName);
+		assertTrue("Not a qualifiedName", expr instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expr;
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Not an long (typeBinding)", "long", typeBinding.getName());
-		checkSourceRange(qualifiedName, "field.fB.fA.j", source);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not an long (typeBinding)", "long", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(qualifiedName, "field.fB.fA.j", source); //$NON-NLS-1$
 
 		SimpleName simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "j", source);
+		checkSourceRange(simpleName, "j", source); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		assertEquals("Not an long (typeBinding2)", "long", typeBinding2.getName());
+		assertEquals("Not an long (typeBinding2)", "long", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("VariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Not A", "A", variableBinding.getDeclaringClass().getName());
-		assertEquals("Not default", Modifier.NONE, variableBinding.getModifiers());
-		assertEquals("wrong name", "j", variableBinding.getName());
+		assertEquals("Not A", "A", variableBinding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not default", Modifier.NONE, variableBinding.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name", "j", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Name qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a qualified name", qualifierName.isQualifiedName());
-		checkSourceRange(qualifierName, "field.fB.fA", source);
+		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field.fB.fA", source); //$NON-NLS-1$
 		qualifiedName = (QualifiedName) qualifierName;
 		ITypeBinding typeBinding3 = qualifiedName.resolveTypeBinding();
-		assertNotNull("No type binding3", typeBinding3);
-		assertEquals("Not an A", "A", typeBinding3.getName());
+		assertNotNull("No type binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("Not an A", "A", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "fA", source);
+		checkSourceRange(simpleName, "fA", source); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = simpleName.resolveTypeBinding();
-		assertNotNull("No typeBinding4", typeBinding4);
-		assertEquals("Not an A", "A", typeBinding4.getName());
+		assertNotNull("No typeBinding4", typeBinding4); //$NON-NLS-1$
+		assertEquals("Not an A", "A", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding2 = qualifiedName.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertTrue("VariableBinding", binding2 instanceof IVariableBinding);
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding2 instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding2 = (IVariableBinding) binding2;
-		assertEquals("Not B", "B", variableBinding2.getDeclaringClass().getName());
-		assertEquals("Not default", Modifier.NONE, variableBinding2.getModifiers());
-		assertEquals("wrong name", "fA", variableBinding2.getName());
+		assertEquals("Not B", "B", variableBinding2.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not default", Modifier.NONE, variableBinding2.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name", "fA", variableBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a qualified name", qualifierName.isQualifiedName());
-		checkSourceRange(qualifierName, "field.fB", source);
+		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field.fB", source); //$NON-NLS-1$
 		qualifiedName = (QualifiedName) qualifierName;
 		ITypeBinding typeBinding5 = qualifiedName.resolveTypeBinding();
-		assertNotNull("No typeBinding5", typeBinding5);
-		assertEquals("Not a B", "B", typeBinding5.getName());
+		assertNotNull("No typeBinding5", typeBinding5); //$NON-NLS-1$
+		assertEquals("Not a B", "B", typeBinding5.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "fB", source);
+		checkSourceRange(simpleName, "fB", source); //$NON-NLS-1$
 		ITypeBinding typeBinding6 = simpleName.resolveTypeBinding();
-		assertNotNull("No typebinding6", typeBinding6);
-		assertEquals("not a B", "B", typeBinding6.getName());
+		assertNotNull("No typebinding6", typeBinding6); //$NON-NLS-1$
+		assertEquals("not a B", "B", typeBinding6.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding3 = qualifiedName.resolveBinding();
-		assertNotNull("No binding2", binding3);
-		assertTrue("VariableBinding", binding3 instanceof IVariableBinding);
+		assertNotNull("No binding2", binding3); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding3 instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding3 = (IVariableBinding) binding3;
-		assertEquals("Not C", "C", variableBinding3.getDeclaringClass().getName());
-		assertEquals("Not default", Modifier.NONE, variableBinding3.getModifiers());
-		assertEquals("wrong name", "fB", variableBinding3.getName());
+		assertEquals("Not C", "C", variableBinding3.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not default", Modifier.NONE, variableBinding3.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name", "fB", variableBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifierName = qualifiedName.getQualifier();
-		assertTrue("Not a simple name", qualifierName.isSimpleName());
-		checkSourceRange(qualifierName, "field", source);
+		assertTrue("Not a simple name", qualifierName.isSimpleName()); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field", source); //$NON-NLS-1$
 		simpleName = (SimpleName) qualifierName;
 		ITypeBinding typeBinding7 = simpleName.resolveTypeBinding();
-		assertNotNull("No typeBinding7", typeBinding7);
-		assertEquals("Not a C", "C", typeBinding7.getName());
+		assertNotNull("No typeBinding7", typeBinding7); //$NON-NLS-1$
+		assertEquals("Not a C", "C", typeBinding7.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding4 = simpleName.resolveBinding();
-		assertNotNull("No binding4", binding4);
-		assertTrue("VariableBinding", binding4 instanceof IVariableBinding);
+		assertNotNull("No binding4", binding4); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding4 instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding4 = (IVariableBinding) binding4;
-		assertEquals("Not Test", "Test", variableBinding4.getDeclaringClass().getName());
-		assertEquals("Not public", Modifier.PUBLIC, variableBinding4.getModifiers());
-		assertEquals("wrong name", "field", variableBinding4.getName());
-		assertEquals("wrong return type", "C", variableBinding4.getType().getName());
+		assertEquals("Not Test", "Test", variableBinding4.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not public", Modifier.PUBLIC, variableBinding4.getModifiers()); //$NON-NLS-1$
+		assertEquals("wrong name", "field", variableBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong return type", "C", variableBinding4.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * QualifiedName as TypeReference
 	 */
 	public void test0228() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0228", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0228", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("ReturnStatement", node2 instanceof ReturnStatement);
+		assertTrue("ReturnStatement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
-		checkSourceRange(expr, "test0228.Test.foo()", source);
-		assertTrue("MethodInvocation", expr instanceof MethodInvocation);
+		checkSourceRange(expr, "test0228.Test.foo()", source); //$NON-NLS-1$
+		assertTrue("MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		Expression qualifier = methodInvocation.getExpression();
-		assertNotNull("no qualifier", qualifier);
-		assertTrue("QualifiedName", qualifier instanceof QualifiedName);
+		assertNotNull("no qualifier", qualifier); //$NON-NLS-1$
+		assertTrue("QualifiedName", qualifier instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) qualifier;
-		checkSourceRange(qualifiedName, "test0228.Test", source);
+		checkSourceRange(qualifiedName, "test0228.Test", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = qualifiedName.resolveTypeBinding();
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong type", "Test", typeBinding.getName());
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong type", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = qualifiedName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Not a type", IBinding.TYPE, binding.getKind());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Not a type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
 		
 	}
 
@@ -5302,191 +5302,191 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * MethodInvocation
 	 */
 	public void test0229() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0229", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0229", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression expr = expressionStatement.getExpression();
-		assertTrue("MethodInvocation", expr instanceof MethodInvocation);
-		checkSourceRange(expr, "System.err.println()", source);
+		assertTrue("MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
+		checkSourceRange(expr, "System.err.println()", source); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		Expression qualifier = methodInvocation.getExpression();
-		assertTrue("QualifiedName", qualifier instanceof QualifiedName);
+		assertTrue("QualifiedName", qualifier instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) qualifier;
 		ITypeBinding typeBinding = qualifier.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "PrintStream", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "PrintStream", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = qualifiedName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("VariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("wrong name", "err", variableBinding.getName());
+		assertEquals("wrong name", "err", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		SimpleName methodName = methodInvocation.getName();
 		IBinding binding2 = methodName.resolveBinding();
-		assertNotNull("No binding2", binding2);
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
 	}
 	
 	/**
 	 * MethodInvocation
 	 */
 	public void test0230() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0230", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0230", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression expr = expressionStatement.getExpression();
-		assertTrue("MethodInvocation", expr instanceof MethodInvocation);
-		checkSourceRange(expr, "err.println()", source);
+		assertTrue("MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
+		checkSourceRange(expr, "err.println()", source); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		Expression qualifier = methodInvocation.getExpression();
-		assertTrue("SimpleName", qualifier instanceof SimpleName);
+		assertTrue("SimpleName", qualifier instanceof SimpleName); //$NON-NLS-1$
 		SimpleName name = (SimpleName) qualifier;
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong name", "err", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong name", "err", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding = name.resolveTypeBinding();
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wron type name", "PrintStream", typeBinding.getName());
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wron type name", "PrintStream", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * MethodInvocation
 	 */
 	public void test0231() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0231", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0231", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement);
+		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression expr = expressionStatement.getExpression();
-		assertTrue("MethodInvocation", expr instanceof MethodInvocation);
-		checkSourceRange(expr, "System.err.println()", source);
+		assertTrue("MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
+		checkSourceRange(expr, "System.err.println()", source); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		Expression qualifier = methodInvocation.getExpression();
-		assertTrue("QualifiedName", qualifier instanceof QualifiedName);
+		assertTrue("QualifiedName", qualifier instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) qualifier;
 		ITypeBinding typeBinding = qualifier.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "PrintStream", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "PrintStream", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = qualifiedName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("VariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("VariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("wrong name", "err", variableBinding.getName());
+		assertEquals("wrong name", "err", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		SimpleName methodName = methodInvocation.getName();
 		IBinding binding2 = methodName.resolveBinding();
-		assertNotNull("No binding2", binding2);
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
 		Name name = qualifiedName.getQualifier();
-		assertTrue("SimpleName", name.isSimpleName());
+		assertTrue("SimpleName", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		assertNotNull("No typeBinding2", typeBinding2);
-		assertEquals("wrong type name", "System", typeBinding2.getName());
+		assertNotNull("No typeBinding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong type name", "System", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * MethodInvocation
 	 */
 	public void test0232() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0232", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0232", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement);
+		assertTrue("VariableDeclarationStatement", node2 instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node2;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression initialization = variableDeclarationFragment.getInitializer();
 		ITypeBinding typeBinding = initialization.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not a primitive type", typeBinding.isPrimitive());
-		assertEquals("wrong name", "int", typeBinding.getName());
-		assertTrue("QualifiedName", initialization instanceof QualifiedName);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not a primitive type", typeBinding.isPrimitive()); //$NON-NLS-1$
+		assertEquals("wrong name", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("QualifiedName", initialization instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) initialization;
 		SimpleName simpleName = qualifiedName.getName();
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding2);
-		assertTrue("Not a primitive type", typeBinding2.isPrimitive());
-		assertEquals("wrong name", "int", typeBinding2.getName());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertTrue("Not a primitive type", typeBinding2.isPrimitive()); //$NON-NLS-1$
+		assertEquals("wrong name", "int", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("IVariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("IVariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertNull("No declaring class", variableBinding.getDeclaringClass());
+		assertNull("No declaring class", variableBinding.getDeclaringClass()); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Checking that only syntax errors are reported for the MALFORMED tag
 	 */
 	public void test0233() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0233", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0233", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("Expression should not be null", result); //$NON-NLS-1$
-		assertTrue("The compilation unit is malformed", !isMalformed(result));
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("The compilation unit is malformed", !isMalformed(result)); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("The fiels is not malformed", !isMalformed(node));
-		assertEquals("No problem found", 1, unit.getMessages().length);
-		assertEquals("No problem found", 1, unit.getProblems().length);
+		assertTrue("The fiels is not malformed", !isMalformed(node)); //$NON-NLS-1$
+		assertEquals("No problem found", 1, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("No problem found", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking that null is returned for a resolveBinding if the type is unknown
 	 */
 	public void test0234() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0234", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0234", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("The fiels is not malformed", !isMalformed(node));
+		assertTrue("The fiels is not malformed", !isMalformed(node)); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("No problem found", 1, unit.getMessages().length);
-		assertEquals("No problem found", 1, unit.getProblems().length);
-		assertTrue("FieldDeclaration", node instanceof FieldDeclaration);
+		assertEquals("No problem found", 1, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("No problem found", 1, unit.getProblems().length); //$NON-NLS-1$
+		assertTrue("FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertNull("binding not null", variableBinding);
+		assertNull("binding not null", variableBinding); //$NON-NLS-1$
 	}
 
 	/**
 	 * Checking that null is returned for a resolveBinding if the type is unknown
 	 */
 	public void test0235() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0235", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0235", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("The fiels is not malformed", !isMalformed(node));
+		assertTrue("The fiels is not malformed", !isMalformed(node)); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("problems found", 0, unit.getMessages().length);
-		assertEquals("problems found", 0, unit.getProblems().length);
-		assertTrue("FieldDeclaration", node instanceof FieldDeclaration);
+		assertEquals("problems found", 0, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("problems found", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertTrue("FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertNotNull("No binding", variableBinding);
+		assertNotNull("No binding", variableBinding); //$NON-NLS-1$
 	}
 
 	/**
 	 * Test the removal of a IField inside a CU that has an initializer
 	 */
 	public void test0236() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0236", "Test.java");
-		IType type = sourceUnit.getType("Test");
-		assertNotNull("No type", type);
-		IField field = type.getField("i");
-		assertNotNull("No field", field);
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0236", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType type = sourceUnit.getType("Test"); //$NON-NLS-1$
+		assertNotNull("No type", type); //$NON-NLS-1$
+		IField field = type.getField("i"); //$NON-NLS-1$
+		assertNotNull("No field", field); //$NON-NLS-1$
 		field.delete(true, null);
 	}
 
@@ -5494,201 +5494,201 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=9452
 	 */
 	public void test0237() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "junit.framework", "TestCase.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "junit.framework", "TestCase.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 	}
 		
 	/**
 	 * Check ThisExpression
 	 */
 	public void test0238() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0238", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0238", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement);
+		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
-		assertTrue("Not a method", o instanceof MethodDeclaration);
+		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
 		Block block = methodDecl.getBody();
 		List statements = block.statements();
-		assertEquals("Not 1", 1, statements.size());
+		assertEquals("Not 1", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		assertTrue("Not a return statement", stmt instanceof ReturnStatement);
+		assertTrue("Not a return statement", stmt instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) stmt;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a method invocation", expr instanceof MethodInvocation);
+		assertTrue("Not a method invocation", expr instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
-		checkSourceRange(methodInvocation, "Test.this.bar()", source);
+		checkSourceRange(methodInvocation, "Test.this.bar()", source); //$NON-NLS-1$
 		Expression qualifier = methodInvocation.getExpression();
-		assertTrue("Not a ThisExpression", qualifier instanceof ThisExpression);
+		assertTrue("Not a ThisExpression", qualifier instanceof ThisExpression); //$NON-NLS-1$
 		ThisExpression thisExpression = (ThisExpression) qualifier;
 		Name name = thisExpression.getQualifier();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong name", "Test", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong name", "Test", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check ThisExpression
 	 */
 	public void test0239() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0239", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0239", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
-		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement);
+		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
-		assertTrue("Not a method", o instanceof MethodDeclaration);
+		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
 		Block block = methodDecl.getBody();
 		List statements = block.statements();
-		assertEquals("Not 1", 1, statements.size());
+		assertEquals("Not 1", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		assertTrue("Not a return statement", stmt instanceof ReturnStatement);
+		assertTrue("Not a return statement", stmt instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) stmt;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a SuperMethodInvocation", expr instanceof SuperMethodInvocation);
+		assertTrue("Not a SuperMethodInvocation", expr instanceof SuperMethodInvocation); //$NON-NLS-1$
 		SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation) expr;
 		Name name = superMethodInvocation.getQualifier();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("A type binding", binding instanceof ITypeBinding);
-		assertEquals("Not Test", "Test", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("A type binding", binding instanceof ITypeBinding); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name methodName = superMethodInvocation.getName();
 		IBinding binding2 = methodName.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertTrue("No an IMethodBinding", binding2 instanceof IMethodBinding);
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertTrue("No an IMethodBinding", binding2 instanceof IMethodBinding); //$NON-NLS-1$
 		IMethodBinding methodBinding = (IMethodBinding) binding2;
-		assertEquals("Not bar", "bar", methodBinding.getName());
-		assertEquals("Not T", "T", methodBinding.getDeclaringClass().getName());
+		assertEquals("Not bar", "bar", methodBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not T", "T", methodBinding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * Check FieldAccess
 	 */
 	public void test0240() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0240", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0240", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement);
+		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
-		assertTrue("Not a method", o instanceof MethodDeclaration);
+		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
 		Block block = methodDecl.getBody();
 		List statements = block.statements();
-		assertEquals("Not 1", 1, statements.size());
+		assertEquals("Not 1", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		assertTrue("Not a return statement", stmt instanceof ReturnStatement);
+		assertTrue("Not a return statement", stmt instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) stmt;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a field access", expr instanceof FieldAccess);
+		assertTrue("Not a field access", expr instanceof FieldAccess); //$NON-NLS-1$
 		FieldAccess fieldAccess = (FieldAccess) expr;
 		Expression qualifier = fieldAccess.getExpression();
-		assertTrue("Not a ThisExpression", qualifier instanceof ThisExpression);
+		assertTrue("Not a ThisExpression", qualifier instanceof ThisExpression); //$NON-NLS-1$
 		ThisExpression thisExpression = (ThisExpression) qualifier;
 		Name name = thisExpression.getQualifier();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Not Test", "Test", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name fieldName = fieldAccess.getName();
 		IBinding binding2 = fieldName.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertEquals("Wrong name", "f", binding2.getName());
-		assertEquals("Wrong modifier", Modifier.PUBLIC, binding2.getModifiers());
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "f", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong modifier", Modifier.PUBLIC, binding2.getModifiers()); //$NON-NLS-1$
 		ITypeBinding typeBinding = fieldName.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Not int", "int", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check order of body declarations
 	 */
 	public void test0241() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0241", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0241", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
-		assertTrue("Not a type declaration", node instanceof TypeDeclaration);
-		assertTrue("Not a declaration", ((TypeDeclaration) node).getName().isDeclaration());
-		assertEquals("Wrong size", 11, ((TypeDeclaration)node).bodyDeclarations().size());
+		assertTrue("Not a type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
+		assertTrue("Not a declaration", ((TypeDeclaration) node).getName().isDeclaration()); //$NON-NLS-1$
+		assertEquals("Wrong size", 11, ((TypeDeclaration)node).bodyDeclarations().size()); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("Not a field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 1);
-		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 2);
-		assertTrue("Not a Type declaration", node instanceof TypeDeclaration);
+		assertTrue("Not a Type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 3);
-		assertTrue("Not a Type declaration", node instanceof TypeDeclaration);
+		assertTrue("Not a Type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 4);
-		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 5);
-		assertTrue("Not a field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 6);
-		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 7);
-		assertTrue("Not a field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 8);
-		assertTrue("Not a field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 9);
-		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertTrue("Not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 10);
-		assertTrue("Not a Type declaration", node instanceof TypeDeclaration);
+		assertTrue("Not a Type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check ThisExpression
 	 */
 	public void test0242() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0242", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0242", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
-		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement);
+		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
-		assertTrue("Not a method", o instanceof MethodDeclaration);
+		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
 		Block block = methodDecl.getBody();
 		List statements = block.statements();
-		assertEquals("Not 1", 1, statements.size());
+		assertEquals("Not 1", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		assertTrue("Not a return statement", stmt instanceof ReturnStatement);
+		assertTrue("Not a return statement", stmt instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) stmt;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("Not a SuperFieldAccess", expr instanceof SuperFieldAccess);
+		assertTrue("Not a SuperFieldAccess", expr instanceof SuperFieldAccess); //$NON-NLS-1$
 		SuperFieldAccess superFieldAccess = (SuperFieldAccess) expr;
 		Name name = superFieldAccess.getQualifier();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("A type binding", binding instanceof ITypeBinding);
-		assertEquals("Not Test", "Test", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("A type binding", binding instanceof ITypeBinding); //$NON-NLS-1$
+		assertEquals("Not Test", "Test", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name fieldName = superFieldAccess.getName();
 		IBinding binding2 = fieldName.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertTrue("No an IVariableBinding", binding2 instanceof IVariableBinding);
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertTrue("No an IVariableBinding", binding2 instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding2;
-		assertEquals("Not f", "f", variableBinding.getName());
-		assertEquals("Not T", "T", variableBinding.getDeclaringClass().getName());
+		assertEquals("Not f", "f", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not T", "T", variableBinding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding2 = fieldName.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding2);
-		assertEquals("Not int", "int", typeBinding2.getName());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertEquals("Not int", "int", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -5696,18 +5696,18 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10570
 	 */
 	public void test0243() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0243", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0243", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a try statement", node instanceof TryStatement);
+		assertTrue("Not a try statement", node instanceof TryStatement); //$NON-NLS-1$
 		TryStatement tryStatement = (TryStatement) node;
 		List catchClauses = tryStatement.catchClauses();
-		assertEquals("wrong size", 1, catchClauses.size());
+		assertEquals("wrong size", 1, catchClauses.size()); //$NON-NLS-1$
 		CatchClause catchClause = (CatchClause) catchClauses.get(0);
-		checkSourceRange(catchClause, "catch (Exception e){m();}", source);
+		checkSourceRange(catchClause, "catch (Exception e){m();}", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -5715,258 +5715,258 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10570
 	 */
 	public void test0244() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0244", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0244", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a try statement", node instanceof TryStatement);
+		assertTrue("Not a try statement", node instanceof TryStatement); //$NON-NLS-1$
 		TryStatement tryStatement = (TryStatement) node;
 		List catchClauses = tryStatement.catchClauses();
-		assertEquals("wrong size", 2, catchClauses.size());
+		assertEquals("wrong size", 2, catchClauses.size()); //$NON-NLS-1$
 		CatchClause catchClause = (CatchClause) catchClauses.get(0);
-		checkSourceRange(catchClause, "catch (RuntimeException e){m();}", source);
+		checkSourceRange(catchClause, "catch (RuntimeException e){m();}", source); //$NON-NLS-1$
 		catchClause = (CatchClause) catchClauses.get(1);
-		checkSourceRange(catchClause, "catch(Exception e) {}", source);
+		checkSourceRange(catchClause, "catch(Exception e) {}", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=10587
 	 */
 	public void test0245() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0245", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0245", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expr = returnStatement.getExpression();
-		assertTrue("not a name", expr instanceof Name);
+		assertTrue("not a name", expr instanceof Name); //$NON-NLS-1$
 		Name name = (Name) expr;
 		IBinding binding = name.resolveBinding();
-		assertTrue("Not a variable binding", binding instanceof IVariableBinding);
+		assertTrue("Not a variable binding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Not i", "i", variableBinding.getName());
-		assertEquals("Not int", "int", variableBinding.getType().getName());
+		assertEquals("Not i", "i", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not int", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ASTNode declaringNode = unit.findDeclaringNode(variableBinding);
-		assertNotNull("No declaring node", declaringNode);
-		assertTrue("Not a VariableDeclarationFragment", declaringNode instanceof VariableDeclarationFragment);
+		assertNotNull("No declaring node", declaringNode); //$NON-NLS-1$
+		assertTrue("Not a VariableDeclarationFragment", declaringNode instanceof VariableDeclarationFragment); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Test binding resolution for import declaration
 	 */
 	public void test0246() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0246", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0246", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		List imports = unit.imports();
-		assertEquals("wrong imports size", 2, imports.size());
+		assertEquals("wrong imports size", 2, imports.size()); //$NON-NLS-1$
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
-		assertTrue("Not on demand", importDeclaration.isOnDemand());
-		checkSourceRange(importDeclaration, "import java.util.*;", source);
+		assertTrue("Not on demand", importDeclaration.isOnDemand()); //$NON-NLS-1$
+		checkSourceRange(importDeclaration, "import java.util.*;", source); //$NON-NLS-1$
 		IBinding binding = importDeclaration.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
-		assertEquals("Wrong name", "java.util", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("Wrong name", "java.util", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		importDeclaration = (ImportDeclaration) imports.get(1);
-		assertTrue("On demand", !importDeclaration.isOnDemand());
-		checkSourceRange(importDeclaration, "import java.io.IOException;", source);
+		assertTrue("On demand", !importDeclaration.isOnDemand()); //$NON-NLS-1$
+		checkSourceRange(importDeclaration, "import java.io.IOException;", source); //$NON-NLS-1$
 		binding = importDeclaration.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("Wrong name", "IOException", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("Wrong name", "IOException", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Test binding resolution for import declaration
 	 */
 	public void test0247() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0247", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0247", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		PackageDeclaration packageDeclaration = unit.getPackage();
-		checkSourceRange(packageDeclaration, "package test0247;", source);
+		checkSourceRange(packageDeclaration, "package test0247;", source); //$NON-NLS-1$
 		IPackageBinding binding = packageDeclaration.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
-		assertEquals("Wrong name", "test0247", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("Wrong name", "test0247", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10592
 	 */
 	public void test0248() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0248", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0248", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		 //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 1, parameters.size());
+		assertEquals("wrong size", 1, parameters.size()); //$NON-NLS-1$
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
 		Name name = singleVariableDeclaration.getName();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("Not a variable binding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("Not a variable binding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Wrong name", "i", variableBinding.getName());
-		assertEquals("Wrong type", "int", variableBinding.getType().getName());
+		assertEquals("Wrong name", "i", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong type", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10592
 	 */
 	public void test0249() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0249", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0249", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 2, 1);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not an assignment", expression instanceof Assignment);
+		assertTrue("Not an assignment", expression instanceof Assignment); //$NON-NLS-1$
 		Assignment assignment = (Assignment) expression;
 		Expression leftHandSide = assignment.getLeftHandSide();
-		assertTrue("Not a qualified name", leftHandSide instanceof QualifiedName);
+		assertTrue("Not a qualified name", leftHandSide instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) leftHandSide;
 		Name simpleName = qualifiedName.getName();
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertTrue("Not a IVariableBinding", binding instanceof IVariableBinding);
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertTrue("Not a IVariableBinding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Wrong name", "k", variableBinding.getName());
-		assertEquals("Wrong modifier", Modifier.STATIC, variableBinding.getModifiers());
-		assertEquals("Wrong type", "int", variableBinding.getType().getName());
-		assertEquals("Wrong declaring class name", "j", variableBinding.getDeclaringClass().getName());
+		assertEquals("Wrong name", "k", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong modifier", Modifier.STATIC, variableBinding.getModifiers()); //$NON-NLS-1$
+		assertEquals("Wrong type", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong declaring class name", "j", variableBinding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10592
 	 */
 	public void test0250() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0250", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0250", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		 //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
 		Name name = singleVariableDeclaration.getName();
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("Not a variable binding", binding instanceof IVariableBinding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("Not a variable binding", binding instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertEquals("Wrong name", "i", variableBinding.getName());
-		assertEquals("Wrong type", "int", variableBinding.getType().getName());
+		assertEquals("Wrong name", "i", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong type", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 		
 	/**
 	 * Check qualified name resolution for static fields
 	 */
 	public void test0251() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0251", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0251", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not a ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not a method invocation", expression instanceof MethodInvocation);
+		assertTrue("Not a method invocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
-		checkSourceRange(methodInvocation, "java.lang.System.out.println()", source);
+		checkSourceRange(methodInvocation, "java.lang.System.out.println()", source); //$NON-NLS-1$
 		Expression qualifier = methodInvocation.getExpression();
-		assertTrue("Not a qualified name", qualifier instanceof QualifiedName);
-		checkSourceRange(qualifier, "java.lang.System.out", source);
+		assertTrue("Not a qualified name", qualifier instanceof QualifiedName); //$NON-NLS-1$
+		checkSourceRange(qualifier, "java.lang.System.out", source); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) qualifier;
 		Name typeName = qualifiedName.getQualifier();
-		assertTrue("Not a QualifiedName", typeName instanceof QualifiedName);
+		assertTrue("Not a QualifiedName", typeName instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedTypeName = (QualifiedName) typeName;
 		IBinding binding = qualifiedTypeName.getName().resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong name", "System", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong name", "System", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		binding = qualifiedTypeName.getQualifier().resolveBinding();
-		assertNotNull("No binding2", binding);
-		assertEquals("Wrong type binding", IBinding.PACKAGE, binding.getKind());
+		assertNotNull("No binding2", binding); //$NON-NLS-1$
+		assertEquals("Wrong type binding", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
 	}
 		
 	/**
 	 * Check binding for anonymous class
 	 */
 	public void test0252() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0252", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0252", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation);
+		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
-		assertNotNull("No methodBinding", methodBinding);
-		assertTrue("Not a constructor", methodBinding.isConstructor());
-		assertTrue("Not an anonymous class", methodBinding.getDeclaringClass().isAnonymous());
-		assertEquals("Not an anonymous class of java.lang.Object", "Object", methodBinding.getDeclaringClass().getSuperclass().getName());
-		assertEquals("Not an anonymous class of java.lang.Object", "java.lang", methodBinding.getDeclaringClass().getSuperclass().getPackage().getName());
+		assertNotNull("No methodBinding", methodBinding); //$NON-NLS-1$
+		assertTrue("Not a constructor", methodBinding.isConstructor()); //$NON-NLS-1$
+		assertTrue("Not an anonymous class", methodBinding.getDeclaringClass().isAnonymous()); //$NON-NLS-1$
+		assertEquals("Not an anonymous class of java.lang.Object", "Object", methodBinding.getDeclaringClass().getSuperclass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Not an anonymous class of java.lang.Object", "java.lang", methodBinding.getDeclaringClass().getSuperclass().getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check binding for allocation expression
 	 */
 	public void test0253() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0253", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0253", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation);
+		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
-		assertNotNull("No methodBinding", methodBinding);
-		assertTrue("Not a constructor", methodBinding.isConstructor());
-		assertEquals("Wrong size", 1, methodBinding.getParameterTypes().length);
-		assertEquals("Wrong type", "String", methodBinding.getParameterTypes()[0].getName());
+		assertNotNull("No methodBinding", methodBinding); //$NON-NLS-1$
+		assertTrue("Not a constructor", methodBinding.isConstructor()); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, methodBinding.getParameterTypes().length); //$NON-NLS-1$
+		assertEquals("Wrong type", "String", methodBinding.getParameterTypes()[0].getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check binding for allocation expression
 	 */
 	public void test0254() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0254", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0254", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 1, 0);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not a class instance creation", expression instanceof ClassInstanceCreation);
+		assertTrue("Not a class instance creation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong type", "C", binding.getDeclaringClass().getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong type", "C", binding.getDeclaringClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 
@@ -5974,532 +5974,532 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check binding for allocation expression
 	 */
 	public void test0255() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0255", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0255", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		List arguments = methodInvocation.arguments();
-		assertEquals("wrong size", 1, arguments.size());
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expression2 = (Expression) arguments.get(0);
-		assertTrue("Not a CastExpression", expression2 instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression2 instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression2;
 		Type type = castExpression.getType();
 		ITypeBinding binding = type.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("Not an array type", binding.isArray());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("Not an array type", binding.isArray()); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check binding for allocation expression
 	 */
 	public void test0256() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0256", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0256", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		List arguments = methodInvocation.arguments();
-		assertEquals("wrong size", 1, arguments.size());
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expression2 = (Expression) arguments.get(0);
-		assertTrue("Not a CastExpression", expression2 instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression2 instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression2;
 		Type type = castExpression.getType();
-		assertTrue("Not a simple type", type.isSimpleType());
+		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		ITypeBinding binding = type.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("Not a class", binding.isClass());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("Not a class", binding.isClass()); //$NON-NLS-1$
 		Name name = simpleType.getName();
 		IBinding binding2 = name.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertEquals("Wrong type", "Object", binding2.getName());
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertEquals("Wrong type", "Object", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Check binding for allocation expression
 	 */
 	public void test0257() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0257", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0257", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		List arguments = methodInvocation.arguments();
-		assertEquals("wrong size", 1, arguments.size());
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expression2 = (Expression) arguments.get(0);
-		assertTrue("Not a CastExpression", expression2 instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression2 instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression2;
 		Type type = castExpression.getType();
-		assertTrue("Not a primitive type", type.isPrimitiveType());
+		assertTrue("Not a primitive type", type.isPrimitiveType()); //$NON-NLS-1$
 		PrimitiveType primitiveType = (PrimitiveType) type;
-		assertEquals("Not int", PrimitiveType.INT, primitiveType.getPrimitiveTypeCode());
+		assertEquals("Not int", PrimitiveType.INT, primitiveType.getPrimitiveTypeCode()); //$NON-NLS-1$
 	}
 
 	/**
 	 * Check binding for allocation expression
 	 */
 	public void test0258() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0258", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0258", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		List arguments = methodInvocation.arguments();
-		assertEquals("wrong size", 1, arguments.size());
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expression2 = (Expression) arguments.get(0);
-		assertTrue("Not a CastExpression", expression2 instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression2 instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression2;
 		Type type = castExpression.getType();
-		assertTrue("Not a simple type", type.isSimpleType());
+		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		ITypeBinding binding = type.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertTrue("Not a class", binding.isClass());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("Not a class", binding.isClass()); //$NON-NLS-1$
 		Name name = simpleType.getName();
 		IBinding binding2 = name.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertEquals("Wrong type", "Object", binding2.getName());
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertEquals("Wrong type", "Object", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10663
 	 */
 	public void test0259() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0259", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0259", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10592
 	 */
 	public void test0260() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0260", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0260", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration);		 //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
 		IBinding binding = singleVariableDeclaration.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 		Name name = singleVariableDeclaration.getName();
-		assertTrue("Not a simple name", name instanceof SimpleName);
+		assertTrue("Not a simple name", name instanceof SimpleName); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
-		assertEquals("Wrong name", "i", simpleName.getIdentifier());
+		assertEquals("Wrong name", "i", simpleName.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding2 = name.resolveBinding();
-		assertNotNull("No binding", binding2);
-		assertTrue("binding == binding2", binding == binding2);
-		assertTrue("Not a variable binding", binding2 instanceof IVariableBinding);
+		assertNotNull("No binding", binding2); //$NON-NLS-1$
+		assertTrue("binding == binding2", binding == binding2); //$NON-NLS-1$
+		assertTrue("Not a variable binding", binding2 instanceof IVariableBinding); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding2;
-		assertEquals("Wrong name", "i", variableBinding.getName());
-		assertEquals("Wrong type", "int", variableBinding.getType().getName());
+		assertEquals("Wrong name", "i", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong type", "int", variableBinding.getType().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10679
 	 */
 	public void test0261() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0261", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0261", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 1, compilationUnit.getMessages().length);
-		assertEquals("Wrong size", 1, compilationUnit.getProblems().length);
+		assertEquals("Wrong size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
 		ITypeBinding binding = expression.resolveTypeBinding();
-		assertNull("got a binding", binding);
+		assertNull("got a binding", binding); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10676
 	 */
 	public void test0262() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0262", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0262", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expr = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expr instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		List arguments = methodInvocation.arguments();
-		assertEquals("Wrong argument list size", 1, arguments.size());
+		assertEquals("Wrong argument list size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expr2 = (Expression) arguments.get(0);
-		assertTrue("Not a class instance creation", expr2 instanceof ClassInstanceCreation);
+		assertTrue("Not a class instance creation", expr2 instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expr2;
 		arguments = classInstanceCreation.arguments();
-		assertEquals("Wrong size", 1, arguments.size());
+		assertEquals("Wrong size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expression2 = (Expression) arguments.get(0);
-		assertTrue("Not a string literal", expression2 instanceof StringLiteral);
+		assertTrue("Not a string literal", expression2 instanceof StringLiteral); //$NON-NLS-1$
 		StringLiteral stringLiteral = (StringLiteral) expression2;
 		ITypeBinding typeBinding = stringLiteral.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "String", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "String", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10700
 	 */
 	public void test0263() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0263", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0263", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expr = expressionStatement.getExpression();
-		assertTrue("Not a MethodInvocation", expr instanceof MethodInvocation);
+		assertTrue("Not a MethodInvocation", expr instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expr;
 		List arguments = methodInvocation.arguments();
-		assertEquals("Wrong argument list size", 1, arguments.size());
+		assertEquals("Wrong argument list size", 1, arguments.size()); //$NON-NLS-1$
 		Expression expr2 = (Expression) arguments.get(0);
-		assertTrue("Not a simple name", expr2 instanceof SimpleName);
+		assertTrue("Not a simple name", expr2 instanceof SimpleName); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) expr2;
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10699
 	 */
 	public void test0264() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0264", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0264", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong fragment size", 1, fragments.size());
+		assertEquals("Wrong fragment size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation);
+		assertTrue("Not a classinstancecreation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
-		assertNotNull("No anonymousclassdeclaration", anonymousClassDeclaration);
+		assertNotNull("No anonymousclassdeclaration", anonymousClassDeclaration); //$NON-NLS-1$
 		String expectedSourceRange = 
-			"{\n"+ 
-			"			void m(int k){\n"+
-			"				k= i;\n"+
-			"			}\n"+
-			"		}";
+			"{\n"+  //$NON-NLS-1$
+			"			void m(int k){\n"+ //$NON-NLS-1$
+			"				k= i;\n"+ //$NON-NLS-1$
+			"			}\n"+ //$NON-NLS-1$
+			"		}"; //$NON-NLS-1$
 		checkSourceRange(anonymousClassDeclaration, expectedSourceRange, source);
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
-		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		assertEquals("Wrong size", 1, bodyDeclarations.size()); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
-		assertEquals("Wrong name", "m", methodDeclaration.getName().getIdentifier());
+		assertEquals("Wrong name", "m", methodDeclaration.getName().getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10698
 	 */
 	public void test0265() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0265", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0265", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0266() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0266", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0266", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "Inner\\u005b]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "Inner\\u005b]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		Type type2 = arrayType.getElementType();
-		assertTrue("Not a simple type", type2.isSimpleType());
+		assertTrue("Not a simple type", type2.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type2;
-		checkSourceRange(simpleType, "Inner", source);
+		checkSourceRange(simpleType, "Inner", source); //$NON-NLS-1$
 		Name name = simpleType.getName();
-		assertTrue("not a simple name", name.isSimpleName());
+		assertTrue("not a simple name", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
-		checkSourceRange(simpleName, "Inner", source);
+		checkSourceRange(simpleName, "Inner", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0267() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0267", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0267", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "Inner[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "Inner[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		Type type2 = arrayType.getElementType();
-		assertTrue("Not a simple type", type2.isSimpleType());
+		assertTrue("Not a simple type", type2.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type2;
-		checkSourceRange(simpleType, "Inner", source);
+		checkSourceRange(simpleType, "Inner", source); //$NON-NLS-1$
 		Name name = simpleType.getName();
-		assertTrue("not a simple name", name.isSimpleName());
+		assertTrue("not a simple name", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
-		checkSourceRange(simpleName, "Inner", source);
+		checkSourceRange(simpleName, "Inner", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0268() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0268", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0268", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "test0268.Test.Inner[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "test0268.Test.Inner[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		Type type2 = arrayType.getElementType();
-		assertTrue("Not a simple type", type2.isSimpleType());
+		assertTrue("Not a simple type", type2.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type2;
-		checkSourceRange(simpleType, "test0268.Test.Inner", source);
+		checkSourceRange(simpleType, "test0268.Test.Inner", source); //$NON-NLS-1$
 		Name name = simpleType.getName();
-		assertTrue("not a qualified name", name.isQualifiedName());
-		checkSourceRange(name, "test0268.Test.Inner", source);
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(name, "test0268.Test.Inner", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0269() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0269", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0269", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "test0269.Test.Inner[/**/]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "test0269.Test.Inner[/**/]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		Type type2 = arrayType.getElementType();
-		assertTrue("Not a simple type", type2.isSimpleType());
+		assertTrue("Not a simple type", type2.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type2;
-		checkSourceRange(simpleType, "test0269.Test.Inner", source);
+		checkSourceRange(simpleType, "test0269.Test.Inner", source); //$NON-NLS-1$
 		Name name = simpleType.getName();
-		assertTrue("not a qualified name", name.isQualifiedName());
-		checkSourceRange(name, "test0269.Test.Inner", source);
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(name, "test0269.Test.Inner", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0270() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0270", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0270", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "test0270.Test.Inner", source);
-		assertTrue("Not a simple type", type.isSimpleType());
+		checkSourceRange(type, "test0270.Test.Inner", source); //$NON-NLS-1$
+		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
-		assertTrue("not a qualified name", name.isQualifiedName());
-		checkSourceRange(name, "test0270.Test.Inner", source);
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(name, "test0270.Test.Inner", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 	 */
 	public void test0271() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0271", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0271", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "test0271.Test.Inner[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "test0271.Test.Inner[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		Type type2 = arrayType.getElementType();
-		assertTrue("Not a simple type", type2.isSimpleType());
+		assertTrue("Not a simple type", type2.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type2;
-		checkSourceRange(simpleType, "test0271.Test.Inner", source);
+		checkSourceRange(simpleType, "test0271.Test.Inner", source); //$NON-NLS-1$
 		Name name = simpleType.getName();
-		assertTrue("not a qualified name", name.isQualifiedName());
-		checkSourceRange(name, "test0271.Test.Inner", source);
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
+		checkSourceRange(name, "test0271.Test.Inner", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10843
 	 */
 	public void test0272() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0272", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0272", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a For statement", node instanceof ForStatement);
+		assertTrue("Not a For statement", node instanceof ForStatement); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
-		checkSourceRange(forStatement, "for (int i= 0; i < 10; i++) foo();", source);
+		checkSourceRange(forStatement, "for (int i= 0; i < 10; i++) foo();", source); //$NON-NLS-1$
 		Statement action = forStatement.getBody();
-		checkSourceRange(action, "foo();", source);
+		checkSourceRange(action, "foo();", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10843
 	 */
 	public void test0273() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0273", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0273", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a For statement", node instanceof ForStatement);
+		assertTrue("Not a For statement", node instanceof ForStatement); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
-		checkSourceRange(forStatement, "for (int i= 0; i < 10; i++) { foo(); }", source);
+		checkSourceRange(forStatement, "for (int i= 0; i < 10; i++) { foo(); }", source); //$NON-NLS-1$
 		Statement action = forStatement.getBody();
-		checkSourceRange(action, "{ foo(); }", source);
-		assertTrue("Not a block", action instanceof Block);
+		checkSourceRange(action, "{ foo(); }", source); //$NON-NLS-1$
+		assertTrue("Not a block", action instanceof Block); //$NON-NLS-1$
 		Block block = (Block) action;
 		List statements = block.statements();
-		assertEquals("Wrong size", 1, statements.size());
+		assertEquals("Wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		checkSourceRange(stmt, "foo();", source);
+		checkSourceRange(stmt, "foo();", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10843
 	 */
 	public void test0274() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0274", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0274", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not a While statement", node instanceof WhileStatement);
+		assertTrue("Not a While statement", node instanceof WhileStatement); //$NON-NLS-1$
 		WhileStatement whileStatement = (WhileStatement) node;
-		checkSourceRange(whileStatement, "while (i < 10) { foo(i++); }", source);
+		checkSourceRange(whileStatement, "while (i < 10) { foo(i++); }", source); //$NON-NLS-1$
 		Statement action = whileStatement.getBody();
-		checkSourceRange(action, "{ foo(i++); }", source);
-		assertTrue("Not a block", action instanceof Block);
+		checkSourceRange(action, "{ foo(i++); }", source); //$NON-NLS-1$
+		assertTrue("Not a block", action instanceof Block); //$NON-NLS-1$
 		Block block = (Block) action;
 		List statements = block.statements();
-		assertEquals("Wrong size", 1, statements.size());
+		assertEquals("Wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement stmt = (Statement) statements.get(0);
-		checkSourceRange(stmt, "foo(i++);", source);
+		checkSourceRange(stmt, "foo(i++);", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10843
 	 */
 	public void test0275() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0275", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0275", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not a While statement", node instanceof WhileStatement);
+		assertTrue("Not a While statement", node instanceof WhileStatement); //$NON-NLS-1$
 		WhileStatement whileStatement = (WhileStatement) node;
-		checkSourceRange(whileStatement, "while (i < 10) foo(i++);", source);
+		checkSourceRange(whileStatement, "while (i < 10) foo(i++);", source); //$NON-NLS-1$
 		Statement action = whileStatement.getBody();
-		checkSourceRange(action, "foo(i++);", source);
+		checkSourceRange(action, "foo(i++);", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10798
 	 */
 	public void test0276() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0276", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0276", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource = 
-			"public void foo() {\n" +
-			"		foo();\n" +
-			"	}";
+			"public void foo() {\n" + //$NON-NLS-1$
+			"		foo();\n" + //$NON-NLS-1$
+			"	}"; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source);
 		expectedSource = 
-			"{\n" +
-			"		foo();\n" +
-			"	}";		
+			"{\n" + //$NON-NLS-1$
+			"		foo();\n" + //$NON-NLS-1$
+			"	}";		 //$NON-NLS-1$
 		checkSourceRange(methodDeclaration.getBody(), expectedSource, source);
 	}
 		
@@ -6507,22 +6507,22 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10798
 	 */
 	public void test0277() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0277", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0277", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource = 
-			"public void foo() {\n" +
-			"	}";
+			"public void foo() {\n" + //$NON-NLS-1$
+			"	}"; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source);
 		expectedSource = 
-			"{\n" +
-			"	}";		
+			"{\n" + //$NON-NLS-1$
+			"	}";		 //$NON-NLS-1$
 		checkSourceRange(methodDeclaration.getBody(), expectedSource, source);
 	}
 
@@ -6530,48 +6530,48 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10861
 	 */
 	public void test0278() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0278", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0278", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Class c = java.lang.String.class;", source);
+		checkSourceRange(fieldDeclaration, "Class c = java.lang.String.class;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a type literal", expression instanceof TypeLiteral);
+		assertTrue("Not a type literal", expression instanceof TypeLiteral); //$NON-NLS-1$
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "Class", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10861
 	 */
 	public void test0279() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0279", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0279", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0,0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
-		checkSourceRange(variableDeclarationStatement, "Class c = java.lang.String.class;", source);
+		checkSourceRange(variableDeclarationStatement, "Class c = java.lang.String.class;", source); //$NON-NLS-1$
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a type literal", expression instanceof TypeLiteral);
+		assertTrue("Not a type literal", expression instanceof TypeLiteral); //$NON-NLS-1$
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "Class", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -6579,317 +6579,317 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * Check well known types
 	 */
 	public void test0280() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0280", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0280", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		AST ast = result.getAST();
-		ITypeBinding typeBinding = ast.resolveWellKnownType("boolean");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "boolean", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("char");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "char", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("byte");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "byte", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("short");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "short", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("int");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "int", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("long");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "long", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("float");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "float", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("double");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "double", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("void");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "void", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Object");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "Object", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.String");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "String", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.StringBuffer");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "StringBuffer", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Throwable");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "Throwable", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Exception");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "Exception", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.RuntimeException");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "RuntimeException", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Error");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "Error", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Class");
-		assertNotNull("No typeBinding", typeBinding);
-		assertEquals("Wrong name", "Class", typeBinding.getName());
-		typeBinding = ast.resolveWellKnownType("java.lang.Runnable");
-		assertNull("typeBinding not null", typeBinding);
+		ITypeBinding typeBinding = ast.resolveWellKnownType("boolean"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("char"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "char", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("byte"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "byte", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("short"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "short", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("int"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("long"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "long", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("float"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "float", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("double"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "double", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("void"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "void", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.String"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "String", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.StringBuffer"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "StringBuffer", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Throwable"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Throwable", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Exception"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Exception", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.RuntimeException"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "RuntimeException", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Error"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Error", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Class"); //$NON-NLS-1$
+		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		typeBinding = ast.resolveWellKnownType("java.lang.Runnable"); //$NON-NLS-1$
+		assertNull("typeBinding not null", typeBinding); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0281() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0281", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0281", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Object o= /*]*/new Object()/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "Object o= /*]*/new Object()/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "new Object()", source);
+		checkSourceRange(expression, "new Object()", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0282() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0282", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0282", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "boolean b = /*]*/true/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "boolean b = /*]*/true/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "true", source);
+		checkSourceRange(expression, "true", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0283() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0283", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0283", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "char c = /*]*/'c'/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "char c = /*]*/'c'/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "'c'", source);
+		checkSourceRange(expression, "'c'", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0284() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0284", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0284", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Object o = /*]*/null/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "Object o = /*]*/null/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "null", source);
+		checkSourceRange(expression, "null", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0285() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0285", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0285", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Object o = /*]*/Object.class/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "Object o = /*]*/Object.class/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "Object.class", source);
+		checkSourceRange(expression, "Object.class", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0286() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0286", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0286", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "int i = /**/(2)/**/;", source);
+		checkSourceRange(fieldDeclaration, "int i = /**/(2)/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "(2)", source);
+		checkSourceRange(expression, "(2)", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0287() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0287", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0287", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "String[] tab = /**/new String[3]/**/;", source);
+		checkSourceRange(fieldDeclaration, "String[] tab = /**/new String[3]/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "new String[3]", source);
+		checkSourceRange(expression, "new String[3]", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0288() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0288", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0288", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "String[] tab = /**/{ }/**/;", source);
+		checkSourceRange(fieldDeclaration, "String[] tab = /**/{ }/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "{ }", source);
+		checkSourceRange(expression, "{ }", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0289() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0289", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0289", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "String s = /**/tab1[0]/**/;", source);
+		checkSourceRange(fieldDeclaration, "String s = /**/tab1[0]/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "tab1[0]", source);
+		checkSourceRange(expression, "tab1[0]", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10874
 	 */
 	public void test0290() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0290", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0290", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Object o = /*]*/new java.lang.Object()/*[*/;", source);
+		checkSourceRange(fieldDeclaration, "Object o = /*]*/new java.lang.Object()/*[*/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "new java.lang.Object()", source);
+		checkSourceRange(expression, "new java.lang.Object()", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10898
 	 */
 	public void test0291() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0291", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0291", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("no errors", 1, unit.getMessages().length);
-		assertEquals("no errors", 1, unit.getProblems().length);
+		assertEquals("no errors", 1, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("no errors", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10913
 	 */
 	public void test0292() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0292", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0292", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not a qualifiedName", expression instanceof QualifiedName);
+		assertTrue("Not a qualifiedName", expression instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expression;
 		SimpleName simpleName = qualifiedName.getName();
-		assertEquals("Wrong name", "x", simpleName.getIdentifier());
+		assertEquals("Wrong name", "x", simpleName.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("NO binding", binding);
-		assertTrue("Not a variable binding", binding instanceof IVariableBinding);
-		assertEquals("wrong name", "x", binding.getName());
+		assertNotNull("NO binding", binding); //$NON-NLS-1$
+		assertTrue("Not a variable binding", binding instanceof IVariableBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "x", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name name = qualifiedName.getQualifier();
-		assertTrue("Not a simpleName", name instanceof SimpleName);
+		assertTrue("Not a simpleName", name instanceof SimpleName); //$NON-NLS-1$
 		SimpleName simpleName2 = (SimpleName) name;
 		IBinding binding2 = simpleName2.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertTrue("Not a type binding", binding2 instanceof ITypeBinding);
-		assertEquals("Wrong name", "Test", binding2.getName());
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertTrue("Not a type binding", binding2 instanceof ITypeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Test", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -6897,35 +6897,35 @@ public class ASTConverterTest extends ConverterTestSetup {
  	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10935
 	 */
 	public void test0293() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0293", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0293", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a class instance creation", expression instanceof ClassInstanceCreation);
+		assertTrue("Not a class instance creation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
-		assertNotNull("No body", anonymousClassDeclaration);
+		assertNotNull("No body", anonymousClassDeclaration); //$NON-NLS-1$
 		String expectedSource = 
-				"{\n" +
-				"			public void run() {\n" +
-				"				/*]*/foo();/*[*/\n" +
-				"			}\n" +
-				"		}";
+				"{\n" + //$NON-NLS-1$
+				"			public void run() {\n" + //$NON-NLS-1$
+				"				/*]*/foo();/*[*/\n" + //$NON-NLS-1$
+				"			}\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(anonymousClassDeclaration, expectedSource, source);
 		expectedSource =
-				"run= new Runnable() {\n" +
-				"			public void run() {\n" +
-				"				/*]*/foo();/*[*/\n" +
-				"			}\n" +
-				"		}";
+				"run= new Runnable() {\n" + //$NON-NLS-1$
+				"			public void run() {\n" + //$NON-NLS-1$
+				"				/*]*/foo();/*[*/\n" + //$NON-NLS-1$
+				"			}\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(variableDeclarationFragment, expectedSource, source);
 	}
 
@@ -6933,53 +6933,53 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10984
 	 */
 	public void test0294() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0294", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0294", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource = 
-				"public void fails() {\n" +
-				"		foo()\n" +
-				"	}";
+				"public void fails() {\n" + //$NON-NLS-1$
+				"		foo()\n" + //$NON-NLS-1$
+				"	}"; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source);
 		Block block = methodDeclaration.getBody();
 		expectedSource = 
-				"{\n" +
-				"		foo()\n" +
-				"	}";
+				"{\n" + //$NON-NLS-1$
+				"		foo()\n" + //$NON-NLS-1$
+				"	}"; //$NON-NLS-1$
 		checkSourceRange(block, expectedSource, source);	
 		node = getASTNode(compilationUnit, 0, 1);	
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		methodDeclaration = (MethodDeclaration) node;
 		block = methodDeclaration.getBody();
 		List statements = block.statements();
-		assertEquals("wrong size", 1, statements.size());
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10986
 	 */
 	public void test0295() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0295", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0295", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length);
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length);
+		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("not a method invocation", expression instanceof MethodInvocation);
+		assertTrue("not a method invocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		ITypeBinding typeBinding = methodInvocation.resolveTypeBinding();
-		assertNull("type binding is not null", typeBinding);
+		assertNull("type binding is not null", typeBinding); //$NON-NLS-1$
 	}
 
 
@@ -6987,39 +6987,39 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10984
 	 */
 	public void test0296() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0296", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0296", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource = 
-				"public void fails() {\n" +
-				"		foo()\n" +
-				"	}";
+				"public void fails() {\n" + //$NON-NLS-1$
+				"		foo()\n" + //$NON-NLS-1$
+				"	}"; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source);
 		Block block = methodDeclaration.getBody();
 		expectedSource = 
-				"{\n" +
-				"		foo()\n" +
-				"	}";
+				"{\n" + //$NON-NLS-1$
+				"		foo()\n" + //$NON-NLS-1$
+				"	}"; //$NON-NLS-1$
 		checkSourceRange(block, expectedSource, source);	
 		node = getASTNode(compilationUnit, 0, 1);	
-		assertTrue("Not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		methodDeclaration = (MethodDeclaration) node;
 		block = methodDeclaration.getBody();
 		List statements = block.statements();
-		assertEquals("wrong size", 1, statements.size());
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11037
 	 */
 	public void test0297() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0297", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0297", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		runConversion(sourceUnit, false);
 	}
 
@@ -7027,17 +7027,17 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=10984
 	 */
 	public void test0298() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0298", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0298", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a ReturnStatement", node instanceof ReturnStatement);
+		assertTrue("Not a ReturnStatement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		checkSourceRange(expression, "a().length != 3", source);
+		checkSourceRange(expression, "a().length != 3", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -7045,24 +7045,24 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11104
 	 */
 	public void test0299() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0299", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0299", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "int i = (/**/2/**/);", source);
+		checkSourceRange(fieldDeclaration, "int i = (/**/2/**/);", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a parenthesized expression", expression instanceof ParenthesizedExpression);
+		assertTrue("Not a parenthesized expression", expression instanceof ParenthesizedExpression); //$NON-NLS-1$
 		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
 		Expression expression2 = parenthesizedExpression.getExpression();
-		checkSourceRange(expression2, "2", source);
+		checkSourceRange(expression2, "2", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -7070,21 +7070,21 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11104
 	 */
 	public void test0300() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0300", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0300", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "boolean b = /**/true/**/;", source);
+		checkSourceRange(fieldDeclaration, "boolean b = /**/true/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "true", source);
+		checkSourceRange(expression, "true", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -7092,40 +7092,40 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11104
 	 */
 	public void test0301() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0301", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0301", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a Field declaration", node instanceof FieldDeclaration);
+		assertTrue("Not a Field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		checkSourceRange(fieldDeclaration, "Object o = /**/null/**/;", source);
+		checkSourceRange(fieldDeclaration, "Object o = /**/null/**/;", source); //$NON-NLS-1$
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		checkSourceRange(expression, "null", source);
+		checkSourceRange(expression, "null", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11106
 	 */
 	public void test0302() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0302", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0302", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a DoStatement", node instanceof DoStatement);
+		assertTrue("Not a DoStatement", node instanceof DoStatement); //$NON-NLS-1$
 		DoStatement doStatement = (DoStatement) node;
 		String expectedSource = 
-				"do\n" +  
-				"			foo();\n" + 
-				"		while(1 < 10);";
+				"do\n" +   //$NON-NLS-1$
+				"			foo();\n" +  //$NON-NLS-1$
+				"		while(1 < 10);"; //$NON-NLS-1$
 		checkSourceRange(doStatement, expectedSource, source);
 	}
 
@@ -7133,45 +7133,45 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11129
 	 */
 	public void test0303() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0303", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0303", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression2 = expressionStatement.getExpression();
-		assertTrue("Not an Assignement", expression2 instanceof Assignment);
+		assertTrue("Not an Assignement", expression2 instanceof Assignment); //$NON-NLS-1$
 		Assignment assignment = (Assignment) expression2;
 		Expression expression = assignment.getRightHandSide();
-		assertTrue("Not a CastExpression", expression instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong name", "char", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "char", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNotNull("No binding2", typeBinding2);
-		assertEquals("Wrong name", "char", typeBinding2.getName());
+		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "char", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11151
 	 */
 	public void test0304() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0304", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0304", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("not a method declaration", node instanceof MethodDeclaration);
-		checkSourceRange(node, "public void foo(int arg);", source);
+		assertTrue("not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
+		checkSourceRange(node, "public void foo(int arg);", source); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Block block = methodDeclaration.getBody();
-		assertNull("Has a body", block);
+		assertNull("Has a body", block); //$NON-NLS-1$
 	}
 
 	/**
@@ -7179,24 +7179,24 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 */
 	public void test0305() throws JavaModelException {
 		char[] source = 
-				("package test0304;\n" + 
-				"\n" + 
-				"class Test {\n" + 
-				"	public void foo(int arg) {}\n" + 
-				"}").toCharArray();
-		IJavaProject project = getJavaProject("Converter");
-		ASTNode result = runConversion(source, "Test.java", project);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+				("package test0304;\n" +  //$NON-NLS-1$
+				"\n" +  //$NON-NLS-1$
+				"class Test {\n" +  //$NON-NLS-1$
+				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
+				"}").toCharArray(); //$NON-NLS-1$
+		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
+		ASTNode result = runConversion(source, "Test.java", project); //$NON-NLS-1$
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0);
-		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "Test", typeBinding.getName());
-		assertEquals("Wrong package", "test0304", typeBinding.getPackage().getName());
-		assertTrue("Not an interface", typeBinding.isClass());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "test0304", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("Not an interface", typeBinding.isClass()); //$NON-NLS-1$
 	}
 
 	/**
@@ -7204,164 +7204,164 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 */
 	public void test0306() throws JavaModelException {
 		char[] source = 
-				("package java.lang;\n" + 
-				"\n" + 
-				"class Object {\n" + 
-				"	public void foo(int arg) {}\n" + 
-				"}").toCharArray();
-		IJavaProject project = getJavaProject("Converter");
-		ASTNode result = runConversion(source, "Object.java", project);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+				("package java.lang;\n" +  //$NON-NLS-1$
+				"\n" +  //$NON-NLS-1$
+				"class Object {\n" +  //$NON-NLS-1$
+				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
+				"}").toCharArray(); //$NON-NLS-1$
+		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
+		ASTNode result = runConversion(source, "Object.java", project); //$NON-NLS-1$
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0);
-		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "Object", typeBinding.getName());
-		assertEquals("Wrong package", "java.lang", typeBinding.getPackage().getName());
-		assertTrue("Not an interface", typeBinding.isClass());
-		assertEquals("Wrong size", 2, typeBinding.getDeclaredMethods().length);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "java.lang", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("Not an interface", typeBinding.isClass()); //$NON-NLS-1$
+		assertEquals("Wrong size", 2, typeBinding.getDeclaredMethods().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11371
 	 */
 	public void test0307() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0307", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0307", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Block block = methodDeclaration.getBody();
-		assertNotNull("No body", block);
+		assertNotNull("No body", block); //$NON-NLS-1$
 		List statements = block.statements();
-		assertEquals("wrong size", 1, statements.size());
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("Not a super constructor invocation", statement instanceof SuperConstructorInvocation);
+		assertTrue("Not a super constructor invocation", statement instanceof SuperConstructorInvocation); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11371
 	 */
 	public void test0308() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0308", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0308", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("not a method declaration", node instanceof MethodDeclaration);
+		assertTrue("not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Block block = methodDeclaration.getBody();
-		assertNotNull("No body", block);
+		assertNotNull("No body", block); //$NON-NLS-1$
 		List statements = block.statements();
-		assertEquals("wrong size", 1, statements.size());
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("Not a super constructor invocation", statement instanceof SuperConstructorInvocation);
+		assertTrue("Not a super constructor invocation", statement instanceof SuperConstructorInvocation); //$NON-NLS-1$
 		SuperConstructorInvocation superConstructorInvocation = (SuperConstructorInvocation) statement;
 		IMethodBinding methodBinding = superConstructorInvocation.resolveConstructorBinding();
-		assertNotNull("No methodBinding", methodBinding);
+		assertNotNull("No methodBinding", methodBinding); //$NON-NLS-1$
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
-		assertNotNull("No methodBinding2", methodBinding2);
+		assertNotNull("No methodBinding2", methodBinding2); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11380
 	 */
 	public void test0309() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0309", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0309", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a conditional expression", expression instanceof ConditionalExpression);
+		assertTrue("Not a conditional expression", expression instanceof ConditionalExpression); //$NON-NLS-1$
 		ConditionalExpression conditionalExpression = (ConditionalExpression) expression;
 		ITypeBinding typeBinding = conditionalExpression.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("wrong name", "int", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11380
 	 */
 	public void test0310() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0310", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0310", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a qualified name", expression instanceof QualifiedName);
+		assertTrue("Not a qualified name", expression instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expression;
 		Name qualifier = qualifiedName.getQualifier();
 		IBinding binding = qualifier.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong name", "I", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong name", "I", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11638
 	 */
 	public void test0311() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0311", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0311", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("not a class instance creation", expression instanceof ClassInstanceCreation);
+		assertTrue("not a class instance creation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
-		assertNotNull("No body", anonymousClassDeclaration);
+		assertNotNull("No body", anonymousClassDeclaration); //$NON-NLS-1$
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
-		assertEquals("wrong size for body declarations", 1, bodyDeclarations.size());
+		assertEquals("wrong size for body declarations", 1, bodyDeclarations.size()); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		Block block = methodDeclaration.getBody();
-		assertNotNull("no body", block);
+		assertNotNull("no body", block); //$NON-NLS-1$
 		List statements = block.statements();
-		assertEquals("Wrong size for statements", 1, statements.size());
+		assertEquals("Wrong size for statements", 1, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("not a variable declaration statement", statement instanceof VariableDeclarationStatement);
+		assertTrue("not a variable declaration statement", statement instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement2 = (VariableDeclarationStatement) statement;
 		List fragments2 = variableDeclarationStatement2.fragments();
-		assertEquals("wrong size for fragments2", 1, fragments2.size());
+		assertEquals("wrong size for fragments2", 1, fragments2.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment2 = (VariableDeclarationFragment) fragments2.get(0);
 		Expression expression2 = variableDeclarationFragment2.getInitializer();
-		assertTrue("Not a name", expression2 instanceof Name);
+		assertTrue("Not a name", expression2 instanceof Name); //$NON-NLS-1$
 		Name name = (Name) expression2;
-		checkSourceRange(name, "j", source);
+		checkSourceRange(name, "j", source); //$NON-NLS-1$
 		IBinding binding = name.resolveBinding();
 		ASTNode declaringNode = compilationUnit.findDeclaringNode(binding);
-		assertNotNull("No declaring node", declaringNode);
-		checkSourceRange(declaringNode, "int j", source);
-		assertTrue("Not a single variable declaration", declaringNode instanceof SingleVariableDeclaration);
+		assertNotNull("No declaring node", declaringNode); //$NON-NLS-1$
+		checkSourceRange(declaringNode, "int j", source); //$NON-NLS-1$
+		assertTrue("Not a single variable declaration", declaringNode instanceof SingleVariableDeclaration); //$NON-NLS-1$
 	}
 
 	/**
@@ -7370,676 +7370,676 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * declaring node.
 	 */
 	public void test0312() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0312", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0312", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("not a class instance creation", expression instanceof ClassInstanceCreation);
+		assertTrue("not a class instance creation", expression instanceof ClassInstanceCreation); //$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
-		assertNotNull("No body", anonymousClassDeclaration);
+		assertNotNull("No body", anonymousClassDeclaration); //$NON-NLS-1$
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
-		assertEquals("wrong size for body declarations", 1, bodyDeclarations.size());
+		assertEquals("wrong size for body declarations", 1, bodyDeclarations.size()); //$NON-NLS-1$
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
-		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration);
+		assertTrue("Not a method declaration", bodyDeclaration instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		Block block = methodDeclaration.getBody();
-		assertNotNull("no body", block);
+		assertNotNull("no body", block); //$NON-NLS-1$
 		List statements = block.statements();
-		assertEquals("Wrong size for statements", 1, statements.size());
+		assertEquals("Wrong size for statements", 1, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("not a variable declaration statement", statement instanceof VariableDeclarationStatement);
+		assertTrue("not a variable declaration statement", statement instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement2 = (VariableDeclarationStatement) statement;
 		List fragments2 = variableDeclarationStatement2.fragments();
-		assertEquals("wrong size for fragments2", 1, fragments2.size());
+		assertEquals("wrong size for fragments2", 1, fragments2.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment2 = (VariableDeclarationFragment) fragments2.get(0);
 		Expression expression2 = variableDeclarationFragment2.getInitializer();
-		assertTrue("Not a name", expression2 instanceof Name);
+		assertTrue("Not a name", expression2 instanceof Name); //$NON-NLS-1$
 		Name name = (Name) expression2;
-		checkSourceRange(name, "j", source);
+		checkSourceRange(name, "j", source); //$NON-NLS-1$
 		IBinding binding = name.resolveBinding();
 		ASTNode declaringNode = compilationUnit.findDeclaringNode(binding);
-		assertNull("No declaring node is available", declaringNode);
+		assertNull("No declaring node is available", declaringNode); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11659
 	 */
 	public void test0313() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0313", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0313", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an InfixExpression", expression instanceof InfixExpression);
+		assertTrue("Not an InfixExpression", expression instanceof InfixExpression); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) expression;
-		checkSourceRange(infixExpression, "i+j", source);
+		checkSourceRange(infixExpression, "i+j", source); //$NON-NLS-1$
 		Expression expression2 = infixExpression.getLeftOperand();
-		checkSourceRange(expression2, "i", source);
-		assertTrue("Not a name", expression2 instanceof Name);
+		checkSourceRange(expression2, "i", source); //$NON-NLS-1$
+		assertTrue("Not a name", expression2 instanceof Name); //$NON-NLS-1$
 		Name name = (Name) expression2;
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 		ASTNode astNode = compilationUnit.findDeclaringNode(binding);
-		assertNotNull("No declaring node", astNode);
-		checkSourceRange(astNode, "int i", source);
+		assertNotNull("No declaring node", astNode); //$NON-NLS-1$
+		checkSourceRange(astNode, "int i", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=12326
 	 */
 	public void test0314() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0314", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0314", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
-		assertNotNull("No result", result);
-		assertTrue("Not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No result", result); //$NON-NLS-1$
+		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(0));
+		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(0)); //$NON-NLS-1$
 		// ensure that last character is on the last line
-		assertEquals("Wrong line number", 3, compilationUnit.lineNumber(source.length - 1));
+		assertEquals("Wrong line number", 3, compilationUnit.lineNumber(source.length - 1)); //$NON-NLS-1$
 		// source.length is beyond the size of the compilation unit source
-		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(source.length));
+		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(source.length)); //$NON-NLS-1$
 	}
 		
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=12326
 	 */
 	public void test0315() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0315", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0315", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a Return statement", node instanceof ReturnStatement);
+		assertTrue("Not a Return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not an instanceof expression", expression instanceof InstanceofExpression);
+		assertTrue("Not an instanceof expression", expression instanceof InstanceofExpression); //$NON-NLS-1$
 		InstanceofExpression instanceOfExpression = (InstanceofExpression) expression;
 		Type rightOperand = instanceOfExpression.getRightOperand();
-		assertTrue("Not a simpleType", rightOperand instanceof SimpleType);
+		assertTrue("Not a simpleType", rightOperand instanceof SimpleType); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) rightOperand;
 		Name n = simpleType.getName();
-		assertTrue("Not a qualified name", n instanceof QualifiedName);
+		assertTrue("Not a qualified name", n instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName name = (QualifiedName) n;
-		checkSourceRange(name, "java.io.Serializable", source);
+		checkSourceRange(name, "java.io.Serializable", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = name.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong name", "Serializable", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Serializable", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name qualifier = name.getQualifier();
-		assertTrue("Not a qualified name", qualifier instanceof QualifiedName);
+		assertTrue("Not a qualified name", qualifier instanceof QualifiedName); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = qualifier.resolveTypeBinding();
-		assertNull("typebinding2 is not null", typeBinding2);
+		assertNull("typebinding2 is not null", typeBinding2); //$NON-NLS-1$
 		IBinding binding = qualifier.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
 		IPackageBinding pBinding = (IPackageBinding) binding;
-		assertEquals("Wrong name", "java.io", pBinding.getName());
+		assertEquals("Wrong name", "java.io", pBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 		
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=12454
 	 */
 	public void test0316() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Hello.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Hello.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No result", result);
-		assertTrue("Not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No result", result); //$NON-NLS-1$
+		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length);
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length);
+		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=12781
 	 */
 	public void test0317() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0317", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0317", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a return statement", node instanceof ReturnStatement);
+		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("not an instanceof expression", expression instanceof InstanceofExpression);
+		assertTrue("not an instanceof expression", expression instanceof InstanceofExpression); //$NON-NLS-1$
 		InstanceofExpression instanceOfExpression = (InstanceofExpression) expression;
 		Expression left = instanceOfExpression.getLeftOperand();
-		assertTrue("Not a Name", left instanceof Name);
+		assertTrue("Not a Name", left instanceof Name); //$NON-NLS-1$
 		Name name = (Name) left;
 		IBinding binding = name.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("wrong name", "x", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("wrong name", "x", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding = name.resolveTypeBinding();
-		assertNotNull("No typebinding", typeBinding);
-		assertEquals("wrong type", "Object", typeBinding.getName());
+		assertNotNull("No typebinding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong type", "Object", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type right = instanceOfExpression.getRightOperand();
-		assertTrue("Not a simpleType", right instanceof SimpleType);
+		assertTrue("Not a simpleType", right instanceof SimpleType); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) right;
 		name = simpleType.getName();
-		assertTrue("Not a simpleName", name instanceof SimpleName);
+		assertTrue("Not a simpleName", name instanceof SimpleName); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding2 = simpleName.resolveBinding();
-		assertNotNull("No binding2", binding2);
-		assertEquals("Wrong name", "Vector", binding2.getName());
+		assertNotNull("No binding2", binding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		assertNotNull("No typeBinding2", typeBinding2);
-		assertEquals("Wrong name", "Vector", typeBinding2.getName());
+		assertNotNull("No typeBinding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 					
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 	 */
 	public void test0318() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0318", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0318", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("No error", 1, unit.getMessages().length);
-		assertEquals("No error", 1, unit.getProblems().length);
+		assertEquals("No error", 1, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("No error", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
-		assertTrue("Not a variable declaration statement", node instanceof VariableDeclarationStatement);
-		assertTrue("Not malformed", isMalformed(node));
+		assertTrue("Not a variable declaration statement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
+		assertTrue("Not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0319() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0319", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0319", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an array creation", expression instanceof ArrayCreation);
+		assertTrue("Not an array creation", expression instanceof ArrayCreation); //$NON-NLS-1$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ITypeBinding typeBinding = arrayCreation.resolveTypeBinding();
-		assertNotNull("no type binding", typeBinding);
-		assertEquals("wrong name", "Object[]", typeBinding.getName());
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ArrayType arrayType = arrayCreation.getType();
 		ITypeBinding typeBinding2 = arrayType.resolveBinding();
-		assertNotNull("no type binding2", typeBinding2);
-		assertEquals("wrong name", "Object[]", typeBinding2.getName());
+		assertNotNull("no type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = arrayType.getElementType();
-		assertTrue("Not a simple type", type instanceof SimpleType);
+		assertTrue("Not a simple type", type instanceof SimpleType); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		ITypeBinding typeBinding3 = simpleType.resolveBinding();
-		assertNotNull("no type binding3", typeBinding3);
-		assertEquals("wrong name", "Object", typeBinding3.getName());
+		assertNotNull("no type binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 			
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0320() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0320", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0320", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "int[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "int[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding typeBinding = arrayType.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		Type elementType = arrayType.getElementType();
-		assertTrue("Not a simple type", elementType.isPrimitiveType());
+		assertTrue("Not a simple type", elementType.isPrimitiveType()); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = elementType.resolveBinding();
-		assertNotNull("No type binding2", typeBinding2);
+		assertNotNull("No type binding2", typeBinding2); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0321() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0321", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0321", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		assertTrue("Not an array type", type.isArrayType());
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding typeBinding = arrayType.resolveBinding();
-		checkSourceRange(type, "java.lang.Object[][]", source);
-		assertNotNull("No type binding", typeBinding);
+		checkSourceRange(type, "java.lang.Object[][]", source); //$NON-NLS-1$
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		Type elementType = arrayType.getComponentType();
 		ITypeBinding typeBinding2 = elementType.resolveBinding();
-		assertNotNull("No type binding2", typeBinding2);
-		assertEquals("wrong dimension", 1, typeBinding2.getDimensions());
-		assertEquals("wrong name", "Object[]", typeBinding2.getName());		
-		assertTrue("Not an array type", elementType.isArrayType());
+		assertNotNull("No type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong dimension", 1, typeBinding2.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding2.getName());		 //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("Not an array type", elementType.isArrayType()); //$NON-NLS-1$
 		Type elementType2 = ((ArrayType) elementType).getComponentType();
-		assertTrue("Not a simple type", elementType2.isSimpleType());
+		assertTrue("Not a simple type", elementType2.isSimpleType()); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = elementType2.resolveBinding();
-		assertNotNull("No type binding3", typeBinding3);
-		assertEquals("wrong dimension", 0, typeBinding3.getDimensions());
-		assertEquals("wrong name", "Object", typeBinding3.getName());		
+		assertNotNull("No type binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong dimension", 0, typeBinding3.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding3.getName());		 //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13231
 	 */
 	public void test0322() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0322", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0322", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a FieldDeclaration", node instanceof FieldDeclaration);
+		assertTrue("Not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a null literal", expression instanceof NullLiteral);
+		assertTrue("Not a null literal", expression instanceof NullLiteral); //$NON-NLS-1$
 		NullLiteral nullLiteral = (NullLiteral) expression;
 		ITypeBinding typeBinding = nullLiteral.resolveTypeBinding();
-		assertNotNull("no type binding", typeBinding);
-		assertTrue("Not the null type", typeBinding.isNullType());
-		assertEquals("Wrong qualified name", typeBinding.getQualifiedName(), "null");
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not the null type", typeBinding.isNullType()); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", typeBinding.getQualifiedName(), "null"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14198
 	 */
 	public void test0323() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0323", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0323", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression2 = expressionStatement.getExpression();
-		assertTrue("Not an Assignement", expression2 instanceof Assignment);
+		assertTrue("Not an Assignement", expression2 instanceof Assignment); //$NON-NLS-1$
 		Assignment assignment = (Assignment) expression2;
 		Expression expression = assignment.getRightHandSide();
-		assertTrue("Not a CastExpression", expression instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong name", "Object", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNotNull("No binding2", typeBinding2);
-		assertEquals("Wrong name", "Object", typeBinding2.getName());
+		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14198
 	 */
 	public void test0324() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0324", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0324", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression2 = expressionStatement.getExpression();
-		assertTrue("Not an Assignement", expression2 instanceof Assignment);
+		assertTrue("Not an Assignement", expression2 instanceof Assignment); //$NON-NLS-1$
 		Assignment assignment = (Assignment) expression2;
 		Expression expression = assignment.getRightHandSide();
-		assertTrue("Not a CastExpression", expression instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong name", "Object[]", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNotNull("No binding2", typeBinding2);
-		assertEquals("Wrong name", "Object[]", typeBinding2.getName());
+		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "Object[]", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14198
 	 */
 	public void test0325() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0325", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0325", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression2 = expressionStatement.getExpression();
-		assertTrue("Not an Assignement", expression2 instanceof Assignment);
+		assertTrue("Not an Assignement", expression2 instanceof Assignment); //$NON-NLS-1$
 		Assignment assignment = (Assignment) expression2;
 		Expression expression = assignment.getRightHandSide();
-		assertTrue("Not a CastExpression", expression instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong name", "int[]", typeBinding.getName());
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "int[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNotNull("No binding2", typeBinding2);
-		assertEquals("Wrong name", "int[]", typeBinding2.getName());
+		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong name", "int[]", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14217
 	 */
 	public void test0326() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0326", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0326", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
+		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
-		checkSourceRange(expressionStatement.getExpression(), "a().f= a()", source);
-		checkSourceRange(expressionStatement, "a().f= a();", source);
+		checkSourceRange(expressionStatement.getExpression(), "a().f= a()", source); //$NON-NLS-1$
+		checkSourceRange(expressionStatement, "a().f= a();", source); //$NON-NLS-1$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14198
 	 */
 	public void test0327() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0327", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0327", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not an VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not an VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a CastExpression", expression instanceof CastExpression);
+		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNull("typeBinding is not null", typeBinding);
+		assertNull("typeBinding is not null", typeBinding); //$NON-NLS-1$
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertNull("typeBinding2 is not null", typeBinding2);
+		assertNull("typeBinding2 is not null", typeBinding2); //$NON-NLS-1$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0328() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0328", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0328", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "java.lang.Object[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "java.lang.Object[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding typeBinding = arrayType.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("wrong name", "Object[]", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type elementType = arrayType.getElementType();
-		assertTrue("Not a simple type", elementType.isSimpleType());
+		assertTrue("Not a simple type", elementType.isSimpleType()); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = elementType.resolveBinding();
-		assertNotNull("No type binding2", typeBinding2);
-		assertEquals("wrong name", "Object", typeBinding2.getName());
+		assertNotNull("No type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a array creation", expression instanceof ArrayCreation);
+		assertTrue("Not a array creation", expression instanceof ArrayCreation); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = expression.resolveTypeBinding();
-		assertNotNull("No typeBinding3", typeBinding3);
-		assertEquals("wrong name", "Object[]", typeBinding3.getName());
+		assertNotNull("No typeBinding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ArrayInitializer arrayInitializer = arrayCreation.getInitializer();
-		assertNotNull("not array initializer", arrayInitializer);
+		assertNotNull("not array initializer", arrayInitializer); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = arrayInitializer.resolveTypeBinding();
-		assertNotNull("No typeBinding4", typeBinding3);
-		assertEquals("wrong name", "Object[]", typeBinding4.getName());
+		assertNotNull("No typeBinding4", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0329() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0329", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0329", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "java.lang.Object[]", source);
-		assertTrue("Not an array type", type.isArrayType());
+		checkSourceRange(type, "java.lang.Object[]", source); //$NON-NLS-1$
+		assertTrue("Not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding typeBinding = arrayType.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("wrong name", "Object[]", typeBinding.getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type elementType = arrayType.getElementType();
-		assertTrue("Not a simple type", elementType.isSimpleType());
+		assertTrue("Not a simple type", elementType.isSimpleType()); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = elementType.resolveBinding();
-		assertNotNull("No type binding2", typeBinding2);
-		assertEquals("wrong name", "Object", typeBinding2.getName());
+		assertNotNull("No type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a array creation", expression instanceof ArrayCreation);
+		assertTrue("Not a array creation", expression instanceof ArrayCreation); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = expression.resolveTypeBinding();
-		assertNotNull("No typeBinding3", typeBinding3);
-		assertEquals("wrong name", "Object[]", typeBinding3.getName());
+		assertNotNull("No typeBinding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ArrayInitializer arrayInitializer = arrayCreation.getInitializer();
-		assertNotNull("not array initializer", arrayInitializer);
+		assertNotNull("not array initializer", arrayInitializer); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = arrayInitializer.resolveTypeBinding();
-		assertNotNull("No typeBinding4", typeBinding3);
-		assertEquals("wrong name", "Object[]", typeBinding4.getName());
+		assertNotNull("No typeBinding4", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14313
 	 */
 	public void test0330() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0330", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0330", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 2, compilationUnit.getMessages().length);
-		assertEquals("wrong size", 2, compilationUnit.getProblems().length);
+		assertEquals("wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("no type binding", typeBinding);
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
-		assertEquals("wrong size", 1, methods.length);
-		assertTrue("not a constructor", methods[0].isConstructor());
-		assertTrue("wrong name", !methods[0].getName().equals("foo"));
+		assertEquals("wrong size", 1, methods.length); //$NON-NLS-1$
+		assertTrue("not a constructor", methods[0].isConstructor()); //$NON-NLS-1$
+		assertTrue("wrong name", !methods[0].getName().equals("foo")); //$NON-NLS-1$ //$NON-NLS-2$
 		node = getASTNode(compilationUnit, 0, 0);
-		assertTrue("Not a methodDeclaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a methodDeclaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-		assertNull("method binding not null", methodBinding);
+		assertNull("method binding not null", methodBinding); //$NON-NLS-1$
 		node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT);
+		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
 		ITypeBinding typeBinding2 = expression.resolveTypeBinding();
-		assertNotNull("no type binding2", typeBinding2);
+		assertNotNull("no type binding2", typeBinding2); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14322
 	 */
 	public void test0331() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0331", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0331", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not an VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not an VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a QualifiedName", expression instanceof QualifiedName);
+		assertTrue("Not a QualifiedName", expression instanceof QualifiedName); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expression;
 		IBinding binding = qualifiedName.getName().resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind()); //$NON-NLS-1$
 		IVariableBinding variableBinding = (IVariableBinding) binding;
-		assertTrue("Not a field", variableBinding.isField());
-		assertNull("Got a declaring class", variableBinding.getDeclaringClass());
-		assertEquals("wrong name", "length", variableBinding.getName());
+		assertTrue("Not a field", variableBinding.isField()); //$NON-NLS-1$
+		assertNull("Got a declaring class", variableBinding.getDeclaringClass()); //$NON-NLS-1$
+		assertEquals("wrong name", "length", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}					
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14403
 	 */
 	public void test0332() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0332", "LocalSelectionTransfer.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0332", "LocalSelectionTransfer.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0333() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0333", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0333", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an array creation", expression instanceof ArrayCreation);
+		assertTrue("Not an array creation", expression instanceof ArrayCreation); //$NON-NLS-1$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ITypeBinding typeBinding = arrayCreation.resolveTypeBinding();
-		assertNotNull("no type binding", typeBinding);
-		assertEquals("wrong name", "Object[][]", typeBinding.getName());
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[][]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ArrayType arrayType = arrayCreation.getType();
 		ITypeBinding typeBinding2 = arrayType.resolveBinding();
-		assertNotNull("no type binding2", typeBinding2);
-		assertEquals("wrong name", "Object[][]", typeBinding2.getName());
+		assertNotNull("no type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[][]", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = arrayType.getElementType();
-		assertTrue("Not a simple type", type instanceof SimpleType);
+		assertTrue("Not a simple type", type instanceof SimpleType); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		ITypeBinding typeBinding3 = simpleType.resolveBinding();
-		assertNotNull("no type binding3", typeBinding3);
-		assertEquals("wrong name", "Object", typeBinding3.getName());
+		assertNotNull("no type binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		type = arrayType.getComponentType();
-		assertTrue("Not an array type", type instanceof ArrayType);
+		assertTrue("Not an array type", type instanceof ArrayType); //$NON-NLS-1$
 		ArrayType arrayType2 = (ArrayType) type;
 		ITypeBinding typeBinding4 = arrayType2.resolveBinding();
-		assertNotNull("no type binding4", typeBinding4);
-		assertEquals("wrong name", "Object[]", typeBinding4.getName());
+		assertNotNull("no type binding4", typeBinding4); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13807
 	 */
 	public void test0334() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0334", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0334", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement);
+		assertTrue("Not a VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an array creation", expression instanceof ArrayCreation);
+		assertTrue("Not an array creation", expression instanceof ArrayCreation); //$NON-NLS-1$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ITypeBinding typeBinding = arrayCreation.resolveTypeBinding();
-		assertNotNull("no type binding", typeBinding);
-		assertEquals("wrong name", "Object[][][]", typeBinding.getName());
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[][][]", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ArrayType arrayType = arrayCreation.getType();
-		checkSourceRange(arrayType, "Object[10][][]", source);
+		checkSourceRange(arrayType, "Object[10][][]", source); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = arrayType.resolveBinding();
-		assertNotNull("no type binding2", typeBinding2);
-		assertEquals("wrong name", "Object[][][]", typeBinding2.getName());
+		assertNotNull("no type binding2", typeBinding2); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[][][]", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Type type = arrayType.getElementType();
-		assertTrue("Not a simple type", type instanceof SimpleType);
+		assertTrue("Not a simple type", type instanceof SimpleType); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
-		checkSourceRange(simpleType, "Object", source);
+		checkSourceRange(simpleType, "Object", source); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = simpleType.resolveBinding();
-		assertNotNull("no type binding3", typeBinding3);
-		assertEquals("wrong name", "Object", typeBinding3.getName());
+		assertNotNull("no type binding3", typeBinding3); //$NON-NLS-1$
+		assertEquals("wrong name", "Object", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		type = arrayType.getComponentType();
-		assertTrue("Not an array type", type instanceof ArrayType);
+		assertTrue("Not an array type", type instanceof ArrayType); //$NON-NLS-1$
 		ArrayType arrayType2 = (ArrayType) type;
-		checkSourceRange(arrayType2, "Object[10][]", source);
+		checkSourceRange(arrayType2, "Object[10][]", source); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = arrayType2.resolveBinding();
-		assertNotNull("no type binding4", typeBinding4);
-		assertEquals("wrong name", "Object[][]", typeBinding4.getName());
+		assertNotNull("no type binding4", typeBinding4); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[][]", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		type = arrayType2.getComponentType();
-		assertTrue("Not an array type", type instanceof ArrayType);
+		assertTrue("Not an array type", type instanceof ArrayType); //$NON-NLS-1$
 		ArrayType arrayType3 = (ArrayType) type;
 		ITypeBinding typeBinding5 = arrayType3.resolveBinding();
-		assertNotNull("no type binding5", typeBinding5);
-		assertEquals("wrong name", "Object[]", typeBinding5.getName());
-		checkSourceRange(arrayType3, "Object[10]", source);
+		assertNotNull("no type binding5", typeBinding5); //$NON-NLS-1$
+		assertEquals("wrong name", "Object[]", typeBinding5.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		checkSourceRange(arrayType3, "Object[10]", source); //$NON-NLS-1$
 	}
 	
 
@@ -8047,268 +8047,268 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14526
 	 */
 	public void test0335() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0335", "ExceptionTestCaseTest.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0335", "ExceptionTestCaseTest.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0);
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
-		assertEquals("errors found", 0, compilationUnit.getProblems().length);
-		assertNotNull("not null", node);
-		assertTrue("not a type declaration", node instanceof TypeDeclaration);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("errors found", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		Name name = typeDeclaration.getSuperclass();
-		assertNotNull("no super class", name);
-		assertTrue("not a qualified name", name.isQualifiedName());
+		assertNotNull("no super class", name); //$NON-NLS-1$
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) name;
 		name = qualifiedName.getQualifier();
-		assertTrue("not a qualified name", name.isQualifiedName());
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
 		qualifiedName = (QualifiedName) name;
 		name = qualifiedName.getQualifier();
-		assertTrue("not a simple name", name.isSimpleName());
+		assertTrue("not a simple name", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind());
-		assertEquals("wrong name", "junit", binding.getName());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong name", "junit", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14526
 	 */
 	public void test0336() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0336", "SorterTest.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0336", "SorterTest.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
-		assertEquals("errors found", 0, compilationUnit.getProblems().length);
-		assertNotNull("not null", node);
-		assertTrue("not a type declaration", node instanceof TypeDeclaration);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("errors found", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		List superInterfaces = typeDeclaration.superInterfaces();
-		assertEquals("wrong size", 1, superInterfaces.size());
+		assertEquals("wrong size", 1, superInterfaces.size()); //$NON-NLS-1$
 		Name name = (Name) superInterfaces.get(0);
-		assertTrue("not a qualified name", name.isQualifiedName());
+		assertTrue("not a qualified name", name.isQualifiedName()); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) name;
 		name = qualifiedName.getQualifier();
-		assertTrue("not a simple name", name.isSimpleName());
+		assertTrue("not a simple name", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong name", "Sorter", binding.getName());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong name", "Sorter", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14602
 	 */
 	public void test0337() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0337", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0337", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
-		assertNotNull("not null", node);
-		assertTrue("not a field declaration", node instanceof FieldDeclaration);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
-		checkSourceRange(variableDeclarationFragment, "message= Test.m(\"s\", new String[]{\"g\"})", source);
-		checkSourceRange(fieldDeclaration, "String message= Test.m(\"s\", new String[]{\"g\"});", source);
+		checkSourceRange(variableDeclarationFragment, "message= Test.m(\"s\", new String[]{\"g\"})", source); //$NON-NLS-1$
+		checkSourceRange(fieldDeclaration, "String message= Test.m(\"s\", new String[]{\"g\"});", source); //$NON-NLS-1$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14852
 	 */
 	public void test0338() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0338", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0338", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
-		assertNotNull("not null", node);
-		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List thrownExceptions = methodDeclaration.thrownExceptions();
-		assertEquals("Wrong size", 1, thrownExceptions.size());
+		assertEquals("Wrong size", 1, thrownExceptions.size()); //$NON-NLS-1$
 		Name name = (Name) thrownExceptions.get(0);
 		IBinding binding = name.resolveBinding();
-		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong name", "IOException", binding.getName());
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong name", "IOException", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=15061
 	 */
 	public void test0339() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0339", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0339", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("No errors found", 2, compilationUnit.getMessages().length);
+		assertEquals("No errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("not a Type declaration", node instanceof TypeDeclaration);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a Type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
-		assertEquals("wrong size", 1, bodyDeclarations.size());
+		assertEquals("wrong size", 1, bodyDeclarations.size()); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclarations.get(0);
-		checkSourceRange(methodDeclaration, "int doQuery(boolean x);", source);
+		checkSourceRange(methodDeclaration, "int doQuery(boolean x);", source); //$NON-NLS-1$
 		node = getASTNode(compilationUnit, 0, 1);
-		assertNotNull("not null", node);
-		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		String expectedSource = 
-			"public void setX(boolean x) {\n" + 
-			" 		{\n" + 
-			"		z\n" + 
-			"	}\n" + 
-			"}";
+			"public void setX(boolean x) {\n" +  //$NON-NLS-1$
+			" 		{\n" +  //$NON-NLS-1$
+			"		z\n" +  //$NON-NLS-1$
+			"	}\n" +  //$NON-NLS-1$
+			"}"; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 		int methodEndPosition = node.getStartPosition() + node.getLength();
 		node = getASTNode(compilationUnit, 0);
-		assertNotNull("not null", node);
-		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		int typeEndPosition = node.getStartPosition() + node.getLength();
-		assertEquals("different positions", methodEndPosition, typeEndPosition);
+		assertEquals("different positions", methodEndPosition, typeEndPosition); //$NON-NLS-1$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14852
 	 */
 	public void test0340() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "p3", "B.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "p3", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		assertTrue("Not an method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION);
+		assertTrue("Not an method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		Expression expression2 = methodInvocation.getExpression();
-		assertNotNull("No receiver", expression2);
+		assertNotNull("No receiver", expression2); //$NON-NLS-1$
 		ITypeBinding binding = expression2.resolveTypeBinding();
-		assertNotNull("No type binding", binding);
-		assertEquals("wrong name", "A", binding.getName());
-		assertEquals("wrong name", "p2", binding.getPackage().getName());
-		assertTrue("Not a qualified name", expression2.getNodeType() == ASTNode.QUALIFIED_NAME);
+		assertNotNull("No type binding", binding); //$NON-NLS-1$
+		assertEquals("wrong name", "A", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong name", "p2", binding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("Not a qualified name", expression2.getNodeType() == ASTNode.QUALIFIED_NAME); //$NON-NLS-1$
 		QualifiedName qualifiedName = (QualifiedName) expression2;
 		SimpleName simpleName = qualifiedName.getName();
-		assertEquals("wrong name", "A", simpleName.getIdentifier());
+		assertEquals("wrong name", "A", simpleName.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding = simpleName.resolveTypeBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("wrong name", "A", typeBinding.getName());
-		assertEquals("wrong name", "p2", typeBinding.getPackage().getName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong name", "A", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong name", "p2", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Name name = qualifiedName.getQualifier();
-		assertTrue("Not a simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		assertTrue("Not a simple name", name.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
 		SimpleName simpleName2 = (SimpleName) name;
-		assertEquals("wrong name", "p2", simpleName2.getIdentifier());
+		assertEquals("wrong name", "p2", simpleName2.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 		IBinding binding2 = simpleName2.resolveBinding();
-		assertNotNull("No binding", binding2);
-		assertEquals("wrong type", IBinding.PACKAGE, binding2.getKind());
-		assertEquals("wrong name", "p2", binding2.getName());
+		assertNotNull("No binding", binding2); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, binding2.getKind()); //$NON-NLS-1$
+		assertEquals("wrong name", "p2", binding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		node = getASTNode(compilationUnit, 0, 1, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
 		ExpressionStatement expressionStatement2 = (ExpressionStatement) node;
 		Expression expression3 = expressionStatement2.getExpression();
-		assertTrue("Not an method invocation", expression3.getNodeType() == ASTNode.METHOD_INVOCATION);
+		assertTrue("Not an method invocation", expression3.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
 		MethodInvocation methodInvocation2 = (MethodInvocation) expression3;
 		Expression expression4 = methodInvocation2.getExpression();
-		assertNotNull("No receiver", expression4);
+		assertNotNull("No receiver", expression4); //$NON-NLS-1$
 		ITypeBinding binding3 = expression4.resolveTypeBinding();
-		assertNotNull("No type binding", binding3);
-		assertEquals("wrong name", "A", binding3.getName());
-		assertEquals("wrong name", "p1", binding3.getPackage().getName());
+		assertNotNull("No type binding", binding3); //$NON-NLS-1$
+		assertEquals("wrong name", "A", binding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong name", "p1", binding3.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=15804
 	 */
 	public void test0341() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0341", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0341", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		String expectedSource = 
-				"if (field != null) {\n" +
-				"			throw new IOException();\n" +
-				"		} else if (field == null) {\n" +
-				"			throw new MalformedURLException();\n" +
-				"		} else if (field == null) {\n" +
-				"			throw new InterruptedIOException();\n" +
-				"		} else {\n" +
-				"			throw new UnsupportedEncodingException();\n" +
-				"		}";
+				"if (field != null) {\n" + //$NON-NLS-1$
+				"			throw new IOException();\n" + //$NON-NLS-1$
+				"		} else if (field == null) {\n" + //$NON-NLS-1$
+				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
+				"		} else if (field == null) {\n" + //$NON-NLS-1$
+				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
+				"		} else {\n" + //$NON-NLS-1$
+				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 		IfStatement ifStatement = (IfStatement) node;
 		Statement thenStatement = ifStatement.getThenStatement();
 		expectedSource = 
-				"{\n" +
-				"			throw new IOException();\n" +
-				"		}";
+				"{\n" + //$NON-NLS-1$
+				"			throw new IOException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		Statement elseStatement = ifStatement.getElseStatement();
 		expectedSource = 
-				"if (field == null) {\n" +
-				"			throw new MalformedURLException();\n" +
-				"		} else if (field == null) {\n" +
-				"			throw new InterruptedIOException();\n" +
-				"		} else {\n" +
-				"			throw new UnsupportedEncodingException();\n" +
-				"		}";
+				"if (field == null) {\n" + //$NON-NLS-1$
+				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
+				"		} else if (field == null) {\n" + //$NON-NLS-1$
+				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
+				"		} else {\n" + //$NON-NLS-1$
+				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
-		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		ifStatement = (IfStatement) elseStatement;
 		thenStatement = ifStatement.getThenStatement();
 		expectedSource = 
-				"{\n" +
-				"			throw new MalformedURLException();\n" +
-				"		}";
+				"{\n" + //$NON-NLS-1$
+				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		elseStatement = ifStatement.getElseStatement();
 		expectedSource = 
-				"if (field == null) {\n" +
-				"			throw new InterruptedIOException();\n" +
-				"		} else {\n" +
-				"			throw new UnsupportedEncodingException();\n" +
-				"		}";
+				"if (field == null) {\n" + //$NON-NLS-1$
+				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
+				"		} else {\n" + //$NON-NLS-1$
+				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
-		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		ifStatement = (IfStatement) elseStatement;
 		thenStatement = ifStatement.getThenStatement();
 		expectedSource = 
-				"{\n" +
-				"			throw new InterruptedIOException();\n" +
-				"		}";
+				"{\n" + //$NON-NLS-1$
+				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		elseStatement = ifStatement.getElseStatement();
 		expectedSource = 
-				"{\n" +
-				"			throw new UnsupportedEncodingException();\n" +
-				"		}";
+				"{\n" + //$NON-NLS-1$
+				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
+				"		}"; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
 	}	
 
@@ -8316,14 +8316,14 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=15657
 	 */
 	public void test0342() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0342", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0342", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IDOMCompilationUnit dcompUnit = new DOMFactory().createCompilationUnit(sourceUnit.getSource(), sourceUnit.getElementName());
-		assertNotNull("dcompUnit is null", dcompUnit);
+		assertNotNull("dcompUnit is null", dcompUnit); //$NON-NLS-1$
 
 		// searching class 
 		IDOMType classNode = null;
 		Enumeration children = dcompUnit.getChildren();
-		assertNotNull("dcompUnit has no children", children);
+		assertNotNull("dcompUnit has no children", children); //$NON-NLS-1$
 		
 		while (children.hasMoreElements()) {
 			IDOMNode child = (IDOMNode) children.nextElement();
@@ -8332,12 +8332,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 				break;
 			}
 		}
-		assertNotNull("classNode is null", classNode);
+		assertNotNull("classNode is null", classNode); //$NON-NLS-1$
 
 		// searching for methods
 		children = classNode.getChildren();
 
-		assertNotNull("classNode has no children", children);
+		assertNotNull("classNode has no children", children); //$NON-NLS-1$
 
 		while (children.hasMoreElements()) {
 			IDOMNode child = (IDOMNode) children.nextElement();
@@ -8349,7 +8349,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 				if (childMethod.isConstructor()) {
 					assertNull(returnType);
 				} else {
-					assertNotNull("no return type", returnType);
+					assertNotNull("no return type", returnType); //$NON-NLS-1$
 				}
 			}
 		}
@@ -8359,19 +8359,19 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=16051
 	 */
 	public void test0343() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0343", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0343", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 1);
-		assertNotNull("not null", node);
-		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		String expectedSource = 
-				"if (flag)\n" +
-				"			i= 10;";
+				"if (flag)\n" + //$NON-NLS-1$
+				"			i= 10;"; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 	}
 	
@@ -8384,7 +8384,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		String compiler_source = null;
 		String compiler_compliance = null;
 		try {
-			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0344", "Test.java");
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			preferences = JavaCore.getPlugin().getPluginPreferences();
 			pb_assert = preferences.getString(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
 			compiler_source = preferences.getString(JavaCore.COMPILER_SOURCE);
@@ -8395,10 +8395,10 @@ public class ASTConverterTest extends ConverterTestSetup {
 			preferences.setValue(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4); 
 			
 			ASTNode result = runConversion(sourceUnit, true);
-			assertNotNull("No compilation unit", result);
-			assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+			assertNotNull("No compilation unit", result); //$NON-NLS-1$
+			assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 			CompilationUnit compilationUnit = (CompilationUnit) result;
-			assertEquals("errors found", 0, compilationUnit.getMessages().length);
+			assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		} finally {
 			if (preferences != null) {
 				preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert); 
@@ -8412,345 +8412,345 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=17922
 	 */
 	public void test0345() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0345", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0345", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an ArrayCreation", expression.getNodeType() == ASTNode.ARRAY_CREATION);
+		assertTrue("Not an ArrayCreation", expression.getNodeType() == ASTNode.ARRAY_CREATION); //$NON-NLS-1$
 		ArrayCreation arrayCreation = (ArrayCreation) expression;
 		ArrayType arrayType = arrayCreation.getType();
 		IBinding binding2 = arrayType.resolveBinding();
-		assertNotNull("no binding2", binding2);
-		assertEquals("not a type", binding2.getKind(), IBinding.TYPE);
+		assertNotNull("no binding2", binding2); //$NON-NLS-1$
+		assertEquals("not a type", binding2.getKind(), IBinding.TYPE); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = (ITypeBinding) binding2;
-		assertTrue("Not an array type binding2", typeBinding2.isArray());
+		assertTrue("Not an array type binding2", typeBinding2.isArray()); //$NON-NLS-1$
 		Type type = arrayType.getElementType();
-		assertTrue("Not a simple type", type.isSimpleType());
+		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
-		assertTrue("QualifiedName", name.getNodeType() == ASTNode.QUALIFIED_NAME);
+		assertTrue("QualifiedName", name.getNodeType() == ASTNode.QUALIFIED_NAME); //$NON-NLS-1$
 		SimpleName simpleName = ((QualifiedName) name).getName();
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("not a type", binding.getKind(), IBinding.TYPE);
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("not a type", binding.getKind(), IBinding.TYPE); //$NON-NLS-1$
 		ITypeBinding typeBinding = (ITypeBinding) binding;
-		assertTrue("An array type binding", !typeBinding.isArray());
+		assertTrue("An array type binding", !typeBinding.isArray()); //$NON-NLS-1$
 		Type type2 = fieldDeclaration.getType();
-		assertTrue("Not a array type", type2.isArrayType());
+		assertTrue("Not a array type", type2.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType2 = (ArrayType) type2;
 		Type type3 = arrayType2.getElementType();
-		assertTrue("Not a simple type", type3.isSimpleType());
+		assertTrue("Not a simple type", type3.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType2 = (SimpleType) type3;
 		Name name2 = simpleType2.getName();
-		assertTrue("Not a qualified name", name2.getNodeType() == ASTNode.QUALIFIED_NAME);
+		assertTrue("Not a qualified name", name2.getNodeType() == ASTNode.QUALIFIED_NAME); //$NON-NLS-1$
 		SimpleName simpleName2 = ((QualifiedName) name2).getName();
 		IBinding binding3 = simpleName2.resolveBinding();
-		assertNotNull("no binding", binding3);
-		assertEquals("not a type", binding3.getKind(), IBinding.TYPE);
+		assertNotNull("no binding", binding3); //$NON-NLS-1$
+		assertEquals("not a type", binding3.getKind(), IBinding.TYPE); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = (ITypeBinding) binding3;
-		assertTrue("An array type binding", !typeBinding3.isArray());
+		assertTrue("An array type binding", !typeBinding3.isArray()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18138
 	 */
 	public void test0346() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0346", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0346", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "Vector", source);
-		assertTrue("not an array type", !type.isArrayType());
-		assertTrue("Not a simple type", type.isSimpleType());
+		checkSourceRange(type, "Vector", source); //$NON-NLS-1$
+		assertTrue("not an array type", !type.isArrayType()); //$NON-NLS-1$
+		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
-		assertTrue("Not a simpleName", name.isSimpleName());
+		assertTrue("Not a simpleName", name.isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
 		ITypeBinding typeBinding = (ITypeBinding) binding;
-		assertTrue("An array", !typeBinding.isArray());
-		assertEquals("Wrong name", "Vector", binding.getName());
+		assertTrue("An array", !typeBinding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		ITypeBinding typeBinding2 = simpleType.resolveBinding();
-		assertNotNull("No binding", typeBinding2);
-		assertEquals("Wrong type", IBinding.TYPE, typeBinding2.getKind());
-		assertTrue("An array", !typeBinding2.isArray());
-		assertEquals("Wrong name", "Vector", typeBinding2.getName());
+		assertNotNull("No binding", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, typeBinding2.getKind()); //$NON-NLS-1$
+		assertTrue("An array", !typeBinding2.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18138
 	 */
 	public void test0347() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0347", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0347", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "Vector[]", source);
-		assertTrue("not an array type", type.isArrayType());
+		checkSourceRange(type, "Vector[]", source); //$NON-NLS-1$
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding binding = arrayType.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertTrue("Not an array type", binding.isArray());
-		assertEquals("Wrong name", "Vector[]", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("Not an array type", binding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector[]", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18138
 	 */
 	public void test0348() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0348", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0348", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "Vector[][]", source);
-		assertTrue("not an array type", type.isArrayType());
+		checkSourceRange(type, "Vector[][]", source); //$NON-NLS-1$
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding binding = arrayType.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertTrue("Not an array type", binding.isArray());
-		assertEquals("Wrong name", "Vector[][]", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("Not an array type", binding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector[][]", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18138
 	 */
 	public void test0349() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0349", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0349", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Vector[][]", source);
-		assertTrue("not an array type", type.isArrayType());
+		checkSourceRange(type, "Vector[][]", source); //$NON-NLS-1$
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
 		ITypeBinding binding = arrayType.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertTrue("Not an array type", binding.isArray());
-		assertEquals("Wrong name", "Vector[][]", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("Not an array type", binding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector[][]", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18138
 	 */
 	public void test0350() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0350", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0350", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Vector", source);
-		assertTrue("not a simple type", type.isSimpleType());
+		checkSourceRange(type, "Vector", source); //$NON-NLS-1$
+		assertTrue("not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		ITypeBinding binding = simpleType.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertTrue("An array type", binding.isClass());
-		assertEquals("Wrong name", "Vector", binding.getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("An array type", binding.isClass()); //$NON-NLS-1$
+		assertEquals("Wrong name", "Vector", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18169
 	 */
 	public void test0351() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0351", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0351", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
-		checkSourceRange(singleVariableDeclaration, "int a", source);
+		checkSourceRange(singleVariableDeclaration, "int a", source); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(1);
-		checkSourceRange(singleVariableDeclaration, "int[] b", source);
+		checkSourceRange(singleVariableDeclaration, "int[] b", source); //$NON-NLS-1$
 		node = getASTNode(compilationUnit, 0, 1);
-		assertNotNull("not null", node);
-		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		methodDeclaration = (MethodDeclaration) node;
 		parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
-		checkSourceRange(singleVariableDeclaration, "int a", source);
+		checkSourceRange(singleVariableDeclaration, "int a", source); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(1);
-		checkSourceRange(singleVariableDeclaration, "int b[]", source);			
+		checkSourceRange(singleVariableDeclaration, "int b[]", source);			 //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18169
 	 */
 	public void test0352() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0352", "Test2.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0352", "Test2.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		List parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
-		checkSourceRange(singleVariableDeclaration, "final int a", source);
+		checkSourceRange(singleVariableDeclaration, "final int a", source); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(1);
-		checkSourceRange(singleVariableDeclaration, "final int[] b", source);
+		checkSourceRange(singleVariableDeclaration, "final int[] b", source); //$NON-NLS-1$
 		node = getASTNode(compilationUnit, 0, 1);
-		assertNotNull("not null", node);
-		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		methodDeclaration = (MethodDeclaration) node;
 		parameters = methodDeclaration.parameters();
-		assertEquals("wrong size", 2, parameters.size());
+		assertEquals("wrong size", 2, parameters.size()); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
-		checkSourceRange(singleVariableDeclaration, "final int a", source);
+		checkSourceRange(singleVariableDeclaration, "final int a", source); //$NON-NLS-1$
 		singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(1);
-		checkSourceRange(singleVariableDeclaration, "final int b[]", source);			
+		checkSourceRange(singleVariableDeclaration, "final int b[]", source);			 //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=18042
 	 */
 	public void test0353() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0353", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0353", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		assertNotNull("not null", node);
-		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertNotNull("not null", node); //$NON-NLS-1$
+		assertTrue("Not an variable declaration", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
-		checkSourceRange(type, "InputStream", source);
-		assertTrue("not a simple type", type.isSimpleType());
+		checkSourceRange(type, "InputStream", source); //$NON-NLS-1$
+		assertTrue("not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		ITypeBinding binding = type.resolveBinding();
-		assertNotNull("No binding", binding);
-		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		assertTrue("Not a class", binding.isClass());
-		assertEquals("Wrong name", "InputStream", binding.getName());
-		assertEquals("Wrong package", "java.io", binding.getPackage().getName());
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
+		assertTrue("Not a class", binding.isClass()); //$NON-NLS-1$
+		assertEquals("Wrong name", "InputStream", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "java.io", binding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
 		IBinding binding2 = name.resolveBinding();
-		assertNotNull("No binding", binding2);
-		assertEquals("Wrong type", IBinding.TYPE, binding2.getKind());
+		assertNotNull("No binding", binding2); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.TYPE, binding2.getKind()); //$NON-NLS-1$
 		ITypeBinding typeBinding = (ITypeBinding) binding2;
-		assertTrue("Not a class", typeBinding.isClass());
-		assertEquals("Wrong name", "InputStream", typeBinding.getName());
-		assertEquals("Wrong package", "java.io", typeBinding.getPackage().getName());
+		assertTrue("Not a class", typeBinding.isClass()); //$NON-NLS-1$
+		assertEquals("Wrong name", "InputStream", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "java.io", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=19851
 	 */
 	public void test0354() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0354", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0354", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 3, compilationUnit.getMessages().length);
+		assertEquals("errors found", 3, compilationUnit.getMessages().length); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=20520
 	 */
 	public void test0355() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0355", "Foo.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0355", "Foo.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node;
 		Expression condition = ifStatement.getExpression();
-		assertTrue("Not an infixExpression", condition.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		assertTrue("Not an infixExpression", condition.getNodeType() == ASTNode.INFIX_EXPRESSION); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) condition;
 		Expression expression = infixExpression.getLeftOperand();
-		assertTrue("Not a method invocation expression", expression.getNodeType() == ASTNode.METHOD_INVOCATION);
+		assertTrue("Not a method invocation expression", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		Expression expression2 = methodInvocation.getExpression();
-		assertTrue("Not a parenthesis expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		assertTrue("Not a parenthesis expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=20865
 	 */
 	public void test0356() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0356", "X.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0356", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 2, compilationUnit.getMessages().length);
+		assertEquals("errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
 		ITypeBinding binding = type.resolveBinding();
@@ -8761,99 +8761,99 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21757
 	 */
 	public void test0357() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0357", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0357", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration statement", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration statement", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		SimpleName name = typeDeclaration.getName();
-		checkSourceRange(name, "A", source);
+		checkSourceRange(name, "A", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21768
 	 */
 	public void test0358() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0358", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0358", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0,0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		SimpleName name = methodDeclaration.getName();
-		checkSourceRange(name, "mdd", source);
+		checkSourceRange(name, "mdd", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21768
 	 */
 	public void test0359() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0359", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0359", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0,0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		SimpleName name = methodDeclaration.getName();
-		checkSourceRange(name, "mdd", source);
+		checkSourceRange(name, "mdd", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
 	 */
 	public void test0360() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0360", "X.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0360", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0,0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
 		List initializers = forStatement.initializers();
-		assertEquals("Wrong size", 1, initializers.size());
+		assertEquals("Wrong size", 1, initializers.size()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
 	 */
 	public void test0361() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0361", "X.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0361", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0,0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
 		List initializers = forStatement.initializers();
-		assertEquals("Wrong size", 1, initializers.size());
+		assertEquals("Wrong size", 1, initializers.size()); //$NON-NLS-1$
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
 	 */
 	public void test0362() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0362", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0362", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, false);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -8895,9 +8895,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 		forStatement.setBody(this.ast.newBlock());
 		
 		InfixExpression infixExpression = this.ast.newInfixExpression();
-		infixExpression.setLeftOperand(this.ast.newSimpleName("i"));
+		infixExpression.setLeftOperand(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
-		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
+		infixExpression.setRightOperand(this.ast.newNumberLiteral("10")); //$NON-NLS-1$
 		forStatement.setExpression(infixExpression);
 		
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -8908,164 +8908,164 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22939
 	 */
 	public void test0363() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0363", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0363", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a parenthesized expression", expression.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		assertTrue("Not a parenthesized expression", expression.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
 		Expression expression2 = ((ParenthesizedExpression) expression).getExpression();
-		checkSourceRange(expression2, "xxxx", source);
+		checkSourceRange(expression2, "xxxx", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11529
 	 */
 	public void test0364() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0364", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0364", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
-		checkSourceRange(variableDeclarationStatement, "int local;", source);
+		checkSourceRange(variableDeclarationStatement, "int local;", source); //$NON-NLS-1$
 		SimpleName simpleName = variableDeclarationFragment.getName();
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11529
 	 */
 	public void test0365() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0365", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0365", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
 		List initializers = forStatement.initializers();
-		assertEquals("Wrong size", 1, initializers.size());
+		assertEquals("Wrong size", 1, initializers.size()); //$NON-NLS-1$
 		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) initializers.get(0);
 		List fragments = variableDeclarationExpression.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		SimpleName simpleName = variableDeclarationFragment.getName();
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("No binding", binding);
+		assertNotNull("No binding", binding); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0366() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0366", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0366", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
-		checkSourceRange(forStatement, "for (int i = 0; i < 5; ++i);", source);
+		checkSourceRange(forStatement, "for (int i = 0; i < 5; ++i);", source); //$NON-NLS-1$
 		Statement statement = forStatement.getBody();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0367() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0367", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0367", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a while statement", node.getNodeType() == ASTNode.WHILE_STATEMENT);
+		assertTrue("Not a while statement", node.getNodeType() == ASTNode.WHILE_STATEMENT); //$NON-NLS-1$
 		WhileStatement whileStatement = (WhileStatement) node;
-		checkSourceRange(whileStatement, "while(i == 2);", source);
+		checkSourceRange(whileStatement, "while(i == 2);", source); //$NON-NLS-1$
 		Statement statement = whileStatement.getBody();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0368() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0368", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0368", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$
 		LabeledStatement labeledStatement = (LabeledStatement) node;
-		checkSourceRange(labeledStatement, "test:;", source);
+		checkSourceRange(labeledStatement, "test:;", source); //$NON-NLS-1$
 		Statement statement = labeledStatement.getBody();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0369() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0369", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0369", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$
 		LabeledStatement labeledStatement = (LabeledStatement) node;
-		checkSourceRange(labeledStatement, "test:\\u003B", source);
+		checkSourceRange(labeledStatement, "test:\\u003B", source); //$NON-NLS-1$
 		Statement statement = labeledStatement.getBody();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, "\\u003B", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, "\\u003B", source); //$NON-NLS-1$
 	}
 			
 	/**
 	 * DoStatement ==> DoStatement
 	 */
 	public void test0370() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0370", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0370", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -9078,192 +9078,192 @@ public class ASTConverterTest extends ConverterTestSetup {
 		checkSourceRange(node, expectedSource, source);
 		DoStatement doStatement2 = (DoStatement) node;
 		Statement statement = doStatement2.getBody();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0371() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0371", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0371", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node;
-		checkSourceRange(ifStatement, "if (i == 6);", source);
+		checkSourceRange(ifStatement, "if (i == 6);", source); //$NON-NLS-1$
 		Statement statement = ifStatement.getThenStatement();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
 	 */
 	public void test0372() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0372", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0372", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		IfStatement ifStatement = (IfStatement) node;
-		checkSourceRange(ifStatement, "if (i == 6) {} else ;", source);
+		checkSourceRange(ifStatement, "if (i == 6) {} else ;", source); //$NON-NLS-1$
 		Statement statement = ifStatement.getElseStatement();
-		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
-		checkSourceRange(statement, ";", source);
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		checkSourceRange(statement, ";", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23118
 	 */
 	public void test0373() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0373", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0373", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
 		Statement statement = forStatement.getBody();
-		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK);
+		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
 		Block block = (Block) statement;
 		List statements = block.statements();
-		assertEquals("Wrong size", 1, statements.size());
+		assertEquals("Wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement statement2 = (Statement) statements.get(0);
-		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.BREAK_STATEMENT);
+		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.BREAK_STATEMENT); //$NON-NLS-1$
 		BreakStatement breakStatement = (BreakStatement) statement2;
-		checkSourceRange(breakStatement, "break;", source);		
+		checkSourceRange(breakStatement, "break;", source);		 //$NON-NLS-1$
 	}
 							
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23118
 	 */
 	public void test0374() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0374", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0374", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node;
 		Statement statement = forStatement.getBody();
-		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK);
+		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
 		Block block = (Block) statement;
 		List statements = block.statements();
-		assertEquals("Wrong size", 1, statements.size());
+		assertEquals("Wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement statement2 = (Statement) statements.get(0);
-		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.CONTINUE_STATEMENT);
+		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.CONTINUE_STATEMENT); //$NON-NLS-1$
 		ContinueStatement continueStatement = (ContinueStatement) statement2;
-		checkSourceRange(continueStatement, "continue;", source);		
+		checkSourceRange(continueStatement, "continue;", source);		 //$NON-NLS-1$
 	}						
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23052
 	 */
 	public void test0375() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0375", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0375", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		List imports = compilationUnit.imports();
-		assertEquals("wrong size", 1, imports.size());
+		assertEquals("wrong size", 1, imports.size()); //$NON-NLS-1$
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
 		IBinding binding = importDeclaration.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22939
 	 */
 	public void test0376() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0376", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0376", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION);
+		assertTrue("Not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION); //$NON-NLS-1$
 		Type type = ((CastExpression) expression).getType();
-		checkSourceRange(type, "A", source);
+		checkSourceRange(type, "A", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23050
 	 */
 	public void test0377() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0377", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0377", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = variableDeclarationFragment.resolveBinding();
-		assertNotNull("No variable binding", variableBinding);
-		assertEquals("Wrong modifier", IModifierConstants.ACC_FINAL, variableBinding.getModifiers());
+		assertNotNull("No variable binding", variableBinding); //$NON-NLS-1$
+		assertEquals("Wrong modifier", IModifierConstants.ACC_FINAL, variableBinding.getModifiers()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22161
 	 */
 	public void test0378() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0378", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0378", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		SimpleName name = typeDeclaration.getName();
-		checkSourceRange(name, "B", source);
+		checkSourceRange(name, "B", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22161
 	 */
 	public void test0379() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0379", "Test.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0379", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
@@ -9271,319 +9271,319 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("Not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);		//$NON-NLS-1$
 		ClassInstanceCreation classInstanceCreation2 = (ClassInstanceCreation) expression;
 		Name name2 = classInstanceCreation2.getName();
-		checkSourceRange(name2, "Object", source);
+		checkSourceRange(name2, "Object", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22054
 	 */
 	public void test0380() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0380", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0380", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT);
+		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
 		Expression expression = returnStatement.getExpression();
-		assertTrue("Not a super method invocation", expression.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION);
+		assertTrue("Not a super method invocation", expression.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION); //$NON-NLS-1$
 		SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation) expression;
 		ITypeBinding typeBinding = superMethodInvocation.resolveTypeBinding();
-		assertNotNull("no type binding", typeBinding);
-		assertEquals("wrong declaring class", typeBinding.getSuperclass().getName(), "Object");
+		assertNotNull("no type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("wrong declaring class", typeBinding.getSuperclass().getName(), "Object"); //$NON-NLS-1$ //$NON-NLS-2$
 		SimpleName simpleName = superMethodInvocation.getName();
 		IBinding binding = simpleName.resolveBinding();
-		assertNotNull("no binding", binding);
-		assertEquals("Wrong type", IBinding.METHOD, binding.getKind());
+		assertNotNull("no binding", binding); //$NON-NLS-1$
+		assertEquals("Wrong type", IBinding.METHOD, binding.getKind()); //$NON-NLS-1$
 		IMethodBinding methodBinding = (IMethodBinding) binding;
-		assertEquals("Wrong declaring class", methodBinding.getDeclaringClass().getName(), "Object");
+		assertEquals("Wrong declaring class", methodBinding.getDeclaringClass().getName(), "Object"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23054
 	 */
 	public void test0381() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0381", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0381", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		Javadoc javadoc = typeDeclaration.getJavadoc();
-		assertNull("Javadoc not null", javadoc);
+		assertNull("Javadoc not null", javadoc); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0382() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0382", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0382", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0382.A");
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0382.A"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 		
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0383() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0383", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0383", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0383.A.B");
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0383.A.B"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0384() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0384", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0384", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0384.A.B.D");
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0384.A.B.D"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
 	 */
 	public void test0385() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0385", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0385", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 1, compilationUnit.getMessages().length);
+		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23259
 	 */
 	public void test0386() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0386", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0386", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a switch statement", node.getNodeType() == ASTNode.SWITCH_STATEMENT);
+		assertTrue("Not a switch statement", node.getNodeType() == ASTNode.SWITCH_STATEMENT); //$NON-NLS-1$
 		SwitchStatement switchStatement = (SwitchStatement) node;
 		List statements = switchStatement.statements();
-		assertEquals("Wrong size", 5, statements.size());
+		assertEquals("Wrong size", 5, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("Not a case statement", statement.getNodeType() == ASTNode.SWITCH_CASE);
-		checkSourceRange(statement, "case 1:", source);
+		assertTrue("Not a case statement", statement.getNodeType() == ASTNode.SWITCH_CASE); //$NON-NLS-1$
+		checkSourceRange(statement, "case 1:", source); //$NON-NLS-1$
 		statement = (Statement) statements.get(3);
-		assertTrue("Not a default case statement", statement.getNodeType() == ASTNode.SWITCH_CASE);
-		checkSourceRange(statement, "default :", source);
+		assertTrue("Not a default case statement", statement.getNodeType() == ASTNode.SWITCH_CASE); //$NON-NLS-1$
+		checkSourceRange(statement, "default :", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22939
 	 */
 	public void test0387() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0387", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0387", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("Wrong size", 1, fragments.size());
+		assertEquals("Wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION);
+		assertTrue("Not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION); //$NON-NLS-1$
 		Type type = ((CastExpression) expression).getType();
-		checkSourceRange(type, "A", source);
+		checkSourceRange(type, "A", source); //$NON-NLS-1$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0388() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0388", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0388", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0388.A", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "test0388.A", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0389() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0389", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0389", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0389.A.B", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "test0389.A.B", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0390() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0390", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0390", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "int", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "int", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0391() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0391", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0391", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "int[]", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "int[]", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
 	 */
 	public void test0392() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0392", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0392", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
 	 */
 	public void test0393() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0393", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0393", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
-		checkSourceRange(type, "String", source);
+		checkSourceRange(type, "String", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
-		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName());
-		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions()); //$NON-NLS-1$
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-		assertNotNull("No method binding", methodBinding);
+		assertNotNull("No method binding", methodBinding); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = methodBinding.getReturnType();
-		assertNotNull("No type binding", typeBinding2);
-		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding2.getQualifiedName());
-		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding2.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions()); //$NON-NLS-1$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
 	 */
 	public void test0394() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0394", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0394", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
-		checkSourceRange(type, "String", source);
+		checkSourceRange(type, "String", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName());
-		assertEquals("Wrong dimension", 0, methodDeclaration.getExtraDimensions());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong dimension", 0, methodDeclaration.getExtraDimensions()); //$NON-NLS-1$
 	}	
 
 
@@ -9591,154 +9591,154 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
 	 */
 	public void test0395() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0395", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0395", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		assertNotNull("No compilation unit", result);
-		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
-		checkSourceRange(type, "String[]", source);
+		checkSourceRange(type, "String[]", source); //$NON-NLS-1$
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong dimension", 1, typeBinding.getDimensions());
-		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
-		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 1, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions()); //$NON-NLS-1$
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-		assertNotNull("No method binding", methodBinding);
+		assertNotNull("No method binding", methodBinding); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = methodBinding.getReturnType();
-		assertNotNull("No type binding", typeBinding2);
-		assertEquals("Wrong qualified name", "java.lang.String[][]", typeBinding2.getQualifiedName());
-		assertEquals("Wrong dimension", 2, typeBinding2.getDimensions());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertEquals("Wrong qualified name", "java.lang.String[][]", typeBinding2.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong dimension", 2, typeBinding2.getDimensions()); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
 	 */
 	public void test0396() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0396", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0396", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration method = (MethodDeclaration) node;
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
 		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
 		checkSourceRange(singleVariableDeclaration, "final String s[]", source); //$NON-NLS-1$
 		Type type = singleVariableDeclaration.getType();
 		checkSourceRange(type, "String", source); //$NON-NLS-1$
-		assertEquals("Wrong dimension", 1, singleVariableDeclaration.getExtraDimensions());
+		assertEquals("Wrong dimension", 1, singleVariableDeclaration.getExtraDimensions()); //$NON-NLS-1$
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("An array binding", !typeBinding.isArray());
-		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
-		assertEquals("wrong fully qualified name", "java.lang.String", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("An array binding", !typeBinding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong fully qualified name", "java.lang.String", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
-		assertNotNull("No variable binding", variableBinding);
+		assertNotNull("No variable binding", variableBinding); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = variableBinding.getType();
-		assertNotNull("No type binding", typeBinding2);
-		assertTrue("Not an array binding", typeBinding2.isArray());
-		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
-		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding2.getQualifiedName());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertTrue("Not an array binding", typeBinding2.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding2.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
 	 */
 	public void test0397() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0397", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0397", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration method = (MethodDeclaration) node;
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
 		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
 		checkSourceRange(singleVariableDeclaration, "final String[] \\u0073\\u005B][]", source); //$NON-NLS-1$
 		Type type = singleVariableDeclaration.getType();
 		checkSourceRange(type, "String[]", source); //$NON-NLS-1$
-		assertEquals("Wrong dimension", 2, singleVariableDeclaration.getExtraDimensions());
+		assertEquals("Wrong dimension", 2, singleVariableDeclaration.getExtraDimensions()); //$NON-NLS-1$
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertNotNull("No type binding", typeBinding);
-		assertTrue("Not an array binding", typeBinding.isArray());
-		assertEquals("Wrong dimension", 1, typeBinding.getDimensions());
-		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertTrue("Not an array binding", typeBinding.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 1, typeBinding.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
-		assertNotNull("No variable binding", variableBinding);
+		assertNotNull("No variable binding", variableBinding); //$NON-NLS-1$
 		ITypeBinding typeBinding2 = variableBinding.getType();
-		assertNotNull("No type binding", typeBinding2);
-		assertTrue("Not an array binding", typeBinding2.isArray());
-		assertEquals("Wrong dimension", 3, typeBinding2.getDimensions());
-		assertEquals("wrong fully qualified name", "java.lang.String[][][]", typeBinding2.getQualifiedName());
+		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
+		assertTrue("Not an array binding", typeBinding2.isArray()); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 3, typeBinding2.getDimensions()); //$NON-NLS-1$
+		assertEquals("wrong fully qualified name", "java.lang.String[][][]", typeBinding2.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23362
 	 */
 	public void test0398() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0398", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0398", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		List fragments = variableDeclarationStatement.fragments();
-		assertEquals("wrong size", 1, fragments.size());
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = variableDeclarationFragment.getInitializer();
-		assertTrue("Not an infix expression", expression.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		assertTrue("Not an infix expression", expression.getNodeType() == ASTNode.INFIX_EXPRESSION); //$NON-NLS-1$
 		InfixExpression infixExpression = (InfixExpression) expression;
-		checkSourceRange(infixExpression, "(1 + 2) * 3", source);
+		checkSourceRange(infixExpression, "(1 + 2) * 3", source); //$NON-NLS-1$
 		Expression expression2 = infixExpression.getLeftOperand();
-		assertTrue("Not an parenthesis expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		assertTrue("Not an parenthesis expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
 		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
 		Expression expression3 = parenthesizedExpression.getExpression();
-		assertTrue("Not an infix expression", expression3.getNodeType() == ASTNode.INFIX_EXPRESSION);
-		checkSourceRange(expression3, "1 + 2", source);
+		assertTrue("Not an infix expression", expression3.getNodeType() == ASTNode.INFIX_EXPRESSION); //$NON-NLS-1$
+		checkSourceRange(expression3, "1 + 2", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22306
 	 */
 	public void test0399() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0399", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0399", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		assertTrue("Not a constructor", methodDeclaration.isConstructor()); //$NON-NLS-1$
 		Block block = methodDeclaration.getBody();
 		List statements = block.statements();
-		assertEquals("wrong size", 2, statements.size());
+		assertEquals("wrong size", 2, statements.size()); //$NON-NLS-1$
 	}	
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22306
 	 */
 	public void test0400() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0400", "A.java");
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0400", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
-		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		assertTrue("Not a constructor", methodDeclaration.isConstructor()); //$NON-NLS-1$
 		Block block = methodDeclaration.getBody();
 		List statements = block.statements();
-		assertEquals("wrong size", 3, statements.size());
+		assertEquals("wrong size", 3, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
-		assertTrue("Not an superconstructorinvocation", statement.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
-		checkSourceRange(statement, "super();", source);
+		assertTrue("Not an superconstructorinvocation", statement.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION); //$NON-NLS-1$
+		checkSourceRange(statement, "super();", source); //$NON-NLS-1$
 	}	
 }
 

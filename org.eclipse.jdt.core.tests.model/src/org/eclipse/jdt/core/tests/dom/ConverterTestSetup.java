@@ -21,15 +21,15 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	protected static String getConverterJCLPath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMin.jar";
+		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMin.jar"; //$NON-NLS-1$
 	}
 
 	protected static String getConverterJCLSourcePath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMinsrc.zip";
+		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMinsrc.zip"; //$NON-NLS-1$
 	}
 
 	protected static String getConverterJCLRootSourcePath() {
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -38,24 +38,24 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	 */
 	public void setupConverterJCL() throws IOException {
 		String separator = java.io.File.separator;
-		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
+		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL"; //$NON-NLS-1$
 		String localJCLPath =getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
 		EXTERNAL_JAR_DIR_PATH = localJCLPath;
 		java.io.File jclDir = new java.io.File(localJCLPath);
 		java.io.File jclMin =
-			new java.io.File(localJCLPath + separator + "converterJclMin.jar");
-		java.io.File jclMinsrc = new java.io.File(localJCLPath + separator + "converterJclMinsrc.zip");
+			new java.io.File(localJCLPath + separator + "converterJclMin.jar"); //$NON-NLS-1$
+		java.io.File jclMinsrc = new java.io.File(localJCLPath + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
 		if (!jclDir.exists()) {
 			if (!jclDir.mkdir()) {
 				//mkdir failed
-				throw new IOException("Could not create the directory " + jclDir);
+				throw new IOException("Could not create the directory " + jclDir); //$NON-NLS-1$
 			} else {
 				//copy the two files to the JCL directory
 				java.io.File resourceJCLMin =
-					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar");
+					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
 				copy(resourceJCLMin, jclMin);
 				java.io.File resourceJCLMinsrc =
-					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip");
+					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
 		} else {
@@ -63,12 +63,12 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 			//copy either file that is missing
 			if (!jclMin.exists()) {
 				java.io.File resourceJCLMin =
-					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar");
+					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
 				copy(resourceJCLMin, jclMin);
 			}
 			if (!jclMinsrc.exists()) {
 				java.io.File resourceJCLMinsrc =
-					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip");
+					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
 		}
@@ -79,7 +79,7 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		ast = null;
-		this.deleteProject("Converter");
+		this.deleteProject("Converter"); //$NON-NLS-1$
 		
 		super.tearDown();
 	}	
@@ -91,11 +91,11 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		super.setUpSuite();
 		setupConverterJCL();
 		ast = new AST();
-		setUpJavaProject("Converter");
+		setUpJavaProject("Converter"); //$NON-NLS-1$
 		// ensure variables are set
-		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) {
+		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 			JavaCore.setClasspathVariables(
-				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
+				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
 				null);
 		}		
@@ -137,9 +137,9 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 		
 	protected void checkSourceRange(ASTNode node, String expectedContents, char[] source) {
-		assertNotNull("The node is null", node);
-		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0);
-		assertTrue("The node.getStartPosition() == -1", node.getStartPosition() != -1);
+		assertNotNull("The node is null", node); //$NON-NLS-1$
+		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("The node.getStartPosition() == -1", node.getStartPosition() != -1); //$NON-NLS-1$
 		int length = node.getLength();
 		int start = node.getStartPosition();
 		char[] actualContents = new char[length];
@@ -148,25 +148,25 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		if (containsLineSeparator(actualContentsString)) {
 			assertArraysEquals(actualContentsString, expectedContents);
 		} else {		
-			assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString));
+			assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 	
 	private boolean containsLineSeparator(String s) {
-		return s.indexOf("\n") != -1 ||  s.indexOf("\r") != -1;
+		return s.indexOf("\n") != -1 ||  s.indexOf("\r") != -1; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private void assertArraysEquals(String actualContents, String expectedContents) {
 		String[] actualContentsArray = createArrayOfString(actualContents);
 		String[] expectedContentsArray = createArrayOfString(expectedContents);
-		assertTrue("Different size", actualContentsArray.length == expectedContentsArray.length);
+		assertTrue("Different size", actualContentsArray.length == expectedContentsArray.length); //$NON-NLS-1$
 		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
-			assertEquals("Different array parts", expectedContentsArray[i], actualContentsArray[i]);
+			assertEquals("Different array parts", expectedContentsArray[i], actualContentsArray[i]); //$NON-NLS-1$
 		}
 	}
 	
 	private String[] createArrayOfString(String s) {
-		StringTokenizer tokenizer = new StringTokenizer(s, "\r\n");
+		StringTokenizer tokenizer = new StringTokenizer(s, "\r\n"); //$NON-NLS-1$
 		ArrayList arrayList = new ArrayList();
 		while (tokenizer.hasMoreElements()) {
 			String nextToken = tokenizer.nextToken();
