@@ -328,6 +328,7 @@ public class Scribe {
 			OptimizedReplaceEdit currentEdit = edits[i];
 			edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
 		}
+		this.edits = null;
 		return edit;
 	}
 	
