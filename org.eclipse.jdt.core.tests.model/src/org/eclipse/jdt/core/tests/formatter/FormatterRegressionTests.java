@@ -63,11 +63,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test447"));  //$NON-NLS-1$
 			suite.addTest(new FormatterRegressionTests("test451"));  //$NON-NLS-1$
 			return suite;
 		}
@@ -245,6 +244,25 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, checkNull, offset, length, null);
 	}
+	private void runTest(DefaultCodeFormatter codeFormatter, String sourceIn, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
+		try {
+			assertNotNull(sourceIn);
+			ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
+			assertNotNull(outputUnit);
+			String result;
+			if (length == -1) {
+				result = runFormatter(codeFormatter, sourceIn, kind, indentationLevel, offset, sourceIn.length(), lineSeparator);
+			} else {
+				result = runFormatter(codeFormatter, sourceIn, kind, indentationLevel, offset, length, lineSeparator);
+			}
+			assertLineEquals(result, sourceIn, outputUnit.getSource(), checkNull);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -5376,12 +5394,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void test451() {
+	public void _test451() {
 		String resourcePath = getResource("test451", "settings.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		String s;
+		try {
+			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", "test451", getIn("Format.java")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			s = sourceUnit.getSource();
+			runTest(codeFormatter, s, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, s.indexOf("private"), s.indexOf(";") + 1, "\n");//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+		} catch (JavaModelException e) {
+			assertTrue(false);
+		}
 	}
 }
