@@ -1280,13 +1280,11 @@ protected void consumeCastExpressionWithNameArray() {
 	popElement(K_CAST_STATEMENT);
 
 	Expression exp, cast, castType;
-	int end = intStack[intPtr--];
 		
 	expressionPtr--;
 	expressionLengthPtr--;
 	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr+1], castType = this.expressionStack[this.expressionPtr]);
-	castType.sourceEnd = end - 1;
-	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
 protected void consumeCastExpressionLL1() {

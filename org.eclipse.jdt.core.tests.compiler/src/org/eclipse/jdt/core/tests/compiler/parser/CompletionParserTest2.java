@@ -8306,4 +8306,40 @@ public void test0146(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72352
+ */
+public void test0147(){
+	String str =
+		"public class Test {\n" + 
+		"  Object m;\n" + 
+		"  String[] values = (String[]) m;\n" + 
+		"  lo\n" + 
+		"  }";
+
+	String completeBehind = "lo";
+	int cursorLocation = str.indexOf("lo") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:lo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lo";
+	String expectedReplacedSource = "lo";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  Object m;\n" + 
+		"  String[] values;\n" + 
+		"  <CompleteOnType:lo>;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
