@@ -365,7 +365,7 @@ public ReferenceBinding getMemberType(char[] typeName) {
 	    ReferenceBinding memberType = this.memberTypes[i];
 	    if (memberType instanceof UnresolvedReferenceBinding) {
 			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
-			int prefixLength = this.sourceName.length + 1; // enclosing$
+			int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
 			if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
 				if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
 					return this.memberTypes[i] = ((UnresolvedReferenceBinding) memberType).resolve(environment);
