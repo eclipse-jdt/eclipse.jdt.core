@@ -123,6 +123,34 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		return -1;
 	}
+	/**
+	 * Computes whether a cycle check is needed and update the needCycleCheck field.
+	 */
+	protected void computeCycleCheck(
+		IClasspathEntry[] oldResolvedPath,
+		IClasspathEntry[] newResolvedPath,
+		JavaModelManager manager,
+		JavaProject project) {
+
+		for (int i = 0, oldLength = oldResolvedPath.length; i < oldLength; i++) {
+			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
+			if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
+				&& (index == -1
+						|| (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported()))) {
+					this.needCycleCheck = true;
+					return;
+			}
+		}
+
+		for (int i = 0, newLength = newResolvedPath.length; i < newLength; i++) {
+			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
+			if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
+					&& index == -1) {
+				this.needCycleCheck = true;
+				return; 
+			} // classpath reordering has already been handled in previous loop
+		}
+	}
 
 	/**
 	 * Recursively adds all subfolders of <code>folder</code> to the given collection.
@@ -196,6 +224,17 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 
+		// resolve new path (asking for marker creation if problems)
+		JavaProject project = getProject();
+		IClasspathEntry[] newResolvedPath = 
+			project.getResolvedClasspath(
+				this.newRawPath,
+				true, // ignoreUnresolvedEntry
+				this.canChangeResource);// also update cp markers
+				
+		// compute needCycleCheck bit
+		computeCycleCheck(this.oldResolvedPath, newResolvedPath, project.getJavaModelManager(), project);
+
 		// project reference updated - may throw an exception if unable to write .project file
 		updateProjectReferencesIfNecessary();
 
@@ -208,7 +247,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelException originalException = null;
 
 		try {
-			if (this.newRawPath != ReuseClasspath) updateClasspath();
+			if (this.newRawPath != ReuseClasspath) updateClasspath(newResolvedPath);
 
 		} catch(JavaModelException e){
 			originalException = e;
@@ -442,20 +481,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 		return buffer.toString();
 	}
 
-	private void updateClasspath() throws JavaModelException {
+	private void updateClasspath(IClasspathEntry[] newResolvedPath) throws JavaModelException {
 
-		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
+		JavaProject project = getProject();
 
 		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
 		// SIDE-EFFECT: from thereon, the classpath got modified
 		project.setRawClasspath0(this.newRawPath);
-
-		// resolve new path (asking for marker creation if problems)
-		IClasspathEntry[] newResolvedPath = 
-			project.getResolvedClasspath(
-				true, // ignoreUnresolvedEntry
-				this.canChangeResource);// also update cp markers
 
 		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
