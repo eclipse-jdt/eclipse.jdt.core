@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
+	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
 	/**
 	 * A temporary cache of compilation units to handles to speed info
 	 * to handle translation - it only contains the entries
@@ -147,16 +148,18 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		manager.cacheZipFiles();
 				
 		if (computeSubtypes) {
+			// Note by construction there always is a focus type here
+			boolean focusIsObject = getType().getElementName().equals(new String(IIndexConstants.OBJECT));
 			IProgressMonitor possibleSubtypesMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 
-					new SubProgressMonitor(this.hierarchy.progressMonitor, 95);
+					new SubProgressMonitor(this.hierarchy.progressMonitor, focusIsObject ? 5 : 95);
 			String[] allPossibleSubtypes = this.determinePossibleSubTypes(possibleSubtypesMonitor);
 			if (allPossibleSubtypes != null) {
 			IProgressMonitor buildMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 
-					new SubProgressMonitor(this.hierarchy.progressMonitor, 5);
+					new SubProgressMonitor(this.hierarchy.progressMonitor, focusIsObject ? 95 : 5);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
 				buildFromPotentialSubtypes(allPossibleSubtypes, buildMonitor);
 			}
@@ -380,7 +383,7 @@ private String[] determinePossibleSubTypes(IProgressMonitor monitor) throws Java
 	IProject project = this.hierarchy.javaProject().getProject();
 	
 	try {
-		if (monitor != null) monitor.beginTask("", 500/*500 layers max*/); //$NON-NLS-1$
+		if (monitor != null) monitor.beginTask("", MAXTICKS); //$NON-NLS-1$
 		searchAllPossibleSubTypes(
 			project.getWorkspace(),
 			this.getType(),
@@ -501,7 +504,6 @@ public static void searchAllPossibleSubTypes(
 	pattern.entryResults = new HashMap();
 	/* iterate all queued names */
 	int ticks = 0;
-	int maxTicks = 500;
 	awaitings.add(type.getElementName().toCharArray());
 	while (awaitings.start <= awaitings.end){
 		if (progressMonitor != null && progressMonitor.isCanceled()) return;
@@ -517,7 +519,7 @@ public static void searchAllPossibleSubTypes(
 		indexManager.performConcurrentJob(
 			job, 
 			waitingPolicy, 
-			(progressMonitor == null || ++ticks > maxTicks) ? null : new SubProgressMonitor(progressMonitor, 1));
+			(progressMonitor == null || ++ticks > MAXTICKS) ? null : new SubProgressMonitor(progressMonitor, 1));
 		/* in case, we search all subtypes, no need to search further */
 		if (currentTypeName == null) break;
 	}
