@@ -39,7 +39,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		this.buffer = buffer;
 		this.lineSeparator = lineSeparator;
 		this.tabNumber = tabNumber + 1;
-		this.digitNumberForPC = (int) (Math.log(codeLength - 1) / Math.log(10));
+		this.digitNumberForPC = Long.toString(codeLength).length();
 	}
 	/**
 	 * @see IBytecodeVisitor#_aaload(int)
@@ -51,9 +51,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 	private void dumpPcNumber(int pc) {
 		writeTabs();
-		int digitForPC = 0;
+		int digitForPC = 1;
 		if (pc != 0) {
-			digitForPC = (int) (Math.log(pc) / Math.log(10));
+			digitForPC = Integer.toString(pc).length();
 		}
 		for (int i = 0, max = this.digitNumberForPC - digitForPC; i < max; i++) {
 			buffer.append(' ');
