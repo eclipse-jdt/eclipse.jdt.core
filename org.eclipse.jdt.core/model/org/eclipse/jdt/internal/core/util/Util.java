@@ -1769,6 +1769,22 @@ public class Util {
 		if (strings.length > 1)
 			quickSortReverse(strings, 0, strings.length - 1);
 	}
+	
+	/*
+	 * Returns whether the given compound name starts with the given prefix.
+	 * Returns true if the n first elements of the prefix are equals and the last element of the 
+	 * prefix is a prefix of the corresponding element in the compound name.
+	 */
+	public static boolean startsWithIgnoreCase(String[] compoundName, String[] prefix) {
+		int prefixLength = prefix.length;
+		int nameLength = compoundName.length;
+		if (prefixLength > nameLength) return false;
+		for (int i = 0; i < prefixLength - 1; i++) {
+			if (!compoundName[i].equalsIgnoreCase(prefix[i]))
+				return false;
+		}
+		return compoundName[prefixLength-1].toLowerCase().startsWith(prefix[prefixLength-1].toLowerCase());
+	}
 
 	/**
 	 * Converts a String[] to char[][].
