@@ -3343,7 +3343,7 @@ public final class JavaCore extends Plugin {
 	
 			if (monitor != null && monitor.isCanceled()) return;
 	
-			IJavaProject affectedProject = affectedProjects[i];
+			JavaProject affectedProject = (JavaProject) affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
 			if (newContainer == null) newContainer = JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS; // 30920 - prevent infinite loop
 			boolean found = false;
@@ -3399,7 +3399,7 @@ public final class JavaCore extends Plugin {
 				continue;
 			}
 			remaining++; 
-			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
+			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 		}
 		
@@ -3754,7 +3754,7 @@ public final class JavaCore extends Plugin {
 		if (model != null) {
 			IJavaProject[] projects = model.getJavaProjects();
 			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
-				IJavaProject project = projects[i];
+				JavaProject project = (JavaProject) projects[i];
 						
 				// check to see if any of the modified variables is present on the classpath
 				IClasspathEntry[] classpath = project.getRawClasspath();
@@ -3767,14 +3767,14 @@ public final class JavaCore extends Plugin {
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 	
 							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
 							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
 								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
 	
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 								continue nextProject;
 							}
 						}												

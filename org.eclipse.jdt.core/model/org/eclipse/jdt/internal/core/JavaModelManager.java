@@ -561,12 +561,13 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			}
 			buffer.append("Resolved classpath:\n"); //$NON-NLS-1$
-			if (this.resolvedClasspath == null) {
+			IClasspathEntry[] resolvedCP = this.resolvedClasspath;
+			if (resolvedCP == null) {
 				buffer.append("  <null>\n"); //$NON-NLS-1$
 			} else {
-				for (int i = 0, length = this.resolvedClasspath.length; i < length; i++) {
+				for (int i = 0, length = resolvedCP.length; i < length; i++) {
 					buffer.append("  "); //$NON-NLS-1$
-					buffer.append(this.resolvedClasspath[i]);
+					buffer.append(resolvedCP[i]);
 					buffer.append('\n');
 				}
 			}
