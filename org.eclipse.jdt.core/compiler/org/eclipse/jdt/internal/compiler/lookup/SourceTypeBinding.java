@@ -184,17 +184,28 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 		synthetics[FIELD_EMUL].put(enclosingType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
-	FieldBinding existingField;
-	if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
-		TypeDeclaration typeDecl = scope.referenceContext;
-		for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
-			FieldDeclaration fieldDecl = typeDecl.fields[i];
-			if (fieldDecl.binding == existingField) {
-				scope.problemReporter().duplicateFieldInType(this, fieldDecl);
-				break;
+	boolean needRecheck;
+	do {
+		needRecheck = false;
+		FieldBinding existingField;
+		if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl = typeDecl.fields[i];
+				if (fieldDecl.binding == existingField) {
+					if (this.scope.environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+						synthField.name = CharOperation.concat(
+							synthField.name,
+							"$".toCharArray()); //$NON-NLS-1$
+						needRecheck = true;
+					} else {
+						scope.problemReporter().duplicateFieldInType(this, fieldDecl);
+					}
+					break;
+				}
 			}
 		}
-	}		
+	} while (needRecheck);
 	return synthField;
 }
 /* Add a new synthetic field for a class literal access.
