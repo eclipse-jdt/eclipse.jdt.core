@@ -66,7 +66,7 @@ import org.eclipse.text.edits.TextEdit;
  * ImportDeclaration id = ast.newImportDeclaration();
  * id.setName(ast.newName(new String[] {"java", "util", "Set"});
  * cu.imports().add(id); // add import declaration at end
- * TextEdit edits = cu.rewrite(document, options);
+ * TextEdit edits = cu.rewrite(document, null);
  * UndoEdit undo = edits.apply(document);
  * </pre>
  * </p>
