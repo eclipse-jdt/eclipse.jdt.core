@@ -119,10 +119,10 @@ public interface IJavaElement extends IAdaptable {
 	 * elements that are not working copies, it is always the case that if the
 	 * element exists, then its parent also exists (provided it has one) and
 	 * includes the element as one of its children. It is therefore possible
-	 * to navigated to an existing Java element from the root of the Java model
+	 * to navigated to any existing Java element from the root of the Java model
 	 * along a chain of existing Java elements. On the other hand, working
 	 * copies are said to exist until they are destroyed (with
-	 * <code>IWorkingCopy.destory</code>). And unlike regular Java elements, a
+	 * <code>IWorkingCopy.destroy</code>). Unlike regular Java elements, a
 	 * working copy never shows up among the children of its parent element
 	 * (which may or may not exist).
 	 * </p>
