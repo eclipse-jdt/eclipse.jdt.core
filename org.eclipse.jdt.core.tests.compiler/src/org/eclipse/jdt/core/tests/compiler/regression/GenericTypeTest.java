@@ -3162,7 +3162,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// test binary member types
-	// TODO (kent) reenable once NPE is addressed (need more deferring in binary bound checks)
 	public void _test119() {
 		this.runConformTest(
 			new String[] {
@@ -3186,8 +3185,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n",
 			},
-			"SUCCESS");
+			"SUCCESS"
+			// javac fails with 6 errors that complain that type parameters are not within their bounds
+		);
 
+		// TODO (philippe) bounds checks are done before binaryType X is finished creating its type variables
 		this.runConformTest(
 			new String[] {
 				"Y.java",
@@ -3201,7 +3203,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null,
 			false, // do not flush output
 			null);		
-	}			
+	}
 	// test generic method
 	public void test120() {
 		this.runConformTest(
