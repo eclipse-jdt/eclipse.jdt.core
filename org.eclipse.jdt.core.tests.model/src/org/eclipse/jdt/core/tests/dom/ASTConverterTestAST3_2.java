@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0581"));
+		suite.addTest(new ASTConverterTestAST3_2("test0582"));
 		return suite;
 	}
 	/**
@@ -5497,5 +5497,21 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80338
+	 */
+	public void test0582() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0582", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		assertEquals("wrong number", 1, method.getNumberOfParameters());
+		assertEquals("wrong signature", "([[I)[[[[[I", method.getSignature());
+		assertEquals("wrong return type", "[[[[[I", method.getReturnType());
 	}
 }
