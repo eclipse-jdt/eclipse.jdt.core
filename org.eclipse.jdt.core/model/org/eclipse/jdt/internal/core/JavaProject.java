@@ -1422,16 +1422,8 @@ public class JavaProject
 		if (preferences == null) return options; // cannot do better (non-Java project)
 		HashSet optionNames = JavaModelManager.OptionNames;
 		
-		// get preferences set to their default
-		if (inheritJavaCoreOptions){
-			String[] defaultPropertyNames = preferences.defaultPropertyNames();
-			for (int i = 0; i < defaultPropertyNames.length; i++){
-				String propertyName = defaultPropertyNames[i];
-				if (optionNames.contains(propertyName)){
-					options.put(propertyName, preferences.getDefaultString(propertyName).trim());
-				}
-			}		
-		}
+		// project cannot hold custom preferences set to their default, as it uses CUSTOM_DEFAULT_OPTION_VALUE
+
 		// get custom preferences not set to their default
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
@@ -1473,6 +1465,7 @@ public class JavaProject
 
 		return options;
 	}
+
 	/**
 	 * @see IJavaProject
 	 */
@@ -2507,8 +2500,7 @@ public class JavaProject
 	 */
 	public void setOptions(Map newOptions) {
 
-		Preferences preferences;
-		setPreferences(preferences = new Preferences()); // always reset (26255)
+		Preferences preferences = getPreferences();
 		if (newOptions != null){
 			Iterator keys = newOptions.keySet().iterator();
 			while (keys.hasNext()){
@@ -2518,6 +2510,18 @@ public class JavaProject
 				String value = (String)newOptions.get(key);
 				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
 				preferences.setValue(key, value);
+			}
+		}
+			
+		// reset to default all options not in new map
+		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
+		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49691
+		String[] pNames = preferences.propertyNames();
+		int ln = pNames.length;
+		for (int i=0; i<ln; i++) {
+			String key = pNames[i];
+			if (newOptions == null || !newOptions.containsKey(key)) {
+				preferences.setToDefault(key); // set default => remove from preferences table
 			}
 		}
 

@@ -16,10 +16,21 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 public class OptionTests extends ModifyingResourceTests {
+
+int eventCount = 0;
+
+class TestPropertyListener implements Preferences.IPropertyChangeListener {
+	public void propertyChange(PropertyChangeEvent event) {
+		eventCount++;
+	}
+}
 
 public OptionTests(String name) {
 	super(name);
@@ -328,19 +339,22 @@ public void test06() throws CoreException {
 	}
 }
 /**
- * Custom options must replace existing ones completely
+ * Custom options must replace existing ones completely without loosing property listeners
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=49691
  */
 public void test07() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		JavaProject projectA = (JavaProject)
 			this.createJavaProject(
 				"A", 
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+		Preferences preferences = projectA.getPreferences();
+		preferences.addPropertyChangeListener(new TestPropertyListener());
+	
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
@@ -350,7 +364,9 @@ public void test07() throws CoreException {
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-		
+		assertTrue("projA:preferences should not be reset", preferences == projectA.getPreferences());
+		assertTrue("projA:preferences property listener has been lost", eventCount == 2);
+	
 		// change custom options to have one less
 		options.clear();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
@@ -358,7 +374,8 @@ public void test07() throws CoreException {
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", null, projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-
+		assertTrue("projA:preferences should not be reset", preferences == projectA.getPreferences());
+		assertTrue("projA:preferences property listener has been lost", eventCount == 3);
 	} finally {
 		this.deleteProject("A");
 	}
@@ -407,6 +424,4 @@ public void test08() throws CoreException {
 		this.deleteProject("A");
 	}
 }
-
-
 }
