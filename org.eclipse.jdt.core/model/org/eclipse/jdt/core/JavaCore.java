@@ -128,6 +128,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String COMPILER_COMPILATION_SOURCE = PLUGIN_ID + ".compiler.compilation.source"/*nonNLS*/;
 		// possible values are VERSION_1_3 or VERSION_1_4 (default is VERSION_1_3)
 
+	public static final String COMPILER_PB_ASSERT_IDENTIFIER = PLUGIN_ID + ".compiler.problem.assertIdentifier"/*nonNLS*/;
+		// possible values are WARNING or IGNORE (default is IGNORE)
+
 	/**
 	 * Possible values for configurable options
 	 */

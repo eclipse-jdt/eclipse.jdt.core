@@ -376,12 +376,27 @@ public static ConfigurableOption[] convertConfigurableOptions(Hashtable optionMa
 			if (optionValue.equals(JavaCore.VERSION_1_4)){
 				compilerOptions.setAssertMode(true);
 				continue;
-			} else {
+			}
+			if (optionValue.equals(JavaCore.VERSION_1_3)){
 				compilerOptions.setAssertMode(false);
 				continue;				
 			}
+			continue;
+		}
+		if (optionName.equals(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER)){
+
+			if (optionValue.equals(JavaCore.WARNING)){
+				compilerOptions.handleAssertIdentifierAsWarning(true);
+				continue;
+			} 
+			if (optionValue.equals(JavaCore.IGNORE)){
+				compilerOptions.handleAssertIdentifierAsWarning(false);
+				continue;				
+			}
+			continue;
 		}
 	}
+	
 	return compilerOptions.getConfigurableOptions(Locale.getDefault());
 }
 	/**

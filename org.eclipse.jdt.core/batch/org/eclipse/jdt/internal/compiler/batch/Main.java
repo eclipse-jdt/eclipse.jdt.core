@@ -419,6 +419,8 @@ private void configure(String[] argv) throws InvalidInputException {
 					warningMask |= CompilerOptions.AccessEmulation;
 				} else if (token.equals("nls"/*nonNLS*/)){
 					warningMask |= CompilerOptions.NonExternalizedString;
+				} else if (token.equals("assertIdentifier"/*nonNLS*/)){
+					warningMask |= CompilerOptions.AssertUsedAsAnIdentifier;
 				} else {
 					throw new InvalidInputException(Main.bind("configure.invalidWarning"/*nonNLS*/,token));
 				}
@@ -687,7 +689,7 @@ protected FileSystem getLibraryAccess() {
  *  Low-level API performing the actual compilation
  */
 protected ConfigurableOption[] getOptions() {
-	CompilerOptions options = new CompilerOptions();
+	CompilerOptions options = new CompilerOptions(); 
 	options.produceDebugAttributes(debugMask);
 	options.preserveAllLocalVariables(preserveAllLocalVariables);
 	options.handleImportProblemAsError(importProblemIsError);
@@ -748,8 +750,8 @@ protected void performCompilation() throws InvalidInputException {
 				getOptions(),
 		 		getBatchRequestor(),
 				getProblemFactory());
-	CompilerOptions options = batchCompiler.options;
-	// set the non-externally configurable options.
+	CompilerOptions options = batchCompiler.options; 
+	// set the non-externally configurable options. 
 	options.setVerboseMode(verbose);
 	options.produceReferenceInfo(produceRefInfo);
 	batchCompiler.compile(getCompilationUnits());
@@ -779,7 +781,7 @@ private void printUsage() {
 							"\t\t-warn:none no warning\n"+
 							"\t\t-warn:{constructorName, packageDefaultMethod, deprecation,\n" +
 							"\t\t\tmaskedCatchBlocks, unusedLocals, unusedArguments, \n" +
-							"\t\t\tsyntheticAccess}\n" +					
+							"\t\t\tsyntheticAccess, nls, assertIdentifier}\n" +					
 					"-noImportError\tdo not report errors on incorrect imports\n" +
 					"-proceedOnError\tkeep compiling when error, \n\t\tdumping class files with problem methods\n" +
 					"-referenceInfo\tcompute reference info\n" +

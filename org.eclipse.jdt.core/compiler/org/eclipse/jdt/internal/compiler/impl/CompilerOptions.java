@@ -28,7 +28,7 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 		ParsingOptionalError | 
 		MethodWithConstructorName | OverriddenPackageDefaultMethod |
 		UsingDeprecatedAPI | MaskedCatchBlock |
-		UnusedLocalVariable | UnusedArgument |
+		UnusedLocalVariable | AssertUsedAsAnIdentifier |
 		TemporaryWarning;
 
 	// target JDK 1.1 or 1.2
@@ -37,7 +37,7 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
 
 	// 1.4 feature
-	public boolean assertMode = false;
+	public boolean assertMode = false; //1.3 behavior by default
 	
 	// print what unit is being processed
 	public boolean verbose = false;
@@ -159,8 +159,12 @@ public ConfigurableOption[] getConfigurableOptions(Locale locale) {
 			componentName,
 			"source"/*nonNLS*/, 
 			locale, 
-			assertMode ? 0 : 1)
-
+			assertMode ? 0 : 1),
+		new ConfigurableOption(
+			componentName,
+			"optionalWarning.assertIdentifier"/*nonNLS*/, 
+			locale, 
+			(warningThreshold & AssertUsedAsAnIdentifier) != 0 ? 0 : 1)
 		}; 
 }
 public int getDebugAttributesMask() {
@@ -377,6 +381,10 @@ void setOption(ConfigurableOption setting) {
 			break;
 		case 17: // assertion mode
 			setAssertMode(setting.getCurrentValueIndex() == 0);
+			break;
+		case 18: // warn on assert identifier
+			handleAssertIdentifierAsWarning(setting.getCurrentValueIndex() == 0);
+			break;
 	}
 }
 public void setTargetJDK(int vmID) {
@@ -530,5 +538,17 @@ public void handleNonExternalizedStringLiteralAsWarning(boolean flag) {
 
 public boolean isNonExternalizedStringLiteralHandledAsWarning() {
 	return (warningThreshold & NonExternalizedString) != 0;
+}
+
+public void handleAssertIdentifierAsWarning(boolean flag) {
+	if (flag) {
+		warningThreshold |= AssertUsedAsAnIdentifier;
+	} else {
+		warningThreshold &= ~AssertUsedAsAnIdentifier;
+	}
+}
+
+public boolean isAssertIdentifierHandledAsWarning() {
+	return (warningThreshold & AssertUsedAsAnIdentifier) != 0;
 }
 }
