@@ -155,6 +155,134 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			deleteFile("P/Y.java");
 		}
 	}
+	
+	/*
+	 * Ensures that the correct delta is issued when a non-primary working copy is created.
+	 */
+	public void testDeltaCreateNonPrimaryWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("P/Y.java");
+			startDeltas();
+			workingCopy = cu.getWorkingCopy(null);
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		[default][*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[+]: {}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+		
+	}
+
+	/*
+	 * Ensures that the correct delta is issued when a primary compilation unit becomes a working copy.
+	 */
+	public void testDeltaBecomeWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			startDeltas();
+			workingCopy.becomeWorkingCopy(null, null);
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		[default][*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[*]: {PRIMARY WORKING COPY}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+		
+	}
+
+	/*
+	 * Ensures that the correct delta is issued when a non-primary working copy is discarded.
+	 */
+	public void testDeltaDiscardNonPrimaryWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("P/Y.java");
+			workingCopy = cu.getWorkingCopy(null);
+
+			startDeltas();
+			workingCopy.discardWorkingCopy();
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		[default][*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[-]: {}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+		
+	}
+
+	/*
+	 * Ensures that the correct delta is issued when a primary working copy becomes a compilation unit.
+	 */
+	public void testDeltaDiscardPrimaryWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+
+			startDeltas();
+			workingCopy.discardWorkingCopy();
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		[default][*]: {CHILDREN}\n" + 
+				"			Y.java[*]: {PRIMARY WORKING COPY}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+		
+	}
 
 	/*
 	 * Tests that a primary working copy is back in compilation unit mode when discardWorkingCopy() is called.

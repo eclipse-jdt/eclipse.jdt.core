@@ -669,6 +669,12 @@ public String toDebugString(int depth) {
 		buffer.append("FINE GRAINED"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((changeFlags & IJavaElementDelta.F_PRIMARY_WORKING_COPY) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("PRIMARY WORKING COPY"); //$NON-NLS-1$
+		prev = true;
+	}
 	buffer.append("}"); //$NON-NLS-1$
 	IJavaElementDelta[] children = getAffectedChildren();
 	if (children != null) {
