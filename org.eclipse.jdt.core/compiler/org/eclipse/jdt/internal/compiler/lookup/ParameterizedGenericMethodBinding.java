@@ -196,7 +196,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						return originalParameterizedType.type;
 					}    	        	
     	            return this.environment.createParameterizedType(
-    	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
+    	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType());
         	    } 
 			} else if (originalType.isArrayType()) {
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();

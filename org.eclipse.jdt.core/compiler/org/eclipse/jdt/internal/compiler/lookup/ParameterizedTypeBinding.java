@@ -29,7 +29,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public FieldBinding[] fields;	
 	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
-	public ReferenceBinding enclosingType;
+	private ReferenceBinding enclosingType;
 	
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;

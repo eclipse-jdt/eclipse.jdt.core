@@ -142,7 +142,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	        }
 	    } else if (originalType.isParameterizedType()) {
 	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-			return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType);
+			return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType());
 	    } else  if (originalType.isGenericType()) {
             return this.environment.createRawType((ReferenceBinding)originalType, null);
 	    } else if (originalType.isArrayType()) {

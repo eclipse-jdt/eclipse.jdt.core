@@ -131,16 +131,16 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		boolean typeIsConsistent = true;
+		ReferenceBinding qualifiedType = null;
 	    for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
-	    	ReferenceBinding enclosingType = (ReferenceBinding) this.resolvedType;
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!(this.resolvedType.isValidBinding())) {
 				reportInvalidType(scope);
 				return null;
 			}
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
-			if (typeIsConsistent && currentType.isStatic() && enclosingType != null && (enclosingType.isParameterizedType() || enclosingType.isGenericType())) {
-				scope.problemReporter().staticMemberOfParameterizedType(this, scope.createParameterizedType(currentType, null, enclosingType));
+			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
+				scope.problemReporter().staticMemberOfParameterizedType(this, scope.createParameterizedType(currentType, null, qualifiedType));
 				typeIsConsistent = false;
 			}			
 			// check generic and arity
@@ -175,33 +175,33 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					return null;
 				}
 				// check parameterizing non-static member type of raw type
-				if (typeIsConsistent && !currentType.isStatic() && enclosingType != null && enclosingType.isRawType()) {
+				if (typeIsConsistent && !currentType.isStatic() && qualifiedType != null && qualifiedType.isRawType()) {
 					scope.problemReporter().rawMemberTypeCannotBeParameterized(
-							this, scope.environment().createRawType(currentType, enclosingType), argTypes);
+							this, scope.environment().createRawType(currentType, qualifiedType), argTypes);
 					typeIsConsistent = false;				
 				}
-				ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, enclosingType);
+				ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, qualifiedType);
 				// check argument type compatibility now if not a class scope
 				if (!isClassScope) // otherwise will do it in Scope.connectTypeVariables()
 					for (int j = 0; j < argLength; j++)
 					    if (!typeVariables[j].boundCheck(parameterizedType, argTypes[j]))
 							scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, args[j]);
-				this.resolvedType = parameterizedType;
+				qualifiedType = parameterizedType;
 		    } else {
 // TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
 					if (((ClassScope) scope).detectCycle(currentType, this, null))
 						return null;
-				if (currentType.erasure().isGenericType()) {
-	   			    if (typeIsConsistent && enclosingType != null && enclosingType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType(currentType, null, enclosingType));
+				if (currentType.isGenericType()) {
+	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType(currentType, null, qualifiedType));
 						typeIsConsistent = false;
 					}
-	   			    this.resolvedType = scope.environment().createRawType(currentType, enclosingType); // raw type
+	   			    qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
 				}
 			}
 		}
-
+		this.resolvedType = qualifiedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(scope);
 		// array type ?

@@ -65,15 +65,20 @@ public class QualifiedTypeReference extends TypeReference {
 
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+	    ReferenceBinding qualifiedType = null;
 		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;
-
+			
 			if (isClassScope)
 				if (((ClassScope) scope).detectCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
 					return null;
+			qualifiedType = this.resolvedType.isGenericType()
+				? scope.environment().createRawType((ReferenceBinding)this.resolvedType, qualifiedType)
+				: (ReferenceBinding) this.resolvedType;
 		}
+		this.resolvedType = qualifiedType;
 		return this.resolvedType;
 	}
 	
