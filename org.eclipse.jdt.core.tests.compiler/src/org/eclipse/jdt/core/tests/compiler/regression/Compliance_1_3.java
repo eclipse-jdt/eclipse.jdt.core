@@ -2905,6 +2905,107 @@ public void test084() {
 		"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
 		"----------\n");
 }
+/**
+ * Test unused import with static
+ */
+public void test085() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"import static j.l.S.*;\n" + 
+				"import static j.l.S.in;\n" + 
+				"\n" + 
+				"public class A {\n" + 
+				"\n" + 
+				"}\n",
+			"j/l/S.java",
+			"package j.l;\n" + 
+				"public class S {\n" + 
+				"	public static int in;\n" + 
+				"}\n"
+		},
+		"----------\n" + 
+			"1. ERROR in A.java (at line 1)\n" + 
+			"	import static j.l.S.*;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\n" + 
+			"	import static j.l.S.in;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 2)\n" + 
+			"	import static j.l.S.in;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import j.l.S.in cannot be resolved\n" + 
+			"----------\n"
+		);
+}
+/**
+ * Test invalid static import syntax
+ */
+public void test086() {
+	this.runNegativeTest(
+		new String[] {
+			"p/S.java",
+			"package p;\n" + 
+				"public class S {\n" + 
+				"    public final static String full = \"FULL\";\n" + 
+				"    public final static String success = \"SUCCESS\";\n" + 
+				"}\n",
+			"X.java",
+			"import static p.S;\n" + 
+				"public class X {\n" + 
+				"	public static void main ( String[] args) {\n" + 
+				"		\n" + 
+				"      System.out.print(full+\" \"+p.S.success);\n" + 
+				"   }\n" + 
+				"}\n"
+		},
+		"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.S;\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	System.out.print(full+\" \"+p.S.success);\n" + 
+			"	                 ^^^^\n" + 
+			"full cannot be resolved\n" + 
+			"----------\n"
+		);
+}
+public void test087() {
+	this.runNegativeTest(
+		new String[] {
+			"p/S.java",
+			"public class S {\n" + 
+				"    public final static String full = \"FULL\";\n" + 
+				"    public final static String success = \"SUCCESS\";\n" + 
+				"}\n",
+			"X.java",
+			"import static S;\n" + 
+				"public class X {\n" + 
+				"	public static void main ( String[] args) {\n" + 
+				"		\n" + 
+				"      System.out.print(full+\" \"+S.success);\n" + 
+				"   }\n" + 
+				"}\n"
+		},
+		"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static S;\n" + 
+			"	^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	System.out.print(full+\" \"+S.success);\n" + 
+			"	                 ^^^^\n" + 
+			"full cannot be resolved\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
