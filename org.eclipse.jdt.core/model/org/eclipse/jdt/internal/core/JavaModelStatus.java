@@ -316,7 +316,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					path = this.fPath;
 					return Util.bind("classpath.unboundVariablePath", path.makeRelative().toString()); //$NON-NLS-1$
 					
-			case CLASSPATH_CYCLE: // TODO: getMessage for CLASSPATH_CYCLE
+			case CLASSPATH_CYCLE: 
 					javaProject = (IJavaProject)fElements[0];
 					return Util.bind("classpath.cycle", javaProject.getElementName()); //$NON-NLS-1$
 												 
