@@ -139,22 +139,13 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 						rootNeedsToBeClosed= true;
 					}
 				}
-				if ((zipPath.isAbsolute() && workspace.getRoot().findMember(zipPath) != null) || !zipPath.isAbsolute()) {
-					// internal to the workbench
-					// a resource
-					IResource zipFile= workspace.getRoot().findMember(zipPath);
-					if (zipFile == null) {
-						if (monitor != null) {
-							monitor.done();
-						}
-						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, zipPath));
+				// check if zip path is valid
+				Object target = JavaModel.getTarget(workspace.getRoot(), zipPath, false);
+				if (!(target instanceof IFile || target instanceof File)) {
+					if (monitor != null) {
+						monitor.done();
 					}
-					if (!(zipFile.getType() == IResource.FILE)) {
-						if (monitor != null) {
-							monitor.done();
-						}
-						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, zipPath));
-					}
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, zipPath));
 				}
 				mapper= new SourceMapper(zipPath, rootPath.toOSString());
 			}

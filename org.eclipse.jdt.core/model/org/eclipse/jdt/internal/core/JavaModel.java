@@ -476,10 +476,14 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 	if (path == null) return null;
 	
 	// lookup - inside the container
-	IResource resource = container.findMember(path);
-	if (resource != null){
-		if (!checkResourceExistence ||resource.exists()) return resource;
-		return null;
+	if (path.getDevice() == null) { // container relative paths should not contain a device 
+												// (see http://dev.eclipse.org/bugs/show_bug.cgi?id=18684)
+												// (case of a workspace rooted at d:\ )
+		IResource resource = container.findMember(path);
+		if (resource != null){
+			if (!checkResourceExistence ||resource.exists()) return resource;
+			return null;
+		}
 	}
 
 	// lookup - outside the container

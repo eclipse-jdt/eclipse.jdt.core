@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -128,11 +129,12 @@ public class HandleFactory {
 
 		IPath jarPath= new Path(jarPathString);
 		
-		IResource jarFile= this.workspace.getRoot().findMember(jarPath);
-		if (jarFile != null) {
+		Object target = JavaModel.getTarget(this.workspace.getRoot(), jarPath, false);
+		if (target instanceof IFile) {
 			// internal jar: is it on the classpath of its project?
 			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar 
 			//        is NOT on the classpath of org.eclipse.swt.win32
+			IFile jarFile = (IFile)target;
 			IJavaProject javaProject = this.javaModel.getJavaProject(jarFile);
 			IClasspathEntry[] classpathEntries;
 			try {
@@ -161,9 +163,9 @@ public class HandleFactory {
 				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true);
 				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 					if (classpathEntries[j].getPath().equals(jarPath)) {
-						if (jarFile != null) {
+						if (target instanceof IFile) {
 							// internal jar
-							return javaProject.getPackageFragmentRoot(jarFile);
+							return javaProject.getPackageFragmentRoot((IFile)target);
 						} else {
 							// external jar
 							return javaProject.getPackageFragmentRoot0(jarPathString);

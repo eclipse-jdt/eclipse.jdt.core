@@ -163,9 +163,6 @@ public class SourceMapper
 		this.fParameterNames = new HashMap();
 		this.importsTable = new HashMap();
 		this.importsCounterTable = new HashMap();
-		
-		IResource zipResource = ResourcesPlugin.getWorkspace().getRoot().findMember(zipPath);
-
 		this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 	}
 	
