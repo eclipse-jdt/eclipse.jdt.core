@@ -872,7 +872,7 @@ public class TypeDeclaration
 		}
 		try {
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
-				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
 			// check superclass & interfaces
 			if (this.binding.superclass != null) // watch out for Object ! (and other roots)	
