@@ -352,7 +352,7 @@ public abstract class JobManager implements Runnable {
 					}
 					if (VERBOSE) {
 						JobManager.verbose(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
-						JobManager.verbose("STARTING  background job - " + job); //$NON-NLS-1$
+						JobManager.verbose("STARTING background job - " + job); //$NON-NLS-1$
 					}
 					try {
 						executing = true;
