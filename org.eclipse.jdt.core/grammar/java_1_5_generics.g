@@ -1278,13 +1278,11 @@ RelationalExpression ::= RelationalExpression '<=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression ::= RelationalExpression '>=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
-
-InstanceofExpression ::= RelationalExpression
-InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
+RelationalExpression ::= RelationalExpression 'instanceof' ShiftExpression
 /.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 /:$readableName Expression:/
 
-EqualityExpression ::= InstanceofExpression 
+EqualityExpression ::= RelationalExpression
 EqualityExpression ::= EqualityExpression '==' RelationalExpression
 /.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
 EqualityExpression ::= EqualityExpression '!=' RelationalExpression
@@ -1725,16 +1723,13 @@ RelationalExpression_NotName ::= RelationalExpression_NotName '>=' ShiftExpressi
 /.$putCase consumeBinaryE(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName ::= Name '>=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
-/:$readableName Expression:/
-
-InstanceofExpression_NotName ::= RelationalExpression_NotName
-InstanceofExpression_NotName ::= InstanceofExpression_NotName 'instanceof' ReferenceType
+RelationalExpression_NotName  ::= RelationalExpression_NotName 'instanceof' ReferenceType
 /.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
-InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
+RelationalExpression_NotName  ::= Name 'instanceof' ReferenceType
 /.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 /:$readableName Expression:/
 
-EqualityExpression_NotName ::= InstanceofExpression_NotName
+EqualityExpression_NotName ::= RelationalExpression_NotName
 EqualityExpression_NotName ::= EqualityExpression_NotName '==' RelationalExpression
 /.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
 EqualityExpression_NotName ::= Name '==' RelationalExpression
