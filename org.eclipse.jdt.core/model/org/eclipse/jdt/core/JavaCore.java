@@ -1131,6 +1131,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		if (monitor != null && monitor.isCanceled()) return;
 		
+		boolean mayChangeProjectDependencies = false;
 		int varLength = variableNames.length;
 		
 		// gather classpath information for updating
@@ -1181,11 +1182,27 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						String variableName = variableNames[k];						
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 
+							if (entry.getPath().segment(0).equals(variableName)){
+								affectedProjects.put(project, ((JavaProject)project).getExpandedClasspath(true));
+								
+								// also check whether it will be necessary to update proj references and cycle markers
+								if (!mayChangeProjectDependencies && entry.getPath().segmentCount() ==  1){
+									IPath oldPath = (IPath)JavaModelManager.Variables.get(variableName);
+									if (oldPath != null && oldPath.segmentCount() == 1) {
+										mayChangeProjectDependencies = true;
+									} else {
+										IPath newPath = variablePaths[k];
+										if (newPath != null && newPath.segmentCount() == 1) {
+											mayChangeProjectDependencies = true;
+										}
+									}
+								}
+								continue nextProject;
+							}
 							IPath sourcePath, sourceRootPath;
-							if (entry.getPath().segment(0).equals(variableName)
-										|| ((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
-										|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
-											
+							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
+								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
+
 								affectedProjects.put(project, ((JavaProject)project).getExpandedClasspath(true));
 								continue nextProject;
 							}
@@ -1234,7 +1251,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							true,
 							project.getWorkspace().isAutoBuilding(),
 							// force build if in auto build mode
-							(IClasspathEntry[]) affectedProjects.get(project));
+							(IClasspathEntry[]) affectedProjects.get(project),
+							mayChangeProjectDependencies);
 				}
 			} finally {
 				if (wasFiring) {

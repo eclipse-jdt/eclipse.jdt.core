@@ -1867,7 +1867,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getExpandedClasspath(true));
+		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getExpandedClasspath(true), true);
 	}
 
 	/**
@@ -1879,7 +1879,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, outputLocation, monitor, true, true, getExpandedClasspath(true));
+		setRawClasspath(entries, outputLocation, monitor, true, true, getExpandedClasspath(true), true);
 	}
 
 	public void setRawClasspath(
@@ -1888,7 +1888,8 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		boolean forceSave,
-		IClasspathEntry[] oldClasspath)
+		IClasspathEntry[] oldClasspath,
+		boolean mayChangeProjectDependencies)
 		throws JavaModelException {
 
 		JavaModelManager manager =
@@ -1905,7 +1906,8 @@ public IJavaElement rootedAt(IJavaProject project) {
 					newRawPath, 
 					newOutputLocation,
 					canChangeResource, 
-					forceSave);
+					forceSave,
+					mayChangeProjectDependencies);
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
@@ -1964,9 +1966,9 @@ public IJavaElement rootedAt(IJavaProject project) {
 		}
 	}
 
-	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource) throws JavaModelException {
+	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource, boolean mayChangeProjectDependencies) throws JavaModelException {
 
-		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getExpandedClasspath(true));
+		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getExpandedClasspath(true), mayChangeProjectDependencies);
 	}
 
 	/**

@@ -25,6 +25,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
 	boolean forceSave;
+	boolean mayChangeProjectDependencies;
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
@@ -39,7 +40,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
 		boolean canChangeResource,
-		boolean forceSave) {
+		boolean forceSave,
+		boolean mayChangeProjectDependencies) {
 
 		super(new IJavaElement[] { project });
 		this.oldExpandedPath = oldExpandedPath;
@@ -47,6 +49,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
 		this.forceSave = forceSave;
+		this.mayChangeProjectDependencies = mayChangeProjectDependencies;
 	}
 
 	/**
@@ -150,10 +153,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 			this.hasModifiedResource = project.saveClasspath(this.forceSave);
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
-		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
 		
-		// update cycle markers
-		updateCycleMarkers();
+		if (this.mayChangeProjectDependencies){
+			updateProjectReferences(oldRequired, project.getRequiredProjectNames());
+			updateCycleMarkers();
+		}
 	}
 	/**
 	 * Sets the output location of the pre-specified project.
@@ -419,7 +423,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				try {
 					JavaProject project = (JavaProject)projects[i];
 					project.flushClasspathProblemMarkers(true);
-					if (project.hasClasspathCycle(project.getRawClasspath())){
+					if (project.hasClasspathCycle(project.getResolvedClasspath(true))){
 						project.createClasspathProblemMarker(
 							Util.bind("classpath.cycle"), //$NON-NLS-1$
 							IMarker.SEVERITY_ERROR,
@@ -449,7 +453,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							project.updateClassPath(this.fMonitor, this.canChangeResource);
+							project.updateClassPath(this.fMonitor, this.canChangeResource, this.mayChangeProjectDependencies);
 							break;
 						}
 					}

@@ -176,7 +176,7 @@ public class DeltaProcessor {
 										outputLocation = SetClasspathOperation.ReuseOutputLocation;
 									}
 									try {
-										project.setRawClasspath(fileEntries, outputLocation, null, true, false, project.getExpandedClasspath(true));
+										project.setRawClasspath(fileEntries, outputLocation, null, true, false, project.getExpandedClasspath(true), true);
 									} catch (JavaModelException e) {
 									}
 								} catch (IOException e) {
