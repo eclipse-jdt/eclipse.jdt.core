@@ -85,7 +85,7 @@ public class IfStatement extends Statement {
 			}
 		};
 		// optimizing the jump around the ELSE part
-		this.thenExit = !thenFlowInfo.isReachable();
+		this.thenExit = thenFlowInfo == FlowInfo.DEAD_END;
 
 		// process the ELSE part
 		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
@@ -102,7 +102,7 @@ public class IfStatement extends Statement {
 			}
 		}
 
-		boolean elseExit = !elseFlowInfo.isReachable();
+		boolean elseExit = elseFlowInfo == FlowInfo.DEAD_END;
 		
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
