@@ -1722,7 +1722,6 @@ public final class CharOperation {
 	 * any folder combination.
 	 * Special rules: 
 	 * - foo\  is equivalent to foo\**   
-	 * - *.java is equivalent to **\*.java
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
 	 * name will be lowercased character per character as comparing.
 	 * 
@@ -1743,17 +1742,9 @@ public final class CharOperation {
 		if (pattern == null)
 			return true; // null pattern is equivalent to '*'
 
-		// special case: pattern foo is equivalent to **\foo (not absolute)
-		boolean freeLeadingDoubleStar= pattern[0] != pathSeparator;
-
 		// offsets inside pattern
-		int pSegmentStart, pLength = pattern.length;
-
-		if (freeLeadingDoubleStar){
-			pSegmentStart = 0;
-		} else {
-			pSegmentStart = 1;
-		}
+		int pSegmentStart = pattern[0] == pathSeparator ? 1 : 0;
+		int pLength = pattern.length;
 		int pSegmentEnd = CharOperation.indexOf(pathSeparator, pattern, pSegmentStart+1);
 		if (pSegmentEnd < 0) pSegmentEnd = pLength;
 
@@ -1775,7 +1766,6 @@ public final class CharOperation {
 
 		// first segments
 		while (pSegmentStart < pLength
-			&& !freeLeadingDoubleStar
 			&& !(pSegmentEnd == pLength && freeTrailingDoubleStar
 					|| (pSegmentEnd == pSegmentStart + 2
 							&& pattern[pSegmentStart] == '*'

@@ -10,6 +10,7 @@
       </library>
    </runtime>
    <requires>
+      <import plugin="org.apache.ant"/>
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.jdt.debug"/>
       <import plugin="org.eclipse.jdt.core"/>

@@ -10,16 +10,30 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.eclipse.jdt.core.compiler.CharOperation;
+
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 public class UtilTest extends AbstractRegressionTest {
+	
 public UtilTest(String name) {
 	super(name);
 }
 public static Test suite() {
 	return setupSuite(testClass());
 }
+public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {
+	
+	boolean antResult = SelectorUtils.matchPath(new String(pattern), new String(path), isCaseSensitive);
+	boolean result = CharOperation.pathMatch(pattern, path, isCaseSensitive, '/');
+	if (antResult != result) {
+		new AssertionFailedError("WARNING : Ant expectation for patchMatch(\""+new String(pattern)+"\", \""+new String(path)+"\", ...) is: "+antResult).printStackTrace();
+	}
+	return result;
+}
+
 public void test01() {
 
 	assertTrue("Pattern matching failure",
@@ -200,31 +214,31 @@ public void test33() {
 public void test34() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("hello/*/World".toCharArray(), "hello/zzz/World".toCharArray(), true, '/'));
+		checkPathMatch("hello/*/World".toCharArray(), "hello/zzz/World".toCharArray(), true));
 }
 
 public void test35() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("hello/**/World".toCharArray(), "hello/x/y/z/World".toCharArray(), true, '/'));
+		checkPathMatch("hello/**/World".toCharArray(), "hello/x/y/z/World".toCharArray(), true));
 }
 
 public void test36() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("hello/**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+		checkPathMatch("hello/**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true));
 }
 
 public void test37() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+		checkPathMatch("**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true));
 }
 
 public void test38() {
 
 	assertTrue("Path pattern matching failure",
-		!CharOperation.pathMatch("/*.java".toCharArray(), "/hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+		!checkPathMatch("/*.java".toCharArray(), "/hello/x/y/z/World/X.java".toCharArray(), true));
 }
 
 /*
@@ -233,13 +247,13 @@ public void test38() {
 public void test39() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("**/CVS/*".toCharArray(), "CVS/Repository".toCharArray(), true, '/'));
+		checkPathMatch("**/CVS/*".toCharArray(), "CVS/Repository".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-3",
-		CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-4",
-		!CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true, '/'));
+		!checkPathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true));
 }
 
 /*
@@ -248,11 +262,11 @@ public void test39() {
 public void test40() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/tools/ant/docs/index.html".toCharArray(), true, '/'));
+		checkPathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/tools/ant/docs/index.html".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/test.xml".toCharArray(), true, '/'));
+		checkPathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/test.xml".toCharArray(), true));
 	assertTrue("Path pattern matching failure-3",
-		!CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/xyz.java".toCharArray(), true, '/'));
+		!checkPathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/xyz.java".toCharArray(), true));
 }
 
 /*
@@ -261,11 +275,11 @@ public void test40() {
 public void test41() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-3",
-		!CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true, '/'));
+		!checkPathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true));
 }
 
 /*
@@ -274,15 +288,15 @@ public void test41() {
 public void test42() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("**/test/**".toCharArray(), "org/apache/test/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("**/test/**".toCharArray(), "org/apache/test/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		CharOperation.pathMatch("**/test/**".toCharArray(), "test".toCharArray(), true, '/'));
+		checkPathMatch("**/test/**".toCharArray(), "test".toCharArray(), true));
 	assertTrue("Path pattern matching failure-3",
-		CharOperation.pathMatch("**/test/**".toCharArray(), "a/test".toCharArray(), true, '/'));
+		checkPathMatch("**/test/**".toCharArray(), "a/test".toCharArray(), true));
 	assertTrue("Path pattern matching failure-4",
-		CharOperation.pathMatch("**/test/**".toCharArray(), "test/a.java".toCharArray(), true, '/'));
+		checkPathMatch("**/test/**".toCharArray(), "test/a.java".toCharArray(), true));
 	assertTrue("Path pattern matching failure-5",
-		!CharOperation.pathMatch("**/test/**".toCharArray(), "org/apache/test.java".toCharArray(), true, '/'));
+		!checkPathMatch("**/test/**".toCharArray(), "org/apache/test.java".toCharArray(), true));
 }
 /*
  * Corner cases
@@ -290,9 +304,9 @@ public void test42() {
 public void test43() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("/test/".toCharArray(), "/test/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("/test/".toCharArray(), "/test/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		CharOperation.pathMatch("/test/**".toCharArray(), "/test/CVS/Entries".toCharArray(), true, '/'));
+		checkPathMatch("/test/**".toCharArray(), "/test/CVS/Entries".toCharArray(), true));
 }
 /*
  * Corner cases
@@ -300,9 +314,9 @@ public void test43() {
 public void test44() {
 		
 	assertTrue("Path pattern matching failure-1",
-		!CharOperation.pathMatch("test".toCharArray(), "test/CVS/Entries".toCharArray(), true, '/'));
+		!checkPathMatch("test".toCharArray(), "test/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		!CharOperation.pathMatch("**/test".toCharArray(), "test/CVS/Entries".toCharArray(), true, '/'));
+		!checkPathMatch("**/test".toCharArray(), "test/CVS/Entries".toCharArray(), true));
 }
 /*
  * Corner cases
@@ -310,14 +324,14 @@ public void test44() {
 public void test45() {
 		
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("/test/test1/".toCharArray(), "/test/test1/test/test1".toCharArray(), true, '/'));
+		checkPathMatch("/test/test1/".toCharArray(), "/test/test1/test/test1".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		!CharOperation.pathMatch("/test/test1".toCharArray(), "/test/test1/test/test1".toCharArray(), true, '/'));
+		!checkPathMatch("/test/test1".toCharArray(), "/test/test1/test/test1".toCharArray(), true));
 }
 public void test46() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("hello/**/World".toCharArray(), "hello/World".toCharArray(), true, '/'));
+		checkPathMatch("hello/**/World".toCharArray(), "hello/World".toCharArray(), true));
 }
 /*
  * Regression test for 28316 Missing references to constructor 
@@ -335,66 +349,69 @@ public void test48() {
 public void test49() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("**/hello".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("**/hello".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test50() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("**/hello/**".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("**/hello/**".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test51() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("**/hello/".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("**/hello/".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test52() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("hello/".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("hello/".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test53() {
 
 	assertTrue("Path pattern matching failure",
-		!CharOperation.pathMatch("/".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		!checkPathMatch("/".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test54() {
 
 	assertTrue("Path pattern matching failure-1",
-		CharOperation.pathMatch("x/".toCharArray(), "hello/x".toCharArray(), true, '/'));
+		!checkPathMatch("x/".toCharArray(), "hello/x".toCharArray(), true)); // 29761
 
 	assertTrue("Path pattern matching failure-2",
-		!CharOperation.pathMatch("/x/".toCharArray(), "hello/x".toCharArray(), true, '/'));
+		checkPathMatch("**/x/".toCharArray(), "hello/x".toCharArray(), true)); 
+
+	assertTrue("Path pattern matching failure-3",
+		!checkPathMatch("/x/".toCharArray(), "hello/x".toCharArray(), true));
 }
 public void test56() {
 
 	assertTrue("Path pattern matching failure",
-		!CharOperation.pathMatch("/**".toCharArray(), "hello/hello".toCharArray(), true, '/'));
+		!checkPathMatch("/**".toCharArray(), "hello/hello".toCharArray(), true));
 }
 public void test57() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("/".toCharArray(), "/hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("/".toCharArray(), "/hello/hello".toCharArray(), true));
 }
 public void test58() {
 
 	assertTrue("Path pattern matching failure",
-		CharOperation.pathMatch("/**".toCharArray(), "/hello/hello".toCharArray(), true, '/'));
+		checkPathMatch("/**".toCharArray(), "/hello/hello".toCharArray(), true));
 }
 public void test59() {
 
 	assertTrue("Path pattern matching failure",
-		!CharOperation.pathMatch("**".toCharArray(), "/hello/hello".toCharArray(), true, '/'));
+		!checkPathMatch("**".toCharArray(), "/hello/hello".toCharArray(), true));
 }
 public void test60() {
 
 	assertTrue("Path pattern matching failure-1",
-		!CharOperation.pathMatch("/P/src".toCharArray(), "/P/src/X".toCharArray(), true, '/'));
+		!checkPathMatch("/P/src".toCharArray(), "/P/src/X".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
-		!CharOperation.pathMatch("/P/**/src".toCharArray(), "/P/src/X".toCharArray(), true, '/'));
+		!checkPathMatch("/P/**/src".toCharArray(), "/P/src/X".toCharArray(), true));
 	assertTrue("Path pattern matching failure-3",
-		CharOperation.pathMatch("/P/src".toCharArray(), "/P/src".toCharArray(), true, '/'));
+		checkPathMatch("/P/src".toCharArray(), "/P/src".toCharArray(), true));
 	assertTrue("Path pattern matching failure-4",
-		!CharOperation.pathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true, '/'));		
+		!checkPathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true));		
 }
 
 public static Class testClass() {
