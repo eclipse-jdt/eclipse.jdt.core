@@ -35,6 +35,11 @@ public abstract class Literal extends Expression {
 
 	public abstract TypeBinding literalType(BlockScope scope);
 
+	public StringBuffer printExpression(int indent, StringBuffer output){
+	
+		return output.append(source());
+	 }
+	 
 	public TypeBinding resolveType(BlockScope scope) {
 		// compute the real value, which must range its type's range
 		this.resolvedType = literalType(scope);

@@ -58,8 +58,6 @@ public class IfStatement extends Statement {
 		// remember useful empty statement
 		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
 		this.elseStatement = elseStatement;
-		// remember useful empty statement
-		if (elseStatement instanceof EmptyStatement) elseStatement.bits |= IsUsefulEmptyStatementMASK;
 		sourceEnd = e;
 		sourceStart = s;
 	}
@@ -241,6 +239,20 @@ public class IfStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output).append("if ("); //$NON-NLS-1$
+		condition.printExpression(0, output).append(")\n");	//$NON-NLS-1$ 
+		thenStatement.printStatement(indent + 2, output);
+		if (elseStatement != null) {
+			output.append('\n');
+			printIndent(indent, output);
+			output.append("else\n"); //$NON-NLS-1$
+			elseStatement.printStatement(indent + 2, output);
+		}
+		return output;
+	}
+
 	public void resolve(BlockScope scope) {
 
 		TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);
@@ -249,17 +261,6 @@ public class IfStatement extends Statement {
 			thenStatement.resolve(scope);
 		if (elseStatement != null)
 			elseStatement.resolve(scope);
-	}
-
-	public String toString(int tab) {
-
-		String inFront, s = tabString(tab);
-		inFront = s;
-		s = s + "if (" + condition.toStringExpression() + ") \n";	//$NON-NLS-1$ //$NON-NLS-2$
-		s = s + thenStatement.toString(tab + 2) + ";"; //$NON-NLS-1$
-		if (elseStatement != null)
-			s = s + "\n" + inFront + "else\n" + elseStatement.toString(tab + 2) + ";"; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-		return s;
 	}
 
 	public void traverse(

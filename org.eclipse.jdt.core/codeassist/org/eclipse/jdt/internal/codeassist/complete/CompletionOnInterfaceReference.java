@@ -14,7 +14,7 @@ public class CompletionOnInterfaceReference extends CompletionOnSingleTypeRefere
 	public CompletionOnInterfaceReference(char[] source, long pos) {
 		super(source, pos);
 	}
-	public String toStringExpression(int tab) {
-		return "<CompleteOnInterface:" + new String(token) + ">"; //$NON-NLS-2$ //$NON-NLS-1$
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		return output.append("<CompleteOnInterface:").append(token).append('>');//$NON-NLS-1$
 	}
 }

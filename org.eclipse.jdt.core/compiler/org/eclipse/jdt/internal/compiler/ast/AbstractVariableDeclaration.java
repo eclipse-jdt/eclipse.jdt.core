@@ -48,7 +48,18 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return false;
 	}
 
-	public abstract String name();
+	
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output);
+		printModifiers(this.modifiers, output);
+		type.print(0, output).append(' ').append(this.name); 
+		if (initialization != null) {
+			output.append(" = "); //$NON-NLS-1$
+			initialization.printExpression(indent, output);
+		}
+		return output.append(';');
+	}
 
 	public void resolve(BlockScope scope) {}
 
@@ -71,17 +82,4 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 */
 	public void setFieldIndex(int depth) {
 	}
-		
-	public String toString(int tab) {
-
-		String s = tabString(tab);
-		if (modifiers != AccDefault) {
-			s += modifiersString(modifiers);
-		}
-		s += type.toString(0) + " " + new String(name()); //$NON-NLS-1$
-		if (initialization != null)
-			s += " = " + initialization.toStringExpression(tab); //$NON-NLS-1$
-		return s;
-	}
-
 }

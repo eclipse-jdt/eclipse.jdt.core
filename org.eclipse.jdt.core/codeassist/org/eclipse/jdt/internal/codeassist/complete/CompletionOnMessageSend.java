@@ -56,21 +56,17 @@ public class CompletionOnMessageSend extends MessageSend {
 		throw new CompletionNodeFound(this, this.receiverType, scope);
 	}
 
-	public String toStringExpression() {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		String s = "<CompleteOnMessageSend:"; //$NON-NLS-1$
-		if (!receiver.isImplicitThis())
-			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
-		s = s + new String(selector) + "("; //$NON-NLS-1$
+		output.append("<CompleteOnMessageSend:"); //$NON-NLS-1$
+		if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.'); //$NON-NLS-1$
+		output.append(selector).append('('); //$NON-NLS-1$
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
-				s += arguments[i].toStringExpression();
-				if (i != arguments.length - 1) {
-					s += ", "; //$NON-NLS-1$
-				}
-			};
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
 		}
-		s = s + ")>"; //$NON-NLS-1$
-		return s;
+		return output.append(")>"); //$NON-NLS-1$
 	}
 }

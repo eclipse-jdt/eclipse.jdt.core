@@ -134,13 +134,15 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	return tb;
 }
-public String toStringExpression(){
+public StringBuffer printExpression(int indent, StringBuffer output){
 
-	if (source == null)
+	if (source == null) {
 	/* special optimized IntLiteral that are created by the compiler */
-		return String.valueOf(value);
-		
-	return super.toStringExpression();}
+		return output.append(String.valueOf(value));
+	}
+	return super.printExpression(indent, output);
+}
+	
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	visitor.visit(this, scope);
 	visitor.endVisit(this, scope);

@@ -64,47 +64,47 @@ public class StringLiteral extends Literal {
 		return scope.getJavaLangString();
 	}
 
-	public char[] source() {
-
-		return source;
-	}
-
-	public String toStringExpression() {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 	
 		// handle some special char.....
-		StringBuffer result = new StringBuffer("\""); //$NON-NLS-1$
+		output.append('\"');
 		for (int i = 0; i < source.length; i++) {
 			switch (source[i]) {
 				case '\b' :
-					result.append("\\b"); //$NON-NLS-1$
+					output.append("\\b"); //$NON-NLS-1$
 					break;
 				case '\t' :
-					result.append("\\t"); //$NON-NLS-1$
+					output.append("\\t"); //$NON-NLS-1$
 					break;
 				case '\n' :
-					result.append("\\n"); //$NON-NLS-1$
+					output.append("\\n"); //$NON-NLS-1$
 					break;
 				case '\f' :
-					result.append("\\f"); //$NON-NLS-1$
+					output.append("\\f"); //$NON-NLS-1$
 					break;
 				case '\r' :
-					result.append("\\r"); //$NON-NLS-1$
+					output.append("\\r"); //$NON-NLS-1$
 					break;
 				case '\"' :
-					result.append("\\\""); //$NON-NLS-1$
+					output.append("\\\""); //$NON-NLS-1$
 					break;
 				case '\'' :
-					result.append("\\'"); //$NON-NLS-1$
+					output.append("\\'"); //$NON-NLS-1$
 					break;
 				case '\\' : //take care not to display the escape as a potential real char
-					result.append("\\\\"); //$NON-NLS-1$
+					output.append("\\\\"); //$NON-NLS-1$
 					break;
 				default :
-					result.append(source[i]);
+					output.append(source[i]);
 			}
 		}
-		result.append("\""); //$NON-NLS-1$
-		return result.toString();
+		output.append('\"'); 
+		return output;
+	}
+
+	public char[] source() {
+
+		return source;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

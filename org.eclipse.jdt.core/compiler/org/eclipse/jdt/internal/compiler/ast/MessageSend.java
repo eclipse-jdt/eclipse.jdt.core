@@ -171,6 +171,19 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}
 }
 
+public StringBuffer printExpression(int indent, StringBuffer output){
+	
+	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
+	output.append(selector).append('(') ; //$NON-NLS-1$
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length ; i ++) {	
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			arguments[i].printExpression(0, output);
+		}
+	}
+	return output.append(')');
+}
+
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
@@ -269,20 +282,6 @@ public void setDepth(int depth) {
 }
 public void setFieldIndex(int depth) {
 	// ignore for here
-}
-
-public String toStringExpression(){
-	
-	String s = ""; //$NON-NLS-1$
-	if (!receiver.isImplicitThis())
-		s = s + receiver.toStringExpression()+"."; //$NON-NLS-1$
-	s = s + new String(selector) + "(" ; //$NON-NLS-1$
-	if (arguments != null)
-		for (int i = 0; i < arguments.length ; i ++)
-		{	s = s + arguments[i].toStringExpression();
-			if ( i != arguments.length -1 ) s = s + " , " ;};; //$NON-NLS-1$
-	s =s + ")" ; //$NON-NLS-1$
-	return s;
 }
 
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {

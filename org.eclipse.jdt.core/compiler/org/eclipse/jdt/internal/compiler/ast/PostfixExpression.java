@@ -57,16 +57,16 @@ public class PostfixExpression extends CompoundAssignment {
 		return "unknown operator"; //$NON-NLS-1$
 	}
 	
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+
+		return lhs.printExpression(indent, output).append(' ').append(operatorToString()); 
+	} 
+
 	public boolean restrainUsageToNumericTypes() {
 
 		return true;
 	}
 	
-	public String toStringExpressionNoParenthesis() {
-
-		return lhs.toStringExpression() + " " + operatorToString(); //$NON-NLS-1$
-	} 
-
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {

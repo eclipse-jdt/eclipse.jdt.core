@@ -42,6 +42,11 @@ public class SelectionOnSuperReference extends SuperReference {
 public SelectionOnSuperReference(int pos, int sourceEnd) {
 	super(pos, sourceEnd);
 }
+public StringBuffer printExpression(int indent, StringBuffer output){
+
+	output.append("<SelectOnSuper:"); //$NON-NLS-1$
+	return super.printExpression(0, output).append('>');
+}
 public TypeBinding resolveType(BlockScope scope) {
 	TypeBinding binding = super.resolveType(scope);
 
@@ -49,10 +54,5 @@ public TypeBinding resolveType(BlockScope scope) {
 		throw new SelectionNodeFound();
 	else
 		throw new SelectionNodeFound(binding);
-}
-public String toStringExpression(){
-
-	return "<SelectOnSuper:"+super.toStringExpression()+">"; //$NON-NLS-2$ //$NON-NLS-1$
-	
 }
 }

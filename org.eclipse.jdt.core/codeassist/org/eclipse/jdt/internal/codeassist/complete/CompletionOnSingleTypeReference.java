@@ -49,18 +49,14 @@ public TypeBinding getTypeBinding(Scope scope) {
 		return super.getTypeBinding(scope);
 	}
 }
+public StringBuffer printExpression(int indent, StringBuffer output){
+	return output.append("<CompleteOnType:").append(token).append('>'); //$NON-NLS-1$
+}
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 	if(isCompletionNode) {
 		throw new CompletionNodeFound(this, enclosingType, scope);
 	} else {
 		return super.resolveTypeEnclosing(scope, enclosingType);
 	}
-}
-public String toStringExpression(int tab){
-
-	return "<CompleteOnType:" + new String(token) + ">" ; //$NON-NLS-2$ //$NON-NLS-1$
-}
-public String toStringExpression(){
-	return this.toStringExpression(0);
 }
 }

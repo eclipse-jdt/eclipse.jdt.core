@@ -26,6 +26,13 @@ public abstract class Statement extends AstNode {
 	
 	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 	
+	/**
+	 * INTERNAL USE ONLY.
+	 * Do nothing by default. This is used to redirect inter-statements jumps.
+	 */
+	public void branchChainTo(Label label) {
+	}
+	
 		// Report an error if necessary
 	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
 	
@@ -61,6 +68,14 @@ public abstract class Statement extends AstNode {
 		return true;
 	}
 	
+	public StringBuffer print(int indent, StringBuffer output) {
+		return printStatement(indent, output);
+	}
+	public abstract StringBuffer printStatement(int indent, StringBuffer output);
+
+	public void resetStateForCodeGeneration() {
+	}
+	
 	public abstract void resolve(BlockScope scope);
 	
 	public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
@@ -69,14 +84,5 @@ public abstract class Statement extends AstNode {
 		resolve(scope);
 		return null;
 	}
-	
-	public void resetStateForCodeGeneration() {
-	}
-	
-	/**
-	 * INTERNAL USE ONLY.
-	 * Do nothing by default. This is used to redirect inter-statements jumps.
-	 */
-	public void branchChainTo(Label label) {
-	}
+
 }

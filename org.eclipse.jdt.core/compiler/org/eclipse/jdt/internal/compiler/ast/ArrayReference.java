@@ -158,6 +158,12 @@ public class ArrayReference extends Reference {
 		codeStream.arrayAtPut(this.resolvedType.id, false);
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		receiver.printExpression(0, output).append('[');
+		return position.printExpression(0, output).append(']');
+	} 
+
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = Constant.NotAConstant;
@@ -175,12 +181,6 @@ public class ArrayReference extends Reference {
 		}
 		return this.resolvedType;
 	}
-
-	public String toStringExpression() {
-
-		return receiver.toStringExpression() + "[" //$NON-NLS-1$
-		+position.toStringExpression() + "]"; //$NON-NLS-1$
-	} 
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		

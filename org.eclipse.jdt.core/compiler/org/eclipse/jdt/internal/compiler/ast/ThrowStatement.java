@@ -52,6 +52,13 @@ public class ThrowStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output).append("throw "); //$NON-NLS-1$
+		exception.printExpression(0, output);
+		return output.append(';');
+	}
+
 	public void resolve(BlockScope scope) {
 		
 		exceptionType = exception.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
@@ -62,13 +69,6 @@ public class ThrowStatement extends Statement {
 			scope.problemReporter().cannotThrowNull(this);
 	 	}
 		exception.implicitWidening(exceptionType, exceptionType);
-	}
-
-	public String toString(int tab) {
-		String s = tabString(tab);
-		s = s + "throw "; //$NON-NLS-1$
-		s = s + exception.toStringExpression();
-		return s;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {

@@ -66,6 +66,23 @@ public class Argument extends LocalDeclaration {
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 	}
 
+	public StringBuffer print(int indent, StringBuffer output) {
+
+		printIndent(indent, output);
+		printModifiers(this.modifiers, output);
+		if (type == null) {
+			output.append("<no type> "); //$NON-NLS-1$
+		} else {
+			type.print(0, output).append(' '); 
+		}
+		return output.append(this.name);
+	}
+
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		return print(indent, output).append(';');
+	}	
+
 	public TypeBinding resolveForCatch(BlockScope scope) {
 
 		// resolution on an argument of a catch clause
@@ -90,21 +107,6 @@ public class Argument extends LocalDeclaration {
 		scope.addLocalVariable(binding);
 		binding.constant = NotAConstant;
 		return tb;
-	}
-
-	public String toString(int tab) {
-
-		String s = ""; //$NON-NLS-1$
-		if (modifiers != AccDefault) {
-			s += modifiersString(modifiers);
-		}
-		if (type == null) {
-			s += "<no type> "; //$NON-NLS-1$
-		} else {
-			s += type.toString(tab) + " "; //$NON-NLS-1$
-		}
-		s += new String(name);
-		return s;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

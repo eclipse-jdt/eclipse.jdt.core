@@ -35,16 +35,12 @@ public class SelectionOnPackageReference extends ImportReference {
 public SelectionOnPackageReference(char[][] tokens , long[] positions) {
 	super(tokens, positions, true, AccDefault);
 }
-public String toString(int tab, boolean withOnDemand) {
-	StringBuffer buffer = new StringBuffer(tabString(tab));
-	buffer.	append("<SelectOnPackage:"); //$NON-NLS-1$
+public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
+	printIndent(tab, output).append("<SelectOnPackage:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
-		buffer.append(tokens[i]);
-		if (i < (tokens.length - 1)) {
-			buffer.append("."); //$NON-NLS-1$
-		}
+		if (i > 0) output.append('.');
+		output.append(tokens[i]);
 	}
-	buffer.append(">"); //$NON-NLS-1$
-	return buffer.toString();
+	return output.append('>'); 
 }
 }

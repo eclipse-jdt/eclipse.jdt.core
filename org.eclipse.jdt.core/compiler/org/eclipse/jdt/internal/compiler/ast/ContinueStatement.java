@@ -83,13 +83,11 @@ public class ContinueStatement extends BranchStatement {
 		return FlowInfo.DEAD_END;
 	}
 
-	public String toString(int tab) {
+	public StringBuffer printStatement(int tab, StringBuffer output) {
 
-		String s = tabString(tab);
-		s += "continue "; //$NON-NLS-1$
-		if (label != null)
-			s += new String(label);
-		return s;
+		printIndent(tab, output).append("continue "); //$NON-NLS-1$
+		if (label != null) output.append(label);
+		return output.append(';');
 	}
 
 	public void traverse(

@@ -40,6 +40,18 @@ public class CaseStatement extends Statement {
 		return flowInfo;
 	}
 
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+
+		printIndent(tab, output);
+		if (constantExpression == null) {
+			output.append("default : "); //$NON-NLS-1$
+		} else {
+			output.append("case "); //$NON-NLS-1$
+			constantExpression.printExpression(0, output).append(" : "); //$NON-NLS-1$
+		}
+		return output.append(';');
+	}
+	
 	/**
 	 * Case code generation
 	 *
@@ -89,16 +101,6 @@ public class CaseStatement extends Statement {
 		return null;
 	}
 
-	public String toString(int tab) {
-
-		String s = tabString(tab);
-		if (constantExpression == null) {
-			s = s + "default : "; //$NON-NLS-1$
-		} else {
-		s = s + "case " + constantExpression.toStringExpression() + " : "; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return s;
-	}
 
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,

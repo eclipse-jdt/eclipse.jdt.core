@@ -56,7 +56,7 @@ public int sourceEnd(){
 	return this.localDeclaration.declarationSourceEnd;
 }
 public String toString(int tab) {
-	return tabString(tab) + "Recovered local variable:\n" + localDeclaration.toString(tab + 1); //$NON-NLS-1$
+	return tabString(tab) + "Recovered local variable:\n" + localDeclaration.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
 public Statement updatedStatement(){
 	return localDeclaration;

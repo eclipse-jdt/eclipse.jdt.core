@@ -33,39 +33,41 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall {
-public SelectionOnExplicitConstructorCall(int accessMode) {
-	super(accessMode);
-}
-public void resolve(BlockScope scope) {
-	super.resolve(scope);
 
-	// tolerate some error cases
-	if (binding == null || 
-			!(binding.isValidBinding() ||
-				binding.problemId() == ProblemReasons.NotVisible))
-		throw new SelectionNodeFound();
-	else
-		throw new SelectionNodeFound(binding);
-}
-public String toString(int tab) {
-	String s = tabString(tab);
-	s += "<SelectOnExplicitConstructorCall:"; //$NON-NLS-1$
-	if (qualification != null)
-		s = s + qualification.toStringExpression() + "."; //$NON-NLS-1$
-	if (accessMode == This) {
-		s = s + "this("; //$NON-NLS-1$
-	} else {
-		s = s + "super("; //$NON-NLS-1$
+	public SelectionOnExplicitConstructorCall(int accessMode) {
+
+		super(accessMode);
 	}
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-			s += arguments[i].toStringExpression();
-			if (i != arguments.length - 1) {
-				s += ", "; //$NON-NLS-1$
+
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+
+		printIndent(tab, output);
+		output.append("<SelectOnExplicitConstructorCall:"); //$NON-NLS-1$
+		if (qualification != null) qualification.printExpression(0, output).append('.');
+		if (accessMode == This) {
+			output.append("this("); //$NON-NLS-1$
+		} else {
+			output.append("super("); //$NON-NLS-1$
+		}
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
 			}
-		};
+		}
+		return output.append(")>;"); //$NON-NLS-1$
 	}
-	s += ")>"; //$NON-NLS-1$
-	return s;
-}
+
+	public void resolve(BlockScope scope) {
+
+		super.resolve(scope);
+	
+		// tolerate some error cases
+		if (binding == null || 
+				!(binding.isValidBinding() ||
+					binding.problemId() == ProblemReasons.NotVisible))
+			throw new SelectionNodeFound();
+		else
+			throw new SelectionNodeFound(binding);
+	}
 }

@@ -2102,7 +2102,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT, IGNORE);
 		optionNames.add(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT);
 
-		preferences.setDefault(COMPILER_PB_SUPERFLUOUS_SEMICOLON, IGNORE);
+		preferences.setDefault(COMPILER_PB_SUPERFLUOUS_SEMICOLON, WARNING);
 		optionNames.add(COMPILER_PB_SUPERFLUOUS_SEMICOLON);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 

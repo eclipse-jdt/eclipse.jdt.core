@@ -823,7 +823,7 @@ public final class CompletionEngine
 		}
 		prefix.append("{\n"); //$NON-NLS-1$
 		for (int i = 0; i < localVariableTypeNames.length; i++) {
-			prefix.append(AstNode.modifiersString(localVariableModifiers[i]));
+			AstNode.printModifiers(localVariableModifiers[i], prefix);
 			prefix.append(' ');
 			prefix.append(localVariableTypeNames[i]);
 			prefix.append(' ');
@@ -2259,7 +2259,7 @@ public final class CompletionEngine
 
 			if (!exactMatch) {
 				if(insertedModifiers != CompilerModifiers.AccDefault){
-					completion.append(AstNode.modifiersString(insertedModifiers));
+					AstNode.printModifiers(insertedModifiers, completion);
 				}
 				char[] returnPackageName = method.returnType.qualifiedPackageName();
 				char[] returnTypeName = method.returnType.qualifiedSourceName();

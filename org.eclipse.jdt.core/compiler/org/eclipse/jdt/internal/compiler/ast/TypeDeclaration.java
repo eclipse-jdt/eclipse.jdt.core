@@ -105,6 +105,73 @@ public class TypeDeclaration
 	}
 
 	/**
+	 * INTERNAL USE ONLY - Creates a fake method declaration for the corresponding binding.
+	 * It is used to report errors for missing abstract methods.
+	 */
+	public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding) {
+		TypeBinding[] argumentTypes = methodBinding.parameters;
+		int argumentsLength = argumentTypes.length;
+		//the constructor
+		MethodDeclaration methodDeclaration = new MethodDeclaration(this.compilationResult);
+		methodDeclaration.selector = methodBinding.selector;
+		methodDeclaration.sourceStart = sourceStart;
+		methodDeclaration.sourceEnd = sourceEnd;
+		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~AccAbstract;
+
+		if (argumentsLength > 0) {
+			String baseName = "arg";//$NON-NLS-1$
+			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
+			for (int i = argumentsLength; --i >= 0;) {
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+			}
+		}
+
+		//adding the constructor in the methods list
+		if (this.missingAbstractMethods == null) {
+			this.missingAbstractMethods = new MethodDeclaration[] { methodDeclaration };
+		} else {
+			MethodDeclaration[] newMethods;
+			System.arraycopy(
+				this.missingAbstractMethods,
+				0,
+				newMethods = new MethodDeclaration[this.missingAbstractMethods.length + 1],
+				1,
+				this.missingAbstractMethods.length);
+			newMethods[0] = methodDeclaration;
+			this.missingAbstractMethods = newMethods;
+		}
+
+		//============BINDING UPDATE==========================
+		methodDeclaration.binding = new MethodBinding(
+				methodDeclaration.modifiers, //methodDeclaration
+				methodBinding.selector,
+				methodBinding.returnType,
+				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
+				methodBinding.thrownExceptions, //exceptions
+				binding); //declaringClass
+				
+		methodDeclaration.scope = new MethodScope(scope, methodDeclaration, true);
+		methodDeclaration.bindArguments();
+
+/*		if (binding.methods == null) {
+			binding.methods = new MethodBinding[] { methodDeclaration.binding };
+		} else {
+			MethodBinding[] newMethods;
+			System.arraycopy(
+				binding.methods,
+				0,
+				newMethods = new MethodBinding[binding.methods.length + 1],
+				1,
+				binding.methods.length);
+			newMethods[0] = methodDeclaration.binding;
+			binding.methods = newMethods;
+		}*/
+		//===================================================
+
+		return methodDeclaration;
+	}
+
+	/**
 	 *	Flow analysis for a local innertype
 	 *
 	 */
@@ -290,73 +357,6 @@ public class TypeDeclaration
 			}
 		}
 		return constructor;
-	}
-
-	/**
-	 * INTERNAL USE ONLY - Creates a fake method declaration for the corresponding binding.
-	 * It is used to report errors for missing abstract methods.
-	 */
-	public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding) {
-		TypeBinding[] argumentTypes = methodBinding.parameters;
-		int argumentsLength = argumentTypes.length;
-		//the constructor
-		MethodDeclaration methodDeclaration = new MethodDeclaration(this.compilationResult);
-		methodDeclaration.selector = methodBinding.selector;
-		methodDeclaration.sourceStart = sourceStart;
-		methodDeclaration.sourceEnd = sourceEnd;
-		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~AccAbstract;
-
-		if (argumentsLength > 0) {
-			String baseName = "arg";//$NON-NLS-1$
-			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
-			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
-			}
-		}
-
-		//adding the constructor in the methods list
-		if (this.missingAbstractMethods == null) {
-			this.missingAbstractMethods = new MethodDeclaration[] { methodDeclaration };
-		} else {
-			MethodDeclaration[] newMethods;
-			System.arraycopy(
-				this.missingAbstractMethods,
-				0,
-				newMethods = new MethodDeclaration[this.missingAbstractMethods.length + 1],
-				1,
-				this.missingAbstractMethods.length);
-			newMethods[0] = methodDeclaration;
-			this.missingAbstractMethods = newMethods;
-		}
-
-		//============BINDING UPDATE==========================
-		methodDeclaration.binding = new MethodBinding(
-				methodDeclaration.modifiers, //methodDeclaration
-				methodBinding.selector,
-				methodBinding.returnType,
-				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
-				methodBinding.thrownExceptions, //exceptions
-				binding); //declaringClass
-				
-		methodDeclaration.scope = new MethodScope(scope, methodDeclaration, true);
-		methodDeclaration.bindArguments();
-
-/*		if (binding.methods == null) {
-			binding.methods = new MethodBinding[] { methodDeclaration.binding };
-		} else {
-			MethodBinding[] newMethods;
-			System.arraycopy(
-				binding.methods,
-				0,
-				newMethods = new MethodBinding[binding.methods.length + 1],
-				1,
-				binding.methods.length);
-			newMethods[0] = methodDeclaration.binding;
-			binding.methods = newMethods;
-		}*/
-		//===================================================
-
-		return methodDeclaration;
 	}
 	
 	/*
@@ -730,6 +730,67 @@ public class TypeDeclaration
 		}
 	}
 
+	public StringBuffer print(int tab, StringBuffer output) {
+
+		printIndent(tab, output);
+		printHeader(0, output);
+		return printBody(tab, output);
+	}
+
+	public StringBuffer printBody(int indent, StringBuffer output) {
+
+		output.append(" {"); //$NON-NLS-1$
+		if (memberTypes != null) {
+			for (int i = 0; i < memberTypes.length; i++) {
+				if (memberTypes[i] != null) {
+					output.append('\n');
+					memberTypes[i].print(indent + 1, output);
+				}
+			}
+		}
+		if (fields != null) {
+			for (int fieldI = 0; fieldI < fields.length; fieldI++) {
+				if (fields[fieldI] != null) {
+					output.append('\n');
+					fields[fieldI].print(indent + 1, output);
+				}
+			}
+		}
+		if (methods != null) {
+			for (int i = 0; i < methods.length; i++) {
+				if (methods[i] != null) {
+					output.append('\n');
+					methods[i].print(indent + 1, output); 
+				}
+			}
+		}
+		output.append('\n');
+		return printIndent(indent, output).append('}');
+	}
+
+	public StringBuffer printHeader(int indent, StringBuffer output) {
+
+		printModifiers(this.modifiers, output);
+		output.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
+		output.append(name);
+		if (superclass != null) {
+			output.append(" extends ");  //$NON-NLS-1$
+			superclass.print(0, output);
+		}
+		if (superInterfaces != null && superInterfaces.length > 0) {
+			output.append(isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
+			for (int i = 0; i < superInterfaces.length; i++) {
+				if (i > 0) output.append( ", "); //$NON-NLS-1$
+				superInterfaces[i].print(0, output);
+			}
+		}
+		return output;
+	}
+
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+		return print(tab, output);
+	}
+
 	public void resolve() {
 
 		if (binding == null) {
@@ -831,60 +892,6 @@ public class TypeDeclaration
 		ignoreFurtherInvestigation = true;
 	}
 
-	public String toString(int tab) {
-
-		return tabString(tab) + toStringHeader() + toStringBody(tab);
-	}
-
-	public String toStringBody(int tab) {
-
-		String s = " {"; //$NON-NLS-1$
-		if (memberTypes != null) {
-			for (int i = 0; i < memberTypes.length; i++) {
-				if (memberTypes[i] != null) {
-					s += "\n" + memberTypes[i].toString(tab + 1); //$NON-NLS-1$
-				}
-			}
-		}
-		if (fields != null) {
-			for (int fieldI = 0; fieldI < fields.length; fieldI++) {
-				if (fields[fieldI] != null) {
-					s += "\n" + fields[fieldI].toString(tab + 1); //$NON-NLS-1$
-					if (fields[fieldI].isField())
-						s += ";"; //$NON-NLS-1$
-				}
-			}
-		}
-		if (methods != null) {
-			for (int i = 0; i < methods.length; i++) {
-				if (methods[i] != null) {
-					s += "\n" + methods[i].toString(tab + 1); //$NON-NLS-1$
-				}
-			}
-		}
-		s += "\n" + tabString(tab) + "}"; //$NON-NLS-2$ //$NON-NLS-1$
-		return s;
-	}
-
-	public String toStringHeader() {
-
-		String s = ""; //$NON-NLS-1$
-		if (modifiers != AccDefault) {
-			s += modifiersString(modifiers);
-		}
-		s += (isInterface() ? "interface " : "class ") + new String(name);//$NON-NLS-1$ //$NON-NLS-2$
-		if (superclass != null)
-			s += " extends " + superclass.toString(0); //$NON-NLS-1$
-		if (superInterfaces != null && superInterfaces.length > 0) {
-			s += (isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
-			for (int i = 0; i < superInterfaces.length; i++) {
-				s += superInterfaces[i].toString(0);
-				if (i != superInterfaces.length - 1)
-					s += ", "; //$NON-NLS-1$
-			};
-		};
-		return s;
-	}
 
 	/**
 	 *	Iteration for a package member type

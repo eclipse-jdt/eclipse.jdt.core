@@ -261,6 +261,39 @@ public class ForStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+
+		printIndent(tab, output).append("for ("); //$NON-NLS-1$
+		//inits
+		if (initializations != null) {
+			for (int i = 0; i < initializations.length; i++) {
+				//nice only with expressions
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				initializations[i].print(0, output);
+			}
+		}
+		output.append("; "); //$NON-NLS-1$
+		//cond
+		if (condition != null) condition.printExpression(0, output);
+		output.append("; "); //$NON-NLS-1$
+		//updates
+		if (increments != null) {
+			for (int i = 0; i < increments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				increments[i].print(0, output);
+			}
+		}; 
+		output.append(") "); //$NON-NLS-1$
+		//block
+		if (action == null)
+			output.append(';');
+		else {
+			output.append('\n');
+			action.printStatement(tab + 1, output); //$NON-NLS-1$
+		}
+		return output.append(';');
+	}
+
 	public void resetStateForCodeGeneration() {
 		if (this.breakLabel != null) {
 			this.breakLabel.resetStateForCodeGeneration();
@@ -286,43 +319,6 @@ public class ForStatement extends Statement {
 				increments[i].resolve(scope);
 		if (action != null)
 			action.resolve(scope);
-	}
-
-	public String toString(int tab) {
-
-		String s = tabString(tab) + "for ("; //$NON-NLS-1$
-		if (!neededScope)
-			s = s + " //--NO upperscope scope needed\n" + tabString(tab) + "     ";	//$NON-NLS-2$ //$NON-NLS-1$
-		//inits
-		if (initializations != null) {
-			for (int i = 0; i < initializations.length; i++) {
-				//nice only with expressions
-				s = s + initializations[i].toString(0);
-				if (i != (initializations.length - 1))
-					s = s + " , "; //$NON-NLS-1$
-			}
-		}; 
-		s = s + "; "; //$NON-NLS-1$
-		//cond
-		if (condition != null)
-			s = s + condition.toStringExpression();
-		s = s + "; "; //$NON-NLS-1$
-		//updates
-		if (increments != null) {
-			for (int i = 0; i < increments.length; i++) {
-				//nice only with expressions
-				s = s + increments[i].toString(0);
-				if (i != (increments.length - 1))
-					s = s + " , "; //$NON-NLS-1$
-			}
-		}; 
-		s = s + ") "; //$NON-NLS-1$
-		//block
-		if (action == null)
-			s = s + "{}"; //$NON-NLS-1$
-		else
-			s = s + "\n" + action.toString(tab + 1); //$NON-NLS-1$
-		return s;
 	}
 	
 	public void traverse(

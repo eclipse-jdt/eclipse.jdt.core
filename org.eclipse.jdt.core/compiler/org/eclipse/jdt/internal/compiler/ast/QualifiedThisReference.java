@@ -99,9 +99,9 @@ public class QualifiedThisReference extends ThisReference {
 		return this.resolvedType;
 	}
 
-	public String toStringExpression() {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		return qualification.toString(0) + ".this"; //$NON-NLS-1$
+		return qualification.print(0, output).append(".this"); //$NON-NLS-1$
 	}
 
 	public void traverse(

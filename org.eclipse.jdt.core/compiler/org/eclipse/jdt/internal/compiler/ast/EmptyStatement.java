@@ -42,19 +42,21 @@ public class EmptyStatement extends Statement {
 		// no bytecode, no need to check for reachability or recording source positions
 	}
 	
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+		return printIndent(tab, output).append(';');
+	}
+		
 	public void resolve(BlockScope scope) {
 		if ((bits & IsUsefulEmptyStatementMASK) == 0) {
 			scope.problemReporter().superfluousSemicolon(this.sourceStart, this.sourceEnd);
 		}
 	}
-	
+
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
 	
-	public String toString(int tab) {
-		return tabString(tab) + ";"; //$NON-NLS-1$ 
-	}
+
 }
 

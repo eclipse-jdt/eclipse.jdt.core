@@ -455,30 +455,15 @@ public abstract class Expression extends Statement {
 		return expressionType;
 	}
 
-	public String toString(int tab) {
-
-		//Subclass re-define toStringExpression
-		String s = tabString(tab);
-		if (constant != null)
-			//before TC has runned
-			if (constant != NotAConstant)
-				//after the TC has runned
-				s += " /*cst:" + constant.toString() + "*/ "; //$NON-NLS-1$ //$NON-NLS-2$
-		return s + toStringExpression(tab);
+	public StringBuffer print(int indent, StringBuffer output) {
+		printIndent(indent, output);
+		return printExpression(indent, output);
 	}
 
-	//Subclass re-define toStringExpression
-	//This method is abstract and should never be called
-	//but we provide some code that is running.....just in case
-	//of developpement time (while every  thing is not built)
-	public String toStringExpression() {
-
-		return super.toString(0);
-	}
-
-	public String toStringExpression(int tab) {
-		// default is regular toString expression (qualified allocation expressions redifine this method)
-		return this.toStringExpression();
+	public abstract StringBuffer printExpression(int indent, StringBuffer output);
+	
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		return print(indent, output).append(";"); //$NON-NLS-1$
 	}
 
 	public Expression toTypeReference() {

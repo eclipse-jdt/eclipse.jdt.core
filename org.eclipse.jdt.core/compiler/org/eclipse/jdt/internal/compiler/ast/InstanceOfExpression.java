@@ -215,6 +215,12 @@ public class InstanceOfExpression extends OperatorExpression {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+
+		expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
+		return type.print(0, output);
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
@@ -229,12 +235,6 @@ public class InstanceOfExpression extends OperatorExpression {
 		}
 		this.resolvedType = BooleanBinding;
 		return BooleanBinding;
-	}
-
-	public String toStringExpressionNoParenthesis() {
-
-		return expression.toStringExpression() + " instanceof " + //$NON-NLS-1$
-		type.toString(0);
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

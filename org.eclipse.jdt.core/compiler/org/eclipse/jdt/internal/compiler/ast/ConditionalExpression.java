@@ -274,6 +274,13 @@ public class ConditionalExpression extends OperatorExpression {
 		return this.optimizedBooleanConstant == null ? this.constant : this.optimizedBooleanConstant;
 	}
 	
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+		
+		condition.printExpression(indent, output).append(" ? "); //$NON-NLS-1$
+		valueIfTrue.printExpression(0, output).append(" : "); //$NON-NLS-1$
+		return valueIfFalse.printExpression(0, output);
+	}
+
 	public TypeBinding resolveType(BlockScope scope) {
 		// specs p.368
 		constant = NotAConstant;
@@ -404,12 +411,6 @@ public class ConditionalExpression extends OperatorExpression {
 		return null;
 	}
 	
-	public String toStringExpressionNoParenthesis() {
-		return condition.toStringExpression() + " ? " + //$NON-NLS-1$
-		valueIfTrue.toStringExpression() + " : " + //$NON-NLS-1$
-		valueIfFalse.toStringExpression();
-	}
-
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			condition.traverse(visitor, scope);

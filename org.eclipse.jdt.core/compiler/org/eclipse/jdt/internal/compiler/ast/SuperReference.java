@@ -17,42 +17,52 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SuperReference extends ThisReference {
 	
-public SuperReference(int sourceStart, int sourceEnd) {
-	super(sourceStart, sourceEnd);
-}
-public static ExplicitConstructorCall implicitSuperConstructorCall() {
-	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
-}
-public boolean isImplicitThis() {
-	
-	return false;
-}
-public boolean isSuper() {
-	
-	return true;
-}
-public boolean isThis() {
-	
-	return false ;
-}
-public TypeBinding resolveType(BlockScope scope) {
-	constant = NotAConstant;
-	if (!checkAccess(scope.methodScope()))
-		return null;
-	SourceTypeBinding enclosingTb = scope.enclosingSourceType();
-	if (scope.isJavaLangObject(enclosingTb)) {
-		scope.problemReporter().cannotUseSuperInJavaLangObject(this);
-		return null;
-	}
-	return this.resolvedType = enclosingTb.superclass;
-}
-public String toStringExpression(){
+	public SuperReference(int sourceStart, int sourceEnd) {
 
-	return "super"; //$NON-NLS-1$
+		super(sourceStart, sourceEnd);
+	}
+
+	public static ExplicitConstructorCall implicitSuperConstructorCall() {
+
+		return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+	}
+
+	public boolean isImplicitThis() {
+		
+		return false;
+	}
+
+	public boolean isSuper() {
+		
+		return true;
+	}
+
+	public boolean isThis() {
+		
+		return false ;
+	}
+
+	public StringBuffer printExpression(int indent, StringBuffer output){
 	
-}
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
-	visitor.visit(this, blockScope);
-	visitor.endVisit(this, blockScope);
-}
+		return output.append("super"); //$NON-NLS-1$
+		
+	}
+
+	public TypeBinding resolveType(BlockScope scope) {
+
+		constant = NotAConstant;
+		if (!checkAccess(scope.methodScope()))
+			return null;
+		SourceTypeBinding enclosingTb = scope.enclosingSourceType();
+		if (scope.isJavaLangObject(enclosingTb)) {
+			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
+			return null;
+		}
+		return this.resolvedType = enclosingTb.superclass;
+	}
+
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+		visitor.visit(this, blockScope);
+		visitor.endVisit(this, blockScope);
+	}
 }

@@ -230,17 +230,15 @@ public class WhileStatement extends Statement {
 			action.resolve(scope);
 	}
 
-	public String toString(int tab) {
+	public StringBuffer printStatement(int tab, StringBuffer output) {
 
-		String s = tabString(tab);
-		s = s + "while (" + condition.toStringExpression() + ")"; 	//$NON-NLS-1$ //$NON-NLS-2$
+		printIndent(tab, output).append("while ("); //$NON-NLS-1$
+		condition.printExpression(0, output).append(')');
 		if (action == null)
-			s = s + " {} ;"; //$NON-NLS-1$ 
-		else if (action instanceof Block)
-			s = s + "\n" + action.toString(tab + 1); //$NON-NLS-1$
+			output.append(';');
 		else
-			s = s + " {\n" + action.toString(tab + 1) + "}"; //$NON-NLS-2$ //$NON-NLS-1$
-		return s;
+			action.printStatement(tab + 1, output); 
+		return output;
 	}
 
 	public void traverse(

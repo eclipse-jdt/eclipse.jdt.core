@@ -52,16 +52,13 @@ public TypeBinding getTypeBinding(Scope scope) {
 
 	throw new SelectionNodeFound(binding);
 }
-public String toStringExpression(int tab) {
+public StringBuffer printExpression(int indent, StringBuffer output) {
 
-	StringBuffer buffer = new StringBuffer();
-	buffer.append("<SelectOnType:"); //$NON-NLS-1$
+	output.append("<SelectOnType:"); //$NON-NLS-1$
 	for (int i = 0, length = tokens.length; i < length; i++) {
-		buffer.append(tokens[i]);
-		if (i != length - 1)
-			buffer.append("."); //$NON-NLS-1$
+		if (i > 0) output.append('.');
+		output.append(tokens[i]);
 	}
-	buffer.append(">"); //$NON-NLS-1$
-	return buffer.toString();
+	return output.append('>'); 
 }
 }

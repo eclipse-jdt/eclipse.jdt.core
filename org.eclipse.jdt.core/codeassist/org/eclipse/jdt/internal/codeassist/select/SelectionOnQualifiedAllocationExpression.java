@@ -39,39 +39,44 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  
 public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
-public SelectionOnQualifiedAllocationExpression() {
-}
-public SelectionOnQualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymous) {
-	anonymousType = anonymous ;
-}
-public TypeBinding resolveType(BlockScope scope) {
-	super.resolveType(scope);
 
-	// tolerate some error cases
-	if (binding == null || 
-			!(binding.isValidBinding() || 
-				binding.problemId() == ProblemReasons.NotVisible))
-		throw new SelectionNodeFound();
-	if (anonymousType == null)
-		throw new SelectionNodeFound(binding);
-
-	// if selecting a type for an anonymous type creation, we have to
-	// find its target super constructor (if extending a class) or its target 
-	// super interface (if extending an interface)
-	if (anonymousType.binding.superInterfaces == NoSuperInterfaces) {
-		// find the constructor binding inside the super constructor call
-		ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding);
-		throw new SelectionNodeFound(constructor.constructorCall.binding);
-	} else {
-		// open on the only superinterface
-		throw new SelectionNodeFound(anonymousType.binding.superInterfaces[0]);
+	public SelectionOnQualifiedAllocationExpression() {
 	}
-}
-public String toStringExpression(int tab) {
-	return 
-		((this.enclosingInstance == null) ? 
-			"<SelectOnAllocationExpression:" :  //$NON-NLS-1$
-			"<SelectOnQualifiedAllocationExpression:") +  //$NON-NLS-1$
-		super.toStringExpression(tab) + ">"; //$NON-NLS-1$
-}
+	
+	public SelectionOnQualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymous) {
+		anonymousType = anonymous ;
+	}
+	
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		if (this.enclosingInstance == null)
+			output.append("<SelectOnAllocationExpression:");  //$NON-NLS-1$
+		else 
+			output.append("<SelectOnQualifiedAllocationExpression:"); //$NON-NLS-1$
+
+		return super.printExpression(indent, output).append('>'); 
+	}
+	
+	public TypeBinding resolveType(BlockScope scope) {
+		super.resolveType(scope);
+	
+		// tolerate some error cases
+		if (binding == null || 
+				!(binding.isValidBinding() || 
+					binding.problemId() == ProblemReasons.NotVisible))
+			throw new SelectionNodeFound();
+		if (anonymousType == null)
+			throw new SelectionNodeFound(binding);
+	
+		// if selecting a type for an anonymous type creation, we have to
+		// find its target super constructor (if extending a class) or its target 
+		// super interface (if extending an interface)
+		if (anonymousType.binding.superInterfaces == NoSuperInterfaces) {
+			// find the constructor binding inside the super constructor call
+			ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding);
+			throw new SelectionNodeFound(constructor.constructorCall.binding);
+		} else {
+			// open on the only superinterface
+			throw new SelectionNodeFound(anonymousType.binding.superInterfaces[0]);
+		}
+	}
 }

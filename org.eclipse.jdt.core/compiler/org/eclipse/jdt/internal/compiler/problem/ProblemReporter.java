@@ -171,8 +171,8 @@ public void argumentTypeProblem(SourceTypeBinding type, AbstractMethodDeclaratio
 	}
 	this.handle(
 		id,
-		new String[] {new String(methodDecl.selector), arg.name(), new String(expectedType.readableName())},
-		new String[] {new String(methodDecl.selector), arg.name(), new String(expectedType.shortReadableName())},
+		new String[] {new String(methodDecl.selector), new String(arg.name), new String(expectedType.readableName())},
+		new String[] {new String(methodDecl.selector), new String(arg.name), new String(expectedType.shortReadableName())},
 		arg.type.sourceStart,
 		arg.type.sourceEnd);
 }
@@ -771,8 +771,8 @@ public void duplicateDefaultCase(AstNode statement) {
 public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldDecl) {
 	this.handle(
 		IProblem.DuplicateField,
-		new String[] {new String(type.sourceName()), fieldDecl.name()},
-		new String[] {new String(type.shortReadableName()), fieldDecl.name()},
+		new String[] {new String(type.sourceName()), new String(fieldDecl.name)},
+		new String[] {new String(type.shortReadableName()), new String(fieldDecl.name)},
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
@@ -817,11 +817,11 @@ public void duplicateModifierForField(ReferenceBinding type, FieldDeclaration fi
 	this.handle(
 		new Problem(
 			DuplicateModifierForField,
-			new String[] {fieldDecl.name()},
+			new String[] {new String(fieldDecl.name)},
 			fieldDecl.modifiers.sourceStart,
 			fieldDecl.modifiers.sourceEnd));
 */
-	String[] arguments = new String[] {fieldDecl.name()};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
 		IProblem.DuplicateModifierForField,
 		arguments,
@@ -847,7 +847,7 @@ public void duplicateModifierForType(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void duplicateModifierForVariable(LocalDeclaration localDecl, boolean complainForArgument) {
-	String[] arguments = new String[] {localDecl.name()};
+	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
 		complainForArgument
 			? IProblem.DuplicateModifierForArgument 
@@ -1010,8 +1010,8 @@ public void fieldTypeProblem(SourceTypeBinding type, FieldDeclaration fieldDecl,
 	}
 	this.handle(
 		id,
-		new String[] {fieldDecl.name(), new String(type.sourceName()), new String(expectedType.readableName())},
-		new String[] {fieldDecl.name(), new String(type.sourceName()), new String(expectedType.shortReadableName())},
+		new String[] {new String(fieldDecl.name), new String(type.sourceName()), new String(expectedType.readableName())},
+		new String[] {new String(fieldDecl.name), new String(type.sourceName()), new String(expectedType.shortReadableName())},
 		fieldDecl.type.sourceStart,
 		fieldDecl.type.sourceEnd);
 }
@@ -1169,7 +1169,7 @@ public void illegalModifierCombinationFinalAbstractForClass(SourceTypeBinding ty
 		type.sourceEnd());
 }
 public void illegalModifierCombinationFinalVolatileForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {fieldDecl.name()};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 
 	this.handle(
 		IProblem.IllegalModifierCombinationFinalVolatileForField,
@@ -1189,7 +1189,7 @@ public void illegalModifierForClass(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalModifierForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {fieldDecl.name()};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
 		IProblem.IllegalModifierForField,
 		arguments,
@@ -1207,7 +1207,7 @@ public void illegalModifierForInterface(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalModifierForInterfaceField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {fieldDecl.name()};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
 		IProblem.IllegalModifierForInterfaceField,
 		arguments,
@@ -1261,7 +1261,7 @@ public void illegalModifierForMethod(ReferenceBinding type, AbstractMethodDeclar
 		methodDecl.sourceEnd);
 }
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
-	String[] arguments = new String[] {localDecl.name()};
+	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
 		complainAsArgument
 			? IProblem.IllegalModifierForArgument
@@ -1289,7 +1289,7 @@ public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {new String(fieldDecl.name())};
+	String[] arguments = new String[] {new String(new String(fieldDecl.name))};
 	this.handle(
 		IProblem.IllegalVisibilityModifierCombinationForField,
 		arguments,
@@ -2922,7 +2922,7 @@ public void undefinedLabel(BranchStatement statement) {
 		statement.sourceEnd);
 }
 public void unexpectedStaticModifierForField(SourceTypeBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {fieldDecl.name()};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
 		IProblem.UnexpectedStaticModifierForField,
 		arguments,
@@ -3048,7 +3048,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 
-	String[] arguments = new String[] {localDecl.name()};
+	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
 		IProblem.ArgumentIsNeverUsed,
 		arguments,
@@ -3066,7 +3066,7 @@ public void unusedImport(ImportReference importRef) {
 		importRef.sourceEnd); 
 }
 public void unusedLocalVariable(LocalDeclaration localDecl) {
-	String[] arguments = new String[] {localDecl.name()};
+	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
 		IProblem.LocalVariableIsNeverUsed,
 		arguments,
@@ -3197,6 +3197,7 @@ public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
+
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(

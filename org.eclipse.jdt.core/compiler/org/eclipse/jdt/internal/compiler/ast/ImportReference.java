@@ -46,30 +46,25 @@ public class ImportReference extends AstNode {
 		return tokens;
 	}
 
-	public String toString(int tab) {
+	public StringBuffer print(int indent, StringBuffer output) {
 
-		return toString(tab, true);
+		return print(indent, output, true);
 	}
 
-	public String toString(int tab, boolean withOnDemand) {
+	public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
 
 		/* when withOnDemand is false, only the name is printed */
-		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < tokens.length; i++) {
-			buffer.append(tokens[i]);
-			if (i < (tokens.length - 1)) {
-				buffer.append("."); //$NON-NLS-1$
-			}
+			if (i > 0) output.append('.');
+			output.append(tokens[i]);
 		}
 		if (withOnDemand && onDemand) {
-			buffer.append(".*"); //$NON-NLS-1$
+			output.append(".*"); //$NON-NLS-1$
 		}
-		return buffer.toString();
+		return output;
 	}
 
-	public void traverse(
-			IAbstractSyntaxTreeVisitor visitor,
-			CompilationUnitScope scope) {
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope scope) {
 
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);

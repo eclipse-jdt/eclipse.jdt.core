@@ -37,10 +37,14 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * which should be replaced by the completion.
  */
 public class CompletionOnExceptionReference extends CompletionOnSingleTypeReference {
-public CompletionOnExceptionReference(char[] source, long pos) {
-	super(source, pos);
-}
-public String toStringExpression(int tab) {
-	return "<CompleteOnException:" + new String(token) + ">"; //$NON-NLS-2$ //$NON-NLS-1$
-}
+
+	public CompletionOnExceptionReference(char[] source, long pos) {
+
+		super(source, pos);
+	}
+
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		
+		return output.append("<CompleteOnException:").append(token).append('>'); //$NON-NLS-1$
+	}
 }

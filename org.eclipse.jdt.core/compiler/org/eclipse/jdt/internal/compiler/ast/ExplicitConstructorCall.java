@@ -202,6 +202,24 @@ public class ExplicitConstructorCall
 		}
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output);
+		if (qualification != null) qualification.printExpression(0, output).append('.');
+		if (accessMode == This) {
+			output.append("this("); //$NON-NLS-1$
+		} else {
+			output.append("super("); //$NON-NLS-1$
+		}
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
+		}
+		return output.append(");"); //$NON-NLS-1$
+	}
+	
 	public void resolve(BlockScope scope) {
 		// the return type should be void for a constructor.
 		// the test is made into getConstructor
@@ -292,26 +310,6 @@ public class ExplicitConstructorCall
 
 	public void setFieldIndex(int depth) {
 		// ignore for here
-	}
-
-	public String toString(int tab) {
-
-		String s = tabString(tab);
-		if (qualification != null)
-			s = s + qualification.toStringExpression() + "."; //$NON-NLS-1$
-		if (accessMode == This) {
-			s = s + "this("; //$NON-NLS-1$
-		} else {
-			s = s + "super("; //$NON-NLS-1$
-		}
-		if (arguments != null)
-			for (int i = 0; i < arguments.length; i++) {
-				s = s + arguments[i].toStringExpression();
-				if (i != arguments.length - 1)
-					s = s + ", "; //$NON-NLS-1$
-			}
-		s = s + ")"; //$NON-NLS-1$
-		return s;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -133,11 +133,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		return (modifiers & AccStatic) != 0;
 	}
 
-	public String name() {
-
-		return String.valueOf(name);
-	}
-
 	public void resolve(MethodScope initializationScope) {
 
 		// the two <constant = Constant.NotAConstant> could be regrouped into

@@ -1554,11 +1554,11 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		return "unknown operator"; //$NON-NLS-1$
 	}
 
-	public String toStringExpression(){
+	public StringBuffer printExpression(int indent, StringBuffer output){
 
-		//subclass redefine toStringExpressionNoParenthesis()
-		return	"(" + toStringExpressionNoParenthesis() + ")";  //$NON-NLS-2$ //$NON-NLS-1$
+		output.append('(');
+		return printExpressionNoParenthesis(0, output).append(')');
 	}
 	
-	public abstract String toStringExpressionNoParenthesis();
+	public abstract StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output);
 }

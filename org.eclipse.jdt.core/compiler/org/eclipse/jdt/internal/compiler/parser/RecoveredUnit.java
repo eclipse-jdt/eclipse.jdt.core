@@ -133,7 +133,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered unit: [\n"); //$NON-NLS-1$
-	result.append(unitDeclaration.toString(tab + 1));
+	result.append(unitDeclaration.print(tab + 1, result));
 	result.append(tabString(tab + 1));
 	result.append("]"); //$NON-NLS-1$
 	if (this.imports != null) {

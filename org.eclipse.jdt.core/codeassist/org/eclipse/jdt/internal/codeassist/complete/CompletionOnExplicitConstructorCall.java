@@ -36,47 +36,48 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall {
-public CompletionOnExplicitConstructorCall(int accessMode) {
-	super(accessMode);
-}
-public void resolve(BlockScope scope) {
-	ReferenceBinding receiverType = scope.enclosingSourceType();
+
+	public CompletionOnExplicitConstructorCall(int accessMode) {
+		super(accessMode);
+	}
 	
-	if (arguments != null) {
-		int argsLength = arguments.length;
-		for (int a = argsLength; --a >= 0;)
-			arguments[a].resolveType(scope);
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+		
+		printIndent(tab, output);
+		output.append("<CompleteOnExplicitConstructorCall:"); //$NON-NLS-1$
+		if (qualification != null) qualification.printExpression(0, output).append('.');
+		if (accessMode == This) {
+			output.append("this("); //$NON-NLS-1$
+		} else {
+			output.append("super("); //$NON-NLS-1$
+		}
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
+		}
+		return output.append(")>;"); //$NON-NLS-1$
 	}
 
-	if (accessMode != This && receiverType != null) {
-		if (receiverType.isHierarchyInconsistent())
+	public void resolve(BlockScope scope) {
+
+		ReferenceBinding receiverType = scope.enclosingSourceType();
+		
+		if (arguments != null) {
+			int argsLength = arguments.length;
+			for (int a = argsLength; --a >= 0;)
+				arguments[a].resolveType(scope);
+		}
+	
+		if (accessMode != This && receiverType != null) {
+			if (receiverType.isHierarchyInconsistent())
+				throw new CompletionNodeFound();
+			receiverType = receiverType.superclass();
+		}
+		if (receiverType == null)
 			throw new CompletionNodeFound();
-		receiverType = receiverType.superclass();
+		else
+			throw new CompletionNodeFound(this, receiverType, scope);
 	}
-	if (receiverType == null)
-		throw new CompletionNodeFound();
-	else
-		throw new CompletionNodeFound(this, receiverType, scope);
-}
-public String toString(int tab) {
-	String s = tabString(tab);
-	s += "<CompleteOnExplicitConstructorCall:"; //$NON-NLS-1$
-	if (qualification != null)
-		s = s + qualification.toStringExpression() + "."; //$NON-NLS-1$
-	if (accessMode == This) {
-		s = s + "this("; //$NON-NLS-1$
-	} else {
-		s = s + "super("; //$NON-NLS-1$
-	}
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-			s += arguments[i].toStringExpression();
-			if (i != arguments.length - 1) {
-				s += ", "; //$NON-NLS-1$
-			}
-		};
-	}
-	s += ")>"; //$NON-NLS-1$
-	return s;
-}
 }

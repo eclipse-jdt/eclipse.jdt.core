@@ -401,6 +401,28 @@ public class TryStatement extends SubRoutineStatement {
 		}
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		printIndent(indent, output).append("try \n"); //$NON-NLS-1$
+		tryBlock.printStatement(indent + 1, output); //$NON-NLS-1$
+
+		//catches
+		if (catchBlocks != null)
+			for (int i = 0; i < catchBlocks.length; i++) {
+					output.append('\n');
+					printIndent(indent, output).append("catch ("); //$NON-NLS-1$
+					catchArguments[i].print(0, output).append(") "); //$NON-NLS-1$
+					catchBlocks[i].printStatement(indent + 1, output);
+			}
+		//finally
+		if (finallyBlock != null) {
+			output.append('\n');
+			printIndent(indent, output).append("finally\n"); //$NON-NLS-1$
+			finallyBlock.printStatement(indent + 1, output);
+		}
+
+		return output;
+	}
+	
 	public void resetStateForCodeGeneration() {
 		super.resetStateForCodeGeneration();
 		if (this.subRoutineStartLabel != null) {
@@ -497,27 +519,6 @@ public class TryStatement extends SubRoutineStatement {
 			// sibling in term of local variable positions.
 			this.scope.addSubscope(finallyScope);
 		}
-	}
-
-	public String toString(int tab) {
-		String s = tabString(tab);
-		//try
-		s = s + "try "; //$NON-NLS-1$
-		s = s + "\n" + tryBlock.toString(tab + 1); //$NON-NLS-1$
-
-		//catches
-		if (catchBlocks != null)
-			for (int i = 0; i < catchBlocks.length; i++)
-					s = s + "\n" + tabString(tab) + "catch (" //$NON-NLS-2$ //$NON-NLS-1$
-						+catchArguments[i].toString(0) + ") " //$NON-NLS-1$
-						+catchBlocks[i].toString(tab + 1);
-		//finally
-		if (finallyBlock != null) {
-			s = s + "\n" + tabString(tab) + "finally\n" + //$NON-NLS-2$ //$NON-NLS-1$
-			finallyBlock.toString(tab + 1);
-		}
-
-		return s;
 	}
 
 	public void traverse(

@@ -66,10 +66,9 @@ public class ExtendedStringLiteral extends StringLiteral {
 		return this;
 	}
 
-	public String toStringExpression() {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		String str = "ExtendedStringLiteral{" + new String(source) + "}";	//$NON-NLS-2$ //$NON-NLS-1$
-		return str;
+		return output.append("ExtendedStringLiteral{").append(source).append('}'); //$NON-NLS-1$
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

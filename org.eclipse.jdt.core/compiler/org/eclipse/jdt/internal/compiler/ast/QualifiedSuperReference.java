@@ -29,6 +29,11 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 		return false;
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		return qualification.print(0, output).append(".super"); //$NON-NLS-1$
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 
 		if ((this.bits & ParenthesizedMASK) != 0) {
@@ -44,11 +49,6 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 			return null;
 		}
 		return this.resolvedType = currentCompatibleType.superclass();
-	}
-
-	public String toStringExpression() {
-
-		return qualification.toString(0) + ".super"; //$NON-NLS-1$
 	}
 
 	public void traverse(

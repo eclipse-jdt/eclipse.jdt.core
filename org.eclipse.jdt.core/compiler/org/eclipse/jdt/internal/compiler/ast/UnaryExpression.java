@@ -198,6 +198,12 @@ public class UnaryExpression extends OperatorExpression {
 		}
 	}
 
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+		
+		output.append(operatorToString()).append(' ');
+		return this.expression.printExpression(0, output);
+	} 
+	
 	public TypeBinding resolveType(BlockScope scope) {
 		
 		TypeBinding expressionType = this.expression.resolveType(scope);
@@ -277,11 +283,6 @@ public class UnaryExpression extends OperatorExpression {
 		return this.resolvedType;
 	}
 
-	public String toStringExpressionNoParenthesis() {
-		
-		return operatorToString() + " " + this.expression.toStringExpression(); //$NON-NLS-1$
-	} 
-	
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
 		BlockScope blockScope) {

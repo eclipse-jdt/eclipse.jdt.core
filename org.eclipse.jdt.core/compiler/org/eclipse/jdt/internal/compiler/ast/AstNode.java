@@ -64,7 +64,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for binary expressions
 	public static final int ValueForReturnMASK = Bit5; 
-	public static final int OnlyValueRequiredMASK = Bit6; // TODO: (philippe) should get rid of 'OnlyValueRequiredMASK' in boolean codegen
+	public static final int OnlyValueRequiredMASK = Bit6; 
 
 	// for name references 
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;	
@@ -96,10 +96,10 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for references on lhs of assignment (set only for true assignments, as opposed to compound ones)
 	public static final int IsStrictlyAssignedMASK = Bit14;
-	
+
 	// for empty statement
 	public static final int IsUsefulEmptyStatementMASK = Bit1;
-	
+		
 	public AstNode() {
 
 		super();
@@ -191,64 +191,44 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 		return true;
 	}
 
-	public static String modifiersString(int modifiers) {
+	public abstract StringBuffer print(int indent, StringBuffer output);
 
-		String s = ""; //$NON-NLS-1$
+	public static StringBuffer printIndent(int indent, StringBuffer output) {
+
+		for (int i = indent; i > 0; i--) output.append("  "); //$NON-NLS-1$
+		return output;
+	}
+
+	public static StringBuffer printModifiers(int modifiers, StringBuffer output) {
+
 		if ((modifiers & AccPublic) != 0)
-			s = s + "public "; //$NON-NLS-1$
+			output.append("public "); //$NON-NLS-1$
 		if ((modifiers & AccPrivate) != 0)
-			s = s + "private "; //$NON-NLS-1$
+			output.append("private "); //$NON-NLS-1$
 		if ((modifiers & AccProtected) != 0)
-			s = s + "protected "; //$NON-NLS-1$
+			output.append("protected "); //$NON-NLS-1$
 		if ((modifiers & AccStatic) != 0)
-			s = s + "static "; //$NON-NLS-1$
+			output.append("static "); //$NON-NLS-1$
 		if ((modifiers & AccFinal) != 0)
-			s = s + "final "; //$NON-NLS-1$
+			output.append("final "); //$NON-NLS-1$
 		if ((modifiers & AccSynchronized) != 0)
-			s = s + "synchronized "; //$NON-NLS-1$
+			output.append("synchronized "); //$NON-NLS-1$
 		if ((modifiers & AccVolatile) != 0)
-			s = s + "volatile "; //$NON-NLS-1$
+			output.append("volatile "); //$NON-NLS-1$
 		if ((modifiers & AccTransient) != 0)
-			s = s + "transient "; //$NON-NLS-1$
+			output.append("transient "); //$NON-NLS-1$
 		if ((modifiers & AccNative) != 0)
-			s = s + "native "; //$NON-NLS-1$
+			output.append("native "); //$NON-NLS-1$
 		if ((modifiers & AccAbstract) != 0)
-			s = s + "abstract "; //$NON-NLS-1$
-		return s;
-	}
-
-	/** 
-	 * @deprecated - use field instead
-	*/
-	public int sourceEnd() {
-		return sourceEnd;
-	}
-	
-	/** 
-	 * @deprecated - use field instead
-	*/
-	public int sourceStart() {
-		return sourceStart;
-	}
-
-	public static String tabString(int tab) {
-
-		String s = ""; //$NON-NLS-1$
-		for (int i = tab; i > 0; i--)
-			s = s + "  "; //$NON-NLS-1$
-		return s;
+			output.append("abstract "); //$NON-NLS-1$
+		return output;
 	}
 
 	public String toString() {
 
-		return toString(0);
+		return print(0, new StringBuffer(30)).toString();
 	}
 
-	public String toString(int tab) {
-
-		return "****" + super.toString() + "****";  //$NON-NLS-2$ //$NON-NLS-1$
-	}
-	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	}
 }

@@ -36,17 +36,13 @@ public class SelectionOnImportReference extends ImportReference {
 public SelectionOnImportReference(char[][] tokens , long[] positions, int modifiers) {
 	super(tokens, positions, false, modifiers);
 }
-public String toString(int tab, boolean withOnDemand) {
+public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
 
-	StringBuffer buffer = new StringBuffer(tabString(tab));
-	buffer.	append("<SelectOnImport:"); //$NON-NLS-1$
+	printIndent(indent, output).append("<SelectOnImport:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
-		buffer.append(tokens[i]);
-		if (i < (tokens.length - 1)) {
-			buffer.append("."); //$NON-NLS-1$
-		}
+		if (i > 0) output.append('.');
+		output.append(tokens[i]);
 	}
-	buffer.append(">"); //$NON-NLS-1$
-	return buffer.toString();
+	return output.append('>');
 }
 }

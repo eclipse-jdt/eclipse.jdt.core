@@ -20,6 +20,7 @@ public class DoStatement extends Statement {
 
 	public Expression condition;
 	public Statement action;
+
 	private Label breakLabel, continueLabel;
 
 	// for local variables table attributes
@@ -148,6 +149,19 @@ public class DoStatement extends Statement {
 
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output).append("do"); //$NON-NLS-1$
+		if (action == null)
+			output.append(" ;\n"); //$NON-NLS-1$
+		else {
+			output.append('\n');
+			action.printStatement(indent + 1, output).append('\n');
+		}
+		output.append("while ("); //$NON-NLS-1$
+		return condition.printExpression(0, output).append(");"); //$NON-NLS-1$
+	}
+
 	public void resetStateForCodeGeneration() {
 		if (this.breakLabel != null) {
 			this.breakLabel.resetStateForCodeGeneration();
@@ -163,21 +177,6 @@ public class DoStatement extends Statement {
 		condition.implicitWidening(type, type);
 		if (action != null)
 			action.resolve(scope);
-	}
-
-	public String toString(int tab) {
-
-		String inFront, s = tabString(tab);
-		inFront = s;
-		s = s + "do"; //$NON-NLS-1$
-		if (action == null)
-			s = s + " {}\n"; //$NON-NLS-1$
-		else if (action instanceof Block)
-			s = s + "\n" + action.toString(tab + 1) + "\n"; //$NON-NLS-2$ //$NON-NLS-1$
-		else
-			s = s + " {\n" + action.toString(tab + 1) + ";}\n"; //$NON-NLS-1$ //$NON-NLS-2$
-		s = s + inFront + "while (" + condition.toStringExpression() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-		return s;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

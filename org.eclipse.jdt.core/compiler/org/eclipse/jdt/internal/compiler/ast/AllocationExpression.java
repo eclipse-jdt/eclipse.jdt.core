@@ -249,22 +249,18 @@ public class AllocationExpression
 		// ignored
 	}
 
-	public String toStringExpression() {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		String s = "new " + type.toString(0); //$NON-NLS-1$
-		if (arguments == null)
-			s = s + "()"; //$NON-NLS-1$
-		else {
-			s = s + "("; //$NON-NLS-1$
+		output.append("new "); //$NON-NLS-1$
+		type.printExpression(0, output); 
+		output.append('(');
+		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
-				s = s + arguments[i].toStringExpression();
-				if (i == (arguments.length - 1))
-					s = s + ")"; //$NON-NLS-1$
-				else
-					s = s + ", "; //$NON-NLS-1$
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
 			}
 		}
-		return s;
+		return output.append(')');
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

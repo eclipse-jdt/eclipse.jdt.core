@@ -255,7 +255,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered method:\n"); //$NON-NLS-1$
-	result.append(this.methodDeclaration.toString(tab + 1));
+	result.append(this.methodDeclaration.print(tab + 1, result));
 	if (this.localTypes != null) {
 		for (int i = 0; i < this.localTypeCount; i++) {
 			result.append("\n"); //$NON-NLS-1$

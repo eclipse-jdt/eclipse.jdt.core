@@ -108,6 +108,12 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 		return cd.binding;
 
 	}
+
+	public StringBuffer print(int indent, StringBuffer output) {
+
+		return printBody(indent, output);
+	}
+
 	public void resolve(BlockScope currentScope) {
 
 		if (binding != null) {
@@ -117,11 +123,6 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 		// scope and binding are provided in updateBindingSuperclass 
 		resolve();
 		updateMaxFieldCount();
-	}
-
-	public String toString(int tab) {
-
-		return toStringBody(tab);
 	}
 
 	/**

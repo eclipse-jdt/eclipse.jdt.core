@@ -26,8 +26,8 @@ public class CompletionOnMethodReturnType extends MethodDeclaration {
 			throw new CompletionNodeFound(this, this.scope);
 	}
 	
-	public String toString(int tab) {
-		return returnType.toString(tab);
+	public StringBuffer print(int tab, StringBuffer output) {
+		return returnType.print(tab, output);
 	}
 
 }

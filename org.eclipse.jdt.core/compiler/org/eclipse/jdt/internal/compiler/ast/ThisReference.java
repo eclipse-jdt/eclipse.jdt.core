@@ -97,18 +97,18 @@ public class ThisReference extends Reference {
 		return true ;
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output){
+	
+		if (this.isImplicitThis()) return output;
+		return output.append("this"); //$NON-NLS-1$
+	}
+
 	public TypeBinding resolveType(BlockScope scope) {
 	
 		constant = NotAConstant;
 		if (!this.isImplicitThis() && !checkAccess(scope.methodScope()))
 			return null;
 		return this.resolvedType = scope.enclosingSourceType();
-	}
-
-	public String toStringExpression(){
-	
-		if (this.isImplicitThis()) return "" ; //$NON-NLS-1$
-		return "this"; //$NON-NLS-1$
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {

@@ -47,6 +47,10 @@ public TypeBinding getTypeBinding(Scope scope) {
 
 	throw new SelectionNodeFound(binding);
 }
+public StringBuffer printExpression(int indent, StringBuffer output) {
+
+	return output.append("<SelectOnType:").append(token).append('>');//$NON-NLS-1$
+}
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 	super.resolveTypeEnclosing(scope, enclosingType);
 
@@ -57,9 +61,5 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 		throw new SelectionNodeFound();
 	else
 		throw new SelectionNodeFound(this.resolvedType);
-}
-public String toStringExpression(int tab){
-
-	return "<SelectOnType:" + new String(token) + ">" ; //$NON-NLS-2$ //$NON-NLS-1$
 }
 }

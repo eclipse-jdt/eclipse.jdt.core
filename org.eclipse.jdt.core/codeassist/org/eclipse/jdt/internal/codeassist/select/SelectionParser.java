@@ -381,6 +381,9 @@ protected void consumeMethodInvocationName() {
 				constructorCall.resolve(scope);
 				return null;
 			}
+			public StringBuffer printExpression(int indent, StringBuffer output) {
+				return output; 
+			}
 		});
 	}
 	this.assistNode = constructorCall;	
@@ -426,6 +429,9 @@ protected void consumeMethodInvocationPrimary() {
 			public TypeBinding resolveType(BlockScope scope) {
 				constructorCall.resolve(scope);
 				return null;
+			}
+			public StringBuffer printExpression(int indent, StringBuffer output) {
+				return output; 
 			}
 		});
 	}

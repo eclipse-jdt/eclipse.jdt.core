@@ -26,7 +26,8 @@ public class CompletionOnKeyword2 extends ImportReference implements CompletionO
 	public char[][] getPossibleKeywords() {
 		return possibleKeywords;
 	}
-	public String toString(int tab, boolean withOnDemand) {
-		return "<CompleteOnKeyword:" + new String(token) + ">"; //$NON-NLS-1$ //$NON-NLS-2$
+	public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+		
+		return printIndent(indent, output).append("<CompleteOnKeyword:").append(token).append('>'); //$NON-NLS-1$
 	}
 }

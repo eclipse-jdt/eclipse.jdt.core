@@ -204,6 +204,24 @@ public class SwitchStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output).append("switch ("); //$NON-NLS-1$
+		testExpression.printExpression(0, output).append(") {"); //$NON-NLS-1$
+		if (statements != null) {
+			for (int i = 0; i < statements.length; i++) {
+				output.append('\n');
+				if (statements[i] instanceof CaseStatement) {
+					statements[i].printStatement(indent, output);
+				} else {
+					statements[i].printStatement(indent+2, output);
+				}
+			}
+		}
+		output.append("\n"); //$NON-NLS-1$
+		return printIndent(indent, output).append('}');
+	}
+
 	public void resetStateForCodeGeneration() {
 
 		if (this.breakLabel != null) {
@@ -268,55 +286,6 @@ public class SwitchStatement extends Statement {
 				}
 			}
 		}
-	}
-
-	public String toString(int tab) {
-
-		String inFront, s = tabString(tab);
-		inFront = s;
-		s = s + "switch (" + testExpression.toStringExpression() + ") "; //$NON-NLS-1$ //$NON-NLS-2$
-		if (statements == null) {
-			s = s + "{}"; //$NON-NLS-1$
-			return s;
-		} else
-			s = s + "{"; //$NON-NLS-1$
-			s = s
-					+ (explicitDeclarations != 0
-						? "// ---scope needed for " //$NON-NLS-1$
-							+ String.valueOf(explicitDeclarations)
-							+ " locals------------ \n"//$NON-NLS-1$
-						: "// ---NO scope needed------ \n"); //$NON-NLS-1$
-
-		int i = 0;
-		String tabulation = "  "; //$NON-NLS-1$
-		try {
-			while (true) {
-				//use instanceof in order not to polluate classes with behavior only needed for printing purpose.
-				if (statements[i] instanceof Expression)
-					s = s + "\n" + inFront + tabulation; //$NON-NLS-1$
-				if (statements[i] instanceof BreakStatement)
-					s = s + statements[i].toString(0);
-				else
-					s = s + "\n" + statements[i].toString(tab + 2); //$NON-NLS-1$
-				//=============	
-				if (statements[i] instanceof CaseStatement) {
-					i++;
-					while (!(statements[i] instanceof CaseStatement)) {
-						if ((statements[i] instanceof Expression) || (statements[i] instanceof BreakStatement))
-							s = s + statements[i].toString(0) + " ; "; //$NON-NLS-1$
-						else
-							s = s + "\n" + statements[i].toString(tab + 6) + " ; "; //$NON-NLS-1$ //$NON-NLS-2$
-						i++;
-					}
-				} else {
-					s = s + " ;"; //$NON-NLS-1$
-					i++;
-				}
-			}
-		} catch (IndexOutOfBoundsException e) {
-		};
-		s = s + "}"; //$NON-NLS-1$
-		return s;
 	}
 
 	public void traverse(

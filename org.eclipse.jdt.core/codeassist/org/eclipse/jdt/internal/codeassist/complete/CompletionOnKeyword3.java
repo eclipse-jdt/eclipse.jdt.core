@@ -30,10 +30,11 @@ public class CompletionOnKeyword3 extends SingleNameReference implements Complet
 	public char[][] getPossibleKeywords() {
 		return possibleKeywords;
 	}
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		
+		return output.append("<CompleteOnKeyword:").append(token).append('>'); //$NON-NLS-1$
+	}
 	public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound(this, scope);
-	}
-	public String toStringExpression() {
-		return "<CompleteOnKeyword:" + new String(token) + ">"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -215,18 +215,16 @@ public class Clinit extends AbstractMethodDeclaration {
 		//the clinit is filled by hand .... 
 	}
 
+	public StringBuffer print(int tab, StringBuffer output) {
+
+		printIndent(tab, output).append("<clinit>()"); //$NON-NLS-1$
+		printBody(tab + 1, output);
+		return output;
+	}
+
 	public void resolve(ClassScope classScope) {
 
 		this.scope = new MethodScope(classScope, classScope.referenceContext, true);
-	}
-
-	public String toString(int tab) {
-
-		String s = ""; //$NON-NLS-1$
-		s = s + tabString(tab);
-		s = s + "<clinit>()"; //$NON-NLS-1$
-		s = s + toStringStatements(tab + 1);
-		return s;
 	}
 
 	public void traverse(

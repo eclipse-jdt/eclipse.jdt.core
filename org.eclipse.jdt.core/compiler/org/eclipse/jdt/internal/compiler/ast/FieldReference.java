@@ -473,6 +473,11 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		return receiver.printExpression(0, output).append('.').append(token);
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// Answer the signature type of the field.
@@ -528,12 +533,6 @@ public class FieldReference extends Reference implements InvocationSite {
 
 	public void setFieldIndex(int index) {
 		// ignored
-	}
-
-	public String toStringExpression() {
-
-		return receiver.toString() + "." //$NON-NLS-1$
-		+ new String(token);
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

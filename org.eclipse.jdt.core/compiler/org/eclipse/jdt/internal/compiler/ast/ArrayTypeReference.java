@@ -15,41 +15,52 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
-/**
- * ArrayTypeReference constructor comment.
- * @param source char[]
- * @param dim int
- * @param pos int
- */
-public ArrayTypeReference(char[] source, int dim, long pos) {
-	super(source, pos);
-	dimensions = dim ;
-}
-public ArrayTypeReference(char[] source, TypeBinding tb, int dim, long pos) {
-	super(source, tb, pos);
-	dimensions = dim ;}
-public int dimensions() {
-	return dimensions;
-}
-public TypeBinding getTypeBinding(Scope scope) {
-	if (this.resolvedType != null)
-		return this.resolvedType;
-	if (dimensions > 255) {
-		scope.problemReporter().tooManyDimensions(this);
+
+	/**
+	 * ArrayTypeReference constructor comment.
+	 * @param source char[]
+	 * @param dim int
+	 * @param pos int
+	 */
+	public ArrayTypeReference(char[] source, int dimensions, long pos) {
+		
+		super(source, pos);
+		this.dimensions = dimensions ;
 	}
-	return scope.createArray(scope.getType(token), dimensions);
-
-}
-public String toStringExpression(int tab){
-
-	String s = super.toStringExpression(tab)  ;
-	if (dimensions == 1 ) return s + "[]" ; //$NON-NLS-1$
-	for (int i=1 ; i <= dimensions ; i++)
-		s = s + "[]" ; //$NON-NLS-1$
-	return s ;
-}
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
-	visitor.visit(this, scope);
-	visitor.endVisit(this, scope);
-}
+	
+	public ArrayTypeReference(char[] source, TypeBinding tb, int dimensions, long pos) {
+		
+		super(source, tb, pos);
+		this.dimensions = dimensions ;
+	}
+	
+	public int dimensions() {
+		
+		return dimensions;
+	}
+	
+	public TypeBinding getTypeBinding(Scope scope) {
+		
+		if (this.resolvedType != null) return this.resolvedType;
+		if (dimensions > 255) {
+			scope.problemReporter().tooManyDimensions(this);
+		}
+		return scope.createArray(scope.getType(token), dimensions);
+	
+	}
+	
+	public StringBuffer printExpression(int indent, StringBuffer output){
+	
+		super.printExpression(indent, output)  ;
+		for (int i= 0 ; i < dimensions ; i++) {
+			output.append("[]"); //$NON-NLS-1$
+		}
+		return output;
+	}
+	
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
 }

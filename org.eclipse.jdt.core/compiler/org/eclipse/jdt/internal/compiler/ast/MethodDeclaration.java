@@ -95,6 +95,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		parser.parse(this, unit);
 	}
 
+	public StringBuffer printReturnType(int indent, StringBuffer output) {
+
+		if (returnType == null) return output;
+		return returnType.printExpression(0, output).append(' ');
+	}
+
 	public void resolveStatements() {
 
 		// ========= abort on fatal error =============
@@ -125,13 +131,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 		}
 		super.resolveStatements(); 
-	}
-
-	public String returnTypeToString(int tab) {
-
-		if (returnType == null)
-			return ""; //$NON-NLS-1$
-		return returnType.toString(tab) + " "; //$NON-NLS-1$
 	}
 
 	public void traverse(

@@ -35,7 +35,8 @@ public class CompletionOnKeyword1 extends SingleTypeReference implements Complet
 	public TypeBinding getTypeBinding(Scope scope) {
 		throw new CompletionNodeFound(this, scope);
 	}
-	public String toStringExpression(int tab){
-		return "<CompleteOnKeyword:"+new String(token)+">";  //$NON-NLS-1$  //$NON-NLS-2$
+	public StringBuffer printExpression(int indent, StringBuffer output){
+		
+		return output.append("<CompleteOnKeyword:").append(token).append('>');  //$NON-NLS-1$ 
 	}
 }

@@ -35,20 +35,27 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
  
 public class CompletionOnSingleNameReference extends SingleNameReference {
-public char[][] possibleKeywords;
-public boolean canBeExplicitConstructor;
-public CompletionOnSingleNameReference(char[] source, long pos) {
-	this(source, pos, null, false);
-}
-public CompletionOnSingleNameReference(char[] source, long pos, char[][] possibleKeywords, boolean canBeExplicitConstructor) {
-	super(source, pos);
-	this.possibleKeywords = possibleKeywords;
-	this.canBeExplicitConstructor = canBeExplicitConstructor;
-}
-public TypeBinding resolveType(BlockScope scope) {
-	throw new CompletionNodeFound(this, scope);
-}
-public String toStringExpression() {
-	return "<CompleteOnName:" + super.toStringExpression() + ">"; //$NON-NLS-2$ //$NON-NLS-1$
-}
+
+	public char[][] possibleKeywords;
+	public boolean canBeExplicitConstructor;
+
+	public CompletionOnSingleNameReference(char[] source, long pos) {
+		this(source, pos, null, false);
+	}
+
+	public CompletionOnSingleNameReference(char[] source, long pos, char[][] possibleKeywords, boolean canBeExplicitConstructor) {
+		super(source, pos);
+		this.possibleKeywords = possibleKeywords;
+		this.canBeExplicitConstructor = canBeExplicitConstructor;
+	}
+
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		
+		output.append("<CompleteOnName:"); //$NON-NLS-1$
+		return super.printExpression(0, output).append('>');
+	}
+
+	public TypeBinding resolveType(BlockScope scope) {
+		throw new CompletionNodeFound(this, scope);
+	}
 }

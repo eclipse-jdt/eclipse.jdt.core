@@ -100,19 +100,23 @@ public class LabeledStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+
+		printIndent(tab, output).append(label).append(": "); //$NON-NLS-1$
+		if (this.statement == null) 
+			output.append(';');
+		else 
+			this.statement.printStatement(0, output); 
+		return output;
+	}
+	
 	public void resolve(BlockScope scope) {
 		
 		if (this.statement != null) {
 			this.statement.resolve(scope);
 		}
 	}
-	
-	public String toString(int tab) {
 
-		String s = tabString(tab);
-		s += new String(label) + ": " + (this.statement == null ? "; " : this.statement.toString(0)); //$NON-NLS-1$ //$NON-NLS-2$
-		return s;
-	}
 
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,

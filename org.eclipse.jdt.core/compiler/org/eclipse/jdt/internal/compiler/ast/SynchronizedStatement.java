@@ -162,12 +162,13 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		block.resolveUsing(scope);
 	}
 
-	public String toString(int tab) {
+	public StringBuffer printStatement(int indent, StringBuffer output) {
 
-		String s = tabString(tab);
-		s = s + "synchronized (" + expression.toStringExpression() + ")";  //$NON-NLS-1$ //$NON-NLS-2$
-		s = s + "\n" + block.toString(tab + 1); //$NON-NLS-1$
-		return s;
+		printIndent(indent, output);
+		output.append("synchronized ("); //$NON-NLS-1$
+		expression.printExpression(0, output).append(')');
+		output.append('\n');
+		return block.printStatement(indent + 1, output); 
 	}
 
 	public void traverse(

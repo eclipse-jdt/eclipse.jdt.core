@@ -14,15 +14,14 @@ public class CompletionOnQualifiedClassReference extends CompletionOnQualifiedTy
 public CompletionOnQualifiedClassReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
 	super(previousIdentifiers, completionIdentifier, positions);
 }
-public String toStringExpression(int tab) {
+public StringBuffer printExpression(int indent, StringBuffer output) {
 
-	StringBuffer buffer = new StringBuffer();
-	buffer. append("<CompleteOnClass:"); //$NON-NLS-1$
+	output.append("<CompleteOnClass:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
-		buffer.append(tokens[i]);
-		buffer.append("."); //$NON-NLS-1$
+		output.append(tokens[i]);
+		output.append('.');
 	}
-	buffer.append(completionIdentifier).append(">"); //$NON-NLS-1$
-	return buffer.toString();
+	output.append(completionIdentifier).append('>');
+	return output;
 }
 }

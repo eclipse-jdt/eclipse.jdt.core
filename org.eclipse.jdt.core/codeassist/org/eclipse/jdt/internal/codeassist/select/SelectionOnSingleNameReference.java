@@ -68,7 +68,8 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	throw new SelectionNodeFound(binding);
 }
-public String toStringExpression() {
-	return "<SelectOnName:" + super.toStringExpression() + ">"; //$NON-NLS-2$ //$NON-NLS-1$
+public StringBuffer printExpression(int indent, StringBuffer output) {
+	output.append("<SelectOnName:"); //$NON-NLS-1$
+	return super.printExpression(0, output).append('>');
 }
 }

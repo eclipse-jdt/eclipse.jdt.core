@@ -11,10 +11,14 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 public class CompletionOnClassReference extends CompletionOnSingleTypeReference {
+
 	public CompletionOnClassReference(char[] source, long pos) {
+
 		super(source, pos);
 	}
-	public String toStringExpression(int tab) {
-		return "<CompleteOnClass:" + new String(token) + ">"; //$NON-NLS-2$ //$NON-NLS-1$
+
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		
+		return output.append("<CompleteOnClass:").append(token).append('>'); //$NON-NLS-1$
 	}
 }

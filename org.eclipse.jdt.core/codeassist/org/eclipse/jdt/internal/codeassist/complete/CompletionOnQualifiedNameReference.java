@@ -49,6 +49,16 @@ public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] c
 	this.completionIdentifier = completionIdentifier;
 	this.sourcePositions = new long[] {((long)sourceStart << 32) + sourceEnd};
 }
+public StringBuffer printExpression(int indent, StringBuffer output) {
+
+	output.append("<CompleteOnName:"); //$NON-NLS-1$
+	for (int i = 0; i < tokens.length; i++) {
+		output.append(tokens[i]);
+		output.append('.'); //$NON-NLS-1$
+	}
+	output.append(completionIdentifier).append('>'); 
+	return output;
+}
 public TypeBinding resolveType(BlockScope scope) {
 	// it can be a package, type, member type, local variable or field
 	binding = scope.getBinding(tokens, this);
@@ -64,15 +74,5 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 
 	throw new CompletionNodeFound(this, binding, scope);
-}
-public String toStringExpression() {
-
-	StringBuffer buffer = new StringBuffer("<CompleteOnName:"); //$NON-NLS-1$
-	for (int i = 0; i < tokens.length; i++) {
-		buffer.append(tokens[i]);
-		buffer.append("."); //$NON-NLS-1$
-	}
-	buffer.append(completionIdentifier).append(">"); //$NON-NLS-1$
-	return buffer.toString();
 }
 }

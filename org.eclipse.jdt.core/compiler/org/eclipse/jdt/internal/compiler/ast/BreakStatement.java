@@ -78,13 +78,11 @@ public class BreakStatement extends BranchStatement {
 		return FlowInfo.DEAD_END;
 	}
 	
-	public String toString(int tab) {
+	public StringBuffer printStatement(int tab, StringBuffer output) {
 
-		String s = tabString(tab);
-		s += "break "; //$NON-NLS-1$
-		if (label != null)
-			s += new String(label);
-		return s;
+		printIndent(tab, output).append("break "); //$NON-NLS-1$
+		if (label != null) output.append(label);
+		return output.append(';');
 	}
 	
 	public void traverse(

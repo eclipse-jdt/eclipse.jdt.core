@@ -167,6 +167,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		if (enclosingInstance != null)
+			enclosingInstance.printExpression(0, output).append('.'); 
+		super.printExpression(0, output);
+		if (anonymousType != null) {
+			anonymousType.print(indent, output);
+		}
+		return output;
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// added for code assist...cannot occur with 'normal' code
@@ -312,22 +323,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		return anonymousType.binding; // 1.2 change
 	}
 	
-	public String toStringExpression() {
-		return this.toStringExpression(0);
-	}
-
-	public String toStringExpression(int tab) {
-
-		String s = ""; //$NON-NLS-1$
-		if (enclosingInstance != null)
-			s += enclosingInstance.toString() + "."; //$NON-NLS-1$
-		s += super.toStringExpression();
-		if (anonymousType != null) {
-			s += anonymousType.toString(tab);
-		} //allows to restart just after the } one line under ....
-		return s;
-	}
-
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {

@@ -212,6 +212,26 @@ public class CompilationUnitDeclaration
 		return this.ignoreFurtherInvestigation;
 	}
 
+	public StringBuffer print(int indent, StringBuffer output) {
+
+		if (currentPackage != null) {
+			printIndent(indent, output).append("package "); //$NON-NLS-1$
+			currentPackage.print(0, output, false).append(";\n"); //$NON-NLS-1$
+		}
+		if (imports != null)
+			for (int i = 0; i < imports.length; i++) {
+				printIndent(indent, output).append("import "); //$NON-NLS-1$
+				imports[i].print(0, output).append(";\n"); //$NON-NLS-1$ 
+			}
+
+		if (types != null) {
+			for (int i = 0; i < types.length; i++) {
+				types[i].print(indent, output).append("\n"); //$NON-NLS-1$
+			}
+		}
+		return output;
+	}
+	
 	/*
 	 * Force inner local types to update their innerclass emulation
 	 */
@@ -259,24 +279,6 @@ public class CompilationUnitDeclaration
 
 	public void tagAsHavingErrors() {
 		ignoreFurtherInvestigation = true;
-	}
-
-	public String toString(int tab) {
-
-		String s = ""; //$NON-NLS-1$
-		if (currentPackage != null)
-			s = tabString(tab) + "package " + currentPackage.toString(0, false) + ";\n"; //$NON-NLS-1$ //$NON-NLS-2$
-
-		if (imports != null)
-			for (int i = 0; i < imports.length; i++) {
-				s += tabString(tab) + "import " + imports[i].toString() + ";\n"; //$NON-NLS-1$ //$NON-NLS-2$
-			};
-
-		if (types != null)
-			for (int i = 0; i < types.length; i++) {
-				s += types[i].toString(tab) + "\n"; //$NON-NLS-1$
-			}
-		return s;
 	}
 
 	public void traverse(

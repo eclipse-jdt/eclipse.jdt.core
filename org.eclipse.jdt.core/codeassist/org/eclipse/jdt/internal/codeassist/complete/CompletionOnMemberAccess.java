@@ -38,21 +38,23 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class CompletionOnMemberAccess extends FieldReference {
 	
 	public CompletionOnMemberAccess(char[] source, long pos) {
+		
 		super(source, pos);
 	}
 	
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		output.append("<CompleteOnMemberAccess:"); //$NON-NLS-1$
+		return super.printExpression(0, output).append('>'); 
+	}
+
 	public TypeBinding resolveType(BlockScope scope) {
+		
 		this.receiverType = receiver.resolveType(scope);
 		if (this.receiverType == null || this.receiverType.isBaseType())
 			throw new CompletionNodeFound();
 		else
 			throw new CompletionNodeFound(this, this.receiverType, scope);
 		// array types are passed along to find the length field
-	}
-	
-	public String toStringExpression() {
-
-		return "<CompleteOnMemberAccess:" //$NON-NLS-1$
-						+ super.toStringExpression() + ">"; //$NON-NLS-1$
 	}
 }

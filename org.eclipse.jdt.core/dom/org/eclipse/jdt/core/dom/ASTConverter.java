@@ -1069,7 +1069,7 @@ class ASTConverter {
 		}
 		
 		variableDecl.setModifiers(argument.modifiers);
-		SimpleName name = this.ast.newSimpleName(argument.name());
+		SimpleName name = this.ast.newSimpleName(new String(argument.name));
 		int start = argument.sourceStart;
 		int nameEnd = argument.sourceEnd;
 		name.setSourceRange(start, nameEnd - start + 1);
@@ -2640,7 +2640,7 @@ class ASTConverter {
 	
 	private VariableDeclarationFragment convertToVariableDeclarationFragment(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
-		SimpleName name = this.ast.newSimpleName(fieldDeclaration.name());
+		SimpleName name = this.ast.newSimpleName(new String(fieldDeclaration.name));
 		name.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.sourceEnd - fieldDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
 		int end = retrievePositionBeforeNextCommaOrSemiColon(fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
@@ -2664,7 +2664,7 @@ class ASTConverter {
 
 	private VariableDeclarationFragment convertToVariableDeclarationFragment(LocalDeclaration localDeclaration) {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
-		SimpleName name = this.ast.newSimpleName(localDeclaration.name());
+		SimpleName name = this.ast.newSimpleName(new String(localDeclaration.name));
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
 		int end = retrievePositionBeforeNextCommaOrSemiColon(localDeclaration.sourceEnd, this.compilationUnitSource.length);

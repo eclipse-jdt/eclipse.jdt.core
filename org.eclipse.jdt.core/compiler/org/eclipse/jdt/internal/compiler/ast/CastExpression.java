@@ -258,6 +258,13 @@ public class CastExpression extends Expression {
 		return current;
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		output.append('(');
+		type.print(0, output).append(") "); //$NON-NLS-1$
+		return expression.printExpression(0, output);
+	}
+
 	public TypeBinding resolveType(BlockScope scope) {
 		// compute a new constant if the cast is effective
 
@@ -281,12 +288,6 @@ public class CastExpression extends Expression {
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}
-	}
-
-	public String toStringExpression() {
-
-		return "(" + type.toString(0) + ") " + //$NON-NLS-2$ //$NON-NLS-1$
-		expression.toStringExpression();
 	}
 
 	public void traverse(

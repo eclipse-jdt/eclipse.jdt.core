@@ -708,6 +708,16 @@ public class QualifiedNameReference extends NameReference {
 		}
 		
 	}
+	
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		
+		for (int i = 0; i < tokens.length; i++) {
+			if (i > 0) output.append('.');
+			output.append(tokens[i]);
+		}
+		return output;
+	}
+		
 	/**
 	 * Normal field binding did not work, try to bind to a field of the delegate receiver.
 	 */
@@ -776,19 +786,11 @@ public class QualifiedNameReference extends NameReference {
 		//========error cases===============
 		return this.resolvedType = this.reportError(scope);
 	}
+	
 	public void setFieldIndex(int index) {
 		this.indexOfFirstFieldBinding = index;
 	}
-	public String toStringExpression() {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < tokens.length; i++) {
-			buffer.append(tokens[i]);
-			if (i < (tokens.length - 1)) {
-				buffer.append("."); //$NON-NLS-1$
-			}
-		}
-		return buffer.toString();
-	}
+
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);

@@ -35,12 +35,21 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnFieldReference extends FieldReference {
-public SelectionOnFieldReference(char[] source , long pos) {
-	super(source, pos);
-}
-public TypeBinding resolveType(BlockScope scope) {
-	super.resolveType(scope);
+	
+	public SelectionOnFieldReference(char[] source , long pos) {
 
+		super(source, pos);
+	}
+	
+	public StringBuffer printExpression(int indent, StringBuffer output){
+		
+		output.append("<SelectionOnFieldReference:");  //$NON-NLS-1$
+		return super.printExpression(0, output).append('>');
+	}
+	
+	public TypeBinding resolveType(BlockScope scope) {
+
+		super.resolveType(scope);
 		// tolerate some error cases
 		if (binding == null || 
 				!(binding.isValidBinding() || 
@@ -48,13 +57,8 @@ public TypeBinding resolveType(BlockScope scope) {
 					|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext))
-		throw new SelectionNodeFound();
-	else
-		throw new SelectionNodeFound(binding);
-}
-public String toStringExpression(){
-	return 	"<SelectionOnFieldReference:"  //$NON-NLS-1$
-			+ super.toStringExpression() 
-			+ ">"; //$NON-NLS-1$
-}
+			throw new SelectionNodeFound();
+		else
+			throw new SelectionNodeFound(binding);
+	}
 }

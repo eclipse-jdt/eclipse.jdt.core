@@ -89,6 +89,20 @@ public class SelectionOnMessageSend extends MessageSend {
 		return methodBinding;
 	}
 	
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		output.append("<SelectOnMessageSend:"); //$NON-NLS-1$
+		if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
+		output.append(this.selector).append('(');
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
+		}
+		return output.append(")>"); //$NON-NLS-1$
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 
 		super.resolveType(scope);
@@ -108,23 +122,5 @@ public class SelectionOnMessageSend extends MessageSend {
 				throw new SelectionNodeFound(binding);
 			}
 		}
-	}
-	
-	public String toStringExpression() {
-
-		String s = "<SelectOnMessageSend:"; //$NON-NLS-1$
-		if (!receiver.isImplicitThis())
-			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
-		s = s + new String(selector) + "("; //$NON-NLS-1$
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				s += arguments[i].toStringExpression();
-				if (i != arguments.length - 1) {
-					s += ", "; //$NON-NLS-1$
-				}
-			};
-		}
-		s = s + ")>"; //$NON-NLS-1$
-		return s;
 	}
 }

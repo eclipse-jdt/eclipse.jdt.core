@@ -138,11 +138,6 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public String name() {
-
-		return String.valueOf(name);
-	}
-
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope

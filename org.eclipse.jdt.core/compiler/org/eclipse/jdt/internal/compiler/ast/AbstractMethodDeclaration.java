@@ -294,6 +294,51 @@ public abstract class AbstractMethodDeclaration
 		Parser parser,
 		CompilationUnitDeclaration unit);
 
+	public StringBuffer print(int tab, StringBuffer output) {
+
+		printIndent(tab, output);
+		printModifiers(modifiers, output);
+		printReturnType(0, output).append(selector).append('(');
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].print(0, output);
+			}
+		}
+		output.append(')');
+		if (thrownExceptions != null) {
+			output.append(" throws "); //$NON-NLS-1$
+			for (int i = 0; i < thrownExceptions.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				thrownExceptions[i].print(0, output);
+			}
+		}
+		printBody(tab + 1, output);
+		return output;
+	}
+
+	public StringBuffer printBody(int indent, StringBuffer output) {
+
+		if (isAbstract() || (this.modifiers & AccSemicolonBody) != 0) 
+			return output.append(';');
+
+		output.append(" {"); //$NON-NLS-1$
+		if (statements != null) {
+			for (int i = 0; i < statements.length; i++) {
+				output.append('\n');
+				statements[i].printStatement(indent, output); 
+			}
+		}
+		output.append('\n'); //$NON-NLS-1$
+		printIndent(indent == 0 ? 0 : indent - 1, output).append('}');
+		return output;
+	}
+
+	public StringBuffer printReturnType(int indent, StringBuffer output) {
+		
+		return output;
+	}
+
 	public void resolve(ClassScope upperScope) {
 
 		if (binding == null) {
@@ -318,62 +363,9 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
-	public String returnTypeToString(int tab) {
-
-		return ""; //$NON-NLS-1$
-	}
-
 	public void tagAsHavingErrors() {
 
 		ignoreFurtherInvestigation = true;
-	}
-
-	public String toString(int tab) {
-
-		String s = tabString(tab);
-		if (modifiers != AccDefault) {
-			s += modifiersString(modifiers);
-		}
-
-		s += returnTypeToString(0);
-		s += new String(selector) + "("; //$NON-NLS-1$
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				s += arguments[i].toString(0);
-				if (i != (arguments.length - 1))
-					s = s + ", "; //$NON-NLS-1$
-			};
-		};
-		s += ")"; //$NON-NLS-1$
-		if (thrownExceptions != null) {
-			s += " throws "; //$NON-NLS-1$
-			for (int i = 0; i < thrownExceptions.length; i++) {
-				s += thrownExceptions[i].toString(0);
-				if (i != (thrownExceptions.length - 1))
-					s = s + ", "; //$NON-NLS-1$
-			};
-		};
-
-		s += toStringStatements(tab + 1);
-		return s;
-	}
-
-	public String toStringStatements(int tab) {
-
-		if (isAbstract() || (this.modifiers & AccSemicolonBody) != 0)
-			return ";"; //$NON-NLS-1$
-
-		String s = " {"; //$NON-NLS-1$
-		if (statements != null) {
-			for (int i = 0; i < statements.length; i++) {
-				s = s + "\n" + statements[i].toString(tab); //$NON-NLS-1$
-				if (!(statements[i] instanceof Block)) {
-					s += ";"; //$NON-NLS-1$
-				}
-			}
-		}
-		s += "\n" + tabString(tab == 0 ? 0 : tab - 1) + "}"; //$NON-NLS-2$ //$NON-NLS-1$
-		return s;
 	}
 
 	public void traverse(

@@ -72,6 +72,19 @@ public class Initializer extends FieldDeclaration {
 		parser.parse(this, typeDeclaration, unit);
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		if (modifiers != 0) {
+			printIndent(indent, output);
+			printModifiers(modifiers, output).append("{\n"); //$NON-NLS-1$
+			block.printBody(indent, output);
+			printIndent(indent, output).append('}'); 
+			return output;
+		} else {
+			return block.printStatement(indent, output);
+		}
+	}
+	
 	public void resolve(MethodScope scope) {
 
 		int previous = scope.fieldDeclarationIndex;
@@ -87,22 +100,6 @@ public class Initializer extends FieldDeclaration {
 			block.resolve(scope);
 		} finally {
 			scope.fieldDeclarationIndex = previous;
-		}
-	}
-
-	public String toString(int tab) {
-
-		if (modifiers != 0) {
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(tabString(tab));
-			buffer.append(modifiersString(modifiers));
-			buffer.append("{\n"); //$NON-NLS-1$
-			buffer.append(block.toStringStatements(tab));
-			buffer.append(tabString(tab));
-			buffer.append("}"); //$NON-NLS-1$
-			return buffer.toString();
-		} else {
-			return block.toString(tab);
 		}
 	}
 

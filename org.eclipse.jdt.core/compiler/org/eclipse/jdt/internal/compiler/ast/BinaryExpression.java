@@ -1649,7 +1649,13 @@ public class BinaryExpression extends OperatorExpression {
 				}
 		}
 	}
-	
+
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+
+		left.printExpression(indent, output).append(' ').append(operatorToString()).append(' ');
+		return right.printExpression(0, output);
+	}
+		
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// use the id of the type to navigate into the table
@@ -1736,13 +1742,6 @@ public class BinaryExpression extends OperatorExpression {
 		// compute the constant when valid
 		computeConstant(scope, leftId, rightId);
 		return this.resolvedType;
-	}
-	
-	public String toStringExpressionNoParenthesis() {
-
-		return left.toStringExpression() + " " + //$NON-NLS-1$
-		operatorToString() + " " + //$NON-NLS-1$
-		right.toStringExpression();
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -22,7 +22,7 @@ public class SelectionOnFieldType extends FieldDeclaration {
 		this.type = type;
 		this.name = CharOperation.NO_CHAR;
 	}
-	public String toString(int tab) {
-		return type.toString(tab);
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+		return type.print(tab, output).append(';'); 
 	}
 }

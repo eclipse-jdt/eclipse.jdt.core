@@ -89,6 +89,30 @@ public class Assignment extends Expression {
 		}
 		return null;
 	}
+	public StringBuffer print(int indent, StringBuffer output) {
+
+		//no () when used as a statement 
+		printIndent(indent, output);
+		return printExpressionNoParenthesis(indent, output);
+	}
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+
+		//subclass redefine printExpressionNoParenthesis()
+		output.append('(');
+		return printExpressionNoParenthesis(0, output).append(')');
+	} 
+
+	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+
+		lhs.printExpression(indent, output).append(" = "); //$NON-NLS-1$
+		return expression.printExpression(0, output);
+	}
+	
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		//no () when used as a statement 
+		return print(indent, output).append(';');
+	}
 
 	public TypeBinding resolveType(BlockScope scope) {
 
@@ -134,27 +158,6 @@ public class Assignment extends Expression {
 		return super.resolveTypeExpecting(scope, expectedType);
 	}
 
-	public String toString(int tab) {
-
-		//no () when used as a statement 
-		return tabString(tab) + toStringExpressionNoParenthesis();
-	}
-
-	public String toStringExpression() {
-
-		//subclass redefine toStringExpressionNoParenthesis()
-		return "(" + toStringExpressionNoParenthesis() + ")"; //$NON-NLS-2$ //$NON-NLS-1$
-	} 
-	
-	public String toStringExpressionNoParenthesis() {
-
-		return lhs.toStringExpression() + " " //$NON-NLS-1$
-			+ "=" //$NON-NLS-1$
-			+ ((expression.constant != null) && (expression.constant != NotAConstant)
-				? " /*cst:" + expression.constant.toString() + "*/ " //$NON-NLS-1$ //$NON-NLS-2$
-				: " ")  //$NON-NLS-1$
-			+ expression.toStringExpression();
-	}
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		
 		if (visitor.visit(this, scope)) {

@@ -196,7 +196,7 @@ public AstNode parseTree(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered block:\n"); //$NON-NLS-1$
-	result.append(blockDeclaration.toString(tab + 1));
+	blockDeclaration.print(tab + 1, result);
 	if (this.statements != null) {
 		for (int i = 0; i < this.statementCount; i++) {
 			result.append("\n"); //$NON-NLS-1$

@@ -79,6 +79,24 @@ public class Block extends Statement {
 		return statements == null;
 	}
 
+	public StringBuffer printBody(int indent, StringBuffer output) {
+
+		if (this.statements == null) return output;
+		for (int i = 0; i < statements.length; i++) {
+			statements[i].printStatement(indent + 1, output);
+			output.append('\n'); 
+		};
+		return output;
+	}
+
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output);
+		output.append("{\n"); //$NON-NLS-1$
+		printBody(indent, output);
+		return printIndent(indent, output).append('}');
+	}
+
 	public void resolve(BlockScope upperScope) {
 
 		if (statements != null) {
@@ -101,38 +119,6 @@ public class Block extends Statement {
 			while (i < length)
 				statements[i++].resolve(scope);
 		}
-	}
-
-	public String toString(int tab) {
-
-		String s = tabString(tab);
-		if (this.statements == null) {
-			s += "{\n"; //$NON-NLS-1$
-			s += tabString(tab);
-			s += "}"; //$NON-NLS-1$
-			return s;
-		}
-		s += "{\n"; //$NON-NLS-1$
-		s += this.toStringStatements(tab);
-		s += tabString(tab);
-		s += "}"; //$NON-NLS-1$
-		return s;
-	}
-
-	public String toStringStatements(int tab) {
-
-		if (this.statements == null)
-			return ""; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < statements.length; i++) {
-			buffer.append(statements[i].toString(tab + 1));
-			if (statements[i] instanceof Block || statements[i] instanceof EmptyStatement) {
-				buffer.append("\n"); //$NON-NLS-1$
-			} else {
-				buffer.append(";\n"); //$NON-NLS-1$
-			}
-		};
-		return buffer.toString();
 	}
 
 	public void traverse(

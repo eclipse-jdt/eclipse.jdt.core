@@ -63,11 +63,11 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	throw new CompletionNodeFound(this, this.resolvedType, scope);
 }
-public String toStringExpression(int tab) {
-	return 
-		((this.enclosingInstance == null) ? 
-			"<CompleteOnAllocationExpression:" :  //$NON-NLS-1$
-			"<CompleteOnQualifiedAllocationExpression:") +  //$NON-NLS-1$
-		super.toStringExpression(tab) + ">"; //$NON-NLS-1$
+public StringBuffer printExpression(int indent, StringBuffer output) {
+	if (this.enclosingInstance == null) 
+		output.append("<CompleteOnAllocationExpression:" );  //$NON-NLS-1$
+	else 
+		output.append("<CompleteOnQualifiedAllocationExpression:");  //$NON-NLS-1$
+	return super.printExpression(indent, output).append('>'); 
 }
 }

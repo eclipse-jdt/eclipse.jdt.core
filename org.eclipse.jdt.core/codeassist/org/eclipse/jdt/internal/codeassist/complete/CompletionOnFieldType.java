@@ -52,8 +52,8 @@ public TypeBinding getTypeBinding(Scope scope) {
 	else // handle the qualified type ref directly
 		return type.getTypeBinding(scope);
 }
-public String toString(int tab) {
+public StringBuffer printStatement(int tab, StringBuffer output) {
 
-	return type.toString(tab);
+	return type.print(tab, output).append(';'); 
 }
 }
