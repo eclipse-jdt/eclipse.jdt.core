@@ -552,12 +552,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		SimpleName x = ast.newSimpleName("foo");
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Name);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("foo".equals(x.getIdentifier()));
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_NAME);
 		assertTrue(x.isDeclaration() == false);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		previousCount = ast.modificationCount();
 		x.setIdentifier("bar");
@@ -636,6 +639,7 @@ public class ASTTest extends TestCase {
 			ast.newSimpleName("q"),
 			ast.newSimpleName("i"));
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Name);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -643,6 +647,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == false);
 		assertTrue(x.getNodeType() == ASTNode.QUALIFIED_NAME);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Qualifier", true, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -692,21 +698,28 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		NullLiteral x = ast.newNullLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.NULL_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
 	}		
 
 	public void testBooleanLiteral() {
 		long previousCount = ast.modificationCount();
 		BooleanLiteral x = ast.newBooleanLiteral(true);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.booleanValue() == true);
 		assertTrue(x.getNodeType() == ASTNode.BOOLEAN_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		previousCount = ast.modificationCount();
 		x.setBooleanValue(false);
@@ -724,12 +737,15 @@ public class ASTTest extends TestCase {
 		// check 0-arg factory first
 		StringLiteral x = ast.newStringLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("\"\"".equals(x.getEscapedValue()));
 		assertTrue("".equals(x.getLiteralValue()));
 		assertTrue(x.getNodeType() == ASTNode.STRING_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		previousCount = ast.modificationCount();
 		x.setEscapedValue("\"bye\"");
@@ -807,12 +823,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		CharacterLiteral x = ast.newCharacterLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getEscapedValue().startsWith("\'"));
 		assertTrue(x.getEscapedValue().endsWith("\'"));
 		assertTrue(x.getNodeType() == ASTNode.CHARACTER_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		previousCount = ast.modificationCount();
 		x.setEscapedValue("\'z\'");
@@ -884,11 +903,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		NumberLiteral x = ast.newNumberLiteral("1234");
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue("1234".equals(x.getToken()));
 		assertTrue(x.getNodeType() == ASTNode.NUMBER_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		// test other factory method
 		previousCount = ast.modificationCount();
@@ -932,6 +954,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SimpleType x = ast.newSimpleType(ast.newSimpleName("String"));
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -940,6 +963,8 @@ public class ASTTest extends TestCase {
 		assertTrue(!x.isArrayType());
 		assertTrue(!x.isPrimitiveType());
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_TYPE);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Name", true, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -962,6 +987,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		PrimitiveType x = ast.newPrimitiveType(PrimitiveType.INT);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -970,6 +996,8 @@ public class ASTTest extends TestCase {
 		assertTrue(!x.isArrayType());
 		assertTrue(x.isPrimitiveType());
 		assertTrue(x.getNodeType() == ASTNode.PRIMITIVE_TYPE);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		// check the names of the primitive type codes
 		assertTrue(PrimitiveType.BYTE.toString().equals("byte"));
@@ -1031,10 +1059,13 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ArrayType x = ast.newArrayType(x2);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Type);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getComponentType().getParent() == x);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		assertTrue(!x.isSimpleType());
 		assertTrue(x.isArrayType());
 		assertTrue(!x.isPrimitiveType());
@@ -1079,10 +1110,13 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final PackageDeclaration x = ast.newPackageDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.PACKAGE_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Name", true, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -1105,11 +1139,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ImportDeclaration x = ast.newImportDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.isOnDemand() == false);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.IMPORT_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Name", true, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -1141,12 +1178,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final CompilationUnit x = ast.newCompilationUnit();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getPackage() == null);
 		assertTrue(x.imports().size() == 0);
 		assertTrue(x.types().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.COMPILATION_UNIT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tClientProperties(x);
 		
@@ -1259,6 +1299,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final TypeDeclaration x = ast.newTypeDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -1271,6 +1312,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.superInterfaces().size() == 0);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		previousCount = ast.modificationCount();
 		x.setInterface(true);	
@@ -1406,6 +1449,7 @@ public class ASTTest extends TestCase {
 		final SingleVariableDeclaration x = ast.newSingleVariableDeclaration();
 		assertTrue(x instanceof VariableDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
@@ -1415,6 +1459,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.SINGLE_VARIABLE_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		int legal = Modifier.PUBLIC | Modifier.PROTECTED
 			| Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL
@@ -1504,6 +1550,7 @@ public class ASTTest extends TestCase {
 		final VariableDeclarationFragment x = ast.newVariableDeclarationFragment();
 		assertTrue(x instanceof VariableDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
@@ -1511,6 +1558,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		previousCount = ast.modificationCount();
 		x.setExtraDimensions(1);
@@ -1578,6 +1627,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final MethodDeclaration x = ast.newMethodDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -1592,6 +1642,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.thrownExceptions().size() == 0);
 		assertTrue(x.getBody() == null);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		previousCount = ast.modificationCount();
 		x.setConstructor(true);	
@@ -1734,6 +1786,7 @@ public class ASTTest extends TestCase {
 		final Initializer x = ast.newInitializer();
 		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getJavadoc() == null);
@@ -1741,6 +1794,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getBody().getParent() == x);
 		assertTrue(x.getBody().statements().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.INITIALIZER);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		tJavadocComment(x);
 				
@@ -1789,11 +1844,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		Javadoc x = ast.newJavadoc();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getComment().startsWith("/**"));
 		assertTrue(x.getComment().endsWith("*/"));
 		assertTrue(x.getNodeType() == ASTNode.JAVADOC);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		final String[] samples =
 			{ 
@@ -1833,11 +1891,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final Block x = ast.newBlock();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.statements().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.BLOCK);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		tLeadingComment(x);
 
@@ -1868,6 +1929,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final MethodInvocation x = ast.newMethodInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -1875,6 +1937,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.arguments().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_INVOCATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -1929,12 +1993,15 @@ public class ASTTest extends TestCase {
 		SimpleName x1 = ast.newSimpleName("foo");
 		final ExpressionStatement x = ast.newExpressionStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -1978,6 +2045,7 @@ public class ASTTest extends TestCase {
 		final VariableDeclarationStatement x = 
 			ast.newVariableDeclarationStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -1988,6 +2056,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2063,12 +2133,15 @@ public class ASTTest extends TestCase {
 		final TypeDeclarationStatement x =
 			ast.newTypeDeclarationStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getTypeDeclaration() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		// check that TypeDeclaration inside is classified correctly
 		assertTrue(x1.isLocalTypeDeclaration() == true);
@@ -2115,6 +2188,7 @@ public class ASTTest extends TestCase {
 		final VariableDeclarationExpression x = 
 			ast.newVariableDeclarationExpression(x1);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2125,6 +2199,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		int legal = Modifier.FINAL;
 		previousCount = ast.modificationCount();
@@ -2197,6 +2273,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final FieldDeclaration x = ast.newFieldDeclaration(x1);
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof BodyDeclaration);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2208,6 +2285,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.FIELD_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		int legal = Modifier.PUBLIC | Modifier.PROTECTED
 			| Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL
@@ -2280,6 +2359,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final Assignment x = ast.newAssignment();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2287,6 +2367,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getLeftHandSide().getParent() == x);
 		assertTrue(x.getRightHandSide().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.ASSIGNMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		previousCount = ast.modificationCount();
 		x.setOperator(Assignment.Operator.PLUS_ASSIGN);
@@ -2410,12 +2492,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final BreakStatement x = ast.newBreakStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLabel() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.BREAK_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 
@@ -2440,12 +2525,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ContinueStatement x = ast.newContinueStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLabel() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.CONTINUE_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2470,6 +2558,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final IfStatement x = ast.newIfStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2480,6 +2569,8 @@ public class ASTTest extends TestCase {
 		assertTrue(((Block) x.getThenStatement()).statements().isEmpty());
 		assertTrue(x.getElseStatement() == null);
 		assertTrue(x.getNodeType() == ASTNode.IF_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2574,6 +2665,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final WhileStatement x = ast.newWhileStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2583,6 +2675,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getBody() instanceof Block);
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.WHILE_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2650,6 +2744,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final DoStatement x = ast.newDoStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -2659,6 +2754,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getBody() instanceof Block);
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.DO_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2726,6 +2823,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final TryStatement x = ast.newTryStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
@@ -2737,6 +2835,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getFinally() == null);
 		assertTrue(x.catchClauses().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.TRY_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 	
 		tLeadingComment(x);
 
@@ -2823,12 +2923,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final CatchClause x = ast.newCatchClause();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getBody().getParent() == x);
 		assertTrue(x.getBody().statements().isEmpty());
 		assertTrue(x.getException().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CATCH_CLAUSE);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Exception", true, SingleVariableDeclaration.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -2901,11 +3004,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final EmptyStatement x = ast.newEmptyStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		tLeadingComment(x);
 	}
@@ -3061,11 +3167,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ReturnStatement x = ast.newReturnStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.getNodeType() == ASTNode.RETURN_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 
@@ -3106,12 +3215,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ThrowStatement x = ast.newThrowStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.THROW_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 
@@ -3152,6 +3264,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final AssertStatement x = ast.newAssertStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3159,6 +3272,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getMessage() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.ASSERT_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 
@@ -3231,6 +3346,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SwitchStatement x = ast.newSwitchStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3238,6 +3354,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 		
@@ -3300,6 +3418,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SwitchCase x = ast.newSwitchCase();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3307,6 +3426,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(!x.isDefault());	
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_CASE);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -3347,6 +3468,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SynchronizedStatement x = ast.newSynchronizedStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3354,6 +3476,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getBody().statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.SYNCHRONIZED_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 		
@@ -3421,6 +3545,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final LabeledStatement x = ast.newLabeledStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3428,6 +3553,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getBody().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.LABELED_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 		
@@ -3688,6 +3815,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ForStatement x = ast.newForStatement();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -3699,6 +3827,8 @@ public class ASTTest extends TestCase {
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.FOR_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		tLeadingComment(x);
 		
@@ -3820,11 +3950,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ConstructorInvocation x = ast.newConstructorInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.arguments(),
 		  new Property("Arguments", true, Expression.class) {
@@ -3858,12 +3991,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SuperConstructorInvocation x = ast.newSuperConstructorInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Statement);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -3929,11 +4065,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ThisExpression x = ast.newThisExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getNodeType() == ASTNode.THIS_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -3958,12 +4097,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final FieldAccess x = ast.newFieldAccess();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.FIELD_ACCESS);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -4012,12 +4154,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SuperFieldAccess x = ast.newSuperFieldAccess();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getNodeType() == ASTNode.SUPER_FIELD_ACCESS);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4058,6 +4203,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final SuperMethodInvocation x = ast.newSuperMethodInvocation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -4065,6 +4211,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4126,11 +4274,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final TypeLiteral x = ast.newTypeLiteral();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_LITERAL);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Type", true, Type.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4154,12 +4305,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final CastExpression x = ast.newCastExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CAST_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Type", true, Type.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4208,12 +4362,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final PrefixExpression x = ast.newPrefixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getOperand().getParent() == x);
 		assertTrue(x.getOperator() != null);
 		assertTrue(x.getNodeType() == ASTNode.PREFIX_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
@@ -4292,12 +4449,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final PostfixExpression x = ast.newPostfixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getOperand().getParent() == x);
 		assertTrue(x.getOperator() != null);
 		assertTrue(x.getNodeType() == ASTNode.POSTFIX_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
@@ -4368,6 +4528,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final InfixExpression x = ast.newInfixExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -4376,6 +4537,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getRightOperand().getParent() == x);
 		assertTrue(x.extendedOperands().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
@@ -4526,12 +4689,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final InstanceofExpression x = ast.newInstanceofExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeftOperand().getParent() == x);
 		assertTrue(x.getRightOperand().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.INSTANCEOF_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 						
 		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -4588,6 +4754,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ConditionalExpression x = ast.newConditionalExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -4595,6 +4762,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getThenExpression().getParent() == x);
 		assertTrue(x.getElseExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CONDITIONAL_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -4676,12 +4845,15 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ArrayAccess x = ast.newArrayAccess();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getArray().getParent() == x);
 		assertTrue(x.getIndex().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_ACCESS);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Array", true, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -4738,11 +4910,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ArrayInitializer x = ast.newArrayInitializer();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.expressions().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_INITIALIZER);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.expressions(),
 		  new Property("Expressions", true, Expression.class) {
@@ -4770,6 +4945,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ClassInstanceCreation x = ast.newClassInstanceCreation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -4778,6 +4954,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getAnonymousClassDeclaration() == null);
 		assertTrue(x.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4877,11 +5055,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final AnonymousClassDeclaration x = ast.newAnonymousClassDeclaration();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof ASTNode);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.bodyDeclarations().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.ANONYMOUS_CLASS_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.bodyDeclarations(),
 		  new Property("BodyDeclarations", true, BodyDeclaration.class) {
@@ -4920,6 +5101,7 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ArrayCreation x = ast.newArrayCreation();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
@@ -4927,6 +5109,8 @@ public class ASTTest extends TestCase {
 		assertTrue(x.dimensions().isEmpty());
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_CREATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Type", true, ArrayType.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -4997,11 +5181,14 @@ public class ASTTest extends TestCase {
 		long previousCount = ast.modificationCount();
 		final ParenthesizedExpression x = ast.newParenthesizedExpression();
 		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
 			public ASTNode sample(AST ast, boolean parented) {
@@ -5080,7 +5267,7 @@ public class ASTTest extends TestCase {
 	public void testSubtreeBytes() {
 		
 		ASTNode x = oneOfEach(ast);
-		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
+//		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
 		assertTrue(x.subtreeBytes() > 0);
 	}
 	
