@@ -78,17 +78,21 @@ public class ConditionalExpression extends OperatorExpression {
 			return mergeInfo;
 		}
 
-		// store a copy of the merged info, so as to compute the local variable attributes afterwards
+		// propagate analysis
 		FlowInfo trueInfo = flowInfo.initsWhenTrue().copy();
+		int mode = trueInfo.reachMode();
 		if (isConditionOptimizedFalse) trueInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
 		thenInitStateIndex = currentScope.methodScope().recordInitializationStates(trueInfo);
+		trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo);
+		trueInfo.setReachMode(mode);
+		
 		FlowInfo falseInfo = flowInfo.initsWhenFalse().copy();
+		mode = falseInfo.reachMode();
 		if (isConditionOptimizedTrue) falseInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
 		elseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseInfo);
-
-		// propagate analysis
-		trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo);
 		falseInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseInfo);
+		falseInfo.setReachMode(mode);
+
 
 		// merge using a conditional info -  1GK2BLM
 		// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
@@ -99,6 +103,7 @@ public class ConditionalExpression extends OperatorExpression {
 				trueInfo.initsWhenFalse().unconditionalInits().mergedWith(
 					falseInfo.initsWhenFalse().unconditionalInits()));
 
+		// store a copy of the merged info, so as to compute the local variable attributes afterwards
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
