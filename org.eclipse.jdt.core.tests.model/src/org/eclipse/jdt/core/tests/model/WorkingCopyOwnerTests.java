@@ -254,7 +254,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	/*
 	 * Ensures that the correct delta is issued when a primary working copy becomes a compilation unit.
 	 */
-	public void testDeltaDiscardPrimaryWorkingCopy() throws CoreException {
+	public void testDeltaDiscardPrimaryWorkingCopy1() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			createFile(
@@ -273,6 +273,45 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"	[project root][*]: {CHILDREN}\n" + 
 				"		[default][*]: {CHILDREN}\n" + 
 				"			Y.java[*]: {PRIMARY WORKING COPY}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+		
+	}
+
+	/*
+	 * Ensures that the correct delta is issued when a primary working copy that contained a change
+	 * becomes a compilation unit.
+	 * (regression test for bug 40779 Primary working copies: no deltas on destroy)
+
+	 */
+	public void testDeltaDiscardPrimaryWorkingCopy2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			workingCopy.getType("Y").createField("int x;", null, false, null);
+
+			startDeltas();
+			workingCopy.discardWorkingCopy();
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		[default][*]: {CHILDREN}\n" + 
+				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}\n" + 
+				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"					x[-]: {}"
 			);
 		} finally {
 			stopDeltas();

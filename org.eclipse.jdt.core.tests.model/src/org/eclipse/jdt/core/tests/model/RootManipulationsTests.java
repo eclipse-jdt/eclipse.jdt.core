@@ -1144,7 +1144,7 @@ public void testRenameJarFile3() throws CoreException {
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
 			"	myLib1.jar[-]: {MOVED_TO(myLib2.jar [in P])}\n" + 
-			"	myLib2.jar[*]: {REORDERED}\n" + 
+			"	myLib2.jar[*]: {CONTENT | REORDERED | ARCHIVE CONTENT CHANGED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(

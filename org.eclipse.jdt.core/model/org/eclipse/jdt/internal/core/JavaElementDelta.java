@@ -104,12 +104,12 @@ protected void addAffectedChild(JavaElementDelta child) {
 		fAffectedChildren = new IJavaElementDelta[] {child};
 		return;
 	}
-	IJavaElementDelta existingChild = null;
+	JavaElementDelta existingChild = null;
 	int existingChildIndex = -1;
 	if (fAffectedChildren != null) {
 		for (int i = 0; i < fAffectedChildren.length; i++) {
 			if (this.equalsAndSameParent(fAffectedChildren[i].getElement(), child.getElement())) { // handle case of two jars that can be equals but not in the same project
-				existingChild = fAffectedChildren[i];
+				existingChild = (JavaElementDelta)fAffectedChildren[i];
 				existingChildIndex = i;
 				break;
 			}
@@ -150,17 +150,19 @@ protected void addAffectedChild(JavaElementDelta child) {
 						IJavaElementDelta[] children = child.getAffectedChildren();
 						for (int i = 0; i < children.length; i++) {
 							JavaElementDelta childsChild = (JavaElementDelta) children[i];
-							((JavaElementDelta) existingChild).addAffectedChild(childsChild);
+							existingChild.addAffectedChild(childsChild);
 						}
 						
-						// update flags if needed
-						switch (((JavaElementDelta) existingChild).fChangeFlags) {
-							case F_ADDED_TO_CLASSPATH:
-							case F_REMOVED_FROM_CLASSPATH:
-							case F_SOURCEATTACHED:
-							case F_SOURCEDETACHED:
-								((JavaElementDelta) existingChild).fChangeFlags |= child.fChangeFlags;
-								break;
+						// update flags
+						boolean childHadContentFlag = (child.fChangeFlags & F_CONTENT) != 0;
+						boolean existingChildHadChildrenFlag = (existingChild.fChangeFlags & F_CHILDREN) != 0;
+						existingChild.fChangeFlags |= child.fChangeFlags;
+						
+						// remove F_CONTENT flag if existing child had F_CHILDREN flag set 
+						// (case of fine grained delta (existing child) and delta coming from 
+						// DeltaProcessor (child))
+						if (childHadContentFlag && existingChildHadChildrenFlag) {
+							existingChild.fChangeFlags &= ~F_CONTENT;
 						}
 						
 						// add the non-java resource deltas if needed
@@ -168,8 +170,8 @@ protected void addAffectedChild(JavaElementDelta child) {
 						// as non-java resource deltas are always created last (by the DeltaProcessor)
 						IResourceDelta[] resDeltas = child.getResourceDeltas();
 						if (resDeltas != null) {
-							((JavaElementDelta)existingChild).resourceDeltas = resDeltas;
-							((JavaElementDelta)existingChild).resourceDeltasCounter = child.resourceDeltasCounter;
+							existingChild.resourceDeltas = resDeltas;
+							existingChild.resourceDeltasCounter = child.resourceDeltasCounter;
 						}
 						return;
 				}

@@ -643,6 +643,8 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * Discards the per working copy info for the given working copy (making it a compilation unit)
 	 * if its use count was 1. Otherwise, just decrement the use count.
+	 * If the working copy is primary, computes the delta between its state and the original compilation unit
+	 * and register it.
 	 * Close the working copy, its buffer and remove it from the shared working copy table.
 	 * Ignore if no per-working copy info existed.
 	 * Returns the new use count (or -1 if it didn't exist).
@@ -658,6 +660,12 @@ public class JavaModelManager implements ISaveParticipant {
 			if (info == null) return -1;
 			
 			if (--info.useCount == 0) {
+				// create the delta builder (this remembers the current content of the working copy)
+				JavaElementDeltaBuilder deltaBuilder = null;
+				if (workingCopy.owner == DefaultWorkingCopyOwner.PRIMARY) {
+					deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+				}
+
 				IJavaElement originalElement = workingCopy.getPrimary();
 
 				// remove per working copy info
@@ -674,6 +682,15 @@ public class JavaModelManager implements ISaveParticipant {
 				if (!workingCopy.getParent().exists()) {
 					((CompilationUnit)originalElement).close();
 				}
+				
+				// compute the delta if needed and register it if there are changes
+				if (deltaBuilder != null) {
+					deltaBuilder.buildDeltas();
+					if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
+						getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
+					}
+				}
+				
 			}
 			return info.useCount;
 		}
