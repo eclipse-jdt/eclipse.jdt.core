@@ -2895,10 +2895,8 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ArrayTypeReference) {
-		if (!(location instanceof ParameterizedSingleTypeReference)) {
-			ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
-			end = arrayTypeReference.originalSourceEnd;
-		}
+		ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
+		end = arrayTypeReference.originalSourceEnd;
 	}
 	this.handle(
 		id,
