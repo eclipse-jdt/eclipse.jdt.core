@@ -16123,4 +16123,31 @@ public void test500(){
 			false,
 			null);
 	}	
-}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89448
+	public void test568() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"\n" + 
+				"        ArrayList<ArrayList<Long>> n = new ArrayList<ArrayList<Long>>();\n" + 
+				"        ArrayList<Long> arr = new ArrayList<Long>();\n" + 
+				"        arr.add(new Long(5));\n" + 
+				"        n.add(arr);\n" + 
+				"        \n" + 
+				"        List<? extends List<Long>> m = n; // Whoa!\n" + 
+				"        \n" + 
+				"        for(Long l : m.get(0)) {\n" + 
+				"            System.out.println(l);\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"5");	
+	}	}

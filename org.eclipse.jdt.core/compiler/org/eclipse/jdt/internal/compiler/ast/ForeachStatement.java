@@ -180,7 +180,7 @@ public class ForeachStatement extends Statement {
 			case GENERIC_ITERABLE :
 				collection.generateCode(scope, codeStream, true);
 				// declaringClass.iterator();
-				final TypeBinding collectionTypeBinding = collection.resolvedType;
+				final TypeBinding collectionTypeBinding = collection.resolvedType.erasure();
 				MethodBinding iteratorMethodBinding =
 					new MethodBinding(
 							AccPublic,
