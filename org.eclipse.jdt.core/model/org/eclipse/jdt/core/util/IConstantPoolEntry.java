@@ -11,6 +11,9 @@
 package org.eclipse.jdt.core.util;
 
 /**
+ * Description of a constant pool entry as described in the JVM specifications.
+ * Its contents is initialized according to its kind.
+ *  
  * @since 2.0
  */
 public interface IConstantPoolEntry {
