@@ -397,7 +397,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * Returns an array of types, where original types got substituted using the receiver
+	 * Returns a type, where original type was substituted using the receiver
 	 * parameterized type.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
