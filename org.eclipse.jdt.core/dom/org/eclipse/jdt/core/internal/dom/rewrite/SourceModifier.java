@@ -73,6 +73,7 @@ public class SourceModifier implements ISourceModifier {
 				}
 			}
 		} catch (BadLocationException cannotHappen) {
+		    // ignore
 		}
 		return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
 	}

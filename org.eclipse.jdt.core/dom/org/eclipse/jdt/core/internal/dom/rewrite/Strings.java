@@ -21,7 +21,9 @@ import org.eclipse.jface.text.IRegion;
  */
 public class Strings {
 	
-	private Strings(){}
+	private Strings() {
+		// don't allow to create such an instance    
+	}
 	
 	/**
 	 * Indent char is a space char but not a line delimiters.

@@ -21,6 +21,7 @@ public class GenericVisitor extends ASTVisitor {
 	}
 	
 	protected void endVisitNode(ASTNode node) {
+	    // ignore
 	}
 
 	public boolean visit(AnonymousClassDeclaration node) {

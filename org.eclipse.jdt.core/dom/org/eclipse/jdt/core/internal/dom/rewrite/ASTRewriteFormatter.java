@@ -106,9 +106,9 @@ import org.eclipse.jdt.core.dom.Block;
 	protected String fLineDelimiter;
 	
 	protected NodeInfoStore fPlaceholders;
-	private RewriteEventStore fEventStore;
+	RewriteEventStore fEventStore;
 
-	private Map fOptions;
+	Map fOptions;
 	
 	public ASTRewriteFormatter(NodeInfoStore placeholders, RewriteEventStore eventStore, Map options, String lineDelimiter) {
 		fPlaceholders= placeholders;

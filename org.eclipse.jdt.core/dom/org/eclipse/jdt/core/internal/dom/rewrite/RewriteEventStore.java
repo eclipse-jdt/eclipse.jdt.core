@@ -203,7 +203,7 @@ public final class RewriteEventStore {
 		
 	
 	/** all events */
-	private final List fEvents;
+	final List fEvents;
 	
 	/** cache for last accessed event */
 	private EventHolder fLastEvent;
@@ -212,10 +212,10 @@ public final class RewriteEventStore {
 	private Map fEditGroups;
 		
 	/** Stores which nodes are source of a copy or move */
-	private List fCopySources;
+	List fCopySources;
 	
 	/** Stores which nodes are tracked and the corresponding edit group*/
-	private Map fTrackedNodes;
+	Map fTrackedNodes;
 	
 	/** Stores which inserted nodes bound to the previous node. If not, a node is
 	 * always bound to the next node */
@@ -520,6 +520,7 @@ public final class RewriteEventStore {
 	}
 	
 	private void assertNoNesting(CopySourceInfo copySource) {
+	    // ignore
 	}
 	
 	/**

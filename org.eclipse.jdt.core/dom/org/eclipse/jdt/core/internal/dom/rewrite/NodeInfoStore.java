@@ -219,6 +219,7 @@ public final class NodeInfoStore {
 	}
 	
 	private static class PlaceholderData {
+		// don't allow to create such an instance
 	}
 			
 	protected static final class CopyPlaceholderData extends PlaceholderData {
