@@ -104,9 +104,9 @@ public class DoStatement extends Statement {
 	 * Sets the expression of this do statement.
 	 * 
 	 * @param expression the expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -134,9 +134,9 @@ public class DoStatement extends Statement {
 	 * Sets the body of this do statement.
 	 * 
 	 * @param statement the body statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Statement statement) {
 		if (statement == null) {

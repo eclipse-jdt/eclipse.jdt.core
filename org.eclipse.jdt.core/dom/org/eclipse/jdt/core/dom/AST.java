@@ -453,7 +453,7 @@ public final class AST {
 	 * 
 	 * @param identifier the identifier
 	 * @return a new unparented simple name node
-	 * @exception $precondition-violation:invalid-java-identifier$
+	 * @exception IllegalArgumentException if the identifier is invalid
 	 */
 	public SimpleName newSimpleName(String identifier) {
 		if (identifier == null) {
@@ -471,8 +471,8 @@ public final class AST {
 	 * @param qualifier the qualifier name node
 	 * @param name the simple name being qualified
 	 * @return a new unparented qualified name node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */
 	public QualifiedName newQualifiedName(
 		Name qualifier,
@@ -494,8 +494,8 @@ public final class AST {
 	 * @param identifiers a list of 1 or more name segments, each of which
 	 *    is a legal Java identifier
 	 * @return a new unparented name node
-	 * @exception $precondition-violation:invalid-java-identifier$
-	 * @exception $precondition-violation:empty-identifier-list$
+	 * @exception IllegalArgumentException if the identifier is invalid
+	 * @exception IllegalArgumentException if the list of identifiers is empty
 	 */
 	public Name newName(String[] identifiers) {
 		int count = identifiers.length;
@@ -521,8 +521,8 @@ public final class AST {
 	 * 
 	 * @param typeName the name of the class or interface
 	 * @return a new unparented simple type node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */
 	public SimpleType newSimpleType(Name typeName) {
 		SimpleType result = new SimpleType(this);
@@ -536,9 +536,9 @@ public final class AST {
 	 * 
 	 * @param componentType the component type (possibly another array type)
 	 * @return a new unparented array type node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public ArrayType newArrayType(Type componentType) {
 		ArrayType result = new ArrayType(this);
@@ -557,9 +557,9 @@ public final class AST {
 	 * @param elementType the element type (never an array type)
 	 * @param dimensions the number of dimensions, a positive number
 	 * @return a new unparented array type node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public ArrayType newArrayType(Type elementType, int dimensions) {
 		if (elementType == null || elementType.isArrayType()) {
@@ -585,7 +585,7 @@ public final class AST {
 	 * @param typeCode one of the primitive type code constants declared in 
 	 *    <code>PrimitiveType</code>
 	 * @return a new unparented primitive type node
-	 * @exception $precondition-violation:invalid-primitive-type-code$
+	 * @exception IllegalArgumentException if the primitive type code is invalid
 	 */
 	public PrimitiveType newPrimitiveType(PrimitiveType.Code typeCode) {
 		PrimitiveType result = new PrimitiveType(this);
@@ -616,8 +616,8 @@ public final class AST {
 	 * unspecified name.
 	 * 
 	 * @return the new unparented package declaration node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */
 	public PackageDeclaration newPackageDeclaration() {
 		PackageDeclaration result = new PackageDeclaration(this);
@@ -630,8 +630,8 @@ public final class AST {
 	 * of a type with an unspecified name.
 	 * 
 	 * @return the new unparented import declaration node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */
 	public ImportDeclaration newImportDeclaration() {
 		ImportDeclaration result = new ImportDeclaration(this);
@@ -738,9 +738,9 @@ public final class AST {
 	 * 
 	 * @param fragment the variable declaration fragment
 	 * @return a new unparented variable declaration statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public VariableDeclarationStatement
 			newVariableDeclarationStatement(VariableDeclarationFragment fragment) {
@@ -764,9 +764,9 @@ public final class AST {
 	 * 
 	 * @param decl the type declaration
 	 * @return a new unparented local type declaration statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public TypeDeclarationStatement 
 			newTypeDeclarationStatement(TypeDeclaration decl) {
@@ -818,9 +818,9 @@ public final class AST {
 	 * 
 	 * @param expression the expression
 	 * @return a new unparented statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public ExpressionStatement newExpressionStatement(Expression expression) {
 		ExpressionStatement result = new ExpressionStatement(this);
@@ -1144,9 +1144,9 @@ public final class AST {
 	 * 
 	 * @param fragment the first variable declaration fragment
 	 * @return a new unparented variable declaration expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public VariableDeclarationExpression
 			newVariableDeclarationExpression(VariableDeclarationFragment fragment) {
@@ -1174,9 +1174,9 @@ public final class AST {
 	 * 
 	 * @param fragment the variable declaration fragment
 	 * @return a new unparented field declaration node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */
 	public FieldDeclaration newFieldDeclaration(VariableDeclarationFragment fragment) {
 		if (fragment == null) {

@@ -104,9 +104,9 @@ public class SynchronizedStatement extends Statement {
 	 * Sets the expression of this synchronized statement.
 	 * 
 	 * @param expression the expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -135,9 +135,9 @@ public class SynchronizedStatement extends Statement {
 	 * Sets the body of this synchronized statement.
 	 * 
 	 * @param block the body statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Block block) {
 		if (block == null) {

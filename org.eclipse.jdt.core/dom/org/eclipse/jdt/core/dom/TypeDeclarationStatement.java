@@ -104,9 +104,9 @@ public class TypeDeclarationStatement extends Statement {
 	 * statement.
 	 * 
 	 * @param decl the type declaration node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setTypeDeclaration(TypeDeclaration decl) {
 		if (decl == null) {

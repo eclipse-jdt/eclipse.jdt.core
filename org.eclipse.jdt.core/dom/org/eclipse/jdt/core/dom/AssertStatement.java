@@ -106,9 +106,9 @@ public class AssertStatement extends Statement {
 	 * Sets the first expression of this assert statement.
 	 * 
 	 * @param expression the new expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -135,9 +135,9 @@ public class AssertStatement extends Statement {
 	 * 
 	 * @param expression the message expression node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setMessage(Expression expression) {
 		// an AsertStatement may occur inside an Expression - must check cycles

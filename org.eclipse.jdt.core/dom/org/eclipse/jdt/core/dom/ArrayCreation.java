@@ -128,8 +128,8 @@ public class ArrayCreation extends Expression {
 	 * Sets the array type in this array creation expression.
 	 * 
 	 * @param type the new array type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setType(ArrayType type) {
 		if (type == null) {
@@ -167,9 +167,9 @@ public class ArrayCreation extends Expression {
 	 * 
 	 * @param initializer the array initializer node, or <code>null</code>
 	 *    if there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setInitializer(ArrayInitializer initializer) {
 		// an ArrayCreation may occur inside an ArrayInitializer

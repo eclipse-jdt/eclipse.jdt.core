@@ -190,7 +190,7 @@ public class PrefixExpression extends Expression {
 	 * Sets the operator of this prefix expression.
 	 * 
 	 * @param operator the operator
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setOperator(PrefixExpression.Operator operator) {
 		if (operator == null) {
@@ -217,9 +217,9 @@ public class PrefixExpression extends Expression {
 	 * Sets the operand of this prefix expression.
 	 * 
 	 * @param expression the operand expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setOperand(Expression expression) {
 		if (expression == null) {

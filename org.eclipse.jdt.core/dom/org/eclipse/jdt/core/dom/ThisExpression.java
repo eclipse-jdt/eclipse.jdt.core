@@ -88,8 +88,8 @@ public class ThisExpression extends Expression {
 	 * 
 	 * @param name the qualifier name node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setQualifier(Name name) {
 		// a ThisExpression cannot occur inside an Expression

@@ -226,7 +226,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * 
 	 * @param modifiers the bit-wise or of Modifier constants
 	 * @see Modifier
-	 * @exception $precondition-violation:illegal-modifiers$
+	 * @exception IllegalArgumentException if the modifiers are illegal
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
@@ -259,8 +259,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * the name of the class.
 	 * 
 	 * @param methodName the new method name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(SimpleName methodName) {
 		if (methodName == null) {
@@ -321,8 +321,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * </p>
 	 * 
 	 * @param type the new return type, possibly the void primitive type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setReturnType(Type type) {
 		if (type == null) {
@@ -358,9 +358,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * 
 	 * @param body the block node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Block body) {
 		// a MethodDeclaration may occur in a Block - must check cycles

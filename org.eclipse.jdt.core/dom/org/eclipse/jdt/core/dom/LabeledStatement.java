@@ -106,8 +106,8 @@ public class LabeledStatement extends Statement {
 	 * Sets the label of this labeled statement.
 	 * 
 	 * @param label the new label
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setLabel(SimpleName label) {
 		if (label == null) {
@@ -134,9 +134,9 @@ public class LabeledStatement extends Statement {
 	 * Sets the body of this labeled statement.
 	 * 
 	 * @param statement the body statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Statement statement) {
 		if (statement == null) {

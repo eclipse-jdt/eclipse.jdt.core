@@ -87,7 +87,7 @@ public class NumberLiteral extends Expression {
 	 * of characters that would appear in the source program.
 	 * 
 	 * @param token the numeric literal token
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setToken(String token) {
 		if (token == null || token.length() == 0) {

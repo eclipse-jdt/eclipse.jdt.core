@@ -974,9 +974,9 @@ public abstract class ASTNode {
 	 * @param cycleCheck <code>true</code> if cycles are possible and need to
 	 *   be checked, <code>false</code> if cycles are impossible and do not
 	 *   need to be checked
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	void replaceChild(ASTNode oldChild, ASTNode newChild, boolean cycleCheck) {
 		if (newChild != null) {
@@ -1007,11 +1007,11 @@ public abstract class ASTNode {
 	 *   not need to be checked
 	 * @param nodeType a type constraint on child nodes, or <code>null</code>
 	 *   if no special check is required
-	 * @exception $precondition-violation:null-child$
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:incorrect-child-type$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the child is null
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the child has the incorrect node type
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	static void checkNewChild(ASTNode node, ASTNode newChild,
 			boolean cycleCheck, Class nodeType) {
@@ -1319,7 +1319,7 @@ public abstract class ASTNode {
 	 * This method much be implemented in all concrete AST node types.
 	 * 
 	 * @param visitor the visitor object
-	 * @exception $precondition-violation:illegal-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */
 	public final void accept(ASTVisitor visitor) {
 		if (visitor == null) {

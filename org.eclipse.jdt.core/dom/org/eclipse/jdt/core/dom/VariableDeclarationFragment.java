@@ -143,7 +143,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * 
 	 * @return the number of extra array dimensions
 	 * @see Modifier
-	 * @exception $precondition-violation:negaitve-dimensions$
+	 * @exception IllegalArgumentException if the number of dimensions is negative
 	 */ 
 	public void setExtraDimensions(int dimensions) {
 		if (dimensions < 0) {

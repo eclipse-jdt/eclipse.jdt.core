@@ -103,9 +103,9 @@ public class CatchClause extends ASTNode {
 	 * Sets the variable declaration of this catch clause.
 	 * 
 	 * @param decl the exception variable declaration node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setException(SingleVariableDeclaration exception) {
 		if (exception == null) {
@@ -134,9 +134,9 @@ public class CatchClause extends ASTNode {
 	 * Sets the body of this catch clause.
 	 * 
 	 * @param body the catch clause block node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Block body) {
 		if (body == null) {

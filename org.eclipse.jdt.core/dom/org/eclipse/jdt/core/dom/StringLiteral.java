@@ -99,7 +99,7 @@ public class StringLiteral extends Expression {
 	 * 
 	 * @param token the string literal token, including enclosing double
 	 *    quotes and embedded escapes
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setEscapedValue(String token) {
 		if (token == null) {
@@ -142,7 +142,7 @@ public class StringLiteral extends Expression {
 	 * 
 	 * @return the string value without enclosing double quotes and embedded
 	 *    escapes
-	 * @exception $postcondition-violation:invalid-literal$
+	 * @exception IllegalArgumentException if the literal value cannot be converted
 	 */ 
 	public String getLiteralValue() {
 		String s = getEscapedValue();
@@ -261,7 +261,7 @@ public class StringLiteral extends Expression {
 	 * 
 	 * @param literal the string value without enclosing double quotes and 
 	 *    embedded escapes
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */
 	public void setLiteralValue(String value) {
 		if (value == null) {

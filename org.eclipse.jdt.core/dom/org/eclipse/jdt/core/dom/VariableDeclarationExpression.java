@@ -136,7 +136,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * @exception $precondition-violation:illegal-modifiers$
+	 * @exception IllegalArgumentException if the modifiers are illegal
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
@@ -169,8 +169,8 @@ public class VariableDeclarationExpression extends Expression {
 	 * type.
 	 * 
 	 * @param type the new base type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setType(Type type) {
 		if (type == null) {

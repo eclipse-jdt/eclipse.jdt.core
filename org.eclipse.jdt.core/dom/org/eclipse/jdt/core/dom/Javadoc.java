@@ -87,7 +87,7 @@ public class Javadoc extends ASTNode {
 	 * and any embedded line breaks.
 	 * 
 	 * @param javadocComment the javadoc comment string
-	 * @exception $precondition-violation:invalid-javadoc-comment$
+	 * @exception IllegalArgumentException if the Java comment string is invalid
 	 */
 	public void setComment(String javadocComment) {
 		if (javadocComment == null) {

@@ -212,7 +212,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @param modifiers the bit-wise or of Modifier constants
 	 * @see Modifier
-	 * @exception $precondition-violation:illegal-modifiers$
+	 * @exception IllegalArgumentException if the modifiers are illegal
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
@@ -240,8 +240,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * given name.
 	 * 
 	 * @param typeName the new type name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(SimpleName typeName) {
 		if (typeName == null) {
@@ -281,8 +281,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @param superclassName the superclass name node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setSuperclass(Name superclassName) {
 		replaceChild(

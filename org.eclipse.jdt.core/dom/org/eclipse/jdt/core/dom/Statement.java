@@ -104,7 +104,7 @@ public abstract class Statement extends ASTNode {
 	 * </p>
 	 * 
 	 * @param comment the comment string, or <code>null</code> if none
-	 * @exception $precondition-violation:invalid-comment$
+	 * @exception IllegalArgumentException if the comment string is invalid
 	 */
 	public void setLeadingComment(String comment) {
 		if (comment != null) {

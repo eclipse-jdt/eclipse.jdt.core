@@ -113,7 +113,7 @@ public class Initializer extends BodyDeclaration {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * @exception $precondition-violation:illegal-modifiers$
+	 * @exception IllegalArgumentException if the modifiers are illegal
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
@@ -140,9 +140,9 @@ public class Initializer extends BodyDeclaration {
 	 * Sets the body of this initializer declaration.
 	 * 
 	 * @param body the block node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Block body) {
 		if (body == null) {

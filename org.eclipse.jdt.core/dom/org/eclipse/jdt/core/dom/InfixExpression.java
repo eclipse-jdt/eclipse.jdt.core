@@ -271,7 +271,7 @@ public class InfixExpression extends Expression {
 	 * Sets the operator of this infix expression.
 	 * 
 	 * @param operator the infix operator
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setOperator(InfixExpression.Operator operator) {
 		if (operator == null) {
@@ -298,9 +298,9 @@ public class InfixExpression extends Expression {
 	 * Sets the left operand of this infix expression.
 	 * 
 	 * @param expression the left operand node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setLeftOperand(Expression expression) {
 		if (expression == null) {
@@ -328,9 +328,9 @@ public class InfixExpression extends Expression {
 	 * Sets the right operand of this infix expression.
 	 * 
 	 * @param expression the right operand node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setRightOperand(Expression expression) {
 		if (expression == null) {

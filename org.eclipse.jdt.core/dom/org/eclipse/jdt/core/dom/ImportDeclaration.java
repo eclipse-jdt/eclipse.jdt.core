@@ -111,8 +111,8 @@ public class ImportDeclaration extends ASTNode {
 	 * </p>
 	 * 
 	 * @param name the new import name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(Name name) {
 		if (name == null) {

@@ -211,7 +211,7 @@ public class PrimitiveType extends Type {
 	 * 
 	 * @param typeCode one of the primitive type code constants declared in 
 	 *    this class
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */
 	public void setPrimitiveTypeCode(PrimitiveType.Code typeCode) {
 		if (typeCode == null) {

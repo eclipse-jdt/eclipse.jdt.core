@@ -72,7 +72,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * Sets or clears the Javadoc comment node.
 	 * 
 	 * @param javadoc the javadoc comment node, or <code>null</code> if none
-	 * @exception $precondition-violation:invalid-javadoc-comment$
+	 * @exception IllegalArgumentException if the Java comment string is invalid
 	 */
 	public void setJavadoc(Javadoc javadoc) {
 		replaceChild(this.optionalJavadoc, javadoc, false);

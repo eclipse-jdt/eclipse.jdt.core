@@ -120,9 +120,9 @@ public class TryStatement extends Statement {
 	 * Sets the body of this try statement.
 	 * 
 	 * @param body the block node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Block body) {
 		if (body == null) {
@@ -159,9 +159,9 @@ public class TryStatement extends Statement {
 	 * 
 	 * @param block the finally block node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setFinally(Block block) {
 		// a TryStatement may occur in a Block - must check cycles

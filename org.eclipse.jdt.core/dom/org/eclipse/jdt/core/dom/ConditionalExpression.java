@@ -114,9 +114,9 @@ public class ConditionalExpression extends Expression {
 	 * Sets the condition of this conditional expression.
 	 * 
 	 * @param expression the condition node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -145,9 +145,9 @@ public class ConditionalExpression extends Expression {
 	 * Sets the "then" part of this conditional expression.
 	 * 
 	 * @param expression the "then" expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setThenExpression(Expression expression) {
 		if (expression == null) {
@@ -176,9 +176,9 @@ public class ConditionalExpression extends Expression {
 	 * Sets the "else" part of this conditional expression.
 	 * 
 	 * @param expression the "else" expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setElseExpression(Expression expression) {
 		if (expression == null) {

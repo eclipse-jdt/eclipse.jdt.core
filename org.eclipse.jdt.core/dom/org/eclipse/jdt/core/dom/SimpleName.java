@@ -116,7 +116,7 @@ public class SimpleName extends Name {
 	 * </p>
 	 * 
 	 * @param identifier the identifier of this node
-	 * @exception $precondition-violation:invalid-java-identifier$
+	 * @exception IllegalArgumentException if the identifier is invalid
 	 * @see AST#AST(java.util.Map)
 	 */ 
 	public void setIdentifier(String identifier) {

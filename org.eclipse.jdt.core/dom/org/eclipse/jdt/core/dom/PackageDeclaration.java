@@ -96,8 +96,8 @@ public class PackageDeclaration extends ASTNode {
 	 * Sets the package name of this package declaration to the given name.
 	 * 
 	 * @param name the new package name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(Name name) {
 		if (name == null) {

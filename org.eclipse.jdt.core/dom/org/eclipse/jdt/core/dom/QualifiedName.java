@@ -107,9 +107,9 @@ public class QualifiedName extends Name {
 	 * Sets the qualifier of this qualified name to the given name.
 	 * 
 	 * @param the qualifier of this qualified name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setQualifier(Name qualifier) {
 		if (qualifier == null) {
@@ -137,8 +137,8 @@ public class QualifiedName extends Name {
 	 * Sets the name part of this qualified name to the given simple name.
 	 * 
 	 * @param name the identifier of this qualified name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(SimpleName name) {
 		if (name == null) {

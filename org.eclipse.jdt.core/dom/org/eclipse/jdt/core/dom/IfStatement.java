@@ -120,9 +120,9 @@ public class IfStatement extends Statement {
 	 * Sets the condition of this if statement.
 	 * 
 	 * @param expression the expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -150,9 +150,9 @@ public class IfStatement extends Statement {
 	 * Sets the "then" part of this if statement.
 	 * 
 	 * @param statement the "then" statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setThenStatement(Statement statement) {
 		if (statement == null) {
@@ -187,9 +187,9 @@ public class IfStatement extends Statement {
 	 * 
 	 * @param statement the "else" statement node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setElseStatement(Statement statement) {
 		// an IfStatement may occur inside a Statement - must check cycles

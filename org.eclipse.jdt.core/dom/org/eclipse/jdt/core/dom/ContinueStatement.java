@@ -92,8 +92,8 @@ public class ContinueStatement extends Statement {
 	 * 
 	 * @param label the label, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setLabel(SimpleName label) {
 		// a ContinueStatement cannot occur inside a SimpleName - no cycles

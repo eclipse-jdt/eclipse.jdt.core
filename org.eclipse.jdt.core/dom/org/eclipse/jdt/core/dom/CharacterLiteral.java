@@ -96,7 +96,7 @@ public class CharacterLiteral extends Expression {
 	 * 
 	 * @param value the string value, including enclosing single quotes
 	 *    and embedded escapes
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setEscapedValue(String value) {
 		if (value == null) {
@@ -135,7 +135,7 @@ public class CharacterLiteral extends Expression {
 	 * 
 	 * @return the character value without enclosing quotes and embedded
 	 *    escapes
-	 * @exception $postcondition-violation:invalid-literal$
+	 * @exception IllegalArgumentException if the literal value cannot be converted
 	 */ 
 	public char charValue() {
 		String s = getEscapedValue();

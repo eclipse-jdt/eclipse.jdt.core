@@ -92,8 +92,8 @@ public class SimpleType extends Type {
 	 * Sets the name of this simple type to the given name.
 	 * 
 	 * @param typeName the new name of this simple type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(Name typeName) {
 		if (typeName == null) {

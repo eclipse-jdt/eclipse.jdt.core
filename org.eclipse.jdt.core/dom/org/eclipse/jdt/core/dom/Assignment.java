@@ -224,7 +224,7 @@ public class Assignment extends Expression {
 	 * Sets the operator of this assignment expression.
 	 * 
 	 * @param assignmentOperator the assignment operator
-	 * @exception $precondition-violation:invalid-argument$
+	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setOperator(Assignment.Operator assignmentOperator) {
 		if (assignmentOperator == null) {
@@ -251,9 +251,9 @@ public class Assignment extends Expression {
 	 * Sets the left hand side of this assignment expression.
 	 * 
 	 * @param expression the left hand side node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setLeftHandSide(Expression expression) {
 		if (expression == null) {
@@ -281,9 +281,9 @@ public class Assignment extends Expression {
 	 * Sets the right hand side of this assignment expression.
 	 * 
 	 * @param expression the right hand side node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setRightHandSide(Expression expression) {
 		if (expression == null) {

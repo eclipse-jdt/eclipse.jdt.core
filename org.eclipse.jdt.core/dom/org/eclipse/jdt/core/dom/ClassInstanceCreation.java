@@ -129,9 +129,9 @@ public class ClassInstanceCreation extends Expression {
 	 * 
 	 * @param expression the expression node, or <code>null</code> if 
 	 *    there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		// a ClassInstanceCreation may occur inside an Expression
@@ -159,8 +159,8 @@ public class ClassInstanceCreation extends Expression {
 	 * creation expression.
 	 * 
 	 * @param name the new type name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setName(Name name) {
 		if (name == null) {

@@ -148,9 +148,9 @@ public class ForStatement extends Statement {
 	 * 
 	 * @param expression the condition expression node, or <code>null</code>
 	 *    if there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		// a ForStatement may occur inside an Expression - must check cycles
@@ -190,9 +190,9 @@ public class ForStatement extends Statement {
 	 * Sets the body of this for statement.
 	 * 
 	 * @param statement the body statement node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setBody(Statement statement) {
 		if (statement == null) {

@@ -97,9 +97,9 @@ public class ArrayType extends Type {
 	 * may be another array type.
 	 * 
 	 * @param componentType the component type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setComponentType(Type componentType) {
 		if (componentType == null) {

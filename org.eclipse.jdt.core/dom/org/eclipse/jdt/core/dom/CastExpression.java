@@ -103,8 +103,8 @@ public class CastExpression extends Expression {
 	 * Sets the type in this cast expression to the given type.
 	 * 
 	 * @param type the new type
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 
 	public void setType(Type type) {
 		if (type == null) {
@@ -132,9 +132,9 @@ public class CastExpression extends Expression {
 	 * Sets the expression of this cast expression.
 	 * 
 	 * @param expression the new expression node
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	 * @exception IllegalArgumentException if the node belongs to a different AST
+	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if a cycle in would be created
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
