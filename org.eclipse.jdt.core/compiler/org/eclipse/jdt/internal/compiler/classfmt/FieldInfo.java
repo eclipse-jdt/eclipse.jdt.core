@@ -68,8 +68,7 @@ public int getModifiers() {
 	if (accessFlags == -1) {
 		// compute the accessflag. Don't forget the deprecated attribute
 		accessFlags = u2At(0);
-		readDeprecatedAttributes();
-		readSyntheticAttribute();
+		readDeprecatedAndSyntheticAttributes();
 		if (isDeprecated) {
 			accessFlags |= AccDeprecated;
 		}
@@ -181,7 +180,7 @@ private void readConstantAttribute() {
 			.equals(attributeName, ConstantValueName)) {
 			isConstant = true;
 			// read the right constant
-			int relativeOffset = constantPoolOffsets[u2At(14)] - structOffset;
+			int relativeOffset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
 			switch (u1At(relativeOffset)) {
 				case IntegerTag :
 					char[] sign = getTypeName();
@@ -232,7 +231,7 @@ private void readConstantAttribute() {
 		constant = Constant.NotAConstant;
 	}
 }
-private void readDeprecatedAttributes() {
+private void readDeprecatedAndSyntheticAttributes() {
 	int attributesCount = u2At(6);
 	int readOffset = 8;
 	for (int i = 0; i < attributesCount; i++) {
@@ -240,17 +239,7 @@ private void readDeprecatedAttributes() {
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, DeprecatedName)) {
 			isDeprecated = true;
-		}
-		readOffset += (6 + u4At(readOffset + 2));
-	}
-}
-private void readSyntheticAttribute() {
-	int attributesCount = u2At(6);
-	int readOffset = 8;
-	for (int i = 0; i < attributesCount; i++) {
-		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, SyntheticName)) {
+		} else if (CharOperation.equals(attributeName, SyntheticName)) {
 			isSynthetic = true;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
