@@ -563,12 +563,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						false);
 				}
 			} else if(typeBinding instanceof ProblemReferenceBinding){
-				ProblemReferenceBinding problemBinding = (ProblemReferenceBinding)typeBinding;
-				if(problemBinding.original == null
-					|| !(problemBinding.original instanceof ReferenceBinding)) {
-					return;
-				}
-				ReferenceBinding original = (ReferenceBinding) problemBinding.original;
+				ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).original;
+				if(original == null) return;
 				noProposal = false;
 				if (isLocal(original) && this.requestor instanceof SelectionRequestor) {
 					((SelectionRequestor)this.requestor).acceptLocalType(

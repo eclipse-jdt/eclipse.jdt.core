@@ -423,7 +423,7 @@ public class BlockScope extends Scope {
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding,
+							(ReferenceBinding) binding,
 							NotVisible);
 					break foundType;
 				}
@@ -527,7 +527,7 @@ public class BlockScope extends Scope {
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding, 
+							(ReferenceBinding) binding, 
 							NotVisible);
 					break foundType;
 				}

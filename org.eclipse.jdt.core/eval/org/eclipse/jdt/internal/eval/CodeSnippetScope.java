@@ -561,7 +561,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	 			if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 	 			if (!this.canBeSeenByForCodeSnippet((ReferenceBinding) binding, receiverType))
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, NotVisible);
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), (ReferenceBinding) binding, NotVisible);
 	 			break foundType;
  			}
  			packageBinding = (PackageBinding) binding;
