@@ -729,6 +729,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (statements != null) {
 				formatStatements(null, statements);
 			}
+			this.scribe.printComment();
 		} catch(AbortFormatting e){
 			return failedToFormat(compilationUnitSource);
 		}
@@ -760,6 +761,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.lastLocalDeclarationSourceStart = 0;
 		try {
 			expression.traverse(this, null);
+			this.scribe.printComment();
 		} catch(AbortFormatting e){
 			return failedToFormat(compilationUnitSource);
 		}
