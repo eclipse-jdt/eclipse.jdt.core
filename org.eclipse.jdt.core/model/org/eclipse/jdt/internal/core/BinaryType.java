@@ -135,9 +135,9 @@ public IType createType(String contents, IJavaElement sibling, boolean force, IP
 /*
  * @see IType
  */
-public IMethod findCorrespondingMethod(IMethod method) {
+public IMethod[] findMethods(IMethod method) {
 	try {
-		return this.findCorrespondingMethod(method, this.getMethods());
+		return this.findMethods(method, this.getMethods());
 	} catch (JavaModelException e) {
 		// if type doesn't exist, no matching method can exist
 		return null;

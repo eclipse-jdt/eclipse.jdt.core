@@ -221,7 +221,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 /*
  * @see IWorkingCopy
  */
-public IJavaElement findCorrespondingElement(IJavaElement element) {
+public IJavaElement[] findElements(IJavaElement element) {
 	ArrayList children = new ArrayList();
 	while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
 		children.add(element);
@@ -255,13 +255,12 @@ public IJavaElement findCorrespondingElement(IJavaElement element) {
 				currentElement = ((IType)currentElement).getField(child.getElementName());
 				break;
 			case IJavaElement.METHOD:
-				currentElement = ((IType)currentElement).findCorrespondingMethod((IMethod)child);
-				break;
+				return ((IType)currentElement).findMethods((IMethod)child);
 		}
 		
 	}
 	if (currentElement != null && currentElement.exists()) {
-		return currentElement;
+		return new IJavaElement[] {currentElement};
 	} else {
 		return null;
 	}

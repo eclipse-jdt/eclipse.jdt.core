@@ -4,6 +4,8 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
@@ -61,9 +63,9 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return getElementName().equals(node.getName());
 }
 /*
- * Helper method for SourceType.findCorrespondingMethod and BinaryType.findCorrespondingMethod
+ * Helper method for SourceType.findMethods and BinaryType.findMethods
  */
-protected IMethod findCorrespondingMethod(IMethod method, IMethod[] methods) {
+protected IMethod[] findMethods(IMethod method, IMethod[] methods) {
 	String elementName = method.getElementName();
 	String[] parameters = method.getParameterTypes();
 	int paramLength = parameters.length;
@@ -71,6 +73,7 @@ protected IMethod findCorrespondingMethod(IMethod method, IMethod[] methods) {
 	for (int i = 0; i < paramLength; i++) {
 		simpleNames[i] = Signature.getSimpleName(Signature.toString(parameters[i]));
 	}
+	ArrayList list = new ArrayList();
 	next: for (int i = 0, length = methods.length; i < length; i++) {
 		IMethod existingMethod = methods[i];
 		if (existingMethod.getElementName().equals(elementName)) {
@@ -83,11 +86,18 @@ protected IMethod findCorrespondingMethod(IMethod method, IMethod[] methods) {
 						continue next;
 					}
 				}
-				return existingMethod;
+				list.add(existingMethod);
 			}
 		}
 	}
-	return null;
+	int size = list.size();
+	if (size == 0) {
+		return null;
+	} else {
+		IMethod[] result = new IMethod[size];
+		list.toArray(result);
+		return result;
+	}
 }
 /**
  * @see IMember

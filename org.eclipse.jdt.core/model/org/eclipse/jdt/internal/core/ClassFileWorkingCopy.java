@@ -151,7 +151,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 /*
  * @see IWorkingCopy
  */
-public IJavaElement findCorrespondingElement(IJavaElement element) {
+public IJavaElement[] findElements(IJavaElement element) {
 	return null;
 }
 /*
