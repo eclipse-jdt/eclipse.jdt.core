@@ -135,10 +135,10 @@ public int matchLevel(Binding binding) {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	if (this.bestMatch != null) {
-		this.bestMatch.matchReportReference(reference, element, accuracy, locator);
-		return;
-	}
+//	if (this.bestMatch != null) {
+//		this.bestMatch.matchReportReference(reference, element, accuracy, locator);
+//		return;
+//	}
 
 	SearchPattern closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;

@@ -254,6 +254,7 @@ public static Test suite() {
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
 	suite.addTest(new JavaSearchTests("testTypeOccurence2"));
+	suite.addTest(new JavaSearchTests("testTypeOccurence3"));
 	suite.addTest(new JavaSearchTests("testTypeOccurenceWithDollar"));
 	
 	// interface implementor
@@ -2320,6 +2321,28 @@ public void testTypeOccurence2() throws CoreException {
 		resultCollector);
 	assertEquals(
 		"src/r8/A.java [r8.B]",
+		resultCollector.toString());
+}
+/**
+ * Type occurences test.
+ * Ensures that correct positions are reported for an inner type reference using a ALL_OCCURENCES pattern
+ */
+public void testTypeOccurence3() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "e4", "A.java").getType("A").getType("Inner");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		ALL_OCCURRENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/e4/A.java e4.A$Inner [Inner]\n" +
+		"src/e5/A1.java [e4.A.Inner]\n" +
+		"src/e5/A1.java e5.A1.a [e4.A.Inner]\n" +
+		"src/e5/A1.java e5.A1.a1 [e4.A.Inner]\n" +
+		"src/e5/A1.java e5.A1.a2 [Inner]\n" +
+		"src/e5/A1.java e5.A1.a3 [Inner]",
 		resultCollector.toString());
 }
 /**
