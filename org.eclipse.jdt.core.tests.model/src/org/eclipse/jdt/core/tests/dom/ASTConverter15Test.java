@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
@@ -66,7 +68,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0025"));
+		suite.addTest(new ASTConverter15Test("test0026"));
 		return suite;
 	}
 		
@@ -794,6 +796,46 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 1, typeArguments.size());
 		Type type = (Type) typeArguments.get(0);
 		checkSourceRange(type, "E", source);
+	}
+	
+	public void test0026() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0026", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List modifiers = enumDeclaration.modifiers();
+		assertEquals("Wrong number of modifiers", 2, modifiers.size());
+		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not a modifier", extendedModifier instanceof Modifier);
+		Modifier modifier = (Modifier) extendedModifier;
+		checkSourceRange(modifier, "public", source);
+		extendedModifier = (IExtendedModifier) modifiers.get(1);
+		assertTrue("Not a modifier", extendedModifier instanceof Modifier);
+		modifier = (Modifier) extendedModifier;
+		checkSourceRange(modifier, "abstract", source);
+		assertEquals("wrong name", "X", enumDeclaration.getName().getIdentifier());
+		EnumConstantDeclaration[] enumConstantDeclarations = enumDeclaration.getEnumConstants();
+		assertEquals("wrong size", 4, enumConstantDeclarations.length);
+		List bodyDeclarations = enumDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 6, bodyDeclarations.size());
+		EnumConstantDeclaration enumConstantDeclaration = enumConstantDeclarations[0];
+		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
+		checkSourceRange(enumConstantDeclaration, "PLUS {\r\n" + 
+				"        double eval(double x, double y) { return x + y; }\r\n" + 
+				"    }", source);		
+	}
+	
+	public void test0027() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0027", "Coin.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
 }
 

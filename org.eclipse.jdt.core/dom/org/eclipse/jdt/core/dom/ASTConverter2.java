@@ -42,6 +42,69 @@ class ASTConverter2 extends ASTConverter {
 		super(options, resolveBindings, monitor);
 	}
 
+	protected void buildBodyDeclarations(EnumConstant enumConstant, EnumConstantDeclaration enumConstantDeclaration) {
+		// add body declaration in the lexical order
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = enumConstant.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = enumConstant.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = enumConstant.methods;
+		
+		int fieldsLength = fields == null? 0 : fields.length;
+		int methodsLength = methods == null? 0 : methods.length;
+		int membersLength = members == null ? 0 : members.length;
+		int fieldsIndex = 0;
+		int methodsIndex = 0;
+		int membersIndex = 0;
+		
+		while ((fieldsIndex < fieldsLength)
+			|| (membersIndex < membersLength)
+			|| (methodsIndex < methodsLength)) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
+		
+			int position = Integer.MAX_VALUE;
+			int nextDeclarationType = -1;
+			if (fieldsIndex < fieldsLength) {
+				nextFieldDeclaration = fields[fieldsIndex];
+				if (nextFieldDeclaration.declarationSourceStart < position) {
+					position = nextFieldDeclaration.declarationSourceStart;
+					nextDeclarationType = 0; // FIELD
+				}
+			}
+			if (methodsIndex < methodsLength) {
+				nextMethodDeclaration = methods[methodsIndex];
+				if (nextMethodDeclaration.declarationSourceStart < position) {
+					position = nextMethodDeclaration.declarationSourceStart;
+					nextDeclarationType = 1; // METHOD
+				}
+			}
+			if (membersIndex < membersLength) {
+				nextMemberDeclaration = members[membersIndex];
+				if (nextMemberDeclaration.declarationSourceStart < position) {
+					position = nextMemberDeclaration.declarationSourceStart;
+					nextDeclarationType = 2; // MEMBER
+				}
+			}
+			switch (nextDeclarationType) {
+				case 0 :
+					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumConstantDeclaration.bodyDeclarations());
+					fieldsIndex++;
+					break;
+				case 1 :
+					methodsIndex++;
+					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
+						enumConstantDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
+					}
+					break;
+				case 2 :
+					membersIndex++;
+					enumConstantDeclaration.bodyDeclarations().add(convert(nextMemberDeclaration));
+					break;
+			}
+		}
+		convert(enumConstant.javadoc, enumConstantDeclaration);
+	}
+
 	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration typeDeclaration, AnnotationTypeDeclaration typeDecl) {
 		// add body declaration in the lexical order
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = typeDeclaration.memberTypes;
@@ -104,9 +167,100 @@ class ASTConverter2 extends ASTConverter {
 		// Convert javadoc
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
+	
+	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration2, EnumDeclaration enumDeclaration) {
+		// add body declaration in the lexical order
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = enumDeclaration2.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = enumDeclaration2.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = enumDeclaration2.methods;
+		org.eclipse.jdt.internal.compiler.ast.EnumConstant[] enumConstants = enumDeclaration2.enumConstants;
+		
+		int fieldsLength = fields == null? 0 : fields.length;
+		int methodsLength = methods == null? 0 : methods.length;
+		int membersLength = members == null ? 0 : members.length;
+		int enumConstantsLength = enumConstants == null ? 0 : enumConstants.length;
+		int fieldsIndex = 0;
+		int methodsIndex = 0;
+		int membersIndex = 0;
+		int enumConstantsIndex = 0;
+		
+		while ((fieldsIndex < fieldsLength)
+			|| (membersIndex < membersLength)
+			|| (methodsIndex < methodsLength)
+			|| (enumConstantsIndex < enumConstantsLength)) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.EnumConstant nextEnumConstant = null;
+		
+			int position = Integer.MAX_VALUE;
+			int nextDeclarationType = -1;
+			if (fieldsIndex < fieldsLength) {
+				nextFieldDeclaration = fields[fieldsIndex];
+				if (nextFieldDeclaration.declarationSourceStart < position) {
+					position = nextFieldDeclaration.declarationSourceStart;
+					nextDeclarationType = 0; // FIELD
+				}
+			}
+			if (methodsIndex < methodsLength) {
+				nextMethodDeclaration = methods[methodsIndex];
+				if (nextMethodDeclaration.declarationSourceStart < position) {
+					position = nextMethodDeclaration.declarationSourceStart;
+					nextDeclarationType = 1; // METHOD
+				}
+			}
+			if (membersIndex < membersLength) {
+				nextMemberDeclaration = members[membersIndex];
+				if (nextMemberDeclaration.declarationSourceStart < position) {
+					position = nextMemberDeclaration.declarationSourceStart;
+					nextDeclarationType = 2; // MEMBER
+				}
+			}
+			if (enumConstantsIndex < enumConstantsLength) {
+				nextEnumConstant = enumConstants[enumConstantsIndex];
+				if (nextEnumConstant.declarationSourceStart < position) {
+					position = nextEnumConstant.declarationSourceStart;
+					nextDeclarationType = 3; // ENUM CONSTANT
+				}
+			}
+			switch (nextDeclarationType) {
+				case 0 :
+					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumDeclaration.bodyDeclarations());
+					fieldsIndex++;
+					break;
+				case 1 :
+					methodsIndex++;
+					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
+						enumDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
+					}
+					break;
+				case 2 :
+					membersIndex++;
+					enumDeclaration.bodyDeclarations().add(convert(nextMemberDeclaration));
+					break;
+				case 3 :
+					enumConstantsIndex++;
+					enumDeclaration.bodyDeclarations().add(convert(nextEnumConstant));
+			}
+		}
+		convert(enumDeclaration2.javadoc, enumDeclaration);
+	}
+	
+	public EnumConstantDeclaration convert(EnumConstant enumConstant) {
+		checkCanceled();
+		EnumConstantDeclaration enumConstantDeclaration = this.ast.newEnumConstantDeclaration();
+		SimpleName typeName = this.ast.newSimpleName(new String(enumConstant.name));
+		typeName.setSourceRange(enumConstant.sourceStart, enumConstant.sourceEnd - enumConstant.sourceStart + 1);
+		enumConstantDeclaration.setName(typeName);
+		enumConstantDeclaration.setSourceRange(enumConstant.declarationSourceStart, enumConstant.declarationSourceEnd - enumConstant.declarationSourceStart + 1);
 
-	public EnumConstantDeclaration convert(EnumConstant constant) {
-		return null;
+		buildBodyDeclarations(enumConstant, enumConstantDeclaration);
+		if (this.resolveBindings) {
+			recordNodes(enumConstantDeclaration, enumConstant);
+			recordNodes(typeName, enumConstant);
+			enumConstantDeclaration.resolveVariable();
+		}
+		return enumConstantDeclaration;
 	}
 
 	public EnhancedForStatement convert(ForeachStatement statement) {
@@ -148,6 +302,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	public ClassInstanceCreation convert(org.eclipse.jdt.internal.compiler.ast.AllocationExpression expression) {
+		checkCanceled();
 		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
@@ -206,7 +361,6 @@ class ASTConverter2 extends ASTConverter {
 		
 		buildBodyDeclarations(typeDeclaration, typeDecl);
 		// The javadoc comment is now got from list store in compilation unit declaration
-//		setJavaDocComment(typeDecl);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
 			recordNodes(typeName, typeDeclaration);
@@ -229,22 +383,11 @@ class ASTConverter2 extends ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.TypeReference typeReference = annotationTypeMemberDeclaration.returnType;
 		if (typeReference != null) {
 			Type returnType = convertType(typeReference);
-			// get the positions of the right parenthesis
-			// TODO need to be updated if extra dimensions are legal
-/*			int rightParenthesisPosition = retrieveEndOfRightParenthesisPosition(end, annotationTypeMemberDeclaration.bodyEnd);
-			int extraDimensions = retrieveExtraDimension(rightParenthesisPosition, annotationTypeMemberDeclaration.bodyEnd);
-			annotationTypeMemberDeclaration2.setExtraDimensions(extraDimensions);
-			setTypeForMethodDeclaration(annotationTypeMemberDeclaration2, returnType, extraDimensions);*/
 			setTypeForMethodDeclaration(annotationTypeMemberDeclaration2, returnType, 0);
 		}
 		int declarationSourceStart = annotationTypeMemberDeclaration.declarationSourceStart;
 		int declarationSourceEnd = annotationTypeMemberDeclaration.bodyEnd;
 		annotationTypeMemberDeclaration2.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-/*		int closingPosition = retrieveRightBraceOrSemiColonPosition(annotationTypeMemberDeclaration2, annotationTypeMemberDeclaration);
-		if (closingPosition != -1) {
-			int startPosition = annotationTypeMemberDeclaration2.getStartPosition();
-			annotationTypeMemberDeclaration2.setSourceRange(startPosition, closingPosition - startPosition);
-		}*/
 		// The javadoc comment is now got from list store in compilation unit declaration
 		convert(annotationTypeMemberDeclaration.javadoc, annotationTypeMemberDeclaration2);
 		org.eclipse.jdt.internal.compiler.ast.Expression memberValue = annotationTypeMemberDeclaration.memberValue;
@@ -260,7 +403,32 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public EnumDeclaration convert(org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration) {
-		return null;
+		checkCanceled();
+		EnumDeclaration enumDeclaration2 = this.ast.newEnumDeclaration();
+		int modifiers = enumDeclaration.modifiers;
+		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
+		modifiers &= CompilerModifiers.AccJustFlag;
+		if (modifiers != 0) {
+			setModifiers(enumDeclaration2, enumDeclaration);
+		}
+		SimpleName typeName = this.ast.newSimpleName(new String(enumDeclaration.name));
+		typeName.setSourceRange(enumDeclaration.sourceStart, enumDeclaration.sourceEnd - enumDeclaration.sourceStart + 1);
+		enumDeclaration2.setName(typeName);
+		enumDeclaration2.setSourceRange(enumDeclaration.declarationSourceStart, enumDeclaration.bodyEnd - enumDeclaration.declarationSourceStart + 1);
+		
+		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = enumDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			for (int index = 0, length = superInterfaces.length; index < length; index++) {
+				enumDeclaration2.superInterfaceTypes().add(convertType(superInterfaces[index]));
+			}					
+		}
+		buildBodyDeclarations(enumDeclaration, enumDeclaration2);
+		if (this.resolveBindings) {
+			recordNodes(enumDeclaration2, enumDeclaration);
+			recordNodes(typeName, enumDeclaration);
+			enumDeclaration2.resolveBinding();
+		}
+		return enumDeclaration2;
 	}
 
 	public Statement convert(org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall statement) {
@@ -376,6 +544,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression allocation) {
+		checkCanceled();
 		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 		if (allocation.enclosingInstance != null) {
 			classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
@@ -496,7 +665,7 @@ class ASTConverter2 extends ASTConverter {
 					break;
 				case AST.LEVEL_3_0 :
 					for (int index = 0, length = superInterfaces.length; index < length; index++) {
-						typeDecl.superInterfaces().add(convertType(superInterfaces[index]));
+						typeDecl.superInterfaceTypes().add(convertType(superInterfaces[index]));
 					}
 			}					
 		}
@@ -522,6 +691,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	public TypeParameter convert(org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter) {
+		checkCanceled();
 		TypeParameter typeParameter2 = this.ast.newTypeParameter();
 		SimpleName simpleName = this.ast.newSimpleName(new String(typeParameter.name));
 		int start = typeParameter.sourceStart;
@@ -551,6 +721,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	public Name convert(TypeReference typeReference) {
+		checkCanceled();
 		char[][] typeName = typeReference.getTypeName();
 		int length = typeName.length;
 		Name name = null;
@@ -570,6 +741,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public PackageDeclaration convertPackage(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration) {
+		checkCanceled();
 		org.eclipse.jdt.internal.compiler.ast.ImportReference importReference = compilationUnitDeclaration.currentPackage;
 		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
 		char[][] tokens = importReference.tokens;
@@ -600,6 +772,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	protected SingleVariableDeclaration convertToSingleVariableDeclaration(LocalDeclaration localDeclaration) {
+		checkCanceled();
 		SingleVariableDeclaration variableDecl = this.ast.newSingleVariableDeclaration();
 		if ((localDeclaration.modifiers & CompilerModifiers.AccJustFlag) != 0) {
 			setModifiers(variableDecl, localDeclaration);
@@ -629,6 +802,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public Type convertType(TypeReference typeReference) {
+		checkCanceled();
 		if (typeReference instanceof Wildcard) {
 			Wildcard wildcard = (Wildcard) typeReference;
 			WildcardType wildcardType = this.ast.newWildcardType();
@@ -848,7 +1022,7 @@ class ASTConverter2 extends ASTConverter {
 	/**
 	 * @param bodyDeclaration
 	 */
-	private void setModifiers(BodyDeclaration bodyDeclaration, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+	protected void setModifiers(BodyDeclaration bodyDeclaration, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
 		try {
 			int token;
 			int indexInAnnotations = 0;
@@ -903,6 +1077,11 @@ class ASTConverter2 extends ASTConverter {
 		} catch(InvalidInputException e) {
 			// ignore
 		}
+	}
+
+	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration2) {
+		this.scanner.resetTo(enumDeclaration2.declarationSourceStart, enumDeclaration2.sourceStart);
+		this.setModifiers(enumDeclaration, enumDeclaration2.annotations);
 	}
 	
 	protected void setModifiers(FieldDeclaration fieldDecl, org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {

@@ -2757,7 +2757,9 @@ protected void consumeEnumConstantNoClassBody() {
 	EnumConstant enumConstant = new EnumConstant(this.compilationUnit.compilationResult);
 	long pos = this.identifierPositionStack[this.identifierPtr];
 	enumConstant.sourceEnd = (int) pos;
-	enumConstant.sourceStart = (int) (pos >>> 32);
+	final int start = (int) (pos >>> 32);
+	enumConstant.sourceStart = start;
+	enumConstant.declarationSourceStart = start;
 	enumConstant.name = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -2772,7 +2774,7 @@ protected void consumeEnumConstantNoClassBody() {
 			0, 
 			length); 
 	}
-
+	enumConstant.declarationSourceEnd = rParenPos;
 	pushOnAstStack(enumConstant);
 }
 protected void consumeEnumConstants() {
@@ -2782,10 +2784,12 @@ protected void consumeEnumConstantWithClassBody() {
 	EnumConstant enumConstant = new EnumConstant(this.compilationUnit.compilationResult);
 	long pos = this.identifierPositionStack[this.identifierPtr];
 	enumConstant.sourceEnd = (int) pos;
-	enumConstant.sourceStart = (int) (pos >>> 32);
+	final int start = (int) (pos >>> 32);
+	enumConstant.sourceStart = start;
+	enumConstant.declarationSourceStart = start;
 	enumConstant.name = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
-
+	
 	// fill arguments if needed
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -2799,6 +2803,9 @@ protected void consumeEnumConstantWithClassBody() {
 	}
 
 	dispatchDeclarationInto(enumConstant, this.astLengthStack[this.astLengthPtr--]);
+	enumConstant.bodyEnd = this.endStatementPosition;
+	enumConstant.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+
 	pushOnAstStack(enumConstant);
 }
 protected void consumeEnumDeclaration() {

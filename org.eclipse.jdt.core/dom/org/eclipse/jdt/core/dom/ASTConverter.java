@@ -214,8 +214,6 @@ class ASTConverter {
 					typeDecl.bodyDeclarations().add(convert(nextMemberDeclaration));
 			}
 		}
-		// Convert javadoc
-//		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
 	
@@ -402,7 +400,7 @@ class ASTConverter {
 					}
 					methodDecl.setBody(block);
 				}
-			} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
+			} else if ((methodDeclaration.modifiers & CompilerModifiers.AccSemicolonBody) == 0) {
 				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
 				if (start != -1 && end != -1) {
@@ -444,8 +442,6 @@ class ASTConverter {
 		}
 		
 		// The javadoc comment is now got from list store in compilation unit declaration
-//		setJavaDocComment(methodDecl);
-//		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
 		convert(methodDeclaration.javadoc, methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);

@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 
@@ -221,7 +222,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		char[] actualContents = new char[length];
 		System.arraycopy(source, start, actualContents, 0, length);
 		String actualContentsString = new String(actualContents);
-		assertSourceEquals("Unexpected source", expectedContents, actualContentsString);
+		assertSourceEquals("Unexpected source", Util.convertToIndependantLineDelimiter(expectedContents), Util.convertToIndependantLineDelimiter(actualContentsString));
 	}
 		
 	protected boolean isMalformed(ASTNode node) {
