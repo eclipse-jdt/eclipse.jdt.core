@@ -286,7 +286,7 @@ protected char[] computeUniqueKey(MethodBinding methodBinding) {
 	
 	// generic signature
 	char[] sig = methodBinding.genericSignature();
-	if (sig == null) sig = signature();
+	if (sig == null) sig = methodBinding.signature();
 	int signatureLength = sig.length;
 	
 	// compute unique key
