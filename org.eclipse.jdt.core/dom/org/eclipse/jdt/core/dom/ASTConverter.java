@@ -511,9 +511,14 @@ class ASTConverter {
 			if (dimensions != 0) {
 				// need to find out if this is an array type of primitive types or not
 				if (isPrimitiveType(name)) {
+					int end = retrieveStartingLeftBracketPosition(sourceStart, sourceStart + length);
+					if (end == -1) {
+						end = sourceStart + length;
+					}					
 					PrimitiveType primitiveType = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
-					primitiveType.setSourceRange(sourceStart, length);
+					primitiveType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(primitiveType, dimensions);
+					type.setSourceRange(sourceStart, length);
 				} else {
 					SimpleName simpleName = this.ast.newSimpleName(new String(name));
 					// we need to search for the starting position of the first brace in order to set the proper length
@@ -2217,6 +2222,7 @@ class ASTConverter {
 						break;
 					case Scanner.TokenNameRBRACKET://166
 						foundPosition = scanner.currentPosition - 1;
+						break;
 					default:
 						return foundPosition;
 				}

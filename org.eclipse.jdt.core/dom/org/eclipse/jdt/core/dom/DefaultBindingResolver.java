@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -168,15 +169,62 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		// retrieve the old ast node
-		AstNode node = (AstNode) this.newAstToOldAst.get(type);
+		int index = 0;
+		ASTNode parentType = type.getParent();
+		Type arrayType = null;
+		while ((parentType instanceof Type) && ((Type) parentType).isArrayType()) {
+			arrayType = (Type) parentType;
+			parentType = parentType.getParent();
+			index++;
+		}
+		AstNode node = null;
+		if (index != 0) {
+			node = (AstNode) this.newAstToOldAst.get(arrayType);
+		} else {
+			node = (AstNode) this.newAstToOldAst.get(type);
+		}
 		if (node != null) {
 			if (node instanceof TypeReference) {
 				TypeReference typeReference = (TypeReference) node;
-				return this.getTypeBinding(typeReference.binding);
+				ITypeBinding typeBinding = this.getTypeBinding(typeReference.binding);
+				if (index != 0) {
+					if (typeBinding.isArray()) {
+						ArrayBinding arrayBinding = (ArrayBinding)typeReference.binding;
+						if (index == arrayBinding.dimensions) {
+							return this.getTypeBinding(arrayBinding.leafComponentType);
+						} else {
+							for (int i = 0; i < index; i++) {
+								arrayBinding = (ArrayBinding) arrayBinding.elementsType(this.scope);
+							}
+							return this.getTypeBinding(arrayBinding);
+						}
+					} else {
+						return null;
+					}
+				} else {
+					return typeBinding;
+				}
 			} else if (node instanceof SingleNameReference) {
 				SingleNameReference singleNameReference = (SingleNameReference) node;
 				if (singleNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+					ITypeBinding typeBinding = this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+					if (index != 0) {
+						if (typeBinding.isArray()) {
+							ArrayBinding arrayBinding = (ArrayBinding)singleNameReference.binding;
+							if (index == arrayBinding.dimensions) {
+								return this.getTypeBinding(arrayBinding.leafComponentType);
+							} else {
+								for (int i = 0; i < index; i++) {
+									arrayBinding = (ArrayBinding) arrayBinding.elementsType(this.scope);
+								}
+								return this.getTypeBinding(arrayBinding);
+							}
+						} else {
+							return null;
+						}
+					} else {
+						return typeBinding;
+					}
 				} else {
 					// it should be a type reference
 					return null;
@@ -184,7 +232,24 @@ class DefaultBindingResolver extends BindingResolver {
 			} else if (node instanceof QualifiedNameReference) {
 				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
 				if (qualifiedNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+					ITypeBinding typeBinding = this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+					if (index != 0) {
+						if (typeBinding.isArray()) {
+							ArrayBinding arrayBinding = (ArrayBinding)qualifiedNameReference.binding;
+							if (index == arrayBinding.dimensions) {
+								return this.getTypeBinding(arrayBinding.leafComponentType);
+							} else {
+								for (int i = 0; i < index; i++) {
+									arrayBinding = (ArrayBinding) arrayBinding.elementsType(this.scope);
+								}
+							}
+							return this.getTypeBinding(arrayBinding);
+						} else {
+							return null;
+						}
+					} else {
+						return typeBinding;
+					}
 				} else {
 					// it should be a type reference
 					return null;
