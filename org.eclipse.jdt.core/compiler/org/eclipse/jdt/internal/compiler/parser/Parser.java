@@ -5578,6 +5578,10 @@ StaticOnly ::= 'static'
 ConstructorDeclaration ::= ConstructorHeader ConstructorBody
 /.$putCase consumeConstructorDeclaration() ; $break ./ 
 
+-- These rules are added to be able to parse constructors with no body
+ConstructorDeclaration ::= ConstructorHeader ';'
+/.$putCase consumeInvalidConstructorDeclaration() ; $break ./ 
+
 -- the rules ExplicitConstructorInvocationopt has been expanded
 -- in the rule below in order to make the grammar lalr(1).
 -- ConstructorBody ::= '{' ExplicitConstructorInvocationopt BlockStatementsopt '}'
