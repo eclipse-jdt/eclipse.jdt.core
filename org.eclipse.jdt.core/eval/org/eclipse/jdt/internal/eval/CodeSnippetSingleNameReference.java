@@ -23,6 +23,7 @@ public CodeSnippetSingleNameReference(char[] source, long pos, EvaluationContext
 	this.evaluationContext = evaluationContext;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
+
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // reading a field
 			// check if reading a final blank field
@@ -66,19 +67,6 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	if (isFieldUseDeprecated(fieldBinding, scope))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
-	if (fieldBinding.declaringClass != this.actualReceiverType
-		&& fieldBinding.declaringClass != null
-		&& fieldBinding.constant == NotAConstant
-		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4 
-				&& !fieldBinding.isStatic()
-				&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-			|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
-		binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
-	}
-
 	return fieldBinding.type;
 
 }
@@ -98,7 +86,8 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 			&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
 			&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-			&& ((operation.left.implicitConversion >> 4) != T_String)) { // exclude string concatenation which would occur backwards
+			&& ((operation.left.implicitConversion >> 4) != T_String) // exclude string concatenation which would occur backwards
+			&& ((operation.right.implicitConversion >> 4) != T_String)) { // exclude string concatenation which would occur backwards
 			// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 			variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
 			return;
@@ -106,7 +95,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 	}
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			FieldBinding fieldBinding = (FieldBinding) binding;
+			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				if (!fieldBinding.isStatic()) { // need a receiver?
 					if ((bits & DepthMASK) != 0) {
@@ -154,7 +143,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			}
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (localBinding.resolvedPosition != -1) {
 				assignment.expression.generateCode(currentScope, codeStream, true);
 			} else {
@@ -201,7 +190,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			case FIELD : // reading a field
 				FieldBinding fieldBinding;
 				if (valueRequired) {
-					if ((fieldBinding = (FieldBinding) binding).constant == NotAConstant) { // directly use inlined value for constant fields
+					if ((fieldBinding = (FieldBinding) this.codegenBinding).constant == NotAConstant) { // directly use inlined value for constant fields
 						if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 							 // directly use inlined value for constant fields
 							boolean isStatic;
@@ -246,7 +235,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 				break;
 			case LOCAL : // reading a local
-				LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (valueRequired) {
 					// outer local?
 					if ((bits & DepthMASK) != 0) {
@@ -275,7 +264,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, MethodBinding writeAccessor, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			FieldBinding fieldBinding = (FieldBinding) binding;
+			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.isStatic()) {
 				if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 					codeStream.getstatic(fieldBinding);
@@ -320,7 +309,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			}
 			break;
 		case LOCAL : // assigning to a local variable (cannot assign to outer local)
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			Constant assignConstant;
 			int increment;
 			// using incr bytecode if possible
@@ -374,9 +363,9 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// store the result back into the variable
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			FieldBinding fieldBinding = (FieldBinding) binding;
+			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
-				fieldStore(codeStream, (FieldBinding) binding, writeAccessor, valueRequired);
+				fieldStore(codeStream, fieldBinding, writeAccessor, valueRequired);
 			} else {
 				// current stack is:
 				// field receiver value
@@ -393,7 +382,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			}
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (valueRequired) {
 				if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
 					codeStream.dup2();
@@ -407,7 +396,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			FieldBinding fieldBinding = (FieldBinding) binding;
+			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				if (fieldBinding.isStatic()) {
 					codeStream.getstatic(fieldBinding);
@@ -494,7 +483,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			}
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// using incr bytecode if possible
 			if (localBinding.type == IntBinding) {
 				if (valueRequired) {
@@ -552,7 +541,7 @@ public TypeBinding reportError(BlockScope scope) {
 			delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
 			if (delegateThis != null){ ; // if not found then internal error, field should have been found
 				// will not support innerclass emulation inside delegate
-				binding = scope.getField(delegateThis.type, this.token, this);
+				this.codegenBinding = binding = scope.getField(delegateThis.type, this.token, this);
 				if (!binding.isValidBinding()) return super.reportError(scope);
 				return checkFieldAccess(scope);
 			}
@@ -568,13 +557,13 @@ public TypeBinding reportError(BlockScope scope) {
 					if (((ProblemFieldBinding) fieldBinding).problemId() == NotVisible) {
 						// manage the access to a private field of the enclosing type
 						CodeSnippetScope localScope = new CodeSnippetScope(scope);
-						binding = localScope.getFieldForCodeSnippet(delegateThis.type, this.token, this);
+						this.codegenBinding = binding = localScope.getFieldForCodeSnippet(delegateThis.type, this.token, this);
 						return checkFieldAccess(scope);						
 					} else {
 						return super.reportError(scope);
 					}
 				}
-				binding = fieldBinding;
+				this.codegenBinding = binding = fieldBinding;
 				return checkFieldAccess(scope);
 			}
 		}

@@ -15,15 +15,14 @@ import org.eclipse.jdt.internal.compiler.util.*;
 public class FieldReference extends Reference implements InvocationSite {
 	public Expression receiver;
 	public char[] token;
-	public FieldBinding binding;
+	public FieldBinding binding, codegenBinding;
 
 	public long nameSourcePosition ; //(start<<32)+end
 	
-
 	MethodBinding syntheticReadAccessor, syntheticWriteAccessor;
 	public TypeBinding receiverType;
 
-public FieldReference(char[] source , long pos) {
+public FieldReference(char[] source, long pos) {
 		token = source ;
 		nameSourcePosition = pos;
 		//by default the position are the one of the field (not true for super access)
@@ -68,6 +67,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return analyseCode(currentScope, flowContext, flowInfo, true);
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
+
 	receiver.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic());
 	if (valueRequired) {
 		manageSyntheticReadAccessIfNecessary(currentScope);
@@ -80,9 +80,9 @@ public FieldBinding fieldBinding() {
 	return binding ; }
 public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 
-	receiver.generateCode(currentScope, codeStream, !binding.isStatic());
+	receiver.generateCode(currentScope, codeStream, !this.codegenBinding.isStatic());
 	assignment.expression.generateCode(currentScope, codeStream, true);
-	fieldStore(codeStream, binding, syntheticWriteAccessor, valueRequired);
+	fieldStore(codeStream, this.codegenBinding, syntheticWriteAccessor, valueRequired);
 	if (valueRequired){
 		codeStream.generateImplicitConversion(assignment.implicitConversion);
 	}
@@ -101,18 +101,18 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.generateConstant(constant, implicitConversion);
 		}
 	} else {
-		boolean isStatic = binding.isStatic();
-		receiver.generateCode(currentScope, codeStream, valueRequired && (!isStatic) && (binding.constant == NotAConstant));
+		boolean isStatic = this.codegenBinding.isStatic();
+		receiver.generateCode(currentScope, codeStream, valueRequired && (!isStatic) && (this.codegenBinding.constant == NotAConstant));
 		if (valueRequired) {
-			if (binding.constant == NotAConstant) {
-				if (binding.declaringClass == null) { // array length
+			if (this.codegenBinding.constant == NotAConstant) {
+				if (this.codegenBinding.declaringClass == null) { // array length
 					codeStream.arraylength();
 				} else {
 					if (syntheticReadAccessor == null) {
 						if (isStatic) {
-							codeStream.getstatic(binding);
+							codeStream.getstatic(this.codegenBinding);
 						} else {
-							codeStream.getfield(binding);
+							codeStream.getfield(this.codegenBinding);
 						}
 					} else {
 						codeStream.invokestatic(syntheticReadAccessor);
@@ -120,7 +120,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 				codeStream.generateImplicitConversion(implicitConversion);
 			} else {
-				codeStream.generateConstant(binding.constant, implicitConversion);
+				codeStream.generateConstant(this.codegenBinding.constant, implicitConversion);
 			}
 		}
 	}
@@ -128,17 +128,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 }
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	boolean isStatic;
-	receiver.generateCode(currentScope, codeStream, !(isStatic = binding.isStatic()));
+	receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
 	if (isStatic) {
 		if (syntheticReadAccessor == null) {
-			codeStream.getstatic(binding);
+			codeStream.getstatic(this.codegenBinding);
 		} else {
 			codeStream.invokestatic(syntheticReadAccessor);
 		}
 	} else {
 		codeStream.dup();
 		if (syntheticReadAccessor == null) {
-			codeStream.getfield(binding);
+			codeStream.getfield(this.codegenBinding);
 		} else {
 			codeStream.invokestatic(syntheticReadAccessor);
 		}
@@ -160,34 +160,34 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// cast the value back to the array reference type
 		codeStream.generateImplicitConversion(assignmentImplicitConversion);
 	}
-		fieldStore(codeStream, binding, syntheticWriteAccessor, valueRequired);
+		fieldStore(codeStream, this.codegenBinding, syntheticWriteAccessor, valueRequired);
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	boolean isStatic;
-	receiver.generateCode(currentScope, codeStream, !(isStatic = binding.isStatic()));
+	receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
 	if (isStatic) {
 		if (syntheticReadAccessor == null) {
-			codeStream.getstatic(binding);
+			codeStream.getstatic(this.codegenBinding);
 		} else {
 			codeStream.invokestatic(syntheticReadAccessor);
 		}
 	} else {
 		codeStream.dup();
 		if (syntheticReadAccessor == null) {
-			codeStream.getfield(binding);
+			codeStream.getfield(this.codegenBinding);
 		} else {
 			codeStream.invokestatic(syntheticReadAccessor);
 		}
 	}
 	if (valueRequired) {
 		if (isStatic) {
-			if ((binding.type == LongBinding) || (binding.type == DoubleBinding)) {
+			if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();
 			}
 		} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-			if ((binding.type == LongBinding) || (binding.type == DoubleBinding)) {
+			if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
 				codeStream.dup2_x1();
 			} else {
 				codeStream.dup_x1();
@@ -195,9 +195,9 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		}
 	}
 	codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
-	codeStream.sendOperator(postIncrement.operator, binding.type.id);
+	codeStream.sendOperator(postIncrement.operator, this.codegenBinding.type.id);
 	codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
-	fieldStore(codeStream, binding, syntheticWriteAccessor, false);
+	fieldStore(codeStream, this.codegenBinding, syntheticWriteAccessor, false);
 }
 public static final Constant getConstantFor(
 	FieldBinding binding, 
@@ -312,6 +312,7 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
 		if ((currentScope.enclosingSourceType() != binding.declaringClass) && (binding.constant == NotAConstant)) {
 			syntheticReadAccessor =  ((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, true);
 			currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
+			return;
 		}
 
 	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
@@ -320,7 +321,8 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
 		syntheticReadAccessor = destinationType.addSyntheticMethod(binding, true);
 		currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
-
+		return;
+		
 	} else if (binding.isProtected()) {
 
 		SourceTypeBinding enclosingSourceType;
@@ -331,7 +333,20 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
 			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
 			syntheticReadAccessor = currentCompatibleType.addSyntheticMethod(binding, true);
 			currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
+			return;
 		}
+	}
+	// if the binding declaring class is not visible, need special action
+	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+	if (binding.declaringClass != this.receiverType
+		&& !this.receiverType.isArrayType()
+		&& binding.declaringClass != null // array.length
+		&& binding.constant == NotAConstant
+		&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
+			|| !binding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding) this.receiverType);
 	}
 }
 /*
@@ -342,6 +357,7 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope){
 		if (currentScope.enclosingSourceType() != binding.declaringClass) {
 			syntheticWriteAccessor = ((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, false);
 			currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
+			return;
 		}
 		
 	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
@@ -350,7 +366,8 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope){
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
 		syntheticWriteAccessor = destinationType.addSyntheticMethod(binding, false);
 		currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
-
+		return;
+		
 	} else if (binding.isProtected()) {
 
 		SourceTypeBinding enclosingSourceType;
@@ -361,8 +378,21 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope){
 			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
 			syntheticWriteAccessor = currentCompatibleType.addSyntheticMethod(binding, false);
 			currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
+			return;
 		}
 	}
+	// if the binding declaring class is not visible, need special action
+	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+	if (binding.declaringClass != this.receiverType
+		&& !this.receiverType.isArrayType()
+		&& binding.declaringClass != null // array.length
+		&& binding.constant == NotAConstant
+		&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
+			|| !binding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding) this.receiverType);
+}
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature type of the field.
@@ -376,7 +406,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	// the case receiverType.isArrayType and token = 'length' is handled by the scope API
-	binding = scope.getField(this.receiverType, token, this);
+	this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
 	if (!binding.isValidBinding()) {
 		constant = NotAConstant;
 		scope.problemReporter().invalidField(this, this.receiverType);
@@ -391,18 +421,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!receiver.isThis())
 		constant = NotAConstant;
 
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
-	if (binding.declaringClass != this.receiverType
-		&& !this.receiverType.isArrayType()
-		&& binding.declaringClass != null // array.length
-		&& binding.constant == NotAConstant
-		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-			|| !binding.declaringClass.canBeSeenBy(scope))){
-			binding = new FieldBinding(binding, (ReferenceBinding) this.receiverType);
-	}
 	return binding.type;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {

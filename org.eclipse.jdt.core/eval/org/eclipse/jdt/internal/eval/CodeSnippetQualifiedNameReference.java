@@ -245,12 +245,12 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 public void generateReadSequence(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 	// determine the rank until which we now we do not need any actual value for the field access
-	int otherBindingsCount = otherBindings == null ? 0 : otherBindings.length;
+	int otherBindingsCount = this.otherCodegenBindings == null ? 0 : otherCodegenBindings.length;
 	int indexOfFirstValueRequired;
 	if (valueRequired) {
 		indexOfFirstValueRequired = otherBindingsCount;
 		while (indexOfFirstValueRequired > 0) {
-			FieldBinding otherBinding = otherBindings[indexOfFirstValueRequired - 1];
+			FieldBinding otherBinding = this.otherCodegenBindings[indexOfFirstValueRequired - 1];
 			if (otherBinding.isStatic() || otherBinding.constant != NotAConstant)
 				break; // no longer need any value before this point
 			indexOfFirstValueRequired--;
@@ -298,7 +298,7 @@ public void generateReadSequence(BlockScope currentScope, CodeStream codeStream,
 				break;
 			case LOCAL : // reading the first local variable
 				lastFieldBinding = null;
-				LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 
 				// regular local variable read
 				if (localBinding.constant != NotAConstant) {
@@ -338,7 +338,7 @@ public void generateReadSequence(BlockScope currentScope, CodeStream codeStream,
 				}
 			}
 
-			lastFieldBinding = otherBindings[i];
+			lastFieldBinding = this.otherCodegenBindings[i];
 			if (lastFieldBinding != null && !lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				if (lastFieldBinding.isStatic()) {
 					codeStream.aconst_null();
@@ -369,34 +369,6 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		}
 		if (isFieldUseDeprecated((FieldBinding) binding, scope))
 			scope.problemReporter().deprecatedField((FieldBinding) binding, this);
-
-		// if the binding declaring class is not visible, need special action
-		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type		
-		FieldBinding fieldBinding = (FieldBinding)binding;
-		if (delegateThis == null) {
-			if (fieldBinding.declaringClass != this.actualReceiverType
-				&& fieldBinding.declaringClass != null
-				&& fieldBinding.constant == NotAConstant
-				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-						&& fieldBinding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
-				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
-			}
-		} else {
-			CodeSnippetScope localScope = new CodeSnippetScope(scope);
-			if (fieldBinding.declaringClass != delegateThis.type
-				&& !delegateThis.type.isArrayType()			
-				&& fieldBinding.declaringClass != null
-				&& fieldBinding.constant == NotAConstant
-				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-						&& fieldBinding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-					|| !localScope.canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) delegateThis.type))) {
-					binding = new FieldBinding(fieldBinding, (ReferenceBinding) delegateThis.type);
-			}
-		}
 	}
 
 	TypeBinding type = ((VariableBinding) binding).type;
@@ -409,7 +381,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 
 	// allocation of the fieldBindings array	and its respective constants
 	int otherBindingsLength = length - index;
-	otherBindings = new FieldBinding[otherBindingsLength];
+	this.otherCodegenBindings = this.otherBindings = new FieldBinding[otherBindingsLength];
 	
 	// fill the first constant (the one of the binding)
 	constant =
@@ -448,31 +420,6 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			if (constant != NotAConstant){
 				constant = someConstant;
 			}
-			// if the binding declaring class is not visible, need special action
-			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-			// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type			
-			if (delegateThis == null) {
-				if (field.declaringClass != type
-					&& !type.isArrayType()				
-					&& field.declaringClass != null // array.length
-					&& field.constant == NotAConstant
-					&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4					
-							&& field.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-						|| !field.declaringClass.canBeSeenBy(scope))) {
-						otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
-				}
-			} else {
-				CodeSnippetScope localScope = new CodeSnippetScope(scope);
-				if (field.declaringClass != type
-					&& !type.isArrayType()
-					&& field.declaringClass != null // array.length
-					&& field.constant == NotAConstant
-					&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-							&& field.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-						|| !localScope.canBeSeenByForCodeSnippet(field.declaringClass, (ReferenceBinding) delegateThis.type))){
-					otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
-				}
-			}
 			type = field.type;
 			index++;
 		} else {
@@ -498,15 +445,76 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 			}
 	}
 }
-public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FieldBinding fieldBinding, int index) {
-	// nothing to do the code generation will take care of private access
-}
-/*
- * No need to emulate access to protected fields since not implicitly accessed
- */
-public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FieldBinding fieldBinding) {
-	// nothing to do the code generation will take care of private access
-}
+		
+	public void manageSyntheticReadAccessIfNecessary(
+		BlockScope currentScope,
+		FieldBinding fieldBinding,
+		TypeBinding lastReceiverType,
+		int index) {
+
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		boolean useDelegate = index == 0 && this.delegateThis != null;
+		if (useDelegate) lastReceiverType = this.delegateThis.type;
+
+		if (fieldBinding.declaringClass != lastReceiverType
+			&& !lastReceiverType.isArrayType()			
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					&& (index > 0 || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+					&& fieldBinding.declaringClass.id != T_Object)
+				|| !(useDelegate
+						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)
+						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){
+			if (index == 0){
+				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+			} else {
+				if (this.otherCodegenBindings == this.otherBindings){
+					int l = this.otherBindings.length;
+					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
+				}
+				this.otherCodegenBindings[index-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+			}
+		}
+	}
+	/*
+	 * No need to emulate access to protected fields since not implicitly accessed
+	 */
+	public void manageSyntheticWriteAccessIfNecessary(
+		BlockScope currentScope,
+		FieldBinding fieldBinding,
+		TypeBinding lastReceiverType) {
+
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		boolean useDelegate = fieldBinding == binding && this.delegateThis != null;
+		if (useDelegate) lastReceiverType = this.delegateThis.type;
+
+		if (fieldBinding.declaringClass != lastReceiverType
+			&& !lastReceiverType.isArrayType()			
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+					&& fieldBinding.declaringClass.id != T_Object)
+				|| !(useDelegate
+						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)
+						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){
+			if (fieldBinding == binding){
+				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+			} else {
+				if (this.otherCodegenBindings == this.otherBindings){
+					int l = this.otherBindings.length;
+					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
+				}
+				this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+			}
+		}
+	}
+
 /**
  * Normal field binding did not work, try to bind to a field of the delegate receiver.
  */
@@ -529,7 +537,7 @@ public TypeBinding reportError(BlockScope scope) {
 			if (((ProblemFieldBinding) fieldBinding).problemId() == NotVisible) {
 				// manage the access to a private field of the enclosing type
 				CodeSnippetScope localScope = new CodeSnippetScope(scope);
-				binding = localScope.getFieldForCodeSnippet(delegateThis.type, this.tokens[0], this);
+				this.codegenBinding = this.binding = localScope.getFieldForCodeSnippet(delegateThis.type, this.tokens[0], this);
 				if (binding.isValidBinding()) {
 					return checkFieldAccess(scope);						
 				} else {
@@ -539,7 +547,7 @@ public TypeBinding reportError(BlockScope scope) {
 				return super.reportError(scope);
 			}
 		}
-		binding = fieldBinding;
+		this.codegenBinding = binding = fieldBinding;
 		return checkFieldAccess(scope);
 	}
 
@@ -563,7 +571,7 @@ public TypeBinding resolveTypeVisibility(BlockScope scope) {
 	// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField 
 
 	CodeSnippetScope localScope = new CodeSnippetScope(scope);
-	if ((binding = localScope.getBinding(tokens, bits & RestrictiveFlagMASK, this, (ReferenceBinding) delegateThis.type)).isValidBinding()) {
+	if ((this.codegenBinding = binding = localScope.getBinding(tokens, bits & RestrictiveFlagMASK, this, (ReferenceBinding) delegateThis.type)).isValidBinding()) {
 		bits &= ~RestrictiveFlagMASK; // clear bits
 		bits |= FIELD;
 		return getOtherFieldBindings(scope);

@@ -16,6 +16,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public MethodBinding[] syntheticAccessors; // [0]=read accessor [1]=write accessor
 	public static final int READ = 0;
 	public static final int WRITE = 1;
+	
 public SingleNameReference(char[] source, long pos) {
 	super();
 	token = source;
@@ -95,6 +96,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return analyseCode(currentScope, flowContext, flowInfo, true);
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
+
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // reading a field
 			if (valueRequired) {
@@ -139,20 +141,6 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	constant = FieldReference.getConstantFor(fieldBinding, true, this, 0);
 	if (isFieldUseDeprecated(fieldBinding, scope))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
-
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
-	if (fieldBinding.declaringClass != this.actualReceiverType
-		&& !this.actualReceiverType.isArrayType()	
-		&& fieldBinding.declaringClass != null
-		&& fieldBinding.constant == NotAConstant
-		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4 
-				&& !fieldBinding.isStatic()
-				&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-			|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
-		binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
-	}
 
 	//===============================================
 	//cycle are forbidden ONLY within the same class...why ?????? (poor javac....)
@@ -215,7 +203,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
 			FieldBinding fieldBinding;
-			if (!(fieldBinding = (FieldBinding) binding).isStatic()) { // need a receiver?
+			if (!(fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) { // need a receiver?
 				if ((bits & DepthMASK) != 0) {
 					Object[] emulationPath = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
 					if (emulationPath == null) {
@@ -235,7 +223,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			}
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (localBinding.resolvedPosition != -1) {
 				assignment.expression.generateCode(currentScope, codeStream, true);
 			} else {
@@ -282,7 +270,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			case FIELD : // reading a field
 				FieldBinding fieldBinding;
 				if (valueRequired) {
-					if ((fieldBinding = (FieldBinding) binding).constant == NotAConstant) { // directly use inlined value for constant fields
+					if ((fieldBinding = (FieldBinding) this.codegenBinding).constant == NotAConstant) { // directly use inlined value for constant fields
 						boolean isStatic;
 						if (!(isStatic = fieldBinding.isStatic())) {
 							if ((bits & DepthMASK) != 0) {
@@ -314,7 +302,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 				break;
 			case LOCAL : // reading a local
-				LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (valueRequired) {
 					// outer local?
 					if ((bits & DepthMASK) != 0) {
@@ -361,7 +349,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
 			FieldBinding fieldBinding;
-			if ((fieldBinding = (FieldBinding) binding).isStatic()) {
+			if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
 				if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
 					codeStream.getstatic(fieldBinding);
 				} else {
@@ -388,7 +376,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			}
 			break;
 		case LOCAL : // assigning to a local variable (cannot assign to outer local)
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			Constant assignConstant;
 			int increment;
 			// using incr bytecode if possible
@@ -445,10 +433,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// store the result back into the variable
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
-			fieldStore(codeStream, (FieldBinding) binding, writeAccessor, valueRequired);
+			fieldStore(codeStream, (FieldBinding) this.codegenBinding, writeAccessor, valueRequired);
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (valueRequired) {
 				if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
 					codeStream.dup2();
@@ -463,7 +451,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	switch (bits & RestrictiveFlagMASK) {
 		case FIELD : // assigning to a field
 			FieldBinding fieldBinding;
-			if ((fieldBinding = (FieldBinding) binding).isStatic()) {
+			if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
 				if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
 					codeStream.getstatic(fieldBinding);
 				} else {
@@ -509,7 +497,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 			return;
 		case LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) binding;
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// using incr bytecode if possible
 			if (localBinding.type == IntBinding) {
 				if (valueRequired) {
@@ -581,6 +569,21 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope) {
 					enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).
 						addSyntheticMethod(fieldBinding, true);
 			currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
+			return;
+		}
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
+		if (fieldBinding.declaringClass != this.actualReceiverType
+			&& !this.actualReceiverType.isArrayType()	
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4 
+					&& !fieldBinding.isStatic()
+					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 		}
 	}
 }
@@ -600,6 +603,21 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope) {
 					enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).
 						addSyntheticMethod(fieldBinding, false);
 			currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
+			return;
+		}
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
+		if (fieldBinding.declaringClass != this.actualReceiverType
+			&& !this.actualReceiverType.isArrayType()	
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4 
+					&& !fieldBinding.isStatic()
+					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 		}
 	}
 }
@@ -620,7 +638,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
 	
-	if ((binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this)).isValidBinding()) {
+	if ((this.codegenBinding = this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this)).isValidBinding()) {
 		switch (bits & RestrictiveFlagMASK) {
 			case VARIABLE : // =========only variable============
 			case VARIABLE | TYPE : //====both variable and type============

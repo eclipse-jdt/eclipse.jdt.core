@@ -145,13 +145,26 @@ public void generateCode(
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+
+	// if the binding declaring class is not visible, need special action
+	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+	// NOTE: from 1.4 on, method's declaring class is touched if any different from receiver type
+	// and not from Object or implicit static method call.	
+	if (binding.declaringClass != this.qualifyingType
+		&& !this.qualifyingType.isArrayType()
+		&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				&& (receiver != ThisReference.ThisImplicit || !binding.isStatic())
+				&& binding.declaringClass.id != T_Object) // no change for Object methods
+			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
+		codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
+	}	
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
 
 	constant = NotAConstant;
-	this.actualReceiverType = this.receiverType = receiver.resolveType(scope); 
+	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
@@ -247,17 +260,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
-
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from 1.4 on, method's declaring class is touched if any different from receiver type
-	if (binding.declaringClass != this.actualReceiverType
-		&& !this.actualReceiverType.isArrayType()	
-		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-				&& (receiver != ThisReference.ThisImplicit || !binding.isStatic()))
-			|| !binding.declaringClass.canBeSeenBy(scope))) {
-		binding = new MethodBinding(binding, (ReferenceBinding) this.actualReceiverType);
-	}
 
 	return binding.returnType;
 }
