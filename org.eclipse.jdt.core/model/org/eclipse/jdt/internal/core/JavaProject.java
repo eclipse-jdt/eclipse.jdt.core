@@ -1123,6 +1123,9 @@ public class JavaProject
 //		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastResolvedClasspath;
 //		if (infoPath != null) return infoPath;
 
+		if (generateMarkerOnError)
+			flushClasspathProblemMarkers();
+
 		IClasspathEntry[] classpath = getRawClasspath();
 		IClasspathEntry[] resolvedPath = classpath; // clone only if necessary
 		int length = classpath.length;
@@ -1201,9 +1204,6 @@ public class JavaProject
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError)	throws JavaModelException {
 
-		if (generateMarkerOnError)
-			flushClasspathProblemMarkers();
-
 		// expanded path is cached on its info
 //		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastExpandedClasspath;
 //		if (infoPath != null) return infoPath;
@@ -1231,7 +1231,7 @@ public class JavaProject
 		
 		if (visitedProjects.contains(this)) return; // break cycles if any
 		visitedProjects.add(this);
-		
+
 		IClasspathEntry[] immediateClasspath = getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
