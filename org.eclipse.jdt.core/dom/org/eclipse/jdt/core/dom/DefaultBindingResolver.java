@@ -568,29 +568,52 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
 			if (node instanceof ImportReference) {
 				ImportReference importReference = (ImportReference) node;
+				final boolean isStatic = importReference.isStatic();
 				if (importReference.onDemand) {
-					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, importReference.isStatic());
+					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, isStatic);
 					if (binding != null) {
-						if ((binding.kind() & Binding.PACKAGE) != 0) {
-							IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-							if (packageBinding == null) {
-								return null;
+						if (isStatic) {
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+								return typeBinding == null ? null : typeBinding;								
 							}
-							return packageBinding;
 						} else {
-							// if it is not a package, it has to be a type
-							ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-							if (typeBinding == null) {
-								return null;
+							if ((binding.kind() & Binding.PACKAGE) != 0) {
+								IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+								if (packageBinding == null) {
+									return null;
+								}
+								return packageBinding;
+							} else {
+								// if it is not a package, it has to be a type
+								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+								if (typeBinding == null) {
+									return null;
+								}
+								return typeBinding;
 							}
-							return typeBinding;
 						}
 					}
 				} else {
-					Binding binding = this.scope.getImport(importReference.tokens, false, importReference.isStatic());
-					if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-						ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-						return typeBinding == null ? null : typeBinding;
+					Binding binding = this.scope.getImport(importReference.tokens, false, isStatic);
+					if (binding != null) {
+						if (isStatic) {
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+								return typeBinding == null ? null : typeBinding;								
+							} else if (binding instanceof FieldBinding) {
+								IVariableBinding variableBinding = this.getVariableBinding((FieldBinding) binding);
+								return variableBinding == null ? null : variableBinding;								
+							} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+								// it is a type
+								return this.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)binding);						
+							}
+						} else {
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+								return typeBinding == null ? null : typeBinding;
+							}
+						}
 					}
 				}
 			}
@@ -795,10 +818,18 @@ class DefaultBindingResolver extends BindingResolver {
 			int indexInImportReference = importReferenceLength - index; // one-based
 			if (indexInImportReference >= 0) {
 				Binding binding = null;
-				try {
-					binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), true, importReference.isStatic());
-				} catch (RuntimeException e) {
-					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+				if (importReferenceLength == indexInImportReference) {
+					try {
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), importReference.onDemand, importReference.isStatic());
+					} catch (RuntimeException e) {
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+					}
+				} else {
+					try {
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), true, importReference.isStatic());
+					} catch (RuntimeException e) {
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+					}
 				}
 				if (binding != null) {
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
@@ -806,6 +837,12 @@ class DefaultBindingResolver extends BindingResolver {
 					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 						// it is a type
 						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding) {
+						// it is a type
+						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding)binding);						
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+						// it is a type
+						return this.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)binding);						
 					} else {
 						return null;
 					}
