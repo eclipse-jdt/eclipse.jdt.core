@@ -795,7 +795,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
 	PossibleMatch[] possibleMatches = matchSet.getPossibleMatches(javaProject.getPackageFragmentRoots());
 	int length = possibleMatches.length;
 	// increase progress from duplicate matches not stored in matchSet while adding...
-	if (this.progressMonitor != null) {
+	if (this.progressMonitor != null && expected>length) {
 		this.progressWorked += expected-length;
 		this.progressMonitor.worked( expected-length);
 	}
@@ -819,7 +819,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	}
 
 	// init infos for progress increasing
-	int n = docsLength<1000 ? Math.min(Math.max(docsLength/100, 2),4) : 5 *(docsLength/1000);
+	int n = docsLength<1000 ? Math.min(Math.max(docsLength/200+1, 2),4) : 5 *(docsLength/1000);
 	this.progressStep = docsLength < n ? 1 : docsLength / n; // step should not be 0
 	this.progressWorked = 0;
 
