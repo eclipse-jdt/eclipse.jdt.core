@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -89,7 +91,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
-		suite.addTest(new ASTConverterTest2("test0515"));
+		suite.addTest(new ASTConverterTest2("test0520"));
 		return suite;
 	}
 	/**
@@ -3362,5 +3364,115 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Statement statement2 = ifStatement.getElseStatement();
 		assertTrue("not an empty statement", statement2.getNodeType() == ASTNode.EMPTY_STATEMENT);
 		checkSourceRange(statement2, ";", source);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0516() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0516", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0517() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0517", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		FieldDeclaration declaration = (FieldDeclaration) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0518() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0518", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
+		Initializer declaration = (Initializer) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+	}	
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0519() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0519", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		ASTNode statement = (ASTNode) node;
+		ASTNode result2 = AST.parse(AST.K_STATEMENTS, source, statement.getStartPosition(), statement.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
+		Block block = (Block) result2;
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size());
+		Statement statement2 = (Statement) statements.get(0);
+		assertTrue(statement.subtreeMatch(new ASTMatcher(), statement2));
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0520() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0520", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		ASTNode result2 = AST.parse(AST.K_EXPRESSION, source, expression.getStartPosition(), expression.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a method invocation", result2.getNodeType() == ASTNode.METHOD_INVOCATION);
+		assertTrue(expression.subtreeMatch(new ASTMatcher(), result2));
 	}
 }

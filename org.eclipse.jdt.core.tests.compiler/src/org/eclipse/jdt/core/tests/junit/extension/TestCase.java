@@ -24,23 +24,29 @@ public static void assertEquals(String message, String expected, String actual) 
 		return;
 	if (expected != null && expected.equals(actual))
 		return;
-	String formatted;
+	final String formatted;
 	if (message != null) {
 		formatted = message+"."; //$NON-NLS-1$
 	} else {
 		formatted = ""; //$NON-NLS-1$
 	}
-	expected = expected == null ? null : showLineSeparators(expected);
-	actual = actual == null ? null : showLineSeparators(actual);
-	formatted = 
-		formatted
-		+ "\n----------- Expected ------------\n" //$NON-NLS-1$
-		+ expected
-		+ "\n------------ but was ------------\n" //$NON-NLS-1$
-		+ actual
-		+ "\n--------- Difference is ----------\n" //$NON-NLS-1$
-		+ new ComparisonFailure(null, expected, actual).getMessage();
-	fail(formatted);
+	final String expectedWithLineSeparators = expected == null ? null : showLineSeparators(expected);
+	final String actualWithLineSeparators = actual == null ? null : showLineSeparators(actual);
+	
+	throw new ComparisonFailure(null, expectedWithLineSeparators, actualWithLineSeparators) {
+		String fExpected = expectedWithLineSeparators; // used only for the result compare utility
+		String fActual = actualWithLineSeparators; // used only for the result compare utility
+		public String getMessage() {
+			return 
+				formatted
+					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
+					+ expectedWithLineSeparators
+					+ "\n------------ but was ------------\n" //$NON-NLS-1$
+					+ actualWithLineSeparators
+					+ "\n--------- Difference is ----------\n" //$NON-NLS-1$
+					+ super.getMessage();
+		}
+	};
 }
 /*
  * Shows the line separators in the given String.
