@@ -18,6 +18,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 
 /**
@@ -66,11 +67,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
             /*
              * No bootclasspath, we will add one throught the JRE_LIB variable
              */
-			String jre_lib = JavaCore.getClasspathVariable("JRE_LIB").toOSString(); //$NON-NLS-1$
+			IPath jre_lib = JavaCore.getClasspathVariable("JRE_LIB"); //$NON-NLS-1$
 			if (jre_lib == null) {
 				throw new BuildException(Util.bind("ant.jdtadapter.error.missingJRELIB")); //$NON-NLS-1$
 			}
-			classpath.addExisting(new Path(null, jre_lib));
+			classpath.addExisting(new Path(null, jre_lib.toOSString()));
         }
 
         /*
