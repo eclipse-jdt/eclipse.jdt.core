@@ -137,12 +137,11 @@ public class ForStatement extends Statement {
 			} else {
 				if (condLoopContext != null)
 					condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
+				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
-				actionInfo =
-					actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				// for increments
 			}
 		}
+		// for increments
 		if ((continueLabel != null) && (increments != null)) {
 			LoopingFlowContext loopContext =
 				new LoopingFlowContext(flowContext, this, null, null, scope);
