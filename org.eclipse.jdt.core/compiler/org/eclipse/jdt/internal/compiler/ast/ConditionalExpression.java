@@ -35,6 +35,9 @@ public class ConditionalExpression extends OperatorExpression {
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
+
+		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
+
 		Constant conditionConstant = condition.conditionalConstant();
 		if (conditionConstant != NotAConstant) {
 			if (conditionConstant.booleanValue() == true) {
@@ -63,9 +66,6 @@ public class ConditionalExpression extends OperatorExpression {
 				return mergeInfo;
 			}
 		}
-		// notice that the receiver investigation is not performed in the previous case, since there is
-		// not a chance it is worth trying to check anything on a constant expression.
-		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
 		// store a copy of the merged info, so as to compute the local variable attributes afterwards
 		FlowInfo trueInfo = flowInfo.initsWhenTrue();
