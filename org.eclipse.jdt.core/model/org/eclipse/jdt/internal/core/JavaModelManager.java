@@ -741,46 +741,49 @@ public class JavaModelManager implements ISaveParticipant {
 	 * and register it.
 	 * Close the working copy, its buffer and remove it from the shared working copy table.
 	 * Ignore if no per-working copy info existed.
-	 * NOTE: it must be synchronized as it may interact with the element info cache (if useCount is decremented to 0), see bug 50667.
+	 * NOTE: it must NOT be synchronized as it may interact with the element info cache (if useCount is decremented to 0), see bug 50667.
 	 * Returns the new use count (or -1 if it didn't exist).
 	 */
-	public synchronized int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
+	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
+		
+		// create the delta builder (this remembers the current content of the working copy)
+		// outside the perWorkingCopyInfos lock (see bug 50667)
+		JavaElementDeltaBuilder deltaBuilder = null;
+		if (workingCopy.isPrimary()) {
+			deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+		}
+		PerWorkingCopyInfo info = null;
 		synchronized(perWorkingCopyInfos) {
 			WorkingCopyOwner owner = workingCopy.owner;
 			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
 			if (workingCopyToInfos == null) return -1;
 			
-			PerWorkingCopyInfo info = (PerWorkingCopyInfo)workingCopyToInfos.get(workingCopy);
+			info = (PerWorkingCopyInfo)workingCopyToInfos.get(workingCopy);
 			if (info == null) return -1;
 			
 			if (--info.useCount == 0) {
-				// create the delta builder (this remembers the current content of the working copy)
-				JavaElementDeltaBuilder deltaBuilder = null;
-				if (workingCopy.isPrimary()) {
-					deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
-				}
-
 				// remove per working copy info
 				workingCopyToInfos.remove(workingCopy);
 				if (workingCopyToInfos.isEmpty()) {
 					this.perWorkingCopyInfos.remove(owner);
 				}
-
-				// remove infos + close buffer (since no longer working copy)
-				removeInfoAndChildren(workingCopy);
-				workingCopy.closeBuffer();
-
-				// compute the delta if needed and register it if there are changes
-				if (deltaBuilder != null) {
-					deltaBuilder.buildDeltas();
-					if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
-						getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
-					}
-				}
-				
 			}
-			return info.useCount;
 		}
+		if (info.useCount == 0) { // info cannot be null here (check was done above)
+			// remove infos + close buffer (since no longer working copy)
+			// outside the perWorkingCopyInfos lock (see bug 50667)
+			removeInfoAndChildren(workingCopy);
+			workingCopy.closeBuffer();
+
+			// compute the delta if needed and register it if there are changes
+			if (deltaBuilder != null) {
+				deltaBuilder.buildDeltas();
+				if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
+					getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
+				}
+			}
+		}
+		return info.useCount;
 	}
 	
 	/**
