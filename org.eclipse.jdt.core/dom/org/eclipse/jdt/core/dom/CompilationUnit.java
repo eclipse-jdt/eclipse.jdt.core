@@ -225,7 +225,7 @@ public class CompilationUnit extends ASTNode {
 	 * <li></li>
 	 * <li>package - a <code>PackageDeclaration</code></li>
 	 * <li>class or interface - a <code>TypeDeclaration</code> or a
-	 *    <code>ClassInstanceCreation</code> (for anonymous classes) </li>
+	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes) </li>
 	 * <li>primitive type - none</li>
 	 * <li>array type - none</li>
 	 * <li>field - a <code>VariableDeclarationFragment</code> in a 
@@ -269,7 +269,7 @@ public class CompilationUnit extends ASTNode {
 	 * <li></li>
 	 * <li>package - a <code>PackageDeclaration</code></li>
 	 * <li>class or interface - a <code>TypeDeclaration</code> or a
-	 *    <code>ClassInstanceCreation</code> (for anonymous classes) </li>
+	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes) </li>
 	 * <li>primitive type - none</li>
 	 * <li>array type - none</li>
 	 * <li>field - a <code>VariableDeclarationFragment</code> in a 
