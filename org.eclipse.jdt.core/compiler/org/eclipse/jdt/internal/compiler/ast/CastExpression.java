@@ -391,6 +391,8 @@ public class CastExpression extends Expression {
 				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
 				public void setDepth(int depth) { /* ignore */}
 				public void setFieldIndex(int depth){ /* ignore */}
+				public int sourceStart() { return 0; }
+				public int sourceEnd() { return 0; }
 			};	
 			MethodBinding bindingIfNoCast;
 			if (binding.isConstructor()) {

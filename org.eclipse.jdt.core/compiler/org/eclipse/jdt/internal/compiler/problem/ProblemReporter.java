@@ -2156,8 +2156,8 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		arguments, 
 		arguments,
 		AbortCompilation | Error,
-		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
-		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
+		0,
+		0);
 }
 public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);

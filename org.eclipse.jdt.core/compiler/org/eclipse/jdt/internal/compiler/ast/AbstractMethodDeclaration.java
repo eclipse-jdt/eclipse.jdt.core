@@ -55,17 +55,17 @@ public abstract class AbstractMethodDeclaration
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
-	public void abort(int abortLevel) {
+	public void abort(int abortLevel, IProblem problem) {
 
 		switch (abortLevel) {
 			case AbortCompilation :
-				throw new AbortCompilation(this.compilationResult);
+				throw new AbortCompilation(this.compilationResult, problem);
 			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(this.compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult, problem);
 			case AbortType :
-				throw new AbortType(this.compilationResult);
+				throw new AbortType(this.compilationResult, problem);
 			default :
-				throw new AbortMethod(this.compilationResult);
+				throw new AbortMethod(this.compilationResult, problem);
 		}
 	}
 
@@ -227,7 +227,7 @@ public abstract class AbstractMethodDeclaration
 
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {
-			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult);
+			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 	}
 

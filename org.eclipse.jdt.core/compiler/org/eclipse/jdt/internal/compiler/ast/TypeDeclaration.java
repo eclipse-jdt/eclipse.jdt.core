@@ -59,17 +59,17 @@ public class TypeDeclaration
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
-	public void abort(int abortLevel) {
+	public void abort(int abortLevel, IProblem problem) {
 
 		switch (abortLevel) {
 			case AbortCompilation :
-				throw new AbortCompilation(this.compilationResult);
+				throw new AbortCompilation(this.compilationResult, problem);
 			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(this.compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult, problem);
 			case AbortMethod :
-				throw new AbortMethod(this.compilationResult);
+				throw new AbortMethod(this.compilationResult, problem);
 			default :
-				throw new AbortType(this.compilationResult);
+				throw new AbortType(this.compilationResult, problem);
 		}
 	}
 	/**
@@ -557,7 +557,7 @@ public class TypeDeclaration
 			classFile.addSpecialMethods();
 
 			if (ignoreFurtherInvestigation) { // trigger problem type generation for code gen errors
-				throw new AbortType(scope.referenceCompilationUnit().compilationResult);
+				throw new AbortType(scope.referenceCompilationUnit().compilationResult, null);
 			}
 
 			// finalize the compiled type result

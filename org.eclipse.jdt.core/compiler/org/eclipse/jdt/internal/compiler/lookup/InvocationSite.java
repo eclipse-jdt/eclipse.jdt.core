@@ -21,4 +21,6 @@ public interface InvocationSite {
 	//		but actual receiver type is pkg.Type)
 	// e.g2. in presence of implicit access to enclosing type
 	void setActualReceiverType(ReferenceBinding receiverType);
+	int sourceStart();
+	int sourceEnd();
 }

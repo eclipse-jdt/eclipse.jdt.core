@@ -53,15 +53,15 @@ public class CompilationUnitDeclaration
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
-	public void abort(int abortLevel) {
+	public void abort(int abortLevel, IProblem problem) {
 
 		switch (abortLevel) {
 			case AbortType :
-				throw new AbortType(this.compilationResult);
+				throw new AbortType(this.compilationResult, problem);
 			case AbortMethod :
-				throw new AbortMethod(this.compilationResult);
+				throw new AbortMethod(this.compilationResult, problem);
 			default :
-				throw new AbortCompilationUnit(this.compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult, problem);
 		}
 	}
 

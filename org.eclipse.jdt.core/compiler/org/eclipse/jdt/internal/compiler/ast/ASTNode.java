@@ -255,7 +255,12 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			output.append("abstract "); //$NON-NLS-1$
 		return output;
 	}
-
+	public int sourceStart() {
+		return this.sourceStart;
+	}
+	public int sourceEnd() {
+		return this.sourceEnd;
+	}
 	public String toString() {
 
 		return print(0, new StringBuffer(30)).toString();

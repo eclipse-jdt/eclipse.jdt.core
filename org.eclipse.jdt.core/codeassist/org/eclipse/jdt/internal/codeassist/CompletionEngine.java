@@ -140,6 +140,8 @@ public final class CompletionEngine
 		public void setActualReceiverType(ReferenceBinding receiverType) {}
 		public void setDepth(int depth){}
 		public void setFieldIndex(int depth){}
+		public int sourceStart() { return 0; 	}
+		public int sourceEnd() { return 0; 	}
 	};
 
 	/**

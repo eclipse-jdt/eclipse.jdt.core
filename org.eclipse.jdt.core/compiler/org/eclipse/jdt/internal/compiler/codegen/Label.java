@@ -72,7 +72,7 @@ void branch() {
 		 */
 		int offset = position - codeStream.position + 1;
 		if (Math.abs(offset) > 0x7FFF && !this.codeStream.wideMode) {
-			throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
+			throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 		}
 		codeStream.writeSignedShort(offset);
 	}
@@ -193,7 +193,7 @@ public void place() { // Currently lacking wide support.
 		for (int i = 0; i < forwardReferenceCount; i++) {
 			int offset = position - forwardReferences[i] + 1;
 			if (Math.abs(offset) > 0x7FFF && !this.codeStream.wideMode) {
-				throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
+				throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 			}
 			if (this.codeStream.wideMode) {
 				if (this.isWide) {
@@ -224,7 +224,7 @@ public void place() { // Currently lacking wide support.
 							int forwardPosition = label.forwardReferences[j];
 							int offset = position - forwardPosition + 1;
 							if (Math.abs(offset) > 0x7FFF && !this.codeStream.wideMode) {
-								throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
+								throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 							}
 							if (this.codeStream.wideMode) {
 								if (this.isWide) {

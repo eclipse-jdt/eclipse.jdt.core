@@ -302,7 +302,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (ignoreFurtherInvestigation) {
-			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult);
+			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
 		}
 	}
 

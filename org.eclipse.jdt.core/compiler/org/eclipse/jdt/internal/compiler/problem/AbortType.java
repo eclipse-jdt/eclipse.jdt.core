@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 /*
@@ -19,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
  * should only be thrown from within problem handlers.
  */
 public class AbortType extends AbortCompilationUnit {
-public AbortType(CompilationResult compilationResult) {
-	super(compilationResult);
+public AbortType(CompilationResult compilationResult, IProblem problem) {
+	super(compilationResult, problem);
 }
 }

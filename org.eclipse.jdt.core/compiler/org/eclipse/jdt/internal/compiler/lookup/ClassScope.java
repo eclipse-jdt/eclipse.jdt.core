@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.Clinit;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -797,72 +798,77 @@ public class ClassScope extends Scope {
 	}
 	
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
-		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
-		char[][] compoundName = typeReference.getTypeName();
-		compilationUnitScope().recordQualifiedReference(compoundName);
-		SourceTypeBinding sourceType = referenceContext.binding;
-		int size = compoundName.length;
-		int n = 1;
-		ReferenceBinding superType;
-
-		// resolve the first name of the compoundName
-		if (CharOperation.equals(compoundName[0], sourceType.sourceName)) {
-			superType = sourceType;
-			// match against the sourceType even though nested members cannot be supertypes
-		} else {
-			Binding typeOrPackage = parent.getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
-			if (typeOrPackage == null || !typeOrPackage.isValidBinding())
-				return new ProblemReferenceBinding(
-					compoundName[0],
-					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-
-			boolean checkVisibility = false;
-			for (; n < size; n++) {
-				if (!(typeOrPackage instanceof PackageBinding))
-					break;
-				PackageBinding packageBinding = (PackageBinding) typeOrPackage;
-				typeOrPackage = packageBinding.getTypeOrPackage(compoundName[n]);
+		try {
+			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
+			char[][] compoundName = typeReference.getTypeName();
+			compilationUnitScope().recordQualifiedReference(compoundName);
+			SourceTypeBinding sourceType = referenceContext.binding;
+			int size = compoundName.length;
+			int n = 1;
+			ReferenceBinding superType;
+	
+			// resolve the first name of the compoundName
+			if (CharOperation.equals(compoundName[0], sourceType.sourceName)) {
+				superType = sourceType;
+				// match against the sourceType even though nested members cannot be supertypes
+			} else {
+				Binding typeOrPackage = parent.getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
 				if (typeOrPackage == null || !typeOrPackage.isValidBinding())
 					return new ProblemReferenceBinding(
-						CharOperation.subarray(compoundName, 0, n + 1),
+						compoundName[0],
 						typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-				checkVisibility = true;
+	
+				boolean checkVisibility = false;
+				for (; n < size; n++) {
+					if (!(typeOrPackage instanceof PackageBinding))
+						break;
+					PackageBinding packageBinding = (PackageBinding) typeOrPackage;
+					typeOrPackage = packageBinding.getTypeOrPackage(compoundName[n]);
+					if (typeOrPackage == null || !typeOrPackage.isValidBinding())
+						return new ProblemReferenceBinding(
+							CharOperation.subarray(compoundName, 0, n + 1),
+							typeOrPackage == null ? NotFound : typeOrPackage.problemId());
+					checkVisibility = true;
+				}
+	
+				// convert to a ReferenceBinding
+				if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
+				superType = (ReferenceBinding) typeOrPackage;
+				compilationUnitScope().recordTypeReference(superType); // to record supertypes
+	
+				if (checkVisibility
+					&& n == size) { // if we're finished and know the final supertype then check visibility
+					if (!superType.canBeSeenBy(sourceType.fPackage))
+						// its a toplevel type so just check package access
+						return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotVisible);
+				}
 			}
-
-			// convert to a ReferenceBinding
-			if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
-			superType = (ReferenceBinding) typeOrPackage;
-			compilationUnitScope().recordTypeReference(superType); // to record supertypes
-
-			if (checkVisibility
-				&& n == size) { // if we're finished and know the final supertype then check visibility
-				if (!superType.canBeSeenBy(sourceType.fPackage))
-					// its a toplevel type so just check package access
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotVisible);
+			// at this point we know we have a type but we have to look for cycles
+			while (true) {
+				// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
+				// must be guaranteed that the superType knows its entire hierarchy
+				if (detectCycle(sourceType, superType, typeReference))
+					return null; // cycle error was already reported
+	
+				if (n >= size)
+					break;
+	
+				// retrieve the next member type
+				char[] typeName = compoundName[n++];
+				superType = findMemberType(typeName, superType);
+				if (superType == null)
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
+				if (!superType.isValidBinding()) {
+					superType.compoundName = CharOperation.subarray(compoundName, 0, n);
+					return superType;
+				}
 			}
+			return superType;
+		} catch (AbortCompilation e) {
+			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
+			throw e;
 		}
-		// at this point we know we have a type but we have to look for cycles
-		while (true) {
-			// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
-			// must be guaranteed that the superType knows its entire hierarchy
-			if (detectCycle(sourceType, superType, typeReference))
-				return null; // cycle error was already reported
-
-			if (n >= size)
-				break;
-
-			// retrieve the next member type
-			char[] typeName = compoundName[n++];
-			superType = findMemberType(typeName, superType);
-			if (superType == null)
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
-			if (!superType.isValidBinding()) {
-				superType.compoundName = CharOperation.subarray(compoundName, 0, n);
-				return superType;
-			}
-		}
-		return superType;
 	}
 
 	/* Answer the problem reporter to use for raising new problems.
