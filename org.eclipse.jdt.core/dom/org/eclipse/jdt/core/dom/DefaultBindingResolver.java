@@ -650,4 +650,17 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	/*
+	 * @see BindingResolver#resolveType(AnonymousClassDeclaration)
+	 */
+	ITypeBinding resolveType(AnonymousClassDeclaration type) {
+		org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration) this.newAstToOldAst.get(type);
+		if (anonymousLocalTypeDeclaration != null) {
+			ITypeBinding typeBinding = this.getTypeBinding(anonymousLocalTypeDeclaration.binding);
+			this.bindingsToAstNodes.put(typeBinding, type);
+			return typeBinding;
+		}
+		return super.resolveType(type);
+	}
+
 }

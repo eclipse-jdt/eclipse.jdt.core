@@ -732,10 +732,6 @@ class ASTConverter {
 	
 	public ClassInstanceCreation convert(AnonymousLocalTypeDeclaration expression) {
 		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
-		if (this.resolveBindings) {
-			recordNodes(classInstanceCreation, expression);
-			classInstanceCreation.resolveTypeBinding();
-		}
 		classInstanceCreation.setName(convert(expression.allocation.type));
 		if (expression.allocation.enclosingInstance != null) {
 			classInstanceCreation.setExpression(convert(expression.allocation.enclosingInstance));
@@ -749,12 +745,18 @@ class ASTConverter {
 				classInstanceCreation.arguments().add(convert(arguments[i]));
 			}
 		}
-		buildBodyDeclarations(expression, classInstanceCreation);
-		classInstanceCreation.setAnonymousClassDeclaration(true);
+		AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
+		classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
+		buildBodyDeclarations(expression, anonymousClassDeclaration);
+		if (this.resolveBindings) {
+			recordNodes(classInstanceCreation, expression);
+			recordNodes(anonymousClassDeclaration, expression);
+			classInstanceCreation.resolveTypeBinding();
+		}
 		return classInstanceCreation;
 	}
 
-	private void buildBodyDeclarations(AnonymousLocalTypeDeclaration expression, ClassInstanceCreation classInstanceCreation) {
+	private void buildBodyDeclarations(AnonymousLocalTypeDeclaration expression, AnonymousClassDeclaration anonymousClassDeclaration) {
 		// add body declaration in the lexical order
 		MemberTypeDeclaration[] members = expression.memberTypes;
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = expression.fields;
@@ -799,18 +801,18 @@ class ASTConverter {
 			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, classInstanceCreation.bodyDeclarations());
+					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, anonymousClassDeclaration.bodyDeclarations());
 					fieldsIndex++;
 					break;
 				case 1 :
 					methodsIndex++;
 					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						classInstanceCreation.bodyDeclarations().add(convert(nextMethodDeclaration));
+						anonymousClassDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
 					}
 					break;
 				case 2 :
 					membersIndex++;
-					classInstanceCreation.bodyDeclarations().add(convert(nextMemberDeclaration));
+					anonymousClassDeclaration.bodyDeclarations().add(convert(nextMemberDeclaration));
 			}
 		}
 	}
