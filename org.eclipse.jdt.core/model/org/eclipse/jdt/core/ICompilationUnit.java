@@ -19,11 +19,11 @@ import org.eclipse.jdt.core.dom.AST;
 /**
  * Represents an entire Java compilation unit (<code>.java</code> source file).
  * Compilation unit elements need to be opened before they can be navigated or manipulated.
- * The children are of type <code>IPackageDeclaration</code>,
- * <code>IImportContainer</code>, and <code>IType</code>,
+ * The children are of type {@link IPackageDeclaration},
+ * {@link IImportContainer}, and {@link IType},
  * and appear in the order in which they are declared in the source.
  * If a <code>.java</code> file cannot be parsed, its structure remains unknown.
- * Use <code>IJavaElement.isStructureKnown</code> to determine whether this is 
+ * Use {@link IJavaElement#isStructureKnown} to determine whether this is 
  * the case.
  * <p>
  * This interface is not intended to be implemented by clients.
@@ -37,23 +37,23 @@ public interface ICompilationUnit extends IJavaElement, ISourceReference, IParen
 public static final int NO_AST = 0;
 
 /**
- * Changes this compilation unit handle into a working copy. A new <code>IBuffer</code> is
+ * Changes this compilation unit handle into a working copy. A new {@link IBuffer} is
  * created using this compilation unit handle's owner. Uses the primary owner is none was
  * specified when this compilation unit handle was created.
  * <p>
  * When switching to working copy mode, problems are reported to given 
- * <code>IProblemRequestor</code>.
+ * {@link IProblemRequestor}.
  * </p>
  * <p>
  * Once in working copy mode, changes to this compilation unit or its children are done in memory.
- * Only the new buffer is affected. Using <code>commitWorkingCopy(boolean, IProgressMonitor)</code>
+ * Only the new buffer is affected. Using {@link #commitWorkingCopy(boolean, IProgressMonitor)}
  * will bring the underlying resource in sync with this compilation unit.
  * </p>
  * <p>
  * If this compilation unit was already in working copy mode, an internal counter is incremented and no
  * other action is taken on this compilation unit. To bring this compilation unit back into the original mode 
- * (where it reflects the underlying resource), <code>discardWorkingCopy</code> must be call as many 
- * times as <code>becomeWorkingCopy</code>.
+ * (where it reflects the underlying resource), {@link #discardWorkingCopy} must be call as many 
+ * times as {@link #becomeWorkingCopy(IProblemRequestor, IProgressMonitor)}.
  * </p>
  * 
  * @param problemRequestor a requestor which will get notified of problems detected during
@@ -76,7 +76,7 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  * <li> <code>true</code> - in this case the contents of this working copy are applied to
  * 	the underlying resource even though this working copy was created before
  *		a subsequent change in the resource</li>
- * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
+ * <li> <code>false</code> - in this case a {@link JavaModelException} is thrown</li>
  * </ul>
  * <p>
  * Since 2.1, a working copy can be created on a not-yet existing compilation
@@ -88,7 +88,7 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  * @param monitor the given progress monitor
  * @throws JavaModelException if this working copy could not commit. Reasons include:
  * <ul>
- * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> A {@link org.eclipse.core.runtime.CoreException} occurred while updating an underlying resource
  * <li> This element is not a working copy (INVALID_ELEMENT_TYPES)
  * <li> A update conflict (described above) (UPDATE_CONFLICT)
  * </ul>
@@ -110,7 +110,7 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * @throws JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This Java element does not exist or the specified sibling does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> A {@link org.eclipse.core.runtime.CoreException} occurred while updating an underlying resource
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The name is not a valid import name (INVALID_NAME)
  * </ul>
@@ -146,8 +146,8 @@ IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMoni
  *  <code>"java.awt.*"</code>)
  * @param sibling the existing element which the import declaration will be inserted immediately before (if
  *	<code> null </code>, then this import will be inserted as the last import declaration.
- * @param flags <code>Flags.AccStatic</code> for static imports, or
- * <code>Flags.AccDefault</code> for regular imports; other modifier flags
+ * @param flags {@link Flags#AccStatic} for static imports, or
+ * {@link Flags#AccDefault} for regular imports; other modifier flags
  * are ignored
  * @param monitor the progress monitor to notify
  * @return the newly inserted import declaration (or the previously existing one in case attempting to create a duplicate)
@@ -155,7 +155,7 @@ IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMoni
  * @throws JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This Java element does not exist or the specified sibling does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> A {@link org.eclipse.core.runtime.CoreException} occurred while updating an underlying resource
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The name is not a valid import name (INVALID_NAME)
  * </ul>
@@ -178,7 +178,7 @@ IImportDeclaration createImport(String name, IJavaElement sibling, int flags, IP
  * @throws JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> A {@link org.eclipse.core.runtime.CoreException} occurred while updating an underlying resource
  * <li> The name is not a valid package name (INVALID_NAME)
  * </ul>
  */
@@ -196,20 +196,20 @@ IImportDeclaration createImport(String name, IJavaElement sibling, int flags, IP
  * The value of the <code>force</code> parameter effects the resolution of
  * such a conflict:<ul>
  * <li> <code>true</code> - in this case the type is created with the new contents</li>
- * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
+ * <li> <code>false</code> - in this case a {@link JavaModelException} is thrown</li>
  * </ul>
  *
  * @param contents the source contents of the type declaration to add.
  * @param sibling the existing element which the type will be inserted immediately before (if
- *	<code> null </code>, then this type will be inserted as the last type declaration.
- * @param force a <code> boolean </code> flag indicating how to deal with duplicates
+ *	<code>null</code>, then this type will be inserted as the last type declaration.
+ * @param force a <code>boolean</code> flag indicating how to deal with duplicates
  * @param monitor the progress monitor to notify
  * @return the newly inserted type
  *
  * @throws JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li>The specified sibling element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> A {@link org.eclipse.core.runtime.CoreException} occurred while updating an underlying resource
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The contents could not be recognized as a type declaration (INVALID_CONTENTS)
  * <li> There was a naming collision with an existing type (NAME_COLLISION)
@@ -222,8 +222,8 @@ IType createType(String contents, IJavaElement sibling, boolean force, IProgress
  * This has no effect if this compilation unit was not in working copy mode.
  * </p>
  * <p>
- * If <code>becomeWorkingCopy</code> was called several times on this
- * compilation unit, <code>discardWorkingCopy</code> must be called as 
+ * If {@link #becomeWorkingCopy} was called several times on this
+ * compilation unit, {@link #discardWorkingCopy} must be called as 
  * many times before it switches back to the original mode.
  * </p>
  * 
@@ -261,13 +261,13 @@ IJavaElement[] findElements(IJavaElement element);
  */
 IType findPrimaryType();
 /**
- * Finds the working copy for this compilation unit, given a <code>WorkingCopyOwner</code>. 
+ * Finds the working copy for this compilation unit, given a {@link WorkingCopyOwner}. 
  * If no working copy has been created for this compilation unit associated with this
  * working copy owner, returns <code>null</code>.
  * <p>
  * Users of this method must not destroy the resulting working copy. 
  * 
- * @param owner the given <code>WorkingCopyOwner</code>
+ * @param owner the given {@link WorkingCopyOwner}
  * @return the found working copy for this compilation unit, <code>null</code> if none
  * @see WorkingCopyOwner
  * @since 3.0
@@ -394,14 +394,14 @@ IType[] getTypes() throws JavaModelException;
  * or this compilation unit if it is already a non-primary working copy.
  * <p>
  * Note: if intending to share a working copy amongst several clients, then 
- * <code>#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</code> 
+ * {@link #getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)} 
  * should be used instead.
  * </p><p>
  * When the working copy instance is created, an ADDED IJavaElementDelta is 
  * reported on this working copy.
  * </p><p>
  * Once done with the working copy, users of this method must discard it using 
- * <code>discardWorkingCopy()</code>.
+ * {@link #discardWorkingCopy()}.
  * </p><p>
  * Since 2.1, a working copy can be created on a not-yet existing compilation
  * unit. In particular, such a working copy can then be committed in order to create
@@ -420,14 +420,14 @@ ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelExcept
  * Returns a shared working copy on this compilation unit using the given working copy owner to create
  * the buffer, or this compilation unit if it is already a non-primary working copy.
  * This API can only answer an already existing working copy if it is based on the same
- * original compilation unit AND was using the same working copy owner (that is, as defined by <code>Object.equals</code>).	 
+ * original compilation unit AND was using the same working copy owner (that is, as defined by {@link Object#equals}).	 
  * <p>
  * The life time of a shared working copy is as follows:
  * <ul>
- * <li>The first call to <code>getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</code> 
+ * <li>The first call to {@link #getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)} 
  * 	creates a new working copy for this element</li>
  * <li>Subsequent calls increment an internal counter.</li>
- * <li>A call to <code>discardWorkingCopy()</code> decrements the internal counter.</li>
+ * <li>A call to {@link #discardWorkingCopy()} decrements the internal counter.</li>
  * <li>When this counter is 0, the working copy is discarded.
  * </ul>
  * So users of this method must discard exactly once the working copy.
@@ -479,7 +479,7 @@ boolean isWorkingCopy();
  * Reconciles the contents of this working copy, sends out a Java delta
  * notification indicating the nature of the change of the working copy since
  * the last time it was either reconciled or made consistent 
- * (see <code>IOpenable#makeConsistent()</code>), and returns a
+ * ({@link IOpenable#makeConsistent(IProgressMonitor)}), and returns a
  * compilation unit AST if requested.
  * <p>
  * It performs the reconciliation by locally caching the contents of 
@@ -499,7 +499,7 @@ boolean isWorkingCopy();
  * </p>
  * <p>
  * Compilation problems found in the new contents are notified through the
- * <code>IProblemRequestor</code> interface which was passed at
+ * {@link IProblemRequestor} interface which was passed at
  * creation, and no longer as transient markers.
  * </p>
  * <p>
@@ -543,7 +543,7 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, WorkingCo
  * is not a working copy.
  *
  * <p>Note: This is the inverse of committing the content of the
- * working copy to the original element with <code>commit(boolean, IProgressMonitor)</code>.
+ * working copy to the original element with {@link #commitWorkingCopy(boolean, IProgressMonitor)}.
  *
  * @throws JavaModelException if the contents of the original element
  *		cannot be accessed.  Reasons include:

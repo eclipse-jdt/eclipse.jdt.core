@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * navigated or modified. Opening a textual element (such as a compilation unit)
  * involves opening a buffer on its contents.  While open, any changes to the buffer
  * can be reflected in the element's structure; 
- * see <code>isConsistent</code> and <code>makeConsistent(IProgressMonitor)</code>.
+ * see {@link #isConsistent} and {@link #makeConsistent(IProgressMonitor)}.
  * <p>
  * To reduce complexity in clients, elements are automatically opened
  * by the Java model as element properties are accessed. The Java model maintains
@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * To open an element, all openable parent elements must be open.
  * The Java model automatically opens parent elements, as it automatically opens elements.
  * Opening an element may provide access to direct children and other descendants,
- * but does not automatically open any descendents which are themselves <code>IOpenable</code>.
+ * but does not automatically open any descendents which are themselves {@link IOpenable}.
  * For example, opening a compilation unit provides access to all its constituent elements,
  * but opening a package fragment does not open all compilation units in the package fragment.
  * </p>
@@ -47,7 +47,7 @@ public interface IOpenable {
  * Closes this element and its buffer (if any).
  * Closing an element which is not open has no effect.
  *
- * <p>Note: although <code>close</code> is exposed in the API, clients are
+ * <p>Note: although {@link #close} is exposed in the API, clients are
  * not expected to open and close elements - the Java model does this automatically
  * as elements are accessed.
  *
@@ -110,9 +110,9 @@ boolean isOpen();
  * by updating the element's structure and properties as necessary.
  *<p>
  * Note: Using this functionality on a working copy will interfere with any
- * subsequent reconciling operation. Indeed, the next <code>ICompilationUnit#reconcile()</code> 
+ * subsequent reconciling operation. Indeed, the next {@link ICompilationUnit#reconcile}
  * operation will not account for changes which occurred before an
- * explicit use of <code>#makeConsistent(IProgressMonitor)</code>
+ * explicit use of {@link #makeConsistent(IProgressMonitor)}
  * <p>
  * @param progress the given progress monitor
  * @exception JavaModelException if the element is unable to access the contents
@@ -128,7 +128,7 @@ void makeConsistent(IProgressMonitor progress) throws JavaModelException;
  * Opens this element and all parent elements that are not already open.
  * For compilation units, a buffer is opened on the contents of the underlying resource.
  *
- * <p>Note: although <code>open</code> is exposed in the API, clients are
+ * <p>Note: although {@link #open} is exposed in the API, clients are
  * not expected to open and close elements - the Java model does this automatically
  * as elements are accessed.
  *
