@@ -100,25 +100,23 @@ public void done() {
  * Returns a string describing the problems.
  */
 protected String problemsMessage() {
-	int numNew = newErrorCount + newWarningCount;
-	int numFixed = fixedErrorCount + fixedWarningCount;
-	if (numNew == 0 && numFixed == 0) return ""; //$NON-NLS-1$
-	if (numFixed == 0)
-		return '(' + (numNew == 1
-			? Util.bind("build.oneProblemFound", String.valueOf(numNew)) //$NON-NLS-1$
-			: Util.bind("build.problemsFound", String.valueOf(numNew))) + ')'; //$NON-NLS-1$
-	if (numNew == 0)
-		return '(' + (numFixed == 1
-			? Util.bind("build.oneProblemFixed", String.valueOf(numFixed)) //$NON-NLS-1$
-			: Util.bind("build.problemsFixed", String.valueOf(numFixed))) + ')'; //$NON-NLS-1$
+	if (newErrorCount == 0 && fixedErrorCount == 0) return ""; //$NON-NLS-1$
+	if (fixedErrorCount == 0)
+		return '(' + (newErrorCount == 1
+			? Util.bind("build.oneErrorFound") //$NON-NLS-1$
+			: Util.bind("build.errorsFound", String.valueOf(newErrorCount))) + ')'; //$NON-NLS-1$
+	if (newErrorCount == 0)
+		return '(' + (fixedErrorCount == 1
+			? Util.bind("build.oneErrorFixed") //$NON-NLS-1$
+			: Util.bind("build.errorsFixed", String.valueOf(fixedErrorCount))) + ')'; //$NON-NLS-1$
 	return
-		'(' + (numFixed == 1
-			? Util.bind("build.oneProblemFixed", String.valueOf(numFixed)) //$NON-NLS-1$
-			: Util.bind("build.problemsFixed", String.valueOf(numFixed))) //$NON-NLS-1$
+		'(' + (fixedErrorCount == 1
+			? Util.bind("build.oneErrorFixed") //$NON-NLS-1$
+			: Util.bind("build.errorsFixed", String.valueOf(fixedErrorCount))) //$NON-NLS-1$
 		+ ", " //$NON-NLS-1$
-		+ (numNew == 1
-			? Util.bind("build.oneProblemFound", String.valueOf(numNew)) //$NON-NLS-1$
-			: Util.bind("build.problemsFound", String.valueOf(numNew))) + ')'; //$NON-NLS-1$
+		+ (newErrorCount == 1
+			? Util.bind("build.oneErrorFound") //$NON-NLS-1$
+			: Util.bind("build.errorsFound", String.valueOf(newErrorCount))) + ')'; //$NON-NLS-1$
 }
 
 /**
