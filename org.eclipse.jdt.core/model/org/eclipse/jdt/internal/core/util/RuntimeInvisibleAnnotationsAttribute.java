@@ -45,8 +45,9 @@ public class RuntimeInvisibleAnnotationsAttribute
 			int readOffset = 8;
 			this.annotations = new IAnnotation[length];
 			for (int i = 0; i < length; i++) {
-				this.annotations[i] = new Annotation(classFileBytes, constantPool, offset + readOffset);
-				readOffset += 10;
+				Annotation annotation = new Annotation(classFileBytes, constantPool, offset + readOffset);
+				this.annotations[i] = annotation;
+				readOffset += annotation.sizeInBytes();
 			}
 		} else {
 			this.annotations = NO_ENTRIES;
