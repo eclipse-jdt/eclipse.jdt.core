@@ -262,7 +262,7 @@ public abstract class AbstractCommentParser {
 		updateLineEnd();
 	}
 
-	protected abstract Object createArgumentReference(char[] name, int dim, Object typeRef, long dimPos, long argNamePos) throws InvalidInputException;
+	protected abstract Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPos, long argNamePos) throws InvalidInputException;
 	protected abstract Object createFieldReference(Object receiver) throws InvalidInputException;
 	protected abstract Object createMethodReference(Object receiver, List arguments) throws InvalidInputException;
 	protected Object createReturnStatement() { return null; }
@@ -314,7 +314,7 @@ public abstract class AbstractCommentParser {
 
 			// Read possible array declaration
 			int dim = 0;
-			long dimPos = -1;
+			long[] dimPositions = new long[20]; // assume that there won't be more than 20 dimensions...
 			if (readToken() == TerminalTokens.TokenNameLBRACKET) {
 				int dimStart = this.scanner.getCurrentTokenStartPosition();
 				while (readToken() == TerminalTokens.TokenNameLBRACKET) {
@@ -323,8 +323,7 @@ public abstract class AbstractCommentParser {
 						break nextArg;
 					}
 					consumeToken();
-					dim++;
-					dimPos = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
 				}
 			}
 
@@ -364,13 +363,13 @@ public abstract class AbstractCommentParser {
 			char[] name = argName == null ? new char[0] : argName;
 			if (token == TerminalTokens.TokenNameCOMMA) {
 				// Create new argument
-				Object argument = createArgumentReference(name, dim, typeRef, dimPos, argNamePos);
+				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
 				consumeToken();
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
 				// Create new argument
-				Object argument = createArgumentReference(name, dim, typeRef, dimPos, argNamePos);
+				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
 				return createMethodReference(receiver, arguments);
 			} else {

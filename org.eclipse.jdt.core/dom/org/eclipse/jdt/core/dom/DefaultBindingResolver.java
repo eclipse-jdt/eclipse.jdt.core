@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -117,7 +118,7 @@ class DefaultBindingResolver extends BindingResolver {
 						} else {
 							if (binding instanceof ProblemFieldBinding) {
 								ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
-								switch(problemFieldBinding.problemId()) {
+								switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
 									case ProblemReasons.NotVisible : 
 									case ProblemReasons.NonStaticReferenceInStaticContext :
 										ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
@@ -237,7 +238,7 @@ class DefaultBindingResolver extends BindingResolver {
 						 */
 						if (binding instanceof ProblemFieldBinding) {
 							ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
-							switch(problemFieldBinding.problemId()) {
+							switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
 								case ProblemReasons.NotVisible : 
 								case ProblemReasons.NonStaticReferenceInStaticContext :
 								case ProblemReasons.NonStaticReferenceInConstructorInvocation :
@@ -757,7 +758,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (referenceBinding == null) {
 			return null;
 		} else if (!referenceBinding.isValidBinding()) {
-			switch(referenceBinding.problemId()) {
+			switch(referenceBinding.problemId() & IProblem.IgnoreCategoriesMask) {
 				case ProblemReasons.NotVisible : 
 				case ProblemReasons.NonStaticReferenceInStaticContext :
 					if (referenceBinding instanceof ProblemReferenceBinding) {
@@ -819,7 +820,7 @@ class DefaultBindingResolver extends BindingResolver {
 				 */
 				if (variableBinding instanceof ProblemFieldBinding) {
 					ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) variableBinding;
-					switch(problemFieldBinding.problemId()) {
+					switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
 						case ProblemReasons.NotVisible : 
 						case ProblemReasons.NonStaticReferenceInStaticContext :
 						case ProblemReasons.NonStaticReferenceInConstructorInvocation :
@@ -859,7 +860,7 @@ class DefaultBindingResolver extends BindingResolver {
 				/*
 				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
 				 */
-				switch(methodBinding.problemId()) {
+				switch(methodBinding.problemId() & IProblem.IgnoreCategoriesMask) {
 					case ProblemReasons.NotVisible : 
 					case ProblemReasons.NonStaticReferenceInStaticContext :
 					case ProblemReasons.NonStaticReferenceInConstructorInvocation :

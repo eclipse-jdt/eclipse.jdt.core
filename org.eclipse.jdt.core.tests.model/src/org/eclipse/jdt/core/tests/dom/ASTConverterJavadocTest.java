@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,8 +36,8 @@ import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 
 public class ASTConverterJavadocTest extends ConverterTestSetup {
-//		List comments = new ArrayList();
-//		List allTags = new ArrayList();
+		List comments = new ArrayList();
+		List allTags = new ArrayList();
 
 		/**
 	 * @param name
@@ -61,81 +59,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testJavadoc05"));			
+		suite.addTest(new ASTConverterJavadocTest("testJavadoc08"));			
 		return suite;
 	}
-
-//	/*
-//	 * Convert Javadoc source to match Javadoc.toString()
-//	 */
-//	List[] convertSource(char[] source) {
-//		List comments = new ArrayList();
-//		List numbers = new ArrayList();
-//		StringBuffer buffer = new StringBuffer(source.length);
-//		boolean javadoc = false;
-//		boolean star = false;
-//		boolean firstTag = true;
-//		int number = 0;
-//		for (int i=0; i<source.length; i++) {
-//			if (javadoc) {
-//				if (star) {
-//					if (source[i] == '/') {
-//						javadoc = false;
-//						buffer.append("\n */");
-//						comments.add(buffer.toString());
-//						numbers.add(new Integer(number));
-//						buffer = new StringBuffer(source.length);
-//						number = 0;
-//						break;
-//					} else {
-//						buffer.append('*');
-//					}
-//				}
-//			} else {
-//				if (source[i] == '/' && source[i+1] == '*' && source[i+2] == '*') {
-//					javadoc = true;
-//				}
-//			}
-//			if (javadoc) {
-//				if (source[i] == '\r' || source[i] == '\n') {
-//					while (source[i] == '*' || Character.isWhitespace(source[i])) {
-//						star = source[i++] == '*';
-//					}
-//					if (star && source[i] == '/') {
-//						javadoc = false;
-//						buffer.append("\n */");
-//						comments.add(buffer.toString());
-//						numbers.add(new Integer(number));
-//						buffer = new StringBuffer(source.length);
-//						number = 0;
-//						continue;
-//					}
-//					if (firstTag) {
-//						firstTag = false;
-//						number++;
-//					} else if (source[i] == '@') {
-//						number++;
-//					}
-//					buffer.append("\n * ");
-//				} else {
-//					star = source[i] == '*';
-//				}
-//				if (!star) buffer.append(source[i]);
-//			}
-//		}
-//		List[] lists = new List[2];
-//		lists[0] = numbers;
-//		lists[1] = comments;
-//		return lists;
-//	}
 
 	/*
 	 * Convert Javadoc source to match Javadoc.toString()
 	 */
-	Hashtable setSourceComment(char[] source) {
-		Hashtable comments = new Hashtable();
-//		this.comments = new ArrayList();
-//		this.allTags = new ArrayList();
+	void setSourceComment(char[] source) {
+		this.comments = new ArrayList();
+		this.allTags = new ArrayList();
 		StringBuffer buffer = new StringBuffer();
 		int comment = 0;
 		boolean end = false;
@@ -162,7 +95,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				case 1: // line comment
 					if (source[i] == '\r' || source[i] == '\n') {
 						comment = 0;
-						comments.put(buffer.toString(), tags);
+						this.comments.add(buffer.toString());
+						this.allTags.add(tags);
 						buffer = new StringBuffer();
 					} else {
 						buffer.append(source[i]);
@@ -186,7 +120,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					}
 					if (end && source[i] == '/') {
 						comment = 0;
-						comments.put(buffer.toString(), tags);
+						this.comments.add(buffer.toString());
+						this.allTags.add(tags);
 						buffer = new StringBuffer();
 						tags = new ArrayList();
 					}
@@ -197,7 +132,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					break;
 			}
 		}
-		return comments;
 	}
 	int allTags(Javadoc docComment) {
 		int all = 0;
@@ -497,17 +431,17 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Get comments infos from test file
 		char[] source = sourceStr.toCharArray();
-		Hashtable commentsInfo = setSourceComment(source);
+		setSourceComment(source);
 		
 		// Basic comments verification
-		assertEquals("Wrong number of comments", commentsInfo.size(), unitComments.length);
+		assertEquals("Wrong number of comments", this.comments.size(), unitComments.length);
 		
 		// Verify comments positions
-		Enumeration commentStrings = commentsInfo.keys();
-		Enumeration commentTags = commentsInfo.elements();
+//		Enumeration commentStrings = commentsInfo.keys();
+//		Enumeration commentTags = commentsInfo.elements();
 		for (int i=0; i<unitComments.length; i++) {
-			String comment = (String) commentStrings.nextElement();
-			List tags = (List) commentTags.nextElement();
+			String comment = (String) this.comments.get(i);
+			List tags = (List) allTags.get(i);
 //			int start = unitComments[i].getStartPosition();
 //			assertEquals("Comment at position "+start+" does NOT match source!", comment, sourceStr.substring(start, start+unitComments[i].getLength()));
 			if (unitComments[i].isDocComment()) {
@@ -571,5 +505,49 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testJavadoc05() throws JavaModelException {
 		verifyComments("005");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 */
+	public void testJavadoc06() throws JavaModelException {
+		verifyComments("006");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 */
+	public void testJavadoc07() throws JavaModelException {
+		verifyComments("007");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 */
+	public void testJavadoc08() throws JavaModelException {
+		verifyComments("008");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 */
+	public void testJavadoc09() throws JavaModelException {
+		verifyComments("009");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50880
+	 */
+	public void testJavadoc10() throws JavaModelException {
+		verifyComments("010");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47396
+	 */
+	public void testJavadoc11() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.test011", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertNotNull("No compilation unit", result);
 	}
 }

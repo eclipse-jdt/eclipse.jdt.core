@@ -79,7 +79,8 @@ class ASTConverter {
 				initializer.setModifiers(oldInitializer.modifiers);
 				initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
 //				setJavaDocComment(initializer);
-				initializer.setJavadoc(convert(oldInitializer.javadoc));
+//				initializer.setJavadoc(convert(oldInitializer.javadoc));
+				convert(oldInitializer.javadoc, initializer);
 				typeDecl.bodyDeclarations().add(initializer);
 			} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
@@ -337,7 +338,8 @@ class ASTConverter {
 			}
 		}
 		// Convert javadoc
-		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
+//		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
+		convert(typeDeclaration.javadoc, typeDecl);
 	}
 	
 	private void checkAndAddMultipleFieldDeclaration(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields, int index, List bodyDeclarations) {
@@ -349,7 +351,8 @@ class ASTConverter {
 			initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
 			// The javadoc comment is now got from list store in compilation unit declaration
 //			setJavaDocComment(initializer);
-			initializer.setJavadoc(convert(oldInitializer.javadoc));
+//			initializer.setJavadoc(convert(oldInitializer.javadoc));
+			convert(oldInitializer.javadoc, initializer);
 			bodyDeclarations.add(initializer);
 			return;
 		}
@@ -816,7 +819,8 @@ class ASTConverter {
 		
 		// The javadoc comment is now got from list store in compilation unit declaration
 //		setJavaDocComment(methodDecl);
-		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
+//		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
+		convert(methodDeclaration.javadoc, methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
 			recordNodes(methodName, methodDeclaration);
@@ -2769,7 +2773,8 @@ class ASTConverter {
 		}
 		// The javadoc comment is now got from list store in compilation unit declaration
 //		setJavaDocComment(fieldDeclaration);
-		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
+//		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
+		convert(fieldDecl.javadoc, fieldDeclaration);
 		return fieldDeclaration;
 	}
 
@@ -3018,24 +3023,27 @@ class ASTConverter {
 		}
 	}
 
-	public Javadoc convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc) {
-		if (javadoc != null) {
-			DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
-			Comment comment = mapper.getComment(javadoc.sourceStart);
-			if (comment != null && comment.isDocComment()) {
-				Javadoc docComment = (Javadoc) comment;
-				if (this.resolveBindings) {
-					recordNodes(docComment, javadoc);
-					// resolve member and method references binding
-					Iterator tags = docComment.tags().listIterator();
-					while (tags.hasNext()) {
-						recordNodes(javadoc, (TagElement) tags.next());
+	public void convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, BodyDeclaration bodyDeclaration) {
+		if (bodyDeclaration.getJavadoc() == null) {
+			if (javadoc != null) {
+				DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
+				Comment comment = mapper.getComment(javadoc.sourceStart);
+				if (comment != null && comment.isDocComment() && comment.getParent() == null) {
+					Javadoc docComment = (Javadoc) comment;
+					if (this.resolveBindings) {
+						recordNodes(docComment, javadoc);
+						// resolve member and method references binding
+						Iterator tags = docComment.tags().listIterator();
+						while (tags.hasNext()) {
+							recordNodes(javadoc, (TagElement) tags.next());
+						}
 					}
+//					return docComment;
+					bodyDeclaration.setJavadoc(docComment);
 				}
-				return docComment;
 			}
 		}
-		return null;
+//		return null;
 	}
 	
 	private void recordNodes(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, TagElement tagElement) {
@@ -3097,6 +3105,11 @@ class ASTConverter {
 							if (param.getType().isSimpleType()) {
 								SimpleType type = (SimpleType)param.getType();
 								recordName(type.getName(), typeRef);
+							} else if (param.getType().isArrayType()) {
+								Type type = ((ArrayType) param.getType()).getElementType();
+								if (type.isSimpleType()) {
+									recordName(((SimpleType)type).getName(), typeRef);
+								}
 							}
 						}
 					}

@@ -129,7 +129,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
-	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long dimPos, long argNamePos) throws InvalidInputException {
+	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
 			if (dim > 0) {
@@ -143,7 +143,7 @@ public class JavadocParser extends AbstractCommentParser {
 				}
 			}
 			int argEnd = argTypeRef.sourceEnd;
-			if (dimPos >= 0) argEnd = (int) dimPos;
+			if (dim > 0) argEnd = (int) dimPositions[dim-1];
 			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}

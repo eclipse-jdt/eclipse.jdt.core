@@ -25,17 +25,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 class DocCommentParser extends AbstractCommentParser {
 
-	// recognized tags
-	public static final String STR_TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
-	public static final String STR_TAG_PARAM = "@param"; //$NON-NLS-1$
-	public static final String STR_TAG_RETURN = "@return"; //$NON-NLS-1$
-	public static final String STR_TAG_THROWS = "@throws"; //$NON-NLS-1$
-	public static final String STR_TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
-	public static final String STR_TAG_SEE = "@see"; //$NON-NLS-1$
-	public static final String STR_TAG_LINK = "@link"; //$NON-NLS-1$
-	public static final String STR_TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
-	public static final String STR_TAG_INHERITDOC = "@inheritDoc"; //$NON-NLS-1$
-
 	// Public fields
 	private Javadoc docComment;
 	private AST ast;
@@ -92,13 +81,13 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
-	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long dimPos, long argNamePos) throws InvalidInputException {
+	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			MethodRefParameter argument = this.ast.newMethodRefParameter();
 			ASTNode node = (ASTNode) typeRef;
 			int argStart = node.getStartPosition();
 			int argEnd = node.getStartPosition()+node.getLength()-1;
-			if (dimPos >= 0) argEnd = (int) dimPos;
+			if (dim > 0) argEnd = (int) dimPositions[dim-1];
 			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			if (name.length != 0) {
 				SimpleName argName = this.ast.newSimpleName(new String(name));
@@ -109,18 +98,19 @@ class DocCommentParser extends AbstractCommentParser {
 			Type argType = null;
 			if (node.getNodeType() == ASTNode.PRIMITIVE_TYPE) {
 				argType = (PrimitiveType) node;
-				if (dim > 0) {
-					argType = this.ast.newArrayType(argType, dim);
-					argType.setSourceRange(argStart, ((int) dimPos)-argStart+1);
-				}
+//				if (dim > 0) {
+//					argType = this.ast.newArrayType(argType, dim);
+//					argType.setSourceRange(argStart, ((int) dimPositions[dim-1])-argStart+1);
+//				}
 			} else {
 				Name argTypeName = (Name) node;
 				argType = this.ast.newSimpleType(argTypeName);
-				if (dim > 0) {
-					argType = this.ast.newArrayType(argType, dim);
-					argType.setSourceRange(argStart, ((int) dimPos)-argStart+1);
-				} else {
-					argType.setSourceRange(argStart, node.getLength());
+				argType.setSourceRange(argStart, node.getLength());
+			}
+			if (dim > 0) {
+				for (int i=0; i<dim; i++) {
+					argType = this.ast.newArrayType(argType);
+					argType.setSourceRange(argStart, ((int) dimPositions[i])-argStart+1);
 				}
 			}
 			argument.setType(argType);
@@ -240,9 +230,27 @@ class DocCommentParser extends AbstractCommentParser {
 					return null;
 			}
 		}
+		// Update ref for whole name
 		int start = (int) (this.identifierPositionStack[pos] >>> 32);
-		int end = (int) this.identifierPositionStack[this.identifierPtr];
-		typeRef.setSourceRange(start, end-start+1);
+//		int end = (int) this.identifierPositionStack[this.identifierPtr];
+//		typeRef.setSourceRange(start, end-start+1);
+		// Update references of each simple name
+		if (size > 1) {
+			Name name = (Name)typeRef;
+			for (int i=this.identifierPtr; i>pos; i--) {
+				int s = (int) (this.identifierPositionStack[i] >>> 32);
+				int e = (int) this.identifierPositionStack[i];
+				SimpleName simpleName = ((QualifiedName)name).getName();
+				simpleName.setSourceRange(s, e-s+1);
+				name.setSourceRange(start, e-start+1);
+				name =  ((QualifiedName)name).getQualifier();
+			}
+			int end = (int) this.identifierPositionStack[pos];
+			name.setSourceRange(start, end-start+1);
+		} else {
+			int end = (int) this.identifierPositionStack[pos];
+			typeRef.setSourceRange(start, end-start+1);
+		}
 		this.identifierPtr -= size;
 		return typeRef;
 	}
@@ -273,7 +281,7 @@ class DocCommentParser extends AbstractCommentParser {
 		SimpleName name = this.ast.newSimpleName(new String(this.scanner.getCurrentIdentifierSource()));
 		name.setSourceRange(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition()-this.scanner.getCurrentTokenStartPosition()+1);
 		TagElement paramTag = this.ast.newTagElement();
-		paramTag.setTagName(STR_TAG_PARAM);
+		paramTag.setTagName(TagElement.TAG_PARAM);
 		paramTag.setSourceRange(this.tagSourceStart, this.scanner.getCurrentTokenEndPosition()-this.tagSourceStart+1);
 		paramTag.fragments().add(name);
 		pushOnAstStack(paramTag, true);
@@ -290,20 +298,21 @@ class DocCommentParser extends AbstractCommentParser {
 		seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
 		if (this.inlineTagStarted) {
 			if (plain) {
-				seeTag.setTagName(STR_TAG_LINKPLAIN);
+				seeTag.setTagName(TagElement.TAG_LINKPLAIN);
 			} else {
-				seeTag.setTagName(STR_TAG_LINK);
+				seeTag.setTagName(TagElement.TAG_LINK);
 			}
 			TagElement previousTag = null;
 			if (this.astPtr == -1) {
 				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(this.tagSourceStart, end);
 				pushOnAstStack(previousTag, true);
 			} else {
 				previousTag = (TagElement) this.astStack[this.astPtr];
 			}
 			previousTag.fragments().add(seeTag);
 		} else {
-			seeTag.setTagName(STR_TAG_SEE);
+			seeTag.setTagName(TagElement.TAG_SEE);
 			pushOnAstStack(seeTag, true);
 		}
 		return true;
@@ -319,6 +328,7 @@ class DocCommentParser extends AbstractCommentParser {
 		int previousStart = start;
 		if (this.astPtr == -1) {
 			previousTag = this.ast.newTagElement();
+			previousTag.setSourceRange(start, end);
 			pushOnAstStack(previousTag, true);
 		} else {
 			previousTag = (TagElement) this.astStack[this.astPtr];
@@ -346,9 +356,9 @@ class DocCommentParser extends AbstractCommentParser {
 	protected boolean pushThrowName(Object typeRef, boolean real) {
 		TagElement throwsTag = this.ast.newTagElement();
 		if (real) {
-			throwsTag.setTagName(STR_TAG_THROWS);
+			throwsTag.setTagName(TagElement.TAG_THROWS);
 		} else {
-			throwsTag.setTagName(STR_TAG_EXCEPTION);
+			throwsTag.setTagName(TagElement.TAG_EXCEPTION);
 		}
 		throwsTag.setSourceRange(this.tagSourceStart, this.scanner.getCurrentTokenEndPosition()-this.tagSourceStart+1);
 		throwsTag.fragments().add(typeRef);
