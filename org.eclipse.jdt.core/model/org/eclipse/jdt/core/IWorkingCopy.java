@@ -85,6 +85,8 @@ void destroy();
 /**
  * Finds the shared working copy for this element. If no working copy has been created 
  * for this element, returns <code>null</code>.
+ * <p>
+ * Users of this method must not destroy the resulting working copy. 
  */
 IJavaElement findSharedWorkingCopy();
 /**
@@ -110,6 +112,7 @@ IJavaElement getOriginalElement();
  * <li>A call to <code>destroy()</code> decrements the internal counter.</li>
  * <li>When this counter is 0, the working copy is destroyed.
  * </ul>
+ * So users of this method must destroy exactly once the working copy.
  * <p>
  * Note that the buffer factory will be used for the life time of this working copy, i.e. if the 
  * working copy is closed then reopened, this factory will be used.
