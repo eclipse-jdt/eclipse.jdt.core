@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -76,7 +77,11 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		IJavaProject proj= createJavaProject("P", new String[] {"src"}, "bin");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		
+		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+
 		this.project1 = proj;
 		this.sourceFolder = this.getPackageFragmentRoot("P", "src");
 		
@@ -116,9 +121,13 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 	
 	public static TypeDeclaration findTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
+		return (TypeDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
+	}
+	
+	public static AbstractTypeDeclaration findAbstractTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
 		List types= astRoot.types();
 		for (int i= 0; i < types.size(); i++) {
-			TypeDeclaration elem= (TypeDeclaration) types.get(i);
+			AbstractTypeDeclaration elem= (AbstractTypeDeclaration) types.get(i);
 			if (simpleTypeName.equals(elem.getName().getIdentifier())) {
 				return elem;
 			}

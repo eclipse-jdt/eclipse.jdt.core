@@ -41,7 +41,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 	
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return allTests();
 		}
 		return setUpTest(new ASTRewritingTypeDeclTest("testEnumDeclaration"));
@@ -1160,5 +1160,114 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());		
 	}
 	
+	
+	public void testAnnotationTypeDeclaration1() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/**\n");
+		buf.append(" * test\n");
+		buf.append(" */\n");
+		buf.append("public @interface E {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		{
+			AnnotationTypeDeclaration type= (AnnotationTypeDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(type, AnnotationTypeDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			SimpleName name= type.getName();
+			SimpleName newName= ast.newSimpleName("X");
+			
+			rewrite.replace(name, newName, null);
+			
+			AnnotationTypeMemberDeclaration declaration= ast.newAnnotationTypeMemberDeclaration();
+			declaration.setName(ast.newSimpleName("value"));
+			declaration.setType(ast.newSimpleType(ast.newSimpleName("String")));
+			
+			ListRewrite bodyList= rewrite.getListRewrite(type, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyList.insertFirst(declaration, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/**\n");
+		buf.append(" * test\n");
+		buf.append(" */\n");
+		buf.append("final public @interface X {\n");
+		buf.append("\n");	
+		buf.append("    String value();\n");	
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
+	
+	public void testWildcardType() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    X<?, ?, ? extends A, ? super B, ? extends A, ? super B> x;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		FieldDeclaration field= type.getFields()[0];
+		ParameterizedType fieldType= (ParameterizedType) field.getType();
+		List args= fieldType.typeArguments();
+		{
+			WildcardType wildcardType= (WildcardType) args.get(0);
+			rewrite.set(wildcardType, WildcardType.UPPER_BOUND_PROPERTY, Boolean.TRUE, null);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, ast.newSimpleType(ast.newSimpleName("A")), null);
+		}
+		{
+			WildcardType wildcardType= (WildcardType) args.get(1);
+			rewrite.set(wildcardType, WildcardType.UPPER_BOUND_PROPERTY, Boolean.FALSE, null);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, ast.newSimpleType(ast.newSimpleName("B")), null);
+		}
+		{
+			WildcardType wildcardType= (WildcardType) args.get(2);
+			rewrite.set(wildcardType, WildcardType.UPPER_BOUND_PROPERTY, Boolean.FALSE, null);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, ast.newSimpleType(ast.newSimpleName("B")), null);
+		}
+		{
+			WildcardType wildcardType= (WildcardType) args.get(3);
+			rewrite.set(wildcardType, WildcardType.UPPER_BOUND_PROPERTY, Boolean.TRUE, null);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, ast.newSimpleType(ast.newSimpleName("A")), null);
+		}
+		{
+			WildcardType wildcardType= (WildcardType) args.get(4);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, null, null);
+		}
+		{
+			WildcardType wildcardType= (WildcardType) args.get(5);
+			rewrite.set(wildcardType, WildcardType.BOUND_PROPERTY, null, null);
+		}
+
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    X<? extends A, ? super B, ? super B, ? extends A, ?, ?> x;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
+
+
 	
 }

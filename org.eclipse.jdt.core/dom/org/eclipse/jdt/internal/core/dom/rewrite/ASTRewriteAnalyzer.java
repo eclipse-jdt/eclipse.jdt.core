@@ -2349,10 +2349,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		} else {
 			rewriteModifiers2(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, pos);
 		}
-		rewriteRequiredNode(node, SingleVariableDeclaration.TYPE_PROPERTY);
+		pos= rewriteRequiredNode(node, SingleVariableDeclaration.TYPE_PROPERTY);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (isChanged(node, SingleVariableDeclaration.VARARGS_PROPERTY)) {
-				Assert.isTrue(false, "Modifications of property " + SingleVariableDeclaration.VARARGS_PROPERTY + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+				if (getNewValue(node, SingleVariableDeclaration.VARARGS_PROPERTY).equals(Boolean.TRUE)) {
+					doTextInsert(pos, "...", getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY)); //$NON-NLS-1$
+				} else {
+					try {
+						int ellipsisEnd= getScanner().getNextEndOffset(pos, true);
+						doTextRemove(pos, ellipsisEnd - pos, getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY)); //$NON-NLS-1$
+					} catch (CoreException e) {
+						handleException(e);
+					}
+				}
 			}
 		}
 		
@@ -2841,9 +2850,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		Assert.isTrue(false, "Modifications in nodes of type " + node.getClass().getName() + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+		int pos= rewriteJavadoc(node, AnnotationTypeDeclaration.JAVADOC_PROPERTY);
+		rewriteModifiers2(node, AnnotationTypeDeclaration.MODIFIERS2_PROPERTY, pos);
+		pos= rewriteRequiredNode(node, AnnotationTypeDeclaration.NAME_PROPERTY);
+		
+		int startIndent= getIndent(node.getStartPosition()) + 1;
+		int startPos= getPosAfterLeftBrace(pos);
+		rewriteParagraphList(node, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY, startPos, startIndent, -1, 2);
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration)
 	 */
@@ -2851,9 +2867,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		Assert.isTrue(false, "Modifications in nodes of type " + node.getClass().getName() + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+		int pos= rewriteJavadoc(node, AnnotationTypeMemberDeclaration.JAVADOC_PROPERTY);
+		rewriteModifiers2(node, AnnotationTypeMemberDeclaration.MODIFIERS2_PROPERTY, pos);
+		rewriteRequiredNode(node, AnnotationTypeMemberDeclaration.TYPE_PROPERTY);
+		pos= rewriteRequiredNode(node, AnnotationTypeMemberDeclaration.NAME_PROPERTY);
+		
+		try {
+			int changeKind= getChangeKind(node, AnnotationTypeMemberDeclaration.DEFAULT_PROPERTY);
+			if (changeKind == RewriteEvent.INSERTED || changeKind == RewriteEvent.REMOVED) {
+				pos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameRPAREN, pos);
+			}
+			rewriteNode(node, AnnotationTypeMemberDeclaration.DEFAULT_PROPERTY, pos, this.formatter.ANNOT_MEMBER_DEFAULT);
+		} catch (CoreException e) {
+			handleException(e);
+		}
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.EnhancedForStatement)
 	 */
@@ -2886,7 +2916,75 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		Assert.isTrue(false, "Modifications in nodes of type " + node.getClass().getName() + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+		int pos= rewriteJavadoc(node, EnumConstantDeclaration.JAVADOC_PROPERTY);
+		rewriteModifiers2(node, EnumConstantDeclaration.MODIFIERS2_PROPERTY, pos);
+		pos= rewriteRequiredNode(node, EnumConstantDeclaration.NAME_PROPERTY);
+		RewriteEvent argsEvent= getEvent(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+		if (argsEvent != null && argsEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
+			RewriteEvent[] children= argsEvent.getChildren();
+			try {
+				int nextTok= getScanner().readNext(pos, true);
+				boolean hasParents= (nextTok == ITerminalSymbols.TokenNameLPAREN);
+				boolean isAllRemoved= hasParents && isAllOfKind(children, RewriteEvent.REMOVED);
+				String prefix= ""; //$NON-NLS-1$
+				if (!hasParents) {
+					prefix= "("; //$NON-NLS-1$
+				} else if (!isAllRemoved) {
+					pos= getScanner().getCurrentEndOffset();
+				}
+				pos= rewriteNodeList(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, pos, prefix, ", "); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				if (!hasParents) {
+					doTextInsert(pos, ")", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
+				} else if (isAllRemoved) {
+					int afterClosing= getScanner().getNextEndOffset(pos, true);
+					doTextRemove(pos, afterClosing - pos, getEditGroup(children[children.length - 1]));
+					pos= afterClosing;
+				}
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		} else {
+			pos= doVisit(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, 0);
+		}
+		// 'pos' can be before brace
+		
+		RewriteEvent bodyEvent= getEvent(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+		if (bodyEvent != null && bodyEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
+			RewriteEvent[] children= bodyEvent.getChildren();
+			try {
+				int nextTok= getScanner().readNext(pos, true);
+				if (nextTok == ITerminalSymbols.TokenNameRPAREN) { // 
+					pos= getScanner().getCurrentEndOffset();
+					nextTok= getScanner().readNext(pos, true);
+				}
+				boolean hasBraces= (nextTok == ITerminalSymbols.TokenNameLBRACE);
+				boolean isAllRemoved= hasBraces && isAllOfKind(children, RewriteEvent.REMOVED);
+				int startIndent= getIndent(node.getStartPosition()) + 1;
+				if (!hasBraces) {
+					String prefix= this.formatter.ENUM_BODY_START.getPrefix(startIndent, getLineDelimiter());
+					doTextInsert(pos, prefix, getEditGroup(children[0])); //$NON-NLS-1$
+				} else if (!isAllRemoved) {
+					pos= getScanner().getCurrentEndOffset();
+				}
+
+				pos= rewriteParagraphList(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY, pos, startIndent, 0, 0);
+				
+				if (!hasBraces) {
+					String suffix= this.formatter.ENUM_BODY_END.getPrefix(startIndent, getLineDelimiter());
+					doTextInsert(pos, suffix, getEditGroup(children[children.length - 1])); //$NON-NLS-1$
+				} else {
+					int afterClosing= getScanner().getNextEndOffset(pos, true);
+					if (isAllRemoved) {
+						doTextRemove(pos, afterClosing - pos, getEditGroup(children[children.length - 1]));
+					}
+				}
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		} else {
+			doVisit(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
+		}
 		return false;
 	}
 	/* (non-Javadoc)
@@ -2896,7 +2994,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		Assert.isTrue(false, "Modifications in nodes of type " + node.getClass().getName() + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+		int pos= rewriteJavadoc(node, EnumDeclaration.JAVADOC_PROPERTY);
+		rewriteModifiers2(node, EnumDeclaration.MODIFIERS2_PROPERTY, pos);
+		pos= rewriteRequiredNode(node, EnumDeclaration.NAME_PROPERTY);
+		rewriteNodeList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, pos, " implements ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		// TODO; wait for resolve of bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=76190
+		rewriteNodeList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, pos, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
 	/* (non-Javadoc)
@@ -3019,7 +3123,29 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		Assert.isTrue(false, "Modifications in nodes of type " + node.getClass().getName() + " not supported yet");  //$NON-NLS-1$//$NON-NLS-2$
+		try {
+			int pos= getScanner().getNextEndOffset(node.getStartPosition(), true); // pos after question mark
+			
+			Prefix prefix;
+			if (Boolean.TRUE.equals(getNewValue(node, WildcardType.UPPER_BOUND_PROPERTY))) {
+				prefix= this.formatter.WILDCARD_EXTENDS;
+			} else {
+				prefix= this.formatter.WILDCARD_SUPER;
+			}
+			
+			int boundKindChange= getChangeKind(node, WildcardType.UPPER_BOUND_PROPERTY);
+			if (boundKindChange != RewriteEvent.UNCHANGED) {
+				int boundTypeChange= getChangeKind(node, WildcardType.BOUND_PROPERTY);
+				if (boundTypeChange != RewriteEvent.INSERTED && boundTypeChange != RewriteEvent.REMOVED) {
+					ASTNode type= (ASTNode) getOriginalValue(node, WildcardType.BOUND_PROPERTY);
+					String str= prefix.getPrefix(0, getLineDelimiter());
+					doTextReplace(pos, type.getStartPosition() - pos, str, getEditGroup(node, WildcardType.BOUND_PROPERTY));
+				}
+			}
+			rewriteNode(node, WildcardType.BOUND_PROPERTY, pos, prefix);
+		} catch (CoreException e) {
+			handleException(e);
+		}
 		return false;
 	}
 	

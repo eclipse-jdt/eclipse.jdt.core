@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
 
@@ -275,19 +276,22 @@ import org.eclipse.jdt.core.dom.Statement;
 			}
 		} else if (node instanceof Expression && node.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION) {
 			code= CodeFormatter.K_EXPRESSION;
+		} else if (node instanceof BodyDeclaration) {
+			code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 		} else {
 			switch (node.getNodeType()) {
-				case ASTNode.METHOD_DECLARATION:
-				case ASTNode.TYPE_DECLARATION:
-				case ASTNode.FIELD_DECLARATION:
-				case ASTNode.INITIALIZER:
-					code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
-					break;
 				case ASTNode.ARRAY_TYPE:
+				case ASTNode.PARAMETERIZED_TYPE:
 				case ASTNode.PRIMITIVE_TYPE:
+				case ASTNode.QUALIFIED_TYPE:
 				case ASTNode.SIMPLE_TYPE:
 					suffix= " x;"; //$NON-NLS-1$
-					code= CodeFormatter.K_EXPRESSION;
+					code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
+					break;
+				case ASTNode.WILDCARD_TYPE:
+					prefix= "A<"; //$NON-NLS-1$
+					suffix= "> x;"; //$NON-NLS-1$
+					code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 					break;
 				case ASTNode.COMPILATION_UNIT:
 					code= CodeFormatter.K_COMPILATION_UNIT;
@@ -320,16 +324,29 @@ import org.eclipse.jdt.core.dom.Statement;
 					suffix= ";"; //$NON-NLS-1$
 					code= CodeFormatter.K_STATEMENTS;
 					break;
+				case ASTNode.MEMBER_VALUE_PAIR:
+					prefix= "@Author("; //$NON-NLS-1$
+					suffix= ") class x {}"; //$NON-NLS-1$
+					code= CodeFormatter.K_COMPILATION_UNIT;
+					break;
+				case ASTNode.MODIFIER:
+					suffix= " class x {}"; //$NON-NLS-1$
+					code= CodeFormatter.K_COMPILATION_UNIT;				
+					break;
+				case ASTNode.TYPE_PARAMETER:
+					prefix= "class X<"; //$NON-NLS-1$
+					suffix= "> {}"; //$NON-NLS-1$
+					code= CodeFormatter.K_COMPILATION_UNIT;
+					break;
 				case ASTNode.MEMBER_REF:
 				case ASTNode.METHOD_REF:
 				case ASTNode.METHOD_REF_PARAMETER:
 				case ASTNode.TAG_ELEMENT:
 				case ASTNode.TEXT_ELEMENT:
-					// not supported:
+					// Javadoc formatting not yet supported:
 				    return null;
 				default:
 					//Assert.isTrue(false, "Node type not covered: " + node.getClass().getName()); //$NON-NLS-1$
-					// TODO: fill in the 1.5 nodes
 					return null;
 			}
 		}
@@ -508,7 +525,12 @@ import org.eclipse.jdt.core.dom.Statement;
 	public final Prefix METHOD_BODY= new FormattingPrefix("void a() {}", ") {" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
 	public final Prefix FINALLY_BLOCK= new FormattingPrefix("try {} finally {}", "} finally {", CodeFormatter.K_STATEMENTS); //$NON-NLS-1$ //$NON-NLS-2$
 	public final Prefix CATCH_BLOCK= new FormattingPrefix("try {} catch(Exception e) {}", "} c" , CodeFormatter.K_STATEMENTS); //$NON-NLS-1$ //$NON-NLS-2$
-
+	public final Prefix ANNOT_MEMBER_DEFAULT= new FormattingPrefix("String value() default 1;", ") default 1" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
+	public final Prefix ENUM_BODY_START= new FormattingPrefix("enum E { A(){void foo(){}} }", "){v" , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
+	public final Prefix ENUM_BODY_END= new FormattingPrefix("enum E { A(){void foo(){ }}, B}", "}}," , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
+	public final Prefix WILDCARD_EXTENDS= new FormattingPrefix("A<? extends B> a;", "? extends B" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
+	public final Prefix WILDCARD_SUPER= new FormattingPrefix("A<? super B> a;", "? super B" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
+	
 	public final BlockContext IF_BLOCK_WITH_ELSE= new BlockFormattingPrefixSuffix("if (true)", "else{}", 8); //$NON-NLS-1$ //$NON-NLS-2$
 	public final BlockContext IF_BLOCK_NO_ELSE= new BlockFormattingPrefix("if (true)", 8); //$NON-NLS-1$ //$NON-NLS-2$
 	public final BlockContext ELSE_AFTER_STATEMENT= new BlockFormattingPrefix("if (true) foo(); else ", 15); //$NON-NLS-1$ //$NON-NLS-2$

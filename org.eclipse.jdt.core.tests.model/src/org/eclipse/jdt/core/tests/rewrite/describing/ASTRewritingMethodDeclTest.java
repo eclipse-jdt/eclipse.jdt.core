@@ -1964,5 +1964,284 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+	}
+	
+	
+	public void testVarArgs() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class DD {\n");
+		buf.append("    private void foo1(String format, Object... args){\n");
+		buf.append("    }\n");
+		buf.append("    private void foo2(String format, Object[] args) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+			SingleVariableDeclaration param= (SingleVariableDeclaration) methodDecl.parameters().get(1);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
+			SingleVariableDeclaration param= (SingleVariableDeclaration) methodDecl.parameters().get(1);
+			rewrite.set(param, SingleVariableDeclaration.TYPE_PROPERTY, ast.newPrimitiveType(PrimitiveType.INT), null);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class DD {\n");
+		buf.append("    private void foo1(String format, Object args){\n");
+		buf.append("    }\n");
+		buf.append("    private void foo2(String format, int... args) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testAnnotationTypeMember() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public @interface DD {\n");
+		buf.append("    public String value1();\n");
+		buf.append("    String value2() default 1;\n");
+		buf.append("    String value3() default 2;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AnnotationTypeDeclaration type= (AnnotationTypeDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
+		{
+			AnnotationTypeMemberDeclaration methodDecl= (AnnotationTypeMemberDeclaration) type.bodyDeclarations().get(0);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			rewrite.set(methodDecl, AnnotationTypeMemberDeclaration.TYPE_PROPERTY, ast.newPrimitiveType(PrimitiveType.BOOLEAN), null);
+			rewrite.set(methodDecl, AnnotationTypeMemberDeclaration.NAME_PROPERTY, ast.newSimpleName("test"), null);
+			
+			rewrite.set(methodDecl, AnnotationTypeMemberDeclaration.DEFAULT_PROPERTY, ast.newNumberLiteral("1"), null);
+		}
+		{
+			AnnotationTypeMemberDeclaration methodDecl= (AnnotationTypeMemberDeclaration) type.bodyDeclarations().get(1);
+			rewrite.getListRewrite(methodDecl, AnnotationTypeMemberDeclaration.MODIFIERS2_PROPERTY).insertFirst(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD), null);		
+			rewrite.set(methodDecl, AnnotationTypeMemberDeclaration.DEFAULT_PROPERTY, ast.newNumberLiteral("2"), null);
+		}
+		{
+			AnnotationTypeMemberDeclaration methodDecl= (AnnotationTypeMemberDeclaration) type.bodyDeclarations().get(2);
+			rewrite.set(methodDecl, AnnotationTypeMemberDeclaration.DEFAULT_PROPERTY, null, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public @interface DD {\n");
+		buf.append("    boolean test() default 1;\n");
+		buf.append("    public String value2() default 2;\n");
+		buf.append("    String value3();\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}	
+
+	public void testEnumConstantDeclaration1() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    E1(1), E2, E3(), E4(1, 2)\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(0);
+			rewrite.set(enumConst, EnumConstantDeclaration.NAME_PROPERTY, ast.newSimpleName("X"), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			listRewrite.remove((ASTNode) enumConst.arguments().get(0), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(1);
+			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			listRewrite.insertFirst(ast.newNumberLiteral("1"), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(2);
+			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			listRewrite.insertFirst(ast.newNumberLiteral("2"), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(3);
+			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			listRewrite.remove((ASTNode) enumConst.arguments().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    X, E2(1), E3(2), E4(2)\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	private static final boolean BUG_76181= true;
+	
+	public void testEnumConstantDeclaration2() throws Exception {
+		if (BUG_76181) {
+			return;
+		}
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    E1Add(1),\n");
+		buf.append("    E2Add,\n");
+		buf.append("    E3Add(1),\n");
+		buf.append("    E4Add(1) {\n");
+		buf.append("    },\n");	
+		buf.append("    E5Add(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");	
+		buf.append("    E1Remove(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");	
+		buf.append("    E2Remove {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E3Remove(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E4Remove(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("        public void foo2() {\n");
+		buf.append("        }\n");
+		buf.append("    }\n");	
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(0);
+		
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(1);
+		
+			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
+			
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(2);
+		
+			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
+			
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(3);
+			
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(4);
+			
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(5);
+		
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(6);
+		
+			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
+			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
+			
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(7);
+		
+			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
+		}
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(8);
+			
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(1), null);
+		}
+		
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    E1Add(1) {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E2Add(1) {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E3Add {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E4Add(1) {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");
+		buf.append("    E5Add(1) {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    },\n");	
+		buf.append("    E1Remove(1),\n");	
+		buf.append("    E2Remove(1),\n");
+		buf.append("    E3Remove,\n");
+		buf.append("    E4Remove(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
+		buf.append("    }\n");	
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
 	}	
 }
