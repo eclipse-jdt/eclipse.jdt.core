@@ -555,5 +555,26 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IBinding binding = qualifier.resolveBinding();
 		assertNull("No binding", binding);
 	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24406
+	 */
+	public void test0418() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0418", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 1, 0);
+		assertNotNull("No node", node);
+		assertTrue("not an expression statement ", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("not an method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Name name = methodInvocation.getName();
+		IBinding binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
 }
 
