@@ -175,7 +175,7 @@ public class NameLookup implements SuffixConstants {
 
 		int index= qualifiedTypeName.lastIndexOf('.');
 		if (index != -1) {
-			pkgName= Signature.getSimpleNames(qualifiedTypeName.substring(0, index));
+			pkgName= Util.splitOn('.', qualifiedTypeName, 0, index);
 			cuName= qualifiedTypeName.substring(index + 1);
 		}
 		index= cuName.indexOf('$');

@@ -1008,7 +1008,7 @@ public class Util {
 	 * Returns a trimmed version the simples names returned by Signature.
 	 */
 	public static String[] getTrimmedSimpleNames(String name) {
-		String[] result = Signature.getSimpleNames(name);
+		String[] result = splitOn(Signature.C_DOT, name, 0, name.length());
 		for (int i = 0, length = result.length; i < length; i++) {
 			result[i] = result[i].trim();
 		}
