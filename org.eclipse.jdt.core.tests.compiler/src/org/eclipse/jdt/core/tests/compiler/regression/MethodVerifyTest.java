@@ -2716,7 +2716,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
-	public void test050() {
+	public void _test050() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

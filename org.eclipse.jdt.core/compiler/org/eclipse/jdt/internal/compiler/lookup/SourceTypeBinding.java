@@ -945,9 +945,8 @@ public MethodBinding[] methods() {
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(selector, method2.selector)) {
-						boolean paramsMatch = complyTo15
-							? methodTypeErasure == (method2.returnType == null ? null : method2.returnType.erasure()) // see 87956 & 88094
-									&& method.areParameterErasuresEqual(method2)
+						boolean paramsMatch = complyTo15 && methodTypeErasure == (method2.returnType == null ? null : method2.returnType.erasure()) // see 87956 & 88094
+							? method.areParameterErasuresEqual(method2)
 							: method.areParametersEqual(method2);
 						if (paramsMatch) {
 							boolean isEnumSpecialMethod = isEnum()
