@@ -1409,7 +1409,7 @@ protected void consumeClassDeclaration() {
 	boolean hasConstructor = typeDecl.checkConstructors(this);
 	
 	//add the default constructor when needed (interface don't have it)
-	if (!hasConstructor) {
+	if (!hasConstructor && !typeDecl.isInterface()) {
 		boolean insideFieldInitializer = false;
 		if (diet) {
 			for (int i = nestedType; i > 0; i--){
@@ -4980,8 +4980,11 @@ protected NameReference getUnspecifiedReference() {
 		char[][] tokens = new char[length][];
 		identifierPtr -= length;
 		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+		long[] positions = new long[length];
+		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 		ref = 
 			new QualifiedNameReference(tokens, 
+				positions,
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 	}
@@ -5017,8 +5020,11 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	char[][] tokens = new char[length][];
 	identifierPtr -= length;
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+	long[] positions = new long[length];
+	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	ref = new QualifiedNameReference(
-			tokens, 
+			tokens,
+			positions, 
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 			(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 	ref.bits &= ~AstNode.RestrictiveFlagMASK;
