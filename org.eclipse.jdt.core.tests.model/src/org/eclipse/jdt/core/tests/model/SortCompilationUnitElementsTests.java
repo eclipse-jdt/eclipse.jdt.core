@@ -40,15 +40,35 @@ public void setUpSuite() throws Exception {
 	this.createFolder("/P/src/p");
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
-	debug(unit, "BEFORE");
-	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
-	String sortedSource = unit.getBuffer().getContents();
-	assertEquals("Different output", sortedSource, expectedResult);
-	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
-	String sortedSource2 = unit.getBuffer().getContents();
-	debug(unit, "AFTER");
-	assertEquals("Different output", sortedSource, sortedSource2);
+	this.sortUnit(unit, expectedResult, true);
 }
+
+private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
+	debug(unit, "BEFORE");
+	if (testPositions) {
+		char[] initialSource = unit.getSource().toCharArray();
+		int[] positions = new int[initialSource.length];
+		for (int i = 0; i < initialSource.length; i++) {
+			positions[i] = i;
+		}
+		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
+		String sortedSource = unit.getBuffer().getContents();
+		assertEquals("Different output", sortedSource, expectedResult);
+		for (int i = 0, max = positions.length; i < max; i++) {
+			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i]));
+		}
+	} else {
+		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
+		String sortedSource = unit.getBuffer().getContents();
+		if (expectedResult == null || expectedResult.length() == 0) {
+			System.out.println(sortedSource);
+		} else {
+			assertEquals("Different output", sortedSource, expectedResult);
+		}
+	}
+	debug(unit, "AFTER");
+}
+
 private void debug(ICompilationUnit unit, String id) throws JavaModelException {
 	String source = unit.getBuffer().getContents();
 	if (DEBUG) {
@@ -70,7 +90,7 @@ public static Test suite() {
 			}
 		}
 	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test006"));
+		suite.addTest(new SortCompilationUnitElementsTests("test011"));
 	}	
 	return suite;
 }
@@ -374,6 +394,176 @@ public void test007() throws CoreException {
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/p/X.java");
+	}
+}
+
+public void test008() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"	Object bar3() {\n" +
+			"		System.out.println();\n" +
+			"		return new Object() {\n" +
+			"			public static void bar6() {}\n" +
+			"			void bar5() {}\n" +
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
+			"       };\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = "package p;\n" +
+			"public class X {\n" +
+			"	Object bar3() {\n" +
+			"		System.out.println();\n" +
+			"		return new Object() {\n" +
+			"			public static void bar6() {}\n" +
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
+			"			void bar5() {}\n" +
+			"       };\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/p/X.java");
+	}
+}
+/**
+ * Calls methods that do nothing to ensure code coverage
+ */
+public void test009() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/p/X.java",
+			"/**\n" +
+			" *\n" +
+			" */\n" +
+			"package p;\n" +
+			"public class X {\n" +
+			"	\n" +
+			"	static class D {\n" +
+			"		String toString() {\n" +
+			"			return \"HELLO\";\n" +
+			"		}\n" +
+			"	}\n" +
+			"	// start of static field declaration\n" +
+			"\n" +
+			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +
+			"	void bar(int i) {\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		\n\n" +
+			"		class E {\n" +
+			"			void bar7() {\n" +
+			"				System.out.println();\n" +
+			"			}\n" +
+			"			void bar9() {}\n" +
+			"			void bar2() {}\n" +
+			"		}\n" +
+			"		Object o = new E();\n" +
+			"		System.out.println(o);\n" +
+			"		class C {\n" +
+			"			void bar6() {}\n" +
+			"			void bar4() {}\n" +
+			"			void bar5() {}\n" +
+			"		}\n" +
+			"	}\n\n" +
+			"	Object b1 = null, a1 = new Object() {\n" +
+			"		void bar2() {\n" +
+			"		}\n" +
+			"		void bar() {\n" +
+			"		}\n" +
+			"		void bar4() {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"		void bar3() {\n" +
+			"		}\n" +
+			"	}, c1 = null; // end of multiple field declaration\n" +
+			"	// end of class X\n" +
+			"}\n" + 
+			"// end of compilation unit\n"
+		);
+		String expectedResult = "/**\n" +
+			" *\n" +
+			" */\n" +
+			"package p;\n" +
+			"public class X {\n" +
+			"	\n" +
+			"	static class D {\n" +
+			"		String toString() {\n" +
+			"			return \"HELLO\";\n" +
+			"		}\n" +
+			"	}\n" +
+			"	// start of static field declaration\n" +
+			"\n" +
+			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +
+			"\n" +
+			"	Object b1 = null, a1 = new Object() {\n" +
+			"		void bar() {\n" +
+			"		}\n" +
+			"		void bar2() {\n" +
+			"		}\n" +
+			"		void bar3() {\n" +
+			"		}\n" +
+			"		void bar4() {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}, c1 = null; // end of multiple field declaration\n" +
+			"	void bar() {\n" +
+			"		\n" +
+			"\n" +
+			"		class E {\n" +
+			"			void bar2() {}\n" +
+			"			void bar7() {\n" +
+			"				System.out.println();\n" +
+			"			}\n" +
+			"			void bar9() {}\n" +
+			"		}\n" +
+			"		Object o = new E();\n" +
+			"		System.out.println(o);\n" +
+			"		class C {\n" +
+			"			void bar4() {}\n" +
+			"			void bar5() {}\n" +
+			"			void bar6() {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void bar(int i) {\n" +
+			"	}\n" +
+			"	// end of class X\n" +
+			"}\n" +
+			"// end of compilation unit\n";
+		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java");
+/*		int[] positions = new int[] { 529 };
+		int[] expectedPositions = new int[] { 288 };
+		sortUnit(unit, positions, expectedResult, expectedPositions);*/
+		sortUnit(unit, expectedResult, false);		
+	} finally {
+		this.deleteFile("/P/src/p/X.java");
+	}
+}
+public void test010() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/SuperReference.java",
+			"public class SuperReference extends ThisReference {\r\n" +			"	\r\n" +			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" +			"	super(sourceStart, sourceEnd);\r\n" +			"}\r\n" +			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" +			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" +			"}\r\n" +			"public boolean isImplicitThis() {\r\n" +			"	\r\n" +			"	return false;\r\n" +			"}\r\n" +			"public boolean isSuper() {\r\n" +			"	\r\n" +			"	return true;\r\n" +			"}\r\n" +			"public boolean isThis() {\r\n" +			"	\r\n" +			"	return false ;\r\n" +			"}\r\n" +			"public TypeBinding resolveType(BlockScope scope) {\r\n" +			"	constant = NotAConstant;\r\n" +			"	if (!checkAccess(scope.methodScope()))\r\n" +			"		return null;\r\n" +			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" +			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" +			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" +			"		return null;\r\n" +			"	}\r\n" +			"	return this.resolvedType = enclosingTb.superclass;\r\n" +			"}\r\n" +			"public String toStringExpression(){\r\n" +			"\r\n" +			"	return \"super\"; //$NON-NLS-1$\r\n" +			"	\r\n" +			"}\r\n" +			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" +			"	visitor.visit(this, blockScope);\r\n" +			"	visitor.endVisit(this, blockScope);\r\n" +			"}\r\n" +			"}"
+		);
+		String expectedResult = "public class SuperReference extends ThisReference {\r\n" +			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" +			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" +			"}\r\n" +			"	\r\n" +			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" +			"	super(sourceStart, sourceEnd);\r\n" +			"}\r\n" +			"public boolean isImplicitThis() {\r\n" +			"	\r\n" +			"	return false;\r\n" +			"}\r\n" +			"public boolean isSuper() {\r\n" +			"	\r\n" +			"	return true;\r\n" +			"}\r\n" +			"public boolean isThis() {\r\n" +			"	\r\n" +			"	return false ;\r\n" +			"}\r\n" +			"public TypeBinding resolveType(BlockScope scope) {\r\n" +			"	constant = NotAConstant;\r\n" +			"	if (!checkAccess(scope.methodScope()))\r\n" +			"		return null;\r\n" +			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" +			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" +			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" +			"		return null;\r\n" +			"	}\r\n" +			"	return this.resolvedType = enclosingTb.superclass;\r\n" +			"}\r\n" +			"public String toStringExpression(){\r\n" +			"\r\n" +			"	return \"super\"; //$NON-NLS-1$\r\n" +			"	\r\n" +			"}\r\n" +			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" +			"	visitor.visit(this, blockScope);\r\n" +			"	visitor.endVisit(this, blockScope);\r\n" +			"}\r\n" +			"}";
+		sortUnit(this.getCompilationUnit("/P/src/SuperReference.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/SuperReference.java");
+	}
+}
+public void test011() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/p/BaseTypes.java",
+			"/*******************************************************************************\r\n" +			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" +			" * All rights reserved. This program and the accompanying materials \r\n" +			" * are made available under the terms of the Common Public License v0.5 \r\n" +			" * which accompanies this distribution, and is available at\r\n" +			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" +			" * \r\n" +			" * Contributors:\r\n" +			" *     IBM Corporation - initial API and implementation\r\n" +			" ******************************************************************************/\r\n" +			"package p;\r\n" +			"\r\n" +			"public interface BaseTypes {\r\n" +			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" +			"}\r\n"
+		);
+		String expectedResult = "/*******************************************************************************\r\n" +			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" +			" * All rights reserved. This program and the accompanying materials \r\n" +			" * are made available under the terms of the Common Public License v0.5 \r\n" +			" * which accompanies this distribution, and is available at\r\n" +			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" +			" * \r\n" +			" * Contributors:\r\n" +			" *     IBM Corporation - initial API and implementation\r\n" +			" ******************************************************************************/\r\n" +			"package p;\r\n" +			"\r\n" +			"public interface BaseTypes {\r\n" +			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" +			"}\r\n";
+		sortUnit(this.getCompilationUnit("/P/src/p/BaseTypes.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/p/BaseTypes.java");
 	}
 }
 
