@@ -324,9 +324,16 @@ class TypeBinding implements ITypeBinding {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
 			int length = methods.length;
+			int removeSyntheticsCounter = 0;
 			IMethodBinding[] newMethods = new IMethodBinding[length];
 			for (int i = 0; i < length; i++) {
-				newMethods[i] = this.resolver.getMethodBinding(methods[i]);
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = methods[i];
+				if (!shouldBeRemoved(methodBinding)) { 
+					newMethods[removeSyntheticsCounter++] = this.resolver.getMethodBinding(methodBinding);
+				}
+			}
+			if (removeSyntheticsCounter != length) {
+				System.arraycopy(newMethods, 0, (newMethods = new IMethodBinding[removeSyntheticsCounter]), 0, removeSyntheticsCounter);
 			}
 			return newMethods;
 		} else {
@@ -334,6 +341,10 @@ class TypeBinding implements ITypeBinding {
 		}
 	}
 
+	private boolean shouldBeRemoved(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+		return methodBinding.isDefaultAbstract() || methodBinding.isSynthetic() || (methodBinding.isConstructor() && isInterface());
+	}
+	
 	/*
 	 * @see ITypeBinding#isFromSource()
 	 */

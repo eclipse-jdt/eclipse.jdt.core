@@ -38,11 +38,15 @@ Eclipse SDK 2.1 Build - ?th October 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li></li>
+<li>The compiler is now reporting line comments which are not closed with a line break as a compile error. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a> for further details.
+The line break is part of the line comment source range.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24833">24833</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25183">25183</a>
+AST: ITypeBinding of interface returns constructor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24833">24833</a>
 TODO: not detected if there is only a comment in .java file
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24744">24744</a>
 TODO: Task not found if comment after last closing brace
