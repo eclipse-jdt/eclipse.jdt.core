@@ -41,7 +41,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0572"};
+//		TESTS_NAMES = new String[] {"test0573"};
 //		TESTS_NUMBERS =  new int[] { 536 };
 	}
 	public static Test suite() {
@@ -5241,6 +5241,24 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"LX$40;.(LX;)V\n" + 
 				"LX$40;.bar()V",
 				typeBinding.getDeclaredMethods());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/*
+	 * Ensures that the Java element of a compilation is correct.
+	 */
+	public void test0573() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			CompilationUnit cu = (CompilationUnit) buildAST(
+				"public class X {\n" +
+				"}",
+				workingCopy);
+			assertElementEquals("Unexpected Java element", "[Working copy] X.java [in <default> [in src [in Converter]]]", cu.getJavaElement());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jface.text.IDocument;
@@ -170,11 +171,18 @@ public class CompilationUnit extends ASTNode {
 	private IProblem[] problems = EMPTY_PROBLEMS;
 	
 	/**
-	 * The comment mapper, or <code>null</code> in none; 
+	 * The comment mapper, or <code>null</code> if none; 
 	 * initially <code>null</code>.
 	 * @since 3.0
 	 */
 	private DefaultCommentMapper commentMapper = null;
+	
+	/**
+	 * The Java element (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java element.
+	 * @since 3.1
+	 */
+	private IJavaElement element = null;
 	
 	/**
 	 * Sets the line end table for this compilation unit.
@@ -592,6 +600,17 @@ public class CompilationUnit extends ASTNode {
 	}
 
 	/**
+	 * The Java element (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java element.
+	 * 
+	 * @return the Java element this compilation unit was created from, or <code>null</code> if none
+	 * @since 3.1
+	 */
+	public IJavaElement getJavaElement() {
+		return this.element;
+	}
+	
+	/**
 	 * Returns the list of messages reported by the compiler during the parsing 
 	 * or the type checking of this compilation unit. This list might be a subset of 
 	 * errors detected and reported by a Java compiler.
@@ -746,6 +765,18 @@ public class CompilationUnit extends ASTNode {
 			this.optionalCommentList = Collections.unmodifiableList(commentList);
 		}
 	}
+	
+	/**
+	 * Sets the Java element (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java element.
+	 * 
+	 * @param element the Java element this compilation unit was created from
+	 * @since 3.1
+	 */
+	void setJavaElement(IJavaElement element) {
+		this.element = element;
+	}
+
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.

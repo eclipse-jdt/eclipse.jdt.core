@@ -726,12 +726,14 @@ public class ASTParser {
 				try {
 					NodeSearcher searcher = null;
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
+					IJavaElement element = null;
 					if (this.compilationUnitSource != null) {
 						sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.compilationUnitSource;
 						// use a BasicCompilation that caches the source instead of using the compilationUnitSource directly 
 						// (if it is a working copy, the source can change between the parse and the AST convertion)
 						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
 						sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
+						element = this.compilationUnitSource;
 					} else if (this.classFileSource != null) {
 						try {
 							String sourceString = this.classFileSource.getSource();
@@ -743,6 +745,7 @@ public class ASTParser {
 							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
 							String fileName = new String(binaryType.getFileName()); // file name is used to recreate the Java element, so it has to be the .class file name
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileName, this.project);
+							element = this.classFileSource;
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
 							throw new IllegalStateException();
@@ -781,7 +784,7 @@ public class ASTParser {
 								this.compilerOptions);
 						needToResolveBindings = false;
 					}
-					return CompilationUnitResolver.convert(
+					CompilationUnit result = CompilationUnitResolver.convert(
 						compilationUnitDeclaration, 
 						sourceUnit.getContents(),
 						this.apiLevel, 
@@ -790,6 +793,8 @@ public class ASTParser {
 						this.compilationUnitSource == null ? this.workingCopyOwner : this.compilationUnitSource.getOwner(),
 						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null, 
 						monitor);
+					result.setJavaElement(element);
+					return result;
 				} finally {
 					if (compilationUnitDeclaration != null && this.resolveBindings) {
 						compilationUnitDeclaration.cleanUp();

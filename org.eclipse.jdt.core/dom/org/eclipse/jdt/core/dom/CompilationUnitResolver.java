@@ -230,7 +230,7 @@ class CompilationUnitResolver extends Compiler {
 		return resolver.getBinding(compilerBinding);
 	}
 	
-	public static ASTNode convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, IProgressMonitor monitor) {
+	public static CompilationUnit convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, IProgressMonitor monitor) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
@@ -343,11 +343,12 @@ class CompilationUnitResolver extends Compiler {
 			}
 			
 			// convert AST
-			ASTNode node = convert(compilationUnitDeclaration, sourceUnit.getContents(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
+			CompilationUnit node = convert(compilationUnitDeclaration, sourceUnit.getContents(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
+			node.setJavaElement(compilationUnits[i]);
 			
 			
 			// accept AST
-			astRequestor.acceptAST(compilationUnits[i], (CompilationUnit) node);
+			astRequestor.acceptAST(compilationUnits[i], node);
 		}
 	}
 	
@@ -633,6 +634,7 @@ class CompilationUnitResolver extends Compiler {
 						ast.setBindingResolver(resolver);
 						converter.setAST(ast);
 						CompilationUnit compilationUnit = converter.convert(unit, contents);
+						compilationUnit.setJavaElement(source);
 						compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
 						ast.setDefaultNodeFlag(0);
 						ast.setOriginalModificationCount(ast.modificationCount());

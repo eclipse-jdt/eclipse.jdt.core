@@ -145,7 +145,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		
 		if (createAST) {
 			int astLevel = ((ASTHolderCUInfo) info).astLevel;
-			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this.owner, pm);
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this, pm);
 			((ASTHolderCUInfo) info).ast = cu;
 		}
 	} finally {

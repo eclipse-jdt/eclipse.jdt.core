@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -232,8 +231,7 @@ public final class AST {
 	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
-	 * @param workingCopyOwner the owner of the working copy that the AST is created from, 
-	 *     or <code>null</code> if none
+	 * @param workingCopy the working copy that the AST is created from
 	 * @param monitor the progress monitor used to report progress and request cancelation,
 	 *     or <code>null</code> if none
 	 * @param isResolved whether the given compilation unit declaration is resolved
@@ -245,19 +243,20 @@ public final class AST {
 		char[] source,
 		Map options,
 		boolean isResolved,
-		WorkingCopyOwner workingCopyOwner,
+		org.eclipse.jdt.internal.core.CompilationUnit workingCopy,
 		IProgressMonitor monitor) {
 		
 		ASTConverter converter = new ASTConverter(options, isResolved, monitor);
 		AST ast = AST.newAST(level);
 		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-		BindingResolver resolver = isResolved ? new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopyOwner, new DefaultBindingResolver.BindingTables()) : new BindingResolver();
+		BindingResolver resolver = isResolved ? new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopy.owner, new DefaultBindingResolver.BindingTables()) : new BindingResolver();
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 	
 		CompilationUnit unit = converter.convert(compilationUnitDeclaration, source);
 		unit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		unit.setJavaElement(workingCopy);
 		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		return unit;
 	}

@@ -47,6 +47,9 @@ Eclipse SDK 3.1M6 - ?nd February 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>org.eclipse.jdt.core.dom.CompilationUnit#getJavaElement()</code> to retrieve the compilation unit
+     or class file the compilation unit node was created from.
+</li>
 <li>Added API <code>IMethodBinding#isSubsignature(IMethodBinding)</code> to find out if a method's signature 
      is a subsignature of another method.
 </li>
@@ -99,7 +102,9 @@ Corresponding problem ID is: <code>IProblem.MissingOverrideAnnotation</code>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86410">86410</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75702">75702</a>
+[dom] Need a way to get back from an AST to the originating ICompilationUnit
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86410">86410</a>
 formatting generics type parameters
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86487">86487</a>
 [1.5] infinite loop in enhanced for statement when the current element is optimized out
