@@ -2188,6 +2188,9 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+	private int computeRelevanceForStaticOveride(boolean isStatic) {
+		return isStatic ? 0 : R_NON_STATIC_OVERIDE;
+	}
 	private int computeRelevanceForException(char[] proposalName){
 		
 		if(assistNodeIsException &&
@@ -2274,7 +2277,15 @@ public final class CompletionEngine
 			if (method.isFinal()) continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic()) continue next;
+			if(method.isStatic()) {
+				if(receiverType.isAnonymousType()) continue next;
+				
+				if(receiverType.isMemberType() && !receiverType.isStatic()) continue next;
+				
+				if(receiverType.isLocalType()) continue next;
+			} else  {
+				if(onlyStaticMethods) continue next;
+			}
 
 			if (options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
@@ -2385,6 +2396,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance += computeRelevanceForStaticOveride(method.isStatic());
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 
 			noProposal = false;
