@@ -7553,4 +7553,130 @@ public void test0133(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43212
+ */
+public void test0134(){
+	String str =
+	"public class X {\n" +
+	"	Object o = new Object() {\n" +
+	"		void foo() {\n" +
+	"			try {\n" +
+	"			} catch(Exception e) {\n" +
+	"				e.\n" +
+	"			}\n" +
+	"		}\n" +
+	"	};\n" +
+	"}\n";
+
+
+	String completeBehind = "e.";
+	int cursorLocation = str.indexOf("e.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:e.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "e.";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  Object o = new Object() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      {\n" + 
+		"        Exception e;\n" + 
+		"        <CompleteOnName:e.>;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  };\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43212
+ */
+public void test0135(){
+	String str =
+	"public class X {\n" +
+	"	void bar(){\n" +
+	"		#\n" +
+	"		class Inner {\n" +
+	"			void foo() {\n" +
+	"				try {\n" +
+	"				} catch(Exception e) {\n" +
+	"					e.\n" +
+	"				}\n" +
+	"			}\n" +
+	"		}\n" +
+	"	}\n" +
+	"}\n";
+
+
+	String completeBehind = "e.";
+	int cursorLocation = str.indexOf("e.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:e.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "e.";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    class Inner {\n" + 
+		"      Inner() {\n" + 
+		"      }\n" + 
+		"      void foo() {\n" + 
+		"        {\n" + 
+		"          Exception e;\n" + 
+		"          <CompleteOnName:e.>;\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

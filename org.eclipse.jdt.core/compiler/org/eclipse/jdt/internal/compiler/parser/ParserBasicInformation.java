@@ -18,19 +18,19 @@ public interface ParserBasicInformation {
 	public final static int
       ERROR_SYMBOL      = 105,
       MAX_NAME_LENGTH   = 36,
-      NUM_STATES        = 596,
+      NUM_STATES        = 597,
       NT_OFFSET         = 105,
       SCOPE_UBOUND      = 63,
       SCOPE_SIZE        = 64,
-      LA_STATE_OFFSET   = 5979,
+      LA_STATE_OFFSET   = 5981,
       MAX_LA            = 1,
-      NUM_RULES         = 431,
+      NUM_RULES         = 433,
       NUM_TERMINALS     = 105,
-      NUM_NON_TERMINALS = 201,
-      NUM_SYMBOLS       = 306,
-      START_STATE       = 527,
+      NUM_NON_TERMINALS = 203,
+      NUM_SYMBOLS       = 308,
+      START_STATE       = 529,
       EOFT_SYMBOL       = 54,
       EOLT_SYMBOL       = 54,
-      ACCEPT_ACTION     = 5978,
-      ERROR_ACTION      = 5979;
+      ACCEPT_ACTION     = 5980,
+      ERROR_ACTION      = 5981;
 }

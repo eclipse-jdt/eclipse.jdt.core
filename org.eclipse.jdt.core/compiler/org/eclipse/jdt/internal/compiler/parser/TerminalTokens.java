@@ -141,5 +141,5 @@ public interface TerminalTokens {
       TokenNameDOT = 3,
       TokenNameEQUAL = 90,
       TokenNameEOF = 54,
-	  TokenNameERROR = 105;
+      TokenNameERROR = 105;
 }

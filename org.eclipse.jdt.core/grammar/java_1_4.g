@@ -911,11 +911,18 @@ OnlySynchronized ::= 'synchronized'
 /.$putCase consumeOnlySynchronized(); $break ./
 /:$readableName OnlySynchronized:/
 
-TryStatement ::= 'try' Block Catches
+TryStatement ::= 'try' TryBlock Catches
 /.$putCase consumeStatementTry(false); $break ./
-TryStatement ::= 'try' Block Catchesopt Finally
+TryStatement ::= 'try' TryBlock Catchesopt Finally
 /.$putCase consumeStatementTry(true); $break ./
 /:$readableName TryStatement:/
+
+TryBlock ::= Block ExitTryBlock
+/:$readableName Block:/
+
+ExitTryBlock ::= $empty
+/.$putCase consumeExitTryBlock(); $break ./
+/:$readableName ExitTryBlock:/
 
 Catches -> CatchClause
 Catches ::= Catches CatchClause
