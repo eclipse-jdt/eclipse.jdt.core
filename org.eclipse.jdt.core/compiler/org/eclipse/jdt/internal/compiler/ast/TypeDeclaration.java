@@ -816,13 +816,6 @@ public class TypeDeclaration
 					case AbstractVariableDeclaration.INITIALIZER:
 						((Initializer) fieldDeclaration).parseStatements(parser, this, unit);
 						break;
-					case AbstractVariableDeclaration.ENUM_CONSTANT:
-						FieldDeclaration enumConstant = fieldDeclaration;
-						final Expression expression = enumConstant.initialization;
-						if (expression instanceof QualifiedAllocationExpression) {
-							((QualifiedAllocationExpression) expression).anonymousType.parseMethod(parser, unit);
-						}
-						break;						
 				}
 			}
 		}

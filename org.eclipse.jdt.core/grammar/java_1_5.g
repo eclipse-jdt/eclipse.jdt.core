@@ -1566,11 +1566,15 @@ EnumConstants ::= EnumConstants ',' EnumConstant
 /.$putCase consumeEnumConstants(); $break ./
 /:$readableName EnumConstants:/
 
-EnumConstantHeader ::= Identifier Argumentsopt
+EnumConstantHeaderName ::= Modifiersopt Identifier
+/.$putCase consumeEnumConstantHeaderName(); $break ./
+/:$readableName EnumConstantHeaderName:/
+
+EnumConstantHeader ::= EnumConstantHeaderName Argumentsopt
 /.$putCase consumeEnumConstantHeader(); $break ./
 /:$readableName EnumConstantHeader:/
 
-EnumConstant ::= EnumConstantHeader ClassBody
+EnumConstant ::= EnumConstantHeader ForceNoDiet ClassBody RestoreDiet
 /.$putCase consumeEnumConstantWithClassBody(); $break ./
 EnumConstant ::= EnumConstantHeader
 /.$putCase consumeEnumConstantNoClassBody(); $break ./

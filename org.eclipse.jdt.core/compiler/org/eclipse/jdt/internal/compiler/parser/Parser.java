@@ -2832,6 +2832,7 @@ protected void consumeEnumConstantHeader() {
       anonymousType.sourceStart = start;
       anonymousType.sourceEnd = start; // closing parenthesis
       anonymousType.modifiers = 0;
+      markEnclosingMemberWithLocalType();
       pushOnAstStack(anonymousType);
       this.lastCheckPoint = anonymousType.bodyStart = this.scanner.currentPosition;
       if (this.currentElement != null) {
@@ -5517,7 +5518,7 @@ protected void consumeRule(int act) {
 		    consumeEnumConstantHeader();  
 			break;
  
-    case 495 : if (DEBUG) { System.out.println("EnumConstant ::= EnumConstantHeader ClassBody"); }  //$NON-NLS-1$
+    case 495 : if (DEBUG) { System.out.println("EnumConstant ::= EnumConstantHeader ForceNoDiet..."); }  //$NON-NLS-1$
 		    consumeEnumConstantWithClassBody();  
 			break;
  
