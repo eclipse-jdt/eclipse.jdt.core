@@ -1,21 +1,19 @@
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.*;
-
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferChangedListener;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.JavaModelException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
+
+
 
 public class WorkingCopyTests extends ModifyingResourceTests {
 	ICompilationUnit cu = null;
@@ -200,35 +198,37 @@ public WorkingCopyTests(String name) {
 
 public static Test suite() {
 	TestSuite suite = new Suite(WorkingCopyTests.class.getName());
-	suite.addTest(new WorkingCopyTests("testWorkingCopyCreation"));
+	suite.addTest(new WorkingCopyTests("testCreation"));
 	
-	suite.addTest(new WorkingCopyTests("testWorkingCopyContents"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGeneral"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyOperations"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyMultipleCommit"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyCustomizedBuffer"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyCustomizedBuffer2"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyShared1"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyShared2"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyOnClassFile"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyMoveTypeToAnotherWorkingCopy"));
+	suite.addTest(new WorkingCopyTests("testContents"));
+	suite.addTest(new WorkingCopyTests("testGeneral"));
+	suite.addTest(new WorkingCopyTests("testOperations"));
+	suite.addTest(new WorkingCopyTests("testMultipleCommit"));
+	suite.addTest(new WorkingCopyTests("testCustomizedBuffer"));
+	suite.addTest(new WorkingCopyTests("testCustomizedBuffer2"));
+	suite.addTest(new WorkingCopyTests("testShared1"));
+	suite.addTest(new WorkingCopyTests("testShared2"));
+	suite.addTest(new WorkingCopyTests("testOnClassFile"));
+	suite.addTest(new WorkingCopyTests("testMoveTypeToAnotherWorkingCopy"));
 
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalBinaryElement"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalCU"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalElementNotInWorkingCopy"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalField"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalImportDeclaration"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalImportContainer"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalInitializer"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalInnerType"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalInnerField"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalInnerMethod"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalMethod"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalPackageDeclaration"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyGetOriginalType"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyRenameMethod"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyChangeContent"));
-	suite.addTest(new WorkingCopyTests("testWorkingCopyChangeContentOfReadOnlyCU"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalBinaryElement"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalCU"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalElementNotInWorkingCopy"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalField"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalImportDeclaration"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalImportContainer"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalInitializer"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalInnerType"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalInnerField"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalInnerMethod"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalMethod"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalPackageDeclaration"));
+	suite.addTest(new WorkingCopyTests("testGetOriginalType"));
+	suite.addTest(new WorkingCopyTests("testRenameMethod"));
+	suite.addTest(new WorkingCopyTests("testChangeContent"));
+	suite.addTest(new WorkingCopyTests("testChangeContentOfReadOnlyCU"));
+	
+	suite.addTest(new WorkingCopyTests("testNonExistingCU"));
 
 	return suite;
 }
@@ -271,7 +271,7 @@ protected void tearDown() throws Exception {
 }
 /**
  */
-public void testWorkingCopyChangeContent() throws CoreException {
+public void testChangeContent() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -293,7 +293,7 @@ public void testWorkingCopyChangeContent() throws CoreException {
 }
 /**
  */
-public void testWorkingCopyChangeContentOfReadOnlyCU() throws CoreException {
+public void testChangeContentOfReadOnlyCU() throws CoreException {
 	IResource resource = this.cu.getUnderlyingResource();
 	boolean readOnlyFlag = resource.isReadOnly();
 	boolean didComplain = false;
@@ -315,16 +315,17 @@ public void testWorkingCopyChangeContentOfReadOnlyCU() throws CoreException {
  * not altered by changes to the source of the original compilation
  * unit.
  */
-public void testWorkingCopyContents() throws CoreException {
+public void testContents() throws CoreException {
 	String originalSource = this.cu.getSource();
 	IType type = this.cu.getType("A");
 	assertDeletion(type);
 	assertTrue("source code of copy should still be original", this.copy.getSource().equals(originalSource));
 }
+
 /**
  * Test creating a working copy on a class file with a customized buffer.
  */
-public void testWorkingCopyOnClassFile() throws JavaModelException {
+public void testOnClassFile() throws JavaModelException {
 	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPath()), this.getExternalJCLSourcePath(), "src");
 	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPath(), "java.lang", "Object.class");
 	IBufferFactory factory = new BufferFactory();
@@ -343,14 +344,15 @@ public void testWorkingCopyOnClassFile() throws JavaModelException {
 /**
  * Create the compilation unit place holder for the working copy tests.
  */
-public void testWorkingCopyCreation() throws JavaModelException {
+public void testCreation() throws JavaModelException {
 	assertTrue("Failed to create X.java compilation unit", this.cu != null && this.cu.exists());
 	assertTrue("Failed to create working copy on X.java", this.copy != null && this.copy.exists());
 }
+
 /**
  * Test creating a working copy with a customized buffer.
  */
-public void testWorkingCopyCustomizedBuffer() throws JavaModelException {
+public void testCustomizedBuffer() throws JavaModelException {
 	IBufferFactory factory = new BufferFactory();
 	IWorkingCopy customizedCopy = (IWorkingCopy)this.cu.getWorkingCopy(null, factory, null);
 	try {
@@ -363,7 +365,7 @@ public void testWorkingCopyCustomizedBuffer() throws JavaModelException {
 /**
  * Test closing then reopening a working copy with a customized buffer.
  */
-public void testWorkingCopyCustomizedBuffer2() throws JavaModelException {
+public void testCustomizedBuffer2() throws JavaModelException {
 	IBufferFactory factory = new BufferFactory();
 	IWorkingCopy customizedCopy = (IWorkingCopy)this.cu.getWorkingCopy(null, factory, null);
 	try {
@@ -384,7 +386,7 @@ public void testWorkingCopyCustomizedBuffer2() throws JavaModelException {
  * <li>ensures that working copies are unique
  * <li>ensures committing changes from working copies 
  */
-public void testWorkingCopyGeneral() throws JavaModelException, CoreException, IOException {
+public void testGeneral() throws JavaModelException, CoreException, IOException {
 
 	assertTrue("copy and actual should not be equal", !this.copy.equals(this.cu));
 
@@ -469,7 +471,7 @@ public void testWorkingCopyGeneral() throws JavaModelException, CoreException, I
  * Ensures that no original element can be retrieved on a binary element.
  * unit.
  */
-public void testWorkingCopyGetOriginalBinaryElement() throws CoreException {
+public void testGetOriginalBinaryElement() throws CoreException {
 	/* Evaluate the following in a scrapbook:
 	 org.eclipse.jdt.tests.core.ModifyingResourceTests.generateClassFile(
 		"A",
@@ -488,7 +490,7 @@ public void testWorkingCopyGetOriginalBinaryElement() throws CoreException {
 /**
  * Ensures that the original cu can be retrieved.
  */
-public void testWorkingCopyGetOriginalCU() throws JavaModelException {
+public void testGetOriginalCU() throws JavaModelException {
 	IJavaElement original= this.copy.getOriginal(copy);
 	assertTrue("Element is not a cu", original instanceof ICompilationUnit && !((ICompilationUnit)original).isWorkingCopy());
 	assertTrue("Element should exist", original.exists());
@@ -496,7 +498,7 @@ public void testWorkingCopyGetOriginalCU() throws JavaModelException {
 /**
  * Ensures that getting the original element from a different compilation unit returns null.
  */
-public void testWorkingCopyGetOriginalElementNotInWorkingCopy() throws CoreException {
+public void testGetOriginalElementNotInWorkingCopy() throws CoreException {
 	ICompilationUnit copy2 = null;
 	try {
 		this.createFile(
@@ -517,7 +519,7 @@ public void testWorkingCopyGetOriginalElementNotInWorkingCopy() throws CoreExcep
 /**
  * Ensures that the original field can be retrieved.
  */
-public void testWorkingCopyGetOriginalField() throws JavaModelException {
+public void testGetOriginalField() throws JavaModelException {
 	IType type = this.copy.getType("A");
 	IJavaElement original = this.copy.getOriginal(type.getField("FIELD"));
 	assertTrue("Element is not a method", original instanceof IField && !((ICompilationUnit)original.getParent().getParent()).isWorkingCopy());
@@ -526,7 +528,7 @@ public void testWorkingCopyGetOriginalField() throws JavaModelException {
 /**
  * Ensures that the original import declaration can be retrieved.
  */
-public void testWorkingCopyGetOriginalImportDeclaration() throws JavaModelException {
+public void testGetOriginalImportDeclaration() throws JavaModelException {
 	IImportDeclaration imprt = copy.getImport("java.io.File");
 	IJavaElement original= this.copy.getOriginal(imprt);
 	assertTrue("Element should exist", original.exists());
@@ -534,7 +536,7 @@ public void testWorkingCopyGetOriginalImportDeclaration() throws JavaModelExcept
 /**
  * Ensures that the original import container can be retrieved.
  */
-public void testWorkingCopyGetOriginalImportContainer() throws JavaModelException {
+public void testGetOriginalImportContainer() throws JavaModelException {
 	IImportContainer container = this.copy.getImportContainer();
 	IJavaElement original = this.copy.getOriginal(container);
 	assertTrue("Element should not be null", original != null);
@@ -543,14 +545,14 @@ public void testWorkingCopyGetOriginalImportContainer() throws JavaModelExceptio
 /**
  * Ensures that the original initializer can be retrieved.
  */
-public void testWorkingCopyGetOriginalInitializer() throws JavaModelException {
+public void testGetOriginalInitializer() throws JavaModelException {
 	IType type= copy.getType("A");
 	IJavaElement original= copy.getOriginal(type.getInitializer(1));
 	assertTrue("Element should exist", original.exists());
 }
 /**
  */
-public void testWorkingCopyGetOriginalInnerField() throws JavaModelException {
+public void testGetOriginalInnerField() throws JavaModelException {
 	IType innerType = this.copy.getType("A").getType("Inner");
 	IJavaElement original = this.copy.getOriginal(innerType.getField("innerField"));
 	assertTrue("Element is not a field", original instanceof IField);
@@ -558,7 +560,7 @@ public void testWorkingCopyGetOriginalInnerField() throws JavaModelException {
 }
 /**
  */
-public void testWorkingCopyGetOriginalInnerMethod() throws JavaModelException {
+public void testGetOriginalInnerMethod() throws JavaModelException {
 	IType innerType = this.copy.getType("A").getType("Inner");
 	IJavaElement original = copy.getOriginal(innerType.getMethods()[0]);
 	assertTrue("Element is not a method", original instanceof IMethod);
@@ -566,7 +568,7 @@ public void testWorkingCopyGetOriginalInnerMethod() throws JavaModelException {
 }
 /**
  */
-public void testWorkingCopyGetOriginalInnerType() throws JavaModelException {
+public void testGetOriginalInnerType() throws JavaModelException {
 	IType innerInnerType = this.copy.getType("A").getType("Inner").getType("InnerInner");
 	IJavaElement original = this.copy.getOriginal(innerInnerType);
 	assertTrue("Element is not a method", original instanceof IType);
@@ -584,7 +586,7 @@ public void testWorkingCopyGetOriginalInnerType() throws JavaModelException {
 /**
  * Ensures that the original method can be retrieved.
  */
-public void testWorkingCopyGetOriginalMethod() throws JavaModelException {
+public void testGetOriginalMethod() throws JavaModelException {
 	IType type = this.copy.getType("A");
 	IJavaElement original= copy.getOriginal(type.getMethods()[0]);
 	assertTrue("Element is not a method", original instanceof IMethod);
@@ -595,7 +597,7 @@ public void testWorkingCopyGetOriginalMethod() throws JavaModelException {
  * not alter the source of the original compilation
  * unit.
  */
-public void testWorkingCopyRenameMethod() throws JavaModelException {
+public void testRenameMethod() throws JavaModelException {
 	IType type = this.copy.getType("A");
 	IMethod method = type.getMethods()[0];
 	IJavaElement original= copy.getOriginal(method);
@@ -606,7 +608,7 @@ public void testWorkingCopyRenameMethod() throws JavaModelException {
 /**
  * Ensures that the original package declaration can be retrieved.
  */
-public void testWorkingCopyGetOriginalPackageDeclaration() throws JavaModelException {
+public void testGetOriginalPackageDeclaration() throws JavaModelException {
 	IPackageDeclaration pkg = this.copy.getPackageDeclaration("x.y");
 	IJavaElement original = this.copy.getOriginal(pkg);
 	assertTrue("Element should exist", original.exists());
@@ -614,7 +616,7 @@ public void testWorkingCopyGetOriginalPackageDeclaration() throws JavaModelExcep
 /**
  * Ensures that the original type can be retrieved.
  */
-public void testWorkingCopyGetOriginalType() throws JavaModelException {
+public void testGetOriginalType() throws JavaModelException {
 	IType type = this.copy.getType("A");
 	IJavaElement original= copy.getOriginal(type);
 	assertTrue("Element should exist", original.exists());
@@ -623,7 +625,7 @@ public void testWorkingCopyGetOriginalType() throws JavaModelException {
  * Ensures that a type can be moved to another working copy.
  * (regression test for bug 7881 IType.move() clobbers editing buffer of destination element)
  */
-public void testWorkingCopyMoveTypeToAnotherWorkingCopy() throws CoreException {
+public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 	this.createFile(
 		"P/src/x/y/B.java",
 		"package x.y;\n" +
@@ -670,7 +672,7 @@ public void testWorkingCopyMoveTypeToAnotherWorkingCopy() throws CoreException {
 /**
  * Test creating a shared working copy.
  */
-public void testWorkingCopyShared1() throws JavaModelException {
+public void testShared1() throws JavaModelException {
 	IJavaElement shared = this.cu.getSharedWorkingCopy(null, null, null);
 	try {
 		assertTrue("Should be an IWorkingCopy", shared instanceof IWorkingCopy);
@@ -685,7 +687,7 @@ public void testWorkingCopyShared1() throws JavaModelException {
 /**
  * Test several call to creating shared working copy.
  */
-public void testWorkingCopyShared2() throws JavaModelException {
+public void testShared2() throws JavaModelException {
 	IWorkingCopy shared = (IWorkingCopy)this.cu.getSharedWorkingCopy(null, null, null);
 	try {
 		IWorkingCopy shared2 = (IWorkingCopy)this.cu.getSharedWorkingCopy(null, null, null);
@@ -703,7 +705,7 @@ public void testWorkingCopyShared2() throws JavaModelException {
 /**
  * Tests that multiple commits are possible with the same working copy.
  */
-public void testWorkingCopyMultipleCommit() throws JavaModelException, CoreException, IOException {
+public void testMultipleCommit() throws JavaModelException, CoreException, IOException {
 
 	// Add a method to the working copy
 	IType gp = this.copy.getType("A");
@@ -743,12 +745,82 @@ public void testWorkingCopyMultipleCommit() throws JavaModelException, CoreExcep
 		this.cu.getType("A").getMethod("anotherAnotherMethod", new String[]{}).exists());
 }
 /**
+ * Creates a working copy on a non-existing compilation unit.
+ * (regression test for bug 8921  DCR - Need a way to create a working copy ignoring existing files)
+ */
+public void testNonExistingCU() throws JavaModelException {
+	ICompilationUnit cu = this.getCompilationUnit("P/src/x/y/NonExisting.java");
+	IWorkingCopy copy = null;
+	try {
+		// getBuffer()
+		copy = (IWorkingCopy)cu.getWorkingCopy();
+		assertEquals("Buffer should be empty", "", ((IOpenable)copy).getBuffer().getContents());
+		
+		// exists()
+		assertTrue("Working copy should exists", ((IJavaElement)copy).exists());
+		
+		// getCorrespondingResource()
+		assertEquals("Corresponding resource should be null", null, ((IJavaElement)copy).getCorrespondingResource());
+		
+		// getOriginalElement()
+		assertEquals("Unexpected orginal element", cu, copy.getOriginalElement());
+		
+		// getPath()
+		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)copy).getPath());
+		
+		// getResource()
+		assertEquals("Unexpected resource", null, ((IJavaElement)copy).getResource());
+		
+		// isBasedOn()
+		assertTrue("Working copy should not be based on original resource", !copy.isBasedOn(cu.getResource()));
+		
+		// isConsistent()
+		assertTrue("Working copy should be consistent", ((IOpenable)copy).isConsistent());
+		
+		// restore()
+		boolean exception = false;
+		try {
+			copy.restore();
+		} catch (JavaModelException e) {
+			exception = true;
+		}
+		assertTrue("Should not be able to restore from original element", exception);
+		
+		// makeConsistent()
+		((IOpenable)copy).getBuffer().setContents(
+			"public class X {\n" +
+			"}");
+		assertTrue("Working copy should not be consistent", !((IOpenable)copy).isConsistent());
+		((IOpenable)copy).makeConsistent(null);
+		assertTrue("Working copy should be consistent", ((IOpenable)copy).isConsistent());
+		
+		// save()
+		((IOpenable)copy).getBuffer().setContents(
+			"public class Y {\n" +
+			"}");
+		((IOpenable)copy).save(null, false);
+		assertTrue("Working copy should be consistent after save", ((IOpenable)copy).isConsistent());
+		assertTrue("Original cu should not exist", !cu.exists());
+		
+		// commit()
+		copy.commit(false, null);
+		assertTrue("Original cu should exist", cu.exists());
+	} finally {
+		if (copy != null) {
+			copy.destroy();
+		}
+		if (cu.exists()) {
+			cu.delete(true, null);
+		}
+	}
+}
+/**
  * Tests the general functionality of a operations working with working copies:<ul>
  * <li>ensures that the copy cannot be renamed</li>
  * <li>ensures that the copy cannot be moved to the same location as the original cu</li>
  * <li>ensures that the copy can be copied to a different location as the original cu</li>
  */
-public void testWorkingCopyOperations() throws JavaModelException {
+public void testOperations() throws JavaModelException {
 	// rename working copy
 	boolean ex= false;
 	try {
