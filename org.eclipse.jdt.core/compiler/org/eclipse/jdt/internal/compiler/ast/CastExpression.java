@@ -154,7 +154,7 @@ public class CastExpression extends Expression {
 				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
 					if (castType.isParameterizedType() || castType.isGenericType()) {
-						if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+						if (castType.erasure() == expressionType.erasure() && castType != expressionType && (castType.tagBits & TagBits.HasWildcard) == 0) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -165,7 +165,8 @@ public class CastExpression extends Expression {
 					this.bits |= NeedRuntimeCheckCastMASK;
 					if (castType.isParameterizedType() || castType.isGenericType()) {
 						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-						if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
+						if ((match != null && !match.isParameterizedType() && !match.isGenericType()) 
+								|| ((castType.tagBits & TagBits.HasWildcard) == 0 && (expressionType.tagBits & TagBits.HasWildcard) != 0)) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -174,7 +175,7 @@ public class CastExpression extends Expression {
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (expressionType.isCompatibleWith(castType)) {
 					if (castType.isParameterizedType() || castType.isGenericType()) {
-						if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+						if (castType.erasure() == expressionType.erasure() && castType != expressionType && (castType.tagBits & TagBits.HasWildcard) == 0) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -185,7 +186,8 @@ public class CastExpression extends Expression {
 					this.bits |= NeedRuntimeCheckCastMASK;
 					if (castType.isParameterizedType() || castType.isGenericType()) {
 						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-						if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
+						if ((match != null && !match.isParameterizedType() && !match.isGenericType()) 
+								|| ((castType.tagBits & TagBits.HasWildcard) == 0 && (expressionType.tagBits & TagBits.HasWildcard) != 0)) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -222,7 +224,7 @@ public class CastExpression extends Expression {
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
 			if (expressionType.isCompatibleWith(castType)) {
 				if (castType.isParameterizedType() || castType.isGenericType()) {
-					if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+					if (castType.erasure() == expressionType.erasure() && castType != expressionType && (castType.tagBits & TagBits.HasWildcard) == 0) {
 						scope.problemReporter().unsafeCast(this);
 					}
 				}
@@ -231,7 +233,8 @@ public class CastExpression extends Expression {
 			if (castType.isCompatibleWith(expressionType)) {
 				if (castType.isParameterizedType() || castType.isGenericType()) {
 					ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-					if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
+					if ((match != null && !match.isParameterizedType() && !match.isGenericType()) 
+							|| ((castType.tagBits & TagBits.HasWildcard) == 0 && (expressionType.tagBits & TagBits.HasWildcard) != 0)) {
 						scope.problemReporter().unsafeCast(this);
 					}
 				}				

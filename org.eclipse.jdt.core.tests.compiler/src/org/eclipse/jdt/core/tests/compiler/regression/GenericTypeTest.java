@@ -6680,7 +6680,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}		
-	// 69776 - variation: TODO (philippe) no unsafe type operation warning ?
+	// 69776 - variation
 	public void test242() {
 		this.runNegativeTest(
 			new String[] {
@@ -6696,17 +6696,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
-		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type Class<? extends Object> for expression of type Class\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
-		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: The cast from Class to parameterized type Class<? extends Object> will not check conformance of type arguments at runtime\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type Class<? extends Object> for expression of type Class\n" + 
+			"----------\n");
 	}		
 	// TODO (kent) simple covariance cases
 	public void test243() {
@@ -6945,6 +6940,48 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	Set<X> channel = channels.get(0);\n" + 
 			"	                 ^^^^^^^^\n" + 
 			"channels cannot be resolved\n" + 
+			"----------\n");
+	}			
+	// 70243 unsafe cast when wildcards
+	public void test253() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        List<Integer> li= new ArrayList<Integer>();\n" + 
+				"        List<? extends Number> ls= li;       \n" + 
+				"        List<Number> x2= (List<Number>)ls;//unsafe\n" + 
+				"        x2.add(new Float(1.0));\n" + 
+				"        \n" + 
+				"        Integer i= li.get(0);//ClassCastException!\n" + 
+				"        \n" + 
+				"        List<Number> ls2 = (List<? extends Number>)ls;\n" + 
+				"        List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	List<Number> x2= (List<Number>)ls;//unsafe\n" + 
+			"	                 ^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from List<? extends Number> to parameterized type List<Number> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
+			"	             ^^^\n" + 
+			"Type mismatch: cannot convert from List<? extends Number> to List<Number>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type List<? extends Number> for expression of type List<? extends Number>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
+			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type List<? extends Number> for expression of type List<Integer>\n" + 
 			"----------\n");
 	}			
 }
