@@ -9214,6 +9214,7 @@ protected boolean resumeAfterRecovery() {
 
 	// reset internal stacks 
 	this.resetStacks();
+	this.resetModifiers();
 	
 	/* attempt to move checkpoint location */
 	if (!this.moveRecoveryCheckpoint()) {

@@ -44,8 +44,8 @@ public void test0001(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
+		"class X {\n" + 
+		"  X() {\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -73,7 +73,7 @@ public void test0002(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public interface X {\n" + 
+		"interface X {\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -100,10 +100,10 @@ public void test0003(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-"public enum X {\n" + 
-"  public X() {\n" + 
-"  }\n" + 
-"}\n";
+		"enum X {\n" + 
+		"  X() {\n" + 
+		"  }\n" + 
+		"}\n";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -129,7 +129,7 @@ public void test0004(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public @interface X {\n" + 
+		"@interface X {\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -156,8 +156,8 @@ public void test0005(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
+		"class X {\n" + 
+		"  X() {\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -185,7 +185,7 @@ public void test0006(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public interface X {\n" + 
+		"interface X {\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -212,8 +212,8 @@ public void test0007(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public enum X {\n" + 
-		"  public X() {\n" + 
+		"enum X {\n" + 
+		"  X() {\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -241,7 +241,7 @@ public void test0008(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"@<CompleteOnType:MyAnn>\n" + 
-		"public @interface X {\n" + 
+		"@interface X {\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -296,8 +296,8 @@ public void test0010(){
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  @<CompleteOnType:MyAnn>\n" + 
-		"  public class Y {\n" + 
-		"    public Y() {\n" + 
+		"  class Y {\n" + 
+		"    Y() {\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
@@ -330,8 +330,8 @@ public void test0011(){
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  @<CompleteOnType:MyAnn>\n" + 
-		"  public class Y {\n" + 
-		"    public Y() {\n" + 
+		"  class Y {\n" + 
+		"    Y() {\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 

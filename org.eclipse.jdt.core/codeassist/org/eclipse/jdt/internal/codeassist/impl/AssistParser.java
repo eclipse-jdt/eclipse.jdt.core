@@ -1439,6 +1439,9 @@ protected boolean resumeAfterRecovery() {
 	this.genericsIdentifiersLengthPtr = -1;
 	this.genericsLengthPtr = -1;
 	this.genericsPtr = -1;
+	
+	this.modifiers = AccDefault;
+	this.modifiersSourceStart = -1;
 
 	// if in diet mode, reset the diet counter because we're going to restart outside an initializer.
 	if (diet) dietInt = 0;
