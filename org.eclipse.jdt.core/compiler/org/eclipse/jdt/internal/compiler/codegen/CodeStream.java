@@ -3429,6 +3429,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				signature = ConstantPool.StringBufferAppendBooleanSignature;
 			}
 			break;
+		case T_undefined :
 		case T_JavaLangObject :
 			if (this.targetLevel >= JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
@@ -3672,6 +3673,7 @@ public void invokeStringValueOf(int typeID) {
 		case T_JavaLangObject :
 		case T_JavaLangString :
 		case T_null :
+		case T_undefined :
 			signature = ConstantPool.ValueOfObjectSignature;
 			break;
 	}
