@@ -256,6 +256,64 @@ protected void consumeConstructorHeaderName() {
 		}
 	}	
 }
+protected void consumeConstructorHeaderNameWithTypeParameters() {
+
+	/* recovering - might be an empty message send */
+	if (this.currentElement != null){
+		if (this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
+			this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position				
+			this.restartRecovery = true;
+			return;
+		}
+	}
+	
+	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
+	SourceConstructorDeclaration cd = new SourceConstructorDeclaration(this.compilationUnit.compilationResult);
+
+	//name -- this is not really revelant but we do .....
+	cd.selector = this.identifierStack[this.identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
+	
+	//modifiers
+	cd.declarationSourceStart = this.intStack[this.intPtr--];
+	cd.modifiers = this.intStack[this.intPtr--];
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
+	// javadoc
+	cd.javadoc = this.javadoc;
+	this.javadoc = null;
+
+	//highlight starts at the selector starts
+	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
+	cd.selectorSourceEnd = (int) selectorSourcePositions;
+	pushOnAstStack(cd);
+	cd.sourceEnd = this.lParenPos;
+	cd.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
+
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = cd.bodyStart;
+		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
+			|| cd.modifiers != 0){
+			this.currentElement = this.currentElement.add(cd, 0);
+			this.lastIgnoredToken = -1;
+		}
+	}	
+}
 /*
  *
  * INTERNAL USE-ONLY
@@ -297,14 +355,14 @@ protected void consumeMethodHeaderName() {
 	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
-	md.selector = identifierStack[identifierPtr];
-	long selectorSourcePositions = identifierPositionStack[identifierPtr--];
-	identifierLengthPtr--;
+	md.selector = this.identifierStack[identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 	//type
-	md.returnType = getTypeReference(intStack[intPtr--]);
+	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
 	//modifiers
-	md.declarationSourceStart = intStack[intPtr--];
-	md.modifiers = intStack[intPtr--];
+	md.declarationSourceStart = this.intStack[this.intPtr--];
+	md.modifiers = this.intStack[this.intPtr--];
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -323,22 +381,77 @@ protected void consumeMethodHeaderName() {
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);
 	md.selectorSourceEnd = (int) selectorSourcePositions;
 	pushOnAstStack(md);
-	md.sourceEnd = lParenPos;
-	md.bodyStart = lParenPos+1;
-	listLength = 0; // initialize listLength before reading parameters/throws
+	md.sourceEnd = this.lParenPos;
+	md.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
 	
 	// recovery
-	if (currentElement != null){
-		if (currentElement instanceof RecoveredType 
+	if (this.currentElement != null){
+		if (this.currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (scanner.getLineNumber(md.returnType.sourceStart)
-					== scanner.getLineNumber(md.sourceStart))){
-			lastCheckPoint = md.bodyStart;
-			currentElement = currentElement.add(md, 0);
-			lastIgnoredToken = -1;			
+			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
+					== this.scanner.getLineNumber(md.sourceStart))){
+			this.lastCheckPoint = md.bodyStart;
+			this.currentElement = currentElement.add(md, 0);
+			this.lastIgnoredToken = -1;			
 		} else {
-			lastCheckPoint = md.sourceStart;
-			restartRecovery = true;
+			this.lastCheckPoint = md.sourceStart;
+			this.restartRecovery = true;
+		}
+	}		
+}
+protected void consumeMethodHeaderNameWithTypeParameters() {
+	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
+
+	//name
+	md.selector = this.identifierStack[this.identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	//type
+	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
+	
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
+	
+	//modifiers
+	md.declarationSourceStart = this.intStack[this.intPtr--];
+	md.modifiers = this.intStack[this.intPtr--];
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}	
+	// javadoc
+	md.javadoc = this.javadoc;
+	this.javadoc = null;
+
+	//highlight starts at selector start
+	md.sourceStart = (int) (selectorSourcePositions >>> 32);
+	md.selectorSourceEnd = (int) selectorSourcePositions;
+	pushOnAstStack(md);
+	md.sourceEnd = this.lParenPos;
+	md.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize this.listLength before reading parameters/throws
+	
+	// recovery
+	if (this.currentElement != null){
+		if (this.currentElement instanceof RecoveredType 
+			//|| md.modifiers != 0
+			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
+					== this.scanner.getLineNumber(md.sourceStart))){
+			this.lastCheckPoint = md.bodyStart;
+			this.currentElement = this.currentElement.add(md, 0);
+			this.lastIgnoredToken = -1;
+		} else {
+			this.lastCheckPoint = md.sourceStart;
+			this.restartRecovery = true;
 		}
 	}		
 }
@@ -348,9 +461,23 @@ protected void consumeMethodHeaderName() {
  */
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
+	super.consumeMethodInvocationName();
 
 	// when the name is only an identifier...we have a message send to "this" (implicit)
-	super.consumeMethodInvocationName();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	// MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+	super.consumeMethodInvocationNameWithTypeArguments();
+
+	// when the name is only an identifier...we have a message send to "this" (implicit)
 	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
 	Expression[] args = messageSend.arguments;
 	if (reportReferenceInfo) {
@@ -379,6 +506,21 @@ protected void consumeMethodInvocationPrimary() {
  *
  * INTERNAL USE-ONLY
  */
+protected void consumeMethodInvocationPrimaryWithTypeArguments() {
+	super.consumeMethodInvocationPrimaryWithTypeArguments();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+/*
+ *
+ * INTERNAL USE-ONLY
+ */
 protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 	super.consumeMethodInvocationSuper();
@@ -389,6 +531,26 @@ protected void consumeMethodInvocationSuper() {
 			messageSend.selector, 
 			args == null ? 0 : args.length, 
 			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+	super.consumeMethodInvocationSuperWithTypeArguments();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+	super.consumeSingleStaticImportDeclarationName();
+	ImportReference impt = (ImportReference)astStack[astPtr];
+	if (reportReferenceInfo) {
+		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {

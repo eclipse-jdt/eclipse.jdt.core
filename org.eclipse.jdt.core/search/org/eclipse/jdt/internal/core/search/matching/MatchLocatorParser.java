@@ -152,6 +152,10 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
 	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 }
+protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, int recFlag) {
+	super.consumeExplicitConstructorInvocationWithTypeArguments(flag, recFlag);
+	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+}
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
 
@@ -170,14 +174,32 @@ protected void consumeMethodInvocationName() {
 	// this is always a MessageSend
 	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	super.consumeMethodInvocationNameWithTypeArguments();
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+}
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary(); 
 
 	// this is always a MessageSend
 	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeMethodInvocationPrimaryWithTypeArguments() {
+	super.consumeMethodInvocationPrimaryWithTypeArguments();
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+}
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+}
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	super.consumeMethodInvocationSuperWithTypeArguments();
 
 	// this is always a MessageSend
 	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
@@ -289,6 +311,10 @@ class ImportMatchLocatorParser extends MatchLocatorParser {
 
 protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
 	super(problemReporter, locator);
+}
+protected void consumeSingleStaticImportDeclarationName() {
+	super.consumeSingleStaticImportDeclarationName();
+	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 }
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
