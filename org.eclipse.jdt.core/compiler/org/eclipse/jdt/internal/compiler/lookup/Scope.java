@@ -997,6 +997,7 @@ public abstract class Scope
 				}
 				return methodBinding;
 			}
+			if (found.size == 0) return null;
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 
@@ -1760,22 +1761,30 @@ public abstract class Scope
 					if (importBinding.isStatic() && importBinding.onDemand) {
 						Binding resolvedImport = importBinding.resolvedImport;
 						if (resolvedImport instanceof ReferenceBinding) {
+							// answers closest approximation, may not check argumentTypes or visibility
 							MethodBinding temp = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
 							if (temp != null) {
 								if (!temp.isValidBinding()) {
 									if (foundMethod == null)
 										foundMethod = temp;
 								} else if (temp.isStatic()) {
-									if (temp.canBeSeenBy(unitScope.fPackage)) {
-										ImportReference importReference = importBinding.reference;
-										if (importReference != null) importReference.used = true;
-										if (foundInImport)
-											// Answer error binding -- import on demand conflict; name found in two import on demand types.
-											return new ProblemMethodBinding(temp, selector, temp.parameters, Ambiguous);
-										foundMethod = temp;
-										foundInImport = true;
+									MethodBinding compatibleMethod = computeCompatibleMethod(temp, argumentTypes, invocationSite);
+									if (compatibleMethod != null) {
+										if (compatibleMethod.isValidBinding()) {
+											if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
+												ImportReference importReference = importBinding.reference;
+												if (importReference != null) importReference.used = true;
+												if (foundInImport)
+													// Answer error binding -- import on demand conflict; name found in two import on demand types.
+													return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
+												foundMethod = compatibleMethod;
+												foundInImport = true;
+											} else if (foundMethod == null) {
+												foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
+											}
+										}
 									} else if (foundMethod == null) {
-										foundMethod = new ProblemMethodBinding(temp, selector, temp.parameters, NotVisible);
+										foundMethod = new ProblemMethodBinding(temp, selector, argumentTypes, NotFound);
 									}
 								}
 							}

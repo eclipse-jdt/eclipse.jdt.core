@@ -323,4 +323,26 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"Method cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+
+	public void test010() { // 76174
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.System.*;\n" +
+				"public class X {\n" +
+				"	void foo() { arraycopy(); }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import static java.lang.System.*;\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"The import java.lang.System is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	void foo() { arraycopy(); }\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"The method arraycopy(Object, int, Object, int, int) in the type System is not applicable for the arguments ()\n" + 
+			"----------\n");
+	}
 }
