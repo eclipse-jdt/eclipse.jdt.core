@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestMixed extends JavadocTest {
 
-	String localDocCommentSupport = CompilerOptions.ENABLED;
+	String docCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
@@ -35,21 +35,19 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] {
-//			"testBug73995"
-//		};
+//		testsNames = new String[] { "testBug74369" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildSuite(javadocTestClass());
+		return buildTestSuite(javadocTestClass());
 	}
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_DocCommentSupport, this.localDocCommentSupport);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportMissingJavadocComments != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
@@ -70,7 +68,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.localDocCommentSupport = this.docCommentSupport;
+		this.docCommentSupport = CompilerOptions.ENABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocComments = null;
@@ -2210,7 +2208,7 @@ public class JavadocTestMixed extends JavadocTest {
 		);
 	}
 	public void testBug51529b() {
-		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		this.docCommentSupport = CompilerOptions.DISABLED;
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3890,8 +3888,257 @@ public class JavadocTestMixed extends JavadocTest {
 					"	 *		{@unknown_tag}\n" + 
 					"	 */\n" + 
 					"	public int foo3() {return 0; }\n" + 
-					"}\n",
+					"}\n"
 			}
  		);
  	}
+
+	/**
+	 * Test fix for bug 74369: [Javadoc] incorrect javadoc in local class
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74369">74369</a>
+	 */
+	public void testBug74369() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"   public void method() {\n" + 
+					"       /**\n" + 
+					"        * @see #hsgdfdj\n" + 
+					"        */\n" + 
+					"        System.out.println(\"println\");\n" + 
+					"        class Local {}\n" + 
+					"    }\n" + 
+					"}"
+			}
+ 		);
+ 	}
+	public void testBug74369deprecated() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"p/Y.java",
+				"package p;\n" + 
+					"\n" + 
+					"\n" + 
+					"public class Y {\n" + 
+					"   /**\n" + 
+					"    * @deprecated\n" + 
+					"    */\n" + 
+					"   public void bar() {}\n" + 
+					"}\n",
+				"X.java",
+				"import p.Y;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	Object obj = new Object() {\n" + 
+					"		public boolean equals(Object o) {\n" + 
+					"			/**\n" + 
+					"			 * @deprecated\n" + 
+					"			 */\n" + 
+					"	        System.out.println(\"println\");\n" + 
+					"	        class Local {\n" + 
+					"	        	void bar() {\n" + 
+					"					new Y().bar();\n" + 
+					"	        	}\n" + 
+					"	        }\n" + 
+					"			return super.equals(o);\n" + 
+					"		}\n" + 
+					"	};\n" + 
+					"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	new Y().bar();\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"The method bar() from the type Y is deprecated\n" + 
+			"----------\n"
+ 		);
+ 	}
+
+	/**
+	 * Test fix for bug 76324: [Javadoc] Wrongly reports invalid link format in @see and @link
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76324">76324</a>
+	 */
+	public void testBug76324() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"\n" + 
+					"/**\n" + 
+					" * Subclasses perform GUI-related work in a dedicated thread. For instructions\n" + 
+					" * on using this class, see\n" + 
+					" * {@link <a  href=\"http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html\"> Swing tutorial </a>}\n" + 
+					" * \n" + 
+					" * @see <a\n" + 
+					" *      href=\"http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html\">\n" + 
+					" *      EDU.oswego.cs.dl.util.concurrent </a>\n" + 
+					" * @see <a\n" + 
+					" *      href=\"http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/package-summary.html\">\n" + 
+					" *      JDK 5.0 </a>\n" + 
+					" * @author {@link <a href=\"http://gee.cs.oswego.edu/dl\">Doug Lea</a>}\n" + 
+					" * @author {@link <a href=\"http://home.pacbell.net/jfai\">Jürgen Failenschmid</a>}\n" + 
+					"  *\n" + 
+					"  * It is assumed that you have read the introductory document\n" + 
+					"  * {@link <a HREF=\"../../../../../internat/overview.htm\">\n" + 
+					"  * Internationalization</a>}\n" + 
+					"  * and are familiar with this.\n" + 
+					" */\n" + 
+					"public class X {\n" + 
+					"\n" + 
+					"}\n"
+			}
+ 		);
+ 	}
+	// URL Link references
+	public void testBug76324url() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"	/**\n" +
+					"	 * Invalid inline URL link references \n" +
+					"	 *\n" +
+					"	 * {@link <}\n" +
+					"	 * {@link <a}\n" +
+					"	 * {@link <a hre}\n" +
+					"	 * {@link <a href}\n" +
+					"	 * {@link <a href=}\n" +
+					"	 * {@link <a href=\"}\n" +
+					"	 * {@link <a href=\"invalid}\n" +
+					"	 * {@link <a href=\"invalid\"}\n" +
+					"	 * {@link <a href=\"invalid\">}\n" +
+					"	 * {@link <a href=\"invalid\">invalid}\n" +
+					"	 * {@link <a href=\"invalid\">invalid<}\n" +
+					"	 * {@link <a href=\"invalid\">invalid</}\n" +
+					"	 * {@link <a href=\"invalid\">invalid</a}\n" +
+					"	 * {@link <a href=\"invalid\">invalid</a> no text allowed after}\n" +
+					"	 */\n" +
+					"	public void s_foo() {\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* {@link <}\n" + 
+				"	         ^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* {@link <a}\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* {@link <a hre}\n" + 
+				"	         ^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* {@link <a href}\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	* {@link <a href=}\n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	* {@link <a href=\"}\n" + 
+				"	         ^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 11)\n" + 
+				"	* {@link <a href=\"invalid}\n" + 
+				"	         ^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 12)\n" + 
+				"	* {@link <a href=\"invalid\"}\n" + 
+				"	         ^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 13)\n" + 
+				"	* {@link <a href=\"invalid\">}\n" + 
+				"	         ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 14)\n" + 
+				"	* {@link <a href=\"invalid\">invalid}\n" + 
+				"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 15)\n" + 
+				"	* {@link <a href=\"invalid\">invalid<}\n" + 
+				"	                                  ^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 16)\n" + 
+				"	* {@link <a href=\"invalid\">invalid</}\n" + 
+				"	                                  ^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"13. ERROR in X.java (at line 17)\n" + 
+				"	* {@link <a href=\"invalid\">invalid</a}\n" + 
+				"	                                  ^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"14. ERROR in X.java (at line 18)\n" + 
+				"	* {@link <a href=\"invalid\">invalid</a> no text allowed after}\n" + 
+				"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
+				"----------\n"
+		);
+	}
+	// String references
+	public void testBug76324string() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"	/**\n" + 
+					"	 * Inline string references \n" + 
+					"	 *\n" + 
+					"	 * {@link \"}\n" + 
+					"	 * {@link \"unterminated string}\n" + 
+					"	 * {@link \"invalid string\"\"}\n" + 
+					"	 * {@link \"valid string\"}\n" + 
+					"	 * {@link \"invalid\" no text allowed after the string}\n" + 
+					"	 */\n" + 
+					"	public void s_foo() {\n" + 
+					"	}\n" + 
+					"}\n" },
+				"----------\n" + 
+					"1. ERROR in X.java (at line 5)\n" + 
+					"	* {@link \"}\n" + 
+					"	        ^^^\n" + 
+					"Javadoc: Invalid reference\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 6)\n" + 
+					"	* {@link \"unterminated string}\n" + 
+					"	        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Invalid reference\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 7)\n" + 
+					"	* {@link \"invalid string\"\"}\n" + 
+					"	                         ^^\n" + 
+					"Javadoc: Unexpected text\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 9)\n" + 
+					"	* {@link \"invalid\" no text allowed after the string}\n" + 
+					"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Unexpected text\n" + 
+					"----------\n"
+		);
+	}
 }

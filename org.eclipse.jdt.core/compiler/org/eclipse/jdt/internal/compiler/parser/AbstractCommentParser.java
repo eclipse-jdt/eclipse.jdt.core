@@ -498,33 +498,47 @@ public abstract class AbstractCommentParser {
 		if (Character.toLowerCase(readChar()) == 'a') {
 			this.scanner.currentPosition = this.index;
 			if (readToken() == TerminalTokens.TokenNameIdentifier) {
-				this.currentTokenType = -1; // do not update line end
+				consumeToken();
 				try {
 					if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'h', 'r', 'e', 'f'}, false) &&
 						readToken() == TerminalTokens.TokenNameEQUAL) {
-						this.currentTokenType = -1; // do not update line end
+						consumeToken();
 						if (readToken() == TerminalTokens.TokenNameStringLiteral) {
-							this.currentTokenType = -1; // do not update line end
+							consumeToken();
 							// Skip all characters after string literal until closing '>' (see bug 68726)
-							while (this.index <= this.lineEnd && readToken() != TerminalTokens.TokenNameGREATER) {
+							while (readToken() != TerminalTokens.TokenNameGREATER) {
+								if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
+									(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
+									// Reset position: we want to rescan last token
+									this.index = this.tokenPreviousPosition;
+									this.scanner.currentPosition = this.tokenPreviousPosition;
+									this.currentTokenType = -1;
+									// Signal syntax error
+									if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+										if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+									}
+									return false;
+								}
 								this.currentTokenType = -1; // do not update line end
 							}
 							if (this.currentTokenType == TerminalTokens.TokenNameGREATER) {
 								consumeToken(); // update line end as new lines are allowed in URL description
 								while (readToken() != TerminalTokens.TokenNameLESS) {
-									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@') {
+									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
+										(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
 										// Reset position: we want to rescan last token
 										this.index = this.tokenPreviousPosition;
 										this.scanner.currentPosition = this.tokenPreviousPosition;
 										this.currentTokenType = -1;
 										// Signal syntax error
-										if (this.tagValue != TAG_VALUE_VALUE && this.sourceParser != null)
-											this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+										if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+											if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+										}
 										return false;
 									}
 									consumeToken();
 								}
-								this.currentTokenType = -1; // do not update line end
+								consumeToken();
 								start = this.scanner.getCurrentTokenStartPosition();
 								if (readChar() == '/') {
 									if (Character.toLowerCase(readChar()) == 'a') {
@@ -547,8 +561,9 @@ public abstract class AbstractCommentParser {
 		this.scanner.currentPosition = this.tokenPreviousPosition;
 		this.currentTokenType = -1;
 		// Signal syntax error
-		if (this.tagValue != TAG_VALUE_VALUE && this.sourceParser != null)
-			this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+		if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+		}
 		return false;
 	}
 
@@ -739,21 +754,22 @@ public abstract class AbstractCommentParser {
 						consumeToken();
 						int start = this.scanner.getCurrentTokenStartPosition();
 						if (this.tagValue == TAG_VALUE_VALUE) {
+							// String reference are not allowed for @value tag
 							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getTokenEndPosition());
-						} else {
-							// If typeRef != null we may raise a warning here to let user know there's an unused reference...
-							// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
-							if (typeRef != null) {
-								start = this.tagSourceEnd+1;
-								previousPosition = start;
-								typeRef = null;
-							}
-							// verify end line (expecting empty or end comment)
-							if (verifyEndLine(previousPosition)) {
-								return true;
-							}
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
+							return false;
 						}
+						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
+						// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
+						if (typeRef != null) {
+							start = this.tagSourceEnd+1;
+							previousPosition = start;
+							typeRef = null;
+						}
+						// verify end line
+						if (verifyEndLine(previousPosition)) {
+							return true;
+						}
+						if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						return false;
 					case TerminalTokens.TokenNameLESS : // @see "<a href="URL#Value">label</a>
 						consumeToken();
@@ -767,17 +783,17 @@ public abstract class AbstractCommentParser {
 								previousPosition = start;
 								typeRef = null;
 							}
-							// verify end line (expecting empty or end comment)
-							if (verifyEndLine(previousPosition)) {
-								return true;
+							if (this.tagValue == TAG_VALUE_VALUE) {
+								// String reference are not allowed for @value tag
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition());
+								return false;
 							}
-							if (this.tagValue != TAG_VALUE_VALUE && this.sourceParser != null) {
-//								this.sourceParser.problemReporter().javadocInvalidReference(start, this.lineEnd);
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
-							}
+							// verify end line
+							if (verifyEndLine(previousPosition)) return true;
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						}
-						if (this.tagValue == TAG_VALUE_VALUE && this.sourceParser != null) {
-							this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition());
+						else if (this.tagValue == TAG_VALUE_VALUE) {
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition());
 						}
 						return false;
 					case TerminalTokens.TokenNameERROR :
@@ -1144,6 +1160,19 @@ public abstract class AbstractCommentParser {
 	 * Note that end of comment may be preceeding by several contiguous '*' chars.
 	 */
 	private boolean verifyEndLine(int textPosition) {
+		// Special case for inline tag
+		if (this.inlineTagStarted) {
+			// expecting closing brace
+			if (peekChar() == '}') {
+				if (this.kind == DOM_PARSER) {
+					createTag();
+					pushText(textPosition, this.starPosition);
+				}
+				return true;
+			}
+			return false;
+		}
+		
 		int startPosition = this.index;
 		int previousPosition = this.index;
 		this.starPosition = -1;
