@@ -252,7 +252,7 @@ public class OR_OR_Expression extends BinaryExpression {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
-				left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, true);
+				left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, true); // need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
 				right.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
@@ -269,7 +269,7 @@ public class OR_OR_Expression extends BinaryExpression {
 					codeStream,
 					internalTrueLabel,
 					null,
-					true);
+					true);// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}

@@ -1180,12 +1180,14 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
+					Label internalTrueLabel = new Label(codeStream);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
 						trueLabel,
 						falseLabel,
 						false);
+					internalTrueLabel.place();
 					if (valueRequired) {
 						if ((bits & OnlyValueRequiredMASK) != 0) {
 							codeStream.iconst_0();
@@ -1222,12 +1224,14 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 				} else {
 					// x & <something equivalent to false>
+					Label internalTrueLabel = new Label(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
-						trueLabel,
+						internalTrueLabel,
 						falseLabel,
 						false);
+					internalTrueLabel.place();
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1296,12 +1300,14 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
+					Label internalFalseLabel = new Label(codeStream);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
 						trueLabel,
-						falseLabel,
+						internalFalseLabel,
 						false);
+					internalFalseLabel.place();
 					if (valueRequired) {
 						if ((bits & OnlyValueRequiredMASK) != 0) {
 							codeStream.iconst_1();
@@ -1337,12 +1343,14 @@ public class BinaryExpression extends OperatorExpression {
 			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x | <something equivalent to true>
+					Label internalFalseLabel = new Label(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
 						trueLabel,
-						falseLabel,
+						internalFalseLabel,
 						false);
+					internalFalseLabel.place();
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,

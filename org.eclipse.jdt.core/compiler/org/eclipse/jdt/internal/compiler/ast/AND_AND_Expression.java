@@ -259,7 +259,7 @@ public class AND_AND_Expression extends BinaryExpression {
 					codeStream,
 					null,
 					internalFalseLabel,
-					true);
+					true); // need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}
@@ -274,7 +274,7 @@ public class AND_AND_Expression extends BinaryExpression {
 		} else {
 			// implicit falling through the TRUE case
 			if (trueLabel == null) {
-				left.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, true);
+				left.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, true); // need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}
