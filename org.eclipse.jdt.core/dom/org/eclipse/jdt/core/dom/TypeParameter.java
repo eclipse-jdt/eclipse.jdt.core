@@ -20,27 +20,19 @@ import java.util.List;
  * TypeParameter:
  *    TypeVariable [ <b>extends</b> Type { <b>&</b> Type } ]
  * </pre>
- * <p>
- * Note: This API element is only needed for dealing with Java code that uses
- * new language features of J2SE 1.5. It is included in anticipation of J2SE
- * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
- * may change slightly before reaching its final form.
- * </p>
  * 
- * @since 3.0
+ * @since 3.1
  */
 public class TypeParameter extends ASTNode {
 	
 	/**
 	 * The "name" structural property of this node type.
-	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(TypeParameter.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeBounds" structural property of this node type.
-	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor TYPE_BOUNDS_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeParameter.class, "typeBounds", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -69,7 +61,6 @@ public class TypeParameter extends ASTNode {
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -205,7 +196,6 @@ public class TypeParameter extends ASTNode {
 	 * 
 	 * @return the binding, or <code>null</code> if the binding cannot be 
 	 *    resolved
-	 * @since 3.1
 	 */	
 	public final ITypeBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveTypeParameter(this);

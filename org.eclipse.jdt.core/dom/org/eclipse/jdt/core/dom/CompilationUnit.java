@@ -348,7 +348,7 @@ public class CompilationUnit extends ASTNode {
 	 * compilation unit, in order of appearance.
      * <p>
      * Note that in JLS3, the types may include both enum declarations
-     * and annotation type declarations introduced in J2SE 1.5.
+     * and annotation type declarations introduced in J2SE 5.
      * For JLS2, the elements are always <code>TypeDeclaration</code>.
      * </p>
 	 * 

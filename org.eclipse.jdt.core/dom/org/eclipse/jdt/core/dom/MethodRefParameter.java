@@ -73,7 +73,7 @@ public class MethodRefParameter extends ASTNode {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 		
@@ -102,7 +102,7 @@ public class MethodRefParameter extends ASTNode {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;

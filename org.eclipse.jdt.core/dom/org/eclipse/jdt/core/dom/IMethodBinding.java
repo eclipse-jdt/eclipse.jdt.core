@@ -138,15 +138,11 @@ public interface IMethodBinding extends IBinding {
 	 * parameters (they instead have non-empty type arguments
 	 * and non-trivial erasure).
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the list of binding for the type variables for the type
 	 * parameters of this method, or otherwise the empty list
 	 * @see ITypeBinding#isTypeVariable()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeParameters();
 	
@@ -166,10 +162,6 @@ public interface IMethodBinding extends IBinding {
 	 * {@link #isParameterizedMethod()},
 	 * and {@link #isRawMethod()} are mutually exclusive.
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features of the 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this method binding represents a 
 	 * declaration of a generic method, and <code>false</code> otherwise
@@ -185,10 +177,6 @@ public interface IMethodBinding extends IBinding {
 	 * Note that {@link #isGenericMethod()},
 	 * {@link #isParameterizedMethod()},
 	 * and {@link #isRawMethod()} are mutually exclusive.
-	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this method binding represents a 
@@ -210,10 +198,6 @@ public interface IMethodBinding extends IBinding {
 	 * which only occur on the method binding corresponding directly to the
 	 * declaration of a generic method.
 	 * </p> 
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic method, or otherwise the empty list
@@ -237,10 +221,6 @@ public interface IMethodBinding extends IBinding {
 	 * and raw methods ({@link #isRawMethod()}), this method returns the binding
 	 * for the corresponding generic method. For other method bindings, this
 	 * returns the same binding.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the method binding
 	 * @since 3.1
@@ -261,10 +241,6 @@ public interface IMethodBinding extends IBinding {
 	 * Note that {@link #isGenericMethod()},
 	 * {@link #isParameterizedMethod()},
 	 * and {@link #isRawMethod()} are mutually exclusive.
-	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this method binding represents a 

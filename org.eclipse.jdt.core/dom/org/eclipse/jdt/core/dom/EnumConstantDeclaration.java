@@ -35,14 +35,8 @@ import java.util.List;
  * arguments and no class body declarations, the source range extends through
  * the last character of the identifier.
  * </p>
- * <p>
- * Note: This API element is only needed for dealing with Java code that uses
- * new language features of J2SE 1.5. It is included in anticipation of J2SE
- * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
- * may change slightly before reaching its final form.
- * </p>
  * 
- * @since 3.0
+ * @since 3.1
  */
 public class EnumConstantDeclaration extends BodyDeclaration {
 	
@@ -80,7 +74,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	
 	/**
 	 * The "anonymousClassDeclaration" structural property of this node type.
-	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor ANONYMOUS_CLASS_DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(EnumConstantDeclaration.class, "anonymousClassDeclaration", AnonymousClassDeclaration.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
@@ -143,7 +136,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/**
 	 * The optional anonymous class declaration; <code>null</code> for none; 
 	 * defaults to none.
-	 * @since 3.1
 	 */
 	private AnonymousClassDeclaration optionalAnonymousClassDeclaration = null;
 	
@@ -373,7 +365,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * enum constant declaration, if it has one.
 	 * 
 	 * @return the anonymous class declaration, or <code>null</code> if none
-	 * @since 3.1
 	 */ 
 	public AnonymousClassDeclaration getAnonymousClassDeclaration() {
 		return this.optionalAnonymousClassDeclaration;
@@ -385,7 +376,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * 
 	 * @param decl the anonymous class declaration, or <code>null</code> 
 	 *    if none
-	 * @since 3.1
 	 */ 
 	public void setAnonymousClassDeclaration(AnonymousClassDeclaration decl) {
 		ASTNode oldChild = this.optionalAnonymousClassDeclaration;
@@ -404,7 +394,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the constructor binding, or <code>null</code> if the binding
 	 *    cannot be resolved
-	 * @since 3.1
 	 */	
 	public IMethodBinding resolveConstructorBinding() {
 		return this.ast.getBindingResolver().resolveConstructor(this);

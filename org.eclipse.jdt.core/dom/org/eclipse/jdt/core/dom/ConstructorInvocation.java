@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public class ConstructorInvocation extends Statement {
 	
 	/**
 	 * The "typeArguments" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
 		new ChildListPropertyDescriptor(ConstructorInvocation.class, "typeArguments", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -58,7 +58,7 @@ public class ConstructorInvocation extends Statement {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -87,7 +87,7 @@ public class ConstructorInvocation extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -98,7 +98,7 @@ public class ConstructorInvocation extends Statement {
 	 * The type arguments (element type: <code>Type</code>). 
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private ASTNode.NodeList typeArguments = null;
 
@@ -189,18 +189,12 @@ public class ConstructorInvocation extends Statement {
 	/**
 	 * Returns the live ordered list of type arguments of this constructor
 	 * invocation (added in JLS3 API).
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @return the live list of type arguments
 	 *    (element type: <code>Type</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public List typeArguments() {
 		// more efficient than just calling unsupportedIn2() to check

@@ -63,6 +63,13 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  */
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
+	/**
+	 * Internal synonynm for deprecated constant AST.JLS2
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
+	
 	TextEdit currentEdit;
 	final RewriteEventStore eventStore; // used from inner classes
 	
@@ -1329,7 +1336,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		int pos= rewriteJavadoc(node, TypeDeclaration.JAVADOC_PROPERTY);
 		
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == JLS2_INTERNAL) {
 			rewriteModifiers(node, TypeDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, TypeDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -1362,7 +1369,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		// superclass
 		if (!isInterface || invertType) {
-			ChildPropertyDescriptor superClassProperty= (apiLevel == AST.JLS2) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
+			ChildPropertyDescriptor superClassProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
 
 			RewriteEvent superClassEvent= getEvent(node, superClassProperty);
 			
@@ -1396,7 +1403,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 		// extended interfaces
-		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == AST.JLS2) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
+		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 
 		RewriteEvent interfaceEvent= getEvent(node, superInterfaceProperty);
 		if (interfaceEvent == null || interfaceEvent.getChangeKind() == RewriteEvent.UNCHANGED) {
@@ -1436,7 +1443,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	private void rewriteReturnType(MethodDeclaration node, boolean isConstructor, boolean isConstructorChange) {
-		ChildPropertyDescriptor property= (node.getAST().apiLevel() == AST.JLS2) ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY;
+		ChildPropertyDescriptor property= (node.getAST().apiLevel() == JLS2_INTERNAL) ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY;
 
 		// weakness in the AST: return type can exist, even if missing in source
 		ASTNode originalReturnType= (ASTNode) getOriginalValue(node, property);
@@ -1471,7 +1478,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= rewriteJavadoc(node, MethodDeclaration.JAVADOC_PROPERTY);
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, MethodDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			pos= rewriteModifiers2(node, MethodDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -1829,7 +1836,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		
 		int pos= rewriteOptionalQualifier(node, ClassInstanceCreation.EXPRESSION_PROPERTY, node.getStartPosition());
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			pos= rewriteRequiredNode(node, ClassInstanceCreation.NAME_PROPERTY);
 		} else {
 			if (isChanged(node, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY)) {
@@ -1995,7 +2002,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		int pos= rewriteJavadoc(node, FieldDeclaration.JAVADOC_PROPERTY);
 
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, FieldDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, FieldDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -2208,7 +2215,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= rewriteJavadoc(node, Initializer.JAVADOC_PROPERTY);
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, Initializer.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, Initializer.MODIFIERS2_PROPERTY, pos);
@@ -2424,7 +2431,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, SingleVariableDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -2686,7 +2693,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteRequiredNode(node, TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY);	
 		} else {
 			rewriteRequiredNode(node, TypeDeclarationStatement.DECLARATION_PROPERTY);	
@@ -2716,7 +2723,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		// same code as FieldDeclaration
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, VariableDeclarationExpression.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, pos);
@@ -2764,7 +2771,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		// same code as FieldDeclaration
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			rewriteModifiers(node, VariableDeclarationStatement.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, pos);

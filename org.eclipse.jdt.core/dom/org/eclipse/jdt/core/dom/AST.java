@@ -95,10 +95,17 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
+	 * @deprecated Clients should use the {@link #JLS3} AST API instead.
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should use the JLS3 API.
 	public static final int JLS2 = 2;
 	
+	/**
+	 * Internal synonym for {@link #JLS2}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ static final int JLS2_INTERNAL = JLS2;
+
 	/**
 	 * Constant for indicating the AST API that handles JLS3.
 	 * This API is capable of handling all constructs in the
@@ -107,15 +114,9 @@ public final class AST {
      * JLS3 is a superset of all earlier versions of the
      * Java language, and the JLS3 API can be used to manipulate
      * programs written in all versions of the Java language
-     * up to and including J2SE 1.5.
-     * <p>
-     * <b>NOTE:</b>In Eclipse 3.0, there is no underlying parser support for
-     * JLS3 ASTs. This support is planned for the follow-on release of
-     * Eclipse which includes support for J2SE 1.5. Without a parser to create
-     * JLS3 ASTs, they are not much use. Use JLS2 ASTs instead.
-     * </p>
+     * up to and including J2SE 5 (aka JDK 1.5). 
      *
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int JLS3 = 3;
 	
@@ -215,8 +216,9 @@ public final class AST {
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
 	 * @see JavaCore#getDefaultOptions()
+	 * @deprecated Clients should port their code to use the new JLS3 AST API and call
+	 *    {@link #newAST(int) AST.newAST(AST.JLS3)} instead of using this constructor.
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -282,8 +284,9 @@ public final class AST {
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
+	 * @deprecated Clients should port their code to use the new JLS3 AST API and call
+	 *    {@link #newAST(int) AST.newAST(AST.JLS3)} instead of using this constructor.
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(JLS2);
 		Object sourceLevelOption = options.get(JavaCore.COMPILER_SOURCE);
@@ -308,8 +311,8 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules. 
      * <p>
-     * Clients should use this method. It is provided only so that
-     * test suites can create AST instances that employ the JLS2 APIs.
+     * Clients should use this method specifing {@link #JLS3} as the
+     * AST level in all cases, even when dealing with JDK 1.3 or 1.4..
      * </p>
      * 
  	 * @param level the API level; one of the LEVEL constants
@@ -1447,7 +1450,7 @@ public final class AST {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ParameterizedType newParameterizedType(Type type) {
 		ParameterizedType result = new ParameterizedType(this);
@@ -1469,7 +1472,7 @@ public final class AST {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public QualifiedType newQualifiedType(Type qualifier, SimpleName name) {
 		QualifiedType result = new QualifiedType(this);
@@ -1485,7 +1488,7 @@ public final class AST {
 	 * @return a new unparented wildcard type node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public WildcardType newWildcardType() {
 		WildcardType result = new WildcardType(this);
@@ -1621,7 +1624,7 @@ public final class AST {
 	 * @return a new unparented enum constant declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public EnumConstantDeclaration newEnumConstantDeclaration() {
 		EnumConstantDeclaration result = new EnumConstantDeclaration(this);
@@ -1638,7 +1641,7 @@ public final class AST {
 	 * @return a new unparented enum declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public EnumDeclaration newEnumDeclaration() {
 		EnumDeclaration result = new EnumDeclaration(this);
@@ -1652,7 +1655,7 @@ public final class AST {
 	 * @return a new unparented type parameter node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public TypeParameter newTypeParameter() {
 		TypeParameter result = new TypeParameter(this);
@@ -1667,7 +1670,7 @@ public final class AST {
 	 * @return a new unparented annotation type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public AnnotationTypeDeclaration newAnnotationTypeDeclaration() {
 		AnnotationTypeDeclaration result = new AnnotationTypeDeclaration(this);
@@ -1683,7 +1686,7 @@ public final class AST {
 	 * @return a new unparented annotation type member declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public AnnotationTypeMemberDeclaration newAnnotationTypeMemberDeclaration() {
 		AnnotationTypeMemberDeclaration result = new AnnotationTypeMemberDeclaration(this);
@@ -1699,7 +1702,7 @@ public final class AST {
 	 * @exception IllegalArgumentException if the primitive type code is invalid
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
 		Modifier result = new Modifier(this);
@@ -1980,7 +1983,7 @@ public final class AST {
 			newTypeDeclarationStatement(AbstractTypeDeclaration decl) {
 		TypeDeclarationStatement result = new TypeDeclarationStatement(this);
 		if (this.apiLevel == AST.JLS2) {
-			result.setTypeDeclaration((TypeDeclaration) decl);
+			result.internalSetTypeDeclaration((TypeDeclaration) decl);
 		}
 		if (this.apiLevel >= AST.JLS3) {
 			result.setDeclaration(decl);
@@ -2200,7 +2203,7 @@ public final class AST {
 	 * @return a new unparented throw statement node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public EnhancedForStatement newEnhancedForStatement() {
 		return new EnhancedForStatement(this);
@@ -2660,7 +2663,7 @@ public final class AST {
 	 * @return a new unparented normal annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public NormalAnnotation newNormalAnnotation() {
 		NormalAnnotation result = new NormalAnnotation(this);
@@ -2674,7 +2677,7 @@ public final class AST {
 	 * @return a new unparented marker annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public MarkerAnnotation newMarkerAnnotation() {
 		MarkerAnnotation result = new MarkerAnnotation(this);
@@ -2688,7 +2691,7 @@ public final class AST {
 	 * @return a new unparented single member annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public SingleMemberAnnotation newSingleMemberAnnotation() {
 		SingleMemberAnnotation result = new SingleMemberAnnotation(this);
@@ -2702,7 +2705,7 @@ public final class AST {
 	 * @return a new unparented member value pair node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public MemberValuePair newMemberValuePair() {
 		MemberValuePair result = new MemberValuePair(this);

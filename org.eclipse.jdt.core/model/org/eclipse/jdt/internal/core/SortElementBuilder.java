@@ -39,6 +39,12 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * @since 2.1
  */
 public class SortElementBuilder extends SourceElementRequestorAdapter {
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL2
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
 
 	abstract class SortElement extends SortJavaElement {
 		SortElement(int sourceStart, int modifiers) {
@@ -932,7 +938,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		this.source = source;
 		this.comparator = comparator;
 		this.positionsToMap = positionsToMap;
-		this.ast = AST.newAST(AST.JLS2);
+		this.ast = AST.newAST(JLS2_INTERNAL);
 		this.scanner = new Scanner(false, false, false, options.sourceLevel/*sourceLevel*/, null, null, true/*taskCaseSensitive*/);
 	}
 	

@@ -41,7 +41,7 @@ import java.util.List;
  * became possible as of JLS3; only the second form existed in JLS2 API.)
  * </p>
  * 
- * @since 3.0
+ * @since 3.1
  */
 public class QualifiedType extends Type {
     /**
@@ -51,14 +51,12 @@ public class QualifiedType extends Type {
 	
 	/**
 	 * The "qualifier" structural property of this node type.
-	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
 		new ChildPropertyDescriptor(QualifiedType.class, "qualifier", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "name" structural property of this node type.
-	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(QualifiedType.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -86,7 +84,6 @@ public class QualifiedType extends Type {
 	 * <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;

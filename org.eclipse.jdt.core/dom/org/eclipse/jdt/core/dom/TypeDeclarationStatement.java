@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,13 +43,12 @@ public class TypeDeclarationStatement extends Statement {
 	 * The "typeDeclaration" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #DECLARATION_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "declaration" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "declaration", AbstractTypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
@@ -66,7 +65,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -94,7 +93,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -197,7 +196,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * statement (added in JLS3 API).
 	 * 
 	 * @return the type declaration node
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public AbstractTypeDeclaration getDeclaration() {
 		if (this.typeDecl == null) {
@@ -224,7 +223,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public void setDeclaration(AbstractTypeDeclaration decl) {
 		if (decl == null) {
@@ -245,10 +244,21 @@ public class TypeDeclarationStatement extends Statement {
 	 * @return the type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+	 * @deprecated In the JLS3 API, this method is replaced by 
+	 * {@link #getDeclaration()}, which returns <code>AbstractTypeDeclaration</code>
+	 * instead of <code>TypeDeclaration</code>.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public TypeDeclaration getTypeDeclaration() {
-	    supportedOnlyIn2();
+		return internalGetTypeDeclaration();
+	}
+	
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ final TypeDeclaration internalGetTypeDeclaration() {
+		supportedOnlyIn2();
 		return (TypeDeclaration) getDeclaration();
 	}
 		
@@ -265,9 +275,21 @@ public class TypeDeclarationStatement extends Statement {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+     * @deprecated In the JLS3 API, this method is replaced by 
+     * {@link #setDeclaration(AbstractTypeDeclaration)} which takes
+     * <code>AbstractTypeDeclaration</code> instead of
+     * <code>TypeDeclaration</code>.
 	 */ 
-    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public void setTypeDeclaration(TypeDeclaration decl) {
+		internalSetTypeDeclaration(decl);
+	}
+	
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ final void internalSetTypeDeclaration(TypeDeclaration decl) {
 	    supportedOnlyIn2();
 		// forward to non-deprecated replacement method
 		setDeclaration(decl);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -231,16 +231,26 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 * @see Modifier
+	 * @deprecated In the JLS3 API, this method is replaced by 
+	 * {@link #modifiers()} which contains a list of a <code>Modifier</code> nodes.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
+		internalSetModifiers(modifiers);
+	}
+	
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ final void internalSetModifiers(int pmodifiers) {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.modifiers != null) {
 			supportedOnlyIn2();
 		}
 		SimplePropertyDescriptor p = internalModifiersProperty();
 		preValueChange(p);
-		this.modifierFlags = modifiers;
+		this.modifierFlags = pmodifiers;
 		postValueChange(p);
 	}
 
@@ -252,7 +262,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public List modifiers() {
 		// more efficient than just calling unsupportedIn2() to check

@@ -172,7 +172,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(AnnotationTypeDeclaration node, Object other) {
 		if (!(other instanceof AnnotationTypeDeclaration)) {
@@ -199,7 +199,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(AnnotationTypeMemberDeclaration node, Object other) {
 		if (!(other instanceof AnnotationTypeMemberDeclaration)) {
@@ -561,8 +561,8 @@ public class ASTMatcher {
 		}
 		ClassInstanceCreation o = (ClassInstanceCreation) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
-			if (!safeSubtreeMatch(node.getName(), o.getName())) {
+		if (level == AST.JLS2_INTERNAL) {
+			if (!safeSubtreeMatch(node.internalGetName(), o.internalGetName())) {
 				return false;
 			}
 		}
@@ -739,7 +739,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(EnhancedForStatement node, Object other) {
 		if (!(other instanceof EnhancedForStatement)) {
@@ -759,19 +759,13 @@ public class ASTMatcher {
 	 * other object is a node of the same type with structurally isomorphic
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(EnumConstantDeclaration node, Object other) {
 		if (!(other instanceof EnumConstantDeclaration)) {
@@ -804,7 +798,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(EnumDeclaration node, Object other) {
 		if (!(other instanceof EnumDeclaration)) {
@@ -888,7 +882,7 @@ public class ASTMatcher {
 		}
 		FieldDeclaration o = (FieldDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -1062,7 +1056,7 @@ public class ASTMatcher {
 		}
 		Initializer o = (Initializer) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -1122,7 +1116,7 @@ public class ASTMatcher {
 	 * @deprecated mark deprecated to hide deprecated usage
 	 */
 	private boolean compareDeprecatedComment(Javadoc first, Javadoc second) {
-		if (first.getAST().apiLevel == AST.JLS2) {
+		if (first.getAST().apiLevel == AST.JLS2_INTERNAL) {
 			return safeEquals(first.getComment(), second.getComment());
 		} else {
 			return true;
@@ -1193,7 +1187,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(MarkerAnnotation node, Object other) {
 		if (!(other instanceof MarkerAnnotation)) {
@@ -1241,7 +1235,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(MemberValuePair node, Object other) {
 		if (!(other instanceof MemberValuePair)) {
@@ -1337,11 +1331,11 @@ public class ASTMatcher {
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
-			if (!safeSubtreeMatch(node.getReturnType(), o.getReturnType())) {
+			if (!safeSubtreeMatch(node.internalGetReturnType(), o.internalGetReturnType())) {
 				return false;
 			}
 		}
@@ -1410,7 +1404,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(Modifier node, Object other) {
 		if (!(other instanceof Modifier)) {
@@ -1433,7 +1427,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(NormalAnnotation node, Object other) {
 		if (!(other instanceof NormalAnnotation)) {
@@ -1530,7 +1524,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(ParameterizedType node, Object other) {
 		if (!(other instanceof ParameterizedType)) {
@@ -1670,7 +1664,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(QualifiedType node, Object other) {
 		if (!(other instanceof QualifiedType)) {
@@ -1761,7 +1755,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(SingleMemberAnnotation node, Object other) {
 		if (!(other instanceof SingleMemberAnnotation)) {
@@ -1796,7 +1790,7 @@ public class ASTMatcher {
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -2128,14 +2122,14 @@ public class ASTMatcher {
 		}
 		TypeDeclaration o = (TypeDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
-			if (!safeSubtreeMatch(node.getSuperclass(), o.getSuperclass())) {
+			if (!safeSubtreeMatch(node.internalGetSuperclass(), o.internalGetSuperclass())) {
 				return false;
 			}
-			if (!safeSubtreeListMatch(node.superInterfaces(), o.superInterfaces())) {
+			if (!safeSubtreeListMatch(node.internalSuperInterfaces(), o.internalSuperInterfaces())) {
 				return false;
 			}
 		}
@@ -2217,7 +2211,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(TypeParameter node, Object other) {
 		if (!(other instanceof TypeParameter)) {
@@ -2248,7 +2242,7 @@ public class ASTMatcher {
 		}
 		VariableDeclarationExpression o = (VariableDeclarationExpression) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -2310,7 +2304,7 @@ public class ASTMatcher {
 		}
 		VariableDeclarationStatement o = (VariableDeclarationStatement) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2) {
+		if (level == AST.JLS2_INTERNAL) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
 			}
@@ -2361,7 +2355,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean match(WildcardType node, Object other) {
 		if (!(other instanceof WildcardType)) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
@@ -38,14 +37,8 @@ import java.util.List;
  * modifiers or annotations). The source range extends through the last
  * character of the "}" token following the body declarations.
  * </p>
- * <p>
- * Note: This API element is only needed for dealing with Java code that uses
- * new language features of J2SE 1.5. It is included in anticipation of J2SE
- * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
- * may change slightly before reaching its final form.
- * </p>
  * 
- * @since 3.0
+ * @since 3.1
  */
 public class EnumDeclaration extends AbstractTypeDeclaration {
 	
@@ -75,7 +68,6 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * The "enumConstants" structural property of this node type.
-	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor ENUM_CONSTANTS_PROPERTY = 
 		new ChildListPropertyDescriptor(EnumDeclaration.class, "enumConstants", EnumConstantDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
@@ -130,7 +122,6 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 * The enum constant declarations
 	 * (element type: <code>EnumConstantDeclaration</code>).
 	 * Defaults to an empty list.
-	 * @since 3.1
 	 */
 	private ASTNode.NodeList enumConstants = 
 		new ASTNode.NodeList(ENUM_CONSTANTS_PROPERTY);
@@ -308,7 +299,6 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 * 
 	 * @return the live list of enum constant declarations
 	 *    (element type: {@link EnumConstantDeclaration})
-	 * @since 3.1
 	 */ 
 	public List enumConstants() {
 		return enumConstants;

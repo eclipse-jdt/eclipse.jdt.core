@@ -40,10 +40,6 @@ package org.eclipse.jdt.core.dom;
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
- * <p>
- * Note: Support for new language features proposed for the upcoming 1.5
- * release of J2SE is tentative and subject to change.
- * </p>
  * 
  * @see ITypeBinding#getDeclaredTypes()
  * @since 2.0
@@ -165,14 +161,10 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns whether this type binding represents an enum type.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents an enum type,
 	 *    and <code>false</code> otherwise
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isEnum();
 	
@@ -181,14 +173,10 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * Note that an annotation type is always an interface.
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents an annotation type,
 	 *    and <code>false</code> otherwise
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isAnnotation();
 	
@@ -201,15 +189,11 @@ public interface ITypeBinding extends IBinding {
 	 * type do not carry type parameters (they instead have non-empty type arguments
 	 * and non-trivial erasure).
 	 * </p> 
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the list of binding for the type variables for the type
 	 * parameters of this type, or otherwise the empty list
 	 * @see #isTypeVariable()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	// TODO (jeem) - clarify whether binding for a generic type instance carries a copy of the generic type's type parameters as well as type arguments
 	public ITypeBinding[] getTypeParameters();
@@ -230,10 +214,6 @@ public interface ITypeBinding extends IBinding {
 	 * {@link #isParameterizedType()},
 	 * and {@link #isRawType()} are mutually exclusive.
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features of the 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this type binding represents a 
 	 * declaration of a generic class or interface, and <code>false</code> otherwise
@@ -245,30 +225,22 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns whether this type binding represents a type variable.
 	 * Type variables bindings carry the type variable's bounds.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 * 
 	 * @return <code>true</code> if this type binding is for a type variable,
 	 *   and <code>false</code> otherwise
 	 * @see #getName()
 	 * @see #getTypeBounds()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isTypeVariable();
 	
 	/**
 	 * Returns the type bounds of this type variable.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the list of type bindings for this type variable, or otherwise
 	 * the empty list
 	 * @see #isTypeVariable()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeBounds();
 	
@@ -292,7 +264,7 @@ public interface ITypeBinding extends IBinding {
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getTypeArguments()
 	 * @see #getGenericType()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isParameterizedType();
 	
@@ -308,10 +280,6 @@ public interface ITypeBinding extends IBinding {
 	 * type binding corresponding directly to the declaration of the 
 	 * generic class or interface (e.g., <code>Collection&lt;T&gt;</code>).
 	 * </p> 
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic type, or otherwise the empty list
@@ -319,7 +287,7 @@ public interface ITypeBinding extends IBinding {
 	 * @see #isGenericType()
 	 * @see #isParameterizedType()
 	 * @see #isRawType()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeArguments();
 	
@@ -339,13 +307,9 @@ public interface ITypeBinding extends IBinding {
 	 * if it has bounds and java.lang.Object if it does not.</li>
 	 * <li>For all other type bindings - returns the identical binding.</li>
 	 * </ul>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the erasure type binding
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ITypeBinding getErasure();
 	
@@ -362,10 +326,6 @@ public interface ITypeBinding extends IBinding {
 	 * and raw types ({@link #isRawType()}), this method returns the binding
 	 * for the corresponding generic type. For other type bindings, this
 	 * returns the same binding.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return the type binding
 	 * @since 3.1
@@ -390,17 +350,13 @@ public interface ITypeBinding extends IBinding {
 	 * {@link #isParameterizedType()},
 	 * and {@link #isRawType()} are mutually exclusive.
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this type binding represents a 
 	 * an instance of a generic type corresponding to a raw
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getGenericType()
 	 * @see #getTypeArguments()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isRawType();
 	
@@ -413,14 +369,10 @@ public interface ITypeBinding extends IBinding {
 	 * parameterized type binding whose type argument is a wildcard type
 	 * with upper type bound <code>java.util.Object/code>.
 	 * </p>
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents a wildcard type,
 	 *    and <code>false</code> otherwise
-	 * @since 3.0
+	 * @since 3.1
 	 * @see #getBound()
 	 * @see #isUpperbound()
 	 */
@@ -429,15 +381,11 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the bound of this wildcard type if it has one.
 	 * Returns <code>null</code> if this is not a wildcard type.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 * 
 	 * @return the bound of this wildcard type, or <code>null</code> if none
 	 * @see #isWildcardType()
 	 * @see #isUpperbound()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public ITypeBinding getBound();
 	
@@ -446,16 +394,12 @@ public interface ITypeBinding extends IBinding {
 	 * ("extends") as opposed to a lower bound ("super").
 	 * Note that this property is only relevant for wildcards
 	 * that have a bound.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
 	 *
 	 * @return <code>true</code> if this wildcard type has a bound that is
 	 * an upper bound, and <code>false</code> in all other cases
 	 * @see #isWildcardType()
 	 * @see #getBound()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean isUpperbound();
 	

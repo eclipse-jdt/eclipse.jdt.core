@@ -32,6 +32,12 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see ICompilationUnit
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL2
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
 	
 	protected String name;
 	public WorkingCopyOwner owner;
@@ -1068,16 +1074,16 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
 	boolean createAST = false;
-	if (astLevel == AST.JLS2) {
-		// client asking for level 2 AST; these are supported
-		createAST = true;
-	} else if (astLevel == AST.JLS3) {
-		// client asking for level 3 ASTs; these are supported
-		createAST = true;
-	} else {
-		// client asking for no AST (0) or unknown ast level
-		// either way, request denied
-		createAST = false;
+	switch(astLevel) {
+		case JLS2_INTERNAL :
+		case AST.JLS3 :
+			// client asking for level 2 or level 3 ASTs; these are supported
+			createAST = true;
+			break;
+		default:
+			// client asking for no AST (0) or unknown ast level
+			// either way, request denied
+			createAST = false;
 	}
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);

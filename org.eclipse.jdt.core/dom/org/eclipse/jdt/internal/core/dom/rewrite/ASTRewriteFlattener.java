@@ -16,6 +16,13 @@ import org.eclipse.jdt.core.dom.*;
 
 public class ASTRewriteFlattener extends ASTVisitor {
 	
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL2
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
+	
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -315,7 +322,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append('.');
 		}
 		this.result.append("new ");//$NON-NLS-1$
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			getChildNode(node, ClassInstanceCreation.NAME_PROPERTY).accept(this);
 		} else {
 			visitList(node, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
@@ -431,7 +438,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, FieldDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, FieldDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -535,7 +542,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, Initializer.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, Initializer.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -576,7 +583,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, MethodDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, MethodDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -584,7 +591,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 				
 		if (!getBooleanAttribute(node, MethodDeclaration.CONSTRUCTOR_PROPERTY)) {
-			if (node.getAST().apiLevel() == AST.JLS2) {
+			if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 				getChildNode(node, MethodDeclaration.RETURN_TYPE_PROPERTY).accept(this);
 			} else {
 				ASTNode returnType = getChildNode(node, MethodDeclaration.RETURN_TYPE2_PROPERTY);
@@ -747,7 +754,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SingleVariableDeclaration)
 	 */
 	public boolean visit(SingleVariableDeclaration node) {
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, SingleVariableDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -921,7 +928,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			javadoc.accept(this);
 		}
 
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, TypeDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, TypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -936,7 +943,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 		this.result.append(' ');
 		
-		ChildPropertyDescriptor superClassProperty= (apiLevel == AST.JLS2) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
+		ChildPropertyDescriptor superClassProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
 		ASTNode superclass= getChildNode(node, superClassProperty);
 		if (superclass != null) {
 			this.result.append("extends "); //$NON-NLS-1$
@@ -944,7 +951,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append(' ');
 		}
 		
-		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == AST.JLS2) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
+		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
 		visitList(node, superInterfaceProperty, String.valueOf(','), lead, EMPTY);
 		this.result.append('{');
@@ -957,7 +964,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(TypeDeclarationStatement)
 	 */
 	public boolean visit(TypeDeclarationStatement node) {
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			getChildNode(node, TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY).accept(this);
 		} else {
 			getChildNode(node, TypeDeclarationStatement.DECLARATION_PROPERTY).accept(this);
@@ -978,7 +985,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */
 	public boolean visit(VariableDeclarationExpression node) {
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, VariableDeclarationExpression.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
@@ -1010,7 +1017,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(VariableDeclarationStatement)
 	 */
 	public boolean visit(VariableDeclarationStatement node) {
-		if (node.getAST().apiLevel() == AST.JLS2) {
+		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, VariableDeclarationStatement.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,14 +32,14 @@ public class Javadoc extends Comment {
 	/**
 	 * The "comment" structural property of this node type (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor COMMENT_PROPERTY = 
 		new SimplePropertyDescriptor(Javadoc.class, "comment", String.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
 	 * The "tags" structural property of this node type.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TAGS_PROPERTY = 
 		new ChildListPropertyDescriptor(Javadoc.class, "tags", TagElement.class, CYCLE_RISK); //$NON-NLS-1$
@@ -57,7 +57,7 @@ public class Javadoc extends Comment {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -85,7 +85,7 @@ public class Javadoc extends Comment {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -178,7 +178,7 @@ public class Javadoc extends Comment {
 	ASTNode clone0(AST target) {
 		Javadoc result = new Javadoc(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.JLS2) {
+		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 			result.setComment(getComment());
 		}
 		result.tags().addAll(ASTNode.copySubtrees(target, tags()));

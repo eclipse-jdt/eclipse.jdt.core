@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * The "typeArguments" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
 		new ChildListPropertyDescriptor(ClassInstanceCreation.class, "typeArguments", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -79,13 +79,12 @@ public class ClassInstanceCreation extends Expression {
 	 * The "name" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #TYPE_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "type" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -116,7 +115,7 @@ public class ClassInstanceCreation extends Expression {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -151,7 +150,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -167,7 +166,7 @@ public class ClassInstanceCreation extends Expression {
 	 * The type arguments (element type: <code>Type</code>). 
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private ASTNode.NodeList typeArguments = null;
 
@@ -294,7 +293,7 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		if (this.ast.apiLevel == AST.JLS2) {
+		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 			result.setName((Name) getName().clone(target));
 		}
 		if (this.ast.apiLevel >= AST.JLS3) {
@@ -324,7 +323,7 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			if (this.ast.apiLevel == AST.JLS2) {
+			if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 				acceptChild(visitor, getName());
 			}
 			if (this.ast.apiLevel >= AST.JLS3) {
@@ -371,18 +370,12 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * Returns the live ordered list of type arguments of this class
 	 * instance creation (added in JLS3 API).
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @return the live list of type arguments
 	 *    (element type: <code>Type</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public List typeArguments() {
 		// more efficient than just calling unsupportedIn2() to check
@@ -399,9 +392,20 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the type name node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+	 * @deprecated In the JLS3 API, this method is replaced by
+	 * {@link #getType()}, which returns a <code>Type</code> instead of a
+	 * <code>Name</code>.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
+		return internalGetName();
+	}
+
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ Name internalGetName() {
 	    supportedOnlyIn2();
 		if (this.typeName == null) {
 			// lazy init must be thread-safe for readers
@@ -428,9 +432,20 @@ public class ClassInstanceCreation extends Expression {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+	 * @deprecated In the JLS3 API, this method is replaced by 
+	 * {@link #setType(Type)}, which expects a <code>Type</code> instead of
+	 * a <code>Name</code>.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setName(Name name) {
+		internalSetName(name);
+	}
+
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ public void internalSetName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {
 			throw new IllegalArgumentException();
@@ -448,7 +463,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the type node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public Type getType() {
 	    unsupportedIn2();
@@ -477,7 +492,7 @@ public class ClassInstanceCreation extends Expression {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public void setType(Type type) {
 	    unsupportedIn2();

@@ -41,13 +41,12 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
 	 * The "modifiers" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
@@ -68,7 +67,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
 	 * The "varargs" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final SimplePropertyDescriptor VARARGS_PROPERTY = 
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
@@ -99,7 +98,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -135,7 +134,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -147,7 +146,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * 
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private ASTNode.NodeList modifiers = null;
 	
@@ -173,7 +172,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Indicates the last parameter of a variable arity method;
 	 * defaults to false.
 	 * 
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private boolean variableArity = false;
 
@@ -336,7 +335,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone0(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.JLS2) {
+		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 			result.setModifiers(getModifiers());
 		} else {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
@@ -387,7 +386,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public List modifiers() {
 		// more efficient than just calling unsupportedIn2() to check
@@ -439,12 +438,22 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 * @see Modifier
+	 * @deprecated In the JLS3 API, this method is replaced by 
+	 * {@link  #modifiers()} which contains a list of a <code>Modifier</code> nodes.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of  a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
+		internalSetModifiers(modifiers);
+	}
+
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ final void internalSetModifiers(int pmodifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);
-		this.modifierFlags = modifiers;
+		this.modifierFlags = pmodifiers;
 		postValueChange(MODIFIERS_PROPERTY);
 	}
 
@@ -536,7 +545,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 *    and <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public boolean isVarargs() {
 		// more efficient than just calling unsupportedIn2() to check
@@ -549,16 +558,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/**
 	 * Sets whether this declaration declares the last parameter of
 	 * a variable arity method (added in JLS3 API).
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @param variableArity <code>true</code> if this is a variable arity
 	 *    parameter declaration, and <code>false</code> otherwise
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public void setVarargs(boolean variableArity) {
 		// more efficient than just calling unsupportedIn2() to check

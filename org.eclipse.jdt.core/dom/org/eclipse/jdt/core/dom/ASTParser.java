@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser(AST.JLS2);  // handles JLS2 (J2SE 1.4)
+ * ASTParser parser = ASTParser.newParser(AST.JLS3);  // handles JDK 1.0, 1.1, 1.2, 1.3, 1.4, 1.5
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
@@ -100,11 +100,6 @@ public class ASTParser {
 	/**
 	 * Creates a new object for creating a Java abstract syntax tree
      * (AST) following the specified set of API rules.
-     * <p>
-     * <b>NOTE:</b>In Eclipse 3.0, there is no parser support for
-     * AST.JLS3. This support is planned for the follow-on release of
-     * Eclipse which includes support for J2SE 1.5.
-     * </p>
      *  
  	 * @param level the API level; one of the LEVEL constants
      * declared on <code>AST</code>
@@ -201,7 +196,7 @@ public class ASTParser {
      * declared on <code>AST</code>
 	 */
 	ASTParser(int level) {
-		if ((level != AST.JLS2)
+		if ((level != AST.JLS2_INTERNAL)
 			&& (level != AST.JLS3)) {
 			throw new IllegalArgumentException();
 		}

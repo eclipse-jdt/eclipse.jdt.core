@@ -75,13 +75,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(MethodDeclaration.class);
 	
 	/**
 	 * The "modifiers" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		internalModifiers2PropertyFactory(MethodDeclaration.class);
@@ -104,13 +103,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The "returnType" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "returnType2" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE2_PROPERTY = 
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType2", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -124,7 +122,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * The "typeParameters" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -162,7 +160,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -205,7 +203,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -242,7 +240,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * Indicated whether the return type has been initialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private boolean returnType2Initialized = false;
 	
@@ -250,7 +248,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The type paramters (element type: <code>TypeParameter</code>). 
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private ASTNode.NodeList typeParameters = null;
 
@@ -313,7 +311,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			if (get) {
 				return getModifiers();
 			} else {
-				setModifiers(value);
+				internalSetModifiers(value);
 				return 0;
 			}
 		}
@@ -449,8 +447,8 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (this.ast.apiLevel == AST.JLS2) {
-			result.setModifiers(getModifiers());
+		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
+			result.internalSetModifiers(getModifiers());
 			result.setReturnType(
 					(Type) ASTNode.copySubtree(target, getReturnType()));
 		}
@@ -489,7 +487,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (this.ast.apiLevel == AST.JLS2) {
+			if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 				acceptChild(visitor, getReturnType());
 			} else {
 				acceptChildren(visitor, this.modifiers);
@@ -530,18 +528,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the live ordered list of type parameters of this method
 	 * declaration (added in JLS3 API). This list is non-empty for parameterized methods.
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public List typeParameters() {
 		// more efficient than just calling unsupportedIn2() to check
@@ -609,19 +601,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Returns whether this method declaration declares a
 	 * variable arity method (added in JLS3 API). The convenience method checks
 	 * whether the last parameter is so marked.
-	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
-	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a variable arity method declaration,
 	 *    and <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @see SingleVariableDeclaration#isVarargs()
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public boolean isVarargs() {
 		// more efficient than just calling unsupportedIn2() to check
@@ -661,10 +647,20 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the return type, possibly the void primitive type
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+	 * @deprecated In the JLS3 API, this method is replaced by {@link #getReturnType2()},
+	 * which may return <code>null</code>.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
 	public Type getReturnType() {
-	    supportedOnlyIn2();
+		return internalGetReturnType();
+	}
+	
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ final Type internalGetReturnType() {
+		supportedOnlyIn2();
 		if (this.returnType == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -695,9 +691,19 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
+	 * @deprecated In the JLS3 API, this method is replaced by 
+	 * {@link #setReturnType2(Type)}, which accepts <code>null</code>.
 	 */ 
-	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
 	public void setReturnType(Type type) {
+		internalSetReturnType(type);
+	}
+	
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @since 3.1
+	 */
+	/*package*/ void internalSetReturnType(Type type) {
 	    supportedOnlyIn2();
 		if (type == null) {
 			throw new IllegalArgumentException();
@@ -724,7 +730,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * or <code>null</code> if none
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public Type getReturnType2() {
 	    unsupportedIn2();
@@ -762,7 +768,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
-	 * @since 3.0
+	 * @since 3.1
 	 */ 
 	public void setReturnType2(Type type) {
 	    unsupportedIn2();
