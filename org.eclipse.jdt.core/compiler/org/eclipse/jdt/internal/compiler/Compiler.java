@@ -589,7 +589,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		
 				// code generation
 				if (generateCode) unit.generateCode();
-		}
+			}
 			unitsToProcess[0] = null; // release reference to processed unit declaration
 			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			return unit;
