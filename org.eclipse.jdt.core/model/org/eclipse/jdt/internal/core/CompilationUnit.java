@@ -196,6 +196,7 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 		offset,
 		new ICompletionRequestor(){
 			public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
+				// ignore
 			}
 			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);

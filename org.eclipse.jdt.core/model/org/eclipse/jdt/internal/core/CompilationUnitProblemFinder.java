@@ -127,6 +127,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	protected static ICompilerRequestor getRequestor() {
 		return new ICompilerRequestor() {
 			public void acceptResult(CompilationResult compilationResult) {
+				// default requestor doesn't handle compilation results back
 			}
 		};
 	}

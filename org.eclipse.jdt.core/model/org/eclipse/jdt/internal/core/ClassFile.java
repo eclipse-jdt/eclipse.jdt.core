@@ -178,6 +178,7 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
 				}
 			}
 		} catch (JavaModelException npe) {
+			// elt doesn't exist: return the element
 		}
 	}
 	return elt;
@@ -634,6 +635,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 		offset,
 		new ICompletionRequestor(){
 			public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName, char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
+				// ignore
 			}
 			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
@@ -651,6 +653,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 					requestor.acceptError(marker);
 				} catch(CoreException e){
+					// marker could not be created: ignore
 				}
 			}
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {

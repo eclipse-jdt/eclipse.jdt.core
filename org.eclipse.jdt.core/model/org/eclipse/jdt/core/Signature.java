@@ -236,10 +236,9 @@ public final class Signature {
 	
 	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 	
-/**
- * Not instantiable.
- */
-private Signature() {}
+private Signature() {
+	// Not instantiable
+}
 
 private static boolean checkPrimitiveType(char[] primitiveTypeName, char[] typeName) {
 	return CharOperation.fragmentEquals(primitiveTypeName, typeName, 0, true) &&

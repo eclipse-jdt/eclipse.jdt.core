@@ -229,10 +229,9 @@ public final class NamingConventions {
 	}
 
 	
-	/**
-	 * Not instantiable.
-	 */
-	private NamingConventions() {}
+	private NamingConventions() {
+		// Not instantiable
+	}
 
 	private static char[] removePrefixAndSuffix(char[] name, char[][] prefixes, char[][] suffixes) {
 		// remove longer prefix

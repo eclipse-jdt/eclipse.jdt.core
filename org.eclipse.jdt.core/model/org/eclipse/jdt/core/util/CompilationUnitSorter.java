@@ -34,6 +34,7 @@ public final class CompilationUnitSorter {
  	 * Private constructor to prevent instantiation.
  	 */
 	private CompilationUnitSorter() {
+		// Not instantiable
 	} 
 	
 	/**

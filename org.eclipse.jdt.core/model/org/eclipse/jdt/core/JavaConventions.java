@@ -46,10 +46,9 @@ public final class JavaConventions {
 	private final static char DOT= '.';
 	private final static Scanner SCANNER = new Scanner();
 
-	/**
-	 * Not instantiable.
-	 */
-	private JavaConventions() {}
+	private JavaConventions() {
+		// Not instantiable
+	}
 
 	/*
 	 * Returns the index of the first argument paths which is strictly enclosing the path to check

@@ -53,6 +53,7 @@ public char[] getContents() {
 	try {
 		return Util.getFileCharContent(new File(new String(fileName)), this.encoding);
 	} catch (IOException e) {
+		// could not read file: returns an empty array
 	}
 	return CharOperation.NO_CHAR;
 }
