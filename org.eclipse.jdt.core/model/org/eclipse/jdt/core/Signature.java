@@ -26,8 +26,8 @@ import org.eclipse.jdt.core.compiler.*;
  *   | "S"  // short
  *   | "V"  // void
  *   | "Z"  // boolean
- *   | "L" + binaryTypeName + ";"  // resolved named type (i.e., in compiled code)
- *   | "Q" + sourceTypeName + ";"  // unresolved named type (i.e., in source code)
+ *   | "L" + binaryTypeName + ";"  // resolved named type (in compiled code)
+ *   | "Q" + sourceTypeName + ";"  // unresolved named type (in source code)
  *   | "[" + typeSignature  // array of type denoted by typeSignature
  * </pre>
  * </p>

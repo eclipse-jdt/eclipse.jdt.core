@@ -398,8 +398,8 @@ protected void adjustInterfaceModifiers() {
 }
 public final void arrayInitializer(int length) {
 	//length is the size of the array Initializer
-	//expressionPtr points on the last elt of the arrayInitializer
-	//i.e. it has not been decremented yet.
+	//expressionPtr points on the last elt of the arrayInitializer, 
+	// in other words, it has not been decremented yet.
 
 	ArrayInitializer ai = new ArrayInitializer();
 	if (length != 0) {

@@ -31,8 +31,8 @@ import org.eclipse.jdt.internal.core.jdom.DOMNode;
  * If an element does not exist, it is ignored.
  *
  * <p>NOTE: This operation only deletes elements contained within leaf resources -
- * i.e. elements within compilation units. To delete a compilation unit or
- * a package, etc (i.e. an actual resource), a DeleteResourcesOperation
+ * that is, elements within compilation units. To delete a compilation unit or
+ * a package, etc (which have an actual resource), a DeleteResourcesOperation
  * should be used.
  */
 public class DeleteElementsOperation extends MultiOperation {
@@ -103,7 +103,7 @@ public class DeleteElementsOperation extends MultiOperation {
 		ICompilationUnit cu = (ICompilationUnit) element;
 	
 		// keep track of the import statements - if all are removed, delete
-		// the import container (i.e. report it in the delta)
+		// the import container (and report it in the delta)
 		int numberOfImports = cu.getImports().length;
 	
 		IBuffer buffer = cu.getBuffer();

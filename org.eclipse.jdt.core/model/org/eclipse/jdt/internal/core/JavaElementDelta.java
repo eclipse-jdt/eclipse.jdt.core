@@ -63,7 +63,7 @@ public class JavaElementDelta implements IJavaElementDelta {
 /**
  * Creates the root delta. To create the nested delta
  * hierarchies use the following convenience methods. The root
- * delta can be created at any level (i.e. project, package root,
+ * delta can be created at any level (for example: project, package root,
  * package fragment...).
  * <ul>
  * <li><code>added(IJavaElement)</code>

@@ -110,7 +110,7 @@ public class PatternSearchJob implements IJob {
 		}
 	}
 	public boolean isReadyToRun() {
-		if (this.indexSelector == null) { // only check once, i.e. as long as this job is used, it will keep the same index picture
+		if (this.indexSelector == null) { // only check once. As long as this job is used, it will keep the same index picture
 			this.indexSelector = new IndexSelector(this.scope, this.focus, this.isPolymorphicSearch, this.indexManager);
 			this.indexSelector.getIndexes(); // will only cache answer if all indexes were available originally
 		}

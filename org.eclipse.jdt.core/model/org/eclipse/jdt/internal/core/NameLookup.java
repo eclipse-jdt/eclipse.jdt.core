@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.core.util.PerThreadObject;
  *
  * <p>There are two logical sets of methods within this interface.  Methods
  * which start with <code>find*</code> are intended to be convenience methods for quickly
- * finding an element within another element, i.e. finding a class within a
+ * finding an element within another element; for instance, for finding a class within a
  * package.  The other set of methods all begin with <code>seek*</code>.  These methods
  * do comprehensive searches of the <code>IJavaProject</code> returning hits
  * in real time through an <code>IJavaElementRequestor</code>.

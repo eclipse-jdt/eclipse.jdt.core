@@ -60,7 +60,7 @@ public class HandleFactory {
 	 * or a path to a file in a jar file - it then contains the path to the jar file and the path to the file in the jar
 	 * (eg. c:/jdk1.2.2/jre/lib/rt.jar|java/lang/Object.class or /Proj/rt.jar|java/lang/Object.class)
 	 * NOTE: This assumes that the resource path is the toString() of an IPath, 
-	 *       i.e. it uses the IPath.SEPARATOR for file path
+	 *       in other words, it uses the IPath.SEPARATOR for file path
 	 *            and it uses '/' for entries in a zip file.
 	 * If not null, uses the given scope as a hint for getting Java project handles.
 	 */

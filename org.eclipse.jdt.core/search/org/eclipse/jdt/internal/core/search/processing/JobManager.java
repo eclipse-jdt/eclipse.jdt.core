@@ -169,8 +169,8 @@ public abstract class JobManager implements Runnable {
 	 * an issue.Therefore, this functionality allows a given job to be run without
 	 * colliding with background ones.
 	 * Note: multiple thread might attempt to perform concurrent jobs at the same time,
-	 * 			and shoud synchronize (it is deliberately left to clients to decide whether
-	 *			concurrent jobs might interfere or not, i.e. multiple read jobs are ok).
+	 *            and should synchronize (it is deliberately left to clients to decide whether
+	 *            concurrent jobs might interfere or not. In general, multiple read jobs are ok).
 	 *
 	 * Waiting policy can be:
 	 * 		IJobConstants.ForceImmediateSearch

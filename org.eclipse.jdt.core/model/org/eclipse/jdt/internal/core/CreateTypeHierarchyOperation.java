@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 /**
  * This operation creates an <code>ITypeHierarchy</code> for a specific type within
  * a specified region, or for all types within a region. The specified
- * region limits the number of resolved subtypes (i.e. to the subset of
+ * region limits the number of resolved subtypes (to the subset of
  * types in the specified region). The resolved supertypes may go outside
  * of the specified region in order to reach the root(s) of the type
  * hierarchy. A Java Project is required to provide a context (classpath)

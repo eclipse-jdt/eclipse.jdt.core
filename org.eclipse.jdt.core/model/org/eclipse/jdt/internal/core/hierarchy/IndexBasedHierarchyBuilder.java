@@ -50,7 +50,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	/**
 	 * A temporary cache of compilation units to handles to speed info
 	 * to handle translation - it only contains the entries
-	 * for the types in the region (i.e. no supertypes outside
+	 * for the types in the region (in other words, it contains no supertypes outside
 	 * the region).
 	 */
 	protected Map cuToHandle;

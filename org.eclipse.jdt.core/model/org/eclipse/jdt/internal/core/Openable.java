@@ -163,7 +163,7 @@ protected OpenableElementInfo createElementInfo() {
 
 /**
  * Builds this element's structure and properties in the given
- * info object, based on this element's current contents (i.e. buffer
+ * info object, based on this element's current contents (reuse buffer
  * contents if this element has an open buffer, or resource contents
  * if this element does not have an open buffer). Children
  * are placed in the given newElements table (note, this element

@@ -308,7 +308,7 @@ public class LRUCache implements Cloneable {
 	/**
 	 * Adds the given entry from the receiver.
 	 * @param shuffle Indicates whether we are just shuffling the queue 
-	 * (i.e., the entry table is left alone).
+	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateAddEntry(LRUCacheEntry entry, boolean shuffle) {
 
@@ -341,7 +341,7 @@ public class LRUCache implements Cloneable {
 	/**
 	 * Removes the entry from the entry queue.  
 	 * @param shuffle indicates whether we are just shuffling the queue 
-	 * (i.e., the entry table is left alone).
+	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle) {
 

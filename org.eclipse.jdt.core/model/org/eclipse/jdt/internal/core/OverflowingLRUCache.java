@@ -258,7 +258,7 @@ public void printStats() {
 	 *	Calls <code>privateRemoveEntry</code> with the external functionality enabled.
 	 *
 	 * @param shuffle indicates whether we are just shuffling the queue 
-	 * (i.e., the entry table is left alone).
+	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateRemoveEntry (LRUCacheEntry entry, boolean shuffle) {
 		privateRemoveEntry(entry, shuffle, true);
@@ -272,7 +272,7 @@ public void printStats() {
  *	pointers are not changed.
  *
  *	@param shuffle indicates whether we are just shuffling the queue 
- *	(i.e., the entry table is left alone).
+ *	(in which case, the entry table is not modified).
  */
 protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean external) {
 

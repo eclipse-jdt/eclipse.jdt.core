@@ -194,7 +194,7 @@ protected boolean matchIndexEntry(){
 		return false;
 	/* check enclosingTypeName - exact match only */
 	if (enclosingTypeNames != null){
-		// empty char[][] means no enclosing type, i.e. the decoded one is the empty char array
+		// empty char[][] means no enclosing type (in which case, the decoded one is the empty char array)
 		if (enclosingTypeNames.length == 0){
 			if (decodedEnclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
 		} else {

@@ -97,7 +97,7 @@ public static int indexOf(char character, char[] buffer, int offset) {
  *  1. the src array is null
  *  2. the start index is out of bounds
  *  3. the length parameter specifies a end point which is out of bounds
- * Does not return a copy of the array if possible, i.e. if start is zero
+ * Does not return a copy of the array if possible, in other words, if start is zero
  * and length equals the length of the src array.
  *
  * @param src - the array from which elements need to be copied

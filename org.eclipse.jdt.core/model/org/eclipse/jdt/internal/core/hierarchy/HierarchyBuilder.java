@@ -68,8 +68,8 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	/**
 	 * A temporary cache of infos to handles to speed info
 	 * to handle translation - it only contains the entries
-	 * for the types in the region (i.e. no supertypes outside
-	 * the region).
+	 * for the types in the region (in other words, it contains
+	 * no supertypes outside the region).
 	 */
 	protected Map infoToHandle;
 	public HierarchyBuilder(TypeHierarchy hierarchy) throws JavaModelException {

@@ -281,7 +281,7 @@ public IDOMType createType(char[] sourceCode) {
  * @param returnTypeEnd - a source position corresponding to the last character
  *		of the return type
  * @param returnTypeDimensionCount - the array dimension count as supplied on the
- *		return type, i.e. public int[] foo() {}
+ *		return type (for instance, 'public int[] foo() {}')
  * @param name - the name of this constructor
  * @param nameStart - a source position corresponding to the first character of the name
  * @param nameEnd - a source position corresponding to the last character of the name
@@ -294,7 +294,7 @@ public IDOMType createType(char[] sourceCode) {
  * @param parametersEnd - a source position corresponding to the last character of the
  *		parameter list
  * @extendedReturnTypeDimensionCount - the array dimension count as supplied on the
- *		end of the parameter list, i.e. public int foo()[] {}
+ *		end of the parameter list (for instance, 'public int foo()[] {}')
  * @extendedReturnTypeDimensionEnd - a source position corresponding to the last character
  *		of the extended return type dimension
  * @param exceptionTypes - a list of the exception types

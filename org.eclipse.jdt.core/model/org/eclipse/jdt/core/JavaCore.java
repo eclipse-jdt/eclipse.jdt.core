@@ -1192,14 +1192,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * COMPILER / Reporting Unused Local
 	 *    When enabled, the compiler will issue an error or a warning for unused local 
-	 *    variables (i.e. variables never read from)
+	 *    variables (that is, variables never read from)
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedLocal"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Unused Parameter
 	 *    When enabled, the compiler will issue an error or a warning for unused method 
-	 *    parameters (i.e. parameters never read from)
+	 *    parameters (that is, parameters never read from)
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameter"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
@@ -1242,7 +1242,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * COMPILER / Reporting Non-Externalized String Literal
 	 *    When enabled, the compiler will issue an error or a warning for non externalized 
-	 *    String literal (i.e. non tagged with //$NON-NLS-<n>$). 
+	 *    String literal (that is, not tagged with //$NON-NLS-<n>$). 
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"

@@ -61,7 +61,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected Map fNewElements;
 
 	/**
-	 * Stack of parent scope info objects - i.e. the info on the
+	 * Stack of parent scope info objects. The info on the
 	 * top of the stack is the parent of the next element found.
 	 * For example, when we locate a method, the parent info object
 	 * will be the type the method is contained in.

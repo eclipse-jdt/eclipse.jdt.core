@@ -435,7 +435,7 @@ public void addTypeReference(char[] typeName){
 }
 /**
  * Concat(first, second, third, fourth, fifth, sep) --> [first][second][sep][third][sep][fourth][sep][fifth]
- * i.e. no separator is inserted in between first and second
+ * in other words, no separator is inserted in between first and second
  */
 protected static final char[] concat(char[] firstWithSeparator, char[] second, char[] third, char[] fourth, char[] fifth, char separator) {
 	int length1= firstWithSeparator.length;
