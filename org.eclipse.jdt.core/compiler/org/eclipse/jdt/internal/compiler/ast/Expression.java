@@ -465,17 +465,6 @@ public abstract class Expression extends Statement {
 		}
 	}	
 
-	public TypeBinding convertToRawType(TypeBinding type, Scope scope) {
-		if (type.isArrayType()) {
-		    TypeBinding leafComponentType = type.leafComponentType();
-		    if (leafComponentType.isGenericType())
-		        return scope.createArrayType(scope.environment().createRawType((ReferenceBinding) leafComponentType, null), type.dimensions());
-		} else if (type.isGenericType()) {
-	        return scope.environment().createRawType((ReferenceBinding) type, null);
-		}
-		return type;
-	}
-
 	/**
 	 * Expression statements are plain expressions, however they generate like
 	 * normal expressions with no value required.

@@ -62,7 +62,7 @@ public class SingleTypeReference extends TypeReference {
 		}
 		if (isTypeUseDeprecated(memberType, scope))
 			scope.problemReporter().deprecatedType(memberType, this);
-		return this.resolvedType = convertToRawType(memberType, scope);
+		return this.resolvedType = scope.convertToRawType(memberType);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

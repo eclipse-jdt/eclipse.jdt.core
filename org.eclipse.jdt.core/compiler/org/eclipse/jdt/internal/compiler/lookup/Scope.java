@@ -246,7 +246,18 @@ public abstract class Scope
 		}
 		return noProblems;
 	}
-	
+
+	public TypeBinding convertToRawType(TypeBinding type) {
+		if (type.isArrayType()) {
+		    TypeBinding leafComponentType = type.leafComponentType();
+		    if (leafComponentType.isGenericType())
+		        return createArrayType(environment().createRawType((ReferenceBinding) leafComponentType, null), type.dimensions());
+		} else if (type.isGenericType()) {
+	        return environment().createRawType((ReferenceBinding) type, null);
+		}
+		return type;
+	}
+
 	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding())
 			return environment().createArrayType(type, dimension);

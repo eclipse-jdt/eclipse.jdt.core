@@ -125,7 +125,7 @@ public TypeBinding resolveType(BlockScope blockScope) {
 	}
 	if (isTypeUseDeprecated(this.resolvedType, blockScope))
 		reportDeprecatedType(blockScope);
-	return this.resolvedType = convertToRawType(this.resolvedType, blockScope);
+	return this.resolvedType = blockScope.convertToRawType(this.resolvedType);
 }
 public TypeBinding resolveType(ClassScope classScope) {
 	// handle the error here
@@ -142,7 +142,7 @@ public TypeBinding resolveType(ClassScope classScope) {
 	}
 	if (isTypeUseDeprecated(this.resolvedType, classScope))
 		reportDeprecatedType(classScope);
-	return this.resolvedType = convertToRawType(this.resolvedType, classScope);
+	return this.resolvedType = classScope.convertToRawType(this.resolvedType);
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
