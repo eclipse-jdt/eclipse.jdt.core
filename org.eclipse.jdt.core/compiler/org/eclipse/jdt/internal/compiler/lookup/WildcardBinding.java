@@ -92,6 +92,9 @@ public class WildcardBinding extends ReferenceBinding {
 	void initialize(TypeBinding someBound) {
 		this.bound = someBound;
 		if (someBound != null) {
+		    if (this.kind != Wildcard.UNBOUND && someBound.isTypeVariable())
+		        this.tagBits |= HasTypeVariable;
+		    
 			this.fPackage = someBound.getPackage();
 			// should not be set yet
 			// this.superclass = null;

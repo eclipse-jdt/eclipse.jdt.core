@@ -103,17 +103,17 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
 		}			
+		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, enclosingType);
 		// check argument type compatibility
 		for (int i = 0; i < argLength; i++) {
 		    TypeBinding argType = argTypes[i];
-			if (!typeVariables[i].boundCheck(argType)) {
+			if (!typeVariables[i].boundCheck(parameterizedType, argType)) {
 		        argHasError = true;
 				scope.problemReporter().typeMismatchError(argType, typeVariables[i], currentType, this.typeArguments[i]);
 		    }
 		}
 		if (argHasError) return null;
-		currentType = scope.createParameterizedType(currentType, argTypes, enclosingType);
-		this.resolvedType = currentType;
+		this.resolvedType = parameterizedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
 			reportDeprecatedType(scope);
 		}		
@@ -122,10 +122,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			if (dimensions > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			if (currentType.isParameterizedType()) {
-			    scope.problemReporter().illegalArrayOfParameterizedType(currentType, this);
-			}
-			this.resolvedType = scope.createArrayType(currentType, dimensions);
+		    scope.problemReporter().illegalArrayOfParameterizedType(parameterizedType, this);
+			this.resolvedType = scope.createArrayType(parameterizedType, dimensions);
 		}
 		return this.resolvedType;
 	}	

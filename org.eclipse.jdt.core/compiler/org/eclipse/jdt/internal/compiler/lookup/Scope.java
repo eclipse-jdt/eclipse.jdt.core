@@ -113,26 +113,29 @@ public abstract class Scope
 			TypeBinding mostSpecificSubstitute = mostSpecificCommonSuperType(variableSubstitutes);
 			if (mostSpecificSubstitute == null)
 				return null; // incompatible
-
-			// verify bound of variable after type inference
-			if (!typeVariables[i].boundCheck(mostSpecificSubstitute)) {
-				// TODO (philippe) must return problem binding if bound check failure : problemReporter().typeMismatchError(mostSpecificSubstitute, typeVariables[i], method, args[j]);
-				return null; // incompatible
-			}
 			mostSpecificSubstitutes[i] = mostSpecificSubstitute;
 		}
 
 		// apply inferred variable substitutions
-		ParameterizedMethodBinding methodSubstitute = new ParameterizedMethodBinding(method, mostSpecificSubstitutes);
+		ParameterizedGenericMethodBinding methodSubstitute = new ParameterizedGenericMethodBinding(method, mostSpecificSubstitutes);
 
-		// recheck argument compatibility
-		parameters = methodSubstitute.parameters;
-		argumentCompatibility: {
-			for (int i = 0; i < argLength; i++)
-				if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
-					return null;
+		// check bounds
+		for (int i = 0, length = typeVariables.length; i < length; i++) {
+		    TypeVariableBinding typeVariable = typeVariables[i];
+		    if (!typeVariable.boundCheck(methodSubstitute, mostSpecificSubstitutes[i]))
+				// TODO (philippe) must return problem binding if bound check failure : problemReporter().typeMismatchError(mostSpecificSubstitute, typeVariables[i], method, args[j]);
+			    return null; // incompatible
 		}
 
+		// recheck argument compatibility
+		if (false) { // only necessary if inferred types got suggested
+			parameters = methodSubstitute.parameters;
+			argumentCompatibility: {
+				for (int i = 0; i < argLength; i++)
+					if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
+						return null;
+			}
+		}
 		return methodSubstitute;
 	}
 	

@@ -18,7 +18,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 public class ParameterizedMethodBinding extends MethodBinding {
     
-    private MethodBinding originalMethod;
+    protected MethodBinding originalMethod;
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
@@ -28,30 +28,18 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	    super(
 	            originalMethod.modifiers, 
 	            originalMethod.selector, 
-	            parameterizedDeclaringClass.substitute(originalMethod.returnType),
-	            parameterizedDeclaringClass.substitute(originalMethod.parameters),
-	            parameterizedDeclaringClass.substitute(originalMethod.thrownExceptions),
+	            parameterizedDeclaringClass.substitute(  originalMethod.returnType),
+	            ReferenceBinding.substitute(parameterizedDeclaringClass, originalMethod.parameters),
+	            ReferenceBinding.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
 	            parameterizedDeclaringClass);
 	    this.originalMethod = originalMethod;
 	    this.typeVariables = originalMethod.typeVariables;
 	}
 	
-    /**
-     * Create method of parameterized type, substituting original parameters with type arguments.
-     */
-	public ParameterizedMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments) {
+    public ParameterizedMethodBinding() {
+        // should only be used for subclass
+    }
 
-	    super(
-	            originalMethod.modifiers, 
-	            originalMethod.selector, 
-	            originalMethod.substitute(originalMethod.returnType, typeArguments),
-	            originalMethod.substitute(originalMethod.parameters, typeArguments),
-	            originalMethod.substitute(originalMethod.thrownExceptions, typeArguments),
-	            originalMethod.declaringClass);
-	    this.originalMethod = originalMethod;
-	    this.typeVariables = NoTypeVariables;
-	}
-	
 	/**
 	 * Returns true if some parameters got substituted.
 	 */

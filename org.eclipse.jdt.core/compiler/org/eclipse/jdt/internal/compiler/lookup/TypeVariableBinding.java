@@ -41,14 +41,14 @@ public class TypeVariableBinding extends ReferenceBinding {
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
-	public boolean boundCheck(TypeBinding argumentType) {
+	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;
-		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(this.superclass)) {
+		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute( this.superclass))) {
 		    return false;
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	        if (!argumentType.isCompatibleWith(this.superInterfaces[i])) {
+	        if (!argumentType.isCompatibleWith(substitution.substitute(this.superInterfaces[i]))) {
 				return false;
 	        }
 	    }

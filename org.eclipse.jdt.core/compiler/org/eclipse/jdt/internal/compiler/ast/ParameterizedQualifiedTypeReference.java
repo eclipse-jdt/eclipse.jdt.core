@@ -128,16 +128,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 					return null;
 				}			
+				ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, qualifiedType);
 				// check argument type compatibility
 				for (int j = 0; j < argLength; j++) {
 				    TypeBinding argType = argTypes[j];
-				    if (!typeVariables[j].boundCheck(argType)) {
+				    if (!typeVariables[j].boundCheck(parameterizedType, argType)) {
 				        argHasError = true;
 						scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
 				    }
 				}
 				if (argHasError) return null;
-				qualifiedType = scope.createParameterizedType(currentType, argTypes, qualifiedType);
+				qualifiedType = parameterizedType;
 		    } else if (currentType.isGenericType()) { // check raw type
 			        qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
 			} else if (qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isRawType())) {
