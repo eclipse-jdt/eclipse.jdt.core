@@ -121,7 +121,7 @@ boolean isOpen();
  *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  * @see IOpenable#isConsistent()
- * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
+ * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  */
 void makeConsistent(IProgressMonitor progress) throws JavaModelException;
 /**

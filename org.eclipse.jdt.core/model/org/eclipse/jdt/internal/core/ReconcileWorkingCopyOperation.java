@@ -25,13 +25,15 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		
 	boolean createAST;
+	int astLevel;
 	boolean forceProblemDetection;
 	WorkingCopyOwner workingCopyOwner;
 	org.eclipse.jdt.core.dom.CompilationUnit ast;
 	
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean creatAST, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean creatAST, int astLevel, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
 		this.createAST = creatAST;
+		this.astLevel = astLevel;
 		this.forceProblemDetection = forceProblemDetection;
 		this.workingCopyOwner = workingCopyOwner;
 	}
@@ -53,7 +55,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				
 				// update the element infos with the content of the working copy
-				this.ast = workingCopy.makeConsistent(this.createAST, this.progressMonitor);
+				this.ast = workingCopy.makeConsistent(this.createAST, this.astLevel, this.progressMonitor);
 				deltaBuilder.buildDeltas();
 
 				if (progressMonitor != null) progressMonitor.worked(2);
@@ -76,7 +78,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 							if (progressMonitor != null) progressMonitor.worked(1);
 							if (this.createAST && unit != null) {
 								Map options = workingCopy.getJavaProject().getOptions(true);
-								this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
+								this.ast = AST.convertCompilationUnit(this.astLevel, unit, contents, options, this.progressMonitor);
 								if (progressMonitor != null) progressMonitor.worked(1);
 							}
 					    } finally {

@@ -13,5 +13,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class ASTHolderCUInfo extends CompilationUnitElementInfo {
+	int astLevel;
 	CompilationUnit ast;
 }

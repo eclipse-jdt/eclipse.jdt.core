@@ -88,7 +88,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			"    public static int BAR;\n" +
 			"}"
 		);
-		wc1.reconcile(false, false, null, null);
+		wc1.reconcile(0, false, null, null);
 		wc2 = getCompilationUnit("P2/p2/Y.java").getWorkingCopy(null);
 		wc2.getBuffer().setContents(
 			"package p2;\n" +

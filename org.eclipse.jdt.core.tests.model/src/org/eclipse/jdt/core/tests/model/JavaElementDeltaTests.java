@@ -1064,7 +1064,7 @@ public void testListenerPostChange() throws CoreException {
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}");
-		wc.reconcile(false, false, null, null);
+		wc.reconcile(0, false, null, null);
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
 			"",
@@ -1164,7 +1164,7 @@ public void testListenerReconcile() throws CoreException {
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}");
-		wc.reconcile(false, false, null, null);
+		wc.reconcile(0, false, null, null);
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
 			"X[*]: {CHILDREN | FINE GRAINED}\n" +

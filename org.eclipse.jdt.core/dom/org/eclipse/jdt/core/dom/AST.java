@@ -214,6 +214,7 @@ public final class AST {
 	 * into a compilation unit. This method is not intended to be called by clients.
 	 * </p>
 	 * 
+ 	 * @param level the API level; one of the LEVEL constants
 	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
@@ -222,11 +223,13 @@ public final class AST {
 	 * @return the compilation unit node
 	 */
 	public static CompilationUnit convertCompilationUnit(
+		int level,
 		org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
 		char[] source,
 		Map options,
 		IProgressMonitor monitor) {
 		
+		// TODO (olivier) - honor <code>level</code> indicating AST api level
 		ASTConverter converter = new ASTConverter(options, true, monitor);
 		AST ast = new AST();
 		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
