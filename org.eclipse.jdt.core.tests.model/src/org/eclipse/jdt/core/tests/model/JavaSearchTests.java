@@ -215,7 +215,8 @@ public static Test suite() {
 	
 	// type reference
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
-	suite.addTest(new JavaSearchTests("testTypeReference"));
+	suite.addTest(new JavaSearchTests("testTypeReference1"));
+	suite.addTest(new JavaSearchTests("testTypeReference2"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -2309,7 +2310,7 @@ public void testTypeOccurenceWithDollar() throws JavaModelException, CoreExcepti
  * Type reference test.
  * (Regression test for PR 1GK7K17: ITPJCORE:WIN2000 - search: missing type reference)
  */
-public void testTypeReference() throws JavaModelException, CoreException {
+public void testTypeReference1() throws JavaModelException, CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2320,6 +2321,25 @@ public void testTypeReference() throws JavaModelException, CoreException {
 		resultCollector);
 	assertEquals(
 		"src/X.java AA() [X]",
+		resultCollector.toString());
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 29516 SearchEngine regressions in 20030114)
+ */
+public void testTypeReference2() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "d7", "A.java").getType("A");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/d7/A.java d7.A.A [A]\n" +
+		"src/d7/A.java d7.A.A(A) -> A [A]\n" +
+		"src/d7/A.java d7.A.A(A) -> A [A]",
 		resultCollector.toString());
 }
 /**
