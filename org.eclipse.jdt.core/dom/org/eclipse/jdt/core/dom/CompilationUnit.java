@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
@@ -103,10 +102,9 @@ public class CompilationUnit extends ASTNode {
 			
 	/**
 	 * The comment table, or <code>null</code> if none; initially
-	 * <code>null</code>.
+	 * <code>null</code>. This array is the storage underlying
+	 * the <code>optionalCommentList</code> ArrayList.
 	 * @since 3.0
-	 * @deprecated 
-	 * TBD (jeem) - remove when getCommentTable() goes away
 	 */
 	Comment[] optionalCommentTable = null;
 	
@@ -167,7 +165,12 @@ public class CompilationUnit extends ASTNode {
 	 */
 	private IProblem[] problems = EMPTY_PROBLEMS;
 	
-	private DefaultCommentMapper commentMapper;
+	/**
+	 * The comment mapper, or <code>null</code> in none; 
+	 * initially <code>null</code>.
+	 * @since 3.0
+	 */
+	private DefaultCommentMapper commentMapper = null;
 	
 	/**
 	 * Sets the line end table for this compilation unit.
@@ -439,42 +442,83 @@ public class CompilationUnit extends ASTNode {
 		return this.ast.getBindingResolver().findDeclaringNode(key);
 	}
 	
+	/**
+	 * Returns the internal comment mapper.
+	 * 
+	 * @return the comment mapper, or <code>null</code> if none.
+	 * @since 3.0
+	 */
 	DefaultCommentMapper getCommentMapper() {
 		return this.commentMapper;
 	}
 
+	/**
+	 * Initializes the internal comment mapper with the given
+	 * scanner.
+	 * 
+	 * @param scanner the scanner
+	 * @since 3.0
+	 */
 	void initCommentMapper(Scanner scanner) {
 		this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
 		this.commentMapper.initialize(this, scanner);
 	}
 
 	/**
-	 * Return extended start position of a given node.
-	 * @param node The node
-	 * @return start positon including node leading comments
+	 * Returns the extended start position of the given node. Unlike
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * the extended source range may include comments and whitespace
+	 * immediately before or after the normal source range for the node.
+	 * 
+	 * @param node the node
+	 * @return the 0-based character index, or <code>-1</code>
+	 *    if no source position information is recorded for this node
+	 * @see #getExtendedLength(ASTNode)
+	 * @since 3.0
 	 */
 	public int getExtendedStartPosition(ASTNode node) {
-		int startPosition= node.getStartPosition();
+		/* TODO (frederic) - Clients can be expected to make use of this
+		 * new facility a lot. The performance of the implementation would
+		 * be significantly improved by reworking this code so that it
+		 * does not create garbage Comment[].
+		 */
 		Comment[] leadingComments = this.commentMapper.getLeadingComments(node);
-		if (leadingComments != null) {
+		int startPosition;
+		if (leadingComments == null) {
+			startPosition = node.getStartPosition();
+		} else {
 			startPosition = leadingComments[0].getStartPosition();
 		}
 		return startPosition;
 	}
 
 	/**
-	 * Return extended length of a given node.
-	 * @param node
-	 * @return length including node leading and trailing comments
+	 * Returns the extended source length of the given node. Unlike
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * the extended source range may include comments and whitespace
+	 * immediately before or after the normal source range for the node.
+	 * 
+	 * @param node the node
+	 * @return a (possibly 0) length, or <code>0</code>
+	 *    if no source position information is recorded for this node
+	 * @see #getExtendedStartPosition(ASTNode)
+	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		int end = node.getStartPosition() + node.getLength() - 1;
+		/* TODO (frederic) - Clients can be expected to make use of this
+		 * new facility a lot. The performance of the implementation would
+		 * be significantly improved by reworking this code so that it
+		 * does not create garbage Comment[].
+		 */
 		Comment[] trailingComments = this.commentMapper.getTrailingComments(node);
-		if (trailingComments != null) {
+		int lastPosition; // exclusive
+		if (trailingComments == null) {
+			lastPosition = node.getStartPosition() + node.getLength();
+		} else {
 			Comment lastComment = trailingComments[trailingComments.length-1];
-			end = lastComment.getStartPosition() + lastComment.getLength() - 1;
+			lastPosition = lastComment.getStartPosition() + lastComment.getLength();
 		}
-		return end - getExtendedStartPosition(node) + 1;
+		return lastPosition - getExtendedStartPosition(node);
 	}
 		
 	/**
@@ -652,60 +696,6 @@ public class CompilationUnit extends ASTNode {
 	 * on each element.
 	 * </p>
 	 * <p>
-	 * Clients must not modify the array.
-	 * </p>
-	 * 
-	 * @return a list of comments in increasing order of source
-	 * start position, or <code>null</code> if comment information
-	 * for this compilation unit is not available
-	 * @see ASTParser
-	 * @since 3.0
-	 * @deprecated Replaced by {@link #getCommentList()} which returns
-	 * an modifiable List.
-	 * TBD (jeem) - remove before M8
-	 */
-	public Comment[] getCommentTable() {
-		return this.optionalCommentTable;
-	}
-	
-	/**
-	 * Returns a list of the comments encountered while parsing
-	 * this compilation unit.
-	 * <p>
-	 * Since the Java language allows comments to appear most anywhere
-	 * in the source text, it is problematic to locate comments in relation
-	 * to the structure of an AST. The one exception is doc comments 
-	 * which, by convention, immediately precede type, field, and
-	 * method declarations; these comments are located in the AST
-	 * by {@link  BodyDeclaration#getJavadoc BodyDeclaration.getJavadoc}.
-	 * Other comments do not show up in the AST. The table of comments
-	 * is provided for clients that need to find the source ranges of
-	 * all comments in the original source string. It includes entries
-	 * for comments of all kinds (line, block, and doc), arranged in order
-	 * of increasing source position. 
-	 * </p>
-	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()}
-	 * of a doc comment associated with a body declaration is the body
-	 * declaration node; for these comment nodes
-	 * {@link ASTNode#getRoot() getRoot()} will return the compilation unit
-	 * (assuming an unmodified AST) reflecting the fact that these nodes
-	 * are property located in the AST for the compilation unit.
-	 * However, for other comment nodes, {@link ASTNode#getParent() getParent()}
-	 * will return <code>null</code>, and {@link ASTNode#getRoot() getRoot()}
-	 * will return the comment node itself, indicating that these comment nodes
-	 * are not directly connected to the AST for the compilation unit. The 
-	 * {@link Comment#getAlternateRoot Comment.getAlternateRoot}
-	 * method provides a way to navigate from a comment to its compilation
-	 * unit.
-	 * </p>
-	 * <p>
-	 * A note on visitors: The only comment nodes that will be visited when
-	 * visiting a compilation unit are the doc comments parented by body
-	 * declarations. To visit all comments in normal reading order, iterate
-	 * over the comment table and call {@link ASTNode#accept(ASTVisitor) accept}
-	 * on each element.
-	 * </p>
-	 * <p>
 	 * Clients cannot modify the resulting list.
 	 * </p>
 	 * 
@@ -781,13 +771,14 @@ public class CompilationUnit extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 7 * 4;
+		int size = BASE_NODE_SIZE + 8 * 4;
 		if (this.lineEndTable != null) {
 			size += HEADERS + 4 * this.lineEndTable.length;
 		}
-		if (this.optionalCommentList != null) {
-			size += HEADERS + 4 * this.optionalCommentList.size();
+		if (this.optionalCommentTable != null) {
+			size += HEADERS + 4 * this.optionalCommentTable.length;
 		}
+		// ignore the space taken up by optionalCommentList
 		return size;
 	}
 	

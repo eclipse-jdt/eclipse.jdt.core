@@ -157,6 +157,9 @@ class DefaultCommentMapper {
 		}
 
 		// Init tables
+		/* TODO (frederic) - HashMap is always more efficient than
+		 * Hashtable, which is implicitly synchronized.
+		 */
 		this.leadingComments = new Hashtable();
 		this.trailingComments = new Hashtable();
 		
