@@ -6560,7 +6560,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	rx.<String>foo(\"hello\");\n" + 
 		"	           ^^^\n" + 
-		"The method foo(Object) of raw type X is no more generic; it cannot be parameterized with arguments <String>\n" + 
+		"The method foo(Object) of raw type X is no longer generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 	}		
 	// 69320 parameterized type compatibility
@@ -8996,7 +8996,6 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"");
 	}
 	// checking scenario where generic type and method share the same type parameter name
-	// TODO (kent) we should better describe that the override is invalid due to type parameter bound mismatch
 	public void test344() {
 		this.runNegativeTest(
 			new String[] {	
@@ -9027,7 +9026,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
-			"The method bar(Exception) of raw type X is no more generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	X<R> xr = new X<R>(){  \n" + 
@@ -9171,7 +9170,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
-			"The method bar(Exception) of raw type X is no more generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 15)\n" + 
 			"	public <T extends Exception> T bar(T t) { \n" + 
