@@ -897,8 +897,7 @@ public interface IType extends IMember {
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
 	 * </p>
-	 * <p>. 
-	 * Multiple answers might be found in case there are ambiguous matches.
+	 * <p>Multiple answers might be found in case there are ambiguous matches.
 	 * </p>
 	 * <p>
 	 * Each matching type name is decomposed as an array of two strings, the first denoting the package
