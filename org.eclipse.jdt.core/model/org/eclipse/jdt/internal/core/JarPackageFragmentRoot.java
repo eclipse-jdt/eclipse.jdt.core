@@ -23,6 +23,10 @@ import java.util.zip.*;
  * @see JarPackageFragmentRootInfo
  */
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
+	
+	public final static String[] NO_STRINGS = new String[0];
+	public final static ArrayList EMPTY_LIST = new ArrayList();
+	
 	/**
 	 * The path to the jar file
 	 * (a workspace relative path if the jar is internal,
@@ -195,92 +199,69 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
  * @exception JavaModelException The resource (the jar) associated with this package fragment root does not exist
  */
 protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vChildren) throws JavaModelException {
+	final int JAVA = 0;
+	final int NON_JAVA = 1;
 	ZipFile jar= null;
 	try {
 		jar= getJar();
 		HashMap packageFragToTypes= new HashMap();
 
 		// always create the default package
-		packageFragToTypes.put(IPackageFragment.DEFAULT_PACKAGE_NAME, new ArrayList[] { new ArrayList(), new ArrayList()
-		});
+		packageFragToTypes.put(IPackageFragment.DEFAULT_PACKAGE_NAME, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
-		ArrayList[] temp;
 		for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 			ZipEntry member= (ZipEntry) e.nextElement();
-			String eName= member.getName();
+			String entryName= member.getName();
+
 			if (member.isDirectory()) {
-				eName= eName.substring(0, eName.length() - 1);
-				eName= eName.replace('/', '.');
-				temp= (ArrayList[]) packageFragToTypes.get(eName);
-				if (temp == null) {
-					temp= new ArrayList[] { new ArrayList(), new ArrayList()
-				 };
-					packageFragToTypes.put(eName, temp);
+				
+				int last = entryName.length() - 1;
+				entryName= entryName.substring(0, last);
+				entryName= entryName.replace('/', '.');
+
+				// add the package name & all of its parent packages
+				while (true) {
+					// extract the package name
+					if (packageFragToTypes.containsKey(entryName)) break;
+					packageFragToTypes.put(entryName, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+					
+					if ((last = entryName.lastIndexOf('.')) < 0) break;
+					entryName = entryName.substring(0, last);
 				}
 			} else {
-				if (Util.isClassFileName(eName)) {
-					//only interested in class files
-					//store the class file entry name to be cached in the appropriate package fragment
-					//zip entries only use '/'
-					ArrayList classTemp;
-					int lastSeparator= eName.lastIndexOf('/');
-					String key= IPackageFragment.DEFAULT_PACKAGE_NAME;
-					String value= eName;
-					if (lastSeparator != -1) {
-						//not in the default package
-						eName= eName.replace('/', '.');
-						value= eName.substring(lastSeparator + 1);
-						key= eName.substring(0, lastSeparator);
-					}
-					temp= (ArrayList[]) packageFragToTypes.get(key);
-					if (temp == null) {
-						// build all package fragments in the key
-						lastSeparator= key.indexOf('.');
-						while (lastSeparator > 0) {
-							String prefix= key.substring(0, lastSeparator);
-							if (packageFragToTypes.get(prefix) == null) {
-								packageFragToTypes.put(prefix, new ArrayList[] { new ArrayList(), new ArrayList()
-							 });
-							}
-							lastSeparator= key.indexOf('.', lastSeparator + 1);
-						}
-						classTemp= new ArrayList();
-						classTemp.add(value);
-						packageFragToTypes.put(key, new ArrayList[] {classTemp, new ArrayList()
-					 });
-					} else {
-						classTemp= temp[0];
-						classTemp.add(value);
-					}
+				//store the class file / non-java rsc entry name to be cached in the appropriate package fragment
+				//zip entries only use '/'
+				int lastSeparator= entryName.lastIndexOf('/');
+				String packageName;
+				String fileName;
+				if (lastSeparator != -1) { //not in the default package
+					entryName= entryName.replace('/', '.');
+					fileName= entryName.substring(lastSeparator + 1);
+					packageName= entryName.substring(0, lastSeparator);
 				} else {
-					ArrayList resTemp;
-					int lastSeparator= eName.lastIndexOf('/');
-					String key= IPackageFragment.DEFAULT_PACKAGE_NAME;
-					String value= eName;
-					if (lastSeparator != -1) {
-						//not in the default package
-						eName= eName.replace('/', '.');
-						key= eName.substring(0, lastSeparator);
-					}
-					temp= (ArrayList[]) packageFragToTypes.get(key);
-					if (temp == null) {
-						// build all package fragments in the key
-						lastSeparator= key.indexOf('.');
-						while (lastSeparator > 0) {
-							String prefix= key.substring(0, lastSeparator);
-							if (packageFragToTypes.get(prefix) == null) {
-								packageFragToTypes.put(prefix, new ArrayList[] { new ArrayList(), new ArrayList()
-							 });
-							}
-							lastSeparator= key.indexOf('.', lastSeparator + 1);
-						}
-						resTemp= new ArrayList();
-						resTemp.add(value);
-						packageFragToTypes.put(key, new ArrayList[] { new ArrayList(), resTemp });
-					} else {
-						resTemp= temp[1];
-						resTemp.add(value);
-					}
+					fileName = entryName;
+					packageName =  IPackageFragment.DEFAULT_PACKAGE_NAME;
+				}
+				
+				// add the package name & all of its parent packages
+				String currentPackageName = packageName;
+				while (true) {
+					// extract the package name
+					if (packageFragToTypes.containsKey(currentPackageName)) break;
+					packageFragToTypes.put(currentPackageName, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+					
+					int last;
+					if ((last = currentPackageName.lastIndexOf('.')) < 0) break;
+					currentPackageName = currentPackageName.substring(0, last);
+				}
+				// add classfile info amongst children
+				ArrayList[] children = (ArrayList[]) packageFragToTypes.get(packageName);
+				if (Util.isClassFileName(entryName)) {
+					if (children[JAVA] == EMPTY_LIST) children[JAVA] = new ArrayList();
+					children[JAVA].add(fileName);
+				} else {
+					if (children[NON_JAVA] == EMPTY_LIST) children[NON_JAVA] = new ArrayList();
+					children[NON_JAVA].add(fileName);
 				}
 			}
 		}
@@ -288,19 +269,20 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 		// and cache the entry names in the infos created for those package fragments
 		Iterator packages = packageFragToTypes.keySet().iterator();
 		while (packages.hasNext()) {
-			String packName= (String) packages.next();
+			String packName = (String) packages.next();
+			
 			ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(packName);
 			JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(packName);
 			JarPackageFragmentInfo fragInfo= (JarPackageFragmentInfo) packFrag.createElementInfo();
 			if (entries[0].size() > 0){
-				fragInfo.setEntryNames(entries[0]);
+				fragInfo.setEntryNames(entries[JAVA]);
 			}
-			int resLength= entries[1].size();
+			int resLength= entries[NON_JAVA].size();
 			if (resLength == 0) {
-				packFrag.computeNonJavaResources(new String[] {}, fragInfo, jar.getName());
+				packFrag.computeNonJavaResources(NO_STRINGS, fragInfo, jar.getName());
 			} else {
 				String[] resNames= new String[resLength];
-				entries[1].toArray(resNames);
+				entries[NON_JAVA].toArray(resNames);
 				packFrag.computeNonJavaResources(resNames, fragInfo, jar.getName());
 			}
 			packFrag.computeChildren(fragInfo);
