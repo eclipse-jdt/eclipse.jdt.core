@@ -2105,4 +2105,36 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(A<? extends java.lang.Number>) in H<java.lang.Number> cannot be applied to (A<capture of ?>)
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83573
+	public void test039() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"      Test test = new Test();\n" + 
+				"      This test2 = new Test();\n" + 
+				"      System.out.println(test.get());\n" + 
+				"   }\n" + 
+				"   interface This {\n" + 
+				"      public Object get();\n" + 
+				"   }\n" + 
+				" \n" + 
+				"   interface That extends This {\n" + 
+				"      public String get();\n" + 
+				" \n" + 
+				"   }\n" + 
+				" \n" + 
+				"   static class Test implements That {\n" + 
+				" \n" + 
+				"      public String get() {\n" + 
+				"         return \"That\";\n" + 
+				" \n" + 
+				"      }\n" + 
+				"   }\n" + 
+				"}\n"
+			},
+			"That"
+		);
+	}	
 }
