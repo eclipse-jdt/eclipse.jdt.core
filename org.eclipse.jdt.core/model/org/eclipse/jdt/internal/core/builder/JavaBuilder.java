@@ -278,7 +278,7 @@ private IProject[] getRequiredProjects() {
 			Object[] keyTable = binaryResources.keyTable;
 			for (int i = 0, l = keyTable.length; i < l; i++) {
 				IProject p = (IProject) keyTable[i];
-				if (p != null && !projects.contains(p))
+				if (p != null && p != currentProject && !projects.contains(p))
 					projects.add(p);
 			}
 		}
