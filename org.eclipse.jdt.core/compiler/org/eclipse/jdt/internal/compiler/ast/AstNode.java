@@ -102,10 +102,6 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 		super();
 	}
 
-	public boolean cannotReturn() {
-		return false;
-	}
-
 	public AstNode concreteStatement() {
 		return this;
 	}

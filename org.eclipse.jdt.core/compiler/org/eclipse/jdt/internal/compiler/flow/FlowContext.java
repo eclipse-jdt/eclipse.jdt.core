@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -73,8 +74,8 @@ public class FlowContext implements TypeConstants {
 		FlowContext traversedContext = this;
 
 		while (traversedContext != null) {
-			AstNode sub;
-			if (((sub = traversedContext.subRoutine()) != null) && sub.cannotReturn()) {
+			SubRoutineStatement sub;
+			if (((sub = traversedContext.subRoutine()) != null) && sub.isSubRoutineEscaping()) {
 				// traversing a non-returning subroutine means that all unhandled 
 				// exceptions will actually never get sent...
 				return;
@@ -193,8 +194,8 @@ public class FlowContext implements TypeConstants {
 		// until the point where it is safely handled (Smarter - see comment at the end)
 		FlowContext traversedContext = this;
 		while (traversedContext != null) {
-			AstNode sub;
-			if (((sub = traversedContext.subRoutine()) != null) && sub.cannotReturn()) {
+			SubRoutineStatement sub;
+			if (((sub = traversedContext.subRoutine()) != null) && sub.isSubRoutineEscaping()) {
 				// traversing a non-returning subroutine means that all unhandled 
 				// exceptions will actually never get sent...
 				return;
@@ -456,7 +457,7 @@ public class FlowContext implements TypeConstants {
 	void removeFinalAssignmentIfAny(Reference reference) {
 	}
 
-	public AstNode subRoutine() {
+	public SubRoutineStatement subRoutine() {
 
 		return null;
 	}

@@ -20,7 +20,8 @@ public class ReturnStatement extends Statement {
 
 	public TypeBinding expressionType;
 	public boolean isSynchronized;
-	public AstNode[] subroutines;
+	public SubRoutineStatement[] subroutines;
+	public boolean isAnySubRoutineEscaping = false;
 	public LocalVariableBinding saveValueVariable;
 
 public ReturnStatement(Expression expr, int s, int e ) {
@@ -42,17 +43,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean saveValueNeeded = false;
 	boolean hasValueToSave = expression != null && expression.constant == NotAConstant;
 	do {
-		AstNode sub;
+		SubRoutineStatement sub;
 		if ((sub = traversedContext.subRoutine()) != null) {
 			if (this.subroutines == null){
-				this.subroutines = new AstNode[maxSub];
+				this.subroutines = new SubRoutineStatement[maxSub];
 			}
 			if (subIndex == maxSub) {
-				System.arraycopy(this.subroutines, 0, (this.subroutines = new AstNode[maxSub *= 2]), 0, subIndex); // grow
+				System.arraycopy(this.subroutines, 0, (this.subroutines = new SubRoutineStatement[maxSub *= 2]), 0, subIndex); // grow
 			}
 			this.subroutines[subIndex++] = sub;
-			if (sub.cannotReturn()) {
+			if (sub.isSubRoutineEscaping()) {
 				saveValueNeeded = false;
+				isAnySubRoutineEscaping = true;
 				break;
 			}
 		}
@@ -80,7 +82,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	
 	// resize subroutines
 	if ((subroutines != null) && (subIndex != maxSub)) {
-		System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
+		System.arraycopy(subroutines, 0, (subroutines = new SubRoutineStatement[subIndex]), 0, subIndex);
 	}
 
 	// secret local variable for return value (note that this can only occur in a real method)
@@ -119,20 +121,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// generation of code responsible for invoking the finally blocks in sequence
 	if (subroutines != null) {
 		for (int i = 0, max = subroutines.length; i < max; i++) {
-			AstNode sub;
-			if ((sub = subroutines[i]) instanceof SynchronizedStatement) {
-				codeStream.load(((SynchronizedStatement) sub).synchroVariable);
-				codeStream.monitorexit();
-			} else {
-				TryStatement trySub = (TryStatement) sub;
-				if (trySub.subRoutineCannotReturn) {
-					codeStream.goto_(trySub.subRoutineStartLabel);
+			SubRoutineStatement sub = subroutines[i];
+			sub.generateSubRoutineInvocation(currentScope, codeStream);
+			if (sub.isSubRoutineEscaping()) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					SubRoutineStatement.reenterExceptionHandlers(subroutines, i, codeStream);
 					return;
-				} else {
-					codeStream.jsr(trySub.subRoutineStartLabel);
-				}
 			}
+			sub.exitAnyExceptionHandler();
 		}
 	}
 	if (saveValueVariable != null) codeStream.load(saveValueVariable);
@@ -143,8 +139,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
 	this.generateReturnBytecode(codeStream);
-	
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
+	SubRoutineStatement.reenterExceptionHandlers(subroutines, -1, codeStream);
 }
 /**
  * Dump the suitable return bytecode for a return statement

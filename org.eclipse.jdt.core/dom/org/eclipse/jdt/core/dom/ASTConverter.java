@@ -1711,17 +1711,17 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Block) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Block) statement);
 		}
-		if (statement instanceof Break) {
-			return convert((Break) statement);
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.BreakStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.BreakStatement) statement);
 		}
-		if (statement instanceof Continue) {
-			return convert((Continue) statement);
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.ContinueStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.ContinueStatement) statement);
 		}
-		if (statement instanceof Case) {
-			return convert((Case) statement);
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.CaseStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.CaseStatement) statement);
 		}
-		if (statement instanceof DefaultCase) {
-			return convert((DefaultCase) statement);
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement) statement);
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.DoStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.DoStatement) statement);
@@ -1822,7 +1822,7 @@ class ASTConverter {
 		return block;
 	}
 	
-	public BreakStatement convert(Break statement)  {
+	public BreakStatement convert(org.eclipse.jdt.internal.compiler.ast.BreakStatement statement)  {
 		BreakStatement breakStatement = this.ast.newBreakStatement();
 		breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
@@ -1834,7 +1834,7 @@ class ASTConverter {
 		return breakStatement;
 	}
 
-	public ContinueStatement convert(Continue statement)  {
+	public ContinueStatement convert(org.eclipse.jdt.internal.compiler.ast.ContinueStatement statement)  {
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
 		continueStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
@@ -1847,7 +1847,7 @@ class ASTConverter {
 	}
 		
 		
-	public SwitchCase convert(Case statement) {
+	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = this.ast.newSwitchCase();
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		switchCase.setExpression(convert(statement.constantExpression));
@@ -1855,7 +1855,7 @@ class ASTConverter {
 		return switchCase;
 	}
 	
-	public SwitchCase convert(DefaultCase statement) {
+	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement statement) {
 		SwitchCase switchCase = this.ast.newSwitchCase();
 		switchCase.setExpression(null);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);

@@ -61,9 +61,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public void endVisit(Block block, BlockScope scope) {
 	}
-	public void endVisit(Break breakStatement, BlockScope scope) {
+	public void endVisit(BreakStatement breakStatement, BlockScope scope) {
 	}
-	public void endVisit(Case caseStatement, BlockScope scope) {
+	public void endVisit(CaseStatement caseStatement, BlockScope scope) {
 	}
 	public void endVisit(CastExpression castExpression, BlockScope scope) {
 	}
@@ -87,9 +87,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		ConstructorDeclaration constructorDeclaration,
 		ClassScope scope) {
 	}
-	public void endVisit(Continue continueStatement, BlockScope scope) {
+	public void endVisit(ContinueStatement continueStatement, BlockScope scope) {
 	}
-	public void endVisit(DefaultCase defaultCaseStatement, BlockScope scope) {
+	public void endVisit(DefaultCaseStatement defaultCaseStatement, BlockScope scope) {
 	}
 	public void endVisit(DoStatement doStatement, BlockScope scope) {
 	}
@@ -270,10 +270,10 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(Block block, BlockScope scope) {
 		return true;
 	}
-	public boolean visit(Break breakStatement, BlockScope scope) {
+	public boolean visit(BreakStatement breakStatement, BlockScope scope) {
 		return true;
 	}
-	public boolean visit(Case caseStatement, BlockScope scope) {
+	public boolean visit(CaseStatement caseStatement, BlockScope scope) {
 		return true;
 	}
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
@@ -306,10 +306,10 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		ClassScope scope) {
 		return true;
 	}
-	public boolean visit(Continue continueStatement, BlockScope scope) {
+	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
 		return true;
 	}
-	public boolean visit(DefaultCase defaultCaseStatement, BlockScope scope) {
+	public boolean visit(DefaultCaseStatement defaultCaseStatement, BlockScope scope) {
 		return true;
 	}
 	public boolean visit(DoStatement doStatement, BlockScope scope) {

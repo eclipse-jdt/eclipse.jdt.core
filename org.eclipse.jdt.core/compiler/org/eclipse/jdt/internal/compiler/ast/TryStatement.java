@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class TryStatement extends Statement {
+public class TryStatement extends SubRoutineStatement {
 	
 	public Block tryBlock;
 	public Block[] catchBlocks;
@@ -23,7 +23,7 @@ public class TryStatement extends Statement {
 	public Block finallyBlock;
 	BlockScope scope;
 
-	public boolean subRoutineCannotReturn = true;
+	private boolean isSubRoutineEscaping = false;
 	public UnconditionalFlowInfo subRoutineInits;
 	
 	// should rename into subRoutineComplete to be set to false by default
@@ -85,8 +85,8 @@ public class TryStatement extends Statement {
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
 						flowInfo.copy())
 					.unconditionalInits();
-			if (subInfo.isReachable()) {
-				subRoutineCannotReturn = false;
+			if (!subInfo.isReachable()) {
+				isSubRoutineEscaping = true;
 			}
 			this.subRoutineInits = subInfo;
 		}
@@ -175,9 +175,9 @@ public class TryStatement extends Statement {
 		}
 	}
 
-	public boolean cannotReturn() {
+	public boolean isSubRoutineEscaping() {
 
-		return subRoutineCannotReturn;
+		return isSubRoutineEscaping;
 	}
 
 	/**
@@ -189,6 +189,8 @@ public class TryStatement extends Statement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
+		this.resetAnyExceptionHandlers(); // could reenter if redoing codegen in wide-mode
+
 		if (tryBlock.isEmptyBlock()) {
 			if (subRoutineStartLabel != null) {
 				// since not passing the finallyScope, the block generation will exitUserScope(finallyScope)
@@ -225,10 +227,9 @@ public class TryStatement extends Statement {
 						(ReferenceBinding) catchArguments[i].binding.type);
 			}
 		}
-		ExceptionLabel anyExceptionLabel = null;
 		if (subRoutineStartLabel != null) {
 			subRoutineStartLabel.codeStream = codeStream;
-			anyExceptionLabel = new ExceptionLabel(codeStream, null);
+			this.enterAnyExceptionHandler(codeStream);
 		}
 		// generate the try block
 		tryBlock.generateCode(scope, codeStream);
@@ -236,7 +237,7 @@ public class TryStatement extends Statement {
 		// flag telling if some bytecodes were issued inside the try block
 
 		// natural exit: only if necessary
-		boolean nonReturningSubRoutine =subRoutineStartLabel != null && subRoutineCannotReturn;
+		boolean nonReturningSubRoutine = subRoutineStartLabel != null && isSubRoutineEscaping; // TODO: (philippe) simplify
 		if ((!tryBlockExit) && tryBlockHasSomeCode) {
 			int position = codeStream.position;
 			if (nonReturningSubRoutine) {
@@ -263,9 +264,7 @@ public class TryStatement extends Statement {
 			that must denote the handled exception.
 			*/
 			if (catchArguments == null) {
-				if (anyExceptionLabel != null) {
-					anyExceptionLabel.placeEnd();
-				}
+				this.exitAnyExceptionHandler();
 			} else {
 				for (int i = 0; i < maxCatches; i++) {
 					boolean preserveCurrentHandler =
@@ -296,12 +295,10 @@ public class TryStatement extends Statement {
 						catchBlocks[i].generateCode(scope, codeStream);
 					}
 					if (i == maxCatches - 1) {
-						if (anyExceptionLabel != null) {
-							anyExceptionLabel.placeEnd();
-						}
+						this.exitAnyExceptionHandler();
 						if (subRoutineStartLabel != null) {
 							if (!catchExits[i] && preserveCurrentHandler) {
-								requiresNaturalJsr = true;
+								requiresNaturalJsr = !nonReturningSubRoutine;
 								codeStream.goto_(endLabel);
 							}
 						}
@@ -317,12 +314,18 @@ public class TryStatement extends Statement {
 					}
 				}
 			}
+			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
+			ExceptionLabel naturalExitExceptionHandler = null;
+			if (requiresNaturalJsr) {
+				naturalExitExceptionHandler = this.enterAnyExceptionHandler(codeStream);
+			}
+						
 			// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 			// inside catch blocks) will run the finally block
 			int finallySequenceStartPC = codeStream.position;
 			if (subRoutineStartLabel != null) {
 				// the additional handler is doing: jsr finallyBlock and rethrow TOS-exception
-				anyExceptionLabel.place();
+				this.placeAllAnyExceptionHandlers();
 
 				if (preTryInitStateIndex != -1) {
 					// reset initialization state, as for a normal catch block
@@ -341,18 +344,13 @@ public class TryStatement extends Statement {
 					codeStream.load(anyExceptionVariable);
 					codeStream.athrow();
 				}
-				// end of catch sequence, place label that will correspond to the finally block beginning, or end of statement
-				if (nonReturningSubRoutine) {//TODO: should not be necessary
-					requiresNaturalJsr = false;
-				}
+				// end of catch sequence, place label that will correspond to the finally block beginning, or end of statement	
 				subRoutineStartLabel.place();
 				if (!nonReturningSubRoutine) {
 					codeStream.incrStackSize(1);
 					codeStream.store(returnAddressVariable, false);
 				}
-				codeStream.recordPositionsFrom(
-					finallySequenceStartPC,
-					finallyBlock.sourceStart);
+				codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
 				// entire sequence for finally is associated to finally block
 				finallyBlock.generateCode(scope, codeStream);
 				if (!nonReturningSubRoutine) {
@@ -366,12 +364,15 @@ public class TryStatement extends Statement {
 				}
 				// will naturally fall into subsequent code after subroutine invocation
 				endLabel.place();
-				if (requiresNaturalJsr) {
-					int position = codeStream.position;
+				if (naturalExitExceptionHandler != null) {
+					int position = codeStream.position;					
+					// fix up natural exit handler
+					naturalExitExceptionHandler.placeStart();
 					codeStream.jsr(subRoutineStartLabel);
+					naturalExitExceptionHandler.placeEnd();
 					codeStream.recordPositionsFrom(
 						position,
-						finallyBlock.sourceStart);
+						finallyBlock.sourceStart);					
 				}
 			} else {
 				// no subroutine, simply position end label
@@ -392,6 +393,20 @@ public class TryStatement extends Statement {
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement#generateSubRoutineInvocation(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.codegen.CodeStream)
+	 */
+	public void generateSubRoutineInvocation(
+			BlockScope currentScope,
+			CodeStream codeStream) {
+
+		if (this.isSubRoutineEscaping) {
+			codeStream.goto_(this.subRoutineStartLabel);
+		} else {
+			codeStream.jsr(this.subRoutineStartLabel);
+		}
 	}
 
 	public void resetStateForCodeGeneration() {

@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public abstract class BranchStatement extends Statement {
 	public char[] label;
 	public Label targetLabel;
-	public AstNode[] subroutines;
+	public SubRoutineStatement[] subroutines;
 /**
  * BranchStatement constructor comment.
  */
@@ -41,24 +41,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// blocks in sequence
 	if (subroutines != null){
 		for (int i = 0, max = subroutines.length; i < max; i++){
-			AstNode sub;
-			if ((sub = subroutines[i]) instanceof SynchronizedStatement){
-				codeStream.load(((SynchronizedStatement)sub).synchroVariable);
-				codeStream.monitorexit(); 
-			} else {
-				TryStatement trySub = (TryStatement) sub;
-				if (trySub.subRoutineCannotReturn)	{
-					codeStream.goto_(trySub.subRoutineStartLabel);
+			SubRoutineStatement sub = subroutines[i];
+			sub.generateSubRoutineInvocation(currentScope, codeStream);
+			if (sub.isSubRoutineEscaping()) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					SubRoutineStatement.reenterExceptionHandlers(subroutines, i, codeStream);
 					return;
-				} else {
-					codeStream.jsr(trySub.subRoutineStartLabel);
-				}
 			}
+			sub.exitAnyExceptionHandler();
 		}
 	}
 	codeStream.goto_(targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
+	SubRoutineStatement.reenterExceptionHandlers(subroutines, -1, codeStream);
 }
 public void resetStateForCodeGeneration() {
 	if (this.targetLabel != null) {

@@ -16,14 +16,17 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class Case extends Statement {
-	
-	public Expression constantExpression;
+// TODO: shouldn't DefaultCase simply be merged with a Case statement ?
+public class DefaultCaseStatement extends Statement {
+
 	public CaseLabel targetLabel;
-	public Case(int sourceStart, Expression constantExpression) {
-		this.constantExpression = constantExpression;
-		this.sourceEnd = constantExpression.sourceEnd;
+	/**
+	 * DefautCase constructor comment.
+	 */
+	public DefaultCaseStatement(int sourceEnd, int sourceStart) {
+
 		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
 	public FlowInfo analyseCode(
@@ -31,16 +34,14 @@ public class Case extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		if (constantExpression.constant == NotAConstant)
-			currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
-
-		this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
 		return flowInfo;
 	}
 
 	/**
-	 * Case code generation
+	 * Default case code generation
 	 *
+	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
+	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -50,8 +51,8 @@ public class Case extends Statement {
 		int pc = codeStream.position;
 		targetLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-	}
 
+	}
 	/**
 	 * No-op : should use resolveCase(...) instead.
 	 */
@@ -60,29 +61,23 @@ public class Case extends Statement {
 
 	public Constant resolveCase(
 		BlockScope scope,
-		TypeBinding switchType,
+		TypeBinding testType,
 		SwitchStatement switchStatement) {
 
-		// add into the collection of cases of the associated switch statement
-		switchStatement.cases[switchStatement.caseCount++] = this;
-		TypeBinding caseType = constantExpression.resolveType(scope);
-		if (caseType == null || switchType == null)
-			return null;
-		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
-			return constantExpression.constant;
-		if (caseType.isCompatibleWith(switchType))
-			return constantExpression.constant;
-		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-			constantExpression,
-			caseType,
-			switchType);
+		// remember the default case into the associated switch statement
+		if (switchStatement.defaultCase != null)
+			scope.problemReporter().duplicateDefaultCase(this);
+
+		// on error the last default will be the selected one .... (why not) ....	
+		switchStatement.defaultCase = this;
+		resolve(scope);
 		return null;
 	}
 
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s = s + "case " + constantExpression.toStringExpression() + " : "; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + "default : "; //$NON-NLS-1$
 		return s;
 	}
 
@@ -90,9 +85,7 @@ public class Case extends Statement {
 		IAbstractSyntaxTreeVisitor visitor,
 		BlockScope blockScope) {
 
-		if (visitor.visit(this, blockScope)) {
-			constantExpression.traverse(visitor, blockScope);
-		}
+		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
 	}
 }

@@ -1389,7 +1389,7 @@ protected void consumeBlockStatements() {
 protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
 	expressionLengthPtr--;
-	pushOnAstStack(new Case(intStack[intPtr--], expressionStack[expressionPtr--]));
+	pushOnAstStack(new CaseStatement(intStack[intPtr--], expressionStack[expressionPtr--]));
 }
 protected void consumeCastExpression() {
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
@@ -1801,7 +1801,7 @@ protected void consumeConstructorHeaderName() {
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new DefaultCase(intStack[intPtr--], intStack[intPtr--]));
+	pushOnAstStack(new DefaultCaseStatement(intStack[intPtr--], intStack[intPtr--]));
 }
 protected void consumeDefaultModifiers() {
 	checkAnnotation(); // might update modifiers with AccDeprecated
@@ -3869,14 +3869,14 @@ protected void consumeStatementBreak() {
 	// BreakStatement ::= 'break' ';'
 	// break pushs a position on intStack in case there is no label
 
-	pushOnAstStack(new Break(null, intStack[intPtr--], endPosition));
+	pushOnAstStack(new BreakStatement(null, intStack[intPtr--], endPosition));
 }
 protected void consumeStatementBreakWithLabel() {
 	// BreakStatement ::= 'break' Identifier ';'
 	// break pushs a position on intStack in case there is no label
 
 	pushOnAstStack(
-		new Break(
+		new BreakStatement(
 			identifierStack[identifierPtr--],
 			intStack[intPtr--],
 			endPosition)); 
@@ -3899,7 +3899,7 @@ protected void consumeStatementContinue() {
 	// continue pushs a position on intStack in case there is no label
 
 	pushOnAstStack(
-		new Continue(
+		new ContinueStatement(
 			null,
 			intStack[intPtr--],
 			endPosition));
@@ -3909,7 +3909,7 @@ protected void consumeStatementContinueWithLabel() {
 	// continue pushs a position on intStack in case there is no label
 
 	pushOnAstStack(
-		new Continue(
+		new ContinueStatement(
 			identifierStack[identifierPtr--], 
 			intStack[intPtr--], 
 			endPosition)); 

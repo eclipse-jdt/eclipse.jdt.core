@@ -22,8 +22,8 @@ public class SwitchStatement extends Statement {
 	public BlockScope scope;
 	public int explicitDeclarations;
 	public Label breakLabel;
-	public Case[] cases;
-	public DefaultCase defaultCase;
+	public CaseStatement[] cases;
+	public DefaultCaseStatement defaultCase;
 	public int caseCount = 0;
 
 	// for local variables table attributes
@@ -220,7 +220,7 @@ public class SwitchStatement extends Statement {
 			scope = explicitDeclarations == 0 ? upperScope : new BlockScope(upperScope);
 			int length;
 			// collection of cases is too big but we will only iterate until caseCount
-			cases = new Case[length = statements.length];
+			cases = new CaseStatement[length = statements.length];
 			int[] casesValues = new int[length];
 			int counter = 0;
 			for (int i = 0; i < length; i++) {
@@ -231,7 +231,7 @@ public class SwitchStatement extends Statement {
 						int key = cst.intValue();
 						for (int j = 0; j < counter; j++) {
 							if (casesValues[j] == key) {
-								scope.problemReporter().duplicateCase((Case) statements[i], cst); //TODO: (philippe) could improve diagnosis to indicate colliding case
+								scope.problemReporter().duplicateCase((CaseStatement) statements[i], cst); //TODO: (philippe) could improve diagnosis to indicate colliding case
 							}
 						}
 						casesValues[counter++] = key;
@@ -264,17 +264,17 @@ public class SwitchStatement extends Statement {
 				//use instanceof in order not to polluate classes with behavior only needed for printing purpose.
 				if (statements[i] instanceof Expression)
 					s = s + "\n" + inFront + tabulation; //$NON-NLS-1$
-				if (statements[i] instanceof Break)
+				if (statements[i] instanceof BreakStatement)
 					s = s + statements[i].toString(0);
 				else
 					s = s + "\n" + statements[i].toString(tab + 2); //$NON-NLS-1$
 				//=============	
-				if ((statements[i] instanceof Case)
-					|| (statements[i] instanceof DefaultCase)) {
+				if ((statements[i] instanceof CaseStatement)
+					|| (statements[i] instanceof DefaultCaseStatement)) {
 					i++;
-					while (!((statements[i] instanceof Case)
-						|| (statements[i] instanceof DefaultCase))) {
-						if ((statements[i] instanceof Expression) || (statements[i] instanceof Break))
+					while (!((statements[i] instanceof CaseStatement)
+						|| (statements[i] instanceof DefaultCaseStatement))) {
+						if ((statements[i] instanceof Expression) || (statements[i] instanceof BreakStatement))
 							s = s + statements[i].toString(0) + " ; "; //$NON-NLS-1$
 						else
 							s = s + "\n" + statements[i].toString(tab + 6) + " ; "; //$NON-NLS-1$ //$NON-NLS-2$

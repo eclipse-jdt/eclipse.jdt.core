@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 
 /**
  * Reflects the context of code analysis, keeping track of enclosing
@@ -39,11 +40,11 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 	}
 		
 	public boolean isNonReturningContext() {
-		return associatedNode.cannotReturn();
+		return subRoutine().isSubRoutineEscaping();
 	}
 	
-	public AstNode subRoutine() {
-		return associatedNode;
+	public SubRoutineStatement subRoutine() {
+		return (SubRoutineStatement)associatedNode;
 	}
 	
 	public void recordReturnFrom(FlowInfo flowInfo) {

@@ -34,8 +34,8 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(Assignment assignment, BlockScope scope);
 	void endVisit(BinaryExpression binaryExpression, BlockScope scope);
 	void endVisit(Block block, BlockScope scope);
-	void endVisit(Break breakStatement, BlockScope scope);
-	void endVisit(Case caseStatement, BlockScope scope);
+	void endVisit(BreakStatement breakStatement, BlockScope scope);
+	void endVisit(CaseStatement caseStatement, BlockScope scope);
 	void endVisit(CastExpression castExpression, BlockScope scope);
 	void endVisit(CharLiteral charLiteral, BlockScope scope);
 	void endVisit(ClassLiteralAccess classLiteral, BlockScope scope);
@@ -44,8 +44,8 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(CompoundAssignment compoundAssignment, BlockScope scope);
 	void endVisit(ConditionalExpression conditionalExpression, BlockScope scope);
 	void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope scope);
-	void endVisit(Continue continueStatement, BlockScope scope);
-	void endVisit(DefaultCase defaultCaseStatement, BlockScope scope);
+	void endVisit(ContinueStatement continueStatement, BlockScope scope);
+	void endVisit(DefaultCaseStatement defaultCaseStatement, BlockScope scope);
 	void endVisit(DoStatement doStatement, BlockScope scope);
 	void endVisit(DoubleLiteral doubleLiteral, BlockScope scope);
 	void endVisit(EqualExpression equalExpression, BlockScope scope);
@@ -109,8 +109,8 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(Assignment assignment, BlockScope scope);
 	boolean visit(BinaryExpression binaryExpression, BlockScope scope);
 	boolean visit(Block block, BlockScope scope);
-	boolean visit(Break breakStatement, BlockScope scope);
-	boolean visit(Case caseStatement, BlockScope scope);
+	boolean visit(BreakStatement breakStatement, BlockScope scope);
+	boolean visit(CaseStatement caseStatement, BlockScope scope);
 	boolean visit(CastExpression castExpression, BlockScope scope);
 	boolean visit(CharLiteral charLiteral, BlockScope scope);
 	boolean visit(ClassLiteralAccess classLiteral, BlockScope scope);
@@ -119,8 +119,8 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(CompoundAssignment compoundAssignment, BlockScope scope);
 	boolean visit(ConditionalExpression conditionalExpression, BlockScope scope);
 	boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope);
-	boolean visit(Continue continueStatement, BlockScope scope);
-	boolean visit(DefaultCase defaultCaseStatement, BlockScope scope);
+	boolean visit(ContinueStatement continueStatement, BlockScope scope);
+	boolean visit(DefaultCaseStatement defaultCaseStatement, BlockScope scope);
 	boolean visit(DoStatement doStatement, BlockScope scope);
 	boolean visit(DoubleLiteral doubleLiteral, BlockScope scope);
 	boolean visit(EqualExpression equalExpression, BlockScope scope);

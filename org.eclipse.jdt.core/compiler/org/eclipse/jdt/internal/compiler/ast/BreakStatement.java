@@ -14,13 +14,12 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class Continue extends BranchStatement {
-
-	public Continue(char[] l, int s, int e) {
-		
-		super(l, s, e);
-	}
+public class BreakStatement extends BranchStatement {
 	
+	public BreakStatement(char[] label, int sourceStart, int e) {
+		super(label, sourceStart, e);
+	}
+
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
@@ -30,36 +29,32 @@ public class Continue extends BranchStatement {
 		// to each of the traversed try statements, so that execution will terminate properly.
 
 		// lookup the label, this should answer the returnContext
-		FlowContext targetContext = (label == null)
-				? flowContext.getTargetContextForDefaultContinue()
-				: flowContext.getTargetContextForContinueLabel(label);
+		FlowContext targetContext = (label == null) 
+			? flowContext.getTargetContextForDefaultBreak()
+			: flowContext.getTargetContextForBreakLabel(label);
 
 		if (targetContext == null) {
 			if (label == null) {
-				currentScope.problemReporter().invalidContinue(this);
+				currentScope.problemReporter().invalidBreak(this);
 			} else {
 				currentScope.problemReporter().undefinedLabel(this); 
 			}
-			return flowInfo; // pretend it did not continue since no actual target			
-		} 
-
-		if (targetContext == FlowContext.NotContinuableContext) {
-			currentScope.problemReporter().invalidContinue(this);
-			return flowInfo; // pretend it did not continue since no actual target
+			return flowInfo; // pretend it did not break since no actual target
 		}
-		targetLabel = targetContext.continueLabel();
+		
+		targetLabel = targetContext.breakLabel();
 		FlowContext traversedContext = flowContext;
 		int subIndex = 0, maxSub = 5;
-		subroutines = new AstNode[maxSub];
-
+		subroutines = new SubRoutineStatement[maxSub];
+		
 		do {
-			AstNode sub;
+			SubRoutineStatement sub;
 			if ((sub = traversedContext.subRoutine()) != null) {
 				if (subIndex == maxSub) {
-					System.arraycopy(subroutines, 0, (subroutines = new AstNode[maxSub*=2]), 0, subIndex); // grow
+					System.arraycopy(subroutines, 0, (subroutines = new SubRoutineStatement[maxSub*=2]), 0, subIndex); // grow
 				}
 				subroutines[subIndex++] = sub;
-				if (sub.cannotReturn()) {
+				if (sub.isSubRoutineEscaping()) {
 					break;
 				}
 			}
@@ -70,33 +65,33 @@ public class Continue extends BranchStatement {
 				TryStatement tryStatement = (TryStatement) node;
 				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
 			} else if (traversedContext == targetContext) {
-				// only record continue info once accumulated through subroutines, and only against target context
-				targetContext.recordContinueFrom(flowInfo);
+				// only record break info once accumulated through subroutines, and only against target context
+				targetContext.recordBreakFrom(flowInfo);
 				break;
 			}
 		} while ((traversedContext = traversedContext.parent) != null);
 		
 		// resize subroutines
 		if (subIndex != maxSub) {
-			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
+			System.arraycopy(subroutines, 0, (subroutines = new SubRoutineStatement[subIndex]), 0, subIndex);
 		}
 		return FlowInfo.DEAD_END;
 	}
-
+	
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s += "continue "; //$NON-NLS-1$
+		s += "break "; //$NON-NLS-1$
 		if (label != null)
 			s += new String(label);
 		return s;
 	}
-
+	
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
-		BlockScope blockScope) {
+		BlockScope blockscope) {
 
-		visitor.visit(this, blockScope);
-		visitor.endVisit(this, blockScope);
+		visitor.visit(this, blockscope);
+		visitor.endVisit(this, blockscope);
 	}
 }

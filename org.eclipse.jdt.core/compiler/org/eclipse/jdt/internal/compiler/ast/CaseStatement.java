@@ -16,16 +16,14 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class DefaultCase extends Statement {
-
+public class CaseStatement extends Statement {
+	
+	public Expression constantExpression;
 	public CaseLabel targetLabel;
-	/**
-	 * DefautCase constructor comment.
-	 */
-	public DefaultCase(int sourceEnd, int sourceStart) {
-
+	public CaseStatement(int sourceStart, Expression constantExpression) {
+		this.constantExpression = constantExpression;
+		this.sourceEnd = constantExpression.sourceEnd;
 		this.sourceStart = sourceStart;
-		this.sourceEnd = sourceEnd;
 	}
 
 	public FlowInfo analyseCode(
@@ -33,14 +31,16 @@ public class DefaultCase extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
+		if (constantExpression.constant == NotAConstant)
+			currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
+
+		this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
 		return flowInfo;
 	}
 
 	/**
-	 * Default case code generation
+	 * Case code generation
 	 *
-	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -50,8 +50,8 @@ public class DefaultCase extends Statement {
 		int pc = codeStream.position;
 		targetLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-
 	}
+
 	/**
 	 * No-op : should use resolveCase(...) instead.
 	 */
@@ -60,23 +60,29 @@ public class DefaultCase extends Statement {
 
 	public Constant resolveCase(
 		BlockScope scope,
-		TypeBinding testType,
+		TypeBinding switchType,
 		SwitchStatement switchStatement) {
 
-		// remember the default case into the associated switch statement
-		if (switchStatement.defaultCase != null)
-			scope.problemReporter().duplicateDefaultCase(this);
-
-		// on error the last default will be the selected one .... (why not) ....	
-		switchStatement.defaultCase = this;
-		resolve(scope);
+		// add into the collection of cases of the associated switch statement
+		switchStatement.cases[switchStatement.caseCount++] = this;
+		TypeBinding caseType = constantExpression.resolveType(scope);
+		if (caseType == null || switchType == null)
+			return null;
+		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
+			return constantExpression.constant;
+		if (caseType.isCompatibleWith(switchType))
+			return constantExpression.constant;
+		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
+			constantExpression,
+			caseType,
+			switchType);
 		return null;
 	}
 
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s = s + "default : "; //$NON-NLS-1$
+		s = s + "case " + constantExpression.toStringExpression() + " : "; //$NON-NLS-1$ //$NON-NLS-2$
 		return s;
 	}
 
@@ -84,7 +90,9 @@ public class DefaultCase extends Statement {
 		IAbstractSyntaxTreeVisitor visitor,
 		BlockScope blockScope) {
 
-		visitor.visit(this, blockScope);
+		if (visitor.visit(this, blockScope)) {
+			constantExpression.traverse(visitor, blockScope);
+		}
 		visitor.endVisit(this, blockScope);
 	}
 }
