@@ -14716,8 +14716,7 @@ public void test500(){
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262 - variation
-	// TODO (kent) reenable once fixed
-	public void _test520(){
+	public void test520(){
 		runConformTest(
 			new String[] {
 				"Bar.java",

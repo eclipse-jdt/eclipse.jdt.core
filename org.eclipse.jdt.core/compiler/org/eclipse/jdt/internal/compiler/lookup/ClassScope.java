@@ -944,14 +944,14 @@ public class ClassScope extends Scope {
 			//		- a binary type... this case MUST be caught & reported here
 			//		- another source type... this case is reported against the other source type
 			boolean hasCycle = false;
-			if (superType.superclass() != null) {
-				if (sourceType == superType.superclass()) {
+			ReferenceBinding parentType = superType.superclass();
+			if (parentType != null) {
+				if (sourceType == parentType) {
 					problemReporter().hierarchyCircularity(sourceType, superType, reference);
 					sourceType.tagBits |= HierarchyHasProblems;
 					superType.tagBits |= HierarchyHasProblems;
 					return true;
 				}
-				ReferenceBinding parentType = superType.superclass();
 				if (parentType.isParameterizedType())
 					parentType = ((ParameterizedTypeBinding) parentType).type;
 				hasCycle |= detectHierarchyCycle(sourceType, parentType, reference);
