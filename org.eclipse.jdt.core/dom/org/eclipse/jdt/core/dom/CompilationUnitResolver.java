@@ -190,7 +190,7 @@ class CompilationUnitResolver extends Compiler {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault())),
 			false,
-			compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
+			compilerOptions.sourceLevel);
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 

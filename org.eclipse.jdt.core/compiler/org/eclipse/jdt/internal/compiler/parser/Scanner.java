@@ -12,9 +12,10 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.Iterator;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * IMPORTANT NOTE: Internal Scanner implementation. It is mirrored in 
@@ -176,15 +177,29 @@ public Scanner(
 	char[][] taskTags,
 	char[][] taskPriorities) {
 		
-	this.eofPosition = Integer.MAX_VALUE;
-	this.tokenizeComments = tokenizeComments;
-	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = assertMode;
-	this.taskTags = taskTags;
-	this.taskPriorities = taskPriorities;
+	initialize(
+		tokenizeComments,
+		tokenizeWhiteSpace,
+		checkNonExternalizedStringLiterals,
+		assertMode,
+		taskTags,
+		taskPriorities);
 }
 
+public Scanner(
+	boolean tokenizeComments, 
+	boolean tokenizeWhiteSpace, 
+	boolean checkNonExternalizedStringLiterals, 
+	int sourceLevel,
+	char[][] taskTags,
+	char[][] taskPriorities) {
+		
+	if (sourceLevel == CompilerOptions.JDK1_4) {
+		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, true, taskTags, taskPriorities);
+	} else {
+		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false, taskTags, taskPriorities);
+	}
+}
 
 public  final boolean atEnd() {
 	// This code is not relevant if source is 
@@ -1414,6 +1429,23 @@ public final void getNextUnicodeChar()
 
 public char[] getSource(){
 	return this.source;
+}
+
+private void initialize(
+	boolean tokenizeComments, 
+	boolean tokenizeWhiteSpace, 
+	boolean checkNonExternalizedStringLiterals, 
+	boolean assertMode,
+	char[][] taskTags,
+	char[][] taskPriorities) {
+		
+	this.eofPosition = Integer.MAX_VALUE;
+	this.tokenizeComments = tokenizeComments;
+	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
+	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.assertMode = assertMode;
+	this.taskTags = taskTags;
+	this.taskPriorities = taskPriorities;
 }
 
 /* Tokenize a method body, assuming that curly brackets are properly balanced.

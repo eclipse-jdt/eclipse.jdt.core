@@ -373,11 +373,11 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public static final int CurlyBracket = 2;
 	public static final int BracketKinds = 3;
 
-public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, boolean assertMode) {
+public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, int sourceLevel) {
 		
 	this.problemReporter = problemReporter;
 	this.optimizeStringLiterals = optimizeStringLiterals;
-	this.assertMode = assertMode;
+	this.assertMode = CompilerOptions.JDK1_4 == sourceLevel;
 	this.initializeScanner();
 	astLengthStack = new int[50];
 	expressionLengthStack = new int[30];

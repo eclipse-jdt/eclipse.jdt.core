@@ -40,8 +40,8 @@ public class SelectionParser extends AssistParser {
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
 	
-public SelectionParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, assertMode);
+public SelectionParser(ProblemReporter problemReporter, int sourceLevel) {
+	super(problemReporter, sourceLevel);
 }
 public char[] assistIdentifier(){
 	return ((SelectionScanner)scanner).selectionIdentifier;

@@ -76,8 +76,8 @@ public abstract class AssistParser extends Parser {
 	
 	protected boolean isFirst = false;
 
-public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, true, assertMode);
+public AssistParser(ProblemReporter problemReporter, int sourceLevel) {
+	super(problemReporter, true, sourceLevel);
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

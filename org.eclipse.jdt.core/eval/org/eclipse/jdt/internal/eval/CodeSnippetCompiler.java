@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * A compiler that compiles code snippets. 
@@ -41,7 +40,7 @@ public class CodeSnippetCompiler extends Compiler {
 				problemReporter,
 				evaluationContext,
 				this.options.parseLiteralExpressionsAsConstants,
-				this.options.sourceLevel >= CompilerOptions.JDK1_4,
+				this.options.sourceLevel,
 				codeSnippetStart,
 				codeSnippetEnd);
 		this.parseThreshold = 1;

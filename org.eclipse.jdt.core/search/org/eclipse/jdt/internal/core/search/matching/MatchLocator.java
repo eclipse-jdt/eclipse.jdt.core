@@ -354,7 +354,7 @@ public class MatchLocator implements ITypeRequestor {
 			new LookupEnvironment(this, options, problemReporter, this.nameEnvironment);
 			
 		// create parser
-		this.parser = new MatchLocatorParser(problemReporter, options.sourceLevel >= CompilerOptions.JDK1_4);
+		this.parser = new MatchLocatorParser(problemReporter, options.sourceLevel);
 		
 		// reset parsed units (they could hold onto obsolete bindings: see bug 16052)
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(project.getPackageFragmentRoots());

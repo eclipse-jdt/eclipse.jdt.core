@@ -36,8 +36,8 @@ public SelectionTest2(String testName) {
 }
 boolean thereWasAnNPE = false;
 private class SpecialSelectionParser extends SelectionParser {
-	public SpecialSelectionParser(ProblemReporter problemReporter, boolean assertMode) {
-		super(problemReporter, assertMode);
+	public SpecialSelectionParser(ProblemReporter problemReporter, int sourceLevel) {
+		super(problemReporter, sourceLevel);
 	}
 	public void doNPEInParser(){
 		this.stack = null;
@@ -52,7 +52,7 @@ private class SpecialSelectionParser extends SelectionParser {
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 				options, 
 				new DefaultProblemFactory(Locale.getDefault())),
-			options.sourceLevel >= CompilerOptions.JDK1_4);
+			options.sourceLevel);
 	return parser;
 }
 void checkMethodParse(

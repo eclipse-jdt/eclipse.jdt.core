@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -149,7 +148,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 						new Parser(
 							this.problemReporter, 
 							true, 
-							this.problemReporter.options.sourceLevel >= CompilerOptions.JDK1_4);
+							this.problemReporter.options.sourceLevel);
 				}
 				this.parser.parse(field, type, this.unit, initializationSource);
 			}

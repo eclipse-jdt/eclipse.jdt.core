@@ -460,7 +460,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			}
 			worked(monitor, 1);
 		}
-		Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.sourceLevel >= CompilerOptions.JDK1_4);
+		Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.sourceLevel);
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength, this.options.maxProblemsPerUnit); 

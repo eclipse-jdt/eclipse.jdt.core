@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -43,7 +44,7 @@ class ASTConverter {
 					true /*comment*/,
 					false /*whitespace*/,
 					false /*nls*/,
-					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) /*assert*/, 
+					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? CompilerOptions.JDK1_4 : CompilerOptions.JDK1_3 /*sourceLevel*/, 
 					null /*taskTags*/,
 					null/*taskPriorities*/);
 	}

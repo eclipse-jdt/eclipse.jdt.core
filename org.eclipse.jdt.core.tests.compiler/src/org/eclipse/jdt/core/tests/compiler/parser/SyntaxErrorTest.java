@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class SyntaxErrorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 	public static boolean optimizeStringLiterals = false;
-	public static boolean assertMode = false;
+	public static int sourceLevel = CompilerOptions.JDK1_3; //$NON-NLS-1$
 	
 	public SyntaxErrorTest(String testName){
 	super(testName);
@@ -43,7 +43,7 @@ public void checkParse(
 				new CompilerOptions(), 
 				new DefaultProblemFactory(Locale.getDefault())),
 			optimizeStringLiterals,
-			assertMode);
+			sourceLevel);
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
 	

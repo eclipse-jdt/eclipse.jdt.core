@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -263,4 +264,49 @@ public class ToolFactory {
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}
+	
+	/**
+	 * Create a scanner, indicating the level of detail requested for tokenizing. The scanner can then be
+	 * used to tokenize some source in a Java aware way.
+	 * Here is a typical scanning loop:
+	 * 
+	 * <code>
+	 * <pre>
+	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
+	 *   scanner.setSource("int i = 0;".toCharArray());
+	 *   while (true) {
+	 *     int token = scanner.getNextToken();
+	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
+	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
+	 *   }
+	 * </pre>
+	 * </code>
+	 * 
+	 * <p>
+	 * The returned scanner will tolerate unterminated line comments (missing line separator). It can be made stricter
+	 * by using API with extra boolean parameter (<code>strictCommentMode</code>).
+	 * <p>
+	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
+	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
+	 * @param recordLineSeparator if set to <code>true</code>, the scanner will record positions of encountered line 
+	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
+	 * can then be extracted using <code>IScanner#getLineEnds</code>. Only non-unicode escape sequences are 
+	 * considered as valid line separators.
+	 * @param sourceLevel if set to <code>&quot;1.3&quot;</code> or <code>null</code>, occurrences of 'assert' will be reported as identifiers
+	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>&quot;1.4&quot;</code>, it
+	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
+	 * a new 'assert' keyword.
+  	 * @return a scanner
+	 * @see org.eclipse.jdt.core.compiler.IScanner
+	 */
+	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel) {
+		PublicScanner scanner = null;
+		if (JavaCore.VERSION_1_4.equals(sourceLevel)) {
+			scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, CompilerOptions.JDK1_4 /*assert*/, null/*taskTags*/, null/*taskPriorities*/);
+		} else {
+			scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, CompilerOptions.JDK1_3 /*assert*/, null/*taskTags*/, null/*taskPriorities*/);
+		}
+		scanner.recordLineSeparator = recordLineSeparator;
+		return scanner;
+	}	
 }

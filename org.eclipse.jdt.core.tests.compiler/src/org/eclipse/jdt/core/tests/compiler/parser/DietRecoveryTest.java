@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class DietRecoveryTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 	public static boolean optimizeStringLiterals = false;
-	public static boolean assertMode = false;
+	public static int sourceLevel = CompilerOptions.JDK1_3; //$NON-NLS-1$
 	
 public DietRecoveryTest(String testName){
 	super(testName);
@@ -51,7 +51,7 @@ public void checkParse(
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals,
-				assertMode);
+				sourceLevel);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -75,7 +75,7 @@ public void checkParse(
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals,
-				assertMode);
+				sourceLevel);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -114,7 +114,7 @@ public void checkParse(
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals,
-				assertMode);
+				sourceLevel);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -181,7 +181,7 @@ public void checkParse(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					options, 
 					new DefaultProblemFactory(Locale.getDefault())),
-				options.sourceLevel >= CompilerOptions.JDK1_4);
+				options.sourceLevel);
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	

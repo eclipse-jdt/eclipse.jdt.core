@@ -594,7 +594,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			new LookupEnvironment(this, this.options, problemReporter, this.nameEnvironment);
 			
 		// create parser
-		this.parser = new MatchLocatorParser(problemReporter, this.options.sourceLevel >= CompilerOptions.JDK1_4);
+		this.parser = new MatchLocatorParser(problemReporter, this.options.sourceLevel);
 				
 		// remember project's name lookup
 		this.nameLookup = project.getNameLookup();

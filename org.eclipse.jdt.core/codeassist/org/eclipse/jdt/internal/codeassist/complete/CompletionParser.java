@@ -115,8 +115,8 @@ public class CompletionParser extends AssistParser {
 	static final int YES = 2;
 	
 	
-public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, assertMode);
+public CompletionParser(ProblemReporter problemReporter, int sourceLevel) {
+	super(problemReporter, sourceLevel);
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;

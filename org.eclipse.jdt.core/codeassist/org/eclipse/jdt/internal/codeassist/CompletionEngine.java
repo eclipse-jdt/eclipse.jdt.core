@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -205,16 +204,16 @@ public final class CompletionEngine
 					}
 
 				});
-		this.parser =
-			new CompletionParser(problemReporter, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
+		this.parser =
+			new CompletionParser(problemReporter, this.compilerOptions.sourceLevel);
 		this.nameScanner =
 			new Scanner(
 				false /*comment*/, 
 				false /*whitespace*/, 
 				false /*nls*/, 
-				this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, 
+				this.compilerOptions.sourceLevel, 
 				null /*taskTags*/, 
 				null/*taskPriorities*/);
 	}
