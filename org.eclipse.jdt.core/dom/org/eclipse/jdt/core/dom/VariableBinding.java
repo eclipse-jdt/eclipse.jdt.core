@@ -260,6 +260,15 @@ class VariableBinding implements IVariableBinding {
 	}
 
 	/*
+	 * @see IVariableBinding#isEnumConstant()
+	 * @since 3.1
+	 */
+	public boolean isEnumConstant() {
+		// TODO (olivier) - missing implementation
+		return false;
+	}
+
+	/*
 	 * @see IBinding#isSynthetic()
 	 */
 	public boolean isSynthetic() {

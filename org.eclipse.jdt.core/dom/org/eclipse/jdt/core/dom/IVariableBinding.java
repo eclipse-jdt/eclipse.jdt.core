@@ -25,12 +25,26 @@ package org.eclipse.jdt.core.dom;
 public interface IVariableBinding extends IBinding {
 	
 	/**
-	 * Returns whether this binding is for a field or for a local variable.
+	 * Returns whether this binding is for a field.
+	 * Note that this method returns <code>true</code> for constants,
+	 * including enum constants. This method returns <code>false</code>
+	 * for local variables.
 	 * 
 	 * @return <code>true</code> if this is the binding for a field,
-	 *    and <code>false</code> if this is the binding for a local variable
+	 *    and <code>false</code> otherwise
 	 */ 
 	public boolean isField();
+	
+	/**
+	 * Returns whether this binding is for an enum constant.
+	 * Note that this method returns <code>false</code> for local variables
+	 * and for fields other than enum constants.
+	 * 
+	 * @return <code>true</code> if this is the binding for an enum constant,
+	 *    and <code>false</code> otherwise
+	 * @since 3.1
+	 */ 
+	public boolean isEnumConstant();
 	
 	/**
 	 * Returns the name of the field or local variable declared in this binding.
@@ -98,7 +112,7 @@ public interface IVariableBinding extends IBinding {
 	 * <code>String</code>, the result is the string itself. If the variable has
 	 * no compile-time computed value, the result is <code>null</code>.
 	 * (Note: compile-time constant expressions cannot denote <code>null</code>;
-	 * JLS2 15.28.)
+	 * JLS2 15.28.). The result is always <code>null</code> for enum constants.
 	 * 
 	 * @return the constant value, or <code>null</code> if none
 	 * @since 3.0
