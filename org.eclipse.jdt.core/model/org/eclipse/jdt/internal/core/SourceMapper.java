@@ -565,7 +565,6 @@ public class SourceMapper
 				} else if (type.isLocal() || type.isAnonymous()){
 					String fullyQualifiedName = type.getFullyQualifiedName();
 					name = fullyQualifiedName.substring(0, fullyQualifiedName.indexOf('$')).replace('.', '/') + ".java"; //$NON-NLS-1$
-					System.out.println(name);
 				} else {
 					name = type.getFullyQualifiedName().replace('.', '/') + ".java"; //$NON-NLS-1$
 				}
