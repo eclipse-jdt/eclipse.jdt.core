@@ -118,7 +118,7 @@ public void testUnknownType() {
 		var = context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
 		evaluateWithExpectedProblem(
 			var, 
-			newProblem(IProblem.UndefinedType, Error, 0, 6, -1)); // The type foo is undefined
+			newProblem(IProblem.UndefinedType, Error, 0, 2, -1)); // The type foo is undefined
 	} finally {
 		if (var != null) {
 			context.deleteVariable(var);
@@ -133,7 +133,7 @@ public void testUnknownType() {
 		var2 = context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
 		evaluateWithExpectedProblem(
 			var2, 
-			newProblem(IProblem.UndefinedType, Error, 0, 6, -1)); // The type foo is undefined
+			newProblem(IProblem.UndefinedType, Error, 0, 2, -1)); // The type foo is undefined
 	} finally {
 		if (var1 != null) {
 			context.deleteVariable(var1);

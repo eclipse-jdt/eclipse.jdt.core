@@ -2065,6 +2065,18 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		QualifiedNameReference ref = (QualifiedNameReference) location;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
+	} else if (location instanceof QualifiedTypeReference) {
+		QualifiedTypeReference ref = (QualifiedTypeReference) location;
+		if (type instanceof ReferenceBinding) {
+			char[][] name = ((ReferenceBinding) type).compoundName;
+			end = (int) ref.sourcePositions[name.length - 1];
+		}
+	} else if (location instanceof ImportReference) {
+		ImportReference ref = (ImportReference) location;
+		if (type instanceof ReferenceBinding) {
+			char[][] name = ((ReferenceBinding) type).compoundName;
+			end = (int) ref.sourcePositions[name.length - 1];
+		}
 	}
 	this.handle(
 		id,
