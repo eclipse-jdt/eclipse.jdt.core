@@ -1043,6 +1043,36 @@ public void _test044() {
 		"SUCCESS");
 }	
 
+public void test045() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public Z<T> var;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public Z<T> var;\n" + 
+		"	       ^\n" + 
+		"Z cannot be resolved to a type\n" + 
+		"----------\n");
+}
+public void test046() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public Object<T> var;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public Object<T> var;\n" + 
+		"	              ^\n" + 
+		"T cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
