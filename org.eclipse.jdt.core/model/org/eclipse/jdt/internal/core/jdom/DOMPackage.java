@@ -4,15 +4,13 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.resources.*;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.IDOMPackage;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * DOMPackage provides an implementation of IDOMPackage.
@@ -72,7 +70,7 @@ DOMPackage(char[] document, int[] sourceRange, String name, int[] nameRange) {
 protected void appendFragmentedContents(CharArrayBuffer buffer) {
 	if (fNameRange[0] < 0) {
 		buffer
-			.append("package ")
+			.append("package "/*nonNLS*/)
 			.append(fName)
 			.append(';')
 			.append(JavaModelManager.LINE_SEPARATOR);
@@ -106,7 +104,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getPackageDeclaration(getName());
 	} else {
-		throw new IllegalArgumentException("Illegal parent argument");
+		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
 	}
 }
 /**
@@ -132,6 +130,6 @@ public void setName(String name) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "PACKAGE: " + getName();
+	return "PACKAGE: "/*nonNLS*/ + getName();
 }
 }

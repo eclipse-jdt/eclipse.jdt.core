@@ -19,7 +19,7 @@ public AnonymousFileSource(File directory) {
 	if (!directory.exists()) {
 		directory.mkdirs();
 	} else if (!directory.isDirectory()) {
-		throw new IllegalArgumentException("Directory arguments should be a directory.");
+		throw new IllegalArgumentException("Directory arguments should be a directory."/*nonNLS*/);
 	}
 	fDirectory = directory;	
 }

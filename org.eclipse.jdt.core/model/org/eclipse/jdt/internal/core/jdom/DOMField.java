@@ -4,17 +4,17 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.resources.*;
-
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.util.*;
-
 import java.util.Enumeration;
+
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.jdom.DOMException;
+import org.eclipse.jdt.core.jdom.IDOMField;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.CharArrayOps;
 
 /**
  * DOMField provides an implementation of IDOMField.
@@ -163,7 +163,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 	if (hasInitializer()) {
 		if (fInitializerRange[0] < 0) {
 			buffer
-				.append("=")
+				.append('=')
 				.append(fInitializer)
 				.append(fDocument, fNameRange[1] + 1, fSourceRange[1] - fNameRange[1]);
 		} else {
@@ -229,7 +229,7 @@ protected void becomeDetailed() throws DOMException {
 			DOMBuilder builder = new DOMBuilder();
 			IDOMField[] details= builder.createFields(source.toCharArray());
 			if (details.length == 0) {
-				throw new DOMException("Unable to generate detailed source indexes.");
+				throw new DOMException(Util.bind("dom.cannotDetail"/*nonNLS*/));
 			} else {
 				node= this;
 				for (int i= 0; i < details.length; i++) {
@@ -316,7 +316,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.TYPE) {
 		return ((IType)parent).getField(getName());
 	} else {
-		throw new IllegalArgumentException("Illegal parent argument");
+		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
 	}
 }
 /**
@@ -358,7 +358,7 @@ protected char[] getSingleVariableDeclaratorContents() {
 		first.appendMemberHeaderFragment(buffer);
 		buffer.append(getType());
 		if (isVariableDeclarator()) {
-			buffer.append(" ");
+			buffer.append(' ');
 		} else {
 			buffer.append(fDocument, fTypeRange[1] + 1, fNameRange[0] - fTypeRange[1] - 1);
 		}
@@ -370,7 +370,7 @@ protected char[] getSingleVariableDeclaratorContents() {
 	if (hasInitializer()) {
 		if (fInitializerRange[0] < 0) {
 			buffer
-				.append("=")
+				.append('=')
 				.append(fInitializer)
 				.append(';')
 				.append(JavaModelManager.LINE_SEPARATOR);
@@ -561,7 +561,7 @@ protected void setIsVariableDeclarator(boolean isVariableDeclarator) {
  */
 public void setName(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException("illegal to set name to null");
+		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
 	} else {
 		super.setName(name);
 		setTypeAltered(true);
@@ -572,7 +572,7 @@ public void setName(String name) throws IllegalArgumentException {
  */
 public void setType(String typeName) throws IllegalArgumentException {
 	if (typeName == null) {
-		throw new IllegalArgumentException("Illegal to set field type to null");
+		throw new IllegalArgumentException(Util.bind("element.nullType"/*nonNLS*/));
 	}
 	becomeDetailed();
 	expand();
@@ -603,6 +603,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "FIELD: " + getName();
+	return "FIELD: "/*nonNLS*/ + getName();
 }
 }

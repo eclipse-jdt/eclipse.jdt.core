@@ -18,12 +18,6 @@ import java.util.Stack;
  * A DOM builder that uses the SourceElementParser
  */
 public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceElementRequestor {
-		
-		
-		
-		
-		
-
 
 /**
 
@@ -33,7 +27,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	String importName = new String(name);
 	/** name is set to contain the '*' */
 	if (onDemand) {
-		importName+=".*";
+		importName+=".*"/*nonNLS*/;
 	}
 	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
 	addChild(fNode);	

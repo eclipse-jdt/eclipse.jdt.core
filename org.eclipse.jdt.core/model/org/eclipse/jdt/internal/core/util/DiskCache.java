@@ -217,7 +217,7 @@ public DiskCache(File directory, int spaceLimit) {
 	 */
 	public OutputStream add(final String key, int size, byte[] extraInfo) throws IOException {
 		if (size > fSpaceLimit*1024) {
-			throw new IOException("Entry size greater than cache size");
+			throw new IOException("Entry size greater than cache size"/*nonNLS*/);
 		}
 		final File file;
 		OutputStream output;
@@ -518,7 +518,7 @@ public int getNumberOfFilesToBeDeleted() {
 			int spaceUsed = in.readInt();  /* Ignored -- updated as entries are read */
 			int numEntries = in.readInt();
 			if (!sig.equals(CONTENTS_VERSION)) {
-				throw new IOException(Util.bind("file.badFormat")/*nonNLS*/);
+				throw new IOException(Util.bind("file.badFormat"/*nonNLS*/));
 			}
 
 			/* Read to a temp. array of entries.  The entries are in most- to 
@@ -736,7 +736,7 @@ public synchronized void removeAll(Vector keys) {
 				}
 			}				
 		};
-		fPeriodicSaveThread.setName("DiskCache periodic save");
+		fPeriodicSaveThread.setName("DiskCache periodic save"/*nonNLS*/);
 		fPeriodicSaveThread.start();
 					
 	}

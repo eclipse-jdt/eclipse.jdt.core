@@ -4,16 +4,14 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.resources.*;
-
-import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.IDOMInitializer;
+import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.util.*;
-import org.w3c.dom.DOMImplementation;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.CharArrayOps;
 
 /**
  * DOMInitializer provides an implementation of IDOMInitializer.
@@ -104,7 +102,7 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 			.append(getBody())
 			.append(fDocument, fBodyRange[1] + 1, fSourceRange[1] - fBodyRange[1]);
 	} else {
-		buffer.append("{}").append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append("{}"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	}
 }
 /**
@@ -158,7 +156,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		}
 		return ((IType) parent).getInitializer(count);
 	} else {
-		throw new IllegalArgumentException("Illegal parent argument");
+		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
 	}
 }
 /**
@@ -221,6 +219,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "INITIALIZER";
+	return "INITIALIZER"/*nonNLS*/;
 }
 }

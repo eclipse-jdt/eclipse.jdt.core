@@ -4,35 +4,65 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Random;
+import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
-import org.eclipse.core.resources.*;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.jdt.internal.core.builder.*;
-
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
-
-import org.eclipse.jdt.internal.core.util.*;
-import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.internal.compiler.util.*;
-import org.eclipse.jdt.internal.core.lookup.*;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.builder.BinaryBrokerKey;
+import org.eclipse.jdt.internal.core.builder.IDelta;
+import org.eclipse.jdt.internal.core.builder.IDependencyGraph;
+import org.eclipse.jdt.internal.core.builder.IDevelopmentContext;
+import org.eclipse.jdt.internal.core.builder.IImage;
+import org.eclipse.jdt.internal.core.builder.IImageBuilder;
+import org.eclipse.jdt.internal.core.builder.IImageContext;
+import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.IProblemDetail;
+import org.eclipse.jdt.internal.core.builder.IProblemReporter;
+import org.eclipse.jdt.internal.core.builder.IReportCard;
+import org.eclipse.jdt.internal.core.builder.IState;
+import org.eclipse.jdt.internal.core.builder.IType;
+import org.eclipse.jdt.internal.core.builder.NotPresentException;
+import org.eclipse.jdt.internal.core.builder.StateSpecificException;
+import org.eclipse.jdt.internal.core.lookup.ReferenceInfo;
+import org.eclipse.jdt.internal.core.util.LookupTable;
 
 /**
  * The concrete representation of a built state.

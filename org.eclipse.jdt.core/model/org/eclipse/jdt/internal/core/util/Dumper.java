@@ -69,7 +69,7 @@ public void dump(int[] val, int maxPerLine) {
 				fWriter.println();
 				tabIfNeeded();
 				fWriter.print(i);
-				fWriter.print(": ");
+				fWriter.print(": "/*nonNLS*/);
 			}
 		}
 		fWriter.print(val[i]);
@@ -211,7 +211,7 @@ public void dump(String name, Object val) {
  */
 public void dump(String name, String val) {
 	prefix(name);
-	fWriter.println(val == null ? "null" : "\""/*nonNLS*/ + val + "\""/*nonNLS*/);
+	fWriter.println(val == null ? "null"/*nonNLS*/ : "\""/*nonNLS*/ + val + "\""/*nonNLS*/);
 }
 /**
  * Dumps the given value, with the given name as a prefix.
@@ -264,7 +264,7 @@ public void outdent() {
 void prefix(String name) {
 	tabIfNeeded();
 	fWriter.print(name);
-	fWriter.print(": ");
+	fWriter.print(": "/*nonNLS*/);
 }
 /**
  * Print an object directly, without a newline.

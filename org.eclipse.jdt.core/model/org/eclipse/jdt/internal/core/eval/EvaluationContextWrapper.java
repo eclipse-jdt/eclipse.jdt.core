@@ -52,7 +52,7 @@ public IGlobalVariable[] allVariables() {
  */
 protected void checkBuilderState() throws JavaModelException {
 	if (!getProject().hasBuildState()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, "Cannot evaluate if the project has not been built once"));
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"/*nonNLS*/)));
 	}
 }
 /**
@@ -90,7 +90,7 @@ public void deleteVariable(IGlobalVariable variable) {
 		GlobalVariableWrapper wrapper = (GlobalVariableWrapper)variable;
 		this.context.deleteVariable(wrapper.variable);
 	} else {
-		throw new Error("Unknown implementation of IGlobalVariable");
+		throw new Error("Unknown implementation of IGlobalVariable"/*nonNLS*/);
 	}
 }
 /**
