@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -20,12 +21,17 @@ import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -51,26 +57,194 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
-		
-		PrintWriter out;
-		PrintWriter err;
-		PrintWriter log;
-		
+		private static final String CLASS = "class"; //$NON-NLS-1$
+		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
+		private static final String CLASSPATH = "classpath"; //$NON-NLS-1$
+		private static final String CLASSPATH_ID = "id"; //$NON-NLS-1$
+		private static final String CLASSPATH_FILE = "FILE"; //$NON-NLS-1$
+		private static final String CLASSPATH_FOLDER = "FOLDER"; //$NON-NLS-1$
+		private static final String CLASSPATH_JAR = "JAR"; //$NON-NLS-1$
+		private static final String CLASSPATHS = "classpaths"; //$NON-NLS-1$
+		private static final String COMMAND_LINE_ARGUMENT = "argument"; //$NON-NLS-1$
+		private static final String COMMAND_LINE_ARGUMENTS = "command_line"; //$NON-NLS-1$
+		private static final String COMPILER = "compiler"; //$NON-NLS-1$
+		private static final String COMPILER_COPYRIGHT = "copyright"; //$NON-NLS-1$
+		private static final String COMPILER_VERSION = "version"; //$NON-NLS-1$
+		private static final String COMPILER_NAME = "name"; //$NON-NLS-1$
+		private static final String EXCEPTION = "exception"; //$NON-NLS-1$
+		private static final String ERROR = "ERROR"; //$NON-NLS-1$
+		private static final String ERROR_TAG = "error"; //$NON-NLS-1$
+		private static final String KEY = "key"; //$NON-NLS-1$
+		private static final String MESSAGE = "message"; //$NON-NLS-1$
+		private static final String NUMBER_OF_CLASSFILES = "number_of_classfiles"; //$NON-NLS-1$
+		private static final String NUMBER_OF_ERRORS = "errors"; //$NON-NLS-1$
+		private static final String NUMBER_OF_LINES = "number_of_lines"; //$NON-NLS-1$
+		private static final String NUMBER_OF_PROBLEMS = "problems"; //$NON-NLS-1$
+		private static final String NUMBER_OF_TASKS = "tasks"; //$NON-NLS-1$
+		private static final String NUMBER_OF_WARNINGS = "warnings"; //$NON-NLS-1$
+		private static final String OPTION = "option"; //$NON-NLS-1$
+		private static final String OPTIONS = "options"; //$NON-NLS-1$
+		private static final String PATH = "path"; //$NON-NLS-1$
+		private static final String PROBLEM_ARGUMENT = "argument"; //$NON-NLS-1$
+		private static final String PROBLEM_ARGUMENT_VALUE = "value"; //$NON-NLS-1$
+		private static final String PROBLEM_ARGUMENTS = "arguments"; //$NON-NLS-1$
+		private static final String PROBLEM_ID = "id"; //$NON-NLS-1$
+		private static final String PROBLEM_LINE = "line"; //$NON-NLS-1$
+		private static final String PROBLEM_MESSAGE = "message"; //$NON-NLS-1$
+		private static final String PROBLEM_SEVERITY = "severity"; //$NON-NLS-1$
+		private static final String PROBLEM_SOURCE = "problem_source"; //$NON-NLS-1$
+		private static final String PROBLEM_SOURCE_START = "charStart"; //$NON-NLS-1$
+		private static final String PROBLEM_SOURCE_END = "charEnd"; //$NON-NLS-1$
+		private static final String PROBLEM_SUMMARY = "problem_summary"; //$NON-NLS-1$
+		private static final String PROBLEM_TAG = "problem"; //$NON-NLS-1$
+		private static final String PROBLEMS = "problems"; //$NON-NLS-1$
+		private static final String SOURCE = "source"; //$NON-NLS-1$
+		private static final String SOURCES = "sources"; //$NON-NLS-1$
+		private static final String STATS = "stats"; //$NON-NLS-1$
+		private static final String TASK = "task"; //$NON-NLS-1$
+		private static final String TASKS = "tasks"; //$NON-NLS-1$
+		private static final String TIME = "time"; //$NON-NLS-1$
+		private static final String VALUE = "value"; //$NON-NLS-1$
+		private static final String WARNING = "WARNING"; //$NON-NLS-1$
+		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
+		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler SYSTEM \"compiler.dtd\">"; //$NON-NLS-1$
+
+		private static final HashMap FIELD_TABLE = new HashMap();
+		static {
+			try {
+				Class c = IProblem.class;
+				Field[] fields = c.getFields();
+				for (int i = 0, max = fields.length; i < max; i++) {
+					Field field = fields[i];
+					FIELD_TABLE.put(field.get(null), field.getName());
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		private static void appendEscapedChar(StringBuffer buffer, char c) {
+			String replacement= getReplacement(c);
+			if (replacement != null) {
+				buffer.append('&');
+				buffer.append(replacement);
+				buffer.append(';');
+			} else {
+				buffer.append(c);
+			}
+		}
+		private static String getEscaped(String s) {
+			StringBuffer result= new StringBuffer(s.length() + 10);
+			for (int i= 0; i < s.length(); ++i)
+				appendEscapedChar(result, s.charAt(i));
+			return result.toString();
+		}
+		private static String getReplacement(char c) {
+			// Encode special XML characters into the equivalent character references.
+			// These five are defined by default for all XML documents.
+			switch (c) {
+				case '<' :
+					return "lt"; //$NON-NLS-1$
+				case '>' :
+					return "gt"; //$NON-NLS-1$
+				case '"' :
+					return "quot"; //$NON-NLS-1$
+				case '\'' :
+					return "apos"; //$NON-NLS-1$
+				case '&' :
+					return "amp"; //$NON-NLS-1$
+			}
+			return null;
+		}
+		private PrintWriter err;
+		boolean isXml;
+		private PrintWriter log;
+		private PrintWriter out;
+		private int tab;
+		private HashMap parameters;
+
 		public Logger(PrintWriter out, PrintWriter err) {
 			this.out = out;
 			this.err = err;
+			this.isXml = false;
+			this.parameters = new HashMap();
 		}
-		
-		public void setLog(PrintWriter log) {
-			this.log = log;
+
+		public String buildFileName(
+			String outputPath,
+			String relativeFileName) {
+			char fileSeparatorChar = File.separatorChar;
+			String fileSeparator = File.separator;
+			
+			outputPath = outputPath.replace('/', fileSeparatorChar);
+			// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
+			StringBuffer outDir = new StringBuffer(outputPath);
+			if (!outputPath.endsWith(fileSeparator)) {
+				outDir.append(fileSeparator);
+			}
+			StringTokenizer tokenizer =
+				new StringTokenizer(relativeFileName, fileSeparator);
+			String token = tokenizer.nextToken();
+			while (tokenizer.hasMoreTokens()) {
+				outDir.append(token).append(fileSeparator);
+				token = tokenizer.nextToken();
+			}
+			// token contains the last one
+			return outDir.append(token).toString();
 		}
 		
 		public void close() {
 			if (this.log != null) {
+				if (this.isXml) {
+					this.endTag(COMPILER);
+					this.flush();
+				}
 				this.log.close();
 			}
 		}
+
+		/**
+		 * 
+		 */
+		public void compiling() {
+			this.printlnOut(Main.bind("progress.compiling")); //$NON-NLS-1$
+		}
 		
+		/**
+		 * Used to stop logging problems.
+		 * Only use in xml mode.
+		 */
+		private void endLoggingProblems() {
+			this.endTag(PROBLEMS);
+		}
+		public void endLoggingSource() {
+			if (this.isXml) {
+				this.endTag(SOURCE);
+			}
+		}
+		public void endLoggingSources() {
+			if (this.isXml) {
+				this.endTag(SOURCES);
+			}
+		}
+		public void endLoggingTasks() {
+			if (this.isXml) {
+				this.endTag(TASKS);
+			}
+		}
+		public void endTag(String name) {
+			tab--;
+			this.printTag('/' + name, null, true, false);
+			this.tab--;
+		}
+		
+		private String getFieldName(int id) {
+			return (String) FIELD_TABLE.get(new Integer(id));
+		}
+
 		public void flush() {
 			this.out.flush();
 			this.err.flush();
@@ -78,31 +252,597 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.flush();
 			}
 		}
+		public void logClasspath(String[] classpaths) {
+			if (classpaths == null) return;
+			if (this.isXml) {
+				final int length = classpaths.length;
+				if (length != 0) {
+					// generate xml output
+					this.printTag(CLASSPATHS, null, true, false);
+					for (int i = 0; i < length; i++) {
+						this.parameters.clear();
+						String classpath = classpaths[i];
+						parameters.put(PATH, classpath);
+						File f = new File(classpath);
+						String id = null;
+						if (f.isFile()) {
+							if (Util.isArchiveFileName(classpath)) {
+								id = CLASSPATH_JAR;
+							} else {
+								id = CLASSPATH_FILE;
+							}
+						} else if (f.isDirectory()) {
+							id = CLASSPATH_FOLDER;
+						}
+						if (id != null) {
+							this.parameters.put(CLASSPATH_ID, id);
+							this.printTag(CLASSPATH, parameters, true, true);
+						}
+					}
+					this.endTag(CLASSPATHS);
+				}
+			}
+			
+		}
+
+		public void logClassFile(boolean generatePackagesStructure, String outputPath, String relativeFileName) {
+			if (this.isXml) {
+				String fileName = null;
+				if (generatePackagesStructure) {
+					fileName = buildFileName(outputPath, relativeFileName);
+				} else {
+					char fileSeparatorChar = File.separatorChar;
+					String fileSeparator = File.separator;
+					// First we ensure that the outputPath exists
+					outputPath = outputPath.replace('/', fileSeparatorChar);
+					// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
+					int indexOfPackageSeparator = relativeFileName.lastIndexOf(fileSeparatorChar);
+					if (indexOfPackageSeparator == -1) {
+						if (outputPath.endsWith(fileSeparator)) {
+							fileName = outputPath + relativeFileName;
+						} else {
+							fileName = outputPath + fileSeparator + relativeFileName;
+						}
+					} else {
+						int length = relativeFileName.length();
+						if (outputPath.endsWith(fileSeparator)) {
+							fileName = outputPath + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+						} else {
+							fileName = outputPath + fileSeparator + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+						}
+					}
+				}
+				File f = new File(fileName);
+				try {
+					this.parameters.clear();
+					this.parameters.put(PATH, f.getCanonicalPath());
+					this.printTag(CLASS_FILE, this.parameters, true, true);
+				} catch (IOException e) {
+					this.logNoClassFileCreated(fileName);
+				}
+			}			
+		}
 		
-		public void printErr(String s) {
+		public void logCommandLineArguments(String[] commandLineArguments) {
+			if (commandLineArguments == null) return;
+			if (this.isXml) {
+				final int length = commandLineArguments.length;
+				if (length != 0) {
+					// generate xml output
+					this.printTag(COMMAND_LINE_ARGUMENTS, null, true, false);
+					parameters.clear();
+					for (int i = 0; i < length; i++) {
+						parameters.put(VALUE, commandLineArguments[i]);
+						this.printTag(COMMAND_LINE_ARGUMENT, parameters, true, true);
+					}
+					this.endTag(COMMAND_LINE_ARGUMENTS);
+				}
+			}
+		}
+
+		/**
+		 * @param e the given exception to log
+		 */
+		public void logException(Exception e) {
+			final String message = e.getMessage();
+			if (isXml) {
+				parameters.clear();
+				parameters.put(MESSAGE, message);
+				parameters.put(CLASS, e.getClass());
+				this.printTag(EXCEPTION, parameters, true, true);
+			}
+			this.printlnErr(message);
+		}
+
+		/**
+		 * @param wrongClasspath
+		 *            the given wrong classpath entry
+		 */
+		public void logIncorrectClasspath(String wrongClasspath) {
+			if (isXml) {
+				this.parameters.clear();
+				this.parameters.put(MESSAGE, Main.bind("configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
+				this.printTag(ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(Main.bind(
+				"configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
+		}
+
+		/**
+		 * 
+		 */
+		public void logNoClassFileCreated(String fileName) {
+			if (isXml) {
+				this.parameters.clear();
+				this.parameters.put(MESSAGE, Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+				this.printTag(ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+		}
+
+		public void logNoClasspath() {
+			if (isXml) {
+				this.parameters.clear();
+				this.parameters.put(MESSAGE, Main.bind("configure.noClasspath")); //$NON-NLS-1$//$NON-NLS-2$
+				this.printTag(ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+		}
+
+		/**
+		 * @param exportedClassFilesCounter
+		 */
+		public void logNumberOfClassFilesGenerated(int exportedClassFilesCounter) {
+			if (isXml) {
+				this.parameters.clear();
+				this.parameters.put(VALUE, new Integer(exportedClassFilesCounter)); //$NON-NLS-1$
+				this.printTag(NUMBER_OF_CLASSFILES, this.parameters, true, true);
+			}
+			if (exportedClassFilesCounter == 1) {
+				this.printlnOut(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+			} else {
+				this.printlnOut(Main.bind("compile.severalClassFilesGenerated", //$NON-NLS-1$
+					String.valueOf(exportedClassFilesCounter)));
+			}
+		}
+
+		/**
+		 * @param options the given compiler options
+		 */
+		public void logOptions(Map options) {
+			if (this.isXml) {
+				this.printTag(OPTIONS, null, true, false);
+				final Set keySet = options.keySet();
+				Object[] keys = keySet.toArray();
+				Arrays.sort(keys);
+				for (int i = 0, max = keys.length; i < max; i++) {
+					this.parameters.clear();
+					Object key = keys[i];
+					this.parameters.put(KEY, key);
+					this.parameters.put(VALUE, options.get(key));
+					this.printTag(OPTION, this.parameters, true, true);
+				}
+				this.endTag(OPTIONS);
+			}
+		}
+
+		private void logProblem(IProblem problem, int localErrorCount,
+			int globalErrorCount, char[] unitSource) {
+			if (localErrorCount == 0) {
+				this.printlnErr("----------"); //$NON-NLS-1$
+			}
+			this.printlnErr(problem.isError() ?
+				Main.bind(
+					"requestor.error", //$NON-NLS-1$
+					Integer.toString(globalErrorCount),
+					new String(problem.getOriginatingFileName()))
+				: Main.bind(
+					"requestor.warning", //$NON-NLS-1$
+					Integer.toString(globalErrorCount),
+					new String(problem.getOriginatingFileName())));
+			try {
+				this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource));
+				this.printlnErr(problem.getMessage());
+			} catch (Exception e) {
+				this.printlnErr(Main.bind(
+					"requestor.notRetrieveErrorMessage", problem.toString())); //$NON-NLS-1$
+			}
+			this.printlnErr("----------"); //$NON-NLS-1$
+		}
+		
+		/**
+		 * @param globalProblemsCount
+		 * @param globalErrorsCount
+		 * @param globalWarningsCount
+		 */
+		public void logProblemsSummary(int globalProblemsCount,
+			int globalErrorsCount, int globalWarningsCount) {
+			if (this.isXml) {
+				// generate xml
+				parameters.clear();
+				parameters.put(NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
+				parameters.put(NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
+				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
+				this.printTag(PROBLEM_SUMMARY, parameters, true, true);
+			}
+			if (globalProblemsCount == 1) {
+				this.printErr(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+			} else {
+				String errorMessage = null;
+				String warningMessage = null;
+				if (globalErrorsCount > 0) {
+					if (globalErrorsCount == 1) {
+						errorMessage = Main.bind("compile.oneError"); //$NON-NLS-1$
+					} else {
+						errorMessage = Main.bind("compile.severalErrors", String.valueOf(globalErrorsCount)); //$NON-NLS-1$
+					}
+				}
+				if (globalWarningsCount > 0) {
+					if (globalWarningsCount == 1) {
+						warningMessage = Main.bind("compile.oneWarning"); //$NON-NLS-1$
+					} else {
+						warningMessage = Main.bind("compile.severalWarnings", String.valueOf(globalWarningsCount)); //$NON-NLS-1$
+					}
+				}
+				if (errorMessage == null || warningMessage == null) {
+					if (errorMessage == null) {
+						this.printErr(Main.bind(
+							"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
+							String.valueOf(globalProblemsCount),
+							warningMessage));
+					} else {
+						this.printErr(Main.bind(
+							"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
+							String.valueOf(globalProblemsCount),
+							errorMessage));
+					}
+				} else {
+					this.printErr(Main.bind(
+						"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
+						new String[] {
+							String.valueOf(globalProblemsCount),
+							errorMessage,
+							warningMessage
+						}));
+				}
+			}
+		}
+
+		public int logProblems(IProblem[] problems, char[] unitSource, Main currentMain) {
+			final int count = problems.length;
+			int localErrorCount = 0;
+			if (count != 0) {
+				if (this.isXml) {
+					int errors = 0;
+					int warnings = 0;
+					int tasks = 0;
+					for (int i = 0; i < count; i++) {
+						IProblem problem = problems[i];
+						if (problem != null) {
+							currentMain.globalProblemsCount++;
+							this.logProblem(problem, localErrorCount, currentMain.globalProblemsCount, unitSource);
+							if (problem.isError()) {
+								errors++;
+								currentMain.globalErrorsCount++;
+								localErrorCount++;
+							} else {
+								if (problem.getID() == IProblem.Task) {
+									tasks++;
+								} else {
+									warnings++;
+								}
+								currentMain.globalWarningsCount++;
+							}
+						}
+					}
+					if ((errors + warnings) != 0) {
+						this.startLoggingProblems(errors, warnings);
+						for (int i = 0; i < count; i++) {
+							IProblem problem = problems[i];
+							if (problem!= null) {
+								if (problem.getID() != IProblem.Task) {
+									this.logXmlProblem(problem, unitSource);
+								}
+							}
+						}
+						this.endLoggingProblems();
+					}
+					if (tasks != 0) {
+						this.startLoggingTasks(tasks);
+						for (int i = 0; i < count; i++) {
+							IProblem problem = problems[i];
+							if (problem!= null) {
+								if (problem.getID() == IProblem.Task) {
+									this.logXmlTask(problem, unitSource);
+								}
+							}
+						}
+						this.endLoggingTasks();
+					}
+				} else {
+					for (int i = 0; i < count; i++) {
+						if (problems[i] != null) {
+							currentMain.globalProblemsCount++;
+							this.logProblem(problems[i], localErrorCount, currentMain.globalProblemsCount, unitSource);
+							if (problems[i].isError()) {
+								currentMain.globalErrorsCount++;
+								localErrorCount++;
+							} else {
+								currentMain.globalWarningsCount++;
+							}
+						}
+					}
+				}
+			}
+			return localErrorCount;
+		}
+		
+		/**
+		 * 
+		 */
+		public void logProgress() {
+			this.printOut('.');
+		}
+
+		/**
+		 * @param i
+		 *            the current repetition number
+		 * @param repetitions
+		 *            the given number of repetitions
+		 */
+		public void logRepetition(int i, int repetitions) {
+			this.printlnOut(Main.bind("compile.repetition", //$NON-NLS-1$
+				String.valueOf(i + 1), String.valueOf(repetitions)));
+		}
+
+		public void printStats(Main main) {
+			final boolean isTimed = main.timing;
+			if (isXml) {
+				this.printTag(STATS, null, true, false);
+			}
+			if (isTimed) {
+				long time = System.currentTimeMillis() - main.startTime;
+				this.logTiming(time, main.lineCount);
+			}
+			if (main.globalProblemsCount > 0) {
+				this.logProblemsSummary(main.globalProblemsCount, main.globalErrorsCount, main.globalWarningsCount);
+			}
+			if (main.exportedClassFilesCounter != 0
+					&& (main.showProgress || isTimed || main.verbose)) {
+				this.logNumberOfClassFilesGenerated(main.exportedClassFilesCounter);
+			}
+			if (isXml) {
+				this.endTag(STATS);
+			}
+		}
+		/**
+		 * @param time
+		 * @param lineCount
+		 */
+		public void logTiming(long time, long lineCount) {
+			if (isXml) {
+				this.parameters.clear();
+				this.parameters.put(VALUE, new Long(time));
+				this.printTag(TIME, this.parameters, true, true);
+				this.parameters.clear();
+				this.parameters.put(VALUE, new Long(lineCount));
+				this.printTag(NUMBER_OF_LINES, this.parameters, true, true);
+			}
+			if (lineCount != 0) {
+				this.printlnOut(Main.bind(
+					"compile.instantTime", //$NON-NLS-1$
+					new String[] {
+						String.valueOf(lineCount),
+						String.valueOf(time),
+						String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
+			} else {
+				this.printlnOut(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+			}
+		}
+
+		/**
+		 * @param usage
+		 */
+		public void logUsage(String usage) {
+			this.printlnOut(usage); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
+		/**
+		 * 
+		 */
+		public void logVersion() {
+			this.printlnOut(Main.bind("misc.version")); //$NON-NLS-1$
+		}
+
+		/**
+		 * 
+		 */
+		public void logWrongJDK() {
+			if (isXml) {
+				parameters.clear();
+				parameters.put(MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$//$NON-NLS-2$
+				this.printTag(ERROR, parameters, true, true);				
+			}
+			this.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+		}
+
+		/**
+		 * @param problem
+		 *            the given problem to log
+		 * @param unitSource
+		 *            the given unit source
+		 */
+		private void logXmlProblem(IProblem problem, char[] unitSource) {
+			final int sourceStart = problem.getSourceStart();
+			final int sourceEnd = problem.getSourceEnd();
+			parameters.clear();
+			parameters.put(PROBLEM_ID, getFieldName(problem.getID()));
+			parameters.put(PROBLEM_SEVERITY, problem.isError() ? ERROR : WARNING);
+			parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
+			parameters.put(PROBLEM_SOURCE_START, new Integer(sourceStart));
+			parameters.put(PROBLEM_SOURCE_END, new Integer(sourceEnd));
+			this.printTag(PROBLEM_TAG, parameters, true, false);
+			parameters.clear();
+			parameters.put(VALUE, problem.getMessage());
+			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
+			parameters.clear();
+			StringBuffer buffer = new StringBuffer();
+			if ((sourceStart > sourceEnd)
+				|| ((sourceStart < 0) && (sourceEnd < 0))) {
+				buffer.append(Util.bind("problem.noSourceInformation")); //$NON-NLS-1$
+			} else {
+				buffer.append(unitSource, sourceStart, sourceEnd - sourceStart + 1);
+			}
+			parameters.put(VALUE, String.valueOf(buffer));
+			this.printTag(PROBLEM_SOURCE, parameters, true, true);
+			String[] arguments = problem.getArguments();
+			final int length = arguments.length;
+			if (length != 0) {
+				this.printTag(PROBLEM_ARGUMENTS, null, true, false);
+				parameters.clear();
+				for (int i = 0; i < length; i++) {
+					parameters.put(PROBLEM_ARGUMENT_VALUE, arguments[i]);
+					this.printTag(PROBLEM_ARGUMENT, parameters, true, true);
+				}
+				this.endTag(PROBLEM_ARGUMENTS);
+			}
+			this.endTag(PROBLEM_TAG);
+		}
+		/**
+		 * @param problem
+		 *            the given problem to log
+		 * @param unitSource
+		 *            the given unit source
+		 */
+		private void logXmlTask(IProblem problem, char[] unitSource) {
+			parameters.clear();
+			parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
+			parameters.put(PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));
+			parameters.put(PROBLEM_SOURCE_END, new Integer(problem.getSourceEnd()));
+			this.printTag(TASK, parameters, true, false);
+			parameters.clear();
+			parameters.put(VALUE, problem.getMessage());
+			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
+			this.endTag(TASK);
+		}
+		private void printErr(String s) {
 			this.err.print(s);
-			if (this.log != null) {
-				this.log.print(s);
+			if (!this.isXml) {
+				if (this.log != null) {
+					this.log.print(s);
+				}
 			}
 		}
-		
-		public void printlnErr(String s) {
+
+		private void printlnErr(String s) {
 			this.err.println(s);
-			if (this.log != null) {
-				this.log.println(s);
+			if (!this.isXml) {
+				if (this.log != null) {
+					this.log.println(s);
+				}
 			}
 		}
-		
-		public void printlnOut(String s) {
+
+		private void printlnOut(String s) {
 			this.out.println(s);
 		}
-		
-		public void printlnOut() {
+
+		/**
+		 * 
+		 */
+		public void printNewLine() {
 			this.out.println();
 		}
-		
-		public void printOut(char c) {
+
+		private void printOut(char c) {
 			this.out.print(c);
+		}
+		public void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
+			for (int i= this.tab; i > 0; i--) this.log.print('\t');
+			StringBuffer buffer= new StringBuffer();
+			buffer.append("<"); //$NON-NLS-1$
+			buffer.append(name);
+			if (params != null) {
+				for (Enumeration enumeration = Collections.enumeration(params.keySet()); enumeration.hasMoreElements();) {
+					buffer.append(" "); //$NON-NLS-1$
+					String key= (String) enumeration.nextElement();
+					buffer.append(key);
+					buffer.append("=\""); //$NON-NLS-1$
+					buffer.append(getEscaped(String.valueOf(params.get(key))));
+					buffer.append("\""); //$NON-NLS-1$
+				}
+			}
+			if (closeTag) {
+				buffer.append("/>"); //$NON-NLS-1$
+			} else {
+				buffer.append(">"); //$NON-NLS-1$
+				this.tab++;
+			}
+			if (insertNewLine) {
+				this.log.println(String.valueOf(buffer));
+			} else {
+				this.log.print(String.valueOf(buffer));
+			}
+		}
+
+		public void setLog(String logFileName) throws InvalidInputException {
+			try {
+				this.log = new PrintWriter(new FileOutputStream(logFileName, false));
+				int index = logFileName.lastIndexOf('.');
+				if (index != 0) {
+					if (logFileName.substring(index).toLowerCase().equals(".xml")) { //$NON-NLS-1$
+						this.isXml = true;
+						this.log.println(XML_HEADER);
+						this.log.println(XML_DTD_DECLARATION);
+						this.tab = 0;
+						parameters.clear();
+						parameters.put(COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$//$NON-NLS-2$
+						parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$//$NON-NLS-2$
+						parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$//$NON-NLS-2$
+						this.printTag(COMPILER, parameters, true, false);
+					}
+				}
+			} catch (FileNotFoundException e) {
+				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
+			}
+		}
+
+		/**
+		 * Used to start logging problems.
+		 * Only use in xml mode.
+		 */
+		private void startLoggingProblems(int errors, int warnings) {
+			parameters.clear();
+			parameters.put(NUMBER_OF_PROBLEMS, new Integer(errors + warnings));
+			parameters.put(NUMBER_OF_ERRORS, new Integer(errors));
+			parameters.put(NUMBER_OF_WARNINGS, new Integer(warnings));
+			this.printTag(PROBLEMS, this.parameters, true, false);
+		}
+		public void startLoggingSource(CompilationResult compilationResult) {
+			if (this.isXml) {
+				ICompilationUnit compilationUnit = compilationResult.compilationUnit;
+				char[] fileName = compilationUnit.getFileName();
+				File f = new File(new String(fileName));
+				if (fileName != null) {
+					this.parameters.clear();
+					if (compilationUnit != null) {
+						this.parameters.put(PATH, f.getAbsolutePath());
+					}
+				}
+				this.printTag(SOURCE, this.parameters, true, false);
+			}
+		}
+		public void startLoggingSources() {
+			if (this.isXml) {
+				this.printTag(SOURCES, null, true, false);
+			}
+		}
+		public void startLoggingTasks(int tasks) {
+			if (this.isXml) {
+				parameters.clear();
+				parameters.put(NUMBER_OF_TASKS, new Integer(tasks));
+				this.printTag(TASKS, this.parameters, true, false);
+			}
 		}
 	}
 	static {
@@ -204,6 +944,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 		
 		message = new String(messageWithNoDoubleQuotes);
+		if (arguments == null) {
+			return message;
+		}
 		int length = message.length();
 		int start = -1;
 		int end = length;
@@ -354,8 +1097,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 //				if (this.verbose) {
 //					System.out.println(new CompilerOptions(this.options));
 //				}
-				if (this.showProgress)
-					this.logger.printlnOut(Main.bind("progress.compiling")); //$NON-NLS-1$
+				if (this.showProgress) this.logger.compiling(); //$NON-NLS-1$
 				for (int i = 0; i < this.repetitions; i++) {
 					this.globalProblemsCount = 0;
 					this.globalErrorsCount = 0;
@@ -365,24 +1107,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 					if (this.repetitions > 1) {
 						this.logger.flush();
-						this.logger.printlnOut(
-							Main.bind(
-								"compile.repetition", //$NON-NLS-1$
-								String.valueOf(i + 1),
-								String.valueOf(this.repetitions)));
+						this.logger.logRepetition(i, this.repetitions);
 					} 
 					// request compilation
 					performCompilation();
 				}
-				if (this.showProgress)
-					this.logger.printlnOut();
+				if (this.showProgress) this.logger.printNewLine();
 			}
 			if (this.systemExitWhenFinished) {
 				this.logger.flush();
+    			this.logger.close();
 				System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 			}
 		} catch (InvalidInputException e) {
-			this.logger.printlnErr(e.getMessage());
+			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
     			this.logger.flush();
     			this.logger.close();
@@ -396,7 +1134,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				System.exit(-1);
 			}
 			return false;
-			//e.printStackTrace();
 		} finally {
 			this.logger.flush();
 			this.logger.close();
@@ -1236,7 +1973,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
-				this.logger.printlnErr(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+				this.logger.logNoClasspath(); //$NON-NLS-1$
 				classProp = System.getProperty("user.dir"); //$NON-NLS-1$
 			}
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
@@ -1254,7 +1991,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 */
 			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-				this.logger.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				this.logger.logWrongJDK(); //$NON-NLS-1$
 				this.proceed = false;
 				return;
 			 }
@@ -1291,11 +2028,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		if (this.log != null) {
-			try {
-				this.logger.setLog(new PrintWriter(new FileOutputStream(this.log, false)));
-			} catch (IOException e) {
-				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
-			}
+			this.logger.setLog(this.log);
 		} else {
 			this.showProgress = false;
 		}
@@ -1331,7 +2064,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		for (int i = 0, max = this.classpaths.length; i < max; i++) {
 			File file = new File(this.classpaths[i]);
 			if (!file.exists()) { // signal missing classpath entry file
-				this.logger.printlnErr(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
+				this.logger.logIncorrectClasspath(this.classpaths[i]); //$NON-NLS-1$
 			}
 		}
 		if (this.destinationPath == null) {
@@ -1343,24 +2076,24 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		if (didSpecifyCompliance) {
 			Object version = this.options.get(CompilerOptions.OPTION_Compliance);
 			if (CompilerOptions.VERSION_1_3.equals(version)) {
-					if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-					if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 			} else if (CompilerOptions.VERSION_1_4.equals(version)) {
-					if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-					if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 			} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-					if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-					if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 			}
 		}
 		if (didSpecifySource) {
 			Object version = this.options.get(CompilerOptions.OPTION_Source);
 			 if (CompilerOptions.VERSION_1_4.equals(version)) {
-					if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 			} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-					if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 			}
 		}
 
@@ -1378,7 +2111,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	   		}
 			// target cannot be greater than compliance level
 			if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform))){ 
-					throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 			}
 		}
 
@@ -1412,7 +2145,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 			}
 		}
-
+		this.logger.logCommandLineArguments(newCommandLineArgs);
+		this.logger.logOptions(this.options);
+		this.logger.logClasspath(this.classpaths);
 		if (this.repetitions == 0) {
 			this.repetitions = 1;
 		}
@@ -1456,57 +2191,26 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					int unitLineCount = compilationResult.lineSeparatorPositions.length;
 					Main.this.lineCount += unitLineCount;
 					this.lineDelta += unitLineCount;
-					if (Main.this.showProgress
-						&& this.lineDelta > 2000) { // in -log mode, dump a dot every 2000 lines compiled
-						Main.this.logger.printOut('.');
+					if (Main.this.showProgress && this.lineDelta > 2000) {
+						// in -log mode, dump a dot every 2000 lines compiled
+						Main.this.logger.logProgress();
 						this.lineDelta = 0;
 					}
 				}
+				Main.this.logger.startLoggingSource(compilationResult);
 				if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-					IProblem[] problems = compilationResult.getAllProblems();
-					int count = problems.length;
-					int localErrorCount = 0;
-					char[] unitSource = compilationResult.compilationUnit.getContents();
-					for (int i = 0; i < count; i++) {
-						if (problems[i] != null) {
-							Main.this.globalProblemsCount++;
-							if (localErrorCount == 0)
-								Main.this.logger.printlnErr("----------"); //$NON-NLS-1$
-							Main.this.logger.printErr(
-								Main.this.globalProblemsCount
-									+ ". "  //$NON-NLS-1$
-									+ (problems[i].isError()
-										? Main.bind("requestor.error")  //$NON-NLS-1$
-										: Main.bind("requestor.warning")));  //$NON-NLS-1$
-							if (problems[i].isError()) {
-								Main.this.globalErrorsCount++;
-							} else {
-								Main.this.globalWarningsCount++;
-							}
-							Main.this.logger.printErr(" "); //$NON-NLS-1$
-							Main.this.logger.printErr(
-								Main.bind("requestor.in", new String(problems[i].getOriginatingFileName()))); //$NON-NLS-1$
-							try {
-								Main.this.logger.printlnErr(
-									((DefaultProblem) problems[i]).errorReportSource(unitSource));
-								Main.this.logger.printlnErr(problems[i].getMessage());
-							} catch (Exception e) {
-								Main.this.logger.printlnErr(
-									Main.bind("requestor.notRetrieveErrorMessage", problems[i].toString())); //$NON-NLS-1$
-							}
-							Main.this.logger.printlnErr("----------"); //$NON-NLS-1$
-							if (problems[i].isError())
-								localErrorCount++;
-						}
-					}
+					int localErrorCount = Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
 					// exit?
 					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
-						Main.this.printStats();
+						Main.this.logger.endLoggingSource();
+						Main.this.logger.printStats(Main.this);
 						Main.this.logger.flush();
+						Main.this.logger.close();
 						System.exit(-1);
 					}
 				}
 				outputClassFiles(compilationResult);
+				Main.this.logger.endLoggingSource();
 			}
 		};
 	}
@@ -1603,39 +2307,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	// Dump classfiles onto disk for all compilation units that where successfull.
 
 	public void outputClassFiles(CompilationResult unitResult) {
-
 		if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 			Enumeration classFiles = unitResult.compiledTypes.elements();
 			if (!this.generatePackagesStructure) {
-				while (classFiles.hasMoreElements()) {
-					this.destinationPath = extractDestinationPathFromSourceFile(unitResult);
-					// retrieve the key and the corresponding classfile
-					ClassFile classFile = (ClassFile) classFiles.nextElement();
-					char[] filename = classFile.fileName();
-					int length = filename.length;
-					char[] relativeName = new char[length + 6];
-					System.arraycopy(filename, 0, relativeName, 0, length);
-					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
-					CharOperation.replace(relativeName, '/', File.separatorChar);
-					try {
-						if (this.compilerOptions.verbose)
-							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
-								new String[] {
-									String.valueOf(this.exportedClassFilesCounter+1),
-									new String(relativeName) }));					    
-						ClassFile.writeToDisk(
-							this.generatePackagesStructure,
-							this.destinationPath,
-							new String(relativeName),
-							classFile.getBytes());
-					} catch (IOException e) {
-						String fileName = this.destinationPath + new String(relativeName);
-						e.printStackTrace();
-						this.logger.printlnErr(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
-					}
-					this.exportedClassFilesCounter++;
-				}
-			} else if (this.destinationPath != null) {
+				this.destinationPath = extractDestinationPathFromSourceFile(unitResult);
+			}
+			if (this.destinationPath != null) {
 				while (classFiles.hasMoreElements()) {
 					// retrieve the key and the corresponding classfile
 					ClassFile classFile = (ClassFile) classFiles.nextElement();
@@ -1650,16 +2327,21 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
 								new String[] {
 									String.valueOf(this.exportedClassFilesCounter+1),
-									new String(relativeName) }));					    
+									new String(relativeName)
+								}));
 						ClassFile.writeToDisk(
 							this.generatePackagesStructure,
 							this.destinationPath,
 							new String(relativeName),
 							classFile.getBytes());
+						this.logger.logClassFile(
+							this.generatePackagesStructure,
+							this.destinationPath,
+							new String(relativeName));
 					} catch (IOException e) {
 						String fileName = this.destinationPath + new String(relativeName);
 						e.printStackTrace();
-						this.logger.printlnErr(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+						this.logger.logNoClassFileCreated(fileName); //$NON-NLS-1$
 					}
 					this.exportedClassFilesCounter++;
 				}
@@ -1686,77 +2368,25 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// set the non-externally configurable options.
 		this.compilerOptions.verbose = this.verbose;
 		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
-		batchCompiler.compile(getCompilationUnits());
+		try {
+			this.logger.startLoggingSources();
+			batchCompiler.compile(getCompilationUnits());
+		} finally {
+			this.logger.endLoggingSources();
+		}
 
-		printStats();
+		this.logger.printStats(this);
 		
 		// cleanup
 		environment.cleanup();
 	}
 	
-	public void printStats() {
-		if (this.timing) {
-
-			long time = System.currentTimeMillis() - this.startTime;
-			if (this.lineCount != 0) {
-				this.logger.printlnOut(
-					Main.bind(
-						"compile.instantTime", 	//$NON-NLS-1$
-						new String[] {
-							String.valueOf(this.lineCount),
-							String.valueOf(time),
-							String.valueOf(((int)(this.lineCount * 10000.0 / time)) / 10.0)}));
-			} else {
-				this.logger.printlnOut(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
-			}
-		}
-		if (this.globalProblemsCount > 0) {
-			if (this.globalProblemsCount == 1) {
-				this.logger.printErr(Main.bind("compile.oneProblem")); //$NON-NLS-1$
-			} else {
-				this.logger.printErr(
-					Main.bind("compile.severalProblems", String.valueOf(this.globalProblemsCount))); 	//$NON-NLS-1$
-			}
-			this.logger.printErr(" ("); //$NON-NLS-1$
-			if (this.globalErrorsCount > 0) {
-				if (this.globalErrorsCount == 1) {
-					this.logger.printErr(Main.bind("compile.oneError")); //$NON-NLS-1$
-				} else {
-					this.logger.printErr(
-						Main.bind("compile.severalErrors", String.valueOf(this.globalErrorsCount))); 	//$NON-NLS-1$
-				}
-			}
-			if (this.globalWarningsCount > 0) {
-				if (this.globalErrorsCount > 0) {
-					this.logger.printErr(", "); //$NON-NLS-1$
-				}
-				if (this.globalWarningsCount == 1) {
-					this.logger.printErr(Main.bind("compile.oneWarning")); //$NON-NLS-1$
-				} else {
-					this.logger.printErr(
-						Main.bind("compile.severalWarnings", String.valueOf(this.globalWarningsCount))); 	//$NON-NLS-1$
-				}
-			}
-			this.logger.printlnErr(")"); //$NON-NLS-1$
-		}
-		if (this.exportedClassFilesCounter != 0
-			&& (this.showProgress || this.timing || this.verbose)) {
-			if (this.exportedClassFilesCounter == 1) {
-				this.logger.printlnOut(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
-			} else {
-				this.logger.printlnOut(
-					Main.bind(
-						"compile.severalClassFilesGenerated", //$NON-NLS-1$
-						String.valueOf(this.exportedClassFilesCounter)));
-			}
-		}
-	}
 	public void printUsage() {
-		this.logger.printlnOut(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
+		this.logger.logUsage(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
 		this.logger.flush();
 	}
 	public void printVersion() {
-		this.logger.printlnOut(Main.bind("misc.version"));  //$NON-NLS-1$
+		this.logger.logVersion();  //$NON-NLS-1$
 		this.logger.flush();
 	}
 }
