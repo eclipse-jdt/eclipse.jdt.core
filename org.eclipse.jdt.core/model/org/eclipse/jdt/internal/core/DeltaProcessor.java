@@ -108,33 +108,38 @@ public class DeltaProcessor implements IResourceChangeListener {
 
 	public static boolean VERBOSE = false;
 	
-	class OutputInfo {
-		IPath path;
-		int traverseMode;
-		OutputInfo(IPath path, int traverseMode) {
-			this.path = path;
-			this.traverseMode = traverseMode;
+	class OutputsInfo {
+		IPath[] paths;
+		int[] traverseModes;
+		int outputCount;
+		OutputsInfo(IPath[] paths, int[] traverseModes, int outputCount) {
+			this.paths = paths;
+			this.traverseModes = traverseModes;
+			this.outputCount = outputCount;
 		}
 		public String toString() {
-			StringBuffer buffer = new StringBuffer("path="); //$NON-NLS-1$
-			if (this.path == null) {
-				buffer.append("null"); //$NON-NLS-1$
-			} else {
-				buffer.append(this.path.toString());
-			}
-			buffer.append("\ntraverse="); //$NON-NLS-1$
-			switch (this.traverseMode) {
-				case BINARY:
-					buffer.append("BINARY"); //$NON-NLS-1$
-					break;
-				case IGNORE:
-					buffer.append("IGNORE"); //$NON-NLS-1$
-					break;
-				case SOURCE:
-					buffer.append("SOURCE"); //$NON-NLS-1$
-					break;
-				default:
-					buffer.append("<unknown>"); //$NON-NLS-1$
+			if (this.paths == null) return "<none>"; //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0; i < this.outputCount; i++) {
+				buffer.append("path="); //$NON-NLS-1$
+				buffer.append(this.paths[i].toString());
+				buffer.append("\n->traverse="); //$NON-NLS-1$
+				switch (this.traverseModes[i]) {
+					case BINARY:
+						buffer.append("BINARY"); //$NON-NLS-1$
+						break;
+					case IGNORE:
+						buffer.append("IGNORE"); //$NON-NLS-1$
+						break;
+					case SOURCE:
+						buffer.append("SOURCE"); //$NON-NLS-1$
+						break;
+					default:
+						buffer.append("<unknown>"); //$NON-NLS-1$
+				}
+				if (i+1 < this.outputCount) {
+					buffer.append('\n');
+				}
 			}
 			return buffer.toString();
 		}
@@ -1107,30 +1112,34 @@ public class DeltaProcessor implements IResourceChangeListener {
 	}
 
 	/*
-	 * Returns whether the given resource is in the given output folder and if
+	 * Returns whether the given resource is in one of the given output folders and if
 	 * it is filtered out from this output folder.
 	 */
-	private boolean isResFilteredFromOutput(OutputInfo info, IResource res, int elementType) {
-		boolean outputIsFiltered = false;
-		if (info != null && info.path.isPrefixOf(res.getFullPath())) {
-			if (info.traverseMode != IGNORE) {
-				// case of bin=src
-				if (info.traverseMode == SOURCE && elementType == IJavaElement.CLASS_FILE) {
-					outputIsFiltered = true;
-				} else {
-					// case of .class file under project and no source folder
-					// proj=bin
-					if (elementType == IJavaElement.JAVA_PROJECT 
-							&& res instanceof IFile 
-							&& Util.isValidClassFileName(res.getName())) {
-						outputIsFiltered = true;
+	private boolean isResFilteredFromOutput(OutputsInfo info, IResource res, int elementType) {
+		if (info != null) {
+			IPath resPath = res.getFullPath();
+			for (int i = 0;  i < info.outputCount; i++) {
+				if (info.paths[i].isPrefixOf(resPath)) {
+					if (info.traverseModes[i] != IGNORE) {
+						// case of bin=src
+						if (info.traverseModes[i] == SOURCE && elementType == IJavaElement.CLASS_FILE) {
+							return true;
+						} else {
+							// case of .class file under project and no source folder
+							// proj=bin
+							if (elementType == IJavaElement.JAVA_PROJECT 
+									&& res instanceof IFile 
+									&& Util.isValidClassFileName(res.getName())) {
+								return true;
+							}
+						}
+					} else {
+						return true;
 					}
 				}
-			} else {
-				outputIsFiltered = true;
 			}
 		}
-		return outputIsFiltered;
+		return false;
 	}
 
 	private JavaModelException newInvalidElementType() {
@@ -1178,29 +1187,47 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 		elementDelta.addResourceDelta(delta);
 	}
-	private OutputInfo outputInfo(RootInfo rootInfo, IResource res) {
+	private OutputsInfo outputsInfo(RootInfo rootInfo, IResource res) {
 		try {
 			IJavaProject proj =
 				rootInfo == null ?
 					(IJavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
 					rootInfo.project;
 			if (proj != null) {
-				IPath output = proj.getOutputLocation();
+				IPath projectOutput = proj.getOutputLocation();
 				int traverseMode = IGNORE;
-				if (proj.getProject().getFullPath().equals(output)){ // case of proj==bin==src
-					traverseMode = SOURCE;
+				if (proj.getProject().getFullPath().equals(projectOutput)){ // case of proj==bin==src
+					return new OutputsInfo(new IPath[] {projectOutput}, new int[] {SOURCE}, 1);
 				} else {
-					// check case of src==bin
 					IClasspathEntry[] classpath = proj.getResolvedClasspath(true);
+					IPath[] outputs = new IPath[classpath.length+1];
+					int[] traverseModes = new int[classpath.length+1];
+					int outputCount = 1;
+					outputs[0] = projectOutput;
+					traverseModes[0] = traverseMode;
 					for (int i = 0, length = classpath.length; i < length; i++) {
 						IClasspathEntry entry = classpath[i];
-						if (entry.getPath().equals(output)) {
-							traverseMode = (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) ? SOURCE : BINARY;
+						IPath entryPath = entry.getPath();
+						IPath output = entry.getOutputLocation();
+						if (output != null) {
+							outputs[outputCount] = output;
+							// check case of src==bin
+							if (entryPath.equals(output)) {
+								traverseModes[outputCount++] = (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) ? SOURCE : BINARY;
+							} else {
+								traverseModes[outputCount++] = IGNORE;
+							}
+							break;
+						}
+						
+						// check case of src==bin
+						if (entryPath.equals(projectOutput)) {
+							traverseModes[0] = (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) ? SOURCE : BINARY;
 							break;
 						}
 					}
+					return new OutputsInfo(outputs, traverseModes, outputCount);
 				}
-				return new OutputInfo(output, traverseMode);
 			}
 		} catch (JavaModelException e) {
 		}
@@ -1619,7 +1646,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		IResourceDelta delta, 
 		int elementType, 
 		RootInfo rootInfo,
-		OutputInfo outputInfo) {
+		OutputsInfo outputsInfo) {
 			
 		IResource res = delta.getResource();
 	
@@ -1637,8 +1664,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 			processChildren = true;
 		}
 		
-		// get the project's output location and traverse mode
-		if (outputInfo == null) outputInfo = this.outputInfo(rootInfo, res);
+		// get the project's output locations and traverse mode
+		if (outputsInfo == null) outputsInfo = this.outputsInfo(rootInfo, res);
 	
 		// process children if needed
 		if (processChildren) {
@@ -1674,11 +1701,11 @@ public class DeltaProcessor implements IResourceChangeListener {
 					);
 						
 				// is childRes in the output folder and is it filtered out ?
-				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputInfo, childRes, childType);
+				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputsInfo, childRes, childType);
 				
 				if (!isResFilteredFromOutput) {
 					if (childType == -1
-							|| !this.traverseDelta(child, childType, rootInfo == null ? childInfo : rootInfo, outputInfo)) { // traverse delta for child in the same project
+							|| !this.traverseDelta(child, childType, rootInfo == null ? childInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
 						
 						// it is a non-java resource
 						try {

@@ -87,7 +87,8 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
 	suite.addTest(new JavaProjectTests("testGetClasspathOnClosedProject"));
 	suite.addTest(new JavaProjectTests("testGetRequiredProjectNames"));
-	suite.addTest(new JavaProjectTests("testGetNonJavaResources"));
+	suite.addTest(new JavaProjectTests("testGetNonJavaResources1"));
+	suite.addTest(new JavaProjectTests("testGetNonJavaResources2"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -392,12 +393,27 @@ public void testGetClasspathOnClosedProject() throws CoreException {
 	}
 }
 /*
- * Ensures that the non-java resources for a project do not contain the output location. 
+ * Ensures that the non-java resources for a project do not contain the project output location. 
  */
-public void testGetNonJavaResources() throws CoreException {
+public void testGetNonJavaResources1() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
-		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertResources(
+			"Unexpected non-java resources for project",
+			"/P/.classpath\n" +
+			"/P/.project",
+			(IResource[])project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that the non-java resources for a project do not contain a custom output location. 
+ * (regression test for 27494  Source folder output folder shown in Package explorer)
+ */
+public void testGetNonJavaResources2() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
 		assertResources(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +

@@ -123,6 +123,18 @@ public class SetClasspathOperation extends JavaModelOperation {
 				&& other.getEntryKind() == entry.getEntryKind()
 				&& other.isExported() == entry.isExported()
 				&& other.getPath().equals(entry.getPath())) {
+					// check custom outputs
+					IPath entryOutput = entry.getOutputLocation();
+					IPath otherOutput = other.getOutputLocation();
+					if (entryOutput == null) {
+						if (otherOutput != null)
+							continue;
+					} else {
+						if (!entryOutput.equals(otherOutput))
+							continue;
+					}
+					
+					// check exclusion patterns
 					IPath[] otherExcludes = other.getExclusionPatterns();
 					if (exclusionPatterns != otherExcludes) {
 						int excludeLength = exclusionPatterns.length;

@@ -236,13 +236,52 @@ protected void copyDirectory(File source, File target) throws IOException {
  * Creates a Java project with the given source folders an output location. 
  * Add those on the project's classpath.
  */
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String output) throws CoreException {
-	return this.createJavaProject(projectName, sourceFolders, new String[] {}, output);
+protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String output) throws CoreException {
+	return 
+		this.createJavaProject(
+			projectName, 
+			sourceFolders, 
+			null/*no lib*/, 
+			null/*no project*/, 
+			output, 
+			null/*no source outputs*/);
 }
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String output) throws CoreException {
-	return this.createJavaProject(projectName, sourceFolders, libraries, new String[] {}, output);
+/*
+ * Creates a Java project with the given source folders an output location. 
+ * Add those on the project's classpath.
+ */
+protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String output, String[] sourceOutputs) throws CoreException {
+	return 
+		this.createJavaProject(
+			projectName, 
+			sourceFolders, 
+			null/*no lib*/, 
+			null/*no project*/, 
+			output, 
+			sourceOutputs);
 }
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final String output) throws CoreException {
+protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
+	return 
+		this.createJavaProject(
+			projectName, 
+			sourceFolders, 
+			libraries, 
+			null/*no project*/, 
+			output, 
+			null/*no source outputs*/);
+}
+protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput) throws CoreException {
+	return
+		this.createJavaProject(
+			projectName,
+			sourceFolders,
+			libraries,
+			projects,
+			projectOutput,
+			null/*no source outputs*/
+		);
+}
+protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final String projectOutput, final String[] sourceOutputs) throws CoreException {
 	final IJavaProject[] result = new IJavaProject[1];
 	IWorkspaceRunnable create = new IWorkspaceRunnable() {
 		public void run(IProgressMonitor monitor) throws CoreException {
@@ -255,9 +294,9 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 			// create classpath entries 
 			IProject project = getWorkspaceRoot().getProject(projectName);
 			IPath projectPath = project.getFullPath();
-			int sourceLength = sourceFolders.length;
-			int libLength = libraries.length;
-			int projectLength = projects.length;
+			int sourceLength = sourceFolders == null ? 0 : sourceFolders.length;
+			int libLength = libraries == null ? 0 : libraries.length;
+			int projectLength = projects == null ? 0 : projects.length;
 			IClasspathEntry[] entries = new IClasspathEntry[sourceLength+libLength+projectLength];
 			for (int i= 0; i < sourceLength; i++) {
 				IPath sourcePath = new Path(sourceFolders[i]);
@@ -271,7 +310,24 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 						container = folder;
 					}
 				}
-				entries[i] = JavaCore.newSourceEntry(projectPath.append(sourcePath));
+				IPath outputPath = null;
+				if (sourceOutputs != null) {
+					// create out folder for source entry
+					outputPath = sourceOutputs[i] == null ? null : new Path(sourceOutputs[i]);
+					if (outputPath != null && outputPath.segmentCount() > 0) {
+						IFolder output = project.getFolder(outputPath);
+						if (!output.exists()) {
+							output.create(true, true, null);
+						}
+					}
+				}
+				// create source entry
+				entries[i] = 
+					JavaCore.newSourceEntry(
+						projectPath.append(sourcePath), 
+						new IPath[0], 
+						outputPath == null ? null : projectPath.append(outputPath)
+					);
 			}
 			for (int i= 0; i < libLength; i++) {
 				String lib = libraries[i];
@@ -299,8 +355,8 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 				entries[sourceLength+libLength+i] = JavaCore.newProjectEntry(new Path(projects[i]));
 			}
 			
-			// create output folder
-			IPath outputPath = new Path(output);
+			// create project's output folder
+			IPath outputPath = new Path(projectOutput);
 			if (outputPath.segmentCount() > 0) {
 				IFolder output = project.getFolder(outputPath);
 				if (!output.exists()) {

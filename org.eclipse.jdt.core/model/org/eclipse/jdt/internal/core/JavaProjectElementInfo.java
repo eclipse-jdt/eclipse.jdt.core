@@ -63,8 +63,9 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		boolean srcIsProject = false;
 		boolean binIsProject = false;
 		char[][] exclusionPatterns = null;
+		IClasspathEntry[] classpath = null;
 		try {
-			IClasspathEntry[] classpath = project.getExpandedClasspath(true);
+			classpath = project.getExpandedClasspath(true);
 			for (int i = 0; i < classpath.length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {
@@ -115,7 +116,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						break;
 					case IResource.FOLDER :
 						resFullPath = res.getFullPath();
-						if (!resFullPath.equals(project.getOutputLocation())
+						if (!this.isOutputLocation(resFullPath, classpath, project.getOutputLocation())
 							&& project.findPackageFragmentRoot0(resFullPath) == null
 							&& project.findPackageFragment0(resFullPath) == null) {
 							if (nonJavaResources.length == nonJavaResourcesCounter) {
@@ -173,6 +174,19 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	protected SearchableEnvironment getSearchableEnvironment() {
 
 		return fSearchableEnvironment;
+	}
+	/*
+	 * Returns whether the given path is an output location path.
+	 */
+	private boolean isOutputLocation(IPath path, IClasspathEntry[] resolvedClasspath, IPath projectOutput) {
+		if (path.equals(projectOutput)) return true;
+		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+			IClasspathEntry entry = resolvedClasspath[i];
+			if (path.equals(entry.getOutputLocation())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	protected void setNameLookup(NameLookup newNameLookup) {

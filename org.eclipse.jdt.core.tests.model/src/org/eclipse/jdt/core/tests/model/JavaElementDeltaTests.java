@@ -158,6 +158,12 @@ public static Test suite() {
 	// build
 	suite.addTest(new JavaElementDeltaTests("testBuildProjectUsedAsLib"));
 	
+	// output locations
+	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation1"));
+	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation2"));
+	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation3"));
+	suite.addTest(new JavaElementDeltaTests("testChangeCustomOutput"));
+	
 	return suite;
 }
 
@@ -460,6 +466,30 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 	}
 }
 
+/**
+ * Ensures that changing the custom output folder of a source entry
+ * triggers a F_REMOVED_FROM_CLASSPATH and F_ADDED_TO_CLASSPATH delta.
+ */
+public void testChangeCustomOutput() throws CoreException {
+	try {
+		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin", new String[] {"bin1"});
+		this.startDeltas();
+		this.setClasspath(
+			proj, 
+			new IClasspathEntry[] {
+				JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/P/bin2"))
+			});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
 /**
  * Ensures that the setting the classpath with a library entry
  * triggers a F_REMOVED_FROM_CLASSPATH and F_ADDED_TO_CLASSPATH delta.
@@ -1060,6 +1090,62 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 		if (workingCopy != null) {
 			workingCopy.destroy();
 		}
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that modifying the project output location (i.e. simulate a build) doesn't report any delta.
+ */
+public void testModifyOutputLocation1() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, "bin");
+		
+		this.startDeltas();
+		this.createFile("/P/bin/X.class", "");
+		assertDeltas(
+			"Unexpected delta",
+			""
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that modifying a custom output location (i.e. simulate a build) doesn't report any delta.
+ * (regression test for bug 27494 Source folder output folder shown in Package explorer)
+ */
+public void testModifyOutputLocation2() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
+		
+		this.startDeltas();
+		this.createFile("/P/bin2/X.class", "");
+		assertDeltas(
+			"Unexpected delta",
+			""
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that modifying a custom output location (i.e. simulate a build) doesn't report any delta.
+ * (regression test for bug 27494 Source folder output folder shown in Package explorer)
+ */
+public void testModifyOutputLocation3() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src1", "src2"}, "bin", new String[] {"src1", null});
+		
+		this.startDeltas();
+		this.createFile("/P/bin/X.class", "");
+		assertDeltas(
+			"Unexpected delta",
+			""
+		);
+	} finally {
+		this.stopDeltas();
 		this.deleteProject("P");
 	}
 }
