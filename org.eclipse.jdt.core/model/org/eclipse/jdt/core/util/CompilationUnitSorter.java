@@ -35,31 +35,48 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
 public class CompilationUnitSorter {
 
 	public static class DefaultJavaElementComparator implements Comparator {
-	
-		Collator collator;
+
+		private static final int STATIC_TYPE_CATEGORY = 0;
+		private static final int STATIC_FIELD_CATEGORY = 1;
+		private static final int STATIC_INITIALIZER_CATEGORY = 2;
+		private static final int STATIC_METHOD_CATEGORY = 3;
+		private static final int TYPE_CATEGORY = 4;
+		private static final int FIELD_CATEGORY = 5;
+		private static final int INITIALIZER_CATEGORY = 6;
+		private static final int CONSTRUCTOR_CATEGORY = 7;
+		private static final int METHOD_CATEGORY = 8;
 		
-		int staticTypeCategory;
-		int staticInitializerCategory;
-		int staticMethodCategory;
-		int staticFieldCategory;
-		int typeCategory;
-		int initializerCategory;
-		int methodCategory;
-		int constructorCategory;
-		int fieldCategory;
+		private Collator collator;
+		
+		private int[] categories;
 		
 		public DefaultJavaElementComparator() {
 			// initialize default categories
-			this.staticTypeCategory = 1;
-			this.staticFieldCategory = 2;
-			this.staticInitializerCategory = 3;
-			this.staticMethodCategory = 4;
-			this.typeCategory = 5;
-			this.fieldCategory = 6;
-			this.initializerCategory = 7;
-			this.constructorCategory = 8;
-			this.methodCategory = 9;
+			this.categories = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			this.collator = Collator.getInstance();
+		}
 
+		public DefaultJavaElementComparator(
+			int staticTypeCategory,
+			int staticFieldCategory,
+			int staticInitializerCategory,
+			int staticMethodCategory,
+			int typeCategory,
+			int fieldCategory,
+			int initializerCategory,
+			int constructorCategory,
+			int methodCategory) {
+				this.categories = new int[] {
+					staticTypeCategory,
+					staticFieldCategory,
+					staticInitializerCategory,
+					staticMethodCategory,
+					typeCategory,
+					fieldCategory,
+					initializerCategory,
+					constructorCategory,
+					methodCategory
+				};
 			this.collator = Collator.getInstance();
 		}
 
@@ -77,33 +94,33 @@ public class CompilationUnitSorter {
 				case ASTNode.METHOD_DECLARATION :
 					MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 					if (methodDeclaration.isConstructor()) {
-						return this.constructorCategory;
+						return this.categories[CONSTRUCTOR_CATEGORY];
 					}
 					if (Flags.isStatic(methodDeclaration.getModifiers())) {
-						return this.staticMethodCategory;
+						return this.categories[STATIC_METHOD_CATEGORY];
 					} else {
-						return this.methodCategory;
+						return this.categories[METHOD_CATEGORY];
 					}
 				case ASTNode.FIELD_DECLARATION :
 					FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 					if (Flags.isStatic(fieldDeclaration.getModifiers())) {
-						return this.staticFieldCategory;
+						return this.categories[STATIC_FIELD_CATEGORY];
 					} else {
-						return this.fieldCategory;
+						return this.categories[FIELD_CATEGORY];
 					}
 				case ASTNode.TYPE_DECLARATION :
 					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 					if (Flags.isStatic(typeDeclaration.getModifiers())) {
-						return this.staticTypeCategory;
+						return this.categories[STATIC_TYPE_CATEGORY];
 					} else {
-						return this.typeCategory;
+						return this.categories[TYPE_CATEGORY];
 					}
 				case ASTNode.INITIALIZER :
 					Initializer initializer = (Initializer) node;
 					if (Flags.isStatic(initializer.getModifiers())) {
-						return this.staticInitializerCategory;
+						return this.categories[STATIC_INITIALIZER_CATEGORY];
 					} else {
-						return this.initializerCategory;
+						return this.categories[INITIALIZER_CATEGORY];
 					}
 			}
 			return 0;
