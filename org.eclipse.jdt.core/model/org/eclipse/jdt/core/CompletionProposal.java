@@ -882,7 +882,7 @@ public final class CompletionProposal {
 	public char[][] findParameterNames(IProgressMonitor monitor) {
 		if (!this.parameterNamesComputed) {
 			this.parameterNamesComputed = true;
-			// TODO (jerome) - Missing implementation
+			// TODO (david) - Missing implementation
 		}
 		return this.parameterNames;
 	}

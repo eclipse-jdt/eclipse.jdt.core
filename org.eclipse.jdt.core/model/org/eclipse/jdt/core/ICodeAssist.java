@@ -57,7 +57,6 @@ public interface ICodeAssist {
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @since 2.0
-	 * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor)} instead.
  	 */
 	// TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor)} instead.
 	void codeComplete(int offset, ICompletionRequestor requestor)
@@ -115,7 +114,6 @@ public interface ICodeAssist {
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @since 3.0
-     * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor, WorkingCopyOwner)} instead.
 	 */
     // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor, WorkingCopyOwner)} instead.
 	void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)

@@ -634,16 +634,14 @@ public IType findPrimaryType() {
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
 	 */
 	public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
-		// TODO (jerome) - Missing implementation
-		throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
 	 */
 	public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
-		// TODO (jerome) - Missing implementation
-		throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
 	/**
