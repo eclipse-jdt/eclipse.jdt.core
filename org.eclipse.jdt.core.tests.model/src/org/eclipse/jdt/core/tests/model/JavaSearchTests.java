@@ -245,6 +245,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInPackageScope"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testConstructorDeclarationInJar"));
+	suite.addTest(new JavaSearchTests("testMethodDeclarationInInitializer"));
 	
 	// method reference
 	suite.addTest(new JavaSearchTests("testSimpleMethodReference"));
@@ -1228,6 +1229,23 @@ public void testMethodDeclarationInHierarchyScope2() throws JavaModelException, 
 	assertEquals(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo]", 
+		resultCollector.toString());
+}
+/**
+ * Method declaration in field initialzer.
+ * (regression test for bug 24346 Method declaration not found in field initializer  )
+ */
+public void testMethodDeclarationInInitializer() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"foo24346",
+		METHOD,
+		DECLARATIONS, 
+		getJavaSearchScope(),
+		resultCollector);
+	assertEquals(
+		"src/c6/X.java c6.X.x [foo24346]", 
 		resultCollector.toString());
 }
 /**

@@ -171,7 +171,7 @@ protected void consumeEnterAnonymousClassBody() {
 		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
 	alloc = 
 		anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
-	markCurrentMethodWithLocalType();
+	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
 	alloc.sourceEnd = rParenPos; //the position has been stored explicitly

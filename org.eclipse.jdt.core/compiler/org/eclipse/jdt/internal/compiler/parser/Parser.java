@@ -1049,8 +1049,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		astPtr--;
 		astLengthPtr--;
 		
-		// mark fields and initializer with local type mark if needed
-		markFieldsWithLocalType(anonymousTypeDeclaration);
+		// mark initializers with local type mark if needed
+		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected final void concatExpressionLists() {
@@ -1399,8 +1399,8 @@ protected void consumeClassDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 
-	// mark fields and initializer with local type mark if needed
-	markFieldsWithLocalType(typeDecl);
+	// mark initializers with local type mark if needed
+	markInitializersWithLocalType(typeDecl);
 
 	//convert constructor that do not have the type's name into methods
 	boolean hasConstructor = typeDecl.checkConstructors(this);
@@ -1484,7 +1484,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
-		markCurrentMethodWithLocalType();
+		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
 
@@ -1818,7 +1818,7 @@ protected void consumeEnterAnonymousClassBody() {
 		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
 	alloc = 
 		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
-	markCurrentMethodWithLocalType();
+	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
 	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
@@ -2187,8 +2187,8 @@ protected void consumeInterfaceDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 	
-	// mark fields and initializer with local type mark if needed
-	markFieldsWithLocalType(typeDecl);
+	// mark initializers with local type mark if needed
+	markInitializersWithLocalType(typeDecl);
 
 	//convert constructor that do not have the type's name into methods
 	typeDecl.checkConstructors(this);
@@ -2245,7 +2245,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
-		markCurrentMethodWithLocalType();
+		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
 
@@ -6389,8 +6389,8 @@ protected void ignoreInterfaceDeclaration() {
 	typeDecl.bodyEnd = endStatementPosition;
 	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
 
-	// mark fields and initializer with local type mark if needed
-	markFieldsWithLocalType(typeDecl);
+	// mark initializers with local type mark if needed
+	markInitializersWithLocalType(typeDecl);
 
 	// remove the ast node created in interface header
 	astPtr--;	
@@ -6548,12 +6548,13 @@ public final void jumpOverMethodBody() {
 	if (diet && (dietInt == 0))
 		scanner.diet = true;
 }
-protected void markCurrentMethodWithLocalType() {
+protected void markEnclosingMemberWithLocalType() {
 	if (this.currentElement != null) return; // this is already done in the recovery code
 	for (int i = this.astPtr; i >= 0; i--) {
 		AstNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration 
-				|| node instanceof TypeDeclaration) { // mark type for now: all fields will be marked when added to this type
+				|| node instanceof FieldDeclaration
+				|| node instanceof TypeDeclaration) { // mark type for now: all initializers will be marked when added to this type
 			node.bits |= AstNode.HasLocalTypeMASK;
 			return;
 		}
@@ -6564,10 +6565,13 @@ protected void markCurrentMethodWithLocalType() {
 		((AstNode)this.referenceContext).bits |= AstNode.HasLocalTypeMASK;
 	}
 }
-protected void markFieldsWithLocalType(TypeDeclaration type) {
+protected void markInitializersWithLocalType(TypeDeclaration type) {
 	if (type.fields == null || (type.bits & AstNode.HasLocalTypeMASK) == 0) return;
 	for (int i = 0, length = type.fields.length; i < length; i++) {
-		type.fields[i].bits |= AstNode.HasLocalTypeMASK;
+		FieldDeclaration field = type.fields[i];
+		if (field instanceof Initializer) {
+			field.bits |= AstNode.HasLocalTypeMASK;
+		}
 	}
 }
 /*

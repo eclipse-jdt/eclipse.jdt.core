@@ -79,8 +79,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		astPtr--;
 		astLengthPtr--;
 
-		// mark fields and initializer with local type mark if needed
-		markFieldsWithLocalType(anonymousTypeDeclaration);
+		// mark initializers with local type mark if needed
+		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected void consumeClassDeclaration() {
@@ -100,7 +100,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
-		markCurrentMethodWithLocalType();
+		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
 
@@ -178,7 +178,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
-		markCurrentMethodWithLocalType(); 
+		markEnclosingMemberWithLocalType(); 
 		blockReal();
 	}
 
