@@ -2178,7 +2178,6 @@ public final void recordComment(boolean isJavadoc) {
 	//the buffer is of a correct size here
 	this.commentStarts[this.commentPtr] = this.startPosition;
 }
-
 /**
  * Reposition the scanner on some portion of the original source. The given endPosition is the last valid position.
  * Beyond this position, the scanner will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
@@ -2190,10 +2189,25 @@ public void resetTo(int begin, int end) {
 	//reset the scanner to a given position where it may rescan again
 
 	diet = false;
-	initialPosition = startPosition = currentPosition = begin;
-	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
 	foundTaskCount = 0;
+
+	if (begin == 0) {
+		initialPosition = 0;
+		currentPosition = 0;
+		startPosition = -1;
+	} else {
+		initialPosition = startPosition = currentPosition = begin;
+	}
+	if (this.source != null) {
+		if (end >= this.source.length) {
+			eofPosition = this.source.length;
+		} else {
+			eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
+		}
+	} else {
+		eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
+	}
 }
 
 public final void scanEscapeCharacter() throws InvalidInputException {
