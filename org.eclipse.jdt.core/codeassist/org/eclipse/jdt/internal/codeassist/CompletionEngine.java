@@ -54,7 +54,7 @@ public final class CompletionEngine
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 	
-	int expectedTypesCount = -1;
+	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
 	
@@ -1820,7 +1820,7 @@ public final class CompletionEngine
 	}
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(expectedTypes != null && proposalType != null) {
-			for (int i = 0; i <= expectedTypesCount; i++) {
+			for (int i = 0; i <= expectedTypesPtr; i++) {
 				if((expectedTypesFilter & SUBTYPE) != 0
 					&& Scope.areTypesCompatible(proposalType, expectedTypes[i])) {
 						return R_EXPECTED_TYPE;
@@ -1835,7 +1835,7 @@ public final class CompletionEngine
 	}
 	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
 		if(expectedTypes != null) {
-			for (int i = 0; i <= expectedTypesCount; i++) {
+			for (int i = 0; i <= expectedTypesPtr; i++) {
 				if(CharOperation.equals(expectedTypes[i].qualifiedPackageName(), packageName) &&
 					CharOperation.equals(expectedTypes[i].qualifiedSourceName(), typeName)) {
 					return R_EXPECTED_TYPE;
@@ -2301,13 +2301,44 @@ public final class CompletionEngine
 				}
 			}
 		}
-
-		if (token.length == 0)
-			return;
-
-		findKeywords(token, baseTypes, scope);
-		nameEnvironment.findTypes(token, this);
-		nameEnvironment.findPackages(token, this);
+		
+		if (token.length == 0) {
+			if(expectedTypesPtr > -1) {
+				for (int i = 0; i <= expectedTypesPtr; i++) {
+					if(expectedTypes[i] instanceof ReferenceBinding) {
+						ReferenceBinding refBinding = (ReferenceBinding)expectedTypes[i];
+						if(!unitScope.isDefinedInSameUnit(refBinding)) {
+							int relevance = R_DEFAULT + R_CASE + R_EXPECTED_TYPE;
+							if(refBinding.isClass()) {
+								relevance += computeRelevanceForClass();
+								requestor.acceptClass(
+									refBinding.qualifiedPackageName(),
+									refBinding.sourceName(),
+									refBinding.sourceName(),
+									refBinding.modifiers,
+									startPosition - offset, 
+									endPosition - offset,
+									relevance);
+							} else if (refBinding.isInterface()) {
+								relevance += computeRelevanceForInterface();
+								requestor.acceptInterface(
+									refBinding.qualifiedPackageName(),
+									refBinding.sourceName(),
+									refBinding.sourceName(),
+									refBinding.modifiers,
+									startPosition - offset, 
+									endPosition - offset,
+									relevance);
+							}
+						}
+					}
+				}
+			} 
+		} else {
+			findKeywords(token, baseTypes, scope);
+			nameEnvironment.findTypes(token, this);
+			nameEnvironment.findPackages(token, this);
+		}
 	}
 
 	private void findTypesAndSubpackages(
@@ -2687,8 +2718,8 @@ public final class CompletionEngine
 			}
 		}
 		
-		if(expectedTypesCount + 1 != expectedTypes.length) {
-			System.arraycopy(expectedTypes, 0, expectedTypes = new TypeBinding[expectedTypesCount + 1], 0, expectedTypesCount + 1);
+		if(expectedTypesPtr + 1 != expectedTypes.length) {
+			System.arraycopy(expectedTypes, 0, expectedTypes = new TypeBinding[expectedTypesPtr + 1], 0, expectedTypesPtr + 1);
 		}
 	}
 	
@@ -2835,13 +2866,13 @@ public final class CompletionEngine
 	}
 	private void addExpectedType(TypeBinding type){
 		try {
-			this.expectedTypes[++this.expectedTypesCount] = type;
+			this.expectedTypes[++this.expectedTypesPtr] = type;
 		} catch (IndexOutOfBoundsException e) {
 			int oldLength = this.expectedTypes.length;
 			TypeBinding oldTypes[] = this.expectedTypes;
 			this.expectedTypes = new TypeBinding[oldLength * 2];
 			System.arraycopy(oldTypes, 0, this.expectedTypes, 0, oldLength);
-			this.expectedTypes[this.expectedTypesCount] = type;
+			this.expectedTypes[this.expectedTypesPtr] = type;
 		}
 	}
 	private char[][] computeNames(char[] sourceName, boolean forArray){
