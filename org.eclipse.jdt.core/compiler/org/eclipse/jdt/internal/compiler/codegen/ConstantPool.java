@@ -961,7 +961,8 @@ public int literalIndex(FieldBinding aFieldBinding) {
  * This method returns the index into the constantPool corresponding to the 
  * method descriptor. It can be either an interface method reference constant
  * or a method reference constant.
- *
+ * Note: uses the method binding #constantPoolDeclaringClass which could be an array type
+ * for the array clone method (see UpdatedMethodDeclaration).
  * @param MethodBinding aMethodBinding
  * @return <CODE>int</CODE>
  */
@@ -971,10 +972,10 @@ public int literalIndex(MethodBinding aMethodBinding) {
 	int classIndex;
 	int indexWellKnownMethod;
 	if ((indexWellKnownMethod = indexOfWellKnownMethods(aMethodBinding)) == -1) {
-		if (aMethodBinding.declaringClass.isInterface()) {
+		if (aMethodBinding.constantPoolDeclaringClass().isInterface()) {
 			// Lookinf into the interface method ref table
 			if ((index = interfaceMethodCache.get(aMethodBinding)) < 0) {
-				classIndex = literalIndex(aMethodBinding.declaringClass);
+				classIndex = literalIndex(aMethodBinding.constantPoolDeclaringClass());
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = interfaceMethodCache.put(aMethodBinding, currentIndex++);
 				if (index > 0xFFFF){
@@ -991,7 +992,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 		} else {
 			// Lookinf into the method ref table
 			if ((index = methodCache.get(aMethodBinding)) < 0) {
-				classIndex = literalIndex(aMethodBinding.declaringClass);
+				classIndex = literalIndex(aMethodBinding.constantPoolDeclaringClass());
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = methodCache.put(aMethodBinding, currentIndex++);
 				if (index > 0xFFFF){
@@ -1010,9 +1011,9 @@ public int literalIndex(MethodBinding aMethodBinding) {
 		// This is a well known method
 		if ((index = wellKnownMethods[indexWellKnownMethod]) == 0) {
 			// this methods was not inserted yet
-			if (aMethodBinding.declaringClass.isInterface()) {
+			if (aMethodBinding.constantPoolDeclaringClass().isInterface()) {
 				// Lookinf into the interface method ref table
-				classIndex = literalIndex(aMethodBinding.declaringClass);
+				classIndex = literalIndex(aMethodBinding.constantPoolDeclaringClass());
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
 				if (index > 0xFFFF){
@@ -1027,7 +1028,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				writeU2(nameAndTypeIndex);
 			} else {
 				// Lookinf into the method ref table
-				classIndex = literalIndex(aMethodBinding.declaringClass);
+				classIndex = literalIndex(aMethodBinding.constantPoolDeclaringClass());
 				nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
 				index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
 				if (index > 0xFFFF){

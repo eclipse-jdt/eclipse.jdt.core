@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SwitchStatement extends Statement {
+
 	public Expression testExpression;
 	public Statement[] statements;
 	public BlockScope scope;
@@ -29,16 +30,20 @@ public class SwitchStatement extends Statement {
 	// for local variables table attributes
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
+
 	/**
 	 * SwitchStatement constructor comment.
 	 */
 	public SwitchStatement() {
+
 		super();
 	}
+
 	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+			BlockScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo) {
+			
 		flowInfo = testExpression.analyseCode(currentScope, flowContext, flowInfo);
 		SwitchFlowContext switchContext =
 			new SwitchFlowContext(flowContext, this, (breakLabel = new Label()));
@@ -86,6 +91,7 @@ public class SwitchStatement extends Statement {
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
+
 	/**
 	 * Switch code generation
 	 *
@@ -93,6 +99,7 @@ public class SwitchStatement extends Statement {
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+
 		int[] sortedIndexes = new int[caseCount];
 		int[] localKeysCopy;
 		if ((bits & IsReachableMASK) == 0) {
@@ -197,8 +204,8 @@ public class SwitchStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-
 	public void resetStateForCodeGeneration() {
+
 		if (this.breakLabel != null) {
 			this.breakLabel.resetStateForCodeGeneration();
 		}
@@ -262,6 +269,7 @@ public class SwitchStatement extends Statement {
 			}
 		}
 	}
+
 	public String toString(int tab) {
 
 		String inFront, s = tabString(tab);
@@ -312,8 +320,8 @@ public class SwitchStatement extends Statement {
 	}
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
-		BlockScope blockScope) {
+			IAbstractSyntaxTreeVisitor visitor,
+			BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
 			testExpression.traverse(visitor, scope);

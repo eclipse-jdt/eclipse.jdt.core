@@ -186,11 +186,11 @@ public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
 	boolean checkNonExternalizedStringLiterals, 
-	int sourceLevel,
+	long sourceLevel,
 	char[][] taskTags,
 	char[][] taskPriorities) {
 		
-	if (sourceLevel == CompilerOptions.JDK1_4) {
+	if (sourceLevel >= CompilerOptions.JDK1_4) {
 		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, true, taskTags, taskPriorities);
 	} else {
 		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false, taskTags, taskPriorities);

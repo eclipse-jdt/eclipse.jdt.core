@@ -11,6 +11,7 @@
  *     IBM Corporation - deprecated getPackageFragmentRoots(IClasspathEntry) and 
  *                               added findPackageFragmentRoots(IClasspathEntry)
  *     IBM Corporation - added isOnClasspath(IResource)
+ *     IBM Corporation - added setOption(String, String)
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -498,6 +499,19 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		IRegion region,
 		IProgressMonitor monitor)
 		throws JavaModelException;
+
+	/**
+	 * Helper method for setting one option value only. Equivalent to <code>Map options = this.getOptions(false); map.put(optionName, optionValue); this.setOptions(map)</code>
+	 * <p>
+	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
+	 * </p>
+	 * 
+	 * @param optionName the name of an option
+	 * @param optionValue the value of the option to set
+	 * @see JavaCore#getDefaultOptions
+	 * @since 3.0
+	 */
+	void setOption(String optionName, String optionValue);
 
 	/**
 	 * Sets the project custom options. All and only the options explicitly included in the given table 

@@ -114,7 +114,7 @@ public class CompletionParser extends AssistParser {
 	static final int YES = 2;
 	
 	
-public CompletionParser(ProblemReporter problemReporter, int sourceLevel) {
+public CompletionParser(ProblemReporter problemReporter, long sourceLevel) {
 	super(problemReporter, sourceLevel);
 }
 public char[] assistIdentifier(){

@@ -194,7 +194,7 @@ public abstract class Scope
 					return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
 			}
 			if (CharOperation.equals(fieldName, LENGTH))
-				return ArrayBinding.LengthField;
+				return ArrayBinding.ArrayLength;
 			return null;
 		}
 
@@ -699,7 +699,8 @@ public abstract class Scope
 		if (methodBinding != null) {
 			// handle the method clone() specially... cannot be protected or throw exceptions
 			if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
-				return new MethodBinding(
+				return new UpdatedMethodBinding(
+					environment().options.targetJDK >= CompilerOptions.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
 					(methodBinding.modifiers ^ AccProtected) | AccPublic,
 					CLONE,
 					methodBinding.returnType,

@@ -11,18 +11,24 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -31,6 +37,8 @@ import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
@@ -519,6 +527,79 @@ public class Util implements SuffixConstants {
 			}
 		}
 		// not found
+		return null;
+	}
+
+	/**
+	 * Get the jdk level of this root.
+	 * The value can be:
+	 * <ul>
+	 * <li>major<<16 + minor : see predefined constants on ClassFileConstants </li>
+	 * <li><code>0</null> if the root is a source package fragment root or if a Java model exception occured</li>
+	 * </ul>
+	 * Returns the jdk level
+	 */
+	public static long getJdkLevel(Object targetLibrary) {
+		try {
+				ClassFileReader reader = null;
+				if (targetLibrary instanceof IFolder) {
+					IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
+					if (classFile != null) {
+						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);
+						IPath location = classFile.getLocation();
+						reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
+					}
+				} else {
+					// root is a jar file or a zip file
+					ZipFile jar = null;
+					try {
+						IPath path = null;
+						if (targetLibrary instanceof IResource) {
+							path = ((IResource)targetLibrary).getLocation();
+						} else if (targetLibrary instanceof File){
+							File f = (File) targetLibrary;
+							if (!f.isDirectory()) {
+								path = new Path(((File)targetLibrary).getPath());
+							}
+						}
+						if (path != null) {
+							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+								ZipEntry member= (ZipEntry) e.nextElement();
+								String entryName= member.getName();
+								if (Util.isClassFileName(entryName)) {
+									reader = ClassFileReader.read(jar, entryName);
+									break;
+								}
+							}
+						}
+					} catch (CoreException e) {
+					} finally {
+						JavaModelManager.getJavaModelManager().closeZipFile(jar);
+					}
+				}
+				if (reader != null) {
+					return reader.getVersion();
+				}
+		} catch(JavaModelException e) {
+		} catch(ClassFormatException e) {
+		} catch(IOException e) {
+		}
+		return 0;
+	}
+	private static IFile findFirstClassFile(IFolder folder) {
+		try {
+			IResource[] members = folder.members();
+			for (int i = 0, max = members.length; i < max; i++) {
+				IResource member = members[i];
+				if (member.getType() == IResource.FOLDER) {
+					return findFirstClassFile((IFolder)member);
+				} else if (Util.isClassFileName(member.getName())) {
+					return (IFile) member;
+				}
+			}
+		} catch (CoreException e) {
+		}
 		return null;
 	}
 	

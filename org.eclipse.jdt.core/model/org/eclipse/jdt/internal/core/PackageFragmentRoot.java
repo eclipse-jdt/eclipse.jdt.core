@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
@@ -27,8 +24,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 
 /**
  * @see IPackageFragmentRoot
@@ -476,87 +471,7 @@ public String getHandleMemento(){
 public int getKind() throws JavaModelException {
 	return ((PackageFragmentRootInfo)getElementInfo()).getRootKind();
 }
-/**
- * Get the jdk level of this root.
- * The value can be:
- * <ul>
- * <li>JavaCore#VERSION_1_1</li>
- * <li>JavaCore#VERSION_1_2</li>
- * <li>JavaCore#VERSION_1_3</li>
- * <li>JavaCore#VERSION_1_4</li>
- * <li>JavaCore#VERSION_1_5</li>
- * <li><code>null</null> if the root is a source package fragment root or if a Java model exception occured</li>
- * </ul>
- * Returns the jdk level
- */
-public String getJdkLevel() {
-	try {
-		IClasspathEntry classpathEntry = getRawClasspathEntry();
-		switch(classpathEntry.getEntryKind()) {
-			case IClasspathEntry.CPE_LIBRARY:
-				ClassFileReader reader = null;
-				if (isArchive()) {
-					// root is a jar file or a zip file
-					JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) this;
-					ZipFile jar = null;
-					try {
-						jar = jarPackageFragmentRoot.getJar();
-						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-							ZipEntry member= (ZipEntry) e.nextElement();
-							String entryName= member.getName();
-							if (Util.isClassFileName(entryName)) {
-								reader = ClassFileReader.read(jar, entryName);
-								break;
-							}
-						}
-					} catch (CoreException e) {
-					} finally {
-						JavaModelManager.getJavaModelManager().closeZipFile(jar);
-					}
-				} else {
-					IResource currentResource = getResource();
-					IFile classFile = null;
-					if (currentResource.getType() == IResource.FOLDER) {
-						classFile = searchClassFile((IFolder) currentResource);
-					}
-					if (classFile != null) {
-						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);
-						IPath location = classFile.getLocation();
-						reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
-					}
-				}
-				if (reader != null) {
-					int majorVersion = reader.getMajorVersion();
-					switch(majorVersion) {
-						case 45 : return JavaCore.VERSION_1_1;
-						case 46 : return JavaCore.VERSION_1_2;
-						case 47 : return JavaCore.VERSION_1_3;
-						case 48 : return JavaCore.VERSION_1_4;
-						// TODO (olivier) add version 1.5 
-					}
-				}
-		}
-	} catch(JavaModelException e) {
-	} catch(ClassFormatException e) {
-	} catch(IOException e) {
-	}
-	return null;
-}
-private IFile searchClassFile(IFolder folder) {
-	try {
-		IResource[] members = folder.members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource member = members[i];
-			if (member.getType() == IResource.FOLDER) {
-				return searchClassFile((IFolder)member);
-			} else if (Util.isClassFileName(member.getName())) {
-				return (IFile) member;
-			}
-		}
-	} catch (CoreException e) {
-	}
-	return null;
-}
+
 /**
  * Returns an array of non-java resources contained in the receiver.
  */

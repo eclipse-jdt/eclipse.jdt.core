@@ -84,7 +84,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 }
 private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) throws CoreException {
 	// ignore length field
-	if (fieldBinding == ArrayBinding.LengthField) return;
+	if (fieldBinding == ArrayBinding.ArrayLength) return;
 	
 	ReferenceBinding declaringClass = fieldBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);

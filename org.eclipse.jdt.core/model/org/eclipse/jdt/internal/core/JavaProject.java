@@ -534,6 +534,14 @@ public class JavaProject
 				severity = IMarker.SEVERITY_ERROR;
 				break;
 
+			case  IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL :
+				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
+					severity = IMarker.SEVERITY_ERROR;
+				} else {
+					severity = IMarker.SEVERITY_WARNING;
+				}
+				break;
+				
 			default:
 				IPath path = status.getPath();
 				if (path != null) arguments = new String[] { path.toString() };
@@ -2052,6 +2060,17 @@ public class JavaProject
 		// Commit the spec change into the project
 		description.setBuildSpec(newCommands);
 		getProject().setDescription(description, null);
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
+	 */
+	public void setOption(String optionName, String optionValue) {
+			if (!JavaModelManager.OptionNames.contains(optionName)) return; // unrecognized option
+			Preferences preferences = getPreferences();
+			preferences.setDefault(optionName, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
+			preferences.setValue(optionName, optionValue);
+			savePreferences(preferences);
 	}
 
 	/**

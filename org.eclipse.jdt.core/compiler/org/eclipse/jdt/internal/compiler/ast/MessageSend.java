@@ -165,6 +165,9 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
 
 		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
+
+		// Post 1.4.0 target, array clone() invocations are qualified with array type 
+		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
 	}
 }
 

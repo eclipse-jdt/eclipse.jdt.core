@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -48,20 +47,13 @@ public CodeSnippetClassFile(
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
-	if (((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK >= CompilerOptions.JDK1_2) {
-		// Compatible with JDK 1.2
-		header[headerOffset++] = 0;
-		// minorVersion = 0 means we just need to offset the current offset by 2
-		header[headerOffset++] = 0;
-		header[headerOffset++] = 0;
-		header[headerOffset++] = 46;
-	} else {
-		// Compatible with JDK 1.1
-		header[headerOffset++] = 0;
-		header[headerOffset++] = 3;
-		header[headerOffset++] = 0;
-		header[headerOffset++] = 45;
-	}
+
+		long targetJDK = ((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK;
+		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
+		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
+		header[headerOffset++] = (byte) (targetJDK >> 24); // major high
+		header[headerOffset++] = (byte) (targetJDK >> 16); // major low
+
 	constantPoolOffset = headerOffset;
 	headerOffset += 2;
 	constantPool = new CodeSnippetConstantPool(this);

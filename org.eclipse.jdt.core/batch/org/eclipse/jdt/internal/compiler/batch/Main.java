@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -49,46 +50,46 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Main implements ProblemSeverities, SuffixConstants {
 
-	public boolean noWarn = false;
-
-	public PrintWriter out;
-	public PrintWriter err;	
-	public boolean systemExitWhenFinished = true;
-	public boolean proceedOnError = false;
-
-	public boolean verbose = false;
-	public boolean produceRefInfo = false;
-	public boolean timer = false;
-	public boolean showProgress = false;
-	public long time = 0;
-	public long lineCount;
-	public boolean generatePackagesStructure;
-
-	public Map options;
-	public String[] filenames;
-	public String[] encodings;
-	public String[] classpaths;
-	public String destinationPath;
-	public String log;
-	public int repetitions;
-	public int globalProblemsCount;
-	public int globalErrorsCount;
-	public int globalWarningsCount;
-	public int exportedClassFilesCounter;
-
-	public final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
-	public final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
+	static {
+		relocalize();
+	}
 
 	/* Bundle containing messages */
 	public static ResourceBundle bundle;
 	public final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
-	static {
-		relocalize();
-	}
+	public final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
+	public final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
+	public String[] classpaths;
+	public String destinationPath;
+	public String[] encodings;
+	public PrintWriter err;	
+	public int exportedClassFilesCounter;
+	public String[] filenames;
+	public boolean generatePackagesStructure;
+	public int globalErrorsCount;
+	public int globalProblemsCount;
+	public int globalWarningsCount;
+	public long lineCount;
+	public String log;
+
+	public boolean noWarn = false;
+
+	public Map options;
+
+	public PrintWriter out;
 
 	public boolean proceed = true;
+	public boolean proceedOnError = false;
+	public boolean produceRefInfo = false;
+	public int repetitions;
+	public boolean showProgress = false;
+	public boolean systemExitWhenFinished = true;
+	public long time = 0;
+	public boolean timer = false;
+
+	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 
@@ -97,6 +98,265 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		exportedClassFilesCounter = 0;
 		this.options = getDefaultOptions();
+	}
+
+	/**
+	 * Lookup the message with the given ID in this catalog 
+	 */
+	public static String bind(String id) {
+		return bind(id, (String[]) null);
+	}
+
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string.
+	 */
+	public static String bind(String id, String binding) {
+		return bind(id, new String[] { binding });
+	}
+
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given strings.
+	 */
+	public static String bind(String id, String binding1, String binding2) {
+		return bind(id, new String[] { binding1, binding2 });
+	}
+
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string values.
+	 */
+	public static String bind(String id, String[] bindings) {
+		if (id == null)
+			return "No message available"; //$NON-NLS-1$
+		String message = null;
+		try {
+			message = bundle.getString(id);
+		} catch (MissingResourceException e) {
+			// If we got an exception looking for the message, fail gracefully by just returning
+			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
+			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
+		}
+		// for compatibility with MessageFormat which eliminates double quotes in original message
+		char[] messageWithNoDoubleQuotes =
+			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
+		message = new String(messageWithNoDoubleQuotes);
+
+		if (bindings == null)
+			return message;
+
+		int length = message.length();
+		int start = -1;
+		int end = length;
+		StringBuffer output = new StringBuffer(80);
+		while (true) {
+			if ((end = message.indexOf('{', start)) > -1) {
+				output.append(message.substring(start + 1, end));
+				if ((start = message.indexOf('}', end)) > -1) {
+					int index = -1;
+					try {
+						index = Integer.parseInt(message.substring(end + 1, start));
+						output.append(bindings[index]);
+					} catch (NumberFormatException nfe) {
+						output.append(message.substring(end + 1, start + 1));
+					} catch (ArrayIndexOutOfBoundsException e) {
+						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
+					}
+				} else {
+					output.append(message.substring(end, length));
+					break;
+				}
+			} else {
+				output.append(message.substring(start + 1, length));
+				break;
+			}
+		}
+		return output.toString();
+	}
+
+	/*
+	 * Internal IDE API
+	 */
+	public static boolean compile(String commandLine) {
+
+		return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
+	}
+
+	/*
+	 * Internal IDE API for test harness purpose
+	 */
+	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
+
+		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
+	}
+	
+	public static Map getDefaultOptions() {
+		Map defaultOptions = new Hashtable();
+		defaultOptions.put(
+			CompilerOptions.OPTION_LocalVariableAttribute,
+			CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_LineNumberAttribute,
+			CompilerOptions.GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_SourceFileAttribute,
+			CompilerOptions.GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_PreserveUnusedLocal,
+			CompilerOptions.OPTIMIZE_OUT);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnreachableCode,
+			CompilerOptions.ERROR);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportInvalidImport, 
+			CompilerOptions.ERROR);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportMethodWithConstructorName,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportDeprecation, 
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportHiddenCatchBlock,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedLocal, 
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedImport, 
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameter,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract,
+			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete,
+			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportAssertIdentifier,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_Compliance,
+			CompilerOptions.VERSION_1_3);
+		defaultOptions.put(
+			CompilerOptions.OPTION_Source,
+			CompilerOptions.VERSION_1_3);
+		defaultOptions.put(
+			CompilerOptions.OPTION_TargetPlatform,
+			CompilerOptions.VERSION_1_1);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportStaticAccessReceiver,
+			CompilerOptions.WARNING);			
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
+			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNoEffectAssignment,
+			CompilerOptions.WARNING);
+		return defaultOptions;
+	}
+	/*
+	 * External API
+	 */
+
+	public static void main(String[] argv) {
+		new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
+	}
+
+	/**
+	 * Creates a NLS catalog for the given locale.
+	 */
+	public static void relocalize() {
+		try {
+			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+			throw e;
+		}
+	}
+
+	public static String[] tokenize(String commandLine) {
+
+		int count = 0;
+		String[] arguments = new String[10];
+		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
+		String token = ""; //$NON-NLS-1$
+		boolean insideQuotes = false;
+		boolean startNewToken = true;
+
+		// take care to quotes on the command line
+		// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
+		while (tokenizer.hasMoreTokens()) {
+			token = tokenizer.nextToken();
+
+			if (token.equals(" ")) { //$NON-NLS-1$
+				if (insideQuotes) {
+					arguments[count - 1] += token;
+					startNewToken = false;
+				} else {
+					startNewToken = true;
+				}
+			} else if (token.equals("\"")) { //$NON-NLS-1$
+				if (!insideQuotes && startNewToken) { //$NON-NLS-1$
+					if (count == arguments.length)
+						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+					arguments[count++] = ""; //$NON-NLS-1$
+				}
+				insideQuotes = !insideQuotes;
+				startNewToken = false;
+			} else {
+				if (insideQuotes) {
+					arguments[count - 1] += token;
+				} else {
+					if (token.length() > 0 && !startNewToken) {
+						arguments[count - 1] += token;
+					} else {
+						if (count == arguments.length)
+							System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+						String trimmedToken = token.trim();
+						if (trimmedToken.length() != 0) {
+							arguments[count++] = trimmedToken;
+						}
+					}
+				}
+				startNewToken = false;
+			}
+		}
+		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
+		return arguments;
 	}
 
 	/*
@@ -224,76 +484,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		} else {
 			return false;
 		}
-	}
-
-	/*
-	 * Internal IDE API
-	 */
-	public static boolean compile(String commandLine) {
-
-		return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
-	}
-
-	/*
-	 * Internal IDE API for test harness purpose
-	 */
-	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
-
-		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
-	}
-
-	public static String[] tokenize(String commandLine) {
-
-		int count = 0;
-		String[] arguments = new String[10];
-		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-		String token = ""; //$NON-NLS-1$
-		boolean insideQuotes = false;
-		boolean startNewToken = true;
-
-		// take care to quotes on the command line
-		// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
-		while (tokenizer.hasMoreTokens()) {
-			token = tokenizer.nextToken();
-
-			if (token.equals(" ")) { //$NON-NLS-1$
-				if (insideQuotes) {
-					arguments[count - 1] += token;
-					startNewToken = false;
-				} else {
-					startNewToken = true;
-				}
-			} else if (token.equals("\"")) { //$NON-NLS-1$
-				if (!insideQuotes && startNewToken) { //$NON-NLS-1$
-					if (count == arguments.length)
-						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-					arguments[count++] = ""; //$NON-NLS-1$
-				}
-				insideQuotes = !insideQuotes;
-				startNewToken = false;
-			} else {
-				if (insideQuotes) {
-					arguments[count - 1] += token;
-				} else {
-					if (token.length() > 0 && !startNewToken) {
-						arguments[count - 1] += token;
-					} else {
-						if (count == arguments.length)
-							System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-						String trimmedToken = token.trim();
-						if (trimmedToken.length() != 0) {
-							arguments[count++] = trimmedToken;
-						}
-					}
-				}
-				startNewToken = false;
-			}
-		}
-		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
-		return arguments;
 	}
 
 	/*
@@ -835,7 +1025,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					if (didSpecifyCompliance && options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_3)) {
+					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
 						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 					}
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -1127,27 +1317,26 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			printUsage();
 			return;
 		}
-
 		// target must be 1.4 if source is 1.4
-		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
-				&& !options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
+		if (CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
 
 		// target cannot be 1.4 if compliance is 1.3
-		if (options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
-				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
+		if (CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
 		
 		// check and set compliance/source/target compatibilities
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+			if (!didSpecifyCompliance) options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			if (!didSpecifyTarget) options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 		} else if (options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
-			  && options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_1)) {
+			  		&& options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_1)) {
 			  	if (didSpecifyTarget) {
 					throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget11", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 			  	} else {
@@ -1174,114 +1363,18 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			repetitions = 1;
 		}
 	}
-	
-	private File[] getFilesFrom(File f, final String extension) {
-		return f.listFiles(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				if (name.endsWith(extension)) {
-					return true;
-				}
-				return false;
+
+	public String extractDestinationPathFromSourceFile(CompilationResult result) {
+		ICompilationUnit compilationUnit = result.compilationUnit;
+		if (compilationUnit != null) {
+			char[] fileName = compilationUnit.getFileName();
+			int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
+			if (lastIndex == -1) {
+				return System.getProperty("user.dir"); //$NON-NLS-1$
 			}
-		});
-	}
-	
-	public static Map getDefaultOptions() {
-		Map defaultOptions = new Hashtable();
-		defaultOptions.put(
-			CompilerOptions.OPTION_LocalVariableAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_LineNumberAttribute,
-			CompilerOptions.GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_SourceFileAttribute,
-			CompilerOptions.GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_PreserveUnusedLocal,
-			CompilerOptions.OPTIMIZE_OUT);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnreachableCode,
-			CompilerOptions.ERROR);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportInvalidImport, 
-			CompilerOptions.ERROR);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportMethodWithConstructorName,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportDeprecation, 
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportHiddenCatchBlock,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedLocal, 
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedImport, 
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameter,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportAssertIdentifier,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_Compliance,
-			CompilerOptions.VERSION_1_3);
-		defaultOptions.put(
-			CompilerOptions.OPTION_Source,
-			CompilerOptions.VERSION_1_3);
-		defaultOptions.put(
-			CompilerOptions.OPTION_TargetPlatform,
-			CompilerOptions.VERSION_1_1);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportStaticAccessReceiver,
-			CompilerOptions.WARNING);			
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedPrivateMember,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportLocalVariableHiding,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportFieldHiding,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNoEffectAssignment,
-			CompilerOptions.WARNING);
-		return defaultOptions;
-	}
-	public Map getOptions() {
-		return this.options;
+			return new String(CharOperation.subarray(fileName, 0, lastIndex));
+		}
+		return System.getProperty("user.dir"); //$NON-NLS-1$
 	}
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
@@ -1378,6 +1471,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		return units;
 	}
+	
+	private File[] getFilesFrom(File f, final String extension) {
+		return f.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if (name.endsWith(extension)) {
+					return true;
+				}
+				return false;
+			}
+		});
+	}
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -1385,11 +1489,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
 		return new IErrorHandlingPolicy() {
-			public boolean stopOnFirstError() {
-				return false;
-			}
 			public boolean proceedOnErrors() {
 				return proceedOnError; // stop if there are some errors 
+			}
+			public boolean stopOnFirstError() {
+				return false;
 			}
 		};
 	}
@@ -1403,18 +1507,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			defaultEncoding = null; //$NON-NLS-1$	
 		return new FileSystem(classpaths, filenames, defaultEncoding);
 	}
+	public Map getOptions() {
+		return this.options;
+	}
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
 	public IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
-	}
-	/*
-	 * External API
-	 */
-
-	public static void main(String[] argv) {
-		new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
 	}
 	// Dump classfiles onto disk for all compilation units that where successfull.
 
@@ -1499,106 +1599,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		out.println(Main.bind("misc.usage", Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
 		out.flush();
 		err.flush();
-	}
-
-	/**
-	 * Creates a NLS catalog for the given locale.
-	 */
-	public static void relocalize() {
-		try {
-			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
-		} catch(MissingResourceException e) {
-			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-			throw e;
-		}
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog 
-	 */
-	public static String bind(String id) {
-		return bind(id, (String[]) null);
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string values.
-	 */
-	public static String bind(String id, String[] bindings) {
-		if (id == null)
-			return "No message available"; //$NON-NLS-1$
-		String message = null;
-		try {
-			message = bundle.getString(id);
-		} catch (MissingResourceException e) {
-			// If we got an exception looking for the message, fail gracefully by just returning
-			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
-		}
-		// for compatibility with MessageFormat which eliminates double quotes in original message
-		char[] messageWithNoDoubleQuotes =
-			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-		message = new String(messageWithNoDoubleQuotes);
-
-		if (bindings == null)
-			return message;
-
-		int length = message.length();
-		int start = -1;
-		int end = length;
-		StringBuffer output = new StringBuffer(80);
-		while (true) {
-			if ((end = message.indexOf('{', start)) > -1) {
-				output.append(message.substring(start + 1, end));
-				if ((start = message.indexOf('}', end)) > -1) {
-					int index = -1;
-					try {
-						index = Integer.parseInt(message.substring(end + 1, start));
-						output.append(bindings[index]);
-					} catch (NumberFormatException nfe) {
-						output.append(message.substring(end + 1, start + 1));
-					} catch (ArrayIndexOutOfBoundsException e) {
-						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
-					}
-				} else {
-					output.append(message.substring(end, length));
-					break;
-				}
-			} else {
-				output.append(message.substring(start + 1, length));
-				break;
-			}
-		}
-		return output.toString();
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string.
-	 */
-	public static String bind(String id, String binding) {
-		return bind(id, new String[] { binding });
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given strings.
-	 */
-	public static String bind(String id, String binding1, String binding2) {
-		return bind(id, new String[] { binding1, binding2 });
-	}
-
-	public String extractDestinationPathFromSourceFile(CompilationResult result) {
-		ICompilationUnit compilationUnit = result.compilationUnit;
-		if (compilationUnit != null) {
-			char[] fileName = compilationUnit.getFileName();
-			int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
-			if (lastIndex == -1) {
-				return System.getProperty("user.dir"); //$NON-NLS-1$
-			}
-			return new String(CharOperation.subarray(fileName, 0, lastIndex));
-		}
-		return System.getProperty("user.dir"); //$NON-NLS-1$
 	}
 
 }

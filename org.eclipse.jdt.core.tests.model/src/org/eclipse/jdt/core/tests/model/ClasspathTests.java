@@ -1215,6 +1215,27 @@ public void testClasspathValidation26() throws CoreException {
 }
 
 /**
+ * Checks diagnosis for incompatible binary versions
+ */
+public void testClasspathValidation27() throws CoreException {
+	try {
+		IJavaProject proj1 =  this.createJavaProject("P1", new String[] {}, "");
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+
+		IJavaProject proj2 =  this.createJavaProject("P2", new String[] {}, "");
+		proj2.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+		proj2.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
+		assertEquals(
+			"Incompatible .class files version. Project 'P2' is generating .class files for a 1.1 runtime, but is compiled against 'P1' which requires a 1.4 runtime.",
+			status.getMessage());
+	} finally {
+		this.deleteProjects(new String[]{"P1", "P2"});
+	}
+}
+
+/**
  * Setting the classpath with two entries specifying the same path
  * should fail.
  */

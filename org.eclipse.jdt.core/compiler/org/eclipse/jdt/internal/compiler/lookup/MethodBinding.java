@@ -206,7 +206,13 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((type = type.superclass()) != null);
 	return false;
 }
-
+/* 
+ * Answer the declaring class to use in the constant pool
+ * may not be a reference binding (see subtypes)
+ */
+public TypeBinding constantPoolDeclaringClass() {
+	return this.declaringClass;
+}
 /* Answer the receiver's constant pool name.
 *
 * <init> for constructors

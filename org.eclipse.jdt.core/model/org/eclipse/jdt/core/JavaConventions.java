@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -686,7 +687,7 @@ public final class JavaConventions {
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 * @since 2.0
 	 */
-	public static IJavaModelStatus validateClasspathEntry(IJavaProject javaProject, IClasspathEntry entry, boolean checkSourceAttachment){
+	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment){
 		
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();			
 		IPath path = entry.getPath();
@@ -696,10 +697,10 @@ public final class JavaConventions {
 			case IClasspathEntry.CPE_CONTAINER :
 				if (path != null && path.segmentCount() >= 1){
 					try {
-						IClasspathContainer container = JavaCore.getClasspathContainer(path, javaProject);
+						IClasspathContainer container = JavaCore.getClasspathContainer(path, project);
 						// container retrieval is performing validation check on container entry kinds.
 						if (container == null){
-							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, javaProject, path);
+							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, project, path);
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
@@ -712,9 +713,9 @@ public final class JavaConventions {
 									|| kind == IClasspathEntry.CPE_CONTAINER){
 										String description = container.getDescription();
 										if (description == null) description = path.makeRelative().toString();
-										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, javaProject, path);
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, project, path);
 								}
-								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntry, checkSourceAttachment);
+								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, checkSourceAttachment);
 								if (!containerEntryStatus.isOK()){
 									return containerEntryStatus;
 								}
@@ -733,9 +734,9 @@ public final class JavaConventions {
 				if (path != null && path.segmentCount() >= 1){
 					entry = JavaCore.getResolvedClasspathEntry(entry);
 					if (entry == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, javaProject, path);
+						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, project, path);
 					}
-					return validateClasspathEntry(javaProject, entry, checkSourceAttachment);
+					return validateClasspathEntry(project, entry, checkSourceAttachment);
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalVariablePath", path.makeRelative().toString()));					 //$NON-NLS-1$
 				}
@@ -745,6 +746,13 @@ public final class JavaConventions {
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath sourceAttachment = entry.getSourceAttachmentPath();
 					Object target = JavaModel.getTarget(workspaceRoot, path, true);
+					if (target != null && project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true) != JavaCore.IGNORE) {
+						long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
+						long libraryJDK = Util.getJdkLevel(target);
+						if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {
+							return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL, project, path, CompilerOptions.versionFromJdkLevel(libraryJDK)); 
+						}
+					}
 					if (target instanceof IResource){
 						IResource resolvedResource = (IResource) target;
 						switch(resolvedResource.getType()){
@@ -784,13 +792,21 @@ public final class JavaConventions {
 			// project entry check
 			case IClasspathEntry.CPE_PROJECT :
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
-					IProject project = workspaceRoot.getProject(path.segment(0));
+					IProject prereqProjectRsc = workspaceRoot.getProject(path.segment(0));
+					IJavaProject prereqProject = JavaCore.create(prereqProjectRsc);
 					try {
-						if (!project.exists() || !project.hasNature(JavaCore.NATURE_ID)){
+						if (!prereqProjectRsc.exists() || !prereqProjectRsc.hasNature(JavaCore.NATURE_ID)){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.makeRelative().segment(0).toString())); //$NON-NLS-1$
 						}
-						if (!project.isOpen()){
+						if (!prereqProjectRsc.isOpen()){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.closedProject", path.segment(0).toString())); //$NON-NLS-1$
+						}
+						if (project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true) != JavaCore.IGNORE) {
+							long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
+							long prereqProjectTargetJDK = CompilerOptions.versionToJdkLevel(prereqProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
+							if (prereqProjectTargetJDK > projectTargetJDK) {
+								return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL, project, path, CompilerOptions.versionFromJdkLevel(prereqProjectTargetJDK)); 
+							}
 						}
 					} catch (CoreException e){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0).toString())); //$NON-NLS-1$
@@ -804,14 +820,14 @@ public final class JavaConventions {
 			case IClasspathEntry.CPE_SOURCE :
 				if (entry.getExclusionPatterns() != null 
 						&& entry.getExclusionPatterns().length > 0
-						&& JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
+						&& JavaCore.DISABLED.equals(project.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
 					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, path);
 				}
-				if (entry.getOutputLocation() != null && JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
+				if (entry.getOutputLocation() != null && JavaCore.DISABLED.equals(project.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
 					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS, path);
 				}
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
-					IPath projectPath= javaProject.getProject().getFullPath();
+					IPath projectPath= project.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceFolder", path.makeRelative().toString())); //$NON-NLS-1$
 					}

@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class DietRecoveryTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 	public static boolean optimizeStringLiterals = false;
-	public static int sourceLevel = CompilerOptions.JDK1_3; //$NON-NLS-1$
+	public static long sourceLevel = CompilerOptions.JDK1_3; //$NON-NLS-1$
 	
 public DietRecoveryTest(String testName){
 	super(testName);

@@ -343,6 +343,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String CORE_INCOMPATIBLE_JDK_LEVEL = PLUGIN_ID + ".incompatibleJDKLevel"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.0
 	 */
 	public static final String CORE_JAVA_BUILD_INVALID_CLASSPATH = PLUGIN_ID + ".builder.invalidClasspath"; //$NON-NLS-1$
@@ -542,7 +548,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions
-	 * @since 2.0
+	 * @since 3.0
 	 */
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	/**
@@ -1164,7 +1170,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
 	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
 	 *     - default:           "1.1"
 	 *
 	 * COMPILER / Reporting Unreachable Code
@@ -1440,6 +1446,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.circularClasspath"
 	 *     - possible values:   { "error", "warning" }
 	 *     - default:           "error"
+	 * 
+	 * JAVACORE / Reporting Incompatible JDK Level
+	 *    Indicate the severity of the problem reported when a project prerequisites another project 
+	 *    or library with an incompatible target JDK level (e.g. project targeting 1.1 vm, but compiled against 1.4 libraries).
+	 *     - option id:         "org.eclipse.jdt.core.incompatibleJDKLevel"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
 	 * 
 	 * JAVACORE / Enabling Usage of Classpath Exclusion Patterns
 	 *    When disabled, no entry on a project classpath can be associated with
@@ -1987,11 +2000,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); 
 		optionNames.add(CORE_JAVA_BUILD_ORDER);
 	
+		preferences.setDefault(CORE_INCOMPLETE_CLASSPATH, ERROR); 
+		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
+		
 		preferences.setDefault(CORE_CIRCULAR_CLASSPATH, ERROR); 
 		optionNames.add(CORE_CIRCULAR_CLASSPATH);
 		
-		preferences.setDefault(CORE_INCOMPLETE_CLASSPATH, ERROR); 
-		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
+		preferences.setDefault(CORE_INCOMPATIBLE_JDK_LEVEL, IGNORE); 
+		optionNames.add(CORE_INCOMPATIBLE_JDK_LEVEL);
 		
 		preferences.setDefault(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, ENABLED); 
 		optionNames.add(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS);

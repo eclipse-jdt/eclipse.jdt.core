@@ -18,11 +18,11 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-
-public class CompilerOptions implements ProblemReasons, ProblemSeverities {
+public class CompilerOptions implements ProblemReasons, ProblemSeverities, ClassFileConstants {
 	
 	/**
 	 * Option IDs
@@ -134,21 +134,14 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
 
-	// JDK 1.1, 1.2, 1.3, 1.4 or 1.5
-	public static final int JDK1_1 = 0;
-	public static final int JDK1_2 = 1;
-	public static final int JDK1_3 = 2;
-	public static final int JDK1_4 = 3;
-	public static final int JDK1_5 = 4;
-	
-	public int targetJDK = JDK1_1; // default generates for JVM1.1
-	public int complianceLevel = JDK1_3; // by default be compliant with 1.3
+	public long targetJDK = JDK1_1; // default generates for JVM1.1
+	public long complianceLevel = JDK1_3; // by default be compliant with 1.3
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 
 	// 1.4 feature (assertions are available in source 1.4 mode only)
-	public int sourceLevel = JDK1_3; //1.3 behavior by default
+	public long sourceLevel = JDK1_3; //1.3 behavior by default
 	
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding
@@ -272,41 +265,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 			} 
 			// Define the target JDK tag for .classfiles
 			if(optionID.equals(OPTION_TargetPlatform)){
-				if (optionValue.equals(VERSION_1_1)) {
-					this.targetJDK = JDK1_1;
-				} else if (optionValue.equals(VERSION_1_2)) {
-					this.targetJDK = JDK1_2;
-				} else if (optionValue.equals(VERSION_1_3)) {
-					this.targetJDK = JDK1_3;
-				} else if (optionValue.equals(VERSION_1_4)) {
-					this.targetJDK = JDK1_4;
-				}
+				long level = versionToJdkLevel(optionValue);
+				if (level != 0) this.targetJDK = level;
 				continue;
 			} 
 			// Define the JDK compliance level
 			if(optionID.equals(OPTION_Compliance)){
-				if (optionValue.equals(VERSION_1_1)) {
-					this.complianceLevel = JDK1_1;
-				} else if (optionValue.equals(VERSION_1_2)) {
-					this.complianceLevel = JDK1_2;
-				} else if (optionValue.equals(VERSION_1_3)) {
-					this.complianceLevel = JDK1_3;
-				} else if (optionValue.equals(VERSION_1_4)) {
-					this.complianceLevel = JDK1_4;
-				}
+				long level = versionToJdkLevel(optionValue);
+				if (level != 0) this.complianceLevel = level;
 				continue;
 			} 
 			// Private constructor access emulation (extra arg vs. visibility change)
 			if(optionID.equals(OPTION_PrivateConstructorAccess)){
-				if (optionValue.equals(VERSION_1_1)) {
-					this.isPrivateConstructorAccessChangingVisibility = false;
-				} else if (optionValue.equals(VERSION_1_2)) {
-					this.isPrivateConstructorAccessChangingVisibility = false;
-				} else if (optionValue.equals(VERSION_1_3)) {
-					this.isPrivateConstructorAccessChangingVisibility = true;
-				} else if (optionValue.equals(VERSION_1_4)) {
-					this.isPrivateConstructorAccessChangingVisibility = true;
-				}
+				long level = versionToJdkLevel(optionValue);
+				if (level >= JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
 				continue;
 			} 
 			// Report method with constructor name
@@ -543,11 +515,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 			}
 			// Set the source compatibility mode (assertions)
 			if(optionID.equals(OPTION_Source)){
-				if (optionValue.equals(VERSION_1_3)) {
-					this.sourceLevel = JDK1_3;
-				} else if (optionValue.equals(VERSION_1_4)) {
-					this.sourceLevel = JDK1_4;
-				}
+				long level = versionToJdkLevel(optionValue);
+				if (level != 0) this.sourceLevel = level;
 				continue;
 			}
 			// Set the default encoding format
@@ -849,57 +818,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-possible accidental boolean assignment: IGNORE"); //$NON-NLS-1$
 			}
 		}
-		switch(complianceLevel){
-			case JDK1_1 :
-				buf.append("\n-compliance JDK: 1.1"); //$NON-NLS-1$
-				break;
-			case JDK1_2 :
-				buf.append("\n-compliance JDK: 1.2"); //$NON-NLS-1$
-				break;
-			case JDK1_3 :
-				buf.append("\n-compliance JDK: 1.3"); //$NON-NLS-1$
-				break;
-			case JDK1_4 :
-				buf.append("\n-compliance JDK: 1.4"); //$NON-NLS-1$
-				break;
-			case JDK1_5 :
-				buf.append("\n-compliance JDK: 1.5"); //$NON-NLS-1$
-				break;
-		}
-		switch(sourceLevel){
-			case JDK1_1 :
-				buf.append("\n-source level: 1.1"); //$NON-NLS-1$
-				break;
-			case JDK1_2 :
-				buf.append("\n-source level: 1.2"); //$NON-NLS-1$
-				break;
-			case JDK1_3 :
-				buf.append("\n-source level: 1.3"); //$NON-NLS-1$
-				break;
-			case JDK1_4 :
-				buf.append("\n-source level: 1.4"); //$NON-NLS-1$
-				break;
-			case JDK1_5 :
-				buf.append("\n-source level: 1.5"); //$NON-NLS-1$
-				break;
-		}
-		switch(targetJDK){
-			case JDK1_1 :
-				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
-				break;
-			case JDK1_2 :
-				buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
-				break;
-			case JDK1_3 :
-				buf.append("\n-target JDK: 1.3"); //$NON-NLS-1$
-				break;
-			case JDK1_4 :
-				buf.append("\n-target JDK: 1.4"); //$NON-NLS-1$
-				break;
-			case JDK1_5 :
-				buf.append("\n-target JDK: 1.5"); //$NON-NLS-1$
-				break;
-		}
+		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
+		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
+		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$
 		if (isPrivateConstructorAccessChangingVisibility){
 			buf.append("\n-private constructor access emulation: extra argument"); //$NON-NLS-1$
 		} else {
@@ -916,5 +837,35 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-report unused parameter when overriding concrete method : " + (reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-report constructor/setter parameter hiding existing field : " + (reportSpecialParameterHidingField ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
+	}
+
+	public static long versionToJdkLevel(String versionID) {
+		if (versionID.equals(VERSION_1_1)) {
+			return JDK1_1;
+		} else if (versionID.equals(VERSION_1_2)) {
+			return JDK1_2;
+		} else if (versionID.equals(VERSION_1_3)) {
+			return JDK1_3;
+		} else if (versionID.equals(VERSION_1_4)) {
+			return JDK1_4;
+		} else if (versionID.equals(VERSION_1_5)) {
+			return JDK1_5;
+		}
+		return 0; // unknown
+	}
+
+	public static String versionFromJdkLevel(long jdkLevel) {
+		if (jdkLevel == JDK1_1) {
+			return VERSION_1_1;
+		} else if (jdkLevel == JDK1_2) {
+			return VERSION_1_2;
+		} else if (jdkLevel == JDK1_3) {
+			return VERSION_1_3;
+		} else if (jdkLevel == JDK1_4) {
+			return VERSION_1_4;
+		} else if (jdkLevel == JDK1_5) {
+			return VERSION_1_5;
+		}
+		return ""; // unknown version //$NON-NLS-1$
 	}
 }

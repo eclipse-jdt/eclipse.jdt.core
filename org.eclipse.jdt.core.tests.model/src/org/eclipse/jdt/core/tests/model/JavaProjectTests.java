@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.Util;
 
 public class JavaProjectTests extends ModifyingResourceTests {
@@ -945,6 +945,6 @@ public void testSourceMethodCorrespondingResource() throws JavaModelException {
 public void testJdkLevelRoot() throws JavaModelException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectLibTests", "lib/");
 	assertEquals("wrong type", IPackageFragmentRoot.K_BINARY, root.getKind());
-	assertEquals("Wrong jdk level", JavaCore.VERSION_1_1, ((PackageFragmentRoot) root).getJdkLevel());
+	assertEquals("wrong jdk level", ClassFileConstants.JDK1_1, Util.getJdkLevel(root.getResource()));
 }
 }

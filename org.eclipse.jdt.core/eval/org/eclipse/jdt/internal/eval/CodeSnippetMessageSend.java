@@ -172,7 +172,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 				&& (!receiver.isImplicitThis() || !binding.isStatic())
 				&& binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
-		codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {

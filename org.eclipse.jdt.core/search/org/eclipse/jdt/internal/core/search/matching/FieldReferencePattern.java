@@ -454,7 +454,7 @@ private int matchLevel(FieldBinding binding) {
 	// receiver type
 	ReferenceBinding receiverBinding = binding.declaringClass;
 	if (receiverBinding == null) {
-		if (binding == ArrayBinding.LengthField) {
+		if (binding == ArrayBinding.ArrayLength) {
 			// optimized case for length field of an array
 			if (this.declaringQualification == null && this.declaringSimpleName == null) {
 				return ACCURATE_MATCH;

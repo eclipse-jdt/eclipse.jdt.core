@@ -178,7 +178,7 @@ void removeBinaryChildren() {
 		for (int i = 0; i <fBinaryChildren.length; i++) {
 			manager.removeInfo(fBinaryChildren[i]);
 		}
-		fBinaryChildren = fgEmptyChildren;
+		fBinaryChildren = NO_CHILDREN;
 	}
 }
 }

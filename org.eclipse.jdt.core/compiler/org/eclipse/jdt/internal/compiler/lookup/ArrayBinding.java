@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 public final class ArrayBinding extends TypeBinding {
 	// creation and initialization of the length field
 	// the declaringClass of this field is intentionally set to null so it can be distinguished.
-	public static final FieldBinding LengthField = new FieldBinding(LENGTH, IntBinding, AccPublic | AccFinal, null, Constant.NotAConstant);
+	public static final FieldBinding ArrayLength = new FieldBinding(LENGTH, IntBinding, AccPublic | AccFinal, null, Constant.NotAConstant);
 
 	public TypeBinding leafComponentType;
 	public int dimensions;

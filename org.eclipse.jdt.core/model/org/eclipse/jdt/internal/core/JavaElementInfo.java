@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.IJavaElement;
 	/**
 	 * Shared empty collection used for efficiency.
 	 */
-	protected static IJavaElement[] fgEmptyChildren = new IJavaElement[]{};
+	protected static IJavaElement[] NO_CHILDREN = new IJavaElement[]{};
 	/**
 	 * Is the structure of this element known
 	 * @see IJavaElement#isStructureKnown()
@@ -40,10 +40,10 @@ import org.eclipse.jdt.core.IJavaElement;
 	 */
 	static Object[] NO_NON_JAVA_RESOURCES = new Object[] {};	
 	protected JavaElementInfo() {
-		fChildren = fgEmptyChildren;
+		fChildren = NO_CHILDREN;
 	}
 	public void addChild(IJavaElement child) {
-		if (fChildren == fgEmptyChildren) {
+		if (fChildren == NO_CHILDREN) {
 			setChildren(new IJavaElement[] {child});
 		} else {
 			if (!includesChild(child)) {

@@ -36,7 +36,7 @@ public SelectionTest2(String testName) {
 }
 boolean thereWasAnNPE = false;
 private class SpecialSelectionParser extends SelectionParser {
-	public SpecialSelectionParser(ProblemReporter problemReporter, int sourceLevel) {
+	public SpecialSelectionParser(ProblemReporter problemReporter, long sourceLevel) {
 		super(problemReporter, sourceLevel);
 	}
 	public void doNPEInParser(){

@@ -272,7 +272,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 			return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
 		}
 		if (CharOperation.equals(fieldName, LENGTH))
-			return ArrayBinding.LengthField;
+			return ArrayBinding.ArrayLength;
 		return null;
 	}
 
