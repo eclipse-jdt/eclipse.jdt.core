@@ -1145,10 +1145,15 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 			if (isInRange) {
 				int currentModifiers = fieldDeclaration.modifiers;
 				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-				char[] typeName = 
-					fieldDeclaration.type == null ? // case of enum
-							declaringType.name: 
-							CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
+				char[] typeName = null;
+				if (fieldDeclaration.type == null) {
+					// enum constant
+					typeName = declaringType.name;
+					currentModifiers |= AccEnum;
+				} else {
+					// regular field
+					typeName = CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
+				}
 				requestor.enterField(
 					fieldDeclaration.declarationSourceStart, 
 					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
@@ -1402,12 +1407,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
-		// TODO for enum constant body, type is null
-		if (typeDeclaration.allocation.type == null) {
-			// TODO (jerome) please update with the right value
-			return typeDeclaration.allocation.sourceEnd;
-		}
-		return typeDeclaration.allocation.type.sourceEnd;
+		QualifiedAllocationExpression allocation = typeDeclaration.allocation;
+		if (allocation.type == null) // case of enum constant body
+			return typeDeclaration.sourceEnd;
+		return allocation.type.sourceEnd;
 	} else {
 		return typeDeclaration.sourceEnd;
 	}

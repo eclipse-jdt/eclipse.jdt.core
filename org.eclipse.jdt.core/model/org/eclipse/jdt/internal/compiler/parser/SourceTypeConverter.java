@@ -25,6 +25,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -221,25 +222,83 @@ public class SourceTypeConverter implements CompilerModifiers {
 		
 		/* conversion of local and anonymous types */
 		if ((this.flags & LOCAL_TYPE) != 0 && sourceField instanceof SourceFieldElementInfo) {
-			IJavaElement[] children = ((SourceFieldElementInfo)sourceField).getChildren();
-			int typesLength = children.length;
-			if (typesLength > 0) {
-				ArrayInitializer initializer = new ArrayInitializer();
-				field.initialization = initializer;
-				Expression[] expressions = new Expression[typesLength];
-				initializer.expressions = expressions;
-				for (int i = 0; i < typesLength; i++) {
-					IJavaElement localType = children[i];
-					try {
-						TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(),compilationResult);
-						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
-						expression.type = anonymousLocalTypeDeclaration.superclass;
-						anonymousLocalTypeDeclaration.superclass = null;
-						anonymousLocalTypeDeclaration.superInterfaces = null;
-						anonymousLocalTypeDeclaration.allocation = expression;
-						expressions[i] = expression;
-					} catch (JavaModelException e) {
-						// ignore
+			IJavaElement[] children = ((SourceFieldElementInfo) sourceField).getChildren();
+			int childrenLength = children.length;
+			if (Flags.isEnum(field.modifiers)) {
+				field.modifiers &= ~Flags.AccEnum;
+				field.type = null;
+				if (childrenLength > 0) {
+					TypeDeclaration anonymous = new TypeDeclaration(compilationResult);
+					anonymous.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+					anonymous.bits |= ASTNode.AnonymousAndLocalMask;
+					anonymous.sourceStart = sourceField.getNameSourceEnd() + 1;
+					anonymous.sourceEnd = anonymous.sourceStart;
+					anonymous.declarationSourceStart = sourceField.getDeclarationSourceStart();
+					anonymous.declarationSourceEnd = sourceField.getDeclarationSourceEnd();
+					anonymous.bodyEnd = anonymous.declarationSourceEnd;
+					QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymous);
+					anonymous.allocation = expression; 
+					expression.enumConstant = field;
+					field.initialization = expression;
+					for (int i = 0; i < childrenLength; i++) {
+						IJavaElement child = children[i];
+						try {
+							switch (child.getElementType()) {
+								case IJavaElement.TYPE:
+									TypeDeclaration memberType = convert((SourceTypeElementInfo)((JavaElement)child).getElementInfo(), compilationResult);
+									if (anonymous.memberTypes == null) {
+										anonymous.memberTypes = new TypeDeclaration[] {memberType};
+									} else {
+										int length = anonymous.memberTypes.length;
+										System.arraycopy(anonymous.memberTypes, 0, anonymous.memberTypes = new TypeDeclaration[length+1], 0, length);
+										anonymous.memberTypes[length] = memberType;
+									}
+									break;
+								case IJavaElement.FIELD:
+									FieldDeclaration fieldDecl = convert((SourceFieldElementInfo)((JavaElement)child).getElementInfo(), anonymous, compilationResult);
+									if (anonymous.fields == null) {
+										anonymous.fields = new FieldDeclaration[] {fieldDecl};
+									} else {
+										int length = anonymous.fields.length;
+										System.arraycopy(anonymous.fields, 0, anonymous.fields = new FieldDeclaration[length+1], 0, length);
+										anonymous.fields[length] = fieldDecl;
+									}
+									break;
+								case IJavaElement.METHOD:
+									AbstractMethodDeclaration methodDecl = convert((SourceMethodElementInfo)((JavaElement)child).getElementInfo(), compilationResult);
+									if (anonymous.methods == null) {
+										anonymous.methods = new AbstractMethodDeclaration[] {methodDecl};
+									} else {
+										int length = anonymous.methods.length;
+										System.arraycopy(anonymous.methods, 0, anonymous.methods = new AbstractMethodDeclaration[length+1], 0, length);
+										anonymous.methods[length] = methodDecl;
+									}
+									break;
+							}
+						} catch (JavaModelException e) {
+							// ignore
+						}
+					}
+				}
+			} else {
+				if (childrenLength > 0) {
+					ArrayInitializer initializer = new ArrayInitializer();
+					field.initialization = initializer;
+					Expression[] expressions = new Expression[childrenLength];
+					initializer.expressions = expressions;
+					for (int i = 0; i < childrenLength; i++) {
+						IJavaElement localType = children[i];
+						try {
+							TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(), compilationResult);
+							QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
+							expression.type = anonymousLocalTypeDeclaration.superclass;
+							anonymousLocalTypeDeclaration.superclass = null;
+							anonymousLocalTypeDeclaration.superInterfaces = null;
+							anonymousLocalTypeDeclaration.allocation = expression;
+							expressions[i] = expression;
+						} catch (JavaModelException e) {
+							// ignore
+						}
 					}
 				}
 			}
