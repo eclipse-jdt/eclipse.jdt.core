@@ -74,11 +74,6 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INDENT_ON_COLUMN = "2";//$NON-NLS-1$
 	public static final String FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES = JavaCore.PLUGIN_ID + ".formatter.indent_switchstatements_compare_to_cases";	//$NON-NLS-1$
 	public static final String FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH = JavaCore.PLUGIN_ID + ".formatter.indent_switchstatements_compare_to_switch";	//$NON-NLS-1$
-	/**
-	 * @deprecated Removed. This should not be used anymore
-	 * TODO remove as soon as Silvio changed the UI
-	 */
-	public static final String FORMATTER_INITIAL_INDENTATION_LEVEL = JavaCore.PLUGIN_ID + ".formatter.initial_indentation_level";	//$NON-NLS-1$
 	public static final String FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_before_closing_brace_in_array_initializer";//$NON-NLS-1$
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_opening_brace_in_array_initializer";//$NON-NLS-1$
 	public static final String FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_control_statements";	//$NON-NLS-1$
@@ -175,11 +170,6 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_else_statement_on_same_line"; //$NON-NLS-1$
 	public static final String FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_imple_if_on_one_line"; //$NON-NLS-1$
 	public static final String FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_then_statement_on_same_line";//$NON-NLS-1$
-	/**
-	 * @deprecated This should not be used anymore
-	 * TODO remove as soon as Silvio changed the UI
-	 */
-	public static final String FORMATTER_LINE_SEPARATOR = JavaCore.PLUGIN_ID + ".formatter.line_delimiter";	//$NON-NLS-1$
 	public static final String FORMATTER_LINE_SPLIT = JavaCore.PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
 	public static final String FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.message_send_arguments_alignment";	//$NON-NLS-1$
 	public static final String FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.message_send_selector_alignment";	//$NON-NLS-1$
