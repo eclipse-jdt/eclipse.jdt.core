@@ -253,12 +253,12 @@ public class SwitchStatement extends Statement {
 			int duplicateCaseStatementsCounter = 0;
 			int counter = 0;
 			for (int i = 0; i < length; i++) {
-				Constant cst;
+				Constant constant;
 				final Statement statement = statements[i];
-				if ((cst = statement.resolveCase(scope, testType, this)) != null) {
+				if ((constant = statement.resolveCase(scope, testType, this)) != null) {
 					//----check for duplicate case statement------------
-					if (cst != NotAConstant) {
-						int key = cst.intValue();
+					if (constant != NotAConstant) {
+						int key = constant.intValue();
 						for (int j = 0; j < counter; j++) {
 							if (casesValues[j] == key) {
 								final CaseStatement currentCaseStatement = (CaseStatement) statement;
