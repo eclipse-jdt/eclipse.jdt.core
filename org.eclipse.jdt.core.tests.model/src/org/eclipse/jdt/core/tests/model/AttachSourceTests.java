@@ -175,6 +175,19 @@ public void testClassFileGetElementAt() throws JavaModelException {
 		elt.getElementType() == IJavaElement.METHOD &&
 		elt.getElementName().equals("foo"));
 }
+/*
+ * Ensures that the source of a .class file is implicetely attached when prj=src=bin
+ * (regression test for bug 41444 [navigation] error dialog on opening class file)
+ */
+public void testClassFileInOutput() throws CoreException {
+	IClassFile classFile = getClassFile("AttachSourceTests/src/A.class");
+	String source = classFile.getSource();
+	assertSourceEquals(
+		"Unexpected source",
+		"public class A {\n" + 
+		"}",
+		source);
+}
 /**
  * Retrieves the source code for "A.class", which is
  * the entire CU for "A.java".

@@ -233,6 +233,14 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 		}
 	}
 }
+public IBuffer getBuffer() throws JavaModelException {
+	if (isValidClassFile()) {
+		return super.getBuffer();
+	} else {
+		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
+		return openBuffer(null, null);
+	}
+}
 /**
  * @see IMember
  */

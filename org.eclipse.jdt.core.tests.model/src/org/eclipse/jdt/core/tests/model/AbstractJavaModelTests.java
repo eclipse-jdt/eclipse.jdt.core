@@ -140,7 +140,8 @@ protected void assertSourceEquals(String message, String expected, String actual
 	}
 	actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 	if (!actual.equals(expected)) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
+		System.out.println(",");
 	}
 	assertEquals(message, expected, actual);
 }

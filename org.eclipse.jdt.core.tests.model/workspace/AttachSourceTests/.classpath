@@ -8,7 +8,7 @@
     <classpathentry kind="lib" path="test2.jar"/>    
     <classpathentry kind="lib" path="test4.jar"/>    
     <classpathentry kind="lib" path="lib"/>
-    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="src" path="src" output="src"/>
     <classpathentry kind="var" path="JCL_LIB"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
