@@ -978,13 +978,13 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	int[] tab = value();\n" + 
-		"	      ^^^\n" + 
-		"The annotation field X.tab must be initialized with a constant expression\n" + 
+		"	            ^^^^^\n" + 
+		"Cannot make a static reference to the non-static method value() from the type X\n" + 
 		"----------\n");
 	}			
 	
 	// check annotation array member initializer
-	public void _test042() {
+	public void test042() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
