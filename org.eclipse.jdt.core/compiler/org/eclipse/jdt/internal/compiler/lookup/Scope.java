@@ -409,11 +409,26 @@ public abstract class Scope
 	}
 
 	public TypeBinding convertToRawType(TypeBinding type) {
-		int dimension = type.dimensions();
-		TypeBinding originalType = type.leafComponentType();
+
+		int dimension;
+		TypeBinding originalType;
+		switch(type.kind()) {
+			case Binding.TYPE_PARAMETER:
+			case Binding.WILDCARD_TYPE:
+				return type;
+			case Binding.ARRAY_TYPE:
+				dimension = type.dimensions();
+				originalType = type.leafComponentType();
+				break;
+			default:
+				dimension = 0;
+				originalType = type;
+		}
 		if (originalType instanceof ReferenceBinding) {
-			boolean needToConvert =
-				originalType.isGenericType() || (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).arguments == null);
+			boolean needToConvert = originalType.isGenericType() 
+					|| (originalType.erasure().isGenericType() 
+							&& originalType.isParameterizedType() 
+							&& ((ParameterizedTypeBinding)originalType).arguments == null);
 			
 			ReferenceBinding convertedType = (ReferenceBinding) originalType;
 			ReferenceBinding originalEnclosing = originalType.enclosingType();

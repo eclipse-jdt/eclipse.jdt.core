@@ -14525,4 +14525,31 @@ public void test500(){
 			null
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944 - check no warning for using raw member
+	public void test517(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Base<T> {\n" + 
+				"	class InnerBase {\n" + 
+				"		java.util.List<String> list;\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n" + 
+				"\n" + 
+				"public class X extends Base<Integer> {\n" + 
+				"	class InnerDerived extends InnerBase {\n" + 
+				"		void method() {\n" + 
+				"			list.add(\"Hi\"); // Warning on this method call\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
 }
