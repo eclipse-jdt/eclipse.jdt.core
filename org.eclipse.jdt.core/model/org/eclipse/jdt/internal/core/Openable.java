@@ -351,13 +351,13 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 
 		// 2) create the new element info and open a buffer if needed
 		OpenableElementInfo info = createElementInfo();
-		if (resource != null && isSourceElement()) {
-			if (buffer == null) {
+		if (buffer == null) {
+			if (resource != null && isSourceElement()) {
 				this.openBuffer(pm);
-			} else {
-				this.getBufferManager().addBuffer(buffer);
-				buffer.addBufferChangedListener(this);
-			}
+			} 
+		} else {
+			this.getBufferManager().addBuffer(buffer);
+			buffer.addBufferChangedListener(this);
 		}
 
 		// 3) build the structure of the openable

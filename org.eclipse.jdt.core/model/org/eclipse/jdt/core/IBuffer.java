@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * If a buffer does not have an underlying resource, saving the buffer has no effect. 
  * Buffers can be read-only.
  * <p>
- * This interface is not intended to be implemented by clients.
+ * This interface may be implemented by clients.
  * </p>
  */
 public interface IBuffer {
