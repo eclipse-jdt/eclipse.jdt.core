@@ -118,10 +118,10 @@ public static ClasspathLocation[] computeLocations(
 						String extension = entry.getPath().getFileExtension();
 						if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
 							continue nextEntry;
-					} else if (!(resource instanceof IFolder)) {
-						continue nextEntry;
+						classpathLocations[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
+					} else if (resource instanceof IFolder) {
+						classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(resource.getLocation().toString());
 					}
-					classpathLocations[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
 					continue nextEntry;
 			}
 		} else if (target instanceof File) {
