@@ -300,13 +300,15 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
 			case 4 :
 				if (typeName[0] == 'v' && typeName[1] == 'o' && typeName[2] == 'i' && typeName[3] == 'd')
 					return SIG_VOID;
+				break;
 			case 6 :
 				if (typeName[0] == 'S' && typeName[1] == 't' && typeName[2] == 'r' && typeName[3] == 'i' && typeName[4] == 'n' && typeName[5] == 'g')
 					if (!isResolved) return "QString;"; //$NON-NLS-1$
-					break;
+				break;
 			case 7 :
 				if (typeName[0] == 'b' && typeName[1] == 'o' && typeName[2] == 'o' && typeName[3] == 'l' && typeName[4] == 'e' && typeName[5] == 'a' && typeName[6] == 'n')
 					return SIG_BOOLEAN;
+				break;
 		}
 	}
 	return createTypeSignature(new String(typeName), isResolved);
