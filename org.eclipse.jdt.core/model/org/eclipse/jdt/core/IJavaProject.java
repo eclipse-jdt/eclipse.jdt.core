@@ -286,6 +286,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
 	 * </ul>
 	 * @deprecated - use setRawClasspath(readRawClasspath(), readOutputLocation(), monitor) instead
+	 * TODO (frederic) remove before 3.0
 	 * @since 3.0
 	 */
 	void forceClasspathReload(IProgressMonitor monitor) throws JavaModelException;

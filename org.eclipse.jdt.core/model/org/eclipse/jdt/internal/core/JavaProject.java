@@ -1088,8 +1088,10 @@ public class JavaProject
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.IJavaProject#forceClasspathReload()
+	 * TODO (frederic) remove before 3.0
+	 * @deprecated
 	 */
 	public void forceClasspathReload(IProgressMonitor monitor) throws JavaModelException {
 
