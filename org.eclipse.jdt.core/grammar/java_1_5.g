@@ -222,17 +222,17 @@ FloatingPointType -> 'float'
 FloatingPointType -> 'double'
 /:$readableName FloatingPointType:/
 
-ReferenceType ::= ClassOrInterfaceType
-/.$putCase consumeReferenceType();  $break ./
--- here a push of dimensions is done, that explains the two previous push 0
+ReferenceType -> ClassOrInterfaceType
 ReferenceType -> ArrayType
 /:$readableName ReferenceType:/
 
 ---------------------------------------------------------------
 -- 1.5 feature
 ---------------------------------------------------------------
-ClassOrInterfaceType -> ClassOrInterface
-ClassOrInterfaceType -> ClassOrInterface TypeArguments
+ClassOrInterfaceType ::= ClassOrInterface
+/.$putCase consumeClassOrInterfaceType();  $break ./
+ClassOrInterfaceType ::= ClassOrInterface TypeArguments
+/.$putCase consumeClassOrInterfaceTypeWithTypeArguments();  $break ./
 /:$readableName Type:/
 
 ClassOrInterface -> Name
@@ -249,9 +249,13 @@ ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
 --
 
 ArrayType ::= PrimitiveType Dims
+/.$putCase consumePrimitiveArrayType();  $break ./
 ArrayType ::= Name Dims
+/.$putCase consumeNameArrayType();  $break ./
 ArrayType ::= ClassOrInterface TypeArguments '.' Name Dims
+/.$putCase consumeGenericTypeNameArrayType();  $break ./
 ArrayType ::= ClassOrInterface TypeArguments Dims
+/.$putCase consumeGenericTypeArrayType();  $break ./
 /:$readableName ArrayType:/
 
 ClassType -> ClassOrInterfaceType
@@ -323,7 +327,7 @@ ImportDeclaration -> StaticImportOnDemandDeclaration
 /:$readableName ImportDeclaration:/
 
 SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
-/.$putCase consumeSingleTypeImportDeclaration(); $break ./
+/.$putCase consumeImportDeclaration(); $break ./
 /:$readableName SingleTypeImportDeclaration:/
 			  
 SingleTypeImportDeclarationName ::= 'import' Name
@@ -331,7 +335,7 @@ SingleTypeImportDeclarationName ::= 'import' Name
 /:$readableName SingleTypeImportDeclarationName:/
 			  
 TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName ';'
-/.$putCase consumeTypeImportOnDemandDeclaration(); $break ./
+/.$putCase consumeImportDeclaration(); $break ./
 /:$readableName TypeImportOnDemandDeclaration:/
 
 TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
@@ -1501,8 +1505,7 @@ Argumentsopt ::= $empty
 Argumentsopt -> Arguments
 /:$readableName Argumentsopt:/
 
-EnumDeclarations ::= ';' ClassBodyDeclarationsopt
-/.$putCase consumeEnumDeclarations(); $break ./
+EnumDeclarations -> ';' ClassBodyDeclarationsopt
 /:$readableName EnumDeclarations:/
 
 EnumBodyDeclarationsopt ::= $empty
@@ -1525,7 +1528,7 @@ EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Ex
 -- 1.5 features : static imports
 -----------------------------------------------
 SingleStaticImportDeclaration ::= SingleStaticImportDeclarationName ';'
-/.$putCase consumeSingleStaticImportDeclaration(); $break ./
+/.$putCase consumeImportDeclaration(); $break ./
 /:$readableName SingleStaticImportDeclaration:/
 
 SingleStaticImportDeclarationName ::= 'import' 'static' Name
@@ -1533,7 +1536,7 @@ SingleStaticImportDeclarationName ::= 'import' 'static' Name
 /:$readableName SingleStaticImportDeclarationName:/
 
 StaticImportOnDemandDeclaration ::= StaticImportOnDemandDeclarationName ';'
-/.$putCase consumeStaticImportOnDemandDeclaration(); $break ./
+/.$putCase consumeImportDeclaration(); $break ./
 /:$readableName StaticImportOnDemandDeclaration:/
 
 StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
@@ -1599,55 +1602,52 @@ ReferenceType3 ::= ReferenceType '>>>'
 /.$putCase consumeReferenceType3(); $break ./
 /:$readableName ReferenceType3:/
 
-Wildcard ::= '?' WildcardBoundsopt
+Wildcard ::= '?'
 /.$putCase consumeWildcard(); $break ./
+Wildcard ::= '?' WildcardBounds
+/.$putCase consumeWildcardWithBounds(); $break ./
 /:$readableName Wildcard:/
 
-WildcardBoundsopt ::= $empty
-/.$putCase consumeEmptyWildcardBounds(); $break ./
-WildcardBoundsopt -> WildcardBounds
-/:$readableName WildcardBounds:/
-
 WildcardBounds ::= 'extends' ReferenceType
-/.$putCase consumeWildcardBounds(); $break ./
+/.$putCase consumeWildcardBoundsExtends(); $break ./
 WildcardBounds ::= 'super' ReferenceType
-/.$putCase consumeWildcardBounds(); $break ./
+/.$putCase consumeWildcardBoundsSuper(); $break ./
 /:$readableName WildcardBounds:/
 
 Wildcard1 ::= '?' '>'
 /.$putCase consumeWildcard1(); $break ./
 Wildcard1 ::= '?' WildcardBounds1
-/.$putCase consumeWildcard1(); $break ./
+/.$putCase consumeWildcard1WithBounds(); $break ./
 /:$readableName Wildcard1:/
 
 WildcardBounds1 ::= 'extends' ReferenceType1
-/.$putCase consumeWildcardBounds1(); $break ./
+/.$putCase consumeWildcardBounds1Extends(); $break ./
 WildcardBounds1 ::= 'super' ReferenceType1
-/.$putCase consumeWildcardBounds1(); $break ./
+/.$putCase consumeWildcardBounds1Super(); $break ./
 /:$readableName WildcardBounds1:/
 
 Wildcard2 ::= '?' '>>'
 /.$putCase consumeWildcard2(); $break ./
 Wildcard2 ::= '?' WildcardBounds2
-/.$putCase consumeWildcard2(); $break ./
+/.$putCase consumeWildcard2WithBounds(); $break ./
 /:$readableName Wildcard2:/
 
 WildcardBounds2 ::= 'extends' ReferenceType2
-/.$putCase consumeWildcardBounds2(); $break ./
+/.$putCase consumeWildcardBounds2Extends(); $break ./
 WildcardBounds2 ::= 'super' ReferenceType2
-/.$putCase consumeWildcardBounds2(); $break ./
+/.$putCase consumeWildcardBounds2Super(); $break ./
 /:$readableName WildcardBounds2:/
 
 Wildcard3 ::= '?' '>>>'
 /.$putCase consumeWildcard3(); $break ./
 Wildcard3 ::= '?' WildcardBounds3
-/.$putCase consumeWildcard3(); $break ./
+/.$putCase consumeWildcard3WithBounds(); $break ./
 /:$readableName Wildcard3:/
 
 WildcardBounds3 ::= 'extends' ReferenceType3
-/.$putCase consumeWildcardBounds3(); $break ./
+/.$putCase consumeWildcardBounds3Extends(); $break ./
 WildcardBounds3 ::= 'super' ReferenceType3
-/.$putCase consumeWildcardBounds3(); $break ./
+/.$putCase consumeWildcardBounds3Super(); $break ./
 /:$readableName WildcardBound3:/
 
 TypeParameters ::= '<' TypeParameterList1
