@@ -155,9 +155,15 @@ public static Test suite() {
 		suite.addTest(LocalElementTests.suite());
 	}
 	
-	//Get source tests
+	// Get source tests
 	suite.addTest(GetSourceTests.suite());
 		
+	// Create packages tests
+	suite.addTest(CreatePackageTests.suite());
+
+	// Create compilation units tests
+	suite.addTest(CreateCompilationUnitTests.suite());
+
 	return suite;
 }
 

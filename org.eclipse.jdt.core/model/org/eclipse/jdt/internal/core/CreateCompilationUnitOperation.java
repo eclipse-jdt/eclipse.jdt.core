@@ -105,7 +105,7 @@ protected void executeOperation() throws JavaModelException {
 			try {
 				String encoding = unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 				InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
-				createFile(folder, unit.getElementName(), stream, false);
+				createFile(folder, unit.getElementName(), stream, fForce);
 				fResultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
