@@ -77,6 +77,10 @@ public boolean isClass() {
 */
 public abstract boolean isCompatibleWith(TypeBinding right);
 
+public boolean isGenericType() {
+    return false;
+}
+
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
 public final boolean isHierarchyInconsistent() {

@@ -87,17 +87,42 @@ public char[] shortReadableName() /*Object*/ {
 	return shortReadableName;
 }
 	/**
+	 * The superclass of a raw type is raw if targeting generic
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superclass()
 	 */
 	public ReferenceBinding superclass() {
-	    return this.type.superclass();
+	    if (this.superclass == null) {
+		    ReferenceBinding superType = this.type.superclass();
+		    if (superType.isGenericType()) {
+		        this.superclass = this.environment.createRawType(superType);
+		    } else {
+			    this.superclass = superType;
+		    }
+	    }
+	    return this.superclass;
 	}	
 	/**
+	 * The superinterfaces of a raw type are raw if targeting generic
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
 	 */
 	public ReferenceBinding[] superInterfaces() {
-		return this.type.superInterfaces();
-	}	
+	    if (this.superInterfaces == null) {
+		    ReferenceBinding[] originalInterfaces = this.type.superInterfaces();
+		    ReferenceBinding[] rawInterfaces = originalInterfaces;
+		    for (int i = 0, length = originalInterfaces.length; i < length; i++) {
+		        ReferenceBinding originalInterface = originalInterfaces[i];
+		        if (originalInterface.isGenericType()) {
+		            if (rawInterfaces == originalInterfaces) {
+		                System.arraycopy(originalInterfaces, 0, rawInterfaces = new ReferenceBinding[length], 0, i);
+		            }
+		            rawInterfaces[i] = this.environment.createRawType(originalInterface);
+		        } else if (rawInterfaces != originalInterfaces) {
+		            rawInterfaces[i] = originalInterface;
+		        }
+		    }
+	    }
+	    return this.superInterfaces;
+    }	
 	/**
 	 * @see java.lang.Object#toString()
 	 */

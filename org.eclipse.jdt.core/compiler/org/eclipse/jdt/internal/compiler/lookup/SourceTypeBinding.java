@@ -669,6 +669,11 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
 	return (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 }
+
+public boolean isGenericType() {
+    return this.typeVariables != NoTypeVariables;
+}
+
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
 }

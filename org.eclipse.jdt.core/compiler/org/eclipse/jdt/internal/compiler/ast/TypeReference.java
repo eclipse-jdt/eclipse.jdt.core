@@ -117,11 +117,8 @@ public TypeBinding resolveType(BlockScope blockScope) {
 		if (isTypeUseDeprecated(type, blockScope)) {
 			reportDeprecatedType(blockScope);
 		}
-		if (type instanceof ReferenceBinding) {
-		    ReferenceBinding referenceType = (ReferenceBinding) type;
-		    if (referenceType.typeVariables() != NoTypeVariables) {
-		        return this.resolvedType = blockScope.createRawType(referenceType); // raw type
-		    }
+		if (type.isGenericType()) {
+	        return this.resolvedType = blockScope.createRawType((ReferenceBinding)type); // raw type
 		}		
 	}
 	return this.resolvedType;
@@ -144,11 +141,8 @@ public TypeBinding resolveType(ClassScope classScope) {
 		if (isTypeUseDeprecated(type, classScope)) {
 			reportDeprecatedType(classScope);
 		}
-		if (type instanceof ReferenceBinding) {
-		    ReferenceBinding referenceType = (ReferenceBinding) type;
-		    if (referenceType.typeVariables() != NoTypeVariables) {
-		        return this.resolvedType = classScope.createRawType(referenceType); // raw type
-		    }
+		if (type.isGenericType()) {
+	        return this.resolvedType = classScope.createRawType((ReferenceBinding) type); // raw type
 		}		
 	}
 	return this.resolvedType;

@@ -652,12 +652,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					TypeBinding type = (TypeBinding)binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					if (type instanceof ReferenceBinding) {
-					    ReferenceBinding referenceType = (ReferenceBinding) type;
-					    if (referenceType.typeVariables() != NoTypeVariables) {
-					        return this.resolvedType = scope.createRawType(referenceType); // raw type
-					    }
-					}		
+					if (type.isGenericType()) {
+				        return this.resolvedType = scope.createRawType((ReferenceBinding) type); // raw type
+					}					
 					return this.resolvedType = type;
 			}
 		}

@@ -420,8 +420,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	        TypeBinding substitutedParameter = this.substitute(originalType);
 	        if (substitutedParameter != originalType) {
 	            if (substitutedTypes == originalTypes) {
-	                substitutedTypes = new TypeBinding[length];
-	                System.arraycopy(originalTypes, 0, substitutedTypes, 0, i);
+	                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
 	            }
 	            substitutedTypes[i] = substitutedParameter;
 	        } else if (substitutedTypes != originalTypes) {
@@ -442,8 +441,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	        ReferenceBinding substitutedParameter = (ReferenceBinding)this.substitute(originalType);
 	        if (substitutedParameter != originalType) {
 	            if (substitutedTypes == originalTypes) {
-	                substitutedTypes = new ReferenceBinding[length];
-	                System.arraycopy(originalTypes, 0, substitutedTypes, 0, i);
+	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
 	            }
 	            substitutedTypes[i] = substitutedParameter;
 	        } else if (substitutedTypes != originalTypes) {

@@ -795,7 +795,7 @@ public class QualifiedNameReference extends NameReference {
 						scope.problemReporter().deprecatedType(type, this);
 					if (type instanceof ReferenceBinding) {
 					    ReferenceBinding referenceType = (ReferenceBinding) type;
-					    if (referenceType.typeVariables() != NoTypeVariables) {
+					    if (referenceType.isGenericType()) {
 					        return this.resolvedType = scope.createRawType(referenceType); // raw type
 					    }
 					}							
