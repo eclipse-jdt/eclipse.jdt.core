@@ -13,7 +13,7 @@
  * each different kind of construct in the Java language (1.4).
  */
 // PackageDeclaration
-package org.eclipse.jdt.core.tests.dom;
+package examples.oneofeach;
 
 // ImportDeclaration (single-type)
 import java.io.Serializable;
