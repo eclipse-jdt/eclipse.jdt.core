@@ -499,7 +499,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				} else {
 					this.printErr(Main.bind(
-						"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
+						"compile.severalProblemsErrorsAndWarnings", //$NON-NLS-1$
 						new String[] {
 							String.valueOf(globalProblemsCount),
 							errorMessage,
