@@ -620,6 +620,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 }
 public int getNextToken() throws InvalidInputException {
 
+	this.wasAcr = false;
 	if (diet) {
 		jumpOverMethodBody();
 		diet = false;
@@ -1147,6 +1148,7 @@ public final void getNextUnicodeChar()
  */
 public final void jumpOverMethodBody() {
 
+	this.wasAcr = false;
 	int found = 1;
 	try {
 		while (true) { //loop for jumping over comments
@@ -1411,8 +1413,7 @@ public final void jumpOverMethodBody() {
 	}
 	return;
 }
-public final boolean jumpOverUnicodeWhiteSpace()
-	throws InvalidInputException {
+public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 	//BOOLEAN
 	//handle the case of unicode. Jump over the next whiteSpace
 	//making startPosition pointing on the next available char
@@ -1420,6 +1421,7 @@ public final boolean jumpOverUnicodeWhiteSpace()
 	//correct char
 
 	try {
+		this.wasAcr = false;
 		int c1, c2, c3, c4;
 		int unicodeSize = 6;
 		currentPosition++;

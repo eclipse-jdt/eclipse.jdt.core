@@ -7,7 +7,8 @@ What's new in this drop
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
-1GH3218: ITPJUI:WIN - mnuemonic problems
+1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
+1GH3218: ITPJUI:WIN - mnemonic problems
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
 1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
 1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 

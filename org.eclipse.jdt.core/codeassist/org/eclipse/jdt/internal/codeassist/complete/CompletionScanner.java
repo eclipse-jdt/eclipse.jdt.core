@@ -142,6 +142,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 }
 public int getNextToken() throws InvalidInputException {
 
+	this.wasAcr = false;
 	if (diet) {
 		jumpOverMethodBody();
 		diet = false;
