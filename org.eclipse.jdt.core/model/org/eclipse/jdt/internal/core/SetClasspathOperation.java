@@ -171,13 +171,33 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 
+		// project reference updated - may throw an exception if unable to write .project file
+		updateProjectReferencesIfNecessary();
+
+		// classpath file updated - may throw an exception if unable to write .classpath file
 		saveClasspathIfNecessary();
 		
-		if (this.newRawPath != ReuseClasspath){
-			updateClasspath();
-		}
-		if (this.newOutputLocation != ReuseOutputLocation){
-			updateOutputLocation();
+		// perform classpath and output location updates, if exception occurs in classpath update,
+		// make sure the output location is updated before surfacing the exception (in case the output
+		// location update also throws an exception, give priority to the classpath update one).
+		JavaModelException originalException = null;
+
+		try {
+			if (this.newRawPath != ReuseClasspath) updateClasspath();
+
+		} catch(JavaModelException e){
+			originalException = e;
+			throw e;
+
+		} finally { // if traversed by an exception we still need to update the output location when necessary
+
+			try {
+				if (this.newOutputLocation != ReuseOutputLocation) updateOutputLocation();
+
+			} catch(JavaModelException e){
+				if (originalException != null) throw originalException; 
+				throw e;
+			}
 		}
 		done();
 	}
@@ -399,8 +419,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
-		String[] oldRequired = project.getRequiredProjectNames();
-		
+		// SIDE-EFFECT: from thereon, the classpath got modified
 		project.setRawClasspath0(this.newRawPath);
 
 		// resolve new path (asking for marker creation if problems)
@@ -418,7 +437,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		
 		if (this.mayChangeProjectDependencies){
-			updateProjectReferences(oldRequired, project.getRequiredProjectNames());
 			updateCycleMarkers(newResolvedPath);
 		}
 	}
@@ -530,12 +548,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 	/**
 	 * Update projects references so that the build order is consistent with the classpath
 	 */
-	protected void updateProjectReferences(String[] oldRequired, String[] newRequired) {
+	protected void updateProjectReferencesIfNecessary() throws JavaModelException {
+		
+		if (!this.canChangeResource) return;
+		if (this.newRawPath == ReuseClasspath || !this.mayChangeProjectDependencies) return;
+
+		JavaProject jproject = getProject();
+		String[] oldRequired = jproject.getRequiredProjectNames();
+		String[] newRequired =jproject.projectPrerequisites(jproject.getResolvedClasspath(this.newRawPath, true, false));
 
 		try {		
-			if (!this.canChangeResource) return;
-
-			JavaProject jproject = ((JavaProject) getElementsToProcess()[0]);
 			IProject project = jproject.getProject();
 			IProjectDescription description = project.getDescription();
 			 
@@ -589,6 +611,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			project.setDescription(description, this.fMonitor);
 
 		} catch(CoreException e){
+			throw new JavaModelException(e);
 		}
 	}
 

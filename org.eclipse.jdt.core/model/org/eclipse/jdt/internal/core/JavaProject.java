@@ -1643,7 +1643,7 @@ public IResource getResource() {
 		}
 	}
 
-	private String[] projectPrerequisites(IClasspathEntry[] entries)
+	public String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
 			
 		ArrayList prerequisites = new ArrayList();
