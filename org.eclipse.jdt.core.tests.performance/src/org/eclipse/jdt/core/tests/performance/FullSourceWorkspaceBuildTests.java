@@ -60,7 +60,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String targetWorkspacePath =  workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile().getCanonicalPath();
-		final String compilerPath = targetWorkspacePath + File.separator + "src"; //$NON-NLS-1$
 		final String sources = targetWorkspacePath + File.separator + "compiler"; //$NON-NLS-1$
 		final String bins = targetWorkspacePath + File.separator + "bin"; //$NON-NLS-1$
 		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
