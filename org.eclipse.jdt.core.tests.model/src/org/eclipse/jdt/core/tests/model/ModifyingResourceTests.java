@@ -214,6 +214,7 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
 }
 protected IClassFile createClassFile(String libPath, String classFileRelativePath, String contents) throws CoreException {
 	IClassFile classFile = getClassFile(libPath + "/" + classFileRelativePath);
+	classFile.getResource().delete(false, null);
 	IJavaProject javaProject = classFile.getJavaProject();
 	IProject project = javaProject.getProject();
 	String sourcePath = project.getLocation().toOSString() + File.separatorChar + classFile.getType().getElementName() + ".java";
