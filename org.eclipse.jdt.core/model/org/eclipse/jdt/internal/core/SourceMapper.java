@@ -743,8 +743,8 @@ public class SourceMapper
 					0,
 					importsCounter);
 			}
+			this.importsTable.put(type, imports);
 		}
-		this.importsTable.put(type, imports);
 		return imports;
 	}
 }
