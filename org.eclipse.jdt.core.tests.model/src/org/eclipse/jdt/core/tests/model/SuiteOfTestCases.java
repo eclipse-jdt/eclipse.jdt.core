@@ -28,7 +28,7 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	 * A test suite that initialize the test case's fields once, then that copies the values
 	 * of these fields intto each subsequent test case.
 	 */
-	protected static class Suite extends TestSuite {
+	public static class Suite extends TestSuite {
 		public SuiteOfTestCases currentTestCase;
 		
 		/*
