@@ -1035,15 +1035,52 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean hasConstants = false;
 			if (fieldDeclarations != null) {
 				int length = fieldDeclarations.length;
-				loop: for (int i = 0; i < length; i++) {
+				int enumConstantsLength = 0;
+				for (int i = 0; i < length; i++) {
 					FieldDeclaration fieldDeclaration = fieldDeclarations[i];
-					if (fieldDeclaration.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT) {
-						break loop;
+					if (fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						enumConstantsLength++;
+					} else {
+						break;
 					}
-					if (i < length) {
-						hasConstants = true;
-						fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
-					}
+				}
+				hasConstants = enumConstantsLength != 0;
+				if (enumConstantsLength > 1) {
+					Alignment enumConstantsAlignment = this.scribe.createAlignment(
+							"enumConstants",//$NON-NLS-1$
+							this.preferences.alignment_for_enum_constants,
+							enumConstantsLength,
+							this.scribe.scanner.currentPosition,
+							0, // we don't want to indent enum constants when splitting to a new line
+							false);
+					this.scribe.enterAlignment(enumConstantsAlignment);
+					boolean ok = false;
+					do {
+						try {
+							for (int i = 0; i < enumConstantsLength; i++) {
+								this.scribe.alignFragment(enumConstantsAlignment, i);
+								FieldDeclaration fieldDeclaration = fieldDeclarations[i];
+								fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
+								if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
+									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
+									if (this.preferences.insert_space_after_comma_in_enum_declarations) {
+										this.scribe.space();
+									}
+									this.scribe.printTrailingComment();
+									if (fieldDeclaration.initialization instanceof QualifiedAllocationExpression) {
+										this.scribe.printNewLine();
+									}
+								}
+							}
+							ok = true;
+						} catch (AlignmentException e) {
+							this.scribe.redoAlignment(e);
+						}
+					} while (!ok);
+					this.scribe.exitAlignment(enumConstantsAlignment, true);
+				} else {
+					FieldDeclaration fieldDeclaration = fieldDeclarations[0];
+					fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
 					if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
 						if (this.preferences.insert_space_after_comma_in_enum_declarations) {
@@ -1054,7 +1091,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							this.scribe.printNewLine();
 						}
 					}
-				}			
+				}
 			}
 			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);

@@ -160,7 +160,6 @@ public class Alignment {
 			// indent broken fragments exactly one level deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + indentSize;
 		} else {
-			// indent broken fragments by one continuation indentation deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + continuationIndent * indentSize;
 		}
 		this.shiftBreakIndentationLevel = this.breakIndentationLevel + indentSize;
