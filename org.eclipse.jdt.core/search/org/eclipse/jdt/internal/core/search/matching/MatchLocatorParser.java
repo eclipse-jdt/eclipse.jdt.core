@@ -180,7 +180,7 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	}
 	return result;
 }
-protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, MatchLocator locator, IFile file, CompilationUnit compilationUnit) {
+protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, MatchLocator locator, IFile file, CompilationUnit cu) {
 	MatchingNodeSet originalSet = this.matchSet;
 	CompilationUnitDeclaration unit = null;
 	try {
@@ -193,7 +193,7 @@ protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Matc
 					&& unit != null && file != null) {
 				// potential matches were found while initializing the search pattern
 				// from the lookup environment: add the corresponding openable in the list
-				locator.addPotentialMatch(file, compilationUnit);
+				locator.addPotentialMatch(file, cu);
 			}
 			this.matchSet = null;
 		} else {

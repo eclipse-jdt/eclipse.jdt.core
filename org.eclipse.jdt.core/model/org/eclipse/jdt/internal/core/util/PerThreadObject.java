@@ -21,14 +21,14 @@ public class PerThreadObject {
 	private Hashtable internalMap = new Hashtable(3); // synchronized map
 	
 	/**
-	 * Answer the current map for this thread
+	 * Answer the current object value for this thread
 	 */
 	public Object getCurrent(){
 		return this.internalMap.get(Thread.currentThread());
 	}
 	
 	/**
-	 * Set the map for this current thread - setting to null is equivalent to removing it
+	 * Set the object value for this current thread - setting to null is equivalent to removing it
 	 */
 	public void setCurrent(Object current){
 		if (current == null){

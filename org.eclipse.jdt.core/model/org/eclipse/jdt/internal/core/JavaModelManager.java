@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.util.PerThreadObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -513,10 +514,9 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	/**
 	 * A cache of opened zip files per thread.
-	 * (map from Thread to map of IPath to java.io.ZipFile)
-	 * NOTE: this object itself is used as a lock to synchronize creation/removal of entries
+	 * (for a given thread, the object value is a HashMap from IPath to java.io.ZipFile)
 	 */
-	private HashMap zipFiles = new HashMap();
+	private PerThreadObject zipFiles = new PerThreadObject();
 	
 	
 	/**
@@ -593,25 +593,20 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Ignores if there are already clients.
 	 */
 	public void cacheZipFiles() {
-		synchronized(this.zipFiles) {
-			Thread currentThread = Thread.currentThread();
-			if (this.zipFiles.get(currentThread) != null) return;
-			this.zipFiles.put(currentThread, new HashMap());
-		}
+		if (this.zipFiles.getCurrent() != null) return;
+		this.zipFiles.setCurrent(new HashMap());
 	}
 	public void closeZipFile(ZipFile zipFile) {
 		if (zipFile == null) return;
-		synchronized(this.zipFiles) {
-			if (this.zipFiles.get(Thread.currentThread()) != null) {
-				return; // zip file will be closed by call to flushZipFiles
+		if (this.zipFiles.getCurrent() != null) {
+			return; // zip file will be closed by call to flushZipFiles
+		}
+		try {
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-			try {
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
-				}
-				zipFile.close();
-			} catch (IOException e) {
-			}
+			zipFile.close();
+		} catch (IOException e) {
 		}
 	}
 	
@@ -813,22 +808,21 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Flushes ZipFiles cache if there are no more clients.
 	 */
 	public void flushZipFiles() {
-		synchronized(this.zipFiles) {
-			Thread currentThread = Thread.currentThread();
-			HashMap map = (HashMap)this.zipFiles.remove(currentThread);
-			if (map == null) return;
-			Iterator iterator = map.values().iterator();
-			while (iterator.hasNext()) {
-				try {
-					ZipFile zipFile = (ZipFile)iterator.next();
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-						System.out.println("(" + currentThread + ") [JavaModelManager.flushZipFiles()] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$//$NON-NLS-2$
-					}
-					zipFile.close();
-				} catch (IOException e) {
+		Thread currentThread = Thread.currentThread();
+		HashMap map = (HashMap)this.zipFiles.getCurrent();
+		if (map == null) return;
+		this.zipFiles.setCurrent(null);
+		Iterator iterator = map.values().iterator();
+		while (iterator.hasNext()) {
+			try {
+				ZipFile zipFile = (ZipFile)iterator.next();
+				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+					System.out.println("(" + currentThread + ") [JavaModelManager.flushZipFiles()] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$//$NON-NLS-2$
 				}
+				zipFile.close();
+			} catch (IOException e) {
 			}
-		}	
+		}
 	}
 	
 
@@ -1037,42 +1031,39 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
 			
-		synchronized(this.zipFiles) { // TODO: (jerome) use PerThreadObject which does synchronization
-			Thread currentThread = Thread.currentThread();
-			HashMap map = null;
-			ZipFile zipFile;
-			if ((map = (HashMap)this.zipFiles.get(currentThread)) != null 
-					&& (zipFile = (ZipFile)map.get(path)) != null) {
-					
-				return zipFile;
+		HashMap map;
+		ZipFile zipFile;
+		if ((map = (HashMap)this.zipFiles.getCurrent()) != null 
+				&& (zipFile = (ZipFile)map.get(path)) != null) {
+				
+			return zipFile;
+		}
+		String fileSystemPath= null;
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource file = root.findMember(path);
+		if (file != null) {
+			// internal resource
+			IPath location;
+			if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
 			}
-			String fileSystemPath= null;
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IResource file = root.findMember(path);
-			if (file != null) {
-				// internal resource
-				IPath location;
-				if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
-					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
-				}
-				fileSystemPath= location.toOSString();
-			} else {
-				// external resource
-				fileSystemPath= path.toOSString();
+			fileSystemPath= location.toOSString();
+		} else {
+			// external resource
+			fileSystemPath= path.toOSString();
+		}
+
+		try {
+			if (ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-	
-			try {
-				if (ZIP_ACCESS_VERBOSE) {
-					System.out.println("(" + currentThread + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				zipFile = new ZipFile(fileSystemPath);
-				if (map != null) {
-					map.put(path, zipFile);
-				}
-				return zipFile;
-			} catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
+			zipFile = new ZipFile(fileSystemPath);
+			if (map != null) {
+				map.put(path, zipFile);
 			}
+			return zipFile;
+		} catch (IOException e) {
+			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}
 	}
 
