@@ -402,7 +402,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 					true, // read access
 					true); // write access
 			break;
-		case IJavaSearchConstants.READ_REFERENCES :
+		case IJavaSearchConstants.READ_ACCESSES :
 			searchPattern = 
 				new FieldReferencePattern(
 					fieldNameChars, 
@@ -415,7 +415,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 					true, // read access only
 					false);
 			break;
-		case IJavaSearchConstants.WRITE_REFERENCES :
+		case IJavaSearchConstants.WRITE_ACCESSES :
 			searchPattern = 
 				new FieldReferencePattern(
 					fieldNameChars, 
@@ -806,7 +806,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 							true,  // read access
 							true); // write access
 					break;
-				case IJavaSearchConstants.READ_REFERENCES :
+				case IJavaSearchConstants.READ_ACCESSES :
 					searchPattern = 
 						new FieldReferencePattern(
 							name, 
@@ -819,7 +819,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 							true,  // read access only
 							false);
 					break;
-				case IJavaSearchConstants.WRITE_REFERENCES :
+				case IJavaSearchConstants.WRITE_ACCESSES :
 					searchPattern = 
 						new FieldReferencePattern(
 							name, 

@@ -93,6 +93,7 @@ public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
  *
  * @param elements the java elements the scope is limited to
  * @return a new java search scope
+ * @since 2.0
  */
 public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
 	return createJavaSearchScope(elements, true);
@@ -115,6 +116,7 @@ public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
  * @param includeReferencedProjects a flag indicating if referenced projects must be 
  * 									 recursively included
  * @return a new java search scope
+ * @since 2.0
  */
 public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
 	JavaSearchScope scope = new JavaSearchScope();
