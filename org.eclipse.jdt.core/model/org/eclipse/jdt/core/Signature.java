@@ -542,8 +542,7 @@ public static String createTypeParameterSignature(String typeParameterName, Stri
 
 /**
  * Creates a new type signature from the given type name encoded as a character
- * array. The type name may contain primitive types or array types. However,
- * parameterized types are not supported.
+ * array. The type name may contain primitive types, array types or parameterized types.
  * This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved)</code>, although
  * more efficient for callers with character arrays rather than strings. If the 
@@ -563,7 +562,7 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
 
 /**
  * Creates a new type signature from the given type name encoded as a character
- * array. The type name may contain primitive types or array types. 
+ * array. The type name may contain primitive types or array types or parameterized types.
  * This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved).toCharArray()</code>,
  * although more efficient for callers with character arrays rather than strings.
