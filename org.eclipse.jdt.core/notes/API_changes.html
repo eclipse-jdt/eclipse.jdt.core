@@ -57,8 +57,12 @@
 	  <p>
 	  Clients using factory methods to create working copies can now remove the cast from 
 	  <code>IJavaElement</code> to <code>IWorkingCopy</code>.
-	  </p></li>
+	  </p>
+</li>
+<li> <code>CharOperation.patchMatch(...)</code> no longer treat non absolute pattern <code>'foo'</code>
+as <code>'**/foo'</code> for free. This was inconsistent with Ant patternset rules. This has no incidence on
+source folder exclusion patterns which are implicitely concatenating exclusion patterns to source folder
+paths when using them. Only direct clients to this <code>CharOperation</code> API will be affected.
 </ul>
-
 </body>
 </html>
