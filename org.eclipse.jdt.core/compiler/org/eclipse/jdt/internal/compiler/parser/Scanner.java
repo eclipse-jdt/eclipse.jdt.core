@@ -209,7 +209,6 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 	int foundTaskIndex = this.foundTaskCount;
 	nextChar: for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
 
-		int nextPos = -1;
 		char[] tag = null;
 		char[] priority = null;
 		
@@ -224,7 +223,6 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 			for (int t = 0; t < tagLength; t++){
 				if (this.source[i+t] != tag[t]) continue nextTag;
 			}
-			nextPos = i + tagLength;
 
 			if (this.foundTaskTags == null){
 				this.foundTaskTags = new char[5][];
@@ -239,39 +237,41 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 			}
 			this.foundTaskTags[this.foundTaskCount] = tag;
 			this.foundTaskPriorities[this.foundTaskCount] = priority;
-			this.foundTaskPositions[this.foundTaskCount] = new int[]{ i, -1 };
+			this.foundTaskPositions[this.foundTaskCount] = new int[]{ i, i+tagLength-1 };
+			this.foundTaskMessages[this.foundTaskCount] = CharOperation.NO_CHAR;
 			this.foundTaskCount++;
 			
-			i = nextPos;
+			i += tagLength-1; // will be incremented when looping
 		}
 	}
 	
 	for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
 		// retrieve message start and end positions
 		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
-		int end;
+		int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : commentEnd-1; // at most beginning of next task
+		if (max_value < msgStart) max_value = msgStart; // would only occur if tag is before EOF.
+		int end = -1;
 		char c;
-		int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : Integer.MAX_VALUE;
 		
-		end = -1;
-		for (int j = msgStart; j < commentEnd; j++){
+		for (int j = msgStart; j < max_value; j++){
 			if ((c = this.source[j]) == '\n' || c == '\r'){
-				end = j - 1;
+				end = j-1;
 				break;
 			}
 		}
-		end = end < max_value ? end : max_value;
 		
-		if (end < 0){
-			for (int j = commentEnd-1; j >= msgStart; j--){
+		if (end == -1){
+			for (int j = max_value; j > msgStart; j--){
 				if ((c = this.source[j]) == '*') {
 					end = j-1;
 					break;
 				}
 			}
-			if (end < 0) end = commentEnd-1;
+			if (end == -1) end = max_value;
 		}
-		
+
+		if (msgStart == end) continue; // empty
+				
 		// trim the message
 		while (CharOperation.isWhitespace(source[end]) && msgStart <= end) end--;
 		while (CharOperation.isWhitespace(source[msgStart]) && msgStart <= end) msgStart++;
