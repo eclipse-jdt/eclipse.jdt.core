@@ -51,6 +51,12 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	// need accurate match to be able to open on type ref
 	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
 	
+	// element that references the type must be included in the enclosing element
+	while (element != null && !this.enclosingElement.equals(element)) {
+		element = element.getParent();
+	}
+	if (element == null) return;
+
 	while (binding instanceof ReferenceBinding) {
 		ReferenceBinding typeBinding = (ReferenceBinding)binding;
 		this.reportDeclaration(typeBinding, 1, locator);

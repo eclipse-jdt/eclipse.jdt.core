@@ -311,6 +311,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes3"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes4"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes5"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes6"));
 	
 	// declarations of sent messages
 	suite.addTest(new JavaSearchTests("testSimpleDeclarationsOfSentMessages"));
@@ -552,14 +553,14 @@ public void testDeclarationOfReferencedTypes1() throws JavaModelException, CoreE
 		resultCollector
 	);
 	assertEquals(
-		"src/a3/b/B.java a3.b.B [B]\n" +
 		"src/a3/X.java a3.X [X]\n" +
 		"src/a3/Z.java a3.Z [Z]\n" +
 		"src/a3/b/A.java a3.b.A [A]\n" +
 		"src/a3/b/A.java a3.b.A$B$C [C]\n" +
 		"src/a3/b/A.java a3.b.A$B [B]\n" +
 		getExternalJCLPath() + " java.lang.Object\n" +
-		"src/a3/Y.java a3.Y [Y]", 
+		"src/a3/Y.java a3.Y [Y]\n" +
+		"src/a3/b/B.java a3.b.B [B]", 
 		resultCollector.toString());
 }
 /**
@@ -628,6 +629,24 @@ public void testDeclarationOfReferencedTypes5() throws CoreException {
 		"src/c3/C.java c3.C [C]", 
 		resultCollector.toString());
 }
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 24934 Move top level doesn't optimize the imports[refactoring])
+ */
+public void testDeclarationOfReferencedTypes6() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "d1", "X.java");
+	IType innerType = unit.getType("X").getType("Inner");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().searchDeclarationsOfReferencedTypes(
+		getWorkspace(), 
+		innerType,
+		resultCollector
+	);
+	assertEquals(
+		"src/d2/Y.java d2.Y [Y]", 
+		resultCollector.toString());
+}
+
 /**
  * Declaration of sent messages test.
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
