@@ -323,16 +323,9 @@ public class ForeachStatement extends Statement {
 				if (elementType.isBaseType()) {
 					this.elementVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
 				}
-			} else if (collectionType.id == T_JavaLangIterable) { // for(Object o : Iterable)
-				this.kind = RAW_ITERABLE;
-					TypeBinding collectionElementType = scope.getJavaLangObject(); 
-					if (!collectionElementType.isCompatibleWith(elementType)) {
-						scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
-					}
-					// no conversion needed as only for reference types
 			} else if (collectionType.isParameterizedType()) {
 			    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)collectionType;
-			    if (parameterizedType.type.id == T_JavaLangIterable) { // for(E e : Iterable<E>)
+			    if (parameterizedType.type.isCompatibleWith(scope.getJavaLangIterable())) { // for(E e : Iterable<E>)
 					if (parameterizedType.arguments.length == 1) { // per construction can only be one
 						this.kind = GENERIC_ITERABLE;
 						TypeBinding collectionElementType = parameterizedType.arguments[0]; 
@@ -342,6 +335,13 @@ public class ForeachStatement extends Statement {
 						// no conversion needed as only for reference types
 					}
 			    }
+			} else if (collectionType.isCompatibleWith(scope.getJavaLangIterable())) { // for(Object o : Iterable)
+				this.kind = RAW_ITERABLE;
+				TypeBinding collectionElementType = scope.getJavaLangObject(); 
+				if (!collectionElementType.isCompatibleWith(elementType)) {
+					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+				}
+				// no conversion needed as only for reference types
 			}
 	
 			if (this.kind == -1) {
