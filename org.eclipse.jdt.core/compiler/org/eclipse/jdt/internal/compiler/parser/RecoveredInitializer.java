@@ -242,6 +242,9 @@ public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 			initializer.declarationSourceEnd = braceEnd;
 			initializer.bodyEnd  = braceStart - 1;
 		}
+		if(initializer.block != null) {
+			initializer.block.sourceEnd = initializer.declarationSourceEnd;
+		}
 	}
 }
 }
