@@ -48,7 +48,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"}",
 			"generic/Y.java", 
 			"package generic;\n" +
-			"public class Y<K, V> {\n" + 
+			"public class Y<K, L> {\n" + 
 			"}",
 			"generic/Z.java", 
 			"package generic;\n" +
@@ -162,7 +162,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 		assertStringsEqual(
 			"Unexpected type parameters",
 			"K:Ljava.lang.Object;\n" + 
-			"V:Ljava.lang.Object;\n",
+			"L:Ljava.lang.Object;\n",
 			type.getTypeParameterSignatures());
 	}
 
