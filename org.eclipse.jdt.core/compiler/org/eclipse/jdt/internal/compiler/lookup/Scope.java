@@ -882,6 +882,8 @@ public abstract class Scope
 			if (interfaceMethod != null) return interfaceMethod;
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}
+		if (isCompliant14)
+			return mostSpecificMethodBinding(candidates, visiblesCount);
 		return candidates[0].declaringClass.isClass()
 			? mostSpecificClassMethodBinding(candidates, visiblesCount)
 			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
@@ -2101,6 +2103,26 @@ public abstract class Scope
 			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
 		return problemMethod;
 	}
+
+	// Internal use only
+	/* All methods in visible are acceptable matches for the method in question...
+	* Since 1.4, the inherited ambiguous case has been removed from mostSpecificClassMethodBinding
+	*/
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize) {
+		MethodBinding method = null;
+		nextVisible : for (int i = 0; i < visibleSize; i++) {
+			method = visible[i];
+			for (int j = 0; j < visibleSize; j++) {
+				if (i == j) continue;
+				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters);
+				if (compatibleMethod == null)
+					continue nextVisible;
+			}
+			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
+			return method;
+		}
+		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
+	}	
 
 	public final ClassScope outerMostClassScope() {
 		ClassScope lastClassScope = null;
