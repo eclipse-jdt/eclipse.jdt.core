@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -261,6 +267,62 @@ public void testBinaryTypeGetSuperInterfaces2() throws JavaModelException {
 		"rich.I\n" +
 		"rich.I3\n", 
 		superInterfaces);
+}
+/*
+ * Ensures that a hierarchy can be constructed on a binary type in a jar that is hidden by another jar with the same type.
+ * (regression test for bug 
+ */
+public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
+	String externalJar1 = null;
+	String externalJar2 = null;
+	try {
+		externalJar1 = Util.getOutputDirectory() + File.separator + "test1.jar";
+		Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" + 
+				"}" ,
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends X {\n" + 
+				"}" 
+			},
+			new HashMap(),
+			externalJar1
+		);
+		externalJar2 = Util.getOutputDirectory() + File.separator + "test2.jar";
+		Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" + 
+				"}" ,
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends X {\n" + 
+				"}" 
+			},
+			new HashMap(),
+			externalJar2
+		);
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar1, externalJar2}, "");
+		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getClassFile("Y.class").getType();
+		assertHierarchyEquals(
+			"Focus: Y [in Y.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test2.jar [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  X [in X.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test1.jar [in P]]]]\n" + 
+			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+			"Sub types:\n",
+			focus.newTypeHierarchy(null)
+		);
+	} finally {
+		if (externalJar1 != null)
+			new File(externalJar1).delete();
+		if (externalJar2 != null)
+			new File(externalJar2).delete();
+		deleteProject("P");
+	}
 }
 /*
  * Ensures that a hierarchy with a binary subclass that is also referenced can be computed

@@ -57,6 +57,11 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	 * no supertypes outside the region).
 	 */
 	protected Map infoToHandle;
+	/*
+	 * The dot-separated fully qualified name of the focus type, or null of none.
+	 */
+	protected String focusQualifiedName;
+	
 	public HierarchyBuilder(TypeHierarchy hierarchy) throws JavaModelException {
 		
 		this.hierarchy = hierarchy;
@@ -87,6 +92,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				this,
 				new DefaultProblemFactory());
 		this.infoToHandle = new HashMap(5);
+		this.focusQualifiedName = focusType == null ? null : focusType.getFullyQualifiedName();
 	}
 	
 	public abstract void build(boolean computeSubtypes)
@@ -255,6 +261,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		}
 		char[] bName = typeInfo.getName();
 		qualifiedName = new String(ClassFile.translatedName(bName));
+		if (qualifiedName.equals(this.focusQualifiedName)) return getType();
 		return this.nameLookup.findType(qualifiedName, false, flag);
 	}
 	protected void worked(IProgressMonitor monitor, int work) {
