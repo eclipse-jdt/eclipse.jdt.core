@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
@@ -54,7 +55,7 @@ protected void assertResources(String message, String expected, IResource[] reso
 }
 public static Test suite() {
 	
-	if (false) {
+	if (true) {
 		TestSuite suite = new Suite(JavaProjectTests.class.getName());
 		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
 		return suite;
@@ -717,15 +718,19 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 /**
  * Test raw entry inference performance for package fragment root
  */
-public void testPackageFragmentRootRawEntry() throws CoreException {
+public void testPackageFragmentRootRawEntry() throws CoreException, IOException {
+	File libDir = null;
 	try {
-		JavaCore.setClasspathVariable("MyVar", new Path("/P/lib"), null);
+		String libPath = EXTERNAL_JAR_DIR_PATH + File.separator + "lib";
+		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
-		this.createFolder("/P/lib");
-		final int length = 500;
+		libDir = new File(libPath);
+		libDir.mkdirs();
+		final int length = 200;
 		IClasspathEntry[] classpath = new IClasspathEntry[length];
 		for (int i = 0; i < length; i++){
-			this.createFile("/P/lib/lib"+i+".jar", "");
+			File libJar = new File(libDir, "lib"+i+".jar");
+			libJar.createNewFile();
 			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
 		}
 		proj.setRawClasspath(classpath, null);
@@ -739,6 +744,15 @@ public void testPackageFragmentRootRawEntry() throws CoreException {
 		}
 		System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
 	} finally {
+		if (libDir != null) {
+			String[] libJars = libDir.list();
+			if (libJars != null) {
+				for (int i = 0, length = libJars.length; i < length; i++) {
+					new File(libDir, libJars[i]).delete();
+				}
+			}
+			libDir.delete();
+		}
 		this.deleteProject("P");
 		JavaCore.removeClasspathVariable("MyVar", null);
 	}
