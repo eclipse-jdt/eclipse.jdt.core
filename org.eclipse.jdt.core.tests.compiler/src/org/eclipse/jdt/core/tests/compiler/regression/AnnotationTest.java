@@ -2658,4 +2658,33 @@ public class AnnotationTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76751
+	public void test085() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"  @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface\n" +
+				"TestAnnotation {\n" +
+				"\n" +
+				"    String testAttribute();\n" +
+				"\n" +
+				"  }\n" +
+				"  @TestAnnotation(testAttribute = \"test\") class A {\n" +
+				"  }\n" +
+				"\n" +
+				"  public static void main(String[] args) {\n" +
+				"    System.out.print(A.class.isAnnotationPresent(TestAnnotation.class));\n" +
+				"  }\n" +
+				"\n" +
+				"}"
+			},
+			"true");
+	}
 }
