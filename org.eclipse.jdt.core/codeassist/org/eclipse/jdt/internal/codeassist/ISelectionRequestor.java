@@ -235,18 +235,13 @@ public interface ISelectionRequestor {
 	 * 		Name of the type declaring this new method.
 	 * 
 	 * @param selector char[]
-	 * 		Name of the new method.
+	 * 		Name of the declaring method.
 	 * 
-	 * @param parameterPackageNames char[][]
-	 * 		Names of the packages in which the parameter types are declared.
-	 *    	Should contain as many elements as parameterTypeNames.
+	 * @param selectorStart int
+	 * 		Start of the selector.
 	 * 
-	 * @param parameterTypeNames char[][]
-	 * 		Names of the parameters types.
-	 *    	Should contain as many elements as parameterPackageNames.
-	 * 
-	 * @param isConstructor boolean
-	 * 		Answer if the method is a constructor.
+	 * @param selectorEnd int
+	 * 		End of the selector.
 	 * 
 	 * @param typeParameterName char[]
 	 * 		Name of the type parameter.
@@ -269,9 +264,8 @@ public interface ISelectionRequestor {
 		char[] declaringTypePackageName,
 		char[] declaringTypeName,
 		char[] selector,
-		char[][] parameterPackageNames,
-		char[][] parameterTypeNames,
-		boolean isConstructor,
+		int selectorStart,
+		int selectorEnd,
 		char[] typeParameterName,
 		boolean isDeclaration,
 		int start,

@@ -290,4 +290,118 @@ public void test0015() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0016() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0016", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0017() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0017", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0018() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0018", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0019() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0019", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0020() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0020", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
+ */
+//TODO update test when the java element for type parameter will exist
+public void test0021() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0021", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "T";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
 }

@@ -574,22 +574,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} else if(enclosingElement instanceof MethodBinding) {
 				MethodBinding enclosingMethod = (MethodBinding) enclosingElement;
 				
-				TypeBinding[] parameterTypes = enclosingMethod.parameters;
-				int length = parameterTypes.length;
-				char[][] parameterPackageNames = new char[length][];
-				char[][] parameterTypeNames = new char[length][];
-				for (int i = 0; i < length; i++) {
-					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
-					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
-				}
-				
 				this.requestor.acceptMethodTypeParameter(
 					enclosingMethod.declaringClass.qualifiedPackageName(),
 					enclosingMethod.declaringClass.qualifiedSourceName(),
 					enclosingMethod.selector,
-					parameterPackageNames,
-					parameterTypeNames,
-					enclosingMethod.isConstructor(),
+					enclosingMethod.sourceStart(),
+					enclosingMethod.sourceEnd(),
 					typeVariableBinding.sourceName(),
 					false,
 					this.actualSelectionStart,
@@ -1048,9 +1038,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						packageName,
 						qualifiedSourceName,
 						method.selector,
-						null, // SelectionRequestor does not need of parameters type for declaration
-						null, // SelectionRequestor does not need of parameters type for declaration
-						method.isConstructor(),
+						method.sourceStart,
+						method.sourceEnd,
 						methodTypeParameter.name,
 						true,
 						this.actualSelectionStart,

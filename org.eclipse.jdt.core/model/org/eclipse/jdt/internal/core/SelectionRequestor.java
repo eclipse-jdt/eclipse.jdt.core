@@ -423,20 +423,53 @@ public void acceptTypeParameter(char[] declaringTypePackageName, char[] declarin
 		System.out.println(">)"); //$NON-NLS-1$
 	}
 }
-public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, char[] typeParameterName, boolean isDeclaration, int start, int end) {
-	// TODO missing implementation
+public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector,int selectorStart, int selectorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+	IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
+			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+			selectorStart, selectorEnd);
 	
-	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - acceptTypeParameter("); //$NON-NLS-1$
-		System.out.print(declaringTypePackageName);
-		System.out.print('.');
-		System.out.print(declaringTypeName);
-		System.out.print('.');
-		System.out.print('<');
-		System.out.print(typeParameterName);
-		System.out.print('>');
-		System.out.print(selector);
-		System.out.println("(...))"); //$NON-NLS-1$
+	if(type != null) {
+		IMethod method = null;
+		
+		String name = new String(selector);
+		IMethod[] methods = null;
+		
+		try {
+			methods = type.getMethods();
+			done : for (int i = 0; i < methods.length; i++) {
+				ISourceRange range = methods[i].getNameRange();
+				if(range.getOffset() >= selectorStart
+						&& range.getOffset() + range.getLength() <= selectorEnd
+						&& methods[i].getElementName().equals(name)) {
+					method = methods[i];
+					break done;
+				}
+			}
+		} catch (JavaModelException e) {
+			//nothing to do
+		}
+
+		if(method == null) {
+//			addElement(type);
+		} else {
+//			 TODO missing implementation
+//			if(???) {
+//				addElement(method);
+//			} else {
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - acceptTypeParameter("); //$NON-NLS-1$
+					System.out.print(declaringTypePackageName);
+					System.out.print('.');
+					System.out.print(declaringTypeName);
+					System.out.print('.');
+					System.out.print('<');
+					System.out.print(typeParameterName);
+					System.out.print('>');
+					System.out.print(selector);
+					System.out.println("(...))"); //$NON-NLS-1$
+				}
+//			}
+		}
 	}
 }
 /*
