@@ -75,17 +75,6 @@ public class IndexAllProject extends IndexRequest {
 
 			IJavaProject javaProject = JavaCore.create(this.project);
 			IClasspathEntry[] entries = javaProject.getRawClasspath();
-			
-			// collect output locations
-			final HashSet outputs = new HashSet();
-			outputs.add(javaProject.getOutputLocation());
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IPath output = entries[i].getOutputLocation();
-				if (output != null) {
-					outputs.add(output);
-				}
-			}
-			
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				if (this.isCancelled) return false;
@@ -94,6 +83,19 @@ public class IndexAllProject extends IndexRequest {
 				if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) { // Index only source folders. Libraries are done as a separate job
 					IResource sourceFolder = root.findMember(entry.getPath());
 					if (sourceFolder != null) {
+						
+						// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
+						final HashSet outputs = new HashSet();
+						if (sourceFolder.getType() == IResource.PROJECT) {
+							outputs.add(javaProject.getOutputLocation());
+							for (int j = 0; j < length; j++) {
+								IPath output = entries[j].getOutputLocation();
+								if (output != null) {
+									outputs.add(output);
+								}
+							}
+						}
+						
 						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
 							sourceFolder.accept(
@@ -144,6 +146,9 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FOLDER :
 												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
 													return false;
+												if (outputs.contains(proxy.requestFullPath())) {
+													return false;
+												}
 										}
 										return true;
 									}
