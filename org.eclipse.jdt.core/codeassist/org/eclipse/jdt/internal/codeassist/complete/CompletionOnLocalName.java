@@ -3,11 +3,15 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompletionOnLocalName extends LocalDeclaration {
+	private static final char[] FAKENAMESUFFIX = " ".toCharArray();
+	public char[] realName;
 	public CompletionOnLocalName(Expression expr,char[] name, int sourceStart, int sourceEnd){
-		super(expr, name, sourceStart, sourceEnd);
+		super(expr, CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd);
+		this.realName = name;
 	}
 	
 	public void resolve(BlockScope scope) {
@@ -19,7 +23,7 @@ public class CompletionOnLocalName extends LocalDeclaration {
 		String s = tabString(tab);
 		s += "<CompleteOnLocalName:"; //$NON-NLS-1$
 		if (type != null) s += type.toString() + " "; //$NON-NLS-1$
-		s += new String(name);
+		s += new String(realName);
 		if (initialization != null) s += " = " + initialization.toStringExpression(); //$NON-NLS-1$
 		s += ">"; //$NON-NLS-1$
 		return s;

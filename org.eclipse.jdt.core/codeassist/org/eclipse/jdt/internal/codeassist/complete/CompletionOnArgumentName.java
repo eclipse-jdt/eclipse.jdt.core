@@ -5,11 +5,15 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompletionOnArgumentName extends Argument {
+	private static final char[] FAKENAMESUFFIX = " ".toCharArray();
+	public char[] realName;
 	public CompletionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
-		super(name, posNom, tr, modifiers);
+		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);
+		this.realName = name;
 	}
 	
 	public void resolve(BlockScope scope) {
@@ -27,7 +31,7 @@ public class CompletionOnArgumentName extends Argument {
 		String s = tabString(tab);
 		s += "<CompleteOnArgumentName:"; //$NON-NLS-1$
 		if (type != null) s += type.toString() + " "; //$NON-NLS-1$
-		s += new String(name);
+		s += new String(realName);
 		if (initialization != null) s += " = " + initialization.toStringExpression(); //$NON-NLS-1$
 		s += ">"; //$NON-NLS-1$
 		return s;

@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.impl.*;
  */
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants {
+	implements ISearchRequestor, TypeConstants , TerminalSymbols {
 		
 	AssistOptions options;
 	CompletionParser parser;
@@ -45,7 +45,7 @@ public final class CompletionEngine
 	int startPosition, actualCompletionPosition, endPosition;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
-	Scanner identifierScanner;
+	Scanner nameScanner;
 
 	/*
 		static final char[][] mainDeclarations =
@@ -156,7 +156,7 @@ public final class CompletionEngine
 			new CompletionParser(problemReporter, compilerOptions.assertMode);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, compilerOptions, problemReporter, nameEnvironment);
-		this.identifierScanner =
+		this.nameScanner =
 			new Scanner(false, false, false, compilerOptions.assertMode);
 	}
 
@@ -538,7 +538,7 @@ public final class CompletionEngine
 															excludeNames[i] = fields[i].name;
 														}
 														
-														findVariableNames(field.name, field.type, excludeNames);
+														findVariableNames(field.realName, field.type, excludeNames);
 													} else {
 														if (astNode instanceof CompletionOnLocalName ||
 															astNode instanceof CompletionOnArgumentName){
@@ -554,8 +554,14 @@ public final class CompletionEngine
 															}
 															System.arraycopy(excludeNames, 0, excludeNames = new char[localCount][], 0, localCount);
 															
-															findVariableNames(variable.name, variable.type, excludeNames);
-														} 
+															char[] name;
+															if(variable instanceof CompletionOnLocalName){
+																name = ((CompletionOnLocalName) variable).realName;
+															} else {
+																name = ((CompletionOnArgumentName) variable).realName;
+															}
+															findVariableNames(name, variable.type, excludeNames);
+														}
 													}
 												}
 											}
@@ -2065,25 +2071,71 @@ public final class CompletionEngine
 			if(sourceName == null || sourceName.length == 0)
 				return;
 			
+			if(CharOperation.endsWith(sourceName, new char[]{'[' ,']'})) {
+				sourceName = CharOperation.subarray(sourceName, 0, sourceName.length - 2);
+			}
+
+			char[] name = null;
+			
+			// compute variable name for base type
+			try{
+				nameScanner.setSourceBuffer(sourceName);
+				switch (nameScanner.getNextToken()) {
+					case TokenNameint :
+					case TokenNamebyte :
+					case TokenNameshort :
+					case TokenNamechar :
+					case TokenNamelong :
+					case TokenNamefloat :
+					case TokenNamedouble :
+						if(token != null && token.length != 0)
+							return;
+						name = computeBaseNames(sourceName[0], excludeNames);
+						break;
+					case TokenNameboolean :
+						if(token != null && token.length != 0)
+							return;
+						name = computeBaseNames('z', excludeNames);
+						break;
+				}
+				if(name != null) {
+					// accept result
+					requestor.acceptVariableName(
+						qualifiedPackageName,
+						qualifiedSourceName,
+						name,
+						name,
+						startPosition,
+						endPosition);
+					return;
+				}
+			} catch(InvalidInputException e){
+			}
+			
+			// compute variable name for non base type
 			char[][] names = computeNames(sourceName);
 			next : for(int i = 0 ; i < names.length ; i++){
-				char[] name = names[i];
+				name = names[i];
 				
 				if (!CharOperation.prefixEquals(token, name, false))
 					continue next;
 				
 				// completion must be an identifier (not a keyword, ...).
 				try{
-					identifierScanner.setSourceBuffer(name);
-					if(identifierScanner.getNextToken() != identifierScanner.TokenNameIdentifier)
+					nameScanner.setSourceBuffer(name);
+					if(nameScanner.getNextToken() != TokenNameIdentifier)
 						continue next;
 				} catch(InvalidInputException e){
 					continue next;
 				}
 				
+				int count = 2;
+				char[] originalName = name;
 				for(int j = 0 ; j < excludeNames.length ; j++){
-					if(CharOperation.equals(name, excludeNames[j], false))
-						continue next;
+					if(CharOperation.equals(name, excludeNames[j], false)) {
+						name = CharOperation.concat(originalName, String.valueOf(count++).toCharArray());
+						i = 0;
+					}	
 				}
 				
 				// accept result
@@ -2181,6 +2233,23 @@ public final class CompletionEngine
 
 		this.startPosition = start;
 		this.endPosition = end + 1;
+	}
+	
+	private char[] computeBaseNames(char firstName, char[][] excludeNames){
+		char[] name = new char[]{firstName};
+		
+		for(int i = 0 ; i < excludeNames.length ; i++){
+			if(CharOperation.equals(name, excludeNames[i], false)) {
+				name[0]++;
+				if(name[0] > 'z')
+					name[0] = 'a';
+				if(name[0] == firstName)
+					return null;
+				i = 0;
+			}	
+		}
+		
+		return name;
 	}
 	
 	private char[][] computeNames(char[] sourceName){
