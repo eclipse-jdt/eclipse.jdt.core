@@ -31,7 +31,7 @@
  *								   UnusedPrivateType
  *								   UnusedPrivateField
  *								   IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod
- *******************************************************************************/
+ ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -220,6 +220,7 @@ public interface IProblem {
 	int DuplicateFinalLocalInitialization = Internal + 57;
 	/** @since 2.1 */
 	int NonBlankFinalLocalAssignment = Internal + 58;
+	
 	int FinalOuterLocalAssignment = Internal + 60;
 	int LocalVariableIsNeverUsed = Internal + 61;
 	int ArgumentIsNeverUsed = Internal + 62;
@@ -251,6 +252,49 @@ public interface IProblem {
 	int UninitializedBlankFinalField = FieldRelated + 81;
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
 
+	// variable hiding
+	/**
+	 * The local variable {0} is hiding another local variable defined in an enclosing type scope 
+	 * @since 2.2 
+	 */
+	int LocalVariableHidingLocalVariable = Internal + 90;		
+
+	/**
+	 * The local variable {0} is hiding the field {1}.{2} 
+	 * @since 2.2 
+	 */
+	int LocalVariableHidingField = Internal + FieldRelated + 91;		
+	 
+	/**
+	 * The field {0}.{1} is hiding another local variable defined in an enclosing type scope
+	 * @since 2.2 
+	 */
+	int FieldHidingLocalVariable = Internal + FieldRelated + 92;		
+
+	/**
+	 * The field {0}.{1} is hiding the field {2}.{3}
+	 * @since 2.2 
+	 */
+	int FieldHidingField = Internal + FieldRelated + 93;		
+
+	/**
+	 * The argument {0} is hiding another local variable defined in an enclosing type scope
+	 * @since 2.2 
+	 */
+	int ArgumentHidingLocalVariable = Internal + 94;		
+
+	/**
+	 * The argument {0} is hiding the field {2}.{3}
+	 * @since 2.2 
+	 */
+	int ArgumentHidingField = Internal + 95;		
+
+	/**
+	 * The constructor argument {0} is hiding the field {2}.{3}
+	 * @since 2.2 
+	 */
+	int ConstructorArgumentHidingField = Internal + 96;	
+	
 	// methods
 	int UndefinedMethod = MethodRelated + 100;
 	int NotVisibleMethod = MethodRelated + 101;
