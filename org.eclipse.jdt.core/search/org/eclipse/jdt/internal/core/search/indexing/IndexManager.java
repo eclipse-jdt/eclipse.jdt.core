@@ -35,9 +35,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.impl.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.Index;
-import org.eclipse.jdt.internal.core.index.impl.SafeRandomAccessFile;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
@@ -138,44 +136,46 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 	// Path is already canonical per construction
 	IIndex index = (IIndex) indexes.get(path);
 	if (index == null) {
-		try {
-			String indexName = computeIndexName(path);
-			Object state = getIndexStates().get(indexName);
-			Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
-			if (currentIndexState == UNKNOWN_STATE) {
-				// should only be reachable for query jobs
-				// IF you put an index in the cache, then AddJarFileToIndex fails because it thinks there is nothing to do
-				rebuildIndex(indexName, path);
-				return null;
-			}
+		String indexName = computeIndexName(path);
+		Object state = getIndexStates().get(indexName);
+		Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
+		if (currentIndexState == UNKNOWN_STATE) {
+			// should only be reachable for query jobs
+			// IF you put an index in the cache, then AddJarFileToIndex fails because it thinks there is nothing to do
+			rebuildIndex(indexName, path);
+			return null;
+		}
 
-			// index isn't cached, consider reusing an existing index file
-			if (reuseExistingFile) {
-				File indexFile = new File(indexName);
-				if (indexFile.exists() && isIndexSignatureValid(indexFile)) { // check before creating index so as to avoid creating a new empty index if file is missing
+		// index isn't cached, consider reusing an existing index file
+		if (reuseExistingFile) {
+			File indexFile = new File(indexName);
+			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
+				try {
 					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
-					if (index != null) {
-						indexes.put(path, index);
-						monitors.put(index, new ReadWriteMonitor());
-						return index;
-					}
-				} else if (currentIndexState == SAVED_STATE) {
-					rebuildIndex(indexName, path);
-					return null;
-				}
-			} 
-			// index wasn't found on disk, consider creating an empty new one
-			if (createIfMissing) {
-				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
-				if (index != null) {
 					indexes.put(path, index);
 					monitors.put(index, new ReadWriteMonitor());
 					return index;
+				} catch (IOException e) {
+					// failed to read the existing file or its no longer compatible
+					index = null;
 				}
 			}
-		} catch (IOException e) {
-			// The file could not be created. Possible reason: the project has been deleted.
-			return null;
+			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing or corrupt
+				rebuildIndex(indexName, path);
+				return null;
+			}
+		} 
+		// index wasn't found on disk, consider creating an empty new one
+		if (createIfMissing) {
+			try {
+				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				indexes.put(path, index);
+				monitors.put(index, new ReadWriteMonitor());
+				return index;
+			} catch (IOException e) {
+				// The file could not be created. Possible reason: the project has been deleted.
+				return null;
+			}
 		}
 	}
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
@@ -275,21 +275,6 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 
 	this.request(new AddFolderToIndex(sourceFolder, project, exclusionPattern, this));
 }
-private boolean isIndexSignatureValid(File indexFile) {
-	SafeRandomAccessFile raf = null;
-	try {
-		raf = new SafeRandomAccessFile(indexFile, "r"); //$NON-NLS-1$
-		String signature = raf.readUTF();
-		return IIndexConstants.SIGNATURE.equals(signature);
-	} catch(IOException e){
-	} finally {
-		try {
-			if (raf != null) raf.close();
-		} catch(IOException e) {
-		}
-	}
-	return false;
-}
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
 	if (o instanceof IIndex) {
@@ -352,8 +337,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
-		index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
-		index.empty();
+		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
 		indexes.put(path, index);
 		monitors.put(index, monitor);
 		return index;
