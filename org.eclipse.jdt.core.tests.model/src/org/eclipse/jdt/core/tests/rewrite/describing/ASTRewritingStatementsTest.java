@@ -32,14 +32,19 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	public static Test allTests() {
 		return new Suite(THIS);
 	}
-	
+
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "testInsertComment" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		testsNumbers = new int[] { 8 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { -1, -1 };
+	}
 	public static Test suite() {
-		if (false) {
-			return allTests();
-		}
-		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingStatementsTest("testConstructorInvocation2"));
-		return suite;
+		return buildTestSuite(THIS);
 	}
 
 	public void testInsert1() throws Exception {
@@ -3358,6 +3363,58 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 	
+	public void testInsertComment() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        while (i == j) {\n");
+		buf.append("            System.beep();\n");
+		buf.append("        }\n");		
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+
+		// Get while statement block
+		TypeDeclaration typeDecl = (TypeDeclaration) astRoot.types().get(0);
+		MethodDeclaration methodDecl= typeDecl.getMethods()[0];
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		WhileStatement whileStatement= (WhileStatement) statements.get(0);
+		Statement whileBlock= whileStatement.getBody();
+	
+		// replace while statement with comment, insert new statement
+		StringBuffer comment = new StringBuffer();
+		comment.append("/*\n");
+		comment.append(" * Here's the block comment I want to insert :-)\n");
+		comment.append(" */");
+		ASTNode placeHolder= rewrite.createStringPlaceholder(comment.toString(), ASTNode.RETURN_STATEMENT);
+		ListRewrite list = rewrite.getListRewrite(whileBlock, Block.STATEMENTS_PROPERTY);
+		list.insertFirst(placeHolder, null);
+	
+		// Get new code
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        while (i == j) {\n");
+		buf.append("            /*\n");
+		buf.append("             * Here's the block comment I want to insert :-)\n");
+		buf.append("             */\n");
+		buf.append("            System.beep();\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
 	
 }
 
