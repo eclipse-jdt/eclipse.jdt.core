@@ -44,8 +44,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		int numFiles = input.getNumFiles();
 		long[] references = null;
 		int referencesLength = -1;
-		for (int i = 0, max = entries.length; i < max; i++){
-
+		for (int i = 0, max = entries.length; i < max; i++) {
 			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 			/* retrieve and decode entry */	
@@ -68,24 +67,24 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		}
 		
 		/* only select entries which actually match the entire search pattern */
-		if (references == null) {
-			/* no references */
-			return;
+		if (references == null) return;
+		if (potentialRefs == null) {
+			/* first query : these are the potential references */
+			potentialRefs = references;
+			maxRefs = numFiles;
 		} else {
-			if (potentialRefs == null) {
-				/* first query : these are the potential references */
-				potentialRefs = references;
-				maxRefs = numFiles;
-			} else {
-				/* eliminate potential references that don't match the current references */
-				for (int i = 0, length = references.length; i < length; i++) {
-					if (i < potentialRefs.length) {
-						potentialRefs[i] &= references[i];
-					} else {
-						potentialRefs[i] = 0;
-					}
+			/* eliminate potential references that don't match the current references */
+			int potentialLength = potentialRefs.length;
+			for (int i = 0, length = references.length; i < length; i++) {
+				if (i < potentialLength) {
+					potentialRefs[i] &= references[i];
+				} else {
+					potentialRefs[i] = 0;
 				}
-			}				
+			}
+			// check to see that there are still potential references after the merge
+			while (--potentialLength >= 0 && potentialRefs[potentialLength] == 0) {}
+			if (potentialLength == -1) return;
 		}
 	} while (this.hasNextQuery());
 
@@ -98,7 +97,6 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 			if ((potentialRefs[vectorIndex] & (1L << (reference % 64))) != 0) {
 				refs[refsLength++] = reference;
 			}
-						
 		}
 		System.arraycopy(refs, 0, refs = new int[refsLength], 0, refsLength);
 		this.feedIndexRequestor(requestor, detailLevel, refs, input, scope);
