@@ -1677,7 +1677,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"p/X/foo(T,)<T:java.lang/Object,>\n" + 
 				"p/X/foo(T,)<T:p/X,>\n" + 
 				"p/X/foo(T,)<T:java.lang/Class,>\n" + 
-				"p/X/foo(T,)<T:java.lang/Exception:java.lang/Runnable,>",
+				"p/X/foo(T,)<T:java.lang/Exception&java.lang/Runnable,>",
 				keys);
 		} finally {
 			if (workingCopy != null)
@@ -1686,7 +1686,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	/*
-	 * Ensures that the type parameters of a parameterized type are included in its binding key.
+	 * Ensures that the type parameters of a generic type are included in its binding key.
 	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
 	 */
 	public void test0061() throws JavaModelException {
@@ -1838,5 +1838,31 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = type.resolveBinding();
 		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X>", typeBinding.getQualifiedName());				
 	}
+	
+	/*
+	 * Ensures that a raw type doesn't include the type paramters in its binding key.
+	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
+	 */
+	public void test0066() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  /*start*/X/*end*/ field;" +
+				"}",
+				workingCopy);
+			IBinding binding = ((Type) node).resolveBinding();
+			assertBindingKeyEquals(
+				"p/X",
+				binding.getKey());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+
 }
 

@@ -987,6 +987,9 @@ class DefaultBindingResolver extends BindingResolver {
 			case Binding.PACKAGE:
 				return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 			case Binding.TYPE:
+			case Binding.GENERIC_TYPE:
+			case Binding.PARAMETERIZED_TYPE:
+			case Binding.RAW_TYPE:
 				return getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 			case Binding.METHOD:
 				return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) binding);

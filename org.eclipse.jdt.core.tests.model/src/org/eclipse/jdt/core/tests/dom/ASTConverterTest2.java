@@ -4752,7 +4752,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration2 = (TypeDeclaration) bodyDeclaration;
 		
 		typeBinding = typeDeclaration2.resolveBinding();
-		assertEquals("Wrong key", "test0547/Local$LocalMember", typeBinding.getKey());
+		assertEquals("Wrong key", "test0547/A$1$Local$LocalMember", typeBinding.getKey());
 	}
 	
 	/**

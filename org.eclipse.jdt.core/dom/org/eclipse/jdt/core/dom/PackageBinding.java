@@ -106,6 +106,7 @@ class PackageBinding implements IPackageBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
+		if (false) return new String(this.binding.computeUniqueKey());
 		return getName();
 	}
 	

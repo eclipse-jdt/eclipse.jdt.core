@@ -256,6 +256,11 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
+			if (false) {
+				this.key = new String(this.binding.computeUniqueKey());
+				return this.key;
+			}
+			
 			StringBuffer buffer = new StringBuffer();
 			TypeBinding typeBinding = (TypeBinding) getDeclaringClass();
 			typeBinding.appendKey(buffer);

@@ -114,20 +114,18 @@ class TypeBinding implements ITypeBinding {
 					|| this.isInterface()
 					|| this.isEnum()
 					|| this.isAnnotation()) {
-				char[] qualifiedSourceName = this.binding.qualifiedSourceName();
-				if (qualifiedSourceName != null) {
-					CharOperation.replace(qualifiedSourceName, '.', '$');
-					buffer
-						.append(getPackage().getName())
-						.append('/')
-						.append(qualifiedSourceName);
-				} else {
-					buffer
-						.append(getPackage().getName())
-						.append('/')
-						.append(getName());
+				if (!isNested()) {
+					// top level type
+					buffer.append(getPackage().getName());
+					buffer.append('/');
 				}
-				if (!rawTypeOnly) {
+				TypeBinding declaringClass = (TypeBinding) getDeclaringClass();
+				if (declaringClass != null) {
+					declaringClass.appendKey(buffer, rawTypeOnly);
+					buffer.append('$');
+				}
+				buffer.append(this.binding.sourceName());
+				if (!rawTypeOnly && !this.binding.isRawType()) {
 					// only one of the type parameters or type arguments is non-empty at the same time
 					appendTypeParameters(buffer, getTypeParameters());
 					appendTypeArguments(buffer, getTypeArguments());
@@ -218,7 +216,7 @@ class TypeBinding implements ITypeBinding {
 				ITypeBinding[] bounds = typeParameter.getTypeBounds();
 				for (int j = 0, length = bounds.length; j < length; j++) {
 					TypeBinding bound = (TypeBinding) bounds[j];
-					buffer.append(':');
+					buffer.append(j == 0 ? ':' : '&');
 					bound.appendParameterKey(buffer);
 				}
 				buffer.append(',');
@@ -226,7 +224,7 @@ class TypeBinding implements ITypeBinding {
 			buffer.append('>');
 		}
 	}
-
+	
 	/*
 	 * Appends the key for this type variable binding to the given buffer.
 	 * Include the declaring element if specified
@@ -523,6 +521,10 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
+			if (false) {
+				this.key = new String(this.binding.computeUniqueKey());
+				return this.key;
+			}
 			StringBuffer buffer = new StringBuffer();
 			appendKey(buffer);
 			this.key = buffer.toString();

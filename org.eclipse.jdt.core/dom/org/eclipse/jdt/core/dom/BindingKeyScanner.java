@@ -24,7 +24,8 @@ class BindingKeyScanner {
 	static final int FIELD = 2;
 	static final int METHOD = 3;
 	static final int ARRAY = 4;
-	static final int END = 5;
+	static final int TYPE_PARAMETER = 5;
+	static final int END = 6;
 	
 	int index = -1, start;
 	char[] source;
@@ -61,16 +62,23 @@ class BindingKeyScanner {
 									this.token = TYPE;
 									break;
 								case ',':
+								case '<':
+								case '&':
 									this.token = PACKAGE;
 									break;
 								default:
 									this.token = FIELD;
 							}
 							break;
+						case TYPE_PARAMETER:
+							this.token = PACKAGE;
+							break;
 					}
 					return this.token;
 				case '$':
 				case '[':
+				case '<':
+				case '&':
 					switch (this.token) {
 						case START: // case of base type with array dimension
 							this.token = PACKAGE;
@@ -87,9 +95,15 @@ class BindingKeyScanner {
 					this.token = METHOD;
 					return this.token;
 				case ')':
+				case '>':
 					this.start = ++this.index;
-					this.token = END;
-					return this.token;
+					if (this.index == length || this.source[this.index] != '$') {
+						this.token = END;
+						return this.token;
+					} else {
+						this.start = ++this.index;
+					}
+					break;
 				case ']':
 					this.start--;
 					this.index++;
@@ -97,6 +111,9 @@ class BindingKeyScanner {
 						this.index +=2;
 					}
 					this.token = ARRAY;
+					return this.token;
+				case ':':
+					this.token = TYPE_PARAMETER;
 					return this.token;
 			}
 			this.index++;
@@ -112,6 +129,13 @@ class BindingKeyScanner {
 		return result;
 	}
 	
+	boolean isAtMemberTypeStart() {
+		return 
+			this.start > 0
+			&& this.start < this.source.length
+			&& this.source[this.start-1] == '$';
+	}
+	
 	boolean isAtTypeEnd() {
 		char currentChar;
 		return 
@@ -119,7 +143,8 @@ class BindingKeyScanner {
 			|| this.index >= this.source.length-1 
 			|| (currentChar = this.source[this.index]) == ',' 
 			|| currentChar == '(' 
-			|| currentChar == '<';
+			|| currentChar == '<' 
+			|| currentChar == ':';
 	}
 	
 	boolean isAtTypeParameterStart() {
@@ -149,6 +174,9 @@ class BindingKeyScanner {
 				break;
 			case ARRAY:
 				buffer.append("ARRAY: "); //$NON-NLS-1$
+				break;
+			case TYPE_PARAMETER:
+				buffer.append("TYPE PARAMETER: "); //$NON-NLS-1$
 				break;
 			case END:
 				buffer.append("END: "); //$NON-NLS-1$
