@@ -184,15 +184,11 @@ public class ClasspathEntry implements IClasspathEntry {
 		
 		if (this.sourceAttachmentPath != null) {
 			xmlPath = this.sourceAttachmentPath;
-			// translate to project relative from absolute (unless a device path)
-			if (xmlPath.isAbsolute()) {
-				if (projectPath != null && projectPath.isPrefixOf(xmlPath)) {
-					if (xmlPath.segment(0).equals(projectPath.segment(0))) {
-						xmlPath = xmlPath.removeFirstSegments(1);
-						xmlPath = xmlPath.makeRelative();
-					} else {
-						xmlPath = xmlPath.makeAbsolute();
-					}
+			// translate to project relative from absolute 
+			if (this.entryKind != IClasspathEntry.CPE_VARIABLE && projectPath != null && projectPath.isPrefixOf(xmlPath)) {
+				if (xmlPath.segment(0).equals(projectPath.segment(0))) {
+					xmlPath = xmlPath.removeFirstSegments(1);
+					xmlPath = xmlPath.makeRelative();
 				}
 			}
 			element.setAttribute("sourcepath", xmlPath.toString()); //$NON-NLS-1$
@@ -238,7 +234,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			element.hasAttribute("sourcepath")	//$NON-NLS-1$
 			? new Path(element.getAttribute("sourcepath")) //$NON-NLS-1$
 			: null;
-		if (sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
+		if (kind != IClasspathEntry.CPE_VARIABLE && sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
 			sourceAttachmentPath = projectPath.append(sourceAttachmentPath);
 		}
 		IPath sourceAttachmentRootPath = 
