@@ -88,7 +88,7 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Returns the element of this search match
+	 * Returns the element of this search match.
 	 * 
 	 * @return the element of the search match, or <code>null</code> if none
 	 */
