@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
 /**
  * Provides methods for computing Java-specific names.
  * <p>
- * The bevavior of the methods is dependent of several JavaCore options.
+ * The behavior of the methods is dependent of several JavaCore options.
  * <p>
  * The possible options are :
  * <ul>
