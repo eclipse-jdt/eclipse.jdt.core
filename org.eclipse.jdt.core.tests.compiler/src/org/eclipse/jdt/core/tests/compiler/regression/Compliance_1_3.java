@@ -40,7 +40,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-	return suite(testClass(), null);
+	return buildTestSuite(testClass());
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...

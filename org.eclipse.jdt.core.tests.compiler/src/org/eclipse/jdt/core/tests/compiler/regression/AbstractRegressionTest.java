@@ -406,7 +406,15 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		TestSuite suite = new TestSuite(evaluationTestClass);
 		return suite;
 	}
-	public static Test suite(Class evaluationTestClass, String suiteName) {
+	public static Test buildTestSuite(Class evaluationTestClass) {
+		return buildTestSuite(evaluationTestClass, "test", null); //$NON-NLS-1$
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
+		return buildTestSuite(evaluationTestClass, "test", suiteName); //$NON-NLS-1$
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String testPrefix, String suiteName) {
 		// Init suite with class name
 		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
 		List tests = new ArrayList();
@@ -429,10 +437,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					methods[m].getName().startsWith("test")) { //$NON-NLS-1$
 					String methName = methods[m].getName();
 					Object[] params = {methName};
+					int numStart = testPrefix.length();
 					// tests names subset
 					if (testsNames != null) {
 						for (int i = 0, imax= testsNames.length; i<imax; i++) {
-							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(4))) {
+							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
 								tests.add(methName);
 								suite.addTest((Test)constructor.newInstance(params));
 								break;
@@ -440,10 +449,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 						}
 					}
 					// look for test number
-					if (methName.length()>4 && Character.isDigit(methName.charAt(4))) {
+					if (methName.startsWith(testPrefix) && Character.isDigit(methName.charAt(numStart))) {
 						try {
 							// get test number
-							int n = 4;
+							int n = numStart;
 							while (methName.charAt(n) == '0') n++;
 							int num = Integer.parseInt(methName.substring(n));
 							// tests numbers subset

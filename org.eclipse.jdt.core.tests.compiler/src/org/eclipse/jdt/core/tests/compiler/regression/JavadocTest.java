@@ -86,7 +86,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	}
 
 	public static Test suiteForJavadocSupport(String level, Class testClass, String support) {
-		Test suite = suite(testClass, "Doc "+support);
+		Test suite = buildTestSuite(testClass, "Doc "+support);
 		return new RegressionTestSetup(suite, level, support);
 	}
 

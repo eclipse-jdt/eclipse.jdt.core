@@ -73,10 +73,13 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testBug55992a",  "testBug55992b"};
+//	testsNames = new String[] { "testClasspathValidation23",  "testClasspathValidation28",  "testClasspathValidation28"};
+//	testsNumbers = new int[] { 23, 28, 38 };
+//	testsRange = new int[] { 21, 38 };
 }
 public static Test suite() {
-	return suite(ClasspathTests.class, null);
+//	return buildTestSuite(ClasspathTests.class);
+	return buildTestSuite(ClasspathTests.class, "testClasspathValidation", null);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();

@@ -65,7 +65,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		super(name);
 	}
 
-	public static Test suite(Class evaluationTestClass, String suiteName) {
+	public static Test buildTestSuite(Class evaluationTestClass) {
+		return buildTestSuite(evaluationTestClass, "test", null); //$NON-NLS-1$
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
+		return buildTestSuite(evaluationTestClass, "test", suiteName); //$NON-NLS-1$
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String testPrefix, String suiteName) {
 		// Init suite with class name
 		TestSuite suite = new Suite(suiteName==null?evaluationTestClass.getName():suiteName);
 		List tests = new ArrayList();
@@ -85,13 +93,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		for (int m = 0, max = methods.length; m < max; m++) {
 			try {
 				if (methods[m].getModifiers() == 1 /* public */ &&
-					methods[m].getName().startsWith("test")) { //$NON-NLS-1$
+					methods[m].getName().startsWith("test")) {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
+					int numStart = testPrefix.length();
 					// tests names subset
 					if (testsNames != null) {
 						for (int i = 0, imax= testsNames.length; i<imax; i++) {
-							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(4))) {
+							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
 								tests.add(methName);
 								suite.addTest((Test)constructor.newInstance(params));
 								break;
@@ -99,10 +108,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						}
 					}
 					// look for test number
-					if (methName.length()>4 && Character.isDigit(methName.charAt(4))) {
+					if (methName.startsWith(testPrefix) && Character.isDigit(methName.charAt(numStart))) {
 						try {
 							// get test number
-							int n = 4;
+							int n = numStart;
 							while (methName.charAt(n) == '0') n++;
 							int num = Integer.parseInt(methName.substring(n));
 							// tests numbers subset
