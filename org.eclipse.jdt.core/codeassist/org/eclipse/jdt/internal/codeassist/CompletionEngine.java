@@ -92,6 +92,7 @@ public final class CompletionEngine
 	Binding[] forbbidenBindings = new Binding[1];
 	
 	boolean assistNodeIsClass;
+	boolean assistNodeIsEnum;
 	boolean assistNodeIsException;
 	boolean assistNodeIsInterface;
 	boolean assistNodeIsAnnotation;
@@ -679,6 +680,7 @@ public final class CompletionEngine
 						this.completionToken = ((CompletionOnSingleTypeReference) astNode).token;
 						
 						this.assistNodeIsClass = astNode instanceof CompletionOnClassReference;
+						this.assistNodeIsEnum = this.assistNodeIsClass;
 						this.assistNodeIsException = astNode instanceof CompletionOnExceptionReference;
 						this.assistNodeIsInterface = astNode instanceof CompletionOnInterfaceReference;
 	
@@ -793,6 +795,7 @@ public final class CompletionEngine
 								this.insideQualifiedReference = true;
 								
 								this.assistNodeIsClass = astNode instanceof CompletionOnQualifiedClassReference;
+								this.assistNodeIsEnum = this.assistNodeIsClass;
 								this.assistNodeIsException = astNode instanceof CompletionOnQualifiedExceptionReference;
 								this.assistNodeIsInterface = astNode instanceof CompletionOnQualifiedInterfaceReference;
 								
@@ -2145,42 +2148,25 @@ public final class CompletionEngine
 
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
-				
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
-					proposal.setSignature(getSignature(memberType));
-					proposal.setPackageName(memberType.qualifiedPackageName());
-					proposal.setTypeName(memberType.qualifiedSourceName());
-					proposal.setCompletion(completionName);
-					proposal.setFlags(memberType.modifiers);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-					proposal.setRelevance(relevance);
-					this.requestor.accept(proposal);
-					if(DEBUG) {
-						this.printDebug(proposal);
-					}
-				}
-
-			} else {
+			} else if(memberType.isEnum()) {
+				relevance += computeRelevanceForEnum();
+			} else if (memberType.isInterface()) {
 				relevance += computeRelevanceForInterface();
-				
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
-					proposal.setSignature(getSignature(memberType));
-					proposal.setPackageName(memberType.qualifiedPackageName());
-					proposal.setTypeName(memberType.qualifiedSourceName());
-					proposal.setCompletion(completionName);
-					proposal.setFlags(memberType.modifiers | Flags.AccInterface);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-					proposal.setRelevance(relevance);
-					this.requestor.accept(proposal);
-					if(DEBUG) {
-						this.printDebug(proposal);
-					}
+			}
+			this.noProposal = false;
+			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(memberType.qualifiedPackageName());
+				proposal.setSignature(getSignature(memberType));
+				proposal.setPackageName(memberType.qualifiedPackageName());
+				proposal.setTypeName(memberType.qualifiedSourceName());
+				proposal.setCompletion(completionName);
+				proposal.setFlags(memberType.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
 				}
 			}
 		}
@@ -2512,42 +2498,26 @@ public final class CompletionEngine
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
 				relevance += computeRelevanceForException(memberType.sourceName);
-				
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
-					proposal.setSignature(getSignature(memberType));
-					proposal.setPackageName(memberType.qualifiedPackageName());
-					proposal.setTypeName(memberType.qualifiedSourceName());
-					proposal.setCompletion(memberType.sourceName());
-					proposal.setFlags(memberType.modifiers);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-					proposal.setRelevance(relevance);
-					this.requestor.accept(proposal);
-					if(DEBUG) {
-						this.printDebug(proposal);
-					}
-				}
-
-			} else {
+			} else if(memberType.isEnum()) {
+				relevance += computeRelevanceForEnum();
+			} else if(memberType.isInterface()) {
 				relevance += computeRelevanceForInterface();
+			}
 				
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
-					proposal.setSignature(getSignature(memberType));
-					proposal.setPackageName(memberType.qualifiedPackageName());
-					proposal.setTypeName(memberType.qualifiedSourceName());
-					proposal.setCompletion(memberType.sourceName());
-					proposal.setFlags(memberType.modifiers | Flags.AccInterface);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-					proposal.setRelevance(relevance);
-					this.requestor.accept(proposal);
-					if(DEBUG) {
-						this.printDebug(proposal);
-					}
+			this.noProposal = false;
+			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(memberType.qualifiedPackageName());
+				proposal.setSignature(getSignature(memberType));
+				proposal.setPackageName(memberType.qualifiedPackageName());
+				proposal.setTypeName(memberType.qualifiedSourceName());
+				proposal.setCompletion(memberType.sourceName());
+				proposal.setFlags(memberType.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
 				}
 			}
 		}
@@ -3096,6 +3066,12 @@ public final class CompletionEngine
 	private int computeRelevanceForClass(){
 		if(this.assistNodeIsClass) {
 			return R_CLASS;
+		}
+		return 0;
+	}
+	private int computeRelevanceForEnum(){
+		if(this.assistNodeIsEnum) {
+			return R_ENUM;
 		}
 		return 0;
 	}
@@ -3858,43 +3834,27 @@ public final class CompletionEngine
 							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
-								
-								this.noProposal = false;
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-									proposal.setDeclarationSignature(packageName);
-									proposal.setSignature(getSignature(refBinding));
-									proposal.setPackageName(packageName);
-									proposal.setTypeName(typeName);
-									proposal.setCompletion(completionName);
-									proposal.setFlags(refBinding.modifiers);
-									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-									proposal.setRelevance(relevance);
-									proposal.setAccessibility(accessibility);
-									this.requestor.accept(proposal);
-									if(DEBUG) {
-										this.printDebug(proposal);
-									}
-								}
-							} else if (refBinding.isInterface()) {
+							} else if(refBinding.isEnum()) {
+								relevance += computeRelevanceForEnum();
+							} else if(refBinding.isInterface()) {
 								relevance += computeRelevanceForInterface();
+							}
 								
-								this.noProposal = false;
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-									proposal.setDeclarationSignature(packageName);
-									proposal.setSignature(getSignature(refBinding));
-									proposal.setPackageName(packageName);
-									proposal.setTypeName(typeName);
-									proposal.setCompletion(completionName);
-									proposal.setFlags(refBinding.modifiers | Flags.AccInterface);
-									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-									proposal.setRelevance(relevance);
-									proposal.setAccessibility(accessibility);
-									this.requestor.accept(proposal);
-									if(DEBUG) {
-										this.printDebug(proposal);
-									}
+							this.noProposal = false;
+							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+								CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								proposal.setDeclarationSignature(packageName);
+								proposal.setSignature(getSignature(refBinding));
+								proposal.setPackageName(packageName);
+								proposal.setTypeName(typeName);
+								proposal.setCompletion(completionName);
+								proposal.setFlags(refBinding.modifiers);
+								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setRelevance(relevance);
+								proposal.setAccessibility(accessibility);
+								this.requestor.accept(proposal);
+								if(DEBUG) {
+									this.printDebug(proposal);
 								}
 							}
 						}
@@ -4039,44 +3999,29 @@ public final class CompletionEngine
 							relevance += computeRelevanceForExpectingType(typeBinding);
 							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 							
-							if (typeBinding.isClass()){
+							if (typeBinding.isClass()) {
 								relevance += computeRelevanceForClass();
 								relevance += computeRelevanceForException(typeBinding.sourceName);
-								
-								this.noProposal = false;
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-									proposal.setDeclarationSignature(typeBinding.qualifiedPackageName());
-									proposal.setSignature(getSignature(typeBinding));
-									proposal.setPackageName(typeBinding.qualifiedPackageName());
-									proposal.setTypeName(typeBinding.qualifiedSourceName());
-									proposal.setCompletion(typeBinding.sourceName());
-									proposal.setFlags(typeBinding.modifiers);
-									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-									proposal.setRelevance(relevance);
-									this.requestor.accept(proposal);
-									if(DEBUG) {
-										this.printDebug(proposal);
-									}
-								}
-							} else {
+							} else if(typeBinding.isEnum()) {
+								relevance += computeRelevanceForEnum();
+							} else if(typeBinding.isInterface()) {
 								relevance += computeRelevanceForInterface();
+							}
 								
-								this.noProposal = false;
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-									proposal.setDeclarationSignature(typeBinding.qualifiedPackageName());
-									proposal.setSignature(getSignature(typeBinding));
-									proposal.setPackageName(typeBinding.qualifiedPackageName());
-									proposal.setTypeName(typeBinding.qualifiedSourceName());
-									proposal.setCompletion(typeBinding.sourceName());
-									proposal.setFlags(typeBinding.modifiers);
-									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-									proposal.setRelevance(relevance);
-									this.requestor.accept(proposal);
-									if(DEBUG) {
-										this.printDebug(proposal);
-									}
+							this.noProposal = false;
+							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+								CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								proposal.setDeclarationSignature(typeBinding.qualifiedPackageName());
+								proposal.setSignature(getSignature(typeBinding));
+								proposal.setPackageName(typeBinding.qualifiedPackageName());
+								proposal.setTypeName(typeBinding.qualifiedSourceName());
+								proposal.setCompletion(typeBinding.sourceName());
+								proposal.setFlags(typeBinding.modifiers);
+								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setRelevance(relevance);
+								this.requestor.accept(proposal);
+								if(DEBUG) {
+									this.printDebug(proposal);
 								}
 							}
 						}
