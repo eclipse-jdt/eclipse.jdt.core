@@ -177,12 +177,14 @@ public Scanner(
 	long sourceLevel,
 	char[][] taskTags,
 	char[][] taskPriorities) {
-		
-	if (sourceLevel >= CompilerOptions.JDK1_4) {
-		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, true, taskTags, taskPriorities);
-	} else {
-		initialize(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false, taskTags, taskPriorities);
-	}
+
+	this.eofPosition = Integer.MAX_VALUE;
+	this.tokenizeComments = tokenizeComments;
+	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
+	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.assertMode = sourceLevel >= CompilerOptions.JDK1_4;
+	this.taskTags = taskTags;
+	this.taskPriorities = taskPriorities;
 }
 
 public  final boolean atEnd() {
@@ -1413,23 +1415,6 @@ public final void getNextUnicodeChar()
 
 public char[] getSource(){
 	return this.source;
-}
-
-private void initialize(
-	boolean tokenizeCommentsValue, 
-	boolean tokenizeWhiteSpaceValue, 
-	boolean checkNonExternalizedStringLiteralsValue, 
-	boolean assertModeValue,
-	char[][] taskTagsValue,
-	char[][] taskPrioritiesValue) {
-		
-	this.eofPosition = Integer.MAX_VALUE;
-	this.tokenizeComments = tokenizeCommentsValue;
-	this.tokenizeWhiteSpace = tokenizeWhiteSpaceValue;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiteralsValue;
-	this.assertMode = assertModeValue;
-	this.taskTags = taskTagsValue;
-	this.taskPriorities = taskPrioritiesValue;
 }
 
 /* Tokenize a method body, assuming that curly brackets are properly balanced.
