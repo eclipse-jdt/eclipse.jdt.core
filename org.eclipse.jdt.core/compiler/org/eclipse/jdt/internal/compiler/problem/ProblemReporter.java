@@ -508,8 +508,8 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
-		case IProblem.UnsafeRawFieldAccess:
-		case IProblem.UnsafeRawAssignment:
+		case IProblem.UnsafeRawExpressionAssignment:
+		case IProblem.UnsafeRawVariableAssignment:
 		case IProblem.UnsafeConstructorWithRawArguments:
 		case IProblem.UnsafeMethodWithRawArguments:
 			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
@@ -3130,6 +3130,15 @@ public void tooManyDimensions(ASTNode expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void illegalArrayOfParameterizedType(TypeBinding leadtComponentType, ASTNode location) {
+	this.handle(
+		IProblem.IllegalArrayOfParameterizedType,
+		new String[]{ new String(leadtComponentType.readableName())},
+		new String[]{ new String(leadtComponentType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+
 public void tooManyFields(TypeDeclaration typeDeclaration) {
 	this.handle(
 		IProblem.TooManyFields,
@@ -3393,7 +3402,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 }
 public void unsafeRawAssignment(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		IProblem.UnsafeRawAssignment,
+		expressionType.isRawType() ? IProblem.UnsafeRawExpressionAssignment : IProblem.UnsafeRawVariableAssignment,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,

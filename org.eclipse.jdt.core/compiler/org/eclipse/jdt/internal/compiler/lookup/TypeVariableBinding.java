@@ -41,7 +41,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public boolean boundCheck(TypeBinding argumentType) {
-		if (!(argumentType instanceof ReferenceBinding))
+		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;
 		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(this.superclass)) {
 		    return false;

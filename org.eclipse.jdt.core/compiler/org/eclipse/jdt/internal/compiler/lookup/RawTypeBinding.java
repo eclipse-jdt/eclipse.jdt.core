@@ -75,6 +75,19 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return readableName;
 	}
 	/**
+	 * Returns a type, where original type was substituted using the receiver
+	 * raw type.
+	 */
+	public TypeBinding substitute(TypeBinding originalType) {
+	    
+	    // substitute of a raw type is the raw type itself if denoting same type
+	    if (((originalType.tagBits & TagBits.HasTypeVariable) != 0)
+		        && (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).type == this.type)) {
+            return this;
+        }
+		return super.substitute(originalType);
+	}	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
 public char[] shortReadableName() /*Object*/ {

@@ -34,7 +34,11 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArray(scope.getType(this.tokens, this.tokens.length), dimensions);
+		TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
+		if (leafComponentType.isParameterizedType()) {
+		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+		}
+		return scope.createArray(leafComponentType, dimensions);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

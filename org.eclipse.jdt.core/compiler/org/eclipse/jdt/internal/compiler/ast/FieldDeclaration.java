@@ -175,27 +175,27 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					// break dead-lock cycles by forcing constant to NotAConstant
 					this.binding.constant = Constant.NotAConstant;
 					
-					TypeBinding typeBinding = this.binding.type;
-					TypeBinding initializationTypeBinding;
+					TypeBinding fieldType = this.binding.type;
+					TypeBinding initializationType;
 					
 					if (this.initialization instanceof ArrayInitializer) {
 
-						if ((initializationTypeBinding = this.initialization.resolveTypeExpecting(initializationScope, typeBinding)) != null) {
-							((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationTypeBinding;
-							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
+						if ((initializationType = this.initialization.resolveTypeExpecting(initializationScope, fieldType)) != null) {
+							((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationType;
+							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 						}
-					} else if ((initializationTypeBinding = this.initialization.resolveType(initializationScope)) != null) {
+					} else if ((initializationType = this.initialization.resolveType(initializationScope)) != null) {
 
-						if (this.initialization.isConstantValueOfTypeAssignableToType(initializationTypeBinding, typeBinding)
-							|| (typeBinding.isBaseType() && BaseTypeBinding.isWidening(typeBinding.id, initializationTypeBinding.id))) {
-
-							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
-
-						}	else if (initializationTypeBinding.isCompatibleWith(typeBinding)) {
-							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
-
+						if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, fieldType)
+								|| (fieldType.isBaseType() && BaseTypeBinding.isWidening(fieldType.id, initializationType.id))
+								|| initializationType.isCompatibleWith(fieldType)) {
+							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
+							if ((initializationType.isRawType() && fieldType.isParameterizedType())
+							        	|| fieldType.isRawType() && initializationType.isParameterizedType()) {
+								    initializationScope.problemReporter().unsafeRawAssignment(this.initialization, initializationType, fieldType);
+							}									
 						} else {
-							initializationScope.problemReporter().typeMismatchError(initializationTypeBinding, typeBinding, this);
+							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);
 						}
 						if (this.binding.isFinal()){ // cast from constant actual type to variable type
 							this.binding.constant =

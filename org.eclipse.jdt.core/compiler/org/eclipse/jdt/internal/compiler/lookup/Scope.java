@@ -87,7 +87,7 @@ public abstract class Scope
 	}
 
 	public ArrayBinding createArray(TypeBinding type, int dimension) {
-		if (type.isValidBinding())
+		if (type.isValidBinding() && !type.isParameterizedType())
 			return environment().createArrayType(type, dimension);
 		else
 			return new ArrayBinding(type, dimension);

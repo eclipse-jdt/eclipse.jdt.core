@@ -109,6 +109,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			if (dimensions > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
+			if (currentType.isParameterizedType()) {
+			    scope.problemReporter().illegalArrayOfParameterizedType(currentType, this);
+			}
 			this.resolvedType = scope.createArray(currentType, dimensions);
 		}
 		return this.resolvedType;

@@ -117,7 +117,13 @@ public TypeBinding resolveType(BlockScope blockScope) {
 		if (isTypeUseDeprecated(type, blockScope)) {
 			reportDeprecatedType(blockScope);
 		}
-		if (type.isGenericType()) {
+		// check raw type
+		if (type.isArrayType()) {
+		    TypeBinding leafComponentType = type.leafComponentType();
+		    if (leafComponentType.isGenericType()) { // raw type
+		        return this.resolvedType = blockScope.createArray(blockScope.createRawType((ReferenceBinding)leafComponentType), type.dimensions());
+		    }
+		} else if (type.isGenericType()) {
 	        return this.resolvedType = blockScope.createRawType((ReferenceBinding)type); // raw type
 		}		
 	}
@@ -141,9 +147,16 @@ public TypeBinding resolveType(ClassScope classScope) {
 		if (isTypeUseDeprecated(type, classScope)) {
 			reportDeprecatedType(classScope);
 		}
-		if (type.isGenericType()) {
-	        return this.resolvedType = classScope.createRawType((ReferenceBinding) type); // raw type
+		// check raw type
+		if (type.isArrayType()) {
+		    TypeBinding leafComponentType = type.leafComponentType();
+		    if (leafComponentType.isGenericType()) { // raw type
+		        return this.resolvedType = classScope.createArray(classScope.createRawType((ReferenceBinding)leafComponentType), type.dimensions());
+		    }
+		} else if (type.isGenericType()) {
+	        return this.resolvedType = classScope.createRawType((ReferenceBinding)type); // raw type
 		}		
+
 	}
 	return this.resolvedType;
 }

@@ -793,12 +793,15 @@ public class QualifiedNameReference extends NameReference {
 				    TypeBinding type = (TypeBinding) binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					if (type instanceof ReferenceBinding) {
-					    ReferenceBinding referenceType = (ReferenceBinding) type;
-					    if (referenceType.isGenericType()) {
-					        return this.resolvedType = scope.createRawType(referenceType); // raw type
+					// check raw type
+					if (type.isArrayType()) {
+					    TypeBinding leafComponentType = type.leafComponentType();
+					    if (leafComponentType.isGenericType()) { // raw type
+					        return this.resolvedType = scope.createArray(scope.createRawType((ReferenceBinding)leafComponentType), type.dimensions());
 					    }
-					}							
+					} else if (type.isGenericType()) {
+				        return this.resolvedType = scope.createRawType((ReferenceBinding)type); // raw type
+					}		
 					return this.resolvedType = type;
 			}
 		}

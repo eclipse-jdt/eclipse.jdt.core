@@ -833,14 +833,17 @@ public interface IProblem {
     /** @since 3.0 */
 	int UnsafeRawMethodInvocation = TypeRelated + 531;
     /** @since 3.0 */
-	int UnsafeRawFieldAccess = TypeRelated + 532;
+	int UnsafeRawExpressionAssignment = TypeRelated + 532;
     /** @since 3.0 */
-	int UnsafeRawAssignment = TypeRelated + 533;
+	int UnsafeConstructorWithRawArguments = TypeRelated + 533;
     /** @since 3.0 */
-	int UnsafeConstructorWithRawArguments = TypeRelated + 534;
+	int UnsafeMethodWithRawArguments = TypeRelated + 534;
     /** @since 3.0 */
-	int UnsafeMethodWithRawArguments = TypeRelated + 535;
+	int UnsafeRawVariableAssignment = TypeRelated + 535;
+	/** @since 3.0 */
+	int IllegalArrayOfParameterizedType = TypeRelated + 536;
 	
+
 	/**
 	 * Foreach
 	 */

@@ -39,7 +39,11 @@ public class ArrayTypeReference extends SingleTypeReference {
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArray(scope.getType(token), dimensions);
+		TypeBinding leafComponentType = scope.getType(token);
+		if (leafComponentType.isParameterizedType()) {
+		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+		}
+		return scope.createArray(leafComponentType, dimensions);
 	
 	}
 	

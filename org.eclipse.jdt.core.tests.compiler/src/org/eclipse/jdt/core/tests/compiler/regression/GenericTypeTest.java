@@ -1792,8 +1792,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		);
 	}
 	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types: primitive type arrays
-	// TODO (philippe) reenable once array type arguments are supported
-	public void _test062() {
+	public void test062() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -1909,10 +1908,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"}\n", 
 			},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 10)\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	X x2 = xioe;\n" + 
+		"	       ^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type X<IOException> to raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
 		"	X<IOException> xioe2 = x; // unsafe\n" + 
 		"	                       ^\n" + 
-		"Unsafe type operation: Should not assign expression of raw type X to X<IOException>. References to generic type X<T> should be parameterized\n" + 
+		"Unsafe type operation: Should not assign expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
 		"----------\n",
 		null,
 		true,
@@ -2561,4 +2565,180 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"Unsafe type operation: The method bar(AX<P>) in the type AX<String> should not be applied for the arguments (AX). References to generic types should be parameterized\n" + 
 		"----------\n");
 	}		
+
+	public void test085() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        X x = (X)ax.p;\n" + 
+				"        System.out.println(x);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    \n" + 
+				"    P p;\n" + 
+				"}\n",
+			},
+		"null");
+	}		
+
+	public void test086() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = ax.p;\n" + 
+				"        ax.p = new AX<String>();\n" + 
+				"        System.out.println(ax2);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	ax.p = new AX<String>();\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
+	}		
+	
+	public void test087() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = ax.p;\n" + 
+				"        AX ax3 = new AX<String>();\n" + 
+				"        System.out.println(ax3);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	AX ax3 = new AX<String>();\n" + 
+		"	         ^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
+	}			
+	
+	public void test088() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"     AX ax = new AX();\n" + 
+				"     AX ax2 = ax.p;\n" + 
+				"     AX ax3 = new AX<String>();\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	AX ax3 = new AX<String>();\n" + 
+		"	         ^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
+	}				
+
+	public void test089() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    T q;\n" + 
+				"     public static void main(String[] args) {\n" + 
+				"         X<String[]> xss = new X<String[]>();\n" + 
+				"         X<X<String[]>> xxs = new X<X<String[]>>();\n" + 
+				"         xxs.q = xss;\n" + 
+				"         System.out.println(\"SUCCESS\");\n" + 
+				"     }\n" + 
+				"}\n",
+			},
+		"SUCCESS");
+	}				
+
+	public void test090() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    T q;\n" + 
+				"    \n" + 
+				"     public static void main(String[] args) {\n" + 
+				"         X<String[]> xss = new X<String[]>();\n" + 
+				"         X<X<String[]>> xxs = new X<X<String[]>>();\n" + 
+				"         xxs.q = xss;\n" + 
+				"     }\n" + 
+				"      void foo(X[] xs) {\n" + 
+				"          xs[0] = new X<String>();\n" + 
+				"         System.out.println(\"SUCCESS\");\n" + 
+				"     }\n" +
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	xs[0] = new X<String>();\n" + 
+		"	        ^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type X<String> to raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
+	}				
+
+	public void test091() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"      void foo(X<String>[] xs) {\n" + 
+				"     }\n" +
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(X<String>[] xs) {\n" + 
+		"	         ^\n" + 
+		"Cannot declare an array of the parameterized type X<String> \n" + 
+		"----------\n");		
+	}				
+	
 }
