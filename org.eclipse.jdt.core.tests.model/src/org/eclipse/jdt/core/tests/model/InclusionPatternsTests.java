@@ -427,6 +427,44 @@ public void testIsOnClasspath4() throws CoreException {
 	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
 }
 /*
+ * Ensures that moving a folder that contains an included package reports the correct delta.
+ * (regression test for bug 67324 Package Explorer doesn't update included package after moving contents of source folder)
+ */
+public void testMoveFolderContainingPackage1() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/"});
+	createFolder("/P/src/p1/p2");
+	
+	clearDeltas();
+	getFolder("/P/src/p1").move(new Path("/P/p1"), false, null);
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN | CONTENT}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2[-]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[-]\n" + 
+		"	ResourceDelta(/P/p1)[+]"
+	);
+}
+/*
+ * Ensures that moving a folder that contains an included package reports the correct delta.
+ * (regression test for bug 67324 Package Explorer doesn't update included package after moving contents of source folder)
+ */
+public void testMoveFolderContainingPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/"});
+	createFolder("/P/p1/p2");
+	
+	clearDeltas();
+	getFolder("/P//p1").move(new Path("/P/src/p1"), false, null);
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN | CONTENT}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2[+]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[+]\n" + 
+		"	ResourceDelta(/P/p1)[-]"
+	);
+}
+/*
  * Ensures that a non-included nested source folder doesn't appear as a non-java resource of the outer folder.
  * 
  */
