@@ -79,7 +79,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		public void worked(int work) {
 		}
 	}
-	class TypeNameRequestor implements ITypeNameRequestor {
+	public static class TypeNameRequestor implements ITypeNameRequestor {
 		Vector results = new Vector();
 		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
 			acceptType(packageName, simpleTypeName, enclosingTypeNames);

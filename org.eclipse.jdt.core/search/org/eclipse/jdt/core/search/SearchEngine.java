@@ -14,6 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
@@ -63,6 +64,7 @@ public static boolean VERBOSE = false;
  * Creates a new search engine.
  */
 public SearchEngine() {
+	this.workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs a second time*/);
 }
 /**
  * Creates a new search engine with a list of working copies that will take precedence over 
@@ -596,14 +598,24 @@ public void searchAllTypeNames(
 		matchMode, 
 		isCaseSensitive);
 	
+	final HashSet workingCopyPaths = new HashSet();
+	if (this.workingCopies != null) {
+		for (int i = 0, length = this.workingCopies.length; i < length; i++) {
+			ICompilationUnit workingCopy = this.workingCopies[i];
+			workingCopyPaths.add(workingCopy.getPath().toString());
+		}
+	}
+
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptClassDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] pkgName) {
-			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
+			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
+					&& !workingCopyPaths.contains(resourcePath)) { // filter out working copies
 				nameRequestor.acceptClass(pkgName, simpleTypeName, enclosingTypeNames, resourcePath);
 			}
 		}		
 		public void acceptInterfaceDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] pkgName) {
-			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
+			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
+					&& !workingCopyPaths.contains(resourcePath)) { // filter out working copies
 				nameRequestor.acceptInterface(pkgName, simpleTypeName, enclosingTypeNames, resourcePath);
 			}
 		}		
@@ -613,10 +625,38 @@ public void searchAllTypeNames(
 		if (progressMonitor != null) {
 			progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
 		}
+		// add type names from indexes
 		indexManager.performConcurrentJob(
 			new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
 			waitingPolicy,
 			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
+			
+		// add type names from working copies
+		if (this.workingCopies != null) {
+			for (int i = 0, length = this.workingCopies.length; i < length; i++) {
+				ICompilationUnit workingCopy = this.workingCopies[i];
+				IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
+				String path = workingCopy.getPath().toString();
+				char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
+				IType[] allTypes = workingCopy.getAllTypes();
+				for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
+					IType type = allTypes[j];
+					IJavaElement parent = type.getParent();
+					char[][] enclosingTypeNames;
+					if (parent instanceof IType) {
+						char[] parentQualifiedName = ((IType)parent).getTypeQualifiedName('.').toCharArray();
+						enclosingTypeNames = CharOperation.splitOn('.', parentQualifiedName);
+					} else {
+						enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+					}
+					if (type.isClass()) {
+						nameRequestor.acceptClass(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+					} else {
+						nameRequestor.acceptInterface(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+					}
+				}
+			}
+		}	
 	} finally {
 		if (progressMonitor != null) {
 			progressMonitor.done();

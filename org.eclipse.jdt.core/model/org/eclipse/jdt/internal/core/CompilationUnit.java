@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
-	protected WorkingCopyOwner owner;
+	public WorkingCopyOwner owner;
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
