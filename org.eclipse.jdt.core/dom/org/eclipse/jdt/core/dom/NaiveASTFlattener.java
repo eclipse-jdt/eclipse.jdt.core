@@ -518,7 +518,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(Javadoc node) {
 		// ignore deprecated node.getComment()
 		this.buffer.append("/** ");//$NON-NLS-1$
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
+		for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
 			ASTNode e = (ASTNode) it.next();
 			e.accept(this);
 		}

@@ -60,6 +60,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	Javadoc JD1;
 	Javadoc JD2;
 	TagElement TAG1;
+	TagElement TAG2;
 	TextElement TEXT1;
 	MemberRef MBREF1;
 	MethodRef MTHREF1;
@@ -135,6 +136,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		
 		TAG1 = ast.newTagElement();
 		TAG1.setTagName("@foo"); //$NON-NLS-1$
+
+		TAG2 = ast.newTagElement();
+		TAG2.setTagName("@bar"); //$NON-NLS-1$
 
 		TEXT1 = ast.newTextElement();
 		TEXT1.setText("foo"); //$NON-NLS-1$
@@ -673,10 +677,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
 		x1.setComment("/**?*/"); //$NON-NLS-1$
-		x1.fragments().add(TAG1);
-		x1.fragments().add(TEXT1);
-		x1.fragments().add(N1);
-		x1.fragments().add(MTHREF1);
+		x1.tags().add(TAG1);
+		x1.tags().add(TAG2);
 		basicMatch(x1);
 	}
 

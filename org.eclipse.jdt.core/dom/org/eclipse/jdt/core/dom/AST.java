@@ -2030,7 +2030,7 @@ public final class AST {
 	
 	/**
 	 * Creates and returns a new doc comment node.
-	 * Initially the new node has an empty list of fragments
+	 * Initially the new node has an empty list of tag elements
 	 * (and, for backwards compatability, an unspecified, but legal,
 	 * doc comment string)
 	 * 

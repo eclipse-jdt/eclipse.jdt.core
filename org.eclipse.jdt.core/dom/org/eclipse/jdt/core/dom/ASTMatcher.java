@@ -866,10 +866,10 @@ public class ASTMatcher {
 		}
 		Javadoc o = (Javadoc) other;
 		// for backwards compatibility, treat the deprecated comment string
-		// and the new list of fragments as separate properties, and
+		// and the new list of tags as separate properties, and
 		// compare both
 		return compareDeprecatedComment(node, o)
-		       && safeSubtreeListMatch(node.fragments(), o.fragments());
+		       && safeSubtreeListMatch(node.tags(), o.tags());
 	}
 
 	/**

@@ -666,12 +666,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			td.setName(localAst.newSimpleName("MyClass")); //$NON-NLS-1$
 			{ 
 				Javadoc jd = localAst.newJavadoc();
+				TagElement tg0 = localAst.newTagElement();
+				jd.tags().add(tg0);
 				TextElement tx1 = localAst.newTextElement();
 				tx1.setText("Spec."); //$NON-NLS-1$
-				jd.fragments().add(tx1);
+				tg0.fragments().add(tx1);
 				TagElement tg1 = localAst.newTagElement();
 				tg1.setTagName("@deprecated");
-				jd.fragments().add(tg1);
+				jd.tags().add(tg1);
 				TextElement tx2 = localAst.newTextElement();
 				tx2.setText("Use "); //$NON-NLS-1$
 				tg1.fragments().add(tx2);
@@ -2485,7 +2487,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isBlockComment());
 		assertTrue(!x.isLineComment());
 		assertTrue(x.isDocComment());
-		assertTrue(x.fragments().isEmpty());
+		assertTrue(x.tags().isEmpty());
 		assertTrue(x.getAlternateRoot() == null);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
@@ -2524,14 +2526,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		
 		tAlternateRoot(x);
 
-		// check that fragments() can handle TagElement
-		genericPropertyListTest(x, x.fragments(),
-		  new Property("Fragments", true, TagElement.class) { //$NON-NLS-1$
+		genericPropertyListTest(x, x.tags(),
+		  new Property("Tags", true, TagElement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TagElement result = targetAst.newTagElement();
 				if (parented) {
 					Javadoc parent = targetAst.newJavadoc();
-					parent.fragments().add(result);
+					parent.tags().add(result);
 				}
 				return result;
 			}
@@ -2541,54 +2542,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 					targetAst.newCompilationUnit(),
 					targetAst.newTypeDeclaration(),
 					targetAst.newJavadoc(),
+					targetAst.newTextElement(),
+					targetAst.newMethodRef()
 				};
-			}
-		});
-		// check that fragments() can handle Name
-		genericPropertyListTest(x, x.fragments(),
-		  new Property("Fragments", true, Name.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
-				if (parented) {
-					targetAst.newExpressionStatement(result);
-				}
-				return result;
-			}
-		});
-		// check that fragments() can handle TextElement
-		genericPropertyListTest(x, x.fragments(),
-		  new Property("Fragments", true, TextElement.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				TextElement result = targetAst.newTextElement();
-				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
-					parent.fragments().add(result);
-				}
-				return result;
-			}
-		});
-		// check that fragments() can handle MethodRef
-		genericPropertyListTest(x, x.fragments(),
-		  new Property("Fragments", true, MethodRef.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				MethodRef result = targetAst.newMethodRef();
-				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
-					parent.fragments().add(result);
-				}
-				return result;
-			}
-		});
-		// check that fragments() can handle MemberRef
-		genericPropertyListTest(x, x.fragments(),
-		  new Property("Fragments", true, MemberRef.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				MemberRef result = targetAst.newMemberRef();
-				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
-					parent.fragments().add(result);
-				}
-				return result;
 			}
 		});
 	}		
@@ -2664,7 +2620,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				TagElement result = targetAst.newTagElement();
 				if (parented) {
 					Javadoc parent = targetAst.newJavadoc();
-					parent.fragments().add(result);
+					parent.tags().add(result);
 				}
 				return result;
 			}
@@ -2704,7 +2660,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TextElement result = targetAst.newTextElement();
 				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
+					TagElement parent = targetAst.newTagElement();
 					parent.fragments().add(result);
 				}
 				return result;
@@ -2716,7 +2672,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			public ASTNode sample(AST targetAst, boolean parented) {
 				MethodRef result = targetAst.newMethodRef();
 				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
+					TagElement parent = targetAst.newTagElement();
 					parent.fragments().add(result);
 				}
 				return result;
@@ -2728,7 +2684,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			public ASTNode sample(AST targetAst, boolean parented) {
 				MemberRef result = targetAst.newMemberRef();
 				if (parented) {
-					Javadoc parent = targetAst.newJavadoc();
+					TagElement parent = targetAst.newTagElement();
 					parent.fragments().add(result);
 				}
 				return result;
@@ -4699,9 +4655,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		cu.types().add(td);
 		Javadoc javadoc = target.newJavadoc();
 		td.setJavadoc(javadoc);
-		javadoc.fragments().add(target.newTextElement());
 		TagElement tg = target.newTagElement();
-		javadoc.fragments().add(tg);
+		javadoc.tags().add(tg);
+		tg.fragments().add(target.newTextElement());
 		tg.fragments().add(target.newMemberRef());
 		MethodRef mr = target.newMethodRef();
 		tg.fragments().add(mr);
@@ -4720,11 +4676,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		md.parameters().add(singleVariableDeclaration);
 		td.bodyDeclarations().add(md);
 		
-/* TODO (jeem) this is never used
- 		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
+		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
 		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
-*/
+		variableDeclarationFragment.setInitializer(qn);
+		
 		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);

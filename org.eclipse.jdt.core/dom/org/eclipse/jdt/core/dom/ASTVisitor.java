@@ -236,7 +236,7 @@ public abstract class ASTVisitor {
 	 *   node, and <code>false</code> to skip the children
 	 */
 	public boolean visit(Javadoc node) {
-		// do not visit fragments inside doc comments by default
+		// do not visit tag elements inside doc comments by default
 		return false;
 	}
 	

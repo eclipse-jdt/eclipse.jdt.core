@@ -21,13 +21,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * AST node for a Javadoc-style doc comment.
  * <pre>
  * Javadoc:
- *   <b>/&ast;&ast;</b> { DocElement } <b>&ast;/</b>
- * DocElement:
- *   TextElement
- *   TagElement
- * 	 Name
- *   MethodRef
- *   MemberRef
+ *   <b>/&ast;&ast;</b> { TagElement } <b>&ast;/</b>
  * </pre>
  * 
  * @since 2.0
@@ -50,16 +44,16 @@ public class Javadoc extends Comment {
 	private String comment = MINIMAL_DOC_COMMENT;
 	
 	/**
-	 * The list of doc elements (element type: <code>IDocElement</code>). 
+	 * The list of tag elements (element type: <code>TagElement</code>). 
 	 * Defaults to an empty list.
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList fragments = 
-		new ASTNode.NodeList(true, IDocElement.class);
+	private ASTNode.NodeList tags = 
+		new ASTNode.NodeList(true, TagElement.class);
 
 	/**
 	 * Creates a new AST node for a doc comment owned by the given AST.
-	 * The new node has an empty list of fragments (and, for backwards
+	 * The new node has an empty list of tag elements (and, for backwards
 	 * compatability, an unspecified, but legal, doc comment string).
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
@@ -87,7 +81,7 @@ public class Javadoc extends Comment {
 		Javadoc result = new Javadoc(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setComment(getComment());
-		result.fragments().addAll(ASTNode.copySubtrees(target, fragments()));
+		result.tags().addAll(ASTNode.copySubtrees(target, tags()));
 		return result;
 	}
 	
@@ -106,7 +100,7 @@ public class Javadoc extends Comment {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChildren(visitor, fragments);
+			acceptChildren(visitor, tags);
 		}
 		visitor.endVisit(this);
 	}
@@ -118,7 +112,7 @@ public class Javadoc extends Comment {
 	 * @return the doc comment string
 	 * @deprecated The comment string was replaced in the 3.0 release
 	 * by a representation of the structure of the doc comment.
-	 * See {@link #fragments() fragments}.
+	 * See {@link #tags() tags}.
 	 */
 	public String getComment() {
 		return comment;
@@ -133,7 +127,7 @@ public class Javadoc extends Comment {
 	 * @exception IllegalArgumentException if the Java comment string is invalid
 	 * @deprecated The comment string was replaced in the 3.0 release
 	 * by a representation of the structure of the doc comment.
-	 * See {@link #fragments() fragments}.
+	 * See {@link #tags() tags}.
 	 */
 	public void setComment(String docComment) {
 		if (docComment == null) {
@@ -169,43 +163,32 @@ public class Javadoc extends Comment {
 	}
 		
 	/**
-	 * Returns the live list of fragments that make up this doc 
+	 * Returns the live list of tag elements that make up this doc 
 	 * comment.
 	 * <p>
-	 * The fragments cover everything except the starting and ending
+	 * The tag elements cover everything except the starting and ending
 	 * comment delimiters, and generally omit leading whitespace 
 	 * (including a leading "&ast;") and embedded line breaks.
-	 * The first fragment of a typical doc comment is generally a 
-	 * {@link TextElement TextElement} containing the text up to
-	 * the first top-level doc tag, and each subsequent element is a 
-	 * {@link TagElement TagElement} representing a top-level doc
+	 * The first tag element of a typical doc comment represents
+	 * all the material before the first explicit doc tag; this
+	 * first tag element has a <code>null</code> tag name and
+	 * generally contains 1 or more {@link TextElement TextElement}s,
+	 * and possibly interspersed with tag elements for nested tags
+	 * like "{@link...}".
+	 * Subsequent tag elements represent successive top-level doc
 	 * tag (e.g., "@param", "@return", "@see").
-	 * If there is no text preceding the first top-level doc tag,
-	 * then the first fragment represents the first top-level doc tag.
-	 * When the text preceding the first top-level doc tag contains
-	 * an inline tag enclosed in braces (e.g., an "@link"), then
-	 * the first fragment is a {@link TagElement TagElement}
-	 * with a <code>null</code> tag name with its own fragments,
-	 * one of which will be a {@link TagElement TagElement}
-	 * for any embedded tag located in the preamble.
 	 * </p>
 	 * <p>
 	 * Adding and removing nodes from this list affects this node
-	 * dynamically. The nodes in this list may be of various
-	 * types, including {@link TextElement TextElement}, 
-	 * {@link TagElement TagElement}, {@link Name Name}, 
-	 * {@link MemberRef MemberRef}, and {@link MethodRef MethodRef}.
-	 * Clients should assume that the list of types may grow in
-	 * the future, and write their code to deal with unexpected
-	 * nodes types. However, attempts to add a non-proscribed type
-	 * of node will trigger an exception.
+	 * dynamically.
 	 * </p>
 	 * 
-	 * @return the live list of doc elements in this doc comment
+	 * @return the live list of tag elements in this doc comment
+	 * (element type: <code>TagElement</code>)
 	 * @since 3.0
 	 */ 
-	public List fragments() {
-		return fragments;
+	public List tags() {
+		return tags;
 	}
 	
 	/* (omit javadoc for this method)
@@ -224,6 +207,6 @@ public class Javadoc extends Comment {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + fragments.listSize();
+		return memSize() + tags.listSize();
 	}
 }

@@ -1199,7 +1199,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
 		x1.setComment("/**?*/"); //$NON-NLS-1$
-		x1.fragments().add(TAG1);
+		x1.tags().add(TAG1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);

@@ -13,8 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * Internal marker-type interface used to tag node types that can legitimately
- * be included {@link Javadoc#fragments Javadoc.fragments()} and
- * {@link TagElement#fragments TagElement.fragments()}.
+ * be included in {@link TagElement#fragments TagElement.fragments()}.
  *
  * @since 3.0
  */
