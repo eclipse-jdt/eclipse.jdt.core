@@ -47,7 +47,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
 	// TODO remove once testing is done
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 	//expression stack
@@ -1332,7 +1332,11 @@ protected void consumeCastExpressionWithGenericsArray() {
 
 	Expression exp, cast, castType;
 	int end = intStack[intPtr--];
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+
+	int dim = intStack[intPtr--];
+	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -1347,9 +1351,140 @@ protected void consumeCastExpressionWithNameArray() {
 	pushOnAstLengthStack(0);
 	int dim = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-	pushOnIntStack(dim);
 	
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+protected void consumeCastExpressionWithQualifiedGenerics() {
+	// CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+
+	TypeReference rightSide = getTypeReference(intStack[intPtr--]);
+	int nameSize = identifierLengthStack[identifierLengthPtr];
+	int tokensSize = nameSize;
+	if (rightSide instanceof SingleParameterizedTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof SingleTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	}
+	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
+	char[][] tokens = new char[tokensSize][];
+	long[] positions = new long[tokensSize];
+	if (rightSide instanceof SingleParameterizedTypeReference) {
+		SingleParameterizedTypeReference singleParameterizedTypeReference = (SingleParameterizedTypeReference) rightSide;
+		tokens[nameSize] = singleParameterizedTypeReference.token;
+		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
+		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
+	} else if (rightSide instanceof SingleTypeReference) {
+		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
+		tokens[nameSize] = singleTypeReference.token;
+		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
+	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+		QualifiedParameterizedTypeReference parameterizedTypeReference = (QualifiedParameterizedTypeReference) rightSide;
+		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
+		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
+		char[][] rightSideTokens = parameterizedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = parameterizedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) rightSide;
+		char[][] rightSideTokens = qualifiedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = qualifiedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	}
+
+	int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
+	astPtr -= currentTypeArgumentsLength;
+	System.arraycopy(astStack, astPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
+	
+	if (nameSize == 1) {
+		tokens[0] = identifierStack[identifierPtr];
+		positions[0] = identifierPositionStack[identifierPtr--];
+		typeArguments[0] = currentTypeArguments;
+	} else {
+		identifierPtr -= nameSize;
+		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, nameSize);
+		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, nameSize);
+		typeArguments[nameSize - 1] = currentTypeArguments;
+	}
+	
+	QualifiedParameterizedTypeReference qualifiedParameterizedTypeReference = new QualifiedParameterizedTypeReference(tokens, typeArguments, 0, positions);
+
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = qualifiedParameterizedTypeReference);
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+protected void consumeCastExpressionWithQualifiedGenericsArray() {
+	// CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+
+	int dim = intStack[intPtr--];
+	TypeReference rightSide = getTypeReference(intStack[intPtr--]);
+	int nameSize = identifierLengthStack[identifierLengthPtr];
+	int tokensSize = nameSize;
+	if (rightSide instanceof SingleParameterizedTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof SingleTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	}
+	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
+	char[][] tokens = new char[tokensSize][];
+	long[] positions = new long[tokensSize];
+	if (rightSide instanceof SingleParameterizedTypeReference) {
+		SingleParameterizedTypeReference singleParameterizedTypeReference = (SingleParameterizedTypeReference) rightSide;
+		tokens[nameSize] = singleParameterizedTypeReference.token;
+		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
+		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
+	} else if (rightSide instanceof SingleTypeReference) {
+		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
+		tokens[nameSize] = singleTypeReference.token;
+		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
+	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+		QualifiedParameterizedTypeReference parameterizedTypeReference = (QualifiedParameterizedTypeReference) rightSide;
+		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
+		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
+		char[][] rightSideTokens = parameterizedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = parameterizedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) rightSide;
+		char[][] rightSideTokens = qualifiedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = qualifiedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	}
+
+	int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
+	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
+	astPtr -= currentTypeArgumentsLength;
+	System.arraycopy(astStack, astPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
+	
+	identifierPtr -= nameSize;
+	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, nameSize);
+	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, nameSize);
+	typeArguments[nameSize - 1] = currentTypeArguments;
+	
+	QualifiedParameterizedTypeReference qualifiedParameterizedTypeReference = new QualifiedParameterizedTypeReference(tokens, typeArguments, dim, positions);
+
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = qualifiedParameterizedTypeReference);
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -4192,11 +4327,11 @@ protected void consumeRule(int act) {
 			break;
  
     case 370 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name OnlyTypeArguments DOT"); }  //$NON-NLS-1$
-		    consumeCastExpressionWithGenerics();  
+		    consumeCastExpressionWithQualifiedGenerics();  
 			break;
  
     case 371 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name OnlyTypeArguments DOT"); }  //$NON-NLS-1$
-		    consumeCastExpressionWithGenericsArray();  
+		    consumeCastExpressionWithQualifiedGenericsArray();  
 			break;
  
     case 372 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name PushRPAREN..."); }  //$NON-NLS-1$

@@ -1225,9 +1225,9 @@ CastExpression ::= PushLPAREN Name OnlyTypeArguments Dims PushRPAREN InsideCastE
 CastExpression ::= PushLPAREN Name OnlyTypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenerics(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpressionWithGenerics(); $break ./
+/.$putCase consumeCastExpressionWithQualifiedGenerics(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpressionWithGenericsArray(); $break ./
+/.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
 CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
