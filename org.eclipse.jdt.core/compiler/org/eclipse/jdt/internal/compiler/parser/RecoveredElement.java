@@ -126,6 +126,19 @@ public int depth(){
 /*
  * Answer the enclosing method node, or null if none
  */
+public RecoveredInitializer enclosingInitializer(){
+	RecoveredElement current = this;
+	while (current != null){
+		if (current instanceof RecoveredInitializer){
+			return (RecoveredInitializer) current;
+		}
+		current = current.parent;
+	}
+	return null;
+}
+/*
+ * Answer the enclosing method node, or null if none
+ */
 public RecoveredMethod enclosingMethod(){
 	RecoveredElement current = this;
 	while (current != null){

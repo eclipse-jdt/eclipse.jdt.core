@@ -42,8 +42,8 @@ public abstract class AssistParser extends Parser {
 	//  it is changed to true when the initializer is entered,
 	//  it is changed back to false when the initializer is exited,
 	//  and it is poped when the type is exited)
-	protected int inInitializerPtr;
-	protected boolean[] inInitializerStack = new boolean[StackIncrement];
+	protected int inFieldInitializationPtr;
+	protected boolean[] inFieldInitializationStack = new boolean[StackIncrement];
 
 	// whether the parser is in a method, constructor or initializer
 	// (false is pushed each time a new type is entered,
@@ -74,8 +74,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	if (referenceContext instanceof CompilationUnitDeclaration){
 		RecoveredElement element = super.buildInitialRecoveryState();
 		flushAssistState();
-		this.inInitializerStack[this.inInitializerPtr = 0] = false;
-		this.inMethodStack[this.inMethodPtr = 0] = false;
+		initInMethodAndInFieldInitializationStack(element);
 		return element;
 	}
 
@@ -213,11 +212,12 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 	}
 	
+	initInMethodAndInFieldInitializationStack(element);
 	return element;
 }
 protected void consumeClassBodyDeclarationsopt() {
 	super.consumeClassBodyDeclarationsopt();
-	this.inInitializerPtr--;
+	this.inFieldInitializationPtr--;
 	this.inMethodPtr--;
 }
 protected void consumeClassBodyopt() {
@@ -239,7 +239,7 @@ protected void consumeConstructorHeader() {
 }
 protected void consumeEmptyClassBodyDeclarationsopt() {
 	super.consumeEmptyClassBodyDeclarationsopt();
-	this.inInitializerPtr--;
+	this.inFieldInitializationPtr--;
 	this.inMethodPtr--;
 }
 protected void consumeEnterAnonymousClassBody() {
@@ -257,7 +257,7 @@ protected void consumeForceNoDiet() {
 	// if we are not in a method (ie. we are not in a local variable initializer)
 	// then we are entering a field initializer
 	if (!this.inMethodStack[this.inMethodPtr]) {
-		this.inInitializerStack[this.inInitializerPtr] = true;
+		this.inFieldInitializationStack[this.inFieldInitializationPtr] = true;
 	}
 }
 protected void consumeInterfaceHeader() {
@@ -267,7 +267,7 @@ protected void consumeInterfaceHeader() {
 }
 protected void consumeInterfaceMemberDeclarationsopt() {
 	super.consumeInterfaceMemberDeclarationsopt();
-	this.inInitializerPtr--;
+	this.inFieldInitializationPtr--;
 	this.inMethodPtr--;
 }
 protected void consumeMethodBody() {
@@ -374,7 +374,7 @@ protected void consumeRestoreDiet() {
 	// if we are not in a method (ie. we were not in a local variable initializer)
 	// then we are exiting a field initializer
 	if (!this.inMethodStack[this.inMethodPtr]) {
-		this.inInitializerStack[this.inInitializerPtr] = false;
+		this.inFieldInitializationStack[this.inFieldInitializationPtr] = false;
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
@@ -440,7 +440,7 @@ protected void consumeToken(int token) {
 	super.consumeToken(token);
 	// register message send selector only if inside a method or if looking at a field initializer 
 	// and if the current token is an open parenthesis
-	if ((this.inMethodStack[this.inMethodPtr] || this.inInitializerStack[this.inInitializerPtr]) && token == TokenNameLPAREN) {
+	if ((this.inMethodStack[this.inMethodPtr] || this.inFieldInitializationStack[this.inFieldInitializationPtr]) && token == TokenNameLPAREN) {
 		switch (this.previousToken) {
 			case TokenNameIdentifier:
 				this.pushOnSelectorStack(this.identifierPtr);
@@ -676,16 +676,57 @@ public void initialize() {
 	this.flushAssistState();
 	this.invocationPtr = -1;
 	this.inMethodStack[this.inMethodPtr = 0] = false;
-	this.inInitializerStack[this.inInitializerPtr = 0] = false;
+	this.inFieldInitializationStack[this.inFieldInitializationPtr = 0] = false;
 	this.previousIdentifierPtr = -1;
 }
 public abstract void initializeScanner();
+
+protected void initInMethodAndInFieldInitializationStack(RecoveredElement currentElement) {
+
+	int length = currentElement.depth() + 1;
+	int ptr = length;
+	boolean[] methodStack = new boolean[length];
+	boolean[] fieldInitializationStack = new boolean[length];
+	boolean inMethod = false;
+	boolean inFieldInitializer = false;
+	
+	RecoveredElement element = currentElement;
+	while(element != null){
+		if(element instanceof RecoveredMethod ||
+			element instanceof RecoveredInitializer) {
+			if(element.parent == null) {
+				methodStack[--ptr] = true;
+				fieldInitializationStack[ptr] = false;
+			}
+			inMethod = true;
+		} else if(element instanceof RecoveredField){
+			inFieldInitializer = element.sourceEnd() == 0;
+		} else if(element instanceof RecoveredType){
+			methodStack[--ptr] = inMethod;
+			fieldInitializationStack[ptr] = inFieldInitializer;
+	
+			inMethod = false;
+			inFieldInitializer = false;
+		} else if(element instanceof RecoveredUnit) {
+			methodStack[--ptr] = false;
+			fieldInitializationStack[ptr] = false;
+		}
+		element = element.parent;
+	}
+	
+	inMethodPtr = length - ptr - 1;
+	inFieldInitializationPtr = inMethodPtr;
+	System.arraycopy(methodStack, ptr, inMethodStack, 0, inMethodPtr + 1);
+	System.arraycopy(fieldInitializationStack, ptr, inFieldInitializationStack, 0, inFieldInitializationPtr + 1);
+	
+}
+
 /**
  * Returns whether we are directly or indirectly inside a field initializer.
  */
-protected boolean insideFieldInitializer() {
-	for (int i = this.inInitializerPtr; i >= 0; i--) {
-		if (this.inInitializerStack[i]) {
+protected boolean insideFieldInitialization() {
+	for (int i = this.inFieldInitializationPtr; i >= 0; i--) {
+		if (this.inFieldInitializationStack[i]) {
 			return true;
 		}
 	}
@@ -804,12 +845,12 @@ protected void prepareForBlockStatements() {
  */
 protected void pushNotInInitializer() {
 	try {
-		this.inInitializerStack[++this.inInitializerPtr] = false;
+		this.inFieldInitializationStack[++this.inFieldInitializationPtr] = false;
 	} catch (IndexOutOfBoundsException e) {
 		//except in test's cases, it should never raise
-		int oldStackLength = this.inInitializerStack.length;
-		System.arraycopy(this.inInitializerStack , 0, (this.inInitializerStack = new boolean[oldStackLength + StackIncrement]), 0, oldStackLength);
-		this.inInitializerStack[this.inInitializerPtr] = false;
+		int oldStackLength = this.inFieldInitializationStack.length;
+		System.arraycopy(this.inFieldInitializationStack , 0, (this.inFieldInitializationStack = new boolean[oldStackLength + StackIncrement]), 0, oldStackLength);
+		this.inFieldInitializationStack[this.inFieldInitializationPtr] = false;
 	}
 }
 /*
@@ -848,7 +889,7 @@ public void reset(){
  */
 protected void resetStacks() {
 	super.resetStacks();
-	this.inInitializerStack[this.inInitializerPtr = 0] = false;
+	this.inFieldInitializationStack[this.inFieldInitializationPtr = 0] = false;
 	this.inMethodStack[this.inMethodPtr = 0] = false;
 }
 /*
@@ -877,12 +918,14 @@ protected boolean resumeAfterRecovery() {
 	/* attempt to move checkpoint location */
 	if (!this.moveRecoveryCheckpoint()) return false;
 
+	initInMethodAndInFieldInitializationStack(currentElement);
+
 	// only look for headers
 	if (referenceContext instanceof CompilationUnitDeclaration
 		|| this.assistNode != null){
 		
 		if(inMethodStack[inMethodPtr] &&
-			insideFieldInitializer() &&
+			insideFieldInitialization() &&
 			this.assistNode == null
 			){ 
 			this.prepareForBlockStatements();

@@ -141,7 +141,7 @@ protected void attachOrphanCompletionNode(){
 	}
 	
 	// the following code applies only in methods, constructors or initializers
-	if ((!this.inMethodStack[this.inMethodPtr] && !this.inInitializerStack[this.inInitializerPtr])) { 
+	if ((!this.inMethodStack[this.inMethodPtr] && !this.inFieldInitializationStack[this.inFieldInitializationPtr])) { 
 		return;
 	}
 	
@@ -511,7 +511,7 @@ public void completionIdentifierCheck(){
 
 	// if not in a method in non diet mode and if not inside a field initializer, only record references attached to types
 	if (!(this.inMethodStack[this.inMethodPtr] && !this.diet)
-		&& !insideFieldInitializer()) return; 
+		&& !insideFieldInitialization()) return; 
 
 	/*
 	 	In some cases, the completion identifier may not have yet been consumed,
@@ -720,12 +720,12 @@ protected void consumeToken(int token) {
 	if (token == TokenNameIdentifier
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
-			&& this.insideFieldInitializer()) {
+			&& this.insideFieldInitialization()) {
 		this.scanner.eofPosition = cursorLocation+1;
 	}
 	
 	// if in a method or if in a field initializer 
-	if (this.inMethodStack[this.inMethodPtr] || this.inInitializerStack[this.inInitializerPtr]) {
+	if (this.inMethodStack[this.inMethodPtr] || this.inFieldInitializationStack[this.inFieldInitializationPtr]) {
 		switch (token) {
 			case TokenNameDOT:
 				switch (previous) {
@@ -1128,7 +1128,7 @@ protected boolean resumeAfterRecovery() {
 			the end of the method body or compilation unit */
 		if ((scanner.eofPosition == cursorLocation+1)
 			&& (!(referenceContext instanceof CompilationUnitDeclaration) 
-				|| insideFieldInitializer())) {
+				|| insideFieldInitialization())) {
 
 			/*	disabled since does not handle possible field/message refs, i.e. Obj[ASSIST HERE]ect.registerNatives()		    
 			// consume extra tokens which were part of the qualified reference

@@ -1379,6 +1379,7 @@ protected void consumeClassBodyDeclaration() {
 	nestedMethod[nestedType]--;
 	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
+	realBlockPtr--; // pop the block variable counter left on the stack by consumeNestedMethod
 	int javadocCommentStart = intStack[intPtr--];
 	if (javadocCommentStart != -1) {
 		initializer.declarationSourceStart = javadocCommentStart;

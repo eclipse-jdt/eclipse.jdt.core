@@ -67,6 +67,13 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	if (methodDeclaration.declarationSourceEnd == 0) return element;
 	return this;
 }
+public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalance) {
+	int modifiers = AccDefault;
+	if(this.parser().recoveredStaticInitializerStart != 0) {
+		modifiers = AccStatic;
+	}
+	return this.add(new Initializer(nestedBlockDeclaration, modifiers), bracketBalance);
+}
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalance) {
 	
 	/* do not consider a field starting passed the type end (if set)

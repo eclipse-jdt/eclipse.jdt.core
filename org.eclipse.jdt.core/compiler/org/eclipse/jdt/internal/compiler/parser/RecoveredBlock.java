@@ -243,6 +243,10 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 		if (method != null && method.methodBody == this){
 			return parent.updateOnClosingBrace(braceStart, braceEnd);
 		}
+		RecoveredInitializer initializer = enclosingInitializer();
+		if (initializer != null && initializer.initializerBody == this){
+			return parent.updateOnClosingBrace(braceStart, braceEnd);
+		}
 		return parent;
 	}
 	return this;
