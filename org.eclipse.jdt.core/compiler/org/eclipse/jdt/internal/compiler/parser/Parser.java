@@ -13,6 +13,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbols, CompilerModifiers, OperatorIds, TypeIds {
 	protected ProblemReporter problemReporter;
@@ -3839,6 +3840,14 @@ protected void consumeSwitchLabels() {
 protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
+	if (scanner.wasNonExternalizedStringLiteral) {
+		StringLiteral[] literals = this.scanner.nonNLSStrings;
+		for (int i = 0, max = literals.length; i < max; i++) {
+			problemReporter().nonExternalizedStringLiteral(literals[i]);
+		}
+		scanner.currentLine = null;
+		scanner.wasNonExternalizedStringLiteral = false;
+	}
 
 	//System.out.println(scanner.toStringAction(type));
 	switch (type) {
@@ -3976,7 +3985,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSourceString(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1); 
-			if (scanner.wasNonExternalizedStringLiteral) problemReporter().nonExternalizedStringLiteral(stringLiteral);
 			pushOnExpressionStack(stringLiteral); 
 			break;
 		case TokenNamefalse :
@@ -4590,6 +4598,10 @@ public void goForCompilationUnit(){
 	firstToken = TokenNamePLUS_PLUS ;
 	scanner.linePtr = -1;	
 	scanner.recordLineSeparator = true;
+	scanner.currentLineNr= -1;
+	scanner.previousLineNr= -1;
+	scanner.currentLine= null;
+	scanner.lines= new ArrayList();
 }
 public void goForConstructorBody(){
 	//tells the scanner to go for compilation unit parsing

@@ -4,8 +4,11 @@ package org.eclipse.jdt.internal.compiler.parser;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
 import java.io.*;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
 public class Scanner implements TerminalSymbols {
 
@@ -118,9 +121,18 @@ public class Scanner implements TerminalSymbols {
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
+	int currentLineNr= -1;
+	int previousLineNr= -1;
+	NLSLine currentLine= null;
+	List lines= new ArrayList();
+	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
+	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
+	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
+	public static final int TAG_POSTFIX_LENGTH= TAG_POSTFIX.length();
+	public StringLiteral[] nonNLSStrings = null;
 	public boolean checkNonExternalizedStringLiterals = true;
-	public static char[] NonNLS_TAG = "/*nonNLS*/"/*nonNLS*/.toCharArray();
 	public boolean wasNonExternalizedStringLiteral = false;
+	
 	/*static*/ {
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < TableSize; j++) {
@@ -645,9 +657,14 @@ public int getNextToken() throws InvalidInputException {
 					&& (source[currentPosition] == 'u')) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 				} else {
-					if (recordLineSeparator
-						&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-						pushLineSeparator();
+					if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+						checkNonExternalizeString();
+						if (recordLineSeparator) {
+							pushLineSeparator();
+						} else {
+							linePtr++;
+						}
+					}
 					isWhiteSpace = 
 						(currentCharacter == ' ') || Character.isWhitespace(currentCharacter); 
 				}
@@ -921,16 +938,18 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
-					if (checkNonExternalizedStringLiterals){ // check for presence of	/*nonNLS*/
-						int lookAhead = currentPosition < source.length && source[currentPosition] == ' ' ? currentPosition+1 : currentPosition;
-						int n = 0;
-						for (; n < NonNLS_TAG.length; n++, lookAhead++){
-							if (lookAhead == source.length)
-								break;
-							if (source[lookAhead] != NonNLS_TAG[n])
-								break;
+					if (checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
+						currentLineNr = linePtr;
+						if (currentLineNr != previousLineNr) {
+							currentLine= new NLSLine(currentLineNr);
+							lines.add(currentLine);
+							previousLineNr= currentLineNr;
 						}
-						this.wasNonExternalizedStringLiteral = (n != NonNLS_TAG.length);
+						currentLine.add(
+							new StringLiteral(
+								getCurrentTokenSourceString(), 
+								startPosition, 
+								currentPosition - 1));
 					}
 					return TokenNameStringLiteral;
 				case '/' :
@@ -998,13 +1017,18 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								recordComment(false);
-								if (recordLineSeparator
-									&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-									if (isUnicode) {
-										pushUnicodeLineSeparator();
+								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+									checkNonExternalizeString();
+									if (recordLineSeparator) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
+											pushLineSeparator();
+										}
 									} else {
-										pushLineSeparator();
+										linePtr++;
 									}
+								}
 								if (tokenizeComments) {
 									if (!isUnicode) {
 										currentPosition--; // reset one character behind
@@ -1012,10 +1036,10 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) { //an eof will them be generated
-								if (tokenizeComments) {
-									currentPosition--; // reset one character behind
-									return TokenNameCOMMENT_LINE;
-								}
+									if (tokenizeComments) {
+										currentPosition--; // reset one character behind
+										return TokenNameCOMMENT_LINE;
+									}
 							}
 							break;
 						}
@@ -1036,9 +1060,14 @@ public int getNextToken() throws InvalidInputException {
 								isJavadoc = true;
 								star = true;
 							}
-							if (recordLineSeparator
-								&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-								pushLineSeparator();
+							if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+								checkNonExternalizeString();
+								if (recordLineSeparator) {
+									pushLineSeparator();
+								} else {
+									linePtr++;
+								}
+							}
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
@@ -1056,9 +1085,14 @@ public int getNextToken() throws InvalidInputException {
 								}
 								//loop until end of comment */
 								while ((currentCharacter != '/') || (!star)) {
-									if (recordLineSeparator
-										&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-										pushLineSeparator();
+									if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+										checkNonExternalizeString();
+										if (recordLineSeparator) {
+											pushLineSeparator();
+										} else {
+											linePtr++;
+										}
+									}
 									star = currentCharacter == '*';
 									//get next char
 									if (((currentCharacter = source[currentPosition++]) == '\\')
@@ -1713,11 +1747,9 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
-public final void pushLineSeparator() {
+public final void pushLineSeparator() throws InvalidInputException {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
-
 	final int INCREMENT = 250;
-
 	//currentCharacter is at position currentPosition-1
 
 	// cr 000D
@@ -1854,6 +1886,7 @@ public void resetTo(int begin, int end) {
 	eofPosition = end + 1;
 	commentPtr = -1; // reset comment stack
 }
+
 public final void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
@@ -2939,5 +2972,52 @@ public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean che
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.assertMode = assertMode;
+}
+
+private void checkNonExternalizeString()  throws InvalidInputException {
+	if (currentLine == null || currentLineNr != linePtr)
+		return;
+	parseTags(currentLine);
+}
+
+private void parseTags(NLSLine line) throws InvalidInputException {
+	String s = new String(getCurrentTokenSource());
+	int pos = s.indexOf(TAG_PREFIX);
+	int lineLength = line.size();
+	while (pos != -1) {
+		int start = pos + TAG_PREFIX_LENGTH;
+		int end = s.indexOf(TAG_POSTFIX, start);
+		String index = s.substring(start, end);
+		int i = 0;
+		try {
+			i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
+		} catch (NumberFormatException e) {
+			i = -1; // we don't want to consider this as a valid NLS tag
+		}
+		int listIndex = lineLength - i - 1;
+		if (line.exists(listIndex)) {
+			line.set(listIndex, null);
+		}
+		pos = s.indexOf(TAG_PREFIX, start);
+	}
+
+	this.nonNLSStrings = new StringLiteral[lineLength];
+	int nonNLSCounter = 0;
+	for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
+		StringLiteral literal = (StringLiteral) iterator.next();
+		if (literal != null) {
+			this.nonNLSStrings[nonNLSCounter++] = literal;
+		}
+	}
+	if (nonNLSCounter == 0) {
+		this.nonNLSStrings = null;
+		currentLine = null;
+		return;
+	} 
+	wasNonExternalizedStringLiteral = true;
+	if (nonNLSCounter != lineLength) {
+		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
+	}
+	currentLine = null;
 }
 }
