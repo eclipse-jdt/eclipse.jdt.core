@@ -165,19 +165,19 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 			}
 			
-			if (isTypeUseDeprecated(this.binding.type, initializationScope))
-				initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
-
 			this.type.resolvedType = this.binding.type; // update binding for type reference
 
-			// the resolution of the initialization hasn't been done
-			if (this.initialization == null) {
-				this.binding.constant = Constant.NotAConstant;
-			} else {
-				int previous = initializationScope.fieldDeclarationIndex;
-				try {
-					initializationScope.fieldDeclarationIndex = this.binding.id;
+			int previous = initializationScope.fieldDeclarationIndex;
+			try {
+				initializationScope.fieldDeclarationIndex = this.binding.id;
 
+				if (isTypeUseDeprecated(this.binding.type, initializationScope)) {
+					initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
+				}
+				// the resolution of the initialization hasn't been done
+				if (this.initialization == null) {
+					this.binding.constant = Constant.NotAConstant;
+				} else {
 					// break dead-lock cycles by forcing constant to NotAConstant
 					this.binding.constant = Constant.NotAConstant;
 					
@@ -211,20 +211,19 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					} else {
 						this.binding.constant = NotAConstant;
 					}
-				} finally {
-					initializationScope.fieldDeclarationIndex = previous;
-					if (this.binding.constant == null)
-						this.binding.constant = Constant.NotAConstant;
 				}
-			}
-			
-			// Resolve Javadoc comment if one is present
-			if (this.javadoc != null) {
-				if (classScope != null) {
-					this.javadoc.resolve(classScope);
+				// Resolve Javadoc comment if one is present
+				if (this.javadoc != null) {
+					if (classScope != null) {
+						this.javadoc.resolve(classScope);
+					}
+				} else if ((this.binding != null) && this.binding.isPublic()) {
+					initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
 				}
-			} else if ((this.binding != null) && this.binding.isPublic()) {
-				initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
+			} finally {
+				initializationScope.fieldDeclarationIndex = previous;
+				if (this.binding.constant == null)
+					this.binding.constant = Constant.NotAConstant;
 			}
 		}
 	}
