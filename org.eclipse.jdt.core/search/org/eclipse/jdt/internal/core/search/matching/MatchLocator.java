@@ -578,7 +578,7 @@ public class MatchLocator implements ITypeRequestor {
 			// only for this potential match and its required types.
 			this.nameEnvironment = project.getSearchableNameEnvironment();
 		} else {
-			this.nameEnvironment = new JavaSearchNameEnvironment2(project);
+			this.nameEnvironment = new JavaSearchNameEnvironment(project);
 		}
 
 		// create lookup environment

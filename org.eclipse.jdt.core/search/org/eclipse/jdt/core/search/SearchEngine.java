@@ -79,21 +79,21 @@ public SearchEngine(IWorkingCopy[] workingCopies) {
 /*
  * Removes from the given list of working copies the ones that cannot see the given focus.
  */
-private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaElement focus, boolean isPolymorphicSearch) {
-	if (focus == null || workingCopies == null) return workingCopies;
+private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] copies, IJavaElement focus, boolean isPolymorphicSearch) {
+	if (focus == null || copies == null) return copies;
 	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
 		focus = focus.getParent();
 	}
-	int length = workingCopies.length;
+	int length = copies.length;
 	IWorkingCopy[] result = null;
 	int index = -1;
 	for (int i=0; i<length; i++) {
-		IWorkingCopy workingCopy = workingCopies[i];
+		IWorkingCopy workingCopy = copies[i];
 		IPath projectOrJar = IndexSelector.getProjectOrJar((IJavaElement)workingCopy).getPath();
 		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
 			if (result == null) {
 				result = new IWorkingCopy[length-1];
-				System.arraycopy(workingCopies, 0, result, 0, i);
+				System.arraycopy(copies, 0, result, 0, i);
 				index = i;
 			}
 		} else if (result != null) {
@@ -106,7 +106,7 @@ private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaEl
 		}
 		return result;
 	} else {
-		return workingCopies;
+		return copies;
 	}
 }
 /**

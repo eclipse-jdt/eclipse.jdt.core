@@ -87,14 +87,14 @@ public class PotentialMatch implements ICompilationUnit {
 	 * Returns null if not found.
 	 */
 	private char[] findClassFileSource() {
-		String sourceFileName = getSourceFileName();
-		if (sourceFileName == NO_SOURCE_FILE_NAME) return null;
+		String fileName = getSourceFileName();
+		if (fileName == NO_SOURCE_FILE_NAME) return null;
 		char[] source = null; 
 		try {
 			SourceMapper sourceMapper = this.openable.getSourceMapper();
 			if (sourceMapper != null) {
 				IType type = ((ClassFile)this.openable).getType();
-				source = sourceMapper.findSource(type, sourceFileName);
+				source = sourceMapper.findSource(type, fileName);
 			}
 		} catch (JavaModelException e) {
 		}
@@ -147,15 +147,15 @@ public class PotentialMatch implements ICompilationUnit {
 			CompilationUnit cu = (CompilationUnit)this.openable;
 			return cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 		} else if (this.openable instanceof ClassFile) {
-			String sourceFileName = getSourceFileName();
-			if (sourceFileName == NO_SOURCE_FILE_NAME) {
+			String fileName = getSourceFileName();
+			if (fileName == NO_SOURCE_FILE_NAME) {
 				try {
 					return ((ClassFile)this.openable).getType().getFullyQualifiedName('.').toCharArray();
 				} catch (JavaModelException e) {
 					return null;
 				}
 			}
-			String simpleName = sourceFileName.substring(0, sourceFileName.length()-5); // length-".java".length()
+			String simpleName = fileName.substring(0, fileName.length()-5); // length-".java".length()
 			String pkgName = this.openable.getParent().getElementName();
 			if (pkgName.length() == 0) {
 				return simpleName.toCharArray();

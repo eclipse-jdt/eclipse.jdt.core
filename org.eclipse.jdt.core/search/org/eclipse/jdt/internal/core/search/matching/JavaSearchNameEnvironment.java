@@ -31,11 +31,11 @@ import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 /*
  * A name environment based on the classpath of a Java project.
  */
-public class JavaSearchNameEnvironment2 implements INameEnvironment {
+public class JavaSearchNameEnvironment implements INameEnvironment {
 	
 	ClasspathLocation[] locations;
 	
-public JavaSearchNameEnvironment2(IJavaProject javaProject) {
+public JavaSearchNameEnvironment(IJavaProject javaProject) {
 	try {
 		computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject);
 	} catch(CoreException e) {
@@ -56,27 +56,27 @@ private void computeClasspathLocations(
 	String encoding = null;
 	IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
 	int length = roots.length;
-	ClasspathLocation[] locations = new ClasspathLocation[length];
+	ClasspathLocation[] cpLocations = new ClasspathLocation[length];
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
 		IPackageFragmentRoot root = roots[i];
 		IPath path = root.getPath();
 		if (root.isArchive()) {
 			ZipFile zipFile = manager.getZipFile(path);
-			locations[i] = new ClasspathJar(zipFile);
+			cpLocations[i] = new ClasspathJar(zipFile);
 		} else {
 			Object target = JavaModel.getTarget(workspaceRoot, path, false);
 			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				if (encoding == null) {
 					encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 				}
-				locations[i] = new ClasspathSourceDirectory((IContainer)target, encoding);
+				cpLocations[i] = new ClasspathSourceDirectory((IContainer)target, encoding);
 			} else {
-				locations[i] = ClasspathLocation.forBinaryFolder((IContainer) target, false);
+				cpLocations[i] = ClasspathLocation.forBinaryFolder((IContainer) target, false);
 			}
 		}
 	}
-	this.locations = locations;
+	this.locations = cpLocations;
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {

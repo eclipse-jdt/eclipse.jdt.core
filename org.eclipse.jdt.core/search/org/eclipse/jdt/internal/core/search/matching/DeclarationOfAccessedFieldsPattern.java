@@ -89,8 +89,8 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 	ReferenceBinding declaringClass = fieldBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
 	if (type == null) return; // case of a secondary type
-	char[] name = fieldBinding.name;
-	IField field = type.getField(new String(name));
+	char[] bindingName = fieldBinding.name;
+	IField field = type.getField(new String(bindingName));
 	if (this.knownFields.contains(field)) return;
 	this.knownFields.add(field);
 	IResource resource = type.getResource();
@@ -107,7 +107,7 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 		FieldDeclaration fieldDecl = null;
 		FieldDeclaration[] fieldDecls = typeDecl.fields;
 		for (int i = 0, length = fieldDecls.length; i < length; i++) {
-			if (CharOperation.equals(name, fieldDecls[i].name)) {
+			if (CharOperation.equals(bindingName, fieldDecls[i].name)) {
 				fieldDecl = fieldDecls[i];
 				break;
 			}

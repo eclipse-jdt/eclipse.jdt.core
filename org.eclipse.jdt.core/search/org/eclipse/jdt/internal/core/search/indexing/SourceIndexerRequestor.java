@@ -144,13 +144,13 @@ public void enterClass(int declarationStart, int modifiers, char[] name, int nam
 			superinterfaces[i] = CharOperation.lastSegment(superinterfaces[i], '.');
 		}
 	}
-	char[][] enclosingTypeNames;
+	char[][] typeNames;
 	if (this.methodDepth > 0) {
-		enclosingTypeNames = ONE_ZERO_CHAR;
+		typeNames = ONE_ZERO_CHAR;
 	} else {
-		enclosingTypeNames = this.enclosingTypeNames();
+		typeNames = this.enclosingTypeNames();
 	}
-	this.indexer.addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces);
+	this.indexer.addClassDeclaration(modifiers, packageName, name, typeNames, superclass, superinterfaces);
 	this.pushTypeName(name);
 }
 /**
@@ -188,13 +188,13 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
 			superinterfaces[i] = CharOperation.lastSegment(superinterfaces[i], '.');
 		}
 	}	
-	char[][] enclosingTypeNames;
+	char[][] typeNames;
 	if (this.methodDepth > 0) {
-		enclosingTypeNames = ONE_ZERO_CHAR;
+		typeNames = ONE_ZERO_CHAR;
 	} else {
-		enclosingTypeNames = this.enclosingTypeNames();
+		typeNames = this.enclosingTypeNames();
 	}
-	this.indexer.addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces);
+	this.indexer.addInterfaceDeclaration(modifiers, packageName, name, typeNames, superinterfaces);
 	this.pushTypeName(name);	
 }
 /**

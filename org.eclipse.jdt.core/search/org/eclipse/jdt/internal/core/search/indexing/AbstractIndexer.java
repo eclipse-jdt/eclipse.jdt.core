@@ -553,8 +553,8 @@ public abstract String[] getFileTypes();
 /**
  * @see IIndexer#index(IDocument document, IIndexerOutput output)
  */
-public void index(IDocument document, IIndexerOutput output) throws IOException {
-	this.output = output;
+public void index(IDocument document, IIndexerOutput indexerOutput) throws IOException {
+	this.output = indexerOutput;
 	if (shouldIndex(document)) indexFile(document);
 }
 protected abstract void indexFile(IDocument document) throws IOException;

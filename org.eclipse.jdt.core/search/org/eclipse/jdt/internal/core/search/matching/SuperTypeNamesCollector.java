@@ -78,30 +78,30 @@ public class SuperTypeNamesCollector implements ITypeRequestor {
  */
 public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
-		ReferenceBinding type = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(type)) {
-			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
+		ReferenceBinding binding = typeDeclaration.binding;
+		if (SuperTypeNamesCollector.this.matches(binding)) {
+			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
 		}
 		return true;
 	}
 	public boolean visit(AnonymousLocalTypeDeclaration typeDeclaration, BlockScope scope) {
-		ReferenceBinding type = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(type)) {
-			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
+		ReferenceBinding binding = typeDeclaration.binding;
+		if (SuperTypeNamesCollector.this.matches(binding)) {
+			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
 		}
 		return true;
 	}
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
-		ReferenceBinding type = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(type)) {
-			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
+		ReferenceBinding binding = typeDeclaration.binding;
+		if (SuperTypeNamesCollector.this.matches(binding)) {
+			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
 		}
 		return true;
 	}
 	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, 	ClassScope scope) {
-		ReferenceBinding type = memberTypeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(type)) {
-			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
+		ReferenceBinding binding = memberTypeDeclaration.binding;
+		if (SuperTypeNamesCollector.this.matches(binding)) {
+			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
 		}
 		return true;
 	}
@@ -268,9 +268,9 @@ protected char[][][] collect() throws JavaModelException {
 		}
 	}
 }
-protected boolean matches(ReferenceBinding type) {
-	if (type == null || type.compoundName == null) return false;
-	return this.matches(type.compoundName);
+protected boolean matches(ReferenceBinding binding) {
+	if (binding == null || binding.compoundName == null) return false;
+	return this.matches(binding.compoundName);
 }
 protected boolean matches(char[][] compoundName) {
 	int length = compoundName.length;
@@ -329,17 +329,17 @@ private void addToResult(char[][] compoundName) {
 /**
  * Collects the names of all the supertypes of the given type.
  */
-protected void collectSuperTypeNames(ReferenceBinding type) {
+protected void collectSuperTypeNames(ReferenceBinding binding) {
 
 	// superclass
-	ReferenceBinding superclass = type.superclass();
+	ReferenceBinding superclass = binding.superclass();
 	if (superclass != null) {
 		this.addToResult(superclass.compoundName);
 		this.collectSuperTypeNames(superclass);
 	}
 
 	// interfaces
-	ReferenceBinding[] interfaces = type.superInterfaces();
+	ReferenceBinding[] interfaces = binding.superInterfaces();
 	if (interfaces != null) {
 		for (int i = 0; i < interfaces.length; i++) {
 			ReferenceBinding interfase = interfaces[i];
@@ -415,7 +415,7 @@ public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit source
  * @see ITypeRequestor#accept(ISourceType[], PackageBinding)
  */
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
-	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
+	CompilationResult compilationResult = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			sourceTypes, //sourceTypes[0] is always toplevel here
@@ -423,7 +423,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 			true, // need member types
 			false, // no need for field initialization
 			this.locator.lookupEnvironment.problemReporter, 
-			result);
+			compilationResult);
 
 	if (unit != null) {
 		this.locator.lookupEnvironment.buildTypeBindings(unit);

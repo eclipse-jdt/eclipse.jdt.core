@@ -513,9 +513,9 @@ public void shutdown() {
 	}
 
 	if (indexStates != null) {
-		Object[] indexNames = indexStates.keyTable;
-		for (int i = 0, l = indexNames.length; i < l; i++) {
-			String key = (String) indexNames[i];
+		Object[] keys = indexStates.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			String key = (String) keys[i];
 			if (key != null && !knownPaths.containsKey(key))
 				updateIndexState(key, null);
 		}
@@ -572,11 +572,11 @@ private void updateIndexState(String indexName, Integer indexState) {
 	BufferedWriter writer = null;
 	try {
 		writer = new BufferedWriter(new FileWriter(savedIndexNamesFile));
-		Object[] indexNames = indexStates.keyTable;
+		Object[] keys = indexStates.keyTable;
 		Object[] states = indexStates.valueTable;
 		for (int i = 0, l = states.length; i < l; i++) {
 			if (states[i] == SAVED_STATE) {
-				writer.write((String) indexNames[i]);
+				writer.write((String) keys[i]);
 				writer.write('\n');
 			}
 		}

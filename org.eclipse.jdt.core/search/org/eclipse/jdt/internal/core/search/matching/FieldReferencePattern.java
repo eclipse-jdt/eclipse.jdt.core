@@ -420,12 +420,12 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				FieldBinding fieldBinding = null;
 				if (binding instanceof FieldBinding) {
 					fieldBinding = (FieldBinding)binding;
-					char[] name = fieldBinding.name;
-					int lastDot = CharOperation.lastIndexOf('.', name);
+					char[] bindingName = fieldBinding.name;
+					int lastDot = CharOperation.lastIndexOf('.', bindingName);
 					if (lastDot > -1) {
-						name = CharOperation.subarray(name, lastDot+1, name.length);
+						bindingName = CharOperation.subarray(bindingName, lastDot+1, bindingName.length);
 					}
-					if (this.matchesName(this.name, name)) {
+					if (this.matchesName(this.name, bindingName)) {
 						return this.matchLevel(fieldBinding);
 					} 
 				} 
