@@ -560,7 +560,7 @@ class ASTConverter {
 				if (isPrimitiveType(name)) {
 					int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
 					if (end == -1) {
-						end = sourceStart + length;
+						end = sourceStart + length - 1;
 					}					
 					PrimitiveType primitiveType = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
 					primitiveType.setSourceRange(sourceStart, end - sourceStart + 1);
@@ -2517,6 +2517,13 @@ class ASTConverter {
 			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
 					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNamebyte:
+					case ITerminalSymbols.TokenNamechar:
+					case ITerminalSymbols.TokenNamedouble:
+					case ITerminalSymbols.TokenNamefloat:
+					case ITerminalSymbols.TokenNameint:
+					case ITerminalSymbols.TokenNamelong:
+					case ITerminalSymbols.TokenNameshort:
 						return scanner.currentPosition - 1;
 				}
 			}

@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0450"));			
+		suite.addTest(new ASTConverterTest2("test0451"));			
 		return suite;
 	}
 	/**
@@ -1369,6 +1369,25 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a member type", typeBinding.isMember());
 		assertTrue("not a nested type", typeBinding.isNested());		
 		assertTrue("a local type", !typeBinding.isLocal());
-	}	
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24916
+	 */
+	public void test0451() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0451", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 2, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		checkSourceRange(type, "int", source);
+	}
+	
 }
 
