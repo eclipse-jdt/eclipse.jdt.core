@@ -8793,4 +8793,25 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
 			"----------\n");
 	}
+	//77078
+	public void test337() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"public class X {\n" + 
+				"    public void foo() {\n" + 
+				"        Vector<Object> objectVector = new Vector<Object>() {\n" + 
+				"            protected void bar() {\n" + 
+				"                baz(this); /* ERROR */\n" + 
+				"            }\n" + 
+				"        };\n" + 
+				"        baz(objectVector);\n" + 
+				"        baz(new Vector<Object>());\n" + 
+				"    }\n" + 
+				"    public void baz(Vector<?> mysteryVector) { }\n" + 
+				"}\n",
+			},
+			"");
+	}	
 }
