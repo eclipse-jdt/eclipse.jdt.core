@@ -53,7 +53,9 @@ public String getName();
 /**
  * Returns a handle for the compilation unit associated with this 
  * document fragment, based on the parent package fragment.
- * The owner of the returned comppilation unit is the given owner.
+ * The owner of the returned comppilation unit is the given owner
+ * if such a working copy exists, otherwise the compilation unit is a 
+ * primary compilation unit..
  *
  * @param parent the parent package fragment
  * @param owner the owner of the returned compilation unit

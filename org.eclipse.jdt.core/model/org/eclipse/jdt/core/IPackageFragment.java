@@ -102,8 +102,10 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	ICompilationUnit getCompilationUnit(String name);
 	/**
 	 * Returns the compilation unit with the specified name
-	 * in this package (for example, <code>"Object.java"</code>) and the given
-	 * owner.
+	 * in this package (for example, <code>"Object.java"</code>).
+	 * The owner of the returned compilation unit is the given owner
+	 * if such a working copy exists, otherwise the compilation unit is a 
+	 * primary compilation unit.
 	 * The name has to be a valid compilation unit name.
 	 * This is a handle-only method.  The compilation unit may or may not be present.
 	 * @see JavaConventions#validateCompilationUnitName

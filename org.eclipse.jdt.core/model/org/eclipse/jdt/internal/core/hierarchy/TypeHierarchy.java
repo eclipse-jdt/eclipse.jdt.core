@@ -1190,7 +1190,7 @@ protected static byte[] readUntil(InputStream input, byte separator, int offset)
 	System.arraycopy(bytes, 0, bytes = new byte[length + offset], offset, length);
 	return bytes;
 }
-public static ITypeHierarchy load(IType type, InputStream input) throws JavaModelException {
+public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwner owner) throws JavaModelException {
 	try {
 		TypeHierarchy typeHierarchy = new TypeHierarchy();
 		typeHierarchy.initialize(1);
@@ -1244,7 +1244,7 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		while((b = (byte)input.read()) != SEPARATOR1 && b != -1) {
 			bytes = readUntil(input, SEPARATOR4, 1);
 			bytes[0] = b;
-			IType element = (IType)JavaCore.create(new String(bytes));
+			IType element = (IType)JavaCore.create(new String(bytes), owner);
 			
 			if(types.length == typeCount) {
 				System.arraycopy(types, 0, types = new IType[typeCount * 2], 0, typeCount);

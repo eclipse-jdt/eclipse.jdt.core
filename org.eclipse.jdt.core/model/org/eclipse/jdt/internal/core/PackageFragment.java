@@ -177,7 +177,17 @@ public ICompilationUnit getCompilationUnit(String name) {
  * @see IPackageFragment#getCompilationUnit(String, WorkingCopyOwner)
  */
 public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) {
-	return new CompilationUnit(this, name, owner);
+	CompilationUnit cu = new CompilationUnit(this, name, owner);
+	if (owner == DefaultWorkingCopyOwner.PRIMARY) {
+		return cu;
+	} else {
+		// must be a working copy
+		if (cu.getPerWorkingCopyInfo() != null) {
+			return cu;
+		} else {
+			return new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
+		}
+	}
 }
 /**
  * @see IPackageFragment#getCompilationUnits()

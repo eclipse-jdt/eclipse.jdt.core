@@ -429,7 +429,13 @@ public boolean isMember() throws JavaModelException {
  * @see IType
  */
 public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monitor) throws JavaModelException {
-	return TypeHierarchy.load(this, input);
+	return loadTypeHierachy(input, DefaultWorkingCopyOwner.PRIMARY, monitor);
+}
+/**
+ * @see IType
+ */
+public ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	return TypeHierarchy.load(this, input, owner);
 }
 /**
  * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)
