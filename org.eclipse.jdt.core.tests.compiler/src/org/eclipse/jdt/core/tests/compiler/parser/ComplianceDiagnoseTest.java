@@ -22,7 +22,7 @@ public ComplianceDiagnoseTest(String name) {
 	static {
 		// Use this static to specify a subset of tests using testsNames, testsNumbers or testsRange arrays
 //		testsNames = new String[] { "MissingTagsErrorPublicOverriding" };
-		testsNumbers = new int[] { 23 };
+//		testsNumbers = new int[] { 23 };
 //		testsRange = new int[] { 78, -1 };
 	}
 	public static Test suite() {
