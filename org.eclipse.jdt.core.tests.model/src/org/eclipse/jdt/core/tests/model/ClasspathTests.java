@@ -1460,6 +1460,28 @@ public void testNullClasspath() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/**
+ * Ensure that reading an empty custom putput from the .classpath returns a non-null output location.
+ * (regression test for 28531 Classpath Entry: Output folder can not be set to project)
+ */
+public void testReadEmptyCustomOutput() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {}, "");
+		this.editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" output=\"\" path=\"\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		assertEquals("Unexpected classpath length", 1, classpath.length);
+		assertEquals("Unexpected custom output location", new Path("/P"), classpath[0].getOutputLocation());
+	} finally {
+		this.deleteProject("P");
+	}
+}
 
 
 public void testCycleDetection() throws CoreException {

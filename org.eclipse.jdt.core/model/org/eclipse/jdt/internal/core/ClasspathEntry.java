@@ -249,8 +249,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 
 		// custom output location
-		String outputLocationStr = element.getAttribute("output"); //$NON-NLS-1$ 
-		IPath outputLocation = outputLocationStr.equals("") ? null : projectPath.append(outputLocationStr); //$NON-NLS-1$
+		IPath outputLocation = element.hasAttribute("output") ? projectPath.append(element.getAttribute("output")) : null; //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// recreate the CP entry
 		switch (kind) {
