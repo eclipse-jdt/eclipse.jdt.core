@@ -17,11 +17,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 	
 	public int rank; // declaration rank, can be used to match variable in parameterized type
 	public ReferenceBinding firstBound;
+	public ReferenceBinding superclass;
+	public ReferenceBinding[] superInterfaces;
 	
 	public TypeVariableBinding(char[] sourceName, int rank){
 
 		this.sourceName = sourceName;
 		this.rank = rank; 
+	}
+
+	public char[] constantPoolName() /* java/lang/Object */ {
+		return this.firstBound.constantPoolName();
 	}
 
 	/**
@@ -30,4 +36,35 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isTypeVariable() {
 	    return true;
 	}
+	
+	public ReferenceBinding superclass() {
+		return superclass;
+	}
+	public ReferenceBinding[] superInterfaces() {
+		return superInterfaces;
+	}	
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer(10);
+		buffer.append('<').append(this.sourceName).append('[').append(this.rank).append(']');
+		if (this.superclass != null) {
+		    buffer.append(" extends ").append(this.superclass.debugName()); //$NON-NLS-1$
+		}
+		if (this.superInterfaces != null && this.superInterfaces != NoSuperInterfaces) {
+		   if (this.superclass == null) {
+		        buffer.append(" extends "); //$NON-NLS-1$
+	        }
+		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+		        if (i > 0 || this.superclass != null) {
+		            buffer.append(", "); //$NON-NLS-1$
+		        }
+				buffer.append(this.superInterfaces[i].debugName());
+			}
+		}
+		buffer.append('>');
+		return buffer.toString();
+	}	
 }
