@@ -43,7 +43,7 @@ public abstract class SubRoutineStatement extends Statement {
 		ExceptionLabel currentLabel = this.anyExceptionLabels[this.anyExceptionLabelsCount-1];
 		if (currentLabel.start == currentLabel.codeStream.position) {
 			// discard empty exception handler
-			this.anyExceptionLabels[this.anyExceptionLabelsCount--] = null;
+			this.anyExceptionLabels[--this.anyExceptionLabelsCount] = null;
 		}
 		currentLabel.placeEnd();
 	}
