@@ -432,6 +432,7 @@ public final class JavaConventions {
 	
 		boolean allowNestingInOutput = false;
 		boolean hasSource = false;
+		boolean hasLibFolder = false;
 	
 		// tolerate null path, it will be reset to default
 		int length = classpath == null ? 0 : classpath.length; 
@@ -474,6 +475,10 @@ public final class JavaConventions {
 					
 				case IClasspathEntry.CPE_SOURCE :
 					hasSource = true;
+				case IClasspathEntry.CPE_LIBRARY:
+					if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(rawEntry.getPath().lastSegment())) {
+						hasLibFolder = true;
+					}
 				default :
 					// check if any source entries coincidates with binary output - in which case nesting inside output is legal
 					if (rawEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
@@ -481,7 +486,7 @@ public final class JavaConventions {
 					break;
 			}
 		}
-		if (!hasSource) allowNestingInOutput = true; // if no source, then allowed
+		if (!hasSource && !hasLibFolder) allowNestingInOutput = true; // if no source and no lib folder, then allowed
 		
 		length = resolvedEntries.size();
 		classpath = new IClasspathEntry[length];
