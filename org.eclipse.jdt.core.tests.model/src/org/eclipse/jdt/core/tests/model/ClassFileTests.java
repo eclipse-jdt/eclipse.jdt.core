@@ -54,9 +54,10 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"generic/X.java", 
 			"package generic;\n" +
 			"public class X<T> {\n" + 
-			"  void foo(X<T> x) {\n" +
+			"  <U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
+			"    return null;\n" +
 			"  }\n" +
-			"  <K, V> V foo(K key, V value) {\n" +
+			"  <K, V> V foo(K key, V value) throws Exception {\n" +
 			"    return value;\n" +
 			"  }\n" +
 			"}",
@@ -89,6 +90,31 @@ public class ClassFileTests extends ModifyingResourceTests {
 		deleteProject("P");
 	}
 	
+	/*
+	 * Ensure that the exception types of a binary method are correct.
+	 */
+	public void testExceptionTypes1() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
+		assertStringsEqual(
+			"Unexpected return type",
+			"Ljava.lang.Exception;\n",
+			method.getExceptionTypes());
+	}
+
+	/*
+	 * Ensure that the exception types of a binary method is correct.
+	 */
+	public void testExceptionTypes2() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] {"Lgeneric.X<TT;>;"});
+		assertStringsEqual(
+			"Unexpected return type",
+			"Ljava.lang.RuntimeException;\n" + 
+			"TU;\n",
+			method.getExceptionTypes());
+	}
+
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
@@ -157,5 +183,29 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"K:Ljava.lang.Object;\n" + 
 			"V:Ljava.lang.Object;\n",
 			method.getTypeParameterSignatures());
+	}
+	
+	/*
+	 * Ensure that the return type of a binary method is correct.
+	 */
+	public void testReturnType1() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
+		assertEquals(
+			"Unexpected return type",
+			"TV;",
+			method.getReturnType());
+	}
+
+	/*
+	 * Ensure that the return type of a binary method is correct.
+	 */
+	public void testReturnType2() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] {"Lgeneric.X<TT;>;"});
+		assertEquals(
+			"Unexpected return type",
+			"Lgeneric.X<TT;>;",
+			method.getReturnType());
 	}
 }
