@@ -11,6 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
 /**
  * A binding resolver is an internal mechanism for figuring out the binding
  * for a major declaration, type, or name reference.
@@ -50,7 +53,7 @@ class BindingResolver {
 	 * @param newNode the new AST node
 	 * @param oldNode the old AST node
 	 */
-	void store(ASTNode newNode, org.eclipse.jdt.internal.compiler.ast.AstNode oldASTNode) {
+	void store(ASTNode newNode, AstNode oldASTNode) {
 	}
 
 	/**
@@ -463,5 +466,26 @@ class BindingResolver {
 	 * @param newNode the new AST node
 	 */
 	void updateKey(ASTNode node, ASTNode newNode) {
+	}
+	
+	/**
+	 * Allows the user to get information about the given old/new pair of
+	 * AST nodes.
+	 * <p>
+	 * The default implementation of this method does nothing.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *	 * @param currentNode the new node	 * @return AstNode	 */
+	AstNode getCorrespondingNode(ASTNode currentNode) {
+		return null;
+	} 
+
+	/**
+	 * This method is used to record the scope and its corresponding node.	 * <p>
+	 * The default implementation of this method does nothing.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * @param astNode	 */	
+	void recordScope(ASTNode astNode, BlockScope blockScope) {
 	}
 }

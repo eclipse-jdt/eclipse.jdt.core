@@ -11,7 +11,11 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -26,6 +30,8 @@ class ASTConverter {
 	private char[] compilationUnitSource;
 	private Scanner scanner;
 	private boolean resolveBindings;
+	private Set pendingThisExpressionScopeResolution;
+	private Set pendingNameScopeResolution;	
 	
 	public ASTConverter(boolean resolveBindings) {
 		this.resolveBindings = resolveBindings;
@@ -46,7 +52,8 @@ class ASTConverter {
 			recordNodes(compilationUnit, unit);
 		}
 		if (unit.currentPackage != null) {
-			compilationUnit.setPackage(convertPackage(unit.currentPackage));
+			PackageDeclaration packageDeclaration = convertPackage(unit);
+			compilationUnit.setPackage(packageDeclaration);
 		}
 		ImportReference[] imports = unit.imports;
 		if (imports != null) {
@@ -67,10 +74,14 @@ class ASTConverter {
 		if (unit.compilationResult.problemCount != 0) {
 			propagateErrors(compilationUnit, unit.compilationResult.problems, unit.compilationResult.problemCount);
 		}
+		if (resolveBindings) {
+			lookupForScopes();
+		}
 		return compilationUnit;
 	}
 	
-	public PackageDeclaration convertPackage(ImportReference importReference) {
+	public PackageDeclaration convertPackage(CompilationUnitDeclaration compilationUnitDeclaration) {
+		ImportReference importReference = compilationUnitDeclaration.currentPackage;
 		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
 		char[][] tokens = importReference.tokens;
 		int length = importReference.tokens.length;
@@ -88,6 +99,7 @@ class ASTConverter {
 		packageDeclaration.setName(name);
 		if (resolveBindings) {
 			recordNodes(packageDeclaration, importReference);
+			recordNodes(name, compilationUnitDeclaration);
 		}
 		return packageDeclaration;
 	}
@@ -158,6 +170,7 @@ class ASTConverter {
 		setJavaDocComment(typeDecl);
 		if (resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
+			recordNodes(typeName, typeDeclaration);
 			typeDecl.resolveBinding();
 		}
 		return typeDecl;
@@ -303,28 +316,48 @@ class ASTConverter {
 	private QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, AstNode node) {
 		int length = typeName.length;
 		SimpleName firstToken = this.ast.newSimpleName(new String(typeName[0]));
+		firstToken.index = length - 1;
 		int start0 = (int)(positions[0]>>>32);
 		int start = start0;
 		int end = (int)(positions[0] & 0xFFFFFFFF);
 		firstToken.setSourceRange(start, end - start + 1);
 		SimpleName secondToken = this.ast.newSimpleName(new String(typeName[1]));
+		secondToken.index = length - 2;
 		start = (int)(positions[1]>>>32);
 		end = (int)(positions[1] & 0xFFFFFFFF);
 		secondToken.setSourceRange(start, end - start + 1);
 		QualifiedName qualifiedName = this.ast.newQualifiedName(firstToken, secondToken);
+		if (this.resolveBindings) {
+			recordNodes(qualifiedName, node);
+			recordPendingNameScopeResolution(qualifiedName);
+			recordNodes(firstToken, node);
+			recordNodes(secondToken, node);
+			recordPendingNameScopeResolution(firstToken);
+			recordPendingNameScopeResolution(secondToken);
+		}
+		qualifiedName.index = length - 2;
 		qualifiedName.setSourceRange(start0, end - start0 + 1);
 		SimpleName newPart = null;
 		for (int i = 2; i < length; i++) {
 			newPart = this.ast.newSimpleName(new String(typeName[i]));
+			newPart.index = length - i - 1;
 			start = (int)(positions[i]>>>32);
 			end = (int)(positions[i] & 0xFFFFFFFF);
 			newPart.setSourceRange(start,  end - start + 1);
 			qualifiedName = this.ast.newQualifiedName(qualifiedName, newPart);
+			qualifiedName.index = newPart.index;
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
+			if (this.resolveBindings) {
+				recordNodes(qualifiedName, node);
+				recordNodes(newPart, node);				
+				recordPendingNameScopeResolution(qualifiedName);
+				recordPendingNameScopeResolution(newPart);
+			}
 		}
 		QualifiedName name = qualifiedName;
 		if (this.resolveBindings) {
 			recordNodes(name, node);
+			recordPendingNameScopeResolution(name);
 		}
 		return name;
 	}
@@ -339,21 +372,23 @@ class ASTConverter {
 			return convert((QualifiedThisReference) reference);
 		}  else {
 			ThisExpression thisExpression = this.ast.newThisExpression();
+			thisExpression.setSourceRange(reference.sourceStart, reference.sourceEnd - reference.sourceStart + 1);
 			if (this.resolveBindings) {
 				recordNodes(thisExpression, reference);
+				recordPendingThisExpressionScopeResolution(thisExpression);
 			}
-			thisExpression.setSourceRange(reference.sourceStart, reference.sourceEnd - reference.sourceStart + 1);
 			return thisExpression;
 		}
 	}
 
 	public ThisExpression convert(QualifiedThisReference reference) {
 		ThisExpression thisExpression = this.ast.newThisExpression();
-		if (this.resolveBindings) {
-			recordNodes(thisExpression, reference);
-		}
 		thisExpression.setSourceRange(reference.sourceStart, reference.sourceEnd - reference.sourceStart + 1);
 		thisExpression.setQualifier(convert(reference.qualification));
+		if (this.resolveBindings) {
+			recordNodes(thisExpression, reference);
+			recordPendingThisExpressionScopeResolution(thisExpression);
+		}
 		return thisExpression;
 	}
 
@@ -482,11 +517,24 @@ class ASTConverter {
 		setJavaDocComment(typeDecl);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
+			recordNodes(typeName, typeDeclaration);
 			typeDecl.resolveBinding();
 		}
 		return typeDecl;
 	}
 
+	private void completeRecord(ArrayType arrayType, AstNode astNode) {
+		ArrayType array = arrayType;
+		int dimensions = array.getDimensions();
+		for (int i = 0; i < dimensions; i++) {
+			Type componentType = array.getComponentType();
+			this.recordNodes(componentType, astNode);
+			if (componentType.isArrayType()) {
+				array = (ArrayType) componentType;
+			}
+		}
+	}
+	
 	public Type convertType(TypeReference typeReference) {
 		Type type = null;				
 		int sourceStart = -1;
@@ -507,6 +555,10 @@ class ASTConverter {
 					PrimitiveType primitiveType = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
 					primitiveType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(primitiveType, dimensions);
+					if (resolveBindings) {
+						// store keys for inner types
+						completeRecord((ArrayType) type, typeReference);
+					}
 					type.setSourceRange(sourceStart, length);
 				} else {
 					SimpleName simpleName = this.ast.newSimpleName(new String(name));
@@ -522,6 +574,7 @@ class ASTConverter {
 					type = this.ast.newArrayType(simpleType, dimensions);
 					type.setSourceRange(sourceStart, length);
 					if (this.resolveBindings) {
+						completeRecord((ArrayType) type, typeReference);
 						this.recordNodes(simpleName, typeReference);
 					}
 				}
@@ -545,12 +598,15 @@ class ASTConverter {
 			long[] positions = ((QualifiedTypeReference) typeReference).sourcePositions;
 			sourceStart = (int)(positions[0]>>>32);
 			length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
+			Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 			if (dimensions != 0) {
 				// need to find out if this is an array type of primitive types or not
-				Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 				SimpleType simpleType = this.ast.newSimpleType(qualifiedName);
 				simpleType.setSourceRange(sourceStart, length);
 				type = this.ast.newArrayType(simpleType, dimensions);
+				if (this.resolveBindings) {
+					completeRecord((ArrayType) type, typeReference);
+				}				
 				int end = retrieveEndOfDimensionsPosition(sourceStart+length, this.compilationUnitSource.length);
 				if (end != -1) {
 					type.setSourceRange(sourceStart, end - sourceStart + 1);
@@ -558,7 +614,6 @@ class ASTConverter {
 					type.setSourceRange(sourceStart, length);
 				}
 			} else {
-				Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 				type = this.ast.newSimpleType(qualifiedName);
 				type.setSourceRange(sourceStart, length);
 			}
@@ -663,6 +718,7 @@ class ASTConverter {
 		setJavaDocComment(methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
+			recordNodes(methodName, methodDeclaration);
 			methodDecl.resolveBinding();
 		}
 		return methodDecl;
@@ -918,6 +974,9 @@ class ASTConverter {
 			arrayType = (ArrayType) type;
 		} else {
 			arrayType = this.ast.newArrayType(type, dimensionsLength);
+			if (this.resolveBindings) {
+				completeRecord(arrayType, expression);
+			}			
 			int start = type.getStartPosition();
 			int end = type.getStartPosition() + type.getLength();
 			int previousSearchStart = end;
@@ -3174,6 +3233,36 @@ class ASTConverter {
 			}
 		} catch(InvalidInputException e) {
 		}
+	}
+	
+	private void recordPendingThisExpressionScopeResolution(ThisExpression thisExpression) {
+		if (this.pendingThisExpressionScopeResolution == null) {
+			this.pendingThisExpressionScopeResolution = new HashSet();
+		}
+		this.pendingThisExpressionScopeResolution.add(thisExpression);
+	}
+	
+	private void recordPendingNameScopeResolution(Name name) {
+		if (this.pendingNameScopeResolution == null) {
+			this.pendingNameScopeResolution = new HashSet();
+		}
+		this.pendingNameScopeResolution.add(name);
+	}
+	
+	private void lookupForScopes() {
+		if (this.pendingNameScopeResolution != null) {
+			for (Iterator iterator = this.pendingNameScopeResolution.iterator(); iterator.hasNext(); ) {
+				Name name = (Name) iterator.next();
+				this.ast.getBindingResolver().recordScope(name, name.lookupScope());
+			}
+		}
+		if (this.pendingThisExpressionScopeResolution != null) {
+			for (Iterator iterator = this.pendingThisExpressionScopeResolution.iterator(); iterator.hasNext(); ) {
+				ThisExpression thisExpression = (ThisExpression) iterator.next();
+				this.ast.getBindingResolver().recordScope(thisExpression, thisExpression.lookupScope());
+			}
+		}
+		
 	}
 }
 

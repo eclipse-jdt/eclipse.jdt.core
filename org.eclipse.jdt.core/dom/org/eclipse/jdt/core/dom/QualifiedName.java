@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+
 /**
  * AST node for a qualified name. A qualified name is defined recursively
  * as a simple name preceded by a name, which qualifies it. Expressing it this
@@ -37,8 +38,7 @@ public class QualifiedName extends Name {
 	 * Java identifier.
 	 */
 	private Name qualifier = null;
-	
-	/**
+		/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */

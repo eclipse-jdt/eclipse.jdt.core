@@ -170,7 +170,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			acceptChild(visitor, getReturnType());
+			if (!isConstructor) {
+				acceptChild(visitor, getReturnType());
+			}
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, parameters);
 			acceptChildren(visitor, thrownExceptions);

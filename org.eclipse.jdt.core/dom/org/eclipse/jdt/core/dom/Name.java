@@ -11,6 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
 /**
  * Abstract base class for all AST nodes that represent names.
  * There are exactly two kinds of name: simple ones 
@@ -26,6 +29,11 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public abstract class Name extends Expression {
+	
+	/**
+	 * This index reprensents the position inside a qualified name.
+	 */
+	int index;
 	
 	/**
 	 * Creates a new AST node for a name owned by the given AST.
@@ -74,4 +82,43 @@ public abstract class Name extends Expression {
 	public final IBinding resolveBinding() {
 		return getAST().getBindingResolver().resolveName(this);
 	}
+
+	BlockScope lookupScope() {
+		ASTNode currentNode = this;
+		while(currentNode != null
+			&&!(currentNode instanceof MethodDeclaration)
+			&& !(currentNode instanceof Initializer)
+			&& !(currentNode instanceof FieldDeclaration)) {
+			currentNode = currentNode.getParent();
+		}
+		if (currentNode == null) {
+			return null;
+		}
+		if (currentNode instanceof Initializer) {
+			Initializer initializer = (Initializer) currentNode;
+			while(!(currentNode instanceof TypeDeclaration)) {
+				currentNode = currentNode.getParent();
+			}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
+			}
+		} else if (currentNode instanceof FieldDeclaration) {
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
+			while(!(currentNode instanceof TypeDeclaration)) {
+				currentNode = currentNode.getParent();
+			}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
+			}
+		}
+		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+		return abstractMethodDeclaration.scope;
+	}	
+	
 }
