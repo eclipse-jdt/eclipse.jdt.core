@@ -974,7 +974,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
 					.append(index)
 					.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
-				buffer.append(localVariableTableEntry.getDescriptor());
+				char[] localVariableTableDescriptor = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+				CharOperation.replace(localVariableTableDescriptor, '/', '.');
+				buffer.append(localVariableTableDescriptor);
 				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
 			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
@@ -990,8 +992,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(localVariableTableEntry.getName())
 				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
 				.append(index)
-				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
-				.append(localVariableTableEntry.getDescriptor());
+				.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
+			char[] localVariableTableDescriptor = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+			CharOperation.replace(localVariableTableDescriptor, '/', '.');
+			buffer.append(localVariableTableDescriptor);
 		} 
 		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
 		int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();

@@ -177,7 +177,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"        [pc: 6, line: 4]\n" + 
 			"        [pc: 12, line: 5]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n";
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n";
 		checkClassFile("A002", source, expectedOutput);
 	}
 	

@@ -407,7 +407,7 @@ public void test009() {
 		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" + 
 		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" + 
 		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
-		"        [pc: 86, pc: 95] local: s2 index: 3 type: java/lang/String\n";
+		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
@@ -467,7 +467,7 @@ public void test010() {
 		"        [pc: 9, line: 7]\n" + 
 		"        [pc: 17, line: 8]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 18] local: args index: 0 type: java/lang/String[]\n";
+		"        [pc: 0, pc: 18] local: args index: 0 type: java.lang.String[]\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
