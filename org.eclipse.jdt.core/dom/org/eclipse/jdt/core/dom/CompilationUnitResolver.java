@@ -168,8 +168,8 @@ class CompilationUnitResolver extends Compiler {
 						new String(fileName),
 						encoding),
 					true, // method verification
-					true, // no flow analysis
-					true); // no code generation
+					true, // analyze code
+					true); // generate code
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -271,8 +271,8 @@ class CompilationUnitResolver extends Compiler {
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(source, expectedPackageName, unitName, encoding),
 					true, // method verification
-					true, // no flow analysis
-					true); // no code generation			
+					true, // analyze code
+					true); // generate code
 			return unit;
 		} finally {
 			if (unit != null) {
