@@ -14,7 +14,9 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 import java.io.*;
 import java.util.*;
@@ -144,8 +146,22 @@ public class TestingEnvironment {
 	}
 	
 	public IPath addProject(String projectName){
+		return addProject(projectName, "1.4");
+	}
+
+	public IPath addProject(String projectName, String compliance){
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IProject project = createProject(projectName);
+		if ("1.5".equals(compliance)) {
+			if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) == 0)
+				throw new RuntimeException("This test should run on top of a 1.5 JRE");
+			IJavaProject javaProject = JavaCore.create(project);
+			Map options = new HashMap();
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+			javaProject.setOptions(options);
+		}
 		return project.getFullPath();
 	}
 
@@ -242,7 +258,7 @@ public class TestingEnvironment {
 	private void checkAssertion(String message, boolean b) {
 		Assert.isTrue(b, message);
 	}
-
+	
 	/** Closes the testing environment and frees up any
 	 * resources.  Once the testing environment is closed,
 	 * it shouldn't be used any more.
