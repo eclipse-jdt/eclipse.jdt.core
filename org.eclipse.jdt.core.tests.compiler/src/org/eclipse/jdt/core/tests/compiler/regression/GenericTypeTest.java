@@ -5343,8 +5343,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		new <String>X(\"SUCCESS\");\n" + 
-				"	\n" + 
-				"}\n" + 
+				"	}\n" + 
 				"}\n", 
 			},
 			"SUCCESS");
@@ -5360,8 +5359,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		new <String, String>X(\"FAILED\");\n" + 
-				"	\n" + 
-				"}\n" + 
+				"	}\n" + 
 				"}\n", 
 			},
 			"----------\n" + 
@@ -5382,8 +5380,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		new <String>X(\"FAILED\");\n" + 
-				"	\n" + 
-				"}\n" + 
+				"	}\n" + 
 				"}\n", 
 			},
 			"----------\n" + 
@@ -5404,8 +5401,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		new <String>X(new X(null));\n" + 
-				"	\n" + 
-				"}\n" + 
+				"	}\n" + 
 				"}\n", 
 			},
 			"----------\n" + 
@@ -5437,4 +5433,91 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The parameterized method <String>foo(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}
+	// parameterized qualified allocation
+	public void test195() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public class MX {\n" +
+				"		public <T> MX(T t){\n" + 
+				"			System.out.println(t);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new <String>MX(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}		
+	// parameterized qualified allocation - wrong arity
+	public void test196() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public class MX {\n" +
+				"		public <T> MX(T t){\n" + 
+				"			System.out.println(t);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new <String,String>MX(\"FAILED\");\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().new <String,String>MX(\"FAILED\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Incorrect number of type arguments for generic constructor <T>MX(T) of type X.MX; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n");
+	}			
+	// parameterized qualified allocation - non generic target constructor
+	public void test197() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public class MX {\n" +
+				"		public MX(String t){\n" + 
+				"			System.out.println(t);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new <String>MX(\"FAILED\");\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().new <String>MX(\"FAILED\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor MX(String) of type X.MX is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	}			
+	// parameterized qualified allocation - argument type mismatch
+	public void test198() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public class MX {\n" +
+				"		public <T>MX(T t){\n" + 
+				"			System.out.println(t);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new <String>MX(new X());\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().new <String>MX(new X());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The parameterized constructor <String>MX(String) of type X.MX is not applicable for the arguments (X)\n" + 
+			"----------\n");
+	}			
 }
