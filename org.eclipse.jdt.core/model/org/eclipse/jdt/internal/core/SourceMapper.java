@@ -53,8 +53,19 @@ public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor {
 		
-	public static boolean VERBOSE = false;
+	private static boolean VERBOSE = false;
+	private final static String SUFFIX_java = ".java"; //$NON-NLS-1$
+	private final static String SUFFIX_JAVA = ".JAVA"; //$NON-NLS-1$
 
+	/**
+	 * Specifies the file name filter use to compute the root paths.
+	 */
+	private static final FilenameFilter FILENAME_FILTER = new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+			return name.endsWith(SUFFIX_JAVA) || name.endsWith(SUFFIX_java); //$NON-NLS-1$
+		}
+	};
+	
 	/**
 	 * Specifies the location of the package fragment roots within
 	 * the zip (empty specifies the default root). <code>null</code> is
@@ -167,11 +178,7 @@ public class SourceMapper
 		
 	public SourceMapper() {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".java"); //$NON-NLS-1$
-			}
-		};
+		this.filenameFilter = FILENAME_FILTER;
 	}
 	
 	/**
@@ -180,11 +187,7 @@ public class SourceMapper
 	 */
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".java"); //$NON-NLS-1$
-			}
-		};
+		this.filenameFilter = FILENAME_FILTER;
 		this.options = options;
 		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
 		if (rootPath != null) {
