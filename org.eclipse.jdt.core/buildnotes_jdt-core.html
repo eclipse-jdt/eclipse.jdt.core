@@ -140,7 +140,11 @@ swith(c) {
 }
 </pre>
 </li>
-<li>Add API for new completion kind: CompletionProposal.ANNOTATION_ATTRIBUTE_REF.<br>
+<li>New CodeAssist feature: Annotation's attribute name are proposed.
+<pre>
+@Annot(attr&lt;complete here&gt=value)
+</pre>
+To propose this new completion kind a new API has been added: CompletionProposal.ANNOTATION_ATTRIBUTE_REF.<br>
 <pre>
 /**
  * Completion is a reference to annotation's attribute.
