@@ -321,6 +321,9 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
+		if (owner == null) {
+			throw new IllegalArgumentException();
+		}
 		
 		char[] source = null;
 		try {
@@ -505,6 +508,9 @@ public final class AST {
 		WorkingCopyOwner owner) {
 			
 		if (classFile == null) {
+			throw new IllegalArgumentException();
+		}
+		if (owner == null) {
 			throw new IllegalArgumentException();
 		}
 		char[] source = null;
@@ -724,6 +730,9 @@ public final class AST {
 			// this just reduces to the other simplest case
 			return parseCompilationUnit(source);
 		}
+		if (owner == null) {
+			throw new IllegalArgumentException();
+		}
 	
 		NameLookup lookup = null;
 		try {
@@ -814,16 +823,46 @@ public final class AST {
 	}
 
 	/**
-	 * Parses the source string of the given Java model compilation unit element and populated the
-	 * node that contains the given position, and creates and returns a corresponding
-	 * abstract syntax tree. The source string is obtained from the Java model element
-	 * using <code>ICompilationUnit.getSource()</code>.
+	 * Parses the source string of the given Java model compilation unit element
+	 * and creates and returns an abridged abstract syntax tree. This method
+	 * differs from
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean)
+	 * parseCompilationUnit(ICompilationUnit,boolean)} only in 
+	 * that the resulting AST does not have nodes for the entire compilation
+	 * unit. Rather, the AST is only fleshed out for the node that include
+	 * the given source position. This kind of limited AST is sufficient for
+	 * certain purposes but totally unsuitable for others. In places where it
+	 * can be used, the limited AST offers the advantage of being smaller and
+	 * faster to faster to construct.
+	 * </p>
 	 * <p>
-	 * Only the method or initializer containing the given position will be populated with its 
-	 * statements. Field initializers are preserved even if the given position is not within
-	 * the field declaration source range. If the given position is not located within any body
-	 * declarations, then a compilation unit is returned without any statements inside its methods or
-	 * initializers.
+	 * The resulting AST always includes nodes for all of the compilation unit's
+	 * package, import, and top-level type declarations. It also always contains
+	 * nodes for all the body declarations for those top-level types, as well
+	 * as body declarations for any member types. However, some of the body
+	 * declarations may be abridged. In particular, the statements ordinarily
+	 * found in the body of a method declaration node will not be included
+	 * (the block will be empty) unless the source position falls somewhere
+	 * within the source range of that method declaration node. The same is true
+	 * for initializer declarations; the statements ordinarily found in the body
+	 * of initializer node will not be included unless the source position falls
+	 * somewhere within the source range of that initializer declaration node.
+	 * Field declarations are never abridged. Note that the AST for the body of
+	 * that one unabridged method (or initializer) is 100% complete; it has all
+	 * its statements, including any local or anonymous type declarations 
+	 * embedded within them. When the the given position is not located within
+	 * the source range of any body declaration of a top-level type, the AST
+	 * returned is a skeleton that includes nodes for all and only the major
+	 * declarations; this kind of AST is still quite useful because it contains
+	 * all the constructs that introduce names visible to the world outside the
+	 * compilation unit.
+	 * </p>
+	 * <p>
+	 * In all other respects, this method works the same as
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean)
+	 * parseCompilationUnit(ICompilationUnit,boolean)}.
+	 * The source string is obtained from the Java model element using
+	 * <code>ICompilationUnit.getSource()</code>.
 	 * </p>
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
@@ -861,19 +900,17 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param unit the Java model compilation unit whose source code is to be parsed
-	 * @param position the given position to locate the corresponding body declaration
+	 * @param position a position into the corresponding body declaration
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
-	 * @return the compilation unit node
+	 * @return the abridged compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
-	 * exist or the source range is null or if its source string cannot be obtained
-	 * @see ASTNode#getFlags()
+	 * exist or if its source string cannot be obtained
+	 * @see ASTNode#getFlags
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPosition()
-	 * @see ASTNode#getLength()
-	 * @see WorkingCopyOwner
+	 * @see ASTNode#getStartPosition
+	 * @see ASTNode#getLength
 	 * @since 3.0
- 	 * TODO Jim, please review the javadoc. We can discuss about it if necessary
 	 */
 	public static CompilationUnit parsePartialCompilationUnit(
 		ICompilationUnit unit,
@@ -883,16 +920,47 @@ public final class AST {
 	}
 
 	/**
-	 * Parses the source string of the given Java model compilation unit element and populated the
-	 * node that contains the given position, and creates and returns a corresponding
-	 * abstract syntax tree. The source string is obtained from the Java model element
-	 * using <code>ICompilationUnit.getSource()</code>.
+	/**
+	 * Parses the source string of the given Java model compilation unit element
+	 * and creates and returns an abridged abstract syntax tree. This method
+	 * differs from
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)
+	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)} only in 
+	 * that the resulting AST does not have nodes for the entire compilation
+	 * unit. Rather, the AST is only fleshed out for the node that include
+	 * the given source position. This kind of limited AST is sufficient for
+	 * certain purposes but totally unsuitable for others. In places where it
+	 * can be used, the limited AST offers the advantage of being smaller and
+	 * faster to faster to construct.
+	 * </p>
 	 * <p>
-	 * Only the method or initializer containing the given position will be populated with its 
-	 * statements. Field initializers are preserved even if the given position is not within
-	 * the field declaration source range. If the given position is not located within any body
-	 * declarations, then a compilation unit is returned without any statements inside its methods or
-	 * initializers.
+	 * The resulting AST always includes nodes for all of the compilation unit's
+	 * package, import, and top-level type declarations. It also always contains
+	 * nodes for all the body declarations for those top-level types, as well
+	 * as body declarations for any member types. However, some of the body
+	 * declarations may be abridged. In particular, the statements ordinarily
+	 * found in the body of a method declaration node will not be included
+	 * (the block will be empty) unless the source position falls somewhere
+	 * within the source range of that method declaration node. The same is true
+	 * for initializer declarations; the statements ordinarily found in the body
+	 * of initializer node will not be included unless the source position falls
+	 * somewhere within the source range of that initializer declaration node.
+	 * Field declarations are never abridged. Note that the AST for the body of
+	 * that one unabridged method (or initializer) is 100% complete; it has all
+	 * its statements, including any local or anonymous type declarations 
+	 * embedded within them. When the the given position is not located within
+	 * the source range of any body declaration of a top-level type, the AST
+	 * returned is a skeleton that includes nodes for all and only the major
+	 * declarations; this kind of AST is still quite useful because it contains
+	 * all the constructs that introduce names visible to the world outside the
+	 * compilation unit.
+	 * </p>
+	 * <p>
+	 * In all other respects, this method works the same as
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)
+	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)}.
+	 * The source string is obtained from the Java model element using
+	 * <code>ICompilationUnit.getSource()</code>.
 	 * </p>
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
@@ -936,21 +1004,19 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param unit the Java model compilation unit whose source code is to be parsed
-	 * @param position the given position to locate the corresponding body declaration
+	 * @param position a position into the corresponding body declaration
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @param owner the owner of working copies that take precedence over underlying 
 	 *   compilation units
-	 * @return the compilation unit node
+	 * @return the abridged compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
 	 * exist or the source range is null or if its source string cannot be obtained
-	 * @see ASTNode#getFlags()
+	 * @see ASTNode#getFlags
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPosition()
-	 * @see ASTNode#getLength()
-	 * @see WorkingCopyOwner
+	 * @see ASTNode#getStartPosition
+	 * @see ASTNode#getLength
 	 * @since 3.0
-	 * TODO Jim, please review the javadoc. We can discuss about it if necessary
 	 */
 	public static CompilationUnit parsePartialCompilationUnit(
 		ICompilationUnit unit,
@@ -959,6 +1025,9 @@ public final class AST {
 		WorkingCopyOwner owner) {
 				
 		if (unit == null) {
+			throw new IllegalArgumentException();
+		}
+		if (owner == null) {
 			throw new IllegalArgumentException();
 		}
 		
