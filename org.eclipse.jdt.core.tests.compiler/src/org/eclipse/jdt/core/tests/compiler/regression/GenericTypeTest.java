@@ -2740,5 +2740,31 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"Cannot declare an array of the parameterized type X<String> \n" + 
 		"----------\n");		
 	}				
-	
+
+	public void test092() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    T t;\n" + 
+				"    X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"     void foo() {\n" + 
+				"         X<String> xs = new X<String>(\"\");\n" + 
+				"         X<String> xs2 = (X<String>) xs;\n" + 
+				"         System.out.prinln((T) this.t);\n" + 
+				"     }\n" + 
+				"     public static void main(String[] args) {\n" + 
+				"		new X<String>(\"SUCCESS\").foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	System.out.prinln((T) this.t);\n" + 
+		"	           ^^^^^^\n" + 
+		"The method prinln(T) is undefined for the type PrintStream\n" + 
+		"----------\n");		
+	}		
 }
