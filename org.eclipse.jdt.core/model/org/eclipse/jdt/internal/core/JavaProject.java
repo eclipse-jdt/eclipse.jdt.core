@@ -435,7 +435,7 @@ public class JavaProject
 	 * Computes the package fragment roots identified by the given entry.	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry entry) {
 		try {
-			return computePackageFragmentRoots(new IClasspathEntry[] {entry}, false);
+			return computePackageFragmentRoots(getResolvedClasspath(new IClasspathEntry[] {entry}, true, false), false);
 		} catch (JavaModelException e) {
 			return new IPackageFragmentRoot[] {};
 		}
