@@ -6320,5 +6320,23 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				" }\n",
 			},
 			"");
-	}		
+	}
+	// can resolve member through type variable
+	public void test229() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				" public class X <T extends XC> {\n" + 
+				" 	T.MXC f;\n" + 
+				" 	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				" }\n" + 
+				"\n" + 
+				" class XC {\n" + 
+				" 	class MXC {}\n" + 
+				" }\n",
+			},
+			"SUCCESS");
+	}			
 }
