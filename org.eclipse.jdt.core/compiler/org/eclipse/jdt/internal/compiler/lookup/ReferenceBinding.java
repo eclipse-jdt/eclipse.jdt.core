@@ -384,7 +384,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]) == anInterface)
+			if ((currentType = interfaces[j]).isEquivalentTo(anInterface))
 				return true;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -433,24 +433,22 @@ public boolean isHierarchyBeingConnected() {
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-public boolean isCompatibleWith(TypeBinding right) {
+public boolean isCompatibleWith(TypeBinding otherType) {
     
-	if (right == this)
+	if (otherType == this)
 		return true;
-	if (right.id == T_Object)
+	if (otherType.id == T_Object)
 		return true;
-	if (!(right instanceof ReferenceBinding))
+	if (!(otherType instanceof ReferenceBinding))
 		return false;
 
-	if (right.isRawType()) {
-	    return isCompatibleWith(((RawTypeBinding) right).type);
-	}
-	ReferenceBinding referenceBinding = (ReferenceBinding) right;
-	if (referenceBinding.isInterface())
-		return implementsInterface(referenceBinding, true);
+	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
+	if (this.isEquivalentTo(otherReferenceType)) return true;
+	if (otherReferenceType.isInterface())
+		return implementsInterface(otherReferenceType, true);
 	if (isInterface())  // Explicit conversion from an interface to a class is not allowed
 		return false;
-	return referenceBinding.isSuperclassOf(this);
+	return otherReferenceType.isSuperclassOf(this);
 }
 /* Answer true if the receiver has default visibility
 */
@@ -464,9 +462,23 @@ public final boolean isDefault() {
 public final boolean isDeprecated() {
 	return (modifiers & AccDeprecated) != 0;
 }
+/**
+ * Returns true if a type is identical to another one,
+ * or for generic types, true if compared to its raw type.
+ */
+public boolean isEquivalentTo(ReferenceBinding otherType) {
+    if (this == otherType) return true;
+    if (this.isGenericType()) {
+        return otherType.isRawType() && otherType.erasure() == this;
+    } else if (this.isParameterizedType()) {
+        return otherType.isRawType() && otherType.erasure() == this.erasure();
+    } else if (this.isRawType()) {
+        return otherType.erasure() == this.erasure();
+    } 
+    return false;
+}
 /* Answer true if the receiver is final and cannot be subclassed
 */
-
 public final boolean isFinal() {
 	return (modifiers & AccFinal) != 0;
 }
@@ -525,11 +537,10 @@ public final boolean isStrictfp() {
 * NOTE: Object.isSuperclassOf(Object) -> false
 */
 
-public boolean isSuperclassOf(ReferenceBinding type) {
-	do {
-		if (this == (type = type.superclass())) return true;
-	} while (type != null);
-
+public boolean isSuperclassOf(ReferenceBinding otherType) {
+	while ((otherType = otherType.superclass()) != null) {
+		if (this.isEquivalentTo(otherType)) return true;
+	}
 	return false;
 }
 

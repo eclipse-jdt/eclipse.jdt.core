@@ -290,26 +290,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#implementsInterface(ReferenceBinding, boolean)
-	 */
-	public boolean implementsInterface(ReferenceBinding anInterface, boolean searchHierarchy) {
-		return this.type.implementsInterface(anInterface, searchHierarchy); // erasure
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#implementsMethod(MethodBinding)
 	 */
 	public boolean implementsMethod(MethodBinding method) {
 		return this.type.implementsMethod(method); // erasure
 	}
 
-	/**
-     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isCompatibleWith(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
-     */
-    public boolean isCompatibleWith(TypeBinding right) {
-       return super.isCompatibleWith(right)
-       					|| this.type.isCompatibleWith(right); // compatible with its own erasure
-    }
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
 	 */

@@ -316,8 +316,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		}
 	}
 
-	// TODO (philippe) fail implementInterface
-	public void _test001() {
+	public void test001() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -337,8 +336,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	
-	// TODO (philippe) fail implementInterface
-	public void _test002() {
+	public void test002() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2804,8 +2802,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}		
 	
 	// same as test001, but every type is now a SourceTypeBinding
-	// TODO (philippe) fail implementInterface
-	public void _test094() {
+	public void test094() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2827,8 +2824,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	// TODO (philippe) same issue as test094
-	public void _test095() {
+	public void test095() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2849,7 +2845,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"SUCCESS");
-	}
+	}	
 	public void test096() {
 		this.runNegativeTest(
 			new String[] {
@@ -2862,7 +2858,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                          ^\n" + 
 			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
-	}		
+	}
 	public void test097() {
 		this.runNegativeTest(
 			new String[] {
@@ -2875,5 +2871,50 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	             ^\n" + 
 			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
-	}		
+	}	
+	public void test098() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = ax.p;\n" + 
+				"        ax.p = new AX<String>();\n" + 
+				"        ax.q = new AX<String>();\n" + 
+				"        ax.r = new AX<Object>();\n" + 
+				"        System.out.println(ax2);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"    AX<Object> q;\n" + 
+				"    AX<String> r;\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	ax.p = new AX<String>();\n" + 
+		"	^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to the field p of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	ax.q = new AX<String>();\n" + 
+		"	^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to the field q of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	ax.r = new AX<Object>();\n" + 
+		"	^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<Object> to the field r of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
+	}				
+	
 }

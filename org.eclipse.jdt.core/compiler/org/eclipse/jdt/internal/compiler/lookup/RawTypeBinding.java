@@ -36,17 +36,6 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = this.type.genericTypeSignature();
 	}		
-	/**
-     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isCompatibleWith(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
-     */
-    public boolean isCompatibleWith(TypeBinding right) {
-      	if (this.type.isCompatibleWith(right)) return true;
-      	if (right.isParameterizedType()) {
-      		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) right;
-      		return isCompatibleWith(parameterizedType.type);
-      	}
-      	return false;
-    }
 	
 	/**
 	 * Raw type is not treated as a standard parameterized type
@@ -58,6 +47,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	public boolean isRawType() {
 	    return true;
 	}	
+	
 	private static TypeBinding[] parameterErasures(ReferenceBinding type) {
 		TypeVariableBinding[] typeVariables = type.typeVariables();
 		int length = typeVariables.length;
