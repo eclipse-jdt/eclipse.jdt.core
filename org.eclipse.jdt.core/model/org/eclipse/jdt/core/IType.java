@@ -477,8 +477,15 @@ public interface IType extends IMember, IParent {
 	 */
 	boolean isMember() throws JavaModelException;
 	/**
-	 * Load a previously saved ITypeHierarchy from an input stream. A type hierarchy can
+	 * Loads a previously saved ITypeHierarchy from an input stream. A type hierarchy can
 	 * be stored using ITypeHierachy#store(OutputStream).
+	 * 
+	 * Only hierarchies originally created by the following methods can be load:
+	 * <ul>
+	 * <li>IType#newSupertypeHierarchy(IProgressMonitor)</li>
+	 * <li>IType#newTypeHierarchy(IJavaProject, IProgressMonitor)</li>
+	 * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
+	 * </u>
 	 * 
 	 * @param input stream where hierarchy will be read
 	 * @param monitor the given progress monitor

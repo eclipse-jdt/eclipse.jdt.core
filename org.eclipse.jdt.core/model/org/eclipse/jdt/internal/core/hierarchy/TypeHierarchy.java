@@ -1164,10 +1164,10 @@ private boolean isInterface(IType type) throws JavaModelException {
 public IJavaProject javaProject() {
 	return this.type.getJavaProject();
 }
-private static byte[] readUntil(InputStream input, byte separator) throws JavaModelException, IOException{
+protected static byte[] readUntil(InputStream input, byte separator) throws JavaModelException, IOException{
 	return readUntil(input, separator, 0);
 }
-private static byte[] readUntil(InputStream input, byte separator, int offset) throws IOException, JavaModelException{
+protected static byte[] readUntil(InputStream input, byte separator, int offset) throws IOException, JavaModelException{
 	int length = 0;
 	byte[] bytes = new byte[SIZE];
 	byte b;

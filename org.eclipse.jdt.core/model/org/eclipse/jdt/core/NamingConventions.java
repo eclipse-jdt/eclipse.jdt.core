@@ -552,24 +552,7 @@ public final class NamingConventions {
 				isBoolean,
 				convertStringToChars(excludedNames)));
 	}
-	/**
-	 * Suggest name for a setter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
-	 * @param project project which contains the field.
-	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers as defined by the class
-	 * <code>Flags</code>.
-	 * @param excludedNames a list of names which can not be suggest (already use names).
-	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return char[] a name.
-	 * 
-	 * @see Flags
-	 * @deprecated use instead suggestSetterName(IJavaProject, char[], int, boolean, char[][])
-	 * TODO: (david) remove once jdt/ui has converted
-	 */
-	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {
-		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
-	}
+
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
 	 * TODO: (david) should explain better, provide example
@@ -609,24 +592,6 @@ public final class NamingConventions {
 		}
 	}
 	
-	/**
-	 * Suggest name for a setter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
-	 * @param project project which contains the field.
-	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers as defined by the class
-	 * <code>Flags</code>.
-	 * @param excludedNames a list of names which can not be suggest (already use names).
-	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String a name.
-	 * 
-	 * @see Flags
-	 * @deprecated use instead suggestSetterName(IJavaProject, String, int, boolean, String[])
-	 * TODO: (david) remove once jdt/ui has converted
-	 */
-	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
-		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
-	}
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
 	 * TODO: (david) should explain better, provide example
