@@ -12,18 +12,18 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	private static final Class THIS= ASTRewritingStatementsTest.class;
-	private static final boolean BUG_67790= true;
 
 	public ASTRewritingStatementsTest(String name) {
 		super(name);
@@ -32,16 +32,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 
-	// Use this static initializer to specify subset for tests
-	// All specified tests which do not belong to the class are skipped...
-	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testInsertComment" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		TESTS_NUMBERS = new int[] { 8 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		TESTS_RANGE = new int[] { -1, -1 };
+	public static Test setUpTest(Test someTest) {
+		TestSuite suite= new Suite("one test");
+		suite.addTest(someTest);
+		return suite;
 	}
+
 	public static Test suite() {
 		return buildTestSuite(THIS);
 	}
@@ -556,11 +552,6 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	}
 	
 	public void testConstructorInvocation2() throws Exception {
-		if (BUG_67790) {
-			return;
-		}
-		
-		
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
