@@ -1253,12 +1253,13 @@ public abstract class Scope
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask) {
 		Scope scope = this;
-		ReferenceBinding foundType = null;
+		int problemId = NotFound;
 		if ((mask & TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
 				scope = next;
 		} else {
+			ReferenceBinding foundType = null;
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
@@ -1311,8 +1312,10 @@ public abstract class Scope
 				}
 				scope = scope.parent;
 			}
-			if (foundType != null && foundType.problemId() != NotVisible)
-				return foundType;
+			if (foundType != null) {
+				if (foundType.problemId() != NotVisible) return foundType;
+				problemId = NotVisible;
+			}
 		}
 
 		// at this point the scope is a compilation unit scope
@@ -1354,29 +1357,33 @@ public abstract class Scope
 			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
 
 			// check on demand imports
-			boolean foundInImport = false;
-			ReferenceBinding type = null;
 			if (imports != null) {
+				boolean foundInImport = false;
+				ReferenceBinding type = null;
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding someImport = imports[i];
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.resolvedImport;
 						ReferenceBinding temp = resolvedImport instanceof PackageBinding
-								? findType(name, (PackageBinding) resolvedImport, currentPackage)
-								: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
-						if (temp != null && temp.isValidBinding()) {
-							ImportReference importReference = someImport.reference;
-							if (importReference != null) importReference.used = true;
-							if (foundInImport)
-								// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-								return new ProblemReferenceBinding(name, Ambiguous);
-							type = temp;
-							foundInImport = true;
+							? findType(name, (PackageBinding) resolvedImport, currentPackage)
+							: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
+						if (temp != null) {
+							if (temp.isValidBinding()) {
+								ImportReference importReference = someImport.reference;
+								if (importReference != null) importReference.used = true;
+								if (foundInImport)
+									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
+									return new ProblemReferenceBinding(name, Ambiguous);
+								type = temp;
+								foundInImport = true;
+							} else {
+								problemId = temp.problemId();
+							}
 						}
 					}
 				}
+				if (type != null) return type;
 			}
-			if (type != null) return type;
 		}
 
 		unitScope.recordSimpleReference(name);
@@ -1386,8 +1393,7 @@ public abstract class Scope
 		}
 
 		// Answer error binding -- could not find name
-		if (foundType != null) return foundType; // problem type from above
-		return new ProblemReferenceBinding(name, NotFound);
+		return new ProblemReferenceBinding(name, problemId);
 	}
 
 	/* Answer whether the type is defined in the same compilation unit as the receiver
