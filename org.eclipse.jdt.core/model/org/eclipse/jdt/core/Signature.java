@@ -831,7 +831,14 @@ public static String toString(String methodSignature, String methodName, String[
 	if (includeReturnType) {
 		String returnType = getReturnType(methodSignature);
 		if (returnType.length() != 0) {
-			sb.append(toString(returnType));
+			returnType = toString(returnType);
+			if (!fullyQualifyTypeNames) {
+				int lastDot = returnType.lastIndexOf(C_DOT);
+				if (lastDot != -1) {
+					returnType = returnType.substring(lastDot + 1);
+				}
+			}
+			sb.append(returnType);
 			sb.append(' ');
 		}
 	}
