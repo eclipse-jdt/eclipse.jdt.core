@@ -98,7 +98,11 @@ public void testCancelMakeConsistent() throws JavaModelException {
 	this.copy.getBuffer().setContents(newContents);
 	NullProgressMonitor monitor = new NullProgressMonitor();
 	monitor.setCanceled(true);
-	this.copy.makeConsistent(monitor);
+	try {
+		this.copy.makeConsistent(monitor);
+	} catch (OperationCanceledException e) {
+		// got exception
+	}
 	assertTrue("Working copy should be opened", this.copy.isOpen());
 }
 
