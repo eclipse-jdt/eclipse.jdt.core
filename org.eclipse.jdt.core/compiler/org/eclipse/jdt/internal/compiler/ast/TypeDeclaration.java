@@ -145,7 +145,7 @@ public class TypeDeclaration
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
 						initializerScope.problemReporter().initializerMustCompleteNormally(field);
-						fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+						fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 					}
 				}
 			}
@@ -210,7 +210,7 @@ public class TypeDeclaration
 						// branch, since the previous initializer already got the blame.
 						if (staticFieldInfo == FlowInfo.DEAD_END) { // TODO: could move behavior onto flowInfo
 							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}
 					} else {
 						if (field.isField()){
@@ -223,7 +223,7 @@ public class TypeDeclaration
 						// branch, since the previous initializer already got the blame.
 						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}
 					}
 				}
@@ -299,7 +299,7 @@ public class TypeDeclaration
 							// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 							// branch, since the previous initializer already got the blame.
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+							fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}
 					}
 				}
@@ -361,7 +361,7 @@ public class TypeDeclaration
 						// branch, since the previous initializer already got the blame.
 						if (staticFieldInfo == FlowInfo.DEAD_END) {
 							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}
 					} else {
 						if (field.isField()){
@@ -375,7 +375,7 @@ public class TypeDeclaration
 						// branch, since the previous initializer already got the blame.
 						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
+							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}
 					}
 				}

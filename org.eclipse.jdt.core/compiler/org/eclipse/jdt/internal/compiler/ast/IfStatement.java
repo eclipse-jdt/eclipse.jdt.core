@@ -73,12 +73,14 @@ public class IfStatement extends Statement {
 		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 		
 		// process the THEN part
-		if (this.thenStatement == null) {
-			thenFlowInfo = flowInfo.initsWhenTrue();
+		if (isConditionOptimizedFalse) {
+			//thenFlowInfo = conditionInfo.initsWhenTrue().copy().setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+			thenFlowInfo = flowInfo.initsWhenTrue().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
+			
 		} else {
 			thenFlowInfo = flowInfo.initsWhenTrue().copy();
-			if (isConditionOptimizedFalse) thenFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-
+		}
+		if (this.thenStatement != null) {
 			// Save info for code gen
 			thenInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(thenFlowInfo);
@@ -91,12 +93,13 @@ public class IfStatement extends Statement {
 		this.thenExit = !thenFlowInfo.isReachable();
 
 		// process the ELSE part
-		if (this.elseStatement == null) {
-			elseFlowInfo = flowInfo.initsWhenFalse();
+		if (isConditionOptimizedTrue) {
+			//elseFlowInfo = conditionInfo.initsWhenFalse().copy().setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+			elseFlowInfo = flowInfo.initsWhenFalse().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
 		} else {
 			elseFlowInfo = flowInfo.initsWhenFalse().copy();
-			if (isConditionOptimizedTrue) elseFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-
+		}
+		if (this.elseStatement != null) {
 			// Save info for code gen
 			elseInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(elseFlowInfo);
@@ -114,14 +117,14 @@ public class IfStatement extends Statement {
 			if (!this.thenExit) {
 				mergedInfo = thenFlowInfo;
 			} else {
-				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
 
 		} else if (isConditionOptimizedFalse) {
 			if (!elseExit) {
 				mergedInfo = elseFlowInfo;
 			} else {
-				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
 
 		} else {

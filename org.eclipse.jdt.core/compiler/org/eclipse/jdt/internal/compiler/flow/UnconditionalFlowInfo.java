@@ -26,9 +26,9 @@ public class UnconditionalFlowInfo extends FlowInfo {
 
 	
 	public long definiteInits;
-	long potentialInits;
+	public long potentialInits;
 	public long extraDefiniteInits[];
-	long extraPotentialInits[];
+	public long extraPotentialInits[];
 	
 	public int reachMode = REACHABLE; // by default
 
@@ -140,7 +140,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	
 		if ((this.reachMode & UNREACHABLE) != 0) {
 			statement.bits &= ~AstNode.IsReachableMASK;
-			boolean reported = (this.reachMode & IGNORE_UNREACH_PB) == 0;
+			boolean reported = this == DEAD_END;
 			if (!didAlreadyComplain && reported) {
 				scope.problemReporter().unreachableCode(statement);
 			}
@@ -213,7 +213,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		
 		// Dependant of CodeStream.isDefinitelyAssigned(..)
 		// We do not want to complain in unreachable code
-		if ((this.reachMode & (UNREACHABLE | IGNORE_DEFINITE_INIT_PB)) == (UNREACHABLE | IGNORE_DEFINITE_INIT_PB))
+		if ((this.reachMode & UNREACHABLE) != 0)  
 			return true;
 		return isDefinitelyAssigned(field.id); 
 	}
@@ -225,7 +225,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		
 		// Dependant of CodeStream.isDefinitelyAssigned(..)
 		// We do not want to complain in unreachable code
-		if ((this.reachMode & (UNREACHABLE | IGNORE_DEFINITE_INIT_PB)) == (UNREACHABLE | IGNORE_DEFINITE_INIT_PB))
+		if ((this.reachMode & UNREACHABLE) != 0)
 			return true;
 		if (local.isArgument) {
 			return true;
@@ -264,9 +264,6 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	final public boolean isPotentiallyAssigned(FieldBinding field) {
 		
-		// We do not want to complain in unreachable code
-		if ((this.reachMode & (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB)) == (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB))
-			return false;
 		return isPotentiallyAssigned(field.id); 
 	}
 	
@@ -275,9 +272,6 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 		
-		// We do not want to complain in unreachable code
-		if ((this.reachMode & (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB)) == (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB))
-			return false;
 		if (local.isArgument) {
 			return true;
 		}
@@ -474,8 +468,16 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	}
 	
 	public FlowInfo setReachMode(int reachMode) {
+		
 		if (this == DEAD_END) return this; // cannot modify DEAD_END
+	
+		// reset optional inits when becoming unreachable
+		if ((this.reachMode & UNREACHABLE) == 0 && (reachMode & UNREACHABLE) != 0) {
+			potentialInits = 0;
+			extraPotentialInits = null;
+		}				
 		this.reachMode = reachMode;
+	
 		return this;
 	}
 
@@ -487,9 +489,6 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return "FlowInfo<def: "+ this.definiteInits //$NON-NLS-1$
 			+", pot: " + this.potentialInits  //$NON-NLS-1$
 			+ ", reachable:" + ((this.reachMode & UNREACHABLE) == 0) //$NON-NLS-1$
-			+ ", reportDefInitPb:" + ((this.reachMode & IGNORE_DEFINITE_INIT_PB) == 0) //$NON-NLS-1$
-			+ ", reportPotInitPb:" + ((this.reachMode & IGNORE_POTENTIAL_INIT_PB) == 0) //$NON-NLS-1$
-			+ ", reportUnreachPb:" + ((this.reachMode & IGNORE_UNREACH_PB) == 0) //$NON-NLS-1$
 			+">"; //$NON-NLS-1$
 	}
 	

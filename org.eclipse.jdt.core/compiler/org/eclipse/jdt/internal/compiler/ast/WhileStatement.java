@@ -69,7 +69,7 @@ public class WhileStatement extends Statement {
 			} else {
 				FlowInfo mergedInfo = postCondInfo.initsWhenFalse().unconditionalInits();
 				if (isConditionOptimizedTrue){
-					mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+					mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergedInfo);
@@ -90,7 +90,7 @@ public class WhileStatement extends Statement {
 			} else {
 				actionInfo = postCondInfo.initsWhenTrue().copy();
 				if (isConditionOptimizedFalse){
-					actionInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+					actionInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 			}
 
@@ -126,7 +126,7 @@ public class WhileStatement extends Statement {
 			postCondInfo.initsWhenFalse().unconditionalInits().mergedWith(
 				loopingContext.initsOnBreak);
 		if (isConditionOptimizedTrue && continueLabel == null){
-			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+			mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
 		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);

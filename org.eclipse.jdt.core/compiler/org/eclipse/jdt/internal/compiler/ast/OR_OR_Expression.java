@@ -52,12 +52,16 @@ public class OR_OR_Expression extends BinaryExpression {
 		rightInfo = leftInfo.initsWhenFalse().unconditionalInits().copy();
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
+
 		int mode = rightInfo.reachMode();
 		if (opConstant != NotAConstant && opConstant.booleanValue() == true){
-			rightInfo.setReachMode(FlowInfo.SILENT_FAKE_REACHABLE);
+			rightInfo.setReachMode(FlowInfo.UNREACHABLE); //SILENT_FAKE_REACHABLE);
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
-		rightInfo.setReachMode(mode); // reset back
+		FlowInfo falseInfo = rightInfo.initsWhenFalse().copy();
+		falseInfo.setReachMode(rightInfo.reachMode()); // so merge works fine
+		rightInfo.setReachMode(mode); // reset after trueInfo got extracted
+
 		FlowInfo mergedInfo = FlowInfo.conditional(
 					// merging two true initInfos for such a negative case: if ((t && (b = t)) || f) r = b; // b may not have been initialized
 					leftInfo.initsWhenTrue().copy().unconditionalInits().mergedWith(

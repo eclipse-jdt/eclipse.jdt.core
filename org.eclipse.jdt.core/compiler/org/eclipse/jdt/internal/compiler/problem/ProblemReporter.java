@@ -718,14 +718,14 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, NameReference reference) {
+public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, AstNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
 		IProblem.DuplicateFinalLocalInitialization,
 		arguments,
 		arguments,
-		reference.sourceStart,
-		reference.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
 	String[] arguments = new String[] {new String(methodDecl.selector), new String(type.sourceName())};

@@ -45,7 +45,7 @@ public class ConditionalFlowInfo extends FlowInfo {
 		initsWhenFalse = extra;
 		return this;
 	}
-	
+
 	public FlowInfo copy() {
 		
 		return new ConditionalFlowInfo(initsWhenTrue.copy(), initsWhenFalse.copy());

@@ -122,7 +122,7 @@ public class ForStatement extends Statement {
 				} else {
 					actionInfo = initsWhenTrue.copy();
 					if (isConditionOptimizedFalse){
-						actionInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+						actionInfo.setReachMode(FlowInfo.UNREACHABLE);
 					}
 				}
 			if (!actionInfo.complainIfUnreachable(action, scope, false)) {
@@ -164,7 +164,7 @@ public class ForStatement extends Statement {
 			flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
 				loopingContext.initsOnBreak.unconditionalInits());
 		if (isConditionOptimizedTrue && continueLabel == null){
-			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+			mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
 		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);

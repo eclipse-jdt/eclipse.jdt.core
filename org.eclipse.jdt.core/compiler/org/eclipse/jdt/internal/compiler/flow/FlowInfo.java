@@ -18,19 +18,12 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 public abstract class FlowInfo {
 
 	public final static int REACHABLE = 0;
-	public final static int UNREACHABLE = 1; // report all, optimized out
-	public final static int IGNORE_DEFINITE_INIT_PB = 2; // hide def-init pb
-	public final static int IGNORE_POTENTIAL_INIT_PB = 4; // hide potential-init pb
-	public final static int IGNORE_UNREACH_PB = 8; // hide unreachable pb
-	// helpers
-	public final static int FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB;
-	public final static int SILENT_FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB | IGNORE_DEFINITE_INIT_PB | IGNORE_POTENTIAL_INIT_PB;
-	public final static int CHECK_POT_INIT_FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB | IGNORE_DEFINITE_INIT_PB;
+	public final static int UNREACHABLE = 1; 
 	
 	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
 	static {
 		DEAD_END = new UnconditionalFlowInfo();
-		DEAD_END.reachMode = UNREACHABLE | IGNORE_DEFINITE_INIT_PB | IGNORE_POTENTIAL_INIT_PB;
+		DEAD_END.reachMode = UNREACHABLE;
 	}
 	abstract public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits);
 

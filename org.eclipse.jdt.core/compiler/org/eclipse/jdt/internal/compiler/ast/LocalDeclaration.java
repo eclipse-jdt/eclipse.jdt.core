@@ -54,6 +54,12 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			initialization
 				.analyseCode(currentScope, flowContext, flowInfo)
 				.unconditionalInits();
+
+		// final int i = (i = 0);
+		if (binding.isFinal() && flowInfo.isPotentiallyAssigned(binding)) {
+			currentScope.problemReporter().duplicateInitializationOfFinalLocal(binding, this);
+		}
+				
 		flowInfo.markAsDefinitelyAssigned(binding);
 		return flowInfo;
 	}

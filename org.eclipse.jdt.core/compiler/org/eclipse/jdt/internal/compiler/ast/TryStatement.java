@@ -134,7 +134,7 @@ public class TryStatement extends Statement {
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
 				if (tryBlock.statements == null) {
-					catchInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+					catchInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 				catchInfo =
 					catchBlocks[i].analyseCode(
