@@ -418,7 +418,7 @@ public String toString() {
 	int numJobs = jobEnd - jobStart + 1;
 	buffer.append("Jobs in queue:").append(numJobs).append('\n'); //$NON-NLS-1$
 	if (numJobs > 0) {
-		buffer.append("First job: ").append(awaitingJobs[jobStart].toString()).append('\n'); //$NON-NLS-1$ 
+		buffer.append("First job: ").append(awaitingJobs[jobStart]).append('\n'); //$NON-NLS-1$ 
 	}
 	return buffer.toString();
 }	
