@@ -3055,32 +3055,39 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		rewriteModifiers2(node, EnumDeclaration.MODIFIERS2_PROPERTY, pos);
 		pos= rewriteRequiredNode(node, EnumDeclaration.NAME_PROPERTY);
 		pos= rewriteNodeList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, pos, " implements ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+
+		pos= getPosAfterLeftBrace(pos);
 		
-		StringBuffer leadString= new StringBuffer();
+		String leadString= ""; //$NON-NLS-1$
 		RewriteEvent constEvent= getEvent(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
+
 		if (constEvent != null && constEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
 			RewriteEvent[] events= constEvent.getChildren();
-	
-			pos= getPosAfterLeftBrace(pos);
 			if (isAllOfKind(events, RewriteEvent.INSERTED)) {
-				int lead= 1;
-				int startIndent= getIndent(node.getStartPosition()) + 1;
-				for (int i= 0; i < lead; i++) {
-					leadString.append(getLineDelimiter());
-				}
-				leadString.append(createIndentString(startIndent));
+				leadString= this.formatter.FIRST_ENUM_CONST.getPrefix(getIndent(node.getStartPosition()), getLineDelimiter());
 			}
 		}
-		pos= rewriteNodeList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, pos, leadString.toString(), ", "); //$NON-NLS-1$ //$NON-NLS-2$
+		pos= rewriteNodeList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, pos, leadString, ", "); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RewriteEvent bodyEvent= getEvent(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
 		int indent= 0;
 		if (bodyEvent != null && bodyEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
+			boolean hasConstants= !((List) getNewValue(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY)).isEmpty();
+			
 			RewriteEvent[] children= bodyEvent.getChildren();
 			try {
+				if (hasConstants) {
+					indent= getIndent(pos);
+				} else {
+					indent= getIndent(node.getStartPosition()) + 1;
+				}
 				int token= getScanner().readNext(pos, true);
 				boolean hasSemicolon= token == ITerminalSymbols.TokenNameSEMICOLON;
 				if (!hasSemicolon && isAllOfKind(children, RewriteEvent.INSERTED)) {
+					if (!hasConstants) {
+						String str= this.formatter.FIRST_ENUM_CONST.getPrefix(indent - 1, getLineDelimiter());
+						doTextInsert(pos, str, getEditGroup(children[0])); //$NON-NLS-1$
+					}
 					doTextInsert(pos, ";", getEditGroup(children[0])); //$NON-NLS-1$
 				} else if (hasSemicolon) {
 					int endPos= getScanner().getCurrentEndOffset();
@@ -3089,7 +3096,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					}
 					pos= endPos;
 				}
-				indent= getIndent(pos);
 			} catch (CoreException e) {
 				handleException(e);
 			}

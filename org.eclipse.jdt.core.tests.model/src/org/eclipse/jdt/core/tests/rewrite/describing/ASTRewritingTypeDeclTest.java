@@ -1433,6 +1433,36 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());		
 	}
 	
+	public void testEnumDeclaration7() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+		
+		ListRewrite bodyListRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
+		
+		AST ast= astRoot.getAST();
+		bodyListRewrite.insertFirst(createNewMethod(ast, "foo", false), null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    ;\n");
+		buf.append("\n");
+		buf.append("    private void foo(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+	
 	
 	public void testAnnotationTypeDeclaration1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
