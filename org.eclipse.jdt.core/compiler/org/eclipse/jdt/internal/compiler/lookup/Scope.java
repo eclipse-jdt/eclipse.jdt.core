@@ -141,7 +141,9 @@ public abstract class Scope
 		if (type.isArrayType())
 			type = ((ArrayBinding) type).leafComponentType;
 
-		if (type instanceof BinaryTypeBinding && (type.tagBits & EndHierarchyCheck) == 0) {
+        // check on Begin bit, so as to be resilient with potential illformed binaries containing cycles (67769)
+		if (type instanceof BinaryTypeBinding && (type.tagBits & BeginHierarchyCheck) == 0) {
+		    type.tagBits |= BeginHierarchyCheck;
 			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
 			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
 			ReferenceBinding enclosingType = binaryType.enclosingType();
