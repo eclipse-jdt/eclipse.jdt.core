@@ -683,9 +683,7 @@ public IPackageFragmentRoot getPackageFragmentRoot(
 			// resource in the workspace
 			root = project.getPackageFragmentRoot(resource);
 		}
-		if (root.exists()) {
-			return root;
-		}
+		return root;
 	} else {
 		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 		if (roots == null || roots.length == 0) {

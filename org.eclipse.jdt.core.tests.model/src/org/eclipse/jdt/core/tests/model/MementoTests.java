@@ -254,6 +254,15 @@ public void testExternalJarBinaryTypeMemento() throws JavaModelException {
 		type);	
 }
 /**
+ * Tests that a class file in an external jar at the root of the file system can be persisted and restored using its memento.
+ */
+public void testExternalJarClassFileMemento() throws JavaModelException {	
+	IClassFile classFile = getClassFile("P", "C:\\lib.jar", "p", "X.class");
+	assertMemento(
+		"=P/C:/lib.jar<p(X.class",
+		classFile);	
+}
+/**
  * Tests that a package declaration can be persisted and restored using its memento.
  */
 public void testPackageDeclarationMemento() throws JavaModelException {
@@ -286,6 +295,21 @@ public void testPackageFragmentMemento() throws JavaModelException {
 		"=P/src<",
 		pkg);
 }
+/**
+ * Tests that a package fragment in the default root can be persisted and restored using its memento.
+ */
+public void testPackageFragmentMemento2() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {""}, "");
+		IPackageFragment pkg = getPackage("/P1/p");
+		assertMemento(
+			"=P1/<p",
+			pkg);		
+	} finally {
+		deleteProject("P1");
+	}
+}
+
 /**
  * Tests that a source folder package fragment root can be persisted and restored using its memento.
  */

@@ -1211,8 +1211,10 @@ public class JavaProject
 			case 0:
 				return null;
 			case 1:
-				// default root
-				return getPackageFragmentRoot(getProject());
+				if (path.equals(getPath())) {
+					// default root
+					return getPackageFragmentRoot(getProject());
+				}
 			default:
 				// a path ending with .jar/.zip is still ambiguous and could still resolve to a source/lib folder 
 				// thus will try to guess based on existing resource
