@@ -38,7 +38,7 @@
  *								   IndirectAccessToStaticField
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
- *								   PredicateThrowingException
+ *								   BooleanMethodThrowingException
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -325,7 +325,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
 	/** @since 3.0 */
-	int PredicateThrowingException = Internal + MethodRelated + 120;
+	int BooleanMethodThrowingException = Internal + MethodRelated + 120;
 	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;

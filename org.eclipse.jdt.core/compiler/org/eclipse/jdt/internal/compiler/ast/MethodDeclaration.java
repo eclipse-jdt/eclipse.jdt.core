@@ -117,9 +117,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			scope.problemReporter().methodWithConstructorName(this);
 		}
 		
-		// check if predicate throwing exception
+		// check if boolean method throwing exception
 		if (binding != null && binding.returnType.id == T_boolean && binding.thrownExceptions.length != 0){
-			scope.problemReporter().predicateThrowingException(this);
+			scope.problemReporter().booleanMethodThrowingException(this);
 		}
 		
 		// by grammatical construction, interface methods are always abstract

@@ -58,7 +58,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportNonStaticAccessToStatic = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_ReportIndirectStaticAccess = "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
-	public static final String OPTION_ReportPredicateThrowingException = "org.eclipse.jdt.core.compiler.problem.predicateThrowingException"; //$NON-NLS-1$
+	public static final String OPTION_ReportBooleanMethodThrowingException = "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long AccidentalBooleanAssign = 0x40000000L;
 	public static final long SuperfluousSemicolon = 0x80000000L;
 	public static final long IndirectStaticAccess = 0x100000000L;
-	public static final long PredicateThrowingException = 0x200000000L;
+	public static final long BooleanMethodThrowingException = 0x200000000L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 
@@ -429,8 +429,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				continue;
 			} 
 			// Report unused private members
-			if(optionID.equals(OPTION_ReportPredicateThrowingException)){
-				updateSeverity(PredicateThrowingException, optionValue);
+			if(optionID.equals(OPTION_ReportBooleanMethodThrowingException)){
+				updateSeverity(BooleanMethodThrowingException, optionValue);
 				continue;
 			} 
 			// Report task
@@ -487,7 +487,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign)); 
 		optionsMap.put(OPTION_ReportSuperfluousSemicolon, getSeverityString(SuperfluousSemicolon)); 
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
-		optionsMap.put(OPTION_ReportPredicateThrowingException, getSeverityString(PredicateThrowingException)); 
+		optionsMap.put(OPTION_ReportBooleanMethodThrowingException, getSeverityString(BooleanMethodThrowingException)); 
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
@@ -554,7 +554,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n-field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
 		buf.append("\n-possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
 		buf.append("\n-superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
-		buf.append("\n-predicate throwing exception: ").append(getSeverityString(PredicateThrowingException)); //$NON-NLS-1$
+		buf.append("\n-predicate throwing exception: ").append(getSeverityString(BooleanMethodThrowingException)); //$NON-NLS-1$
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$

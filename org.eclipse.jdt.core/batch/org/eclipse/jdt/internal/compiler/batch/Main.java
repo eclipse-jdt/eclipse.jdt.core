@@ -829,7 +829,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							CompilerOptions.WARNING);
 					} else if (token.equals("predicateThrow")) {//$NON-NLS-1$ 
 						options.put(
-							CompilerOptions.OPTION_ReportPredicateThrowingException,
+							CompilerOptions.OPTION_ReportBooleanMethodThrowingException,
 							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$

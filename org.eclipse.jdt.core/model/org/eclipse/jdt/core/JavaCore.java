@@ -43,6 +43,7 @@
  *     IBM Corporation - added createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
+ *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -282,7 +283,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 3.0
 	 */
-	public static final String COMPILER_PB_PREDICATE_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.predicateThrowingException"; //$NON-NLS-1$
+	public static final String COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1500,11 +1501,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 
-	 * COMPILER / Reporting Predicate Declaring Thrown Exceptions
+	 * COMPILER / Reporting Boolean Method Declaring Thrown Exceptions
 	 *    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
-	 *    (aka predicate) is specifying a clause for thrown exceptions. Usually, predicates should only return
-	 *    a boolean value and not raise exceptions.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.predicateThrowingException"
+	 *    is specifying a clause for thrown exceptions. Usually, predicates should only return a boolean value 
+	 *    and not raise exceptions.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *

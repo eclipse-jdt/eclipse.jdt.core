@@ -211,6 +211,23 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
+public void booleanMethodThrowingException(MethodDeclaration methodDecl) {
+	MethodBinding method = methodDecl.binding;
+	this.handle(
+		IProblem.BooleanMethodThrowingException,
+		new String[] {
+			new String(method.declaringClass.readableName()),
+			new String(method.selector),
+			parametersAsString(method)
+		 }, 
+		new String[] {
+			new String(method.declaringClass.shortReadableName()),
+			new String(method.selector),
+			parametersAsShortString(method)
+		 }, 
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 	String[] arguments = new String[] {new String(location.selector), parametersAsString(location.binding)};
 	if (location.isConstructor()) {
@@ -524,8 +541,8 @@ public int computeSeverity(int problemId){
 		case IProblem.SuperfluousSemicolon:
 			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
 
-		case IProblem.PredicateThrowingException:
-			return this.options.getSeverity(CompilerOptions.PredicateThrowingException);
+		case IProblem.BooleanMethodThrowingException:
+			return this.options.getSeverity(CompilerOptions.BooleanMethodThrowingException);
 			
 		default:
 			return Error;
@@ -2479,23 +2496,6 @@ public void possibleAccidentalBooleanAssignment(Assignment assignment) {
 		arguments,
 		assignment.sourceStart,
 		assignment.sourceEnd);
-}
-public void predicateThrowingException(MethodDeclaration methodDecl) {
-	MethodBinding method = methodDecl.binding;
-	this.handle(
-		IProblem.PredicateThrowingException,
-		new String[] {
-			new String(method.declaringClass.readableName()),
-			new String(method.selector),
-			parametersAsString(method)
-		 }, 
-		new String[] {
-			new String(method.declaringClass.shortReadableName()),
-			new String(method.selector),
-			parametersAsShortString(method)
-		 }, 
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
 }
 public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit
