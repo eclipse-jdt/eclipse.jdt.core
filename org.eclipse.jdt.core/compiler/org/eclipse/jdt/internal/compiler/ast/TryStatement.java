@@ -260,9 +260,7 @@ public class TryStatement extends SubRoutineStatement {
 			thrown) into their own catch variables, the one specified in the source
 			that must denote the handled exception.
 			*/
-			if (catchArguments == null) {
-				this.exitAnyExceptionHandler();
-			} else {
+			if (catchArguments != null) {
 				for (int i = 0; i < maxCatches; i++) {
 					// May loose some local variable initializations : affecting the local variable attributes
 					if (preTryInitStateIndex != -1) {
@@ -286,10 +284,6 @@ public class TryStatement extends SubRoutineStatement {
 					// Keep track of the pcs at diverging point for computing the local attribute
 					// since not passing the catchScope, the block generation will exitUserScope(catchScope)
 					catchBlocks[i].generateCode(scope, codeStream);
-
-					if (i == maxCatches - 1) {
-						this.exitAnyExceptionHandler();
-					}
 					if (!catchExits[i]) {
 						switch(finallyMode) {
 							case FINALLY_SUBROUTINE :
@@ -306,17 +300,20 @@ public class TryStatement extends SubRoutineStatement {
 					}
 				}
 			}
+			if (finallyMode != FINALLY_SUBROUTINE || this.subRoutineStartLabel == null) {
+				this.exitAnyExceptionHandler();
+			}
 			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
 			ExceptionLabel naturalExitExceptionHandler = 
-				finallyMode == FINALLY_SUBROUTINE && requiresNaturalExit ? this.enterAnyExceptionHandler(codeStream) : null;
-						
+				finallyMode == FINALLY_SUBROUTINE && requiresNaturalExit ? new ExceptionLabel(codeStream, null) : null;
+
 			// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 			// inside catch blocks) will run the finally block
 			int finallySequenceStartPC = codeStream.position;
 			if (subRoutineStartLabel != null) {
-				// the additional handler is doing: jsr finallyBlock and rethrow TOS-exception
 				this.placeAllAnyExceptionHandlers();
-
+				if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
+				
 				if (preTryInitStateIndex != -1) {
 					// reset initialization state, as for a normal catch block
 					codeStream.removeNotDefinitelyAssignedVariables(
@@ -330,6 +327,7 @@ public class TryStatement extends SubRoutineStatement {
 					case FINALLY_SUBROUTINE :
 						codeStream.store(anyExceptionVariable, false);
 						codeStream.jsr(subRoutineStartLabel);
+						this.exitAnyExceptionHandler();
 						codeStream.load(anyExceptionVariable);
 						codeStream.athrow();
 						subRoutineStartLabel.place();

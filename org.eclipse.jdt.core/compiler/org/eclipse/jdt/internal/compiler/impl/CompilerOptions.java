@@ -414,6 +414,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.targetJDK = level;
+			if (this.targetJDK >= JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
 		}
 		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
 			if (optionValue instanceof String) {
@@ -493,10 +494,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_InlineJsr)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.inlineJsrBytecode = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.inlineJsrBytecode = false;
+			if (this.targetJDK < JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
+				if (ENABLED.equals(optionValue)) {
+					this.inlineJsrBytecode = true;
+				} else if (DISABLED.equals(optionValue)) {
+					this.inlineJsrBytecode = false;
+				}
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
