@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 /**
  * Run all compiler regression tests
  */
-public class ComparableTests extends junit.framework.TestCase {
+public class RunComparableTests extends junit.framework.TestCase {
 
 	public static ArrayList ALL_CLASSES = null;
 	static {
@@ -45,12 +45,12 @@ public class ComparableTests extends junit.framework.TestCase {
 		TestCase.TESTS_RANGE = null;
 	}
 	
-	public ComparableTests(String testName) {
+	public RunComparableTests(String testName) {
 		super(testName);
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(ComparableTests.class.getName());
+		TestSuite ts = new TestSuite(RunComparableTests.class.getName());
 		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
 			Class testClass = (Class) ALL_CLASSES.get(i);
 			try {
