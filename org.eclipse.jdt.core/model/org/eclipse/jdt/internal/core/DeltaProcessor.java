@@ -248,6 +248,11 @@ public class DeltaProcessor {
 	/* A set of IJavaProject whose package fragment roots need to be refreshed */
 	private HashSet rootsToRefresh = new HashSet();
 	
+	/*
+	 * Type of event that should be processed no matter what the real event type is.
+	 */
+	public int overridenEventType = -1;
+		
 	public DeltaProcessor(DeltaProcessingState state, JavaModelManager manager) {
 		this.state = state;
 		this.manager = manager;
@@ -1822,9 +1827,10 @@ public class DeltaProcessor {
 	 * @see IResourceDelta
 	 * @see IResource 
 	 */
-	public void resourceChanged(IResourceChangeEvent event, int eventType) {
+	public void resourceChanged(IResourceChangeEvent event) {
 	
 		if (event.getSource() instanceof IWorkspace) {
+			int eventType = this.overridenEventType == -1 ? event.getType() : this.overridenEventType;
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
 			

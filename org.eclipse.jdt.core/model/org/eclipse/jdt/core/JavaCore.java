@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -3639,7 +3640,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public void startup() throws CoreException {
 		
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		final JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.configurePluginDebugOptions();
 
@@ -3650,7 +3651,7 @@ public final class JavaCore extends Plugin {
 			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(new JavaModelManager.PluginPreferencesListener());
 			manager.loadVariablesAndContainers();
 
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				manager.deltaState,
 				IResourceChangeEvent.PRE_AUTO_BUILD
@@ -3661,14 +3662,42 @@ public final class JavaCore extends Plugin {
 
 			startIndexing();
 			
-			// process deltas since last activated
-			ISavedState savedState = workspace.addSaveParticipant(this, manager);
-			if (savedState != null) {
-				// the event type coming from the saved state is always POST_AUTO_BUILD
-				// force it to be POST_CHANGE so that the delta processor can handle it
-				manager.deltaState.eventType = IResourceChangeEvent.POST_CHANGE;
-				savedState.processResourceChangeEvents(manager.deltaState);
-			}
+			// process deltas since last activated in indexer thread so that indexes are up-to-date.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
+			manager.getIndexManager().request(
+				new IJob() {
+					public boolean belongsTo(String jobFamily) {
+						return false;
+					}
+					public void cancel() {
+						// ignore
+					}
+					public void ensureReadyToRun() {
+						// ignore
+					}
+					public boolean execute(IProgressMonitor progress) {
+						try {
+							// add save participant and process delta atomically
+							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
+							workspace.run(
+								new IWorkspaceRunnable() {
+									public void run(IProgressMonitor monitor) throws CoreException {
+										ISavedState savedState = workspace.addSaveParticipant(JavaCore.this, manager);
+										if (savedState != null) {
+											// the event type coming from the saved state is always POST_AUTO_BUILD
+											// force it to be POST_CHANGE so that the delta processor can handle it
+											manager.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
+											savedState.processResourceChangeEvents(manager.deltaState);
+										}
+									}
+								},
+								null); // no progress monitor
+						} catch (CoreException e) {
+							Util.log(e, "Could not process saved state delta"); //$NON-NLS-1$
+						}
+						return true;
+					}
+				});
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;
