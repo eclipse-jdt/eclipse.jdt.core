@@ -23,7 +23,7 @@ What's new in this drop</h2>
 <li> Added extension point to jdtcore so as to allow client plugins to register classpath variable initializers.
   Extension point is "org.eclipse.jdt.core.classpathVariableInitializer").
   (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/variable%20init/uninit-classpath-vars.html">design notes</a>)
-  Note that each classpath variable, if unbound, will trigger its registered initializer exactly once. If unsuccessful, it will stay unbound.
+  Note that each classpath variable, if unbound, will trigger its registered initializer exactly once per session. If unsuccessful, it will stay unbound.
 
 </li>
 <li> Added option to trace classpath variable initializations.
