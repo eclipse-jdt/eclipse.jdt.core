@@ -94,4 +94,7 @@ public class ParameterizedMethodDeclaration extends MethodDeclaration {
 		}
 		visitor.endVisit(this, classScope);
 	}
+	public TypeParameter[] typeParameters() {
+	    return this.typeParameters;
+	}	
 }

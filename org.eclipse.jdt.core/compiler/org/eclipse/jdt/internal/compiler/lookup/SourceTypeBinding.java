@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -764,10 +765,14 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	return null; // should never reach this point
 }
 private MethodBinding resolveTypesFor(MethodBinding method) {
+    
 	if ((method.modifiers & AccUnresolved) == 0)
 		return method;
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
+
+	TypeParameter[] typeParameters = methodDecl.typeParameters();
+	if (typeParameters != null) methodDecl.scope.connectTypeVariables(typeParameters);
 	TypeReference[] exceptionTypes = methodDecl.thrownExceptions;
 	if (exceptionTypes != null) {
 		int size = exceptionTypes.length;

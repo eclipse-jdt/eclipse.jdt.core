@@ -21,18 +21,19 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public TypeBinding[] parameters;
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
+	public TypeVariableBinding[] typeVariables;
 
 	char[] signature;
 
 protected MethodBinding() {
 	// for creating problem or synthetic method
 }
-public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, TypeBinding[] args, ReferenceBinding[] exceptions, ReferenceBinding declaringClass) {
+public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
 	this.modifiers = modifiers;
 	this.selector = selector;
 	this.returnType = returnType;
-	this.parameters = (args == null || args.length == 0) ? NoParameters : args;
-	this.thrownExceptions = (exceptions == null || exceptions.length == 0) ? NoExceptions : exceptions;
+	this.parameters = (parameters == null || parameters.length == 0) ? NoParameters : parameters;
+	this.thrownExceptions = (thrownExceptions == null || thrownExceptions.length == 0) ? NoExceptions : thrownExceptions;
 	this.declaringClass = declaringClass;
 
 	// propagate the strictfp & deprecated modifiers
@@ -44,8 +45,8 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 			this.modifiers |= AccDeprecatedImplicitly;
 	}
 }
-public MethodBinding(int modifiers, TypeBinding[] args, ReferenceBinding[] exceptions, ReferenceBinding declaringClass) {
-	this(modifiers, ConstructorDeclaration.ConstantPoolName, VoidBinding, args, exceptions, declaringClass);
+public MethodBinding(int modifiers, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
+	this(modifiers, ConstructorDeclaration.ConstantPoolName, VoidBinding, parameters, thrownExceptions, declaringClass);
 }
 // special API used to change method declaring class for runtime visibility check
 public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declaringClass) {
@@ -264,6 +265,12 @@ public char[] genericSignature() {
 }
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
+}
+public TypeVariableBinding getTypeVariable(char[] variableName) {
+	for (int i = this.typeVariables.length; --i >= 0;)
+		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))
+			return this.typeVariables[i];
+	return null;
 }
 /**
  * Returns true if method got substituted parameter types
@@ -588,5 +595,8 @@ public String toString() {
 		s += "NULL THROWN EXCEPTIONS"; //$NON-NLS-1$
 	}
 	return s;
+}
+public TypeVariableBinding[] typeVariables() {
+	return this.typeVariables;
 }
 }

@@ -397,4 +397,8 @@ public abstract class AbstractMethodDeclaration
 		ClassScope classScope) {
 		// default implementation: subclass will define it
 	}
+	
+	public TypeParameter[] typeParameters() {
+	    return null;
+	}
 }

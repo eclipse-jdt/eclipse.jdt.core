@@ -86,6 +86,142 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
+	protected boolean connectTypeVariables(TypeParameter[] typeParameters) {
+		boolean noProblems = true;
+		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) return true;
+		nextVariable : for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeVariableBinding typeVariable = typeParameter.binding;
+			if (typeVariable == null) return false;
+	
+			typeVariable.superclass = getJavaLangObject();
+			typeVariable.superInterfaces = NoSuperInterfaces;
+			// set firstBound to the binding of the first explicit bound in parameter declaration
+			typeVariable.firstBound = null; // first bound used to compute erasure
+	
+			TypeReference typeRef = typeParameter.type;
+			if (typeRef == null)
+				continue nextVariable;
+			ReferenceBinding superType = this.kind == METHOD_SCOPE
+				? (ReferenceBinding) typeRef.resolveType((BlockScope)this)
+				: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
+			if (superType == null) {
+				typeVariable.tagBits |= HierarchyHasProblems;
+				noProblems = false;
+				continue nextVariable;
+			}
+			if (superType.isTypeVariable()) {
+				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
+				if (varSuperType.rank >= typeVariable.rank) {
+					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
+					typeVariable.tagBits |= HierarchyHasProblems;
+					noProblems = false;
+					continue nextVariable;
+				}
+			}
+			if (superType.isFinal()) {
+			    problemReporter().finalVariableBound(typeVariable, typeRef);
+			}
+			typeRef.resolvedType = superType; // hold onto the problem type
+			if (superType.isClass())
+				typeVariable.superclass = superType;
+			else
+				typeVariable.superInterfaces = new ReferenceBinding[] {superType};
+			typeVariable.firstBound = superType; // first bound used to compute erasure
+	
+			TypeReference[] boundRefs = typeParameter.bounds;
+			if (boundRefs != null) {
+				for (int j = 0, k = boundRefs.length; j < k; j++) {
+					typeRef = boundRefs[j];
+					superType = this.kind == METHOD_SCOPE
+						? (ReferenceBinding) typeRef.resolveType((BlockScope)this)
+						: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
+					if (superType == null) {
+						typeVariable.tagBits |= HierarchyHasProblems;
+						noProblems = false;
+						continue nextVariable;
+					}
+					typeRef.resolvedType = superType; // hold onto the problem type
+					if (superType.isClass()) {
+						problemReporter().boundsMustBeAnInterface(typeRef, superType);
+						typeVariable.tagBits |= HierarchyHasProblems;
+						noProblems = false;
+						continue nextVariable;
+					}
+					int size = typeVariable.superInterfaces.length;
+					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
+					typeVariable.superInterfaces[size] = superType;
+				}
+			}
+		}
+		return noProblems;
+	}
+	
+	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters) {
+
+	    PackageBinding unitPackage = compilationUnitScope().fPackage;
+		
+	    // do not construct type variables if source < 1.5
+		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
+		    return NoTypeVariables;
+		}
+		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
+	    
+		int length = typeParameters.length;
+		typeVariableBindings = new TypeVariableBinding[length];
+		HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
+		int count = 0;
+		nextParameter : for (int i = 0; i < length; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
+			parameterBinding.fPackage = unitPackage;
+			typeParameter.binding = parameterBinding;
+			
+			if (knownTypeParameterNames.containsKey(typeParameter.name)) {
+				TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
+				if (previousBinding != null) {
+					for (int j = 0; j < i; j++) {
+						TypeParameter previousParameter = typeParameters[j];
+						if (previousParameter.binding == previousBinding) {
+							problemReporter().duplicateTypeParameterInType(previousParameter);
+							previousParameter.binding = null;
+							break;
+						}
+					}
+				}
+				knownTypeParameterNames.put(typeParameter.name, null); // ensure that the duplicate parameter is found & removed
+				problemReporter().duplicateTypeParameterInType(typeParameter);
+				typeParameter.binding = null;
+			} else {
+				knownTypeParameterNames.put(typeParameter.name, parameterBinding);
+				// remember that we have seen a field with this name
+				if (parameterBinding != null)
+					typeVariableBindings[count++] = parameterBinding;
+			}
+//				TODO should offer warnings to inform about hiding declaring, enclosing or member types				
+//				ReferenceBinding type = sourceType;
+//				// check that the member does not conflict with an enclosing type
+//				do {
+//					if (CharOperation.equals(type.sourceName, memberContext.name)) {
+//						problemReporter().hidingEnclosingType(memberContext);
+//						continue nextParameter;
+//					}
+//					type = type.enclosingType();
+//				} while (type != null);
+//				// check that the member type does not conflict with another sibling member type
+//				for (int j = 0; j < i; j++) {
+//					if (CharOperation.equals(referenceContext.memberTypes[j].name, memberContext.name)) {
+//						problemReporter().duplicateNestedType(memberContext);
+//						continue nextParameter;
+//					}
+//				}
+		}
+		if (count != length) {
+			System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
+		}
+		return typeVariableBindings;
+	}
+	
 	public ArrayBinding createArray(TypeBinding type, int dimension) {
 		if (type.isValidBinding() && !type.isParameterizedType())
 			return environment().createArrayType(type, dimension);
@@ -1347,7 +1483,13 @@ public abstract class Scope
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
 						case METHOD_SCOPE :
-						    insideStaticContext |= ((MethodScope) scope).isStatic;
+						    MethodScope methodScope = (MethodScope) scope;
+						    AbstractMethodDeclaration methodDecl = methodScope.referenceMethod();
+						    if (methodDecl != null && methodDecl.binding != null) {
+								TypeVariableBinding typeVariable = methodDecl.binding.getTypeVariable(name);
+								if (typeVariable != null)	return typeVariable;
+						    }
+						    insideStaticContext |= methodScope.isStatic;
 						case BLOCK_SCOPE :
 							ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 							if (localType != null) {

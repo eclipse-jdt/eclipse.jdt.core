@@ -94,4 +94,8 @@ public class ParameterizedConstructorDeclaration extends ConstructorDeclaration 
 		}
 		visitor.endVisit(this, classScope);
 	}
+	public TypeParameter[] typeParameters() {
+	    return this.typeParameters;
+	}	
+	
 }

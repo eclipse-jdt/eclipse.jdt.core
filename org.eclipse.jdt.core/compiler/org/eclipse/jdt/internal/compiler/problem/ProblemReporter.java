@@ -993,11 +993,11 @@ public void finalMethodCannotBeOverridden(MethodBinding currentMethod, MethodBin
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void finalVariableBound(TypeVariableBinding typeVariable, SourceTypeBinding genericType, TypeReference typeRef) {
+public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference typeRef) {
 	this.handle(
 		IProblem.FinalBoundForTypeVariable,
-		new String[] { new String(typeVariable.sourceName), new String(genericType.readableName()), new String(typeRef.resolvedType.readableName())},
-		new String[] { new String(typeVariable.sourceName), new String(genericType.shortReadableName()), new String(typeRef.resolvedType.shortReadableName())},
+		new String[] { new String(typeVariable.sourceName), new String(typeRef.resolvedType.readableName())},
+		new String[] { new String(typeVariable.sourceName), new String(typeRef.resolvedType.shortReadableName())},
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
