@@ -867,15 +867,22 @@ public class Util {
 	}
 	
 		/*
-	 * Returns the index of the first argument paths which is strictly enclosing the path to check
+	 * Returns the index of the most specific argument paths which is strictly enclosing the path to check
 	 */
 	public static int indexOfEnclosingPath(IPath checkedPath, IPath[] paths, int pathCount) {
 
+	    int bestMatch = -1, bestLength = -1;
 		for (int i = 0; i < pathCount; i++){
 			if (paths[i].equals(checkedPath)) continue;
-			if (paths[i].isPrefixOf(checkedPath)) return i;
+			if (paths[i].isPrefixOf(checkedPath)) {
+			    int currentLength = paths[i].segmentCount();
+			    if (currentLength > bestLength) {
+			        bestLength = currentLength;
+			        bestMatch = i;
+			    }
+			}
 		}
-		return -1;
+		return bestMatch;
 	}
 	
 	/*

@@ -797,26 +797,29 @@ public class ClasspathEntry implements IClasspathEntry {
 						}
 						
 						// ensure custom output doesn't conflict with other outputs
-						int index;
-						
 						// check exact match
-						if ((index = Util.indexOfMatchingPath(customOutput, outputLocations, outputCount)) != -1) {
+						if (Util.indexOfMatchingPath(customOutput, outputLocations, outputCount) != -1) {
 							continue; // already found
 						}
-						
-						// check nesting
-						if ((index = Util.indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1) {
-							if (index == 0) {
-								// custom output is nested in project's output: need to check if all source entries have a custom
-								// output before complaining
-								if (potentialNestedOutput == null) potentialNestedOutput = customOutput;
-							} else {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.makeRelative().toString(), outputLocations[index].makeRelative().toString())); //$NON-NLS-1$
-							}
-						}
+						// accumulate all outputs, will check nesting once all available (to handle ordering issues)
 						outputLocations[outputCount++] = customOutput;
 					}
-			}	
+			}
+		}
+		// check nesting across output locations
+		for (int i = 1 /*no check for default output*/ ; i < outputCount; i++) {
+		    IPath customOutput = outputLocations[i];
+		    int index;
+			// check nesting
+			if ((index = Util.indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1 && index != i) {
+				if (index == 0) {
+					// custom output is nested in project's output: need to check if all source entries have a custom
+					// output before complaining
+					if (potentialNestedOutput == null) potentialNestedOutput = customOutput;
+				} else {
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.makeRelative().toString(), outputLocations[index].makeRelative().toString())); //$NON-NLS-1$
+				}
+			}
 		}	
 		// allow custom output nesting in project's output if all source entries have a custom output
 		if (sourceEntryCount <= outputCount-1) {
