@@ -89,22 +89,17 @@ static final char[][] WellKnownSimpleNames = new char[][] {
 static final char[][][] EmptyQualifiedNames = new char[0][][];
 static final char[][] EmptySimpleNames = new char[0][];
 
-static ArrayList[] InternedQualifiedNames = new ArrayList[] { // each array contains qualified char[][]
-	new ArrayList(37), // for qualified names of size 2
-	new ArrayList(37), // for qualified names of size 3
-	new ArrayList(37), // for qualified names of size 4
-	new ArrayList(37), // for qualified names of size 5
-	new ArrayList(37), // for qualified names of size 6
-	new ArrayList(37), // for qualified names of size 7
-	new ArrayList(37) // for all others
-};
-static ArrayList[] InternedSimpleNames = new ArrayList[] { // each array contains simple char[]
-	new ArrayList(37), // for simple names up to 7 characters
-	new ArrayList(37), // for simple names of size 8-11
-	new ArrayList(37), // for simple names of size 12-15
-	new ArrayList(37), // for simple names of size 16-19
-	new ArrayList(37), // for simple names of size 20-24
-	new ArrayList(37) // for all others
+// each array contains qualified char[][], one for size 2, 3, 4, 5, 6, 7 & the rest
+static final int MaxQualifiedNames = 7;
+static ArrayList[] InternedQualifiedNames = new ArrayList[MaxQualifiedNames];
+// each array contains simple char[], one for size 1 to 29 & the rest
+static final int MaxSimpleNames = 30;
+static ArrayList[] InternedSimpleNames = new ArrayList[MaxSimpleNames];
+static {
+	for (int i = 0; i < MaxQualifiedNames; i++)
+		InternedQualifiedNames[i] = new ArrayList(37);
+	for (int i = 0; i < MaxSimpleNames; i++)
+		InternedSimpleNames[i] = new ArrayList(11);
 };
 
 static char[][][] internQualifiedNames(ArrayList qualifiedStrings) {
@@ -136,10 +131,10 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 				continue next;
 		}
 
-		ArrayList internedNames =
-			(qLength >= 2 && qLength <= 7)
-				? InternedQualifiedNames[qLength - 2]
-				: InternedQualifiedNames[6];
+		// InternedQualifiedNames[0] is for the rest (> 7 & 1)
+		// InternedQualifiedNames[1] is for size 2...
+		// InternedQualifiedNames[6] is for size 7
+		ArrayList internedNames = InternedQualifiedNames[qLength <= MaxQualifiedNames ? qLength - 1 : 0];
 		for (int j = 0, k = internedNames.size(); j < k; j++) {
 			char[][] internedName = (char[][]) internedNames.get(j);
 			if (CharOperation.equals(qualifiedName, internedName)) {
@@ -190,27 +185,10 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown)
 			}
 		}
 
-		ArrayList internedNames = null;
-		switch (sLength) {
-			case 0 : case 1 : case 2 : case 3 : case 4 : case 5 : case 6 : case 7 :
-				internedNames = InternedSimpleNames[0];
-				break;
-			case 8 : case 9 : case 10 : case 11 :
-				internedNames = InternedSimpleNames[1];
-				break;
-			case 12 : case 13 : case 14 : case 15 :
-				internedNames = InternedSimpleNames[2];
-				break;
-			case 16 : case 17 : case 18 : case 19 :
-				internedNames = InternedSimpleNames[3];
-				break;
-			case 20 : case 21 : case 22 : case 23 : case 24 :
-				internedNames = InternedSimpleNames[4];
-				break;
-			default :
-				internedNames = InternedSimpleNames[5];
-				break;
-		}
+		// InternedSimpleNames[0] is for the rest (> 29)
+		// InternedSimpleNames[1] is for size 1...
+		// InternedSimpleNames[29] is for size 29
+		ArrayList internedNames = InternedSimpleNames[sLength < MaxSimpleNames ? sLength : 0];
 		for (int j = 0, k = internedNames.size(); j < k; j++) {
 			char[] internedName = (char[]) internedNames.get(j);
 			if (CharOperation.equals(name, internedName)) {

@@ -39,7 +39,36 @@ import org.eclipse.jdt.internal.core.builder.NotPresentException;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
-
+	/**
+	 *  Temporary flag to note which Java builder is being used
+	 * @deprecated - should get rid of switch in term
+	 */
+	public static boolean USING_NEW_BUILDER = false;
+	static {
+		IExtensionPoint xPoint = ResourcesPlugin.getPlugin().getDescriptor().getExtensionPoint("builders");		
+		if (xPoint != null){
+			IExtension javaBuilderExtension = xPoint.getExtension("org.eclipse.jdt.core.javabuilder");
+			if (javaBuilderExtension != null){
+				IConfigurationElement[] elements = javaBuilderExtension.getConfigurationElements();
+				for (int i = 0; i < elements.length; i++) {
+					if ("builder".equals(elements[i].getName())){
+						IConfigurationElement[] elements2 = elements[i].getChildren();
+						for (int j = 0; j < elements2.length; j++) {
+							if ("run".equals(elements2[j].getName())){
+								String builderClass = elements2[j].getAttribute("class");
+								if ("org.eclipse.jdt.internal.core.newbuilder.JavaBuilder".equals(builderClass)){
+									USING_NEW_BUILDER = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.DEBUG){
+			System.out.println(USING_NEW_BUILDER ? "NEW Java builder enabled" : "OLD Java builder enabled");
+		}
+	}
 	/**
 	 * The singleton manager
 	 */
