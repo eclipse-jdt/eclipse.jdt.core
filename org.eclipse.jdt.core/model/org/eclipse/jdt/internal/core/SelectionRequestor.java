@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
@@ -411,16 +412,33 @@ protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, 
 	} 
 }
 public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
-	// TODO missing implementation
-	
-	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - acceptTypeParameter("); //$NON-NLS-1$
-		System.out.print(declaringTypePackageName);
-		System.out.print('.');
-		System.out.print(declaringTypeName);
-		System.out.print('<');
-		System.out.print(typeParameterName);
-		System.out.println(">)"); //$NON-NLS-1$
+	IType type;
+	if(isDeclaration) {
+		type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				start, end);
+	} else {
+		type = resolveType(declaringTypePackageName, declaringTypeName,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+	}
+			
+	if(type != null) {
+		ITypeParameter typeParameter = type.getTypeParameter(new String(typeParameterName));
+		if(typeParameter == null) {
+			addElement(type);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+				System.out.print(type.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		} else {
+			addElement(typeParameter);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
+				System.out.print(typeParameter.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		}
 	}
 }
 public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector,int selectorStart, int selectorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
@@ -450,25 +468,29 @@ public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] de
 		}
 
 		if(method == null) {
-//			addElement(type);
+			addElement(type);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+				System.out.print(type.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		} else {
-//			 TODO missing implementation
-//			if(???) {
-//				addElement(method);
-//			} else {
+			ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterName));
+			if(typeParameter == null) {
+				addElement(method);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - acceptTypeParameter("); //$NON-NLS-1$
-					System.out.print(declaringTypePackageName);
-					System.out.print('.');
-					System.out.print(declaringTypeName);
-					System.out.print('.');
-					System.out.print('<');
-					System.out.print(typeParameterName);
-					System.out.print('>');
-					System.out.print(selector);
-					System.out.println("(...))"); //$NON-NLS-1$
+					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+					System.out.print(method.toString());
+					System.out.println(")"); //$NON-NLS-1$
 				}
-//			}
+			} else {
+				addElement(typeParameter);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept method type parameter("); //$NON-NLS-1$
+					System.out.print(typeParameter.toString());
+					System.out.println(")"); //$NON-NLS-1$
+				}
+			}
 		}
 	}
 }

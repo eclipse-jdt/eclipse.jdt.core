@@ -148,7 +148,7 @@ public void test0006() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0006> [in Test [in Test.java [in test0006 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -163,7 +163,7 @@ public void test0007() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0007> [in Test [in Test.java [in test0007 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -178,7 +178,7 @@ public void test0008() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0008> [in Inner [in Test [in Test.java [in test0008 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -193,7 +193,7 @@ public void test0009() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0009> [in Inner [in Test [in Test.java [in test0009 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -208,7 +208,7 @@ public void test0010() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0010> [in Test [in Test.java [in test0010 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -223,7 +223,7 @@ public void test0011() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0011> [in foo() [in Test [in Test.java [in test0011 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -238,7 +238,7 @@ public void test0012() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0012> [in foo() [in Test [in Test.java [in test0012 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -253,7 +253,7 @@ public void test0013() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0013> [in foo() [in Inner [in Test [in Test.java [in test0013 [in src2 [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -268,7 +268,7 @@ public void test0014() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<Test0014> [in foo() [in Inner [in Test [in Test.java [in test0014 [in src2 [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -293,7 +293,6 @@ public void test0015() throws JavaModelException {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0016() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0016", "Test.java");
 	
@@ -305,14 +304,13 @@ public void test0016() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo() [in Test [in Test.java [in test0016 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0017() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0017", "Test.java");
 	
@@ -324,14 +322,13 @@ public void test0017() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo() [in Test [in Test.java [in test0017 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0018() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0018", "Test.java");
 	
@@ -343,14 +340,13 @@ public void test0018() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo(T) [in Test [in Test.java [in test0018 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0019() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0019", "Test.java");
 	
@@ -362,14 +358,13 @@ public void test0019() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo(Object, T, Object) [in Test [in Test.java [in test0019 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0020() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0020", "Test.java");
 	
@@ -381,14 +376,13 @@ public void test0020() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo(X<T>) [in Test [in Test.java [in test0020 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72105
  */
-//TODO update test when the java element for type parameter will exist
 public void test0021() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0021", "Test.java");
 	
@@ -400,7 +394,7 @@ public void test0021() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"<T> [in foo() [in Test [in Test.java [in test0021 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }
