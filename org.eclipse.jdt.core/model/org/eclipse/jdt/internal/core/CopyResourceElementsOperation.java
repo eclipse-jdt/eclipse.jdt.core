@@ -585,7 +585,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			return status;
 		}
 	
-		if (fRenamingsList != null && fRenamingsList.length != fElementsToProcess.length) {
+		if (this.renamingsList != null && this.renamingsList.length != fElementsToProcess.length) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 		}
 		return JavaModelStatus.VERIFIED_OK;
@@ -618,7 +618,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 		
 		JavaElement dest = (JavaElement) getDestinationParent(element);
 		verifyDestination(element, dest);
-		if (fRenamings != null) {
+		if (this.renamings != null) {
 			verifyRenaming(element);
 		}
 }

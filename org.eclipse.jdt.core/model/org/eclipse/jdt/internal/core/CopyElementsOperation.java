@@ -158,7 +158,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 		return;
 	}
 	if (createElementInCUOperation) {
-		IJavaElement sibling = (IJavaElement) fInsertBeforeElements.get(element);
+		IJavaElement sibling = (IJavaElement) this.insertBeforeElements.get(element);
 		if (sibling != null) {
 			((CreateElementInCUOperation) op).setRelativePosition(sibling, CreateElementInCUOperation.INSERT_BEFORE);
 		} else
@@ -215,7 +215,7 @@ protected IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	if (fRenamingsList != null && fRenamingsList.length != fElementsToProcess.length) {
+	if (this.renamingsList != null && this.renamingsList.length != fElementsToProcess.length) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 	}
 	return JavaModelStatus.VERIFIED_OK;
@@ -256,7 +256,7 @@ protected void verify(IJavaElement element) throws JavaModelException {
 	IJavaElement dest = getDestinationParent(element);
 	verifyDestination(element, dest);
 	verifySibling(element, dest);
-	if (fRenamingsList != null) {
+	if (this.renamingsList != null) {
 		verifyRenaming(element);
 	}
 }

@@ -15,8 +15,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnKeyword3 extends SingleNameReference implements CompletionOnKeyword{
-	private char[] token;
-	private long pos;
 	private char[][] possibleKeywords;
 	public CompletionOnKeyword3(char[] token, long pos, char[] possibleKeyword) {
 		this(token, pos, new char[][]{possibleKeyword});
@@ -24,7 +22,6 @@ public class CompletionOnKeyword3 extends SingleNameReference implements Complet
 	public CompletionOnKeyword3(char[] token, long pos, char[][] possibleKeywords) {
 		super(token, pos);
 		this.token = token;
-		this.pos = pos;
 		this.possibleKeywords = possibleKeywords;
 	}
 	public char[] getToken() {

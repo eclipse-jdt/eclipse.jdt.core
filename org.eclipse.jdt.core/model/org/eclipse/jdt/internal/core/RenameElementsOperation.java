@@ -56,7 +56,7 @@ protected IJavaModelStatus verify() {
 	IJavaModelStatus status = super.verify();
 	if (! status.isOK())
 		return status;
-	if (fRenamingsList == null || fRenamingsList.length == 0)
+	if (this.renamingsList == null || this.renamingsList.length == 0)
 		return new JavaModelStatus(IJavaModelStatusConstants.NULL_NAME);
 	return JavaModelStatus.VERIFIED_OK;
 }
