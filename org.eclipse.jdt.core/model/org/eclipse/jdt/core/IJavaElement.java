@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResource;
@@ -118,10 +118,11 @@ public interface IJavaElement extends IAdaptable {
 boolean exists();
 /**
  * Returns the first ancestor of this Java element that has the given type.
- * Returns this element if it has the given type.
  * Returns <code>null</code> if no such an ancestor can be found.
  * This is a handle-only method.
  * 
+ * @param ancestorType the given type
+ * @return the first ancestor of this Java element that has the given type, null if no such an ancestor can be found
  * @since 2.0
  */
 IJavaElement getAncestor(int ancestorType);
@@ -193,6 +194,8 @@ IJavaProject getJavaProject();
  * an openable parent.
  * This is a handle-only method.
  * 
+ * @return the first openable parent or <code>null</code> if this element doesn't have
+ * an openable parent.
  * @since 2.0
  */
 IOpenable getOpenable();
@@ -213,6 +216,7 @@ IJavaElement getParent();
  * the path returned is the absolute path to the archive in the file system.
  * This is a handle-only method.
  * 
+ * @return the path to the innermost resource enclosing this element
  * @since 2.0
  */
 IPath getPath();
@@ -225,6 +229,8 @@ IPath getPath();
  * If this element is a working copy, <code>null</code> is returned.
  * This is a handle-only method.
  * 
+ * @return the innermost resource enclosing this element, <code>null</code> if this 
+ * element is a working copy or is included in an external archive
  * @since 2.0
  */
 IResource getResource();

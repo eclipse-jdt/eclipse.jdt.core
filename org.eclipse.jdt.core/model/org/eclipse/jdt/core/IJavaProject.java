@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IProject;
@@ -64,9 +64,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <code>ICompilationUnit</code> or <code>IClassFile</code> corresponding to
 	 * "java.lang.Object". The path "java/lang" would result in the
 	 * <code>IPackageFragment</code> for "java.lang".
-	 *
+	 * @param path the given classpath-relative path
 	 * @exception JavaModelException if the given path is <code>null</code>
 	 *  or absolute
+	 * @return the <code>IJavaElement</code> corresponding to the given
+	 * classpath-relative path, or <code>null</code> if no such 
+	 * <code>IJavaElement</code> is found
 	 */
 	IJavaElement findElement(IPath path) throws JavaModelException;
 
@@ -77,9 +80,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * The path can be:
 	 * 	- internal to the workbench: "/Project/src"
 	 *  - external to the workbench: "c:/jdk/classes.zip/java/lang"
-	 *
+	 * @param path the given absolute path
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
+	 * @return the first existing package fragment on this project's classpath
+	 * whose path matches the given (absolute) path, or <code>null</code> if none
+	 * exist
 	 */
 	IPackageFragment findPackageFragment(IPath path) throws JavaModelException;
 
@@ -90,9 +96,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * The path can be:
 	 *	- internal to the workbench: "/Compiler/src"
 	 *	- external to the workbench: "c:/jdk/classes.zip"
-	 * 
+	 * @param path the given absolute path
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
+	 * @return the existing package fragment root on this project's classpath
+	 * whose path matches the given (absolute) path, or <code>null</code> if
+	 * one does not exist
 	 */
 	IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException;
@@ -103,8 +112,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A in package x.y should have a 
 	 * the fully qualified name "x.y.A.B".
 	 * 
+	 * @param fullyQualifiedName the given fully qualified name
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
 	 * @see IType#getFullyQualifiedName(char)
 	 * @since 2.0
 	 */
@@ -118,8 +130,13 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A should have the 
 	 * type qualified name "A.B".
 	 * 
+	 * @param packageName the given package name
+	 * @param typeQualifiedName the given type qualified name
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given package name and type qualified name
+	 * or <code>null</code> if none is found
 	 * @see IType#getTypeQualifiedName(char)
 	 * @since 2.0
 	 */
@@ -129,6 +146,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Returns all of the existing package fragment roots that exist
 	 * on the classpath, in the order they are defined by the classpath.
 	 *
+	 * @return all of the existing package fragment roots that exist
+	 * on the classpath
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */
@@ -138,6 +157,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Returns an array of non-Java resources directly contained in this project.
 	 * It does not transitively answer non-Java resources contained in folders;
 	 * these would have to be explicitly iterated over.
+	 * @return an array of non-Java resources directly contained in this project
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;
 	
@@ -147,6 +167,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
+	 * @return the full path to the location where the builder writes 
+	 * <code>.class</code> files
 	 */
 	IPath getOutputLocation() throws JavaModelException;
 
@@ -155,6 +177,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * This is a handle-only method.  The underlying <code>java.io.File</code>
 	 * may or may not exist. No resource is associated with this local JAR
 	 * package fragment root.
+	 * 
+	 * @param jarPath the jars's file system path
+	 * @return a package fragment root for the JAR at the specified file system path
 	 */
 	IPackageFragmentRoot getPackageFragmentRoot(String jarPath);
 
@@ -163,6 +188,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * must either be a folder representing the top of a package hierarchy,
 	 * or a <code>.jar</code> or <code>.zip</code> file.
 	 * This is a handle-only method.  The underlying resource may or may not exist. 
+	 * 
+	 * @param resource the given resource
+	 * @return a package fragment root for the given resource, which
+	 * must either be a folder representing the top of a package hierarchy,
+	 * or a <code>.jar</code> or <code>.zip</code> file
 	 */
 	IPackageFragmentRoot getPackageFragmentRoot(IResource resource);
 
@@ -174,6 +204,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *
 	 * <p>NOTE: This is equivalent to <code>getChildren()</code>.
 	 *
+	 * @return all of the  package fragment roots contained in this
+	 * project, identified on this project's resolved classpath
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */
@@ -192,6 +224,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * If the classpath entry denotes a container, it will be resolved and return
 	 * the roots corresponding to the set of container entries (empty if not resolvable).
 	 * 
+	 * @param entry the given entry
+	 * @return the existing package fragment roots identified by the given entry
 	 * @see IClasspathContainer
 	 */
 	IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry);
@@ -203,6 +237,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Note that the package fragment roots corresponds to the resolved
 	 * classpath of the project.
 	 *
+	 * @return all package fragments in all package fragment roots contained
+	 * in this project
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */
@@ -211,6 +247,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Returns the <code>IProject</code> on which this <code>IJavaProject</code>
 	 * was created. This is handle-only method.
+	 * 
+	 * @return the <code>IProject</code> on which this <code>IJavaProject</code>
+	 * was created
 	 */
 	IProject getProject();
 
@@ -236,6 +275,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *    <li> an exception occurs while accessing its corresponding resource </li>
 	 *    <li> a classpath variable was not resolvable and <code>ignoreUnresolvedVariable</code> was set to <code>false</code>. </li>
 	 * </ul>
+	 * @return 
 	 * @see IClasspathEntry 
 	 */
 //	IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)
@@ -253,6 +293,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *  <p>
 	 * Note that in case the project isn't yet opened, the classpath will directly be read from the associated <tt>.classpath</tt> file.
 	 * <p>
+	 * 
+	 * @return the raw classpath for the project, as a list of classpath entries
 	 * @exception JavaModelException in one of the corresponding situation:
 	 * <ul>
 	 *    <li> an exception occurs while accessing the associated <tt>.classpath</tt> file </li>
@@ -266,6 +308,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Returns the names of the projects that are directly required by this
 	 * project. A project is required if it is in its classpath.
 	 *
+	 * @return the names of the projects that are directly required by this
+	 * project
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */
@@ -287,6 +331,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * resolvable entries, without any indication about which variable(s) was ignored. When set to <code>false</code>, a
 	 * JavaModelException will be thrown for the first unresolved variable (from left to right).
 	 * 
+	 * @param ignoreUnresolvedVariable specify how to handle unresolvable variables
+	 * @return the resolved classpath for the project, as a list of classpath entries, 
+	 * where all classpath variable entries have been resolved and substituted with their final target entries
 	 * @exception JavaModelException in one of the corresponding situation:
 	 * <ul>
 	 *    <li> this element does not exist </li>
@@ -299,6 +346,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 
 	/**
 	 * Returns whether this project has been built at least once and thus whether it has a build state.
+	 * @return true if this project has been built at least once, false otherwise
 	 */
 	boolean hasBuildState();
 
@@ -308,20 +356,25 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *
 	 * If the set of entries contains some variables, those are resolved in order to determine
 	 * cycles.
+	 * 
+	 * @param entries the given classpath entries
+	 * @return true if the given classpath entries would result in a cycle, false otherwise
 	 */
 	boolean hasClasspathCycle(IClasspathEntry[] entries);
-/**
- * Returns whether the given element is on the classpath of this project.
- * 
- * @exception JavaModelException if this element does not exist or if an
- *		exception occurs while accessing its corresponding resource
- * 
- * @since 2.0
- */
-boolean isOnClasspath(IJavaElement element) throws JavaModelException;
+	/**
+	 * Returns whether the given element is on the classpath of this project.
+	 * 
+	 * @param element the given element
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return true if the given element is on the classpath of this project, false otherwise
+	 * @since 2.0
+	 */
+	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 
 	/**
 	 * Creates a new evaluation context.
+	 * @return a new evaluation context.
 	 */
 	IEvaluationContext newEvaluationContext();
 
@@ -329,10 +382,13 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * Creates and returns a type hierarchy for all types in the given
 	 * region, considering subtypes within that region.
 	 *
+	 * @param monitor the given progress monitor
+	 * @param region the given region
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 *
 	 * @exception IllegalArgumentException if region is <code>null</code>
+	 * @return a type hierarchy for all types in the given
+	 * region, considering subtypes within that region
 	 */
 	ITypeHierarchy newTypeHierarchy(IRegion region, IProgressMonitor monitor)
 		throws JavaModelException;
@@ -340,11 +396,17 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	/**
 	 * Creates and returns a type hierarchy for the given type considering
 	 * subtypes in the specified region.
-	 *
+	 * 
+	 * @param monitor the given monitor
+	 * @param region the given region
+	 * @param type the given type
+	 * 
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 *
 	 * @exception IllegalArgumentException if type or region is <code>null</code>
+	 * @return a type hierarchy for the given type considering
+	 * subtypes in the specified region
 	 */
 	ITypeHierarchy newTypeHierarchy(
 		IType type,
@@ -357,6 +419,9 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * described by the given absolute path.
 	 * <p>
 	 *
+	 * @param path the given absolute path
+	 * @param monitor the given progress monitor
+	 * 
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -387,6 +452,8 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
 	 * before setting the classpath.
 	 *
+	 * @param entries a list of classpath entries
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -417,6 +484,10 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
 	 * before setting the classpath.
 	 *
+	 * @param entries a list of classpath entries
+	 * @param monitor the given progress monitor
+	 * @param outputLocation the given output location
+	 * 
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -440,7 +511,7 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 *
+	 * @return the classpath for the project, as a list of classpath entries
 	 * @deprecated - since classpath variable support was added either use #getRawClasspath or #getResolvedClasspath
 	 */
 	IClasspathEntry[] getClasspath() throws JavaModelException;
@@ -453,7 +524,9 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * The path can be:
 	 * 	- internal to the workbench: "/Project/binary"
 	 *  - external to the workbench: "c:/jdk/classes.zip"
-	 *
+	 * 
+	 * @param path the given absolute path 
+	 * @return a new classpath entry of kind <code>K_BINARY</code> for the JAR or folder identified by the given absolute path
 	 * @deprecated - use JavaCore#newLibraryEntry
 	 */
 	public IClasspathEntry newLibraryEntry(IPath path);
@@ -468,6 +541,8 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * 	- internal to the workbench: "/Project/binary"
 	 *  - external to the workbench: "c:/jdk/classes.zip"
 	 *
+	 * @param path the given absolute path
+	 * @return a new classpath entry of kind <code>K_SOURCE</code> for the project identified by the given absolute path
 	 * @deprecated - use JavaCore#newProjectEntry
 	 */
 	public IClasspathEntry newProjectEntry(IPath path);
@@ -481,6 +556,8 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * 	- internal to the workbench: "/Project/binary"
 	 *  - external to the workbench: "c:/jdk/classes.zip"
 	 *
+	 * @param path the given absolute path
+	 * @return returns a new classpath entry of kind <code>K_SOURCE</code> for folder identified by the given absolute path
 	 * @deprecated - use JavaCore#newSourceEntry
 	 */
 	public IClasspathEntry newSourceEntry(IPath path);		
@@ -497,6 +574,8 @@ boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
 	 * before setting the classpath.
 	 *
+	 * @param entries the classpath entries
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>

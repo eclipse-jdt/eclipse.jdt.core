@@ -1,14 +1,13 @@
-/**********************************************************************
-Copyright (c)2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
-
+/*******************************************************************************
+ * Copyright (c) 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import java.io.File;
@@ -46,6 +45,7 @@ public class ToolFactory {
 	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory 
 	 * will default to using the default code formatter.
 	 * 
+	 * @return an instance of a code formatter
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createDefaultCodeFormatter(Map)
 	 */
@@ -86,7 +86,7 @@ public class ToolFactory {
 	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
 	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
 	 * 	the current settings from <code>JavaCore#getOptions</code>.
-	 * 
+	 * @return an instance of the built-in code formatter
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createCodeFormatter()
 	 * @see JavaCore#getOptions()
@@ -100,6 +100,7 @@ public class ToolFactory {
 	/**
 	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
 	 * 
+	 * @return a classfile bytecode disassembler
 	 * @see IClassFileDisassembler
 	 */
 	public static IClassFileDisassembler createDefaultClassFileDisassembler(){
@@ -115,7 +116,7 @@ public class ToolFactory {
 	 * 
 	 * @param fileName the name of the file to be read
 	 * @param decodingFlag the flag used to decode the class file reader.
-	 * @return IClassFileReader
+	 * @return a default classfile reader
 	 * 
 	 * @see IClassFileReader
 	 */
@@ -141,7 +142,7 @@ public class ToolFactory {
 	 * @param zipFileName the name of the zip file
 	 * @param zipEntryName the name of the entry in the zip file to be read
 	 * @param decodingFlag the flag used to decode the class file reader.
-	 * @return IClassFileReader
+	 * @return a default classfile reader
 	 * @see IClassFileReader
 	 */
 	public static IClassFileReader createDefaultClassFileReader(String zipFileName, String zipEntryName, int decodingFlag){
@@ -178,17 +179,16 @@ public class ToolFactory {
 	 *   }
 	 * </code>
 	 * 
-  	 * @return IScanner
-	 * 
-	 * @param tokenizeComments -  if set to <code>false</code>, comments will be silently consumed
-	 * @param tokenizeWhiteSpace -  if set to <code>false</code>, white spaces will be silently consumed,
-		@param assertKeyword - if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
+	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
+	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
+	 * @param assertKeyword if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
 	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>true</code>, it
 	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
 	 * a new 'assert' keyword.
-	 * @param recordLineSeparator - if set to <code>true</code>, the scanner will record positions of encountered line 
+	 * @param recordLineSeparator if set to <code>true</code>, the scanner will record positions of encountered line 
 	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
 	 * can then be extracted using <code>IScanner#getLineEnds</code>
+  	 * @return a scanner
 	 * 
 	 * @see IScanner
 	 */

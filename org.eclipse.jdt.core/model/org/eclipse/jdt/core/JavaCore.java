@@ -1,22 +1,52 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
+import java.io.File;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.resources.*;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.search.indexing.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IPluginDescriptor;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jdt.internal.core.Assert;
+import org.eclipse.jdt.internal.core.BufferManager;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Region;
+import org.eclipse.jdt.internal.core.SetClasspathOperation;
+import org.eclipse.jdt.internal.core.Util;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -255,6 +285,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
+	 * 
+	 * @param the given file
+	 * @return the Java element corresponding to the given file, or
+	 * <code>null</code> if unable to associate the given file
+	 * with a Java element
 	 */
 	public static IJavaElement create(IFile file) {
 		return JavaModelManager.create(file, null);
@@ -267,6 +302,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
+	 * 
+	 * @param the given folder
+	 * @return the package fragment or package fragment root corresponding to the given folder, or
+	 * <code>null</code> if unable to associate the given folder with a Java element
 	 */
 	public static IJavaElement create(IFolder folder) {
 		return JavaModelManager.create(folder, null);
@@ -278,6 +317,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * project's parents if they are not yet open.
 	 * <p>
 	 * Note that no check is done at this time on the existence or the java nature of this project.
+	 * 
+	 * @param project the given project
+	 * @return the Java project corresponding to the given project, null if the given project is null
 	 */
 	public static IJavaProject create(IProject project) {
 		if (project == null) {
@@ -303,12 +345,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
+	 * 
+	 * @param resource the given resource
+	 * @return the Java element corresponding to the given resource, or
+	 * <code>null</code> if unable to associate the given resource
+	 * with a Java element
 	 */
 	public static IJavaElement create(IResource resource) {
 		return JavaModelManager.create(resource, null);
 	}
 	/**
 	 * Returns the Java model.
+	 * 
+	 * @param root the given root
+	 * @return the Java model, or <code>null</code> if the root is null
 	 */
 	public static IJavaModel create(IWorkspaceRoot root) {
 		if (root == null) {
@@ -320,6 +370,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Creates and returns a class file element for
 	 * the given <code>.class</code> file. Returns <code>null</code> if unable
 	 * to recognize the class file.
+	 * 
+	 * @param file the given <code>.class</code> file
+	 * @return a class file element for the given <code>.class</code> file, or <code>null</code> if unable
+	 * to recognize the class file
 	 */
 	public static IClassFile createClassFileFrom(IFile file) {
 		return JavaModelManager.createClassFileFrom(file, null);
@@ -328,6 +382,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Creates and returns a compilation unit element for
 	 * the given <code>.java</code> file. Returns <code>null</code> if unable
 	 * to recognize the compilation unit.
+	 * 
+	 * @param file the given <code>.java</code> file
+	 * @return a compilation unit element for the given <code>.java</code> file, or <code>null</code> if unable
+	 * to recognize the compilation unit
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {
 		return JavaModelManager.createCompilationUnitFrom(file, null);
@@ -336,7 +394,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Creates and returns a handle for the given JAR file.
 	 * The Java model associated with the JAR's project may be
 	 * created as a side effect. 
-	 * Returns <code>null</code> if unable to create a JAR package fragment root.
+	 * 
+	 * @param file the given JAR file
+	 * @return a handle for the given JAR file, or <code>null</code> if unable to create a JAR package fragment root.
 	 * (for example, if the JAR file represents a non-Java resource)
 	 */
 	public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file) {
@@ -464,6 +524,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
  	 * Retrieve the client classpath variable initializer registered for a given variable if any
+ 	 * 
+ 	 * @param the given variable
+ 	 * @return the client classpath variable initializer registered for a given variable, <code>null</code> if none
  	 */
 	private static ClasspathVariableInitializer getClasspathVariableInitializer(String variable){
 		
@@ -809,6 +872,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Returns the single instance of the Java core plug-in runtime class.
 	 * Equivalent to <code>(JavaCore) getPlugin()</code>.
+	 * 
+	 * @return the single instance of the Java core plug-in runtime class
 	 */
 	public static JavaCore getJavaCore() {
 		return (JavaCore) getPlugin();
@@ -817,6 +882,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Returns the <code>IJavaProject</code> associated with the
 	 * given <code>IProject</code>, or <code>null</code> if the
 	 * project does not have a Java nature.
+	 * 
+	 * @param the given <code>IProject</code>
+	 * @return the <code>IJavaProject</code> associated with the
+	 * given <code>IProject</code>, or <code>null</code> if the
+	 * project does not have a Java nature
 	 */
 	private IJavaProject getJavaProject(IProject project) {
 		try {
@@ -874,6 +944,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 	/**
 	 * Returns the single instance of the Java core plug-in runtime class.
+	 * 
+	 * @return the single instance of the Java core plug-in runtime class
 	 */
 	public static Plugin getPlugin() {
 		return JAVA_CORE_PLUGIN;
@@ -896,6 +968,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * NOTE: This helper method does not handle classpath containers, for which should rather be used
 	 * <code>JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)</code>.
 	 * <p>
+	 * 
+	 * @param entry the given variable entry
 	 * @return the resolved library or project classpath entry, or <code>null</code>
 	 *   if the given variable entry could not be resolved to a valid classpath entry
 	 */
@@ -976,6 +1050,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Resolve a variable path (helper method)
+	 * 
+	 * @param variablePath the given variable path
+	 * @return the resolved variable path or <code>null</code> if none
 	 */
 	public static IPath getResolvedVariablePath(IPath variablePath) {
 
@@ -1003,6 +1080,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Working copies can be shared by several clients using the same buffer factory,see 
 	 * <code>IWorkingCopy##getSharedWorkingCopy</code>.
 	 * 
+	 * @param factory the given buffer factory
 	 * @return the list of shared working copies for a given buffer factory
 	 * @see IWorkingCopy
 	 * @since 2.0
@@ -1076,7 +1154,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * @param element the element
 	 * @param marker the marker
-	 * @return <code>true</code> if the marker references the element
+	 * @return <code>true</code> if the marker references the element, false otherwise
 	 * @exception CoreException if the <code>IMarker.getAttribute</code> on the marker fails 	 
 	 */
 	public static boolean isReferencedBy(IJavaElement element, IMarker marker)
@@ -1361,6 +1439,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Returns a new empty region.
+	 * 
+	 * @return a new empty region
 	 */
 	public static IRegion newRegion() {
 		return new Region();
@@ -1761,8 +1841,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * Updating a variable with the same value has no effect.
 	 * 
-	 * @param variableNames - an array of names for the updated classpath variables
-	 * @param variablePaths - an array of path updates for the modified classpath variables (null
+	 * @param variableNames an array of names for the updated classpath variables
+	 * @param paths an array of path updates for the modified classpath variables (null
 	 *       meaning that the corresponding value will be removed
 	 * @param monitor a monitor to report progress
 	 * @see #getClasspathVariable

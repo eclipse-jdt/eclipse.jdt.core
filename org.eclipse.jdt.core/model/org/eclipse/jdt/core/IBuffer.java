@@ -1,9 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -212,7 +215,7 @@ public void replace(int position, int length, String text);
  * <p>
  * A <code>RuntimeException</code> might be thrown if the buffer is closed.
  *
- * @param monitor the progress monitor to notify
+ * @param progress the progress monitor to notify
  * @param force a <code> boolean </code> flag indicating how to deal with resource
  *   inconsistencies.
  *

@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IPath;

@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * <pre>
  * InstanceofExpression:
- *    Expression instanceof Type
+ *    Expression <b>instanceof</b> Type
  * </pre>
  * 
  * @since 2.0

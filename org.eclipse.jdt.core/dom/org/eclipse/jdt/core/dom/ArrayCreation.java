@@ -19,10 +19,10 @@ import java.util.List;
  *
  * <pre>
  * ArrayCreation:
- *		<b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> b>]</b> }
- *		<b>new</b> TypeName <b>[</b> Expression b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> b>]</b> }
- *		<b>new</b> PrimitiveType <b>[</b> b>]</b> { <b>[</b> b>]</b> } ArrayInitializer
- * 		<b>new</b> TypeName <b>[</b> b>]</b> { <b>[</b> b>]</b> } ArrayInitializer
+ *		<b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *		<b>new</b> TypeName <b>[</b> Expression ]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *		<b>new</b> PrimitiveType <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
+ * 		<b>new</b> TypeName <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
  * </pre>
  * <p>
  * The mapping from Java language syntax to AST nodes is as follows:

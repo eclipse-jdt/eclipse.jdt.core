@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResourceDelta;
@@ -192,19 +192,23 @@ public interface IJavaElementDelta {
 public IJavaElementDelta[] getAddedChildren();
 /**
  * Returns deltas for the affected (added, removed, or changed) children.
+ * @return deltas for the affected (added, removed, or changed) children
  */
 public IJavaElementDelta[] getAffectedChildren();
 /**
  * Returns deltas for the children which have changed.
+ * @return deltas for the children which have changed
  */
 public IJavaElementDelta[] getChangedChildren();
 /**
  * Returns the element that this delta describes a change to.
+ * @return the element that this delta describes a change to
  */
 public IJavaElement getElement();
 /**
  * Returns flags that describe how an element has changed.
  *
+ * @return flags that describe how an element has changed
  * @see IJavaElementDelta#F_CHILDREN
  * @see IJavaElementDelta#F_CONTENT
  * @see IJavaElementDelta#F_MODIFIERS
@@ -218,22 +222,34 @@ public int getFlags();
 /**
  * Returns the kind of this delta - one of <code>ADDED</code>, <code>REMOVED</code>,
  * or <code>CHANGED</code>.
+ * 
+ * @return the kind of this delta
  */
 public int getKind();
 /**
  * Returns an element describing this element before it was moved
  * to its current location, or <code>null</code> if the
  * <code>F_MOVED_FROM</code> change flag is not set. 
+ * 
+ * @return an element describing this element before it was moved
+ * to its current location, or <code>null</code> if the
+ * <code>F_MOVED_FROM</code> change flag is not set
  */
 public IJavaElement getMovedFromElement();
 /**
  * Returns an element describing this element in its new location,
  * or <code>null</code> if the <code>F_MOVED_TO</code> change
  * flag is not set.
+ * 
+ * @return an element describing this element in its new location,
+ * or <code>null</code> if the <code>F_MOVED_TO</code> change
+ * flag is not set
  */
 public IJavaElement getMovedToElement();
 /**
  * Returns deltas for the children which have been removed.
+ * 
+ * @return deltas for the children which have been removed
  */
 public IJavaElementDelta[] getRemovedChildren();
 /**

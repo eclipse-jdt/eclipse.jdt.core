@@ -1,9 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
 /**
  * A Java model region describes a hierarchical set of elements.
@@ -24,29 +29,39 @@ import org.eclipse.jdt.internal.core.*;
  * @see JavaCore#newRegion
  */
 public interface IRegion {
-/**
- * Adds the given element and all of its descendents to this region.
- * If the specified element is already included, or one of its
- * ancestors is already included, this has no effect. If the element
- * being added is an ancestor of an element already contained in this
- * region, the ancestor subsumes the descendent.
- */
-void add(IJavaElement element);
-/**
- * Returns whether the given element is contained in this region.
- */
-boolean contains(IJavaElement element);
-/**
- * Returns the top level elements in this region.
- * All descendents of these elements are also included in this region.
- */
-IJavaElement[] getElements();
-/**
- * Removes the specified element from the region and returns
- * <code>true</code> if successful, <code>false</code> if the remove
- * fails. If an ancestor of the given element is included, the
- * remove fails (i.e. not possible to selectively
- * exclude descendants of included ancestors).
- */
-boolean remove(IJavaElement element);
+	/**
+	 * Adds the given element and all of its descendents to this region.
+	 * If the specified element is already included, or one of its
+	 * ancestors is already included, this has no effect. If the element
+	 * being added is an ancestor of an element already contained in this
+	 * region, the ancestor subsumes the descendent.
+	 * 
+	 * @param element the given element
+	 */
+	void add(IJavaElement element);
+	/**
+	 * Returns whether the given element is contained in this region.
+	 * 
+	 * @param element the given element
+	 * @return true if the given element is contained in this region, false otherwise
+	 */
+	boolean contains(IJavaElement element);
+	/**
+	 * Returns the top level elements in this region.
+	 * All descendents of these elements are also included in this region.
+	 * 
+	 * @return the top level elements in this region
+	 */
+	IJavaElement[] getElements();
+	/**
+	 * Removes the specified element from the region and returns
+	 * <code>true</code> if successful, <code>false</code> if the remove
+	 * fails. If an ancestor of the given element is included, the
+	 * remove fails (i.e. not possible to selectively
+	 * exclude descendants of included ancestors).
+	 * 
+	 * @param element the given element
+	 * @return <code>true</code> if successful, <code>false</code> if the remove fails
+	 */
+	boolean remove(IJavaElement element);
 }

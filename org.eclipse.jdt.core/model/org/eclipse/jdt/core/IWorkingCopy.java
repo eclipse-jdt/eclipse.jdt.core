@@ -1,16 +1,15 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API
-     IBM Corporation, 2002/03/01- added notion of shared working copy
-     IBM Corporation, 2002/26/01- added notion of IProblemRequestor
-**********************************************************************/
-
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *    IBM Corporation - initial API
+ *    IBM Corporation, 2002/03/01- added notion of shared working copy
+ *    IBM Corporation, 2002/26/01- added notion of IProblemRequestor
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IMarker;
@@ -70,6 +69,9 @@ public interface IWorkingCopy {
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
 	 * </ul>
 	 *
+	 * @param force a flag to handle the cases when the contents of the original resource have changed
+	 * since this working copy was created
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this working copy could not commit. Reasons include:
 	 * <ul>
 	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -100,18 +102,21 @@ public interface IWorkingCopy {
 	 * <p>
 	 * Users of this method must not destroy the resulting working copy. 
 	 * 
+	 * @param bufferFactory the given <code>IBuffer</code> factory
+	 * @return the found shared working copy for this element, <code>null</code> if none
 	 * @see IBufferFactory
 	 * @since 2.0
 	 */
 	IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory);
 
 	/**
-	 * Finds the shared working copy for this element, given a <code>IBuffer</code> factory. 
+	 * Finds the shared working copy for this element. 
 	 * If no working copy has been created for this element associated with this
 	 * buffer factory, returns <code>null</code>.
 	 * <p>
 	 * Users of this method must not destroy the resulting working copy. 
 	 * 
+	 * @return the found shared working copy for this element, <code>null</code> if none
 	 * @see IBufferFactory
 	 * @deprecated - use the one with extra buffer factory instead
 	 * @since 2.0
@@ -122,12 +127,18 @@ public interface IWorkingCopy {
 	 * Returns the original element the specified working copy element was created from,
 	 * or <code>null</code> if this is not a working copy element.  This is a handle
 	 * only method, the returned element may or may not exist.
+	 * 
+	 * @return the original element the specified working copy element was created from,
+	 * or <code>null</code> if this is not a working copy element
 	 */
 	IJavaElement getOriginal(IJavaElement workingCopyElement);
 	
 	/**
 	 * Returns the original element this working copy was created from,
 	 * or <code>null</code> if this is not a working copy.
+	 * 
+	 * @return the original element this working copy was created from,
+	 * or <code>null</code> if this is not a working copy
 	 */
 	IJavaElement getOriginalElement();
 	
@@ -146,6 +157,8 @@ public interface IWorkingCopy {
 	 * Returns <code>null</code> if no such java elements can be found
 	 * or if the given element is not included in a compilation unit.
 	 * 
+	 * @param element the given element
+	 * @return the found elements in this compilation unit that correspond to the given element
 	 * @since 2.0 
 	 */
 	IJavaElement[] findElements(IJavaElement element);
@@ -154,6 +167,7 @@ public interface IWorkingCopy {
 	 * Finds the primary type of this compilation unit (i.e.&nbsp;the type with the same name as the
 	 * compilation unit), or <code>null</code> if no such a type exists.
 	 * 
+	 * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
 	 * @since 2.0
 	 */
 	IType findPrimaryType();
@@ -194,6 +208,8 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @return a shared working copy on this element using the given factory to create
+	 * the buffer, or this element if this element is already a working copy
 	 * @see IBufferFactory
 	 * @see IProblemRequestor
 	 * @since 2.0
@@ -216,6 +232,8 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @return a new working copy of this element if this element is not
+	 * a working copy, or this element if this element is already a working copy
 	 */
 	IJavaElement getWorkingCopy() throws JavaModelException;
 	
@@ -242,6 +260,8 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @return a new working copy of this element using the given factory to create
+	 * the buffer, or this element if this element is already a working copy
 	 * @since 2.0
 	 */
 	IJavaElement getWorkingCopy(
@@ -253,11 +273,16 @@ public interface IWorkingCopy {
 	/**
 	 * Returns whether this working copy's original element's content
 	 * has not changed since the inception of this working copy.
+	 * 
+	 * @return true if this working copy's original element's content
+	 * has not changed since the inception of this working copy, false otherwise
 	 */
 	boolean isBasedOn(IResource resource);
 	
 	/**
 	 * Returns whether this element is a working copy.
+	 * 
+	 * @return true if this element is a working copy, false otherwise
 	 */
 	boolean isWorkingCopy();
 	
@@ -285,6 +310,7 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @return <code>null</code>
 	 */
 	IMarker[] reconcile() throws JavaModelException;
 	

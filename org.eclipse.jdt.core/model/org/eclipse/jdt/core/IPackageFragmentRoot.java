@@ -1,9 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
-
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -50,6 +55,9 @@ public interface IPackageFragmentRoot
 	 * To detach a source archive from a JAR, specify <code>null</code> as the
 	 * archivePath.
 	 *
+	 * @param archivePath the given absolute path to this JAR package fragment root
+	 * @param rootPath specifies the location of the root within the archive (<code>null</code> or empty specifies the default root)
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this operation fails. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -71,6 +79,10 @@ public interface IPackageFragmentRoot
 	 *
 	 * For a description of the <code>force</code> flag, see <code>IFolder.create</code>.
 	 *
+	 * @param name the given dot-separated package name
+	 * @param force a flag controlling how to deal with resources that
+	 *    are not in sync with the local file system
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if the element could not be created. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -78,6 +90,7 @@ public interface IPackageFragmentRoot
 	 * <li> This package fragment root is read only (READ_ONLY)
 	 * <li> The name is not a valid package name (INVALID_NAME)
 	 * </ul>
+	 * @return a package fragment in this root with the given dot-separated package name
 	 * @see org.eclipse.core.resources.IFolder#create
 	 */
 	IPackageFragment createPackageFragment(
@@ -99,11 +112,14 @@ public interface IPackageFragmentRoot
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
+	 * @return this package fragment root's kind encoded as an integer
 	 */
 	int getKind() throws JavaModelException;
 	
 	/**
 	 * Returns an array of non-Java resources contained in this package fragment root.
+	 * 
+	 * @return an array of non-Java resources contained in this package fragment root
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;
 	
@@ -112,22 +128,25 @@ public interface IPackageFragmentRoot
 	 * An empty string indicates the default package.
 	 * This is a handle-only operation.  The package fragment
 	 * may or may not exist.
+	 * 
+	 * @param packageName the given package name
+	 * @return the package fragment with the given package name
 	 */
 	IPackageFragment getPackageFragment(String packageName);
 	
 
-/**
- * Returns the first raw classpath entry that corresponds to this package
- * fragment root.
- * A raw classpath entry corresponds to a package fragment root if once resolved
- * this entry's path is equal to the root's path. 
- * 
- * @exception JavaModelException if this element does not exist or if an
- *		exception occurs while accessing its corresponding resource.
- * 
- * @since 2.0
- */
-IClasspathEntry getRawClasspathEntry() throws JavaModelException;
+	/**
+	 * Returns the first raw classpath entry that corresponds to this package
+	 * fragment root.
+	 * A raw classpath entry corresponds to a package fragment root if once resolved
+	 * this entry's path is equal to the root's path. 
+	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @return the first raw classpath entry that corresponds to this package fragment root
+	 * @since 2.0
+	 */
+	IClasspathEntry getRawClasspathEntry() throws JavaModelException;
 	
 	/**
 	 * Returns the absolute path to the source archive attached to
@@ -157,6 +176,8 @@ IClasspathEntry getRawClasspathEntry() throws JavaModelException;
 	/**
 	 * Returns whether this package fragment root's underlying
 	 * resource is a binary archive (a JAR or zip file).
+	 * 
+	 * @return true if this package ragment root's underlying resource is a binary archive, false otherwise
 	 */
 	public boolean isArchive();
 	
@@ -164,6 +185,10 @@ IClasspathEntry getRawClasspathEntry() throws JavaModelException;
 	 * Returns whether this package fragment root is external
 	 * to the workbench (that is, a local file), and has no
 	 * underlying resource.
+	 * 
+	 * @return true if this package fragment root is external
+	 * to the workbench (that is, a local file), and has no
+	 * underlying resource, false otherwise
 	 */
 	boolean isExternal();
 }

@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IMarker;
@@ -28,13 +28,13 @@ public interface ICodeCompletionRequestor {
  * 
  * @return void - Nothing is answered back to code assist engine
  *
- * @param packageName char[] - Declaring package name of the class.
- * @param className char[] - Name of the class.
- * @param completionName char[] - The completion for the class.
+ * @param packageName Declaring package name of the class.
+ * @param className Name of the class.
+ * @param completionName The completion for the class.
  *   Can include ';' for imported classes.
- * @param modifiers int - The modifiers of the class.
- * @param completionStart int - The start position of insertion of the name of the class.
- * @param completionEnd int - The end position of insertion of the name of the class.
+ * @param modifiers The modifiers of the class.
+ * @param completionStart The start position of insertion of the name of the class.
+ * @param completionEnd The end position of insertion of the name of the class.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -50,8 +50,7 @@ void acceptClass(
 	int completionEnd);
 /**
  * Code assist notification of a compilation error detected during completion.
- *  @param error org.eclipse.core.resources.IMarker
- *      Only problems which are categorized as errors are notified to the requestor,
+ *  @param error Only problems which are categorized as errors are notified to the requestor,
  *		warnings are silently ignored.
  *		In case an error got signaled, no other completions might be available,
  *		therefore the problem message should be presented to the user.
@@ -64,32 +63,23 @@ void acceptError(IMarker marker);
 /**
  * Code assist notification of a field completion.
  *
- * @param declaringTypePackageName char[]
- * 		Name of the package in which the type that contains this field is declared.
+ * @param declaringTypePackageName Name of the package in which the type that contains this field is declared.
  * 
- * @param declaringTypeName char[]
- * 		Name of the type declaring this new field.
+ * @param declaringTypeName Name of the type declaring this new field.
  * 
- * @param name char[]
- * 		Name of the field.
+ * @param name Name of the field.
  * 
- * @param typePackageName char[]
- * 		Name of the package in which the type of this field is declared.
+ * @param typePackageName Name of the package in which the type of this field is declared.
  * 
- * @param typeName char[]
- * 		Name of the type of this field.
+ * @param typeName Name of the type of this field.
  * 
- * @param completionName char[]
- * 		The completion for the field.
+ * @param completionName The completion for the field.
  * 
- * @param modifiers int
- * 		The modifiers of this field.
+ * @param modifiers The modifiers of this field.
  * 
- * @param completionStart int
- * 		The start position of insertion of the name of this field.
+ * @param completionStart The start position of insertion of the name of this field.
  * 
- * @param completionEnd int
- * 		The end position of insertion of the name of this field.
+ * @param completionEnd The end position of insertion of the name of this field.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -111,13 +101,13 @@ void acceptField(
 /**
  * Code assist notification of an interface completion.
  *
- * @param packageName char[] - Declaring package name of the interface.
- * @param className char[] - Name of the interface.
- * @param completionName char[] - The completion for the interface.
+ * @param packageName Declaring package name of the interface.
+ * @param className Name of the interface.
+ * @param completionName The completion for the interface.
  *   Can include ';' for imported interfaces.
- * @param modifiers int - The modifiers of the interface.
- * @param completionStart int - The start position of insertion of the name of the interface.
- * @param completionEnd int - The end position of insertion of the name of the interface.
+ * @param modifiers The modifiers of the interface.
+ * @param completionStart The start position of insertion of the name of the interface.
+ * @param completionEnd The end position of insertion of the name of the interface.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -134,9 +124,9 @@ void acceptInterface(
 /**
  * Code assist notification of a keyword completion.
  *
- * @param keywordName char[] - The keyword source.
- * @param completionStart int - The start position of insertion of the name of this keyword.
- * @param completionEnd int - The end position of insertion of the name of this keyword.
+ * @param keywordName The keyword source.
+ * @param completionStart The start position of insertion of the name of this keyword.
+ * @param completionEnd The end position of insertion of the name of this keyword.
  */
 void acceptKeyword(char[] keywordName, int completionStart, int completionEnd);
 /**
@@ -144,36 +134,27 @@ void acceptKeyword(char[] keywordName, int completionStart, int completionEnd);
  *
  * @return void - Nothing is answered back to code assist engine
  *
- * @param labelName char[]
- * 		The label source.
+ * @param labelName The label source.
  * 
- * @param completionStart int
- *		The start position of insertion of the name of this label.
+ * @param completionStart The start position of insertion of the name of this label.
  * 
- * @param completionEnd int
- * 		The end position of insertion of the name of this label.
+ * @param completionEnd The end position of insertion of the name of this label.
  */
 void acceptLabel(char[] labelName, int completionStart, int completionEnd);
 /**
  * Code assist notification of a local variable completion.
  *
- * @param name char[]
- * 		Name of the new local variable.
+ * @param name Name of the new local variable.
  * 
- * @param typePackageName char[]
- * 		Name of the package in which the type of this new local variable is declared.
+ * @param typePackageName Name of the package in which the type of this new local variable is declared.
  * 
- * @param typeName char[]
- * 		Name of the type of this new local variable.
+ * @param typeName Name of the type of this new local variable.
  * 
- * @param modifiers int
- * 		The modifiers of this new local variable.
+ * @param modifiers The modifiers of this new local variable.
  * 
- * @param completionStart int
- * 		The start position of insertion of the name of this new local variable.
+ * @param completionStart The start position of insertion of the name of this new local variable.
  * 
- * @param completionEnd int
- * 		The end position of insertion of the name of this new local variable.
+ * @param completionEnd The end position of insertion of the name of this new local variable.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -192,43 +173,30 @@ void acceptLocalVariable(
 /**
  * Code assist notification of a method completion.
  *
- * @return void - Nothing is answered back to code assist engine
- *
- * @param declaringTypePackageName char[]
- * 		Name of the package in which the type that contains this new method is declared.
+ * @param declaringTypePackageName Name of the package in which the type that contains this new method is declared.
  * 
- * @param declaringTypeName char[]
- * 		Name of the type declaring this new method.
+ * @param declaringTypeName Name of the type declaring this new method.
  * 
- * @param selector char[]
- * 		Name of the new method.
+ * @param selector Name of the new method.
  * 
- * @param parameterPackageNames char[][]
- * 		Names of the packages in which the parameter types are declared.
+ * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    	Should contain as many elements as parameterTypeNames.
  * 
- * @param parameterTypeNames char[][]
- * 		Names of the parameters types.
+ * @param parameterTypeNames Names of the parameters types.
  *    	Should contain as many elements as parameterPackageNames.
  * 
- * @param returnTypePackageName char[]
- * 		Name of the package in which the return type is declared.
+ * @param returnTypePackageName Name of the package in which the return type is declared.
  * 
- * @param returnTypeName char[]
- * 		Name of the return type of this new method, should be <code>null</code> for a constructor.
+ * @param returnTypeName Name of the return type of this new method, should be <code>null</code> for a constructor.
  * 
- * @param completionName char[]
- * 		The completion for the method.
+ * @param completionName The completion for the method.
  *   	Can include zero, one or two brackets. If the closing bracket is included, then the cursor should be placed before it.
  * 
- * @param modifiers int
- * 		The modifiers of this new method.
+ * @param modifiers The modifiers of this new method.
  * 
- * @param completionStart int
- * 		The start position of insertion of the name of this new method.
+ * @param completionStart The start position of insertion of the name of this new method.
  * 
- * @param completionEnd int
- * 		The end position of insertion of the name of this new method.
+ * @param completionEnd The end position of insertion of the name of this new method.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -256,9 +224,9 @@ void acceptMethod(
  *
  * @return void - Nothing is answered back to code assist engine
  *
- * @param modifierName char[] - The new modifier.
- * @param completionStart int - The start position of insertion of the name of this new modifier.
- * @param completionEnd int - The end position of insertion of the name of this new modifier.
+ * @param modifierName The new modifier.
+ * @param completionStart The start position of insertion of the name of this new modifier.
+ * @param completionEnd The end position of insertion of the name of this new modifier.
  */
 void acceptModifier(char[] modifierName, int completionStart, int completionEnd);
 /**
@@ -266,11 +234,11 @@ void acceptModifier(char[] modifierName, int completionStart, int completionEnd)
  *
  * @return void - Nothing is answered back to code assist engine
  *
- * @param packageName char[] - The package name.
- * @param completionName char[] - The completion for the package.
+ * @param packageName The package name.
+ * @param completionName The completion for the package.
  *   Can include '.*;' for imports.
- * @param completionStart int - The start position of insertion of the name of this new package.
- * @param completionEnd int - The end position of insertion of the name of this new package.
+ * @param completionStart The start position of insertion of the name of this new package.
+ * @param completionEnd The end position of insertion of the name of this new package.
  *
  * NOTE - All package names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -286,12 +254,12 @@ void acceptPackage(
  * 
  * @return void - Nothing is answered back to code assist engine
  *
- * @param packageName char[] - Declaring package name of the type.
- * @param typeName char[] - Name of the type.
- * @param completionName char[] - The completion for the type.
+ * @param packageName Declaring package name of the type.
+ * @param typeName Name of the type.
+ * @param completionName The completion for the type.
  *   Can include ';' for imported types.
- * @param completionStart int - The start position of insertion of the name of the type.
- * @param completionEnd int - The end position of insertion of the name of the type.
+ * @param completionStart The start position of insertion of the name of the type.
+ * @param completionEnd The end position of insertion of the name of the type.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".

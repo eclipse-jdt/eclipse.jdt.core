@@ -1,9 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -62,6 +68,10 @@ void codeComplete(char[] snippet, int insertion, int position, char[][] localVar
  * <li> <code>true</code> - in this case the field is created with the new contents</li>
  * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
  *
+ * @param contents the given contents
+ * @param sibling the given sibling
+ * @param force a flag in case the same name already exists in this type
+ * @param monitor the given progress monitor
  * @exception JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -71,6 +81,7 @@ void codeComplete(char[] snippet, int insertion, int position, char[][] localVar
  * <li> This type is read-only (binary) (READ_ONLY)
  * <li> There was a naming collision with an existing field (NAME_COLLISION)
  * </ul>
+ * @return a field in this type with the given contents
  */
 IField createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -82,7 +93,10 @@ IField createField(String contents, IJavaElement sibling, boolean force, IProgre
  * after the last existing initializer declaration, or as the first member
  * in the type if there are no
  * initializers.
- *
+
+ * @param contents the given contents
+ * @param sibling the given sibling
+ * @param monitor the given progress monitor
  * @exception JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This element does not exist
@@ -91,6 +105,7 @@ IField createField(String contents, IJavaElement sibling, boolean force, IProgre
  * <li> The contents could not be recognized as an initializer declaration (INVALID_CONTENTS)
  * <li> This type is read-only (binary) (READ_ONLY)
  * </ul>
+ * @return a static initializer in this type with the given contents
  */
 IInitializer createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -107,6 +122,10 @@ IInitializer createInitializer(String contents, IJavaElement sibling, IProgressM
  * <li> <code>true</code> - in this case the method is created with the new contents</li>
  * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
  *
+ * @param contents the given contents
+ * @param sibling the given sibling
+ * @param force a flag in case the same name already exists in this type
+ * @param monitor the given progress monitor
  * @exception JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -117,6 +136,7 @@ IInitializer createInitializer(String contents, IJavaElement sibling, IProgressM
  * <li> This type is read-only (binary) (READ_ONLY)
  * <li> There was a naming collision with an existing method (NAME_COLLISION)
  * </ul>
+ * @return a method or constructor in this type with the given contents
  */
 IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -133,6 +153,10 @@ IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProg
  * <li> <code>true</code> - in this case the type is created with the new contents</li>
  * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
  *
+ * @param contents the given contents
+ * @param sibling the given sibling
+ * @param force a flag in case the same name already exists in this type
+ * @param monitor the given progress monitor
  * @exception JavaModelException if the element could not be created. Reasons include:
  * <ul>
  * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -142,6 +166,7 @@ IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProg
  * <li> This type is read-only (binary) (READ_ONLY)
  * <li> There was a naming collision with an existing field (NAME_COLLISION)
  * </ul>
+ * @return a type in this type with the given contents
  */
 IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException;
 /** 
@@ -154,7 +179,8 @@ IType createType(String contents, IJavaElement sibling, boolean force, IProgress
  *     the simple names of the argument types must be equals.
  * <li>m1 exists.
  * </ul>
- * Returns <code>null</code> if no such methods can be found.
+ * @param method the given method
+ * @return the found method or <code>null</code> if no such methods can be found.
  * 
  * @since 2.0 
  */		
@@ -162,12 +188,17 @@ IMethod[] findMethods(IMethod method);
 /**
  * Returns the simple name of this type, unqualified by package or enclosing type.
  * This is a handle-only method.
+ * 
+ * @return the simple name of this type
  */
 String getElementName();
 /**
  * Returns the field with the specified name
  * in this type (for example, <code>"bar"</code>).
  * This is a handle-only method.  The field may or may not exist.
+ * 
+ * @param name the given name
+ * @return the field with the specified name in this type
  */
 IField getField(String name);
 /**
@@ -178,6 +209,7 @@ IField getField(String name);
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the fields declared by this type
  */
 IField[] getFields() throws JavaModelException;
 /**
@@ -188,6 +220,7 @@ IField[] getFields() throws JavaModelException;
  * This is a handle-only method.
  *
  * @see IType#getTypeQualifiedName()
+ * @return the fully qualified name of this type
  */
 String getFullyQualifiedName();
 /**
@@ -212,15 +245,20 @@ String getFullyQualifiedName();
  * 
  * This is a handle-only method.
  *
+ * @param enclosingTypeSeparator the given enclosing type separator
+ * @return the fully qualified name of this type, including qualification for any containing types and packages
  * @see IType#getTypeQualifiedName(char)
  * @since 2.0
  */
 String getFullyQualifiedName(char enclosingTypeSeparator);
 /**
- * Returns the Initializer with the specified position relative to
+ * Returns the initializer with the specified position relative to
  * the order they are defined in the source.
  * Numbering starts at 1 (i.e. the first occurrence is occurrence 1, not occurrence 0).
  * This is a handle-only method.  The initializer may or may not be present.
+ * 
+ * @param occurrenceCount the specified position
+ * @return the initializer with the specified position relative to the order they are defined in the source
  */
 IInitializer getInitializer(int occurrenceCount);
 /**
@@ -231,6 +269,7 @@ IInitializer getInitializer(int occurrenceCount);
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the initializers declared by this type
  */
 IInitializer[] getInitializers() throws JavaModelException;
 /**
@@ -239,6 +278,10 @@ IInitializer[] getInitializers() throws JavaModelException;
  * handle for a constructor, the name specified must be the simple
  * name of the enclosing type.
  * This is a handle-only method.  The method may or may not be present.
+ * 
+ * @param name the given name
+ * @param parameterTypeSignatures the given parameter types
+ * @return the method with the specified name and parameter types in this type
  */
 IMethod getMethod(String name, String[] parameterTypeSignatures);
 /**
@@ -251,11 +294,14 @@ IMethod getMethod(String name, String[] parameterTypeSignatures);
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the methods and constructors declared by this type
  */
 IMethod[] getMethods() throws JavaModelException;
 /**
  * Returns the package fragment in which this element is defined.
  * This is a handle-only method.
+ * 
+ * @return the package fragment in which this element is defined
  */
 IPackageFragment getPackageFragment();
 /**
@@ -267,6 +313,7 @@ IPackageFragment getPackageFragment();
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the name of this type's superclass, or <code>null</code> for source types that do not specify a superclass
  */
 String getSuperclassName() throws JavaModelException;
 /**
@@ -280,11 +327,16 @@ String getSuperclassName() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return  the names of interfaces that this type implements or extends, in the order in which they are listed in the source, 
+ * an empty collection if none
  */
 String[] getSuperInterfaceNames() throws JavaModelException;
 /**
  * Returns the member type declared in this type with the given simple name.
  * This is a handle-only method. The type may or may not exist.
+ * 
+ * @param the given simple name
+ * @return the member type declared in this type with the given simple name
  */
 IType getType(String name) ;
 /**
@@ -295,6 +347,8 @@ IType getType(String name) ;
  * any enclosing types, separated by <code>"$"</code>, followed by the simple name of this type.
  * For binary types, this is the name of the class file without the ".class" suffix.
  * This is a handle-only method.
+ * 
+ * @return the type-qualified name of this type
  */
 String getTypeQualifiedName();
 /**
@@ -321,6 +375,8 @@ String getTypeQualifiedName();
  *
  * This is a handle-only method.
  * 
+ * @param enclosingTypeSeparator the specified enclosing type separator
+ * @return the type-qualified name of this type
  * @since 2.0
  */
 String getTypeQualifiedName(char enclosingTypeSeparator);
@@ -330,6 +386,7 @@ String getTypeQualifiedName(char enclosingTypeSeparator);
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the immediate member types declared by this type
  */
 IType[] getTypes() throws JavaModelException;
 /**
@@ -337,6 +394,7 @@ IType[] getTypes() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return true if this type represents a class, false otherwise
  */
 boolean isClass() throws JavaModelException;
 /**
@@ -344,6 +402,7 @@ boolean isClass() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return true if this type represents an interface, false otherwise
  */
 boolean isInterface() throws JavaModelException;
 /**
@@ -352,6 +411,8 @@ boolean isInterface() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing this type and all of its supertypes
  */
 ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -360,6 +421,9 @@ ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelE
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes in the workspace
  */
 ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -367,8 +431,13 @@ ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelExcept
  * this type, all of its supertypes, and all its subtypes 
  * in the context of the given project.
  *
+ * @param project the given project
+ * @param monitor the given progress monitor
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes 
+ * in the context of the given project
  */
 ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -381,8 +450,10 @@ ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) 
  *
  * For example, resolution of <code>"Object"</code> would typically return
  * <code>{{"java.lang", "Object"}}</code>.
- *
+ * 
+ * @param typeName the given type name
  * @exception JavaModelException if code resolve could not be performed. 
+ * @return the resolved type names or <code>null</code> if unable to find any matching type
  */
 String[][] resolveType(String typeName) throws JavaModelException;
 }

@@ -1,13 +1,13 @@
 /**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+ * Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
+ * All rights reserved.   This program and the accompanying materials
+ * are made available under the terms of the Common Public License v0.5
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ *
+ * Contributors:
+ *    IBM Corporation - initial API and implementation
+ *********************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.internal.core.*;
@@ -28,6 +28,8 @@ public interface ICodeAssist {
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
 	 *
+	 * @param offset the given offset position
+	 * @param requestor the given completion requestor
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 *  <li> The position specified is < -1 or is greater than this compilation unit's
@@ -44,6 +46,9 @@ public interface ICodeAssist {
 	 * reporting results to the given selection requestor. The <code>offset</code>
 	 * is the 0-based index of the first selected character. The <code>length</code> 
 	 * is the number of selected characters.
+	 * 
+	 * @param offset the given offset position
+	 * @param requestor the given completion requestor
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -60,6 +65,9 @@ public interface ICodeAssist {
 	 * is the 0-based index of the character, after which code assist is desired.
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
+	 * 
+	 * @param offset the given offset position
+	 * @param requestor the given completion requestor
 	 *
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>

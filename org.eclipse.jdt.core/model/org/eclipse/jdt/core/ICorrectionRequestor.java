@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 /**
@@ -19,14 +19,12 @@ public interface ICorrectionRequestor {
 /**
  * Notification of a class correction.
  * 
- * @return void - Nothing is answered back to correction engine
- *
- * @param packageName char[] - Declaring package name of the class.
- * @param className char[] - Name of the class.
- * @param correctionName char[] - The correction for the class.
- * @param modifiers int - The modifiers of the class.
- * @param correctionStart int - The start position of insertion of the correction of the class.
- * @param correctionEnd int - The end position of insertion of the correction of the class.
+ * @param packageName Declaring package name of the class.
+ * @param className Name of the class.
+ * @param correctionName The correction for the class.
+ * @param modifiers The modifiers of the class.
+ * @param correctionStart The start position of insertion of the correction of the class.
+ * @param correctionEnd The end position of insertion of the correction of the class.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -43,17 +41,15 @@ void acceptClass(
 /**
  * Notification of a field correction.
  *
- * @return void - Nothing is answered back to correction engine
- *
- * @param declaringTypePackageName char[] - Name of the package in which the type that contains this field is declared.
- * @param declaringTypeName char[] - Name of the type declaring this field.
- * @param name char[] - Name of the field.
- * @param typePackageName char[] - Name of the package in which the type of this field is declared.
- * @param typeName char[] - Name of the type of this field.
- * @param correctionName char[] - The correction for the field.
- * @param modifiers int - The modifiers of this field.
- * @param correctionStart int - The start position of insertion of the correction of this field.
- * @param correctionEnd int - The end position of insertion of the correction of this field.
+ * @param declaringTypePackageName Name of the package in which the type that contains this field is declared.
+ * @param declaringTypeName Name of the type declaring this field.
+ * @param name Name of the field.
+ * @param typePackageName Name of the package in which the type of this field is declared.
+ * @param typeName Name of the type of this field.
+ * @param correctionName The correction for the field.
+ * @param modifiers The modifiers of this field.
+ * @param correctionStart The start position of insertion of the correction of this field.
+ * @param correctionEnd The end position of insertion of the correction of this field.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -75,15 +71,13 @@ void acceptField(
 /**
  * Notification of an interface correction.
  *
- * @return void - Nothing is answered back to correction engine
- *
- * @param packageName char[] - Declaring package name of the interface.
- * @param className char[] - Name of the interface.
- * @param correctionName char[] - The correction for the interface.
+ * @param packageName Declaring package name of the interface.
+ * @param className Name of the interface.
+ * @param correctionName The correction for the interface.
  *   Can include ';' for imported interfaces.
- * @param modifiers int - The modifiers of the interface.
- * @param correctionStart int - The start position of insertion of the correction of the interface.
- * @param correctionEnd int - The end position of insertion of the correction of the interface.
+ * @param modifiers The modifiers of the interface.
+ * @param correctionStart The start position of insertion of the correction of the interface.
+ * @param correctionEnd The end position of insertion of the correction of the interface.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -100,14 +94,12 @@ void acceptInterface(
 /**
  * Notification of a local variable correction.
  *
- * @return void - Nothing is answered back to correction engine
- *
- * @param name char[] - Name of the local variable.
- * @param typePackageName char[] - Name of the package in which the type of this local variable is declared.
- * @param typeName char[] - Name of the type of this local variable.
- * @param modifiers int - The modifiers of this local variable.
- * @param correctionStart int - The start position of insertion of the correction of this local variable.
- * @param correctionEnd int - The end position of insertion of the correction of this local variable.
+ * @param name Name of the local variable.
+ * @param typePackageName Name of the package in which the type of this local variable is declared.
+ * @param typeName Name of the type of this local variable.
+ * @param modifiers The modifiers of this local variable.
+ * @param correctionStart The start position of insertion of the correction of this local variable.
+ * @param correctionEnd The end position of insertion of the correction of this local variable.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -126,22 +118,20 @@ void acceptLocalVariable(
 /**
  * Notification of a method correction.
  *
- * @return void - Nothing is answered back to correction engine
- *
- * @param declaringTypePackageName char[] - Name of the package in which the type that contains this method is declared.
- * @param declaringTypeName char[] - Name of the type declaring this method.
- * @param selector char[] - Name of the method.
- * @param parameterPackageNames char[][] -  Names of the packages in which the parameter types are declared.
+ * @param declaringTypePackageName Name of the package in which the type that contains this method is declared.
+ * @param declaringTypeName Name of the type declaring this method.
+ * @param selector Name of the method.
+ * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    Should contain as many elements as parameterTypeNames.
- * @param parameterTypeNames char[][] - Names of the parameters types.
+ * @param parameterTypeNames Names of the parameters types.
  *    Should contain as many elements as parameterPackageNames.
- * @param returnTypePackageName char[] - Name of the package in which the return type is declared.
- * @param returnTypeName char[] - Name of the return type of this method, should be <code>null</code> for a constructor.
- * @param correctionName char[] - The correction for the method.
+ * @param returnTypePackageName Name of the package in which the return type is declared.
+ * @param returnTypeName Name of the return type of this method, should be <code>null</code> for a constructor.
+ * @param correctionName The correction for the method.
  *   Can include zero, one or two brackets. If the closing bracket is included, then the cursor should be placed before it.
- * @param modifiers int - The modifiers of this method.
- * @param correctionStart int - The start position of insertion of the correction of this method.
- * @param correctionEnd int - The end position of insertion of the correction of this method.
+ * @param modifiers The modifiers of this method.
+ * @param correctionStart The start position of insertion of the correction of this method.
+ * @param correctionEnd The end position of insertion of the correction of this method.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -168,13 +158,11 @@ void acceptMethod(
 /**
  * Notification of a package correction.
  *
- * @return void - Nothing is answered back to correction engine
- *
- * @param packageName char[] - The package name.
- * @param correctionName char[] - The correction for the package.
+ * @param packageName The package name.
+ * @param correctionName The correction for the package.
  *   Can include '.*;' for imports.
- * @param correctionStart int - The start position of insertion of the correction of this package.
- * @param correctionEnd int - The end position of insertion of the correction of this package.
+ * @param correctionStart The start position of insertion of the correction of this package.
+ * @param correctionEnd The end position of insertion of the correction of this package.
  *
  * NOTE - All package names are presented in their readable form:
  *    Package names are in the form "a.b.c".

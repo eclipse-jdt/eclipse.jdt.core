@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.internal.core.*;
@@ -39,13 +39,16 @@ String getElementName();
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
- *
+ * @return the type signatures of the exceptions this method throws,
+ * in the order declared in the source, an empty array if this method throws no exceptions
  * @see Signature
  */
 String[] getExceptionTypes() throws JavaModelException;
 /**
  * Returns the number of parameters of this method.
  * This is a handle-only method.
+ * 
+ * @return the number of parameters of this method
  */
 int getNumberOfParameters();
 /**
@@ -59,6 +62,7 @@ int getNumberOfParameters();
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
+ * @return the names of parameters in this method, an empty array if this method has no parameters
  */
 String[] getParameterNames() throws JavaModelException;
 /**
@@ -68,7 +72,8 @@ String[] getParameterNames() throws JavaModelException;
  *
  * <p>For example, a source method declared as <code>public void foo(String text, int length)</code>
  * would return the array <code>{"QString;","I"}</code>.
- *
+ * 
+ * @return the type signatures for the parameters of this method, an empty array if this method has no parameters
  * @see Signature
  */
 String[] getParameterTypes();
@@ -81,7 +86,7 @@ String[] getParameterTypes();
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
- *
+ * @return the type signature of the return value of this method, void  for constructors
  * @see Signature
  */
 String getReturnType() throws JavaModelException;
@@ -103,6 +108,8 @@ String getSignature() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
+ * 
+ * @return true if this method is a constructor, false otherwise
  */
 boolean isConstructor() throws JavaModelException;
 /**
@@ -118,6 +125,7 @@ boolean isConstructor() throws JavaModelException;
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  * @since 2.0
+ * @return true if this method is a main method, false otherwise
  */
 boolean isMainMethod() throws JavaModelException;
 /**
@@ -130,6 +138,8 @@ boolean isMainMethod() throws JavaModelException;
  * <ul>
  * This is a handle-only method.
  * 
+ * @param method the given method
+ * @return true if this method is similar to the given method.
  * @see Signature#getSimpleName
  * @since 2.0
  */

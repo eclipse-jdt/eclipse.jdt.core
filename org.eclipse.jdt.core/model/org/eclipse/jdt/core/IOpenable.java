@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -60,6 +60,8 @@ public void close() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return the buffer opened for this element, or <code>null</code>
+ * if this element does not have a buffer
  */
 public IBuffer getBuffer() throws JavaModelException;
 /**
@@ -73,6 +75,13 @@ public IBuffer getBuffer() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
+ * @return <code>true</code> if this element is open and:
+ * <ul>
+ * <li>its buffer has unsaved changes, or
+ * <li>one of its descendants has unsaved changes, or
+ * <li>a working copy has been created on one of this
+ * element's children and has not yet destroyed
+ * </ul>
  */
 boolean hasUnsavedChanges() throws JavaModelException;
 /**
@@ -87,18 +96,20 @@ boolean hasUnsavedChanges() throws JavaModelException;
  *
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
- *
+ * @return true if the element is consistent with its underlying resource or buffer, false otherwise.
  * @see IOpenable#makeConsistent
  */
 boolean isConsistent() throws JavaModelException;
 /**
  * Returns whether this openable is open. This is a handle-only method.
+ * @return true if this openable is open, false otherwise
  */
 boolean isOpen();
 /**
  * Makes this element consistent with its underlying resource or buffer 
  * by updating the element's structure and properties as necessary.
  *
+ * @param progress the given progress monitor
  * @exception JavaModelException if the element is unable to access the contents
  * 		of its underlying resource. Reasons include:
  * <ul>
@@ -115,6 +126,7 @@ void makeConsistent(IProgressMonitor progress) throws JavaModelException;
  * not expected to open and close elements - the Java model does this automatically
  * as elements are accessed.
  *
+ * @param progress the given progress monitor
  * @exception JavaModelException if an error occurs accessing the contents
  * 		of its underlying resource. Reasons include:
  * <ul>
@@ -142,6 +154,9 @@ public void open(IProgressMonitor progress) throws JavaModelException;
  * As a result of this operation, the element is consistent with its underlying 
  * resource or buffer. 
  *
+ * @param progress the given progress monitor
+ * @param force it controls how this method deals with
+ * cases where the workbench is not completely in sync with the local file system
  * @exception JavaModelException if an error occurs accessing the contents
  * 		of its underlying resource. Reasons include:
  * <ul>

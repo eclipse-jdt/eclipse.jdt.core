@@ -1,13 +1,13 @@
-/**********************************************************************
-Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IWorkspace;
@@ -97,17 +97,23 @@ void delete(IJavaElement[] elements, boolean force, IProgressMonitor monitor) th
 /**
  * Returns the Java project with the given name. This is a handle-only method. 
  * The project may or may not exist.
+ * 
+ * @return the Java project with the given name
  */
 IJavaProject getJavaProject(String name);
 /**
  * Returns the Java projects in this Java model, or an empty array if there
  * are none.
  *
+ * @return the Java projects in this Java model, or an empty array if there
+ * are none
  * @exception JavaModelException if this request fails.
  */
 IJavaProject[] getJavaProjects() throws JavaModelException;
 /**
  * Returns the workspace associated with this Java model.
+ * 
+ * @return the workspace associated with this Java model
  */
 IWorkspace getWorkspace();
 /**

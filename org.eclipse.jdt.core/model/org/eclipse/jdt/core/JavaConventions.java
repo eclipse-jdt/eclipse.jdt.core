@@ -1,27 +1,36 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
- 
-
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.core.runtime.*;
-import java.io.File;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.core.resources.*;
 
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
@@ -45,6 +54,9 @@ private JavaConventions() {}
  * Two root paths overlap if one is a prefix of the other, or they point to
  * the same location. However, a JAR is allowed to be nested in a root.
  *
+ * @param rootPath1 the first root path
+ * @param rootPath2 the second root path
+ * @return true if the given package fragment root paths are considered to overlap, false otherwise
  */
 public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
 	if (rootPath1 == null || rootPath2 == null) {
@@ -377,6 +389,7 @@ public static IStatus validatePackageName(String name) {
  *  in the checking process (this allows to perform a consistency check on a classpath which has references to
  *  yet non existing projects, folders, ...).
  * 
+ * @param javaProject the given java project
  * @param classpath a given classpath
  * @param outputLocation a given output location
  * @return a status object with code <code>IStatus.OK</code> if
@@ -513,8 +526,14 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 }
 
 	/**
-	 * Returns a message describing the problem related to this classpath entry if any, or null if entry is fine 
+	 * Returns a java model status describing the problem related to this classpath entry if any, 
+	 * a status object with code <code>IStatus.OK</code> if the entry is fine.
 	 * (i.e. if the given classpath entry denotes a valid element to be referenced onto a classpath).
+	 * 
+	 * @param javaProject the given java project
+	 * @param entry the given classpath entry
+	 * @param checkSourceAttachment a flag to determine if source attachement should be checked
+	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 * @since 2.0
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject javaProject, IClasspathEntry entry, boolean checkSourceAttachment){

@@ -1,9 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ ******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
@@ -38,7 +41,7 @@ public boolean encloses(String resourcePath);
 /**
  * Checks whether this scope encloses the given element.
  *
- * @param the element
+ * @param element the element
  * @return <code>true</code> if the element is in this scope
  */
 public boolean encloses(IJavaElement element);

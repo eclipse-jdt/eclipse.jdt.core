@@ -1,9 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -43,22 +49,30 @@ public interface ITypeHierarchy {
 void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener);
 /**
  * Returns whether the given type is part of this hierarchy.
+ * 
+ * @param type the given type
+ * @return true if the given type is part of this hierarchy, false otherwise
  */
 boolean contains(IType type);
 /**
  * Returns whether the type and project this hierarchy was created on exist.
+ * @return true if the type and project this hierarchy was created on exist, false otherwise
  */
 boolean exists();
 /**
  * Returns all classes in this type hierarchy's graph, in no particular
  * order. Any classes in the creation region which were not resolved to
  * have any subtypes or supertypes are not included in the result.
+ * 
+ * @return all classes in this type hierarchy's graph
  */
 IType[] getAllClasses();
 /**
  * Returns all interfaces in this type hierarchy's graph, in no particular
  * order. Any interfaces in the creation region which were not resolved to
  * have any subtypes or supertypes are not included in the result.
+ * 
+ * @return all interfaces in this type hierarchy's graph
  */
 IType[] getAllInterfaces();
 /**
@@ -67,6 +81,9 @@ IType[] getAllInterfaces();
  * types in this type hierarchy's graph. An empty array
  * is returned if there are no resolved subtypes for the
  * given type.
+ * 
+ * @param type the given type
+ * @return all resolved subtypes (direct and indirect) of the given type
  */
 IType[] getAllSubtypes(IType type);
 /**
@@ -79,6 +96,10 @@ IType[] getAllSubtypes(IType type);
  * query the hierarchy for superclasses than to query a class recursively up
  * the superclass chain. Querying an element performs a dynamic resolution,
  * whereas the hierarchy returns a pre-computed result.
+ * 
+ * @param type the given type
+ * @return all resolved superclasses of the given class, in bottom-up order, an empty
+ * array if none.
  */
 IType[] getAllSuperclasses(IType type);
 /**
@@ -91,6 +112,9 @@ IType[] getAllSuperclasses(IType type);
  * query the hierarchy for superinterfaces than to query a type recursively.
  * Querying an element performs a dynamic resolution,
  * whereas the hierarchy returns a pre-computed result.
+ * 
+ * @param type the given type
+ * @return all resolved superinterfaces (direct and indirect) of the given type, an empty array if none
  */
 IType[] getAllSuperInterfaces(IType type);
 /**
@@ -103,12 +127,18 @@ IType[] getAllSuperInterfaces(IType type);
  * query the hierarchy for supertypes than to query a type recursively up
  * the supertype chain. Querying an element performs a dynamic resolution,
  * whereas the hierarchy returns a pre-computed result.
+ * 
+ * @param type the given type
+ * @return all resolved supertypes of the given class, in bottom-up order, an empty array
+ * if none
  */
 IType[] getAllSupertypes(IType type);
 /**
  * Returns all types in this type hierarchy's graph, in no particular
  * order. Any types in the creation region which were not resolved to
  * have any subtypes or supertypes are not included in the result.
+ * 
+ * @return all types in this type hierarchy's grap
  */
 IType[] getAllTypes();
 /**
@@ -117,6 +147,10 @@ IType[] getAllTypes();
  * hierarchy's graph.
  * Returns an empty collection if the given type is a class, or
  * if no interfaces were resolved to extend the given interface.
+ * 
+ * @param type the given type 
+ * @return all interfaces resolved to extend the given interface limited to the interfaces in this
+ * hierarchy's graph, an empty array if none.
  */
 IType[] getExtendingInterfaces(IType type);
 /**
@@ -125,16 +159,24 @@ IType[] getExtendingInterfaces(IType type);
  * hierarchy's  graph. Returns an empty collection if the given type is a
  * class, or if no classes were resolved to implement the given
  * interface.
+ * 
+ * @param type the given type 
+ * @return all classes resolved to implement the given interface limited to the classes in this type
+ * hierarchy's  graph, an empty array if none
  */
 IType[] getImplementingClasses(IType type);
 /**
  * Returns all classes in the graph which have no resolved superclass,
  * in no particular order.
+ * 
+ * @return all classes in the graph which have no resolved superclass
  */
 IType[] getRootClasses();
 /**
  * Returns all interfaces in the graph which have no resolved superinterfaces,
  * in no particular order.
+ * 
+ * @return all interfaces in the graph which have no resolved superinterfaces
  */
 IType[] getRootInterfaces();
 /**
@@ -144,6 +186,10 @@ IType[] getRootInterfaces();
  * Returns an empty collection if the given type is an interface,
  * or if no classes were resolved to be subclasses of the given
  * class.
+ * 
+ * @param type the given type
+ * @return the direct resolved subclasses of the given class limited to the classes in this
+ * type hierarchy's graph, an empty collection if none.
  */
 IType[] getSubclasses(IType type);
 /**
@@ -153,6 +199,10 @@ IType[] getSubclasses(IType type);
  * If the type is a class, this returns the resolved subclasses.
  * If the type is an interface, this returns both the classes which implement 
  * the interface and the interfaces which extend it.
+ * 
+ * @param type the given type
+ * @return the direct resolved subtypes of the given type limited to the types in this
+ * type hierarchy's graph
  */
 IType[] getSubtypes(IType type);
 /**
@@ -160,6 +210,12 @@ IType[] getSubtypes(IType type);
  * or <code>null</code> if the given class has no superclass,
  * the superclass could not be resolved, or if the given
  * type is an interface.
+ * 
+ * @param type the given type
+ * @return the resolved superclass of the given class, 
+ * or <code>null</code> if the given class has no superclass,
+ * the superclass could not be resolved, or if the given
+ * type is an interface
  */
 IType getSuperclass(IType type);
 /**
@@ -168,6 +224,10 @@ IType getSuperclass(IType type);
  * hierarchy's graph.
  * For classes, this gives the interfaces that the class implements.
  * For interfaces, this gives the interfaces that the interface extends.
+ * 
+ * @param type the given type
+ * @return the direct resolved interfaces that the given type implements or extends limited to the interfaces in this type
+ * hierarchy's graph
  */
 IType[] getSuperInterfaces(IType type);
 /**
@@ -176,17 +236,24 @@ IType[] getSuperInterfaces(IType type);
  * type hierarchy's graph.
  * For classes, this returns its superclass and the interfaces that the class implements.
  * For interfaces, this returns the interfaces that the interface extends.
+ * 
+ * @param type the given type
+ * @return the resolved supertypes of the given type limited to the types in this
+ * type hierarchy's graph
  */
 IType[] getSupertypes(IType type);
 /**
  * Returns the type this hierarchy was computed for.
  * Returns <code>null</code> if this hierarchy was computed for a region.
+ * 
+ * @return the type this hierarchy was computed for
  */
 IType getType();
 /**
  * Re-computes the type hierarchy reporting progress.
  *
  * @exception JavaModelException if unable to refresh the hierarchy
+ * @param monitor the given progress monitor
  */
 void refresh(IProgressMonitor monitor) throws JavaModelException;
 /**

@@ -1,16 +1,14 @@
 /**********************************************************************
-Copyright (c) 2002 IBM Corp. and others.
-All rights reserved.   This program and the accompanying materials
-are made available under the terms of the Common Public License v0.5
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/cpl-v05.html
- 
-Contributors:
-     IBM Corporation - initial API and implementation
-**********************************************************************/
+ * Copyright (c) 2002 IBM Corp. and others.
+ * All rights reserved.   This program and the accompanying materials
+ * are made available under the terms of the Common Public License v0.5
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ *
+ * Contributors:
+ *      IBM Corporation - initial API and implementation
+ *********************************************************************/
 package org.eclipse.jdt.internal.core.util;
-
-import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
@@ -21,9 +19,6 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.util.*;
 
 /**
  * Default implementation of IMethodInfo.
