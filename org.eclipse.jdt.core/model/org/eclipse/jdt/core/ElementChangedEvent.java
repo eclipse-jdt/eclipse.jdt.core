@@ -80,6 +80,9 @@ public class ElementChangedEvent extends EventObject {
 	 * @since 2.0
 	 */
 	public static final int 	POST_RECONCILE = 4;	
+	
+	private static final long serialVersionUID = -8947240431612844420L; // backward compatible
+	
 	/*
 	 * Event type indicating the nature of this event. 
 	 * It can be a combination either:

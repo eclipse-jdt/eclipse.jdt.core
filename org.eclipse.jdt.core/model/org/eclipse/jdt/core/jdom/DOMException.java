@@ -21,6 +21,8 @@ package org.eclipse.jdt.core.jdom;
  * org.eclipse.jdt.core.dom package.
  */
 public class DOMException extends RuntimeException {
+	
+	private static final long serialVersionUID = 2536853590795032028L; // backward compatible	
 /**
  * Creates a new exception with no detail message.
  */
