@@ -1960,12 +1960,7 @@ protected void consumeAnnotationName() {
 	}
 
 	markerAnnotation = new CompletionOnMarkerAnnotationName(typeReference, typeReference.sourceStart);
-	int sourceStart = this.intStack[this.intPtr--];
-	if (this.modifiersSourceStart < 0) {
-		this.modifiersSourceStart = sourceStart;
-	} else if (this.modifiersSourceStart > sourceStart) {
-		this.modifiersSourceStart = sourceStart;
-	}
+	this.intPtr--;
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
 	pushOnExpressionStack(markerAnnotation);
 	

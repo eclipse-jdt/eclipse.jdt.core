@@ -3402,5 +3402,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83013
+	 */
+	public void test0107() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"@interface A {\n" +
+				"    String value() default \"\";\n" +
+				"}\n" +
+				"@interface Main {\n" +
+				"   A child() default @A(\"Void\");\n" +
+				"}\n" +
+				"@Main(child=@A(\"\")) @A class X {}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 2);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			checkSourceRange(node, "@Main(child=@A(\"\")) @A class X {}", contents.toCharArray());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

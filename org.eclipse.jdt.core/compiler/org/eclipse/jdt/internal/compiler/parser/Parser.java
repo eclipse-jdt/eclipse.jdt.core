@@ -1028,7 +1028,11 @@ protected void consumeAllocationHeader() {
 	this.restartRecovery = true; // request to restart from here on
 }
 protected void consumeAnnotationAsModifier() {
-	// nothing to do
+	Expression expression = this.expressionStack[this.expressionPtr];
+	int sourceStart = expression.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	}
 }
 protected void consumeAnnotationName() {
 	// nothing to do
@@ -3627,12 +3631,6 @@ protected void consumeMarkerAnnotation() {
 		typeReference = new QualifiedTypeReference(tokens, positions);
 	}
 	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
-	int sourceStart = markerAnnotation.sourceStart;
-	if (this.modifiersSourceStart < 0) {
-		this.modifiersSourceStart = sourceStart;
-	} else if (this.modifiersSourceStart > sourceStart) {
-		this.modifiersSourceStart = sourceStart;
-	}
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
 	pushOnExpressionStack(markerAnnotation);
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
@@ -4163,12 +4161,6 @@ protected void consumeNormalAnnotation() {
 			normalAnnotation.memberValuePairs = new MemberValuePair[length], 
 			0, 
 			length); 
-	}
-	int sourceStart = normalAnnotation.sourceStart;
-	if (this.modifiersSourceStart < 0) {
-		this.modifiersSourceStart = sourceStart;
-	} else if (this.modifiersSourceStart > sourceStart) {
-		this.modifiersSourceStart = sourceStart;
 	}
 	normalAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(normalAnnotation);
@@ -6154,12 +6146,6 @@ protected void consumeSingleMemberAnnotation() {
 	singleMemberAnnotation = new SingleMemberAnnotation(typeReference, this.intStack[this.intPtr--]);
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	int sourceStart = singleMemberAnnotation.sourceStart;
-	if (this.modifiersSourceStart < 0) {
-		this.modifiersSourceStart = sourceStart;
-	} else if (this.modifiersSourceStart > sourceStart) {
-		this.modifiersSourceStart = sourceStart;
-	}
 	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(singleMemberAnnotation);
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
