@@ -51,6 +51,30 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>2 new Javadoc compiler options have been added (see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53977#c4">53977</a>
+and <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75701#c4">75701</a>).<br>
+While reporting problems on invalid Javadoc tags, user can now decide not to report deprecation and/or visibility warnings on references used in @see, @link or @values tags.
+<br>
+Here's the description of these new options:
+<pre>
+	 * COMPILER / Reporting Invalid Javadoc Tags with Deprecated References
+	 *    Specify whether the compiler will report deprecated references used in Javadoc tags.
+	 *    Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Invalid Javadoc Tags with Not Visible References
+	 *    Specify whether the compiler will report non-visible references used in Javadoc tags.
+	 *    Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+</pre>
+</li>
 <li>Changed build state format to record access restrictions. As a consequence, a full rebuild will be
 required when reusing existing workspaces.
 </li>
@@ -151,14 +175,21 @@ Note: alternatively, it could be specified on a per project basis, by adding lin
 <b><font color="#0000ff">import static</font></b> <i><font color="#A0A0A0">type</font></i>.*;
 <b><font color="#0000ff">import static</font></b> <i><font color="#A0A0A0">type</font></i>.<i><font color="#A0A0A0">identifier</font></i>;
 </pre>
-Search now supports this new syntax and is able to find referenced type, field and/or member.
-This support requires the index version to be incremented. Indexes will be automatically regenerated upon
-subsequent search queries (accounting for indexing notification in search progress dialogs).
+Java Search is also able to find referenced type, field and/or member in static imports but required the index version to be incremented.<br>
+Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76360">76360</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76324">76324</a>
+[Javadoc] Wrongly reports invalid link format in @see and @link
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74369">74369</a>
+[Javadoc] incorrect javadoc in local class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75701">75701</a>
+[Javadoc] References in Javadoc to deprecated members
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53977">53977</a>
+[DCR] [Javadoc] Add a Javadoc option not to report errors on non-visible references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76360">76360</a>
 [1.5] NPE when using static import
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76174">76174</a>
 [1.5] missing error when using static import
