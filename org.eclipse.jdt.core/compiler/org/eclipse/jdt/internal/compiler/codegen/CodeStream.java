@@ -4525,7 +4525,7 @@ public void newStringContatenation() {
 	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
 	}
-	if (classFileOffset >= bCodeStream.length) {
+	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
