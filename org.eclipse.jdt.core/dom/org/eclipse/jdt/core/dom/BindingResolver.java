@@ -220,6 +220,46 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves the given import declaration and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>ImportDeclaration.resolveBinding</code>
+	 * forwards to this method.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param importDeclaration the import declaration of interest
+	 * @return the binding for the given package declaration, or 
+	 * @return the package binding (for on-demand imports) or type binding
+	 *    (for single-type imports), or <code>null</code> if no binding is
+	 *    available
+	 */
+	IBinding resolveImport(ImportDeclaration importDeclaration) {
+		return null;
+	}
+	
+	/**
+	 * Resolves the given package declaration and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>PackageDeclaration.resolveBinding</code>
+	 * forwards to this method.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param pkg the package declaration of interest
+	 * @return the binding for the given package declaration, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IPackageBinding resolvePackage(PackageDeclaration pkg) {
+		return null;
+	}
+	
+	/**
 	 * Finds the corresponding AST node from which the given binding originated.
 	 * Returns <code>null</code> if the binding does not correspond to any node
 	 * in the compilation unit.

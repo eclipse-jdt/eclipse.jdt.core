@@ -100,6 +100,21 @@ public class PackageDeclaration extends ASTNode {
 		this.packageName = name;
 	}
 	
+	/**
+	 * Resolves and returns the binding for the package declared in this package
+	 * declaration.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be 
+	 *    resolved
+	 */	
+	public IPackageBinding resolveBinding() {
+		return getAST().getBindingResolver().resolvePackage(this);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

@@ -138,6 +138,22 @@ public class ImportDeclaration extends ASTNode {
 		this.onDemand = onDemand;
 	}
 	
+	/**
+	 * Resolves and returns the binding for the package or type imported by
+	 * this import declaration.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the package binding (for on-demand imports) or type binding
+	 *    (for single-type imports), or <code>null</code> if the binding cannot
+	 *    be resolved
+	 */	
+	public IBinding resolveBinding() {
+		return getAST().getBindingResolver().resolveImport(this);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
