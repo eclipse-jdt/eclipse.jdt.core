@@ -30,10 +30,6 @@ class TypeBinding implements ITypeBinding {
 	
 	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private BindingResolver resolver;
-	//TODO: (olivier) unused?
-	private IVariableBinding[] fields;
-	//TODO: (olivier) unused?
-	private IMethodBinding[] methods;
 	
 	public TypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding) {
 		this.binding = binding;
