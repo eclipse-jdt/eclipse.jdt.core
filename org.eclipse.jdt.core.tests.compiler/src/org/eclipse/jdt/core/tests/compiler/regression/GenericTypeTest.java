@@ -185,6 +185,11 @@ public void test006() {
 		"	static class SMX extends T {\n" + 
 		"	                         ^\n" + 
 		"Superclass T cannot refer to a type variable\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	T wrong4;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
 		"----------\n");
 }
 
@@ -205,6 +210,25 @@ public void test007() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	T wrong4;\n" + 
 		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n");
+}
+
+// check static references to type variables
+public void test008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    \n" + 
+			"     T ok;\n" + 
+			"    static T wrong;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	static T wrong;\n" + 
+		"	       ^\n" + 
 		"Cannot make a static reference to the type variable T\n" + 
 		"----------\n");
 }

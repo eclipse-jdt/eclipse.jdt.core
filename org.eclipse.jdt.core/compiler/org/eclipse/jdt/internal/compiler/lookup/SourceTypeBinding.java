@@ -771,7 +771,9 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		if (fieldDecls[f].binding != field)
 			continue;
 
-		field.type = fieldDecls[f].getTypeBinding(scope);
+		field.type = fieldDecls[f].getTypeBinding(field.isStatic() 
+						        ? scope.referenceContext.staticInitializerScope 
+						         : scope.referenceContext.initializerScope);
 		field.modifiers ^= AccUnresolved;
 		if (!field.type.isValidBinding()) {
 			scope.problemReporter().fieldTypeProblem(this, fieldDecls[f], field.type);
