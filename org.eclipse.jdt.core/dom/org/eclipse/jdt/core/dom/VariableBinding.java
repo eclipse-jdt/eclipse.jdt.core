@@ -124,10 +124,9 @@ class VariableBinding implements IVariableBinding {
 	}
 	
 	/*
-	 * @see IVariableBinding#getId()
+	 * @see IVariableBinding#getVariableId()
 	 */
 	public int getVariableId() {
-		// FIXME - should return id from old binding
 		return this.binding.id;
 	}
 
