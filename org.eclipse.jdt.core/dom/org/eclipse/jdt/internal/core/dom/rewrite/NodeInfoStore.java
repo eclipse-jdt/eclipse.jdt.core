@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -88,6 +89,9 @@ public final class NodeInfoStore {
 			    	break;
 				case ASTNode.VARIABLE_DECLARATION_STATEMENT :
 				    ((VariableDeclarationStatement) node).fragments().add(this.ast.newVariableDeclarationFragment());
+		    		break;
+				case ASTNode.PARAMETERIZED_TYPE :
+				    ((ParameterizedType) node).typeArguments().add(this.ast.newWildcardType()); //$NON-NLS-1$
 		    		break;
 			}
 		    return node;
