@@ -14,12 +14,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.index.IDocument;
 
 /**
  * A <code>FileDocument</code> represents a java.io.File.
  */
 
-public class FileDocument extends PropertyDocument {
+public class FileDocument implements IDocument {
 	File file;
 
 	public FileDocument(File file) {

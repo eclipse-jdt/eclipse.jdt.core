@@ -16,12 +16,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.index.IDocument;
 
 /**
  * An <code>IFileDocument</code> represents an IFile.
  */
 
-public class IFileDocument extends PropertyDocument {
+public class IFileDocument implements IDocument {
 	protected IFile file;
 
 	// cached contents if needed - only one of them is used at a time

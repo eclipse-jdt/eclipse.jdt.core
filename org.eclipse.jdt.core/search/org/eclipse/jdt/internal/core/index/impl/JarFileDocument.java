@@ -15,12 +15,13 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.internal.core.index.IDocument;
 
 /**
  * An <code>JarFileDocument</code> represents an jar file.
  */
 
-public class JarFileDocument extends PropertyDocument {
+public class JarFileDocument implements IDocument {
 	protected IFile file;
 	/**
 	 * JarFileDocument constructor comment.

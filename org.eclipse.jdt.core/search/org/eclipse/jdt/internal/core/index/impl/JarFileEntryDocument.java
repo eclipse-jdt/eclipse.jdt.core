@@ -15,13 +15,14 @@ import java.util.zip.ZipEntry;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.index.IDocument;
 
 
 /**
  * An <code>JarFileEntryDocument</code> represents an jar file.
  */
 
-public class JarFileEntryDocument extends PropertyDocument implements SuffixConstants {
+public class JarFileEntryDocument implements IDocument, SuffixConstants {
 	protected ZipEntry zipEntry;
 	protected byte[] byteContents;
 	protected Path zipFilePath;
