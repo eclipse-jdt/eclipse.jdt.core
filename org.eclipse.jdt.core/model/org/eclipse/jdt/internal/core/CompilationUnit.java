@@ -404,7 +404,8 @@ public void destroy() {
 	try {
 		discardWorkingCopy();
 	} catch (JavaModelException e) {
-		e.printStackTrace();
+		if (JavaModelManager.VERBOSE)
+			e.printStackTrace();
 	}
 }
 /*
