@@ -294,6 +294,12 @@ public class SwitchStatement extends Statement {
 	 * Dispatch the call on its last statement.
 	 */
 	public void branchChainTo(Label label) {
+		
+		// in order to improve debug attributes for stepping (11431)
+		// we want to inline the jumps to #breakLabel which already got
+		// generated (if any), and have them directly branch to a better
+		// location (the argument label).
+		// we know at this point that the breakLabel already got placed
 		if (this.breakLabel.hasForwardReferences()) {
 			label.appendForwardReferencesFrom(this.breakLabel);
 		}
