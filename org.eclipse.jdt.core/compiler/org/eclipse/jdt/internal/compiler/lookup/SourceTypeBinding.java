@@ -565,12 +565,13 @@ public MethodBinding[] getMethods(char[] selector) {
 			if (foundProblem || count > 1) {
 				for (int m = methods.length; --m >= 0;) {
 					MethodBinding method = methods[m];
+					// TODO (kent) why is selector check using prefixEquals ?
 					if (method != null && method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
 						AbstractMethodDeclaration methodDecl = null;
 						for (int i = 0; i < m; i++) {
 							MethodBinding method2 = methods[i];
 							if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-								if (method.areParametersEquivalent(method2)) {
+								if (method.areParameterErasuresEqual(method2)) {
 									if (methodDecl == null) {
 										methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
 										scope.problemReporter().duplicateMethodInType(this, methodDecl);
@@ -717,7 +718,7 @@ public MethodBinding[] methods() {
 				for (int i = 0; i < m; i++) {
 					MethodBinding method2 = methods[i];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						if (method.areParametersEquivalent(method2)) {
+						if (method.areParameterErasuresEqual(method2)) {
 							if (methodDecl == null) {
 								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
 								scope.problemReporter().duplicateMethodInType(this, methodDecl);

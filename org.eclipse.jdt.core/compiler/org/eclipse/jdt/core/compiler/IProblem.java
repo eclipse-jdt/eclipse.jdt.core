@@ -824,4 +824,7 @@ public interface IProblem {
 	int IncorrectArityForParameterizedType = TypeRelated + 525;
 	/** @since 3.0 */
 	int TypeArgumentMismatch = TypeRelated + 526;
+	/** @since 3.0 */
+	int DuplicateMethodErasure = TypeRelated + 527;
+	
 }

@@ -261,7 +261,7 @@ public void test010() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	new X<Foo>();\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable> of the type X<T>\n" + 
+		"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable> of the type X\n" + 
 		"----------\n");
 }
 
@@ -485,12 +485,12 @@ public void test019() {
 		"1. WARNING in X.java (at line 2)\n" + 
 		"	private T foo(T t) {\n" + 
 		"	          ^^^^^^^^\n" + 
-		"The private method foo(T) from the type X<T> is never used locally\n" + 
+		"The private method foo(T) from the type X is never used locally\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	foo(new XY());\n" + 
 		"	^^^\n" + 
-		"The method foo(T) in the type X<T> is not applicable for the arguments (XY)\n" + 
+		"The method foo(T) in the type X is not applicable for the arguments (XY)\n" + 
 		"----------\n");
 }
 public void test020() {
@@ -547,7 +547,7 @@ public void test021() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	foo(x);\n" + 
 		"	^^^\n" + 
-		"The method foo(T) in the type X<T> is not applicable for the arguments (String)\n" + 
+		"The method foo(T) in the type X is not applicable for the arguments (String)\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	new X<String>().foo(new Object());\n" + 
@@ -839,12 +839,12 @@ public void test033() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(E e){}\n" + 
 		"	     ^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(E) has the same erasure foo(Object) as another method in type X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	void foo(T t){}\n" + 
 		"	     ^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(T) has the same erasure foo(Object) as another method in type X\n" + 
 		"----------\n");
 }		
 
@@ -861,12 +861,12 @@ public void test034() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(E e){}\n" + 
 		"	     ^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(E) has the same erasure foo(Exception) as another method in type X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	void foo(T t){}\n" + 
 		"	     ^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(T) has the same erasure foo(Exception) as another method in type X\n" + 
 		"----------\n");
 }	
 
@@ -883,12 +883,12 @@ public void test035() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(E e, Thread t){}\n" + 
 		"	     ^^^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(E, Thread) has the same erasure foo(Exception, Thread) as another method in type X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	void foo(Exception e, T t){}\n" + 
 		"	     ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method foo in type X\n" + 
+		"Method foo(Exception, T) has the same erasure foo(Exception, Thread) as another method in type X\n" + 
 		"----------\n");
 }	
 
@@ -924,7 +924,7 @@ public void test037() {
 
 // TODO (kent) reenable once supported
 public void _test038() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X <E extends Cloneable, T extends Thread & Cloneable> {\n" + 
@@ -941,6 +941,36 @@ public void _test038() {
 		"foo invocation is ambiguous");
 }	
 
+public void test039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Cloneable, T extends Thread> {\n" + 
+			"	void foo(L<E> l1){}\n" + 
+			"	void foo(L<T> l2){}\n" + 
+			"	void foo(L l){}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class L<E> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(L<E> l1){}\n" + 
+		"	     ^^^^^^^^^^^^\n" + 
+		"Method foo(L<E>) has the same erasure foo(L) as another method in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	void foo(L<T> l2){}\n" + 
+		"	     ^^^^^^^^^^^^\n" + 
+		"Method foo(L<T>) has the same erasure foo(L) as another method in type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	void foo(L l){}\n" + 
+		"	     ^^^^^^^^\n" + 
+		"Duplicate method foo(L) in type X\n" + 
+		"----------\n");
+}
 //public void test028() {
 //	this.runConformTest(
 //		new String[] {

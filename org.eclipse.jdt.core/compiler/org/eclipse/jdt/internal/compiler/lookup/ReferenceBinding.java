@@ -578,17 +578,17 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	} else {
 		readableName = CharOperation.concatWith(compoundName, '.');
 	}
-	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
-	    nameBuffer.append(readableName).append('<');
-	    for (int i = 0, length = typeVars.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(typeVars[i].readableName());
-	    }
-	    nameBuffer.append('>');
-	    readableName = nameBuffer.toString().toCharArray();
-	}
+//	TypeVariableBinding[] typeVars;
+//	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+//	    StringBuffer nameBuffer = new StringBuffer(10);
+//	    nameBuffer.append(readableName).append('<');
+//	    for (int i = 0, length = typeVars.length; i < length; i++) {
+//	        if (i > 0) nameBuffer.append(',');
+//	        nameBuffer.append(typeVars[i].readableName());
+//	    }
+//	    nameBuffer.append('>');
+//	    readableName = nameBuffer.toString().toCharArray();
+//	}
 	return readableName;
 }
 
@@ -599,17 +599,17 @@ public char[] shortReadableName() /*Object*/ {
 	} else {
 		shortReadableName = this.sourceName;
 	}
-	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
-	    nameBuffer.append(shortReadableName).append('<');
-	    for (int i = 0, length = typeVars.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(typeVars[i].shortReadableName());
-	    }
-	    nameBuffer.append('>');
-	    shortReadableName = nameBuffer.toString().toCharArray();
-	}
+//	TypeVariableBinding[] typeVars;
+//	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+//	    StringBuffer nameBuffer = new StringBuffer(10);
+//	    nameBuffer.append(shortReadableName).append('<');
+//	    for (int i = 0, length = typeVars.length; i < length; i++) {
+//	        if (i > 0) nameBuffer.append(',');
+//	        nameBuffer.append(typeVars[i].shortReadableName());
+//	    }
+//	    nameBuffer.append('>');
+//	    shortReadableName = nameBuffer.toString().toCharArray();
+//	}
 	return shortReadableName;
 }
 

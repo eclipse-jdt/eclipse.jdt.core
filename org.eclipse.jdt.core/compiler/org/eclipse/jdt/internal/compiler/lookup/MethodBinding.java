@@ -72,9 +72,9 @@ public final boolean areParametersEqual(MethodBinding method) {
 			return false;
 	return true;
 }
-/* Answer true if the argument types & the receiver's parameters are equivalent
+/* Answer true if the argument types & the receiver's parameters have the same erasure
 */
-public final boolean areParametersEquivalent(MethodBinding method) {
+public final boolean areParameterErasuresEqual(MethodBinding method) {
 	TypeBinding[] args = method.parameters;
 	if (parameters == args)
 		return true;
@@ -83,7 +83,6 @@ public final boolean areParametersEquivalent(MethodBinding method) {
 	if (length != args.length)
 		return false;
 
-	// TODO need to improve error message if methods are duplicates because of TypeVariableBindings
 	for (int i = 0; i < length; i++) {
 	    if (parameters[i].erasure() != args[i].erasure()) return false;
 	}

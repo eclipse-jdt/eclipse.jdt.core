@@ -103,6 +103,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
+     * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
+     */
+    public TypeBinding erasure() {
+        return this.type.erasure(); // erasure
+    }
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fieldCount()
 	 */
 	public int fieldCount() {
@@ -380,7 +386,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    nameBuffer.append('>');
 	    return nameBuffer.toString().toCharArray();
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
 	 */

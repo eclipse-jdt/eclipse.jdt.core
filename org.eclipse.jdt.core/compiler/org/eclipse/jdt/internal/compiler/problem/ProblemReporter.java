@@ -723,13 +723,51 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		location.sourceEnd);
 }
 public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
-	String[] arguments = new String[] {new String(methodDecl.selector), new String(type.sourceName())};
-	this.handle(
-		IProblem.DuplicateMethod,
-		arguments,
-		arguments,
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
+    MethodBinding method = methodDecl.binding;
+    boolean duplicateErasure = false;
+    if ((method.modifiers & CompilerModifiers.AccGenericSignature) != 0) {
+        // chech it occurs in parameters (the bit is set for return type | params | thrown exceptions
+        for (int i = 0, length = method.parameters.length; i < length; i++) {
+            if ((method.parameters[i].tagBits & TagBits.HasTypeVariable) != 0) {
+                duplicateErasure = true;
+                break;
+            }
+        }
+    }
+    if (duplicateErasure) {
+        int length = method.parameters.length;
+        TypeBinding[] erasures = new TypeBinding[length];
+        for (int i = 0; i < length; i++)  {
+            erasures[i] = method.parameters[i].erasure();
+        }
+		this.handle(
+			IProblem.DuplicateMethodErasure,
+			new String[] {
+		        new String(method.selector),
+				new String(method.declaringClass.readableName()),
+				parametersAsString(method.parameters, false),
+				parametersAsString(erasures, false) } ,
+			new String[] {
+				new String(method.selector),
+				new String(method.declaringClass.shortReadableName()),
+				parametersAsString(method.parameters, true),
+				parametersAsString(erasures, true) },
+			methodDecl.sourceStart,
+			methodDecl.sourceEnd);
+    } else {
+		this.handle(
+			IProblem.DuplicateMethod,
+			new String[] {
+		        new String(method.selector),
+				new String(method.declaringClass.readableName()),
+				parametersAsString(method.parameters, false)},
+			new String[] {
+				new String(method.selector),
+				new String(method.declaringClass.shortReadableName()),
+				parametersAsString(method.parameters, true)},
+			methodDecl.sourceStart,
+			methodDecl.sourceEnd);
+    }
 }
 public void duplicateModifierForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 /* to highlight modifiers use:
@@ -2711,7 +2749,6 @@ private String parametersAsString(TypeBinding[] params, boolean makeShort) {
 	}
 	return buffer.toString();
 }
-
 public void parseError(
 	int startPosition, 
 	int endPosition, 
