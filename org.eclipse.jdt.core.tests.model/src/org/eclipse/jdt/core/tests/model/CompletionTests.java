@@ -12,14 +12,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.ITypeNameRequestor;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
