@@ -72,7 +72,7 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
-	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = markers.length; i < length; i++) {
 		IMarker marker = markers[i];
@@ -88,7 +88,7 @@ protected void assertMarkers(String message, String expectedMarkers, IJavaProjec
 	assertEquals(message, expectedMarkers, actual);
 }
 protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreException {
-	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	int result = 0;
 	for (int i = 0, length = markers.length; i < length; i++) {
 		IMarker marker = markers[i];
