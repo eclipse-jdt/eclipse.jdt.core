@@ -6,7 +6,7 @@ package org.eclipse.jdt.core.ant;
  */
 
 import java.util.*;
-import java.io.*;
+import java.io.*; 
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
