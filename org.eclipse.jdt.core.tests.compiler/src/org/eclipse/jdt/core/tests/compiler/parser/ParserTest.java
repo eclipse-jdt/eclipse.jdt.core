@@ -304,5 +304,72 @@ public void test013() {
 		nls // custom options
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
+ */
+public void test014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo() { \n" +
+			"		import java.lang.*;\n" +
+			"	} \n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	import java.lang.*;\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error on token \"import\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	import java.lang.*;\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
+ */
+public void test015() {
+	this.runNegativeTest(
+		new String[] {
+			"Hello.java",
+			"void ___eval() {\n" +
+			"	new Runnable() {\n" +
+			"		int ___run() throws Throwable {\n" +
+			"			return blah;\n" +
+			"		}\n" +
+			"		private String blarg;\n" +
+			"		public void run() {\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n" +
+			"public class Hello {\n" +
+			"	private static int x;\n" +
+			"	private String blah;\n" +
+			"	public static void main(String[] args) {\n" +
+			"	}\n" +
+			"	public void hello() {\n" +
+			"	}\n" +
+			"	public boolean blah() {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Hello.java (at line 7)\n" + 
+		"	public void run() {\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n"
+	);
+}
 }

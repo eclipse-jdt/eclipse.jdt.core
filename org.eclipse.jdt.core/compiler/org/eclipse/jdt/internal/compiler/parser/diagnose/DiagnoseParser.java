@@ -695,16 +695,18 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		//
 		//  Next, try merging the error token with its successor.
 		//
-		symbol = mergeCandidate(stck[stack_top], repair.bufferPosition);
-		if (symbol != 0) {
-			j = parseCheck(stck, stack_top, symbol, repair.bufferPosition+2);
-			if ((j > repair.distance) || (j == repair.distance && repair.misspellIndex < 10)) {
-				repair.misspellIndex = 10;
-				repair.symbol = symbol;
-				repair.distance = j;
-				repair.code = MERGE_CODE;
+	    if(buffer[repair.bufferPosition] != 0 && buffer[repair.bufferPosition + 1] != 0) {// do not merge the first token
+			symbol = mergeCandidate(stck[stack_top], repair.bufferPosition);
+			if (symbol != 0) {
+				j = parseCheck(stck, stack_top, symbol, repair.bufferPosition+2);
+				if ((j > repair.distance) || (j == repair.distance && repair.misspellIndex < 10)) {
+					repair.misspellIndex = 10;
+					repair.symbol = symbol;
+					repair.distance = j;
+					repair.code = MERGE_CODE;
+				}
 			}
-		}
+	    }
 
 		//
 		// Next, try deletion of the error token.
@@ -826,30 +828,33 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		// in the current state, except EOFT and ERROR_SYMBOL.
 		//
 		symbol = root;
-		while(symbol != 0) {
-			if (symbol == EOLT_SYMBOL && lexStream.afterEol(buffer[repair.bufferPosition+1])) {
-				k = 10;
-			} else {
-				k = misspell(symbol, buffer[repair.bufferPosition]);
+		
+		if(buffer[repair.bufferPosition] != 0) {// do not replace the first token
+			while(symbol != 0) {
+				if (symbol == EOLT_SYMBOL && lexStream.afterEol(buffer[repair.bufferPosition+1])) {
+					k = 10;
+				} else {
+					k = misspell(symbol, buffer[repair.bufferPosition]);
+				}
+				j = parseCheck(stck, stack_top, symbol, repair.bufferPosition+1);
+				if (j > repair.distance) {
+					repair.misspellIndex = k;
+					repair.distance = j;
+					repair.symbol = symbol;
+					repair.code = SUBSTITUTION_CODE;
+				} else if (j == repair.distance && k > repair.misspellIndex) {
+					repair.misspellIndex = k;
+					repair.symbol = symbol;
+					repair.code = SUBSTITUTION_CODE;
+				} else if (j == repair.distance && k > repair.misspellIndex && isBetterSymbol(symbol, repair.symbol)) {
+					repair.misspellIndex = k;
+					repair.symbol = symbol;
+					repair.code = SUBSTITUTION_CODE;
+				}
+				i = symbol;
+				symbol = list[symbol];
+				list[i] = 0;                             // reset element
 			}
-			j = parseCheck(stck, stack_top, symbol, repair.bufferPosition+1);
-			if (j > repair.distance) {
-				repair.misspellIndex = k;
-				repair.distance = j;
-				repair.symbol = symbol;
-				repair.code = SUBSTITUTION_CODE;
-			} else if (j == repair.distance && k > repair.misspellIndex) {
-				repair.misspellIndex = k;
-				repair.symbol = symbol;
-				repair.code = SUBSTITUTION_CODE;
-			} else if (j == repair.distance && k > repair.misspellIndex && isBetterSymbol(symbol, repair.symbol)) {
-				repair.misspellIndex = k;
-				repair.symbol = symbol;
-				repair.code = SUBSTITUTION_CODE;
-			}
-			i = symbol;
-			symbol = list[symbol];
-			list[i] = 0;                             // reset element
 		}
 
 
@@ -2119,7 +2124,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 
 		int errorStart = -1;
 		if(lexStream.isInsideStream(leftToken)) {
-			errorStart = lexStream.start(leftToken);
+			if(leftToken == 0) {
+				errorStart = lexStream.start(leftToken + 1);
+			} else {
+				errorStart = lexStream.start(leftToken);
+			}
 		} else {
 			if(leftToken == errorToken) {
 				errorStart = errorTokenStart;
