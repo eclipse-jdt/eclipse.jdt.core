@@ -1,3 +1,5 @@
+package test0354;
+
 public class Test {
 
 	protected void primExecute() {
