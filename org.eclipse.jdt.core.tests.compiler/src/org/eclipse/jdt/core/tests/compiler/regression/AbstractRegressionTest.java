@@ -400,7 +400,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		TestSuite suite = new TestSuite(evaluationTestClass);
 		return suite;
 	}
-	public static Test suite(Class evaluationTestClass, String suiteName, String complianceLevel) {
+	public static Test suite(Class evaluationTestClass, String suiteName) {
 		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
 		try {
 			Class[] paramTypes = new Class[] { String.class };
@@ -472,7 +472,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		return new RegressionTestSetup(suite, complianceLevel);
+		return suite;
 	}
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {

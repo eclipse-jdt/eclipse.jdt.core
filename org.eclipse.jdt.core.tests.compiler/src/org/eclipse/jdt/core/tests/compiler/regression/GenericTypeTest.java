@@ -27,7 +27,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean runJavac;
 	{
-		runJavac = RUN_SUN_JAVAC.equals(CompilerOptions.ENABLED);
+		runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	}
 	IPath dirPath;
 	
@@ -52,11 +52,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 66, -1 };
-//		testsNumbers = new int[] { 1006 };
+//		testsNumbers = new int[] { 65 };
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
-			return new RegressionTestSetup(suite(testClass()), highestComplianceLevels());
+			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
 			return setupSuite(testClass());
 		}
