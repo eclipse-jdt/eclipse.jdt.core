@@ -78,8 +78,8 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	String fileName = new String(typeName);
-	boolean binaryExists = ((this.mode | BINARY) != 0) && doesFileExist(fileName + ".class", qualifiedPackageName); //$NON-NLS-1$
-	boolean sourceExists = ((this.mode | SOURCE) != 0) && doesFileExist(fileName + ".java", qualifiedPackageName); //$NON-NLS-1$
+	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + ".class", qualifiedPackageName); //$NON-NLS-1$
+	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + ".java", qualifiedPackageName); //$NON-NLS-1$
 	if (sourceExists) {
 		String fullSourcePath = path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + ".java"; //$NON-NLS-1$
 		if (!binaryExists)
