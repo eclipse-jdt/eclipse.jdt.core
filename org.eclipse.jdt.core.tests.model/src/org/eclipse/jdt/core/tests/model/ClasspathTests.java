@@ -2076,7 +2076,8 @@ public void testInvalidExternalClassFolder() throws CoreException {
 	try {
 		String externalPath = getExternalPath();
 		// remove trailing slash
-		externalPath = externalPath.substring(0, externalPath.length()-1);
+		if (Path.fromOSString(externalPath).segmentCount() > 0)
+			externalPath = externalPath.substring(0, externalPath.length()-1);
 		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
