@@ -112,6 +112,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5021      Refactoring trashed my code  
   5136		ArrayIndexOutOfBoundsException when a field declaration is an anonymous class 
   3440		Classfile comparator should be able to ignore order (1GL2I7E) 
   3439		Classfile comparator should be able to ignore synthetics (1GL2I3N) 

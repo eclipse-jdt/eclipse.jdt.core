@@ -130,15 +130,13 @@ public class MatchLocator implements ITypeRequestor {
 				};
 
 				// diet parse
-				boolean initializingSearchPattern = this.parser.matchSet == null;
-				if (initializingSearchPattern) {
-					this.parser.matchSet = new MatchSet(this);
-				}
-				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+				MatchSet originalMatchSet = this.parser.matchSet;
 				try {
+					this.parser.matchSet = new MatchSet(this);
+					CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
 					unit = this.parser.dietParse(sourceUnit, compilationResult);
 				} finally {
-					if (initializingSearchPattern) {
+					if (originalMatchSet == null) {
 						if (!this.parser.matchSet.isEmpty() 
 								&& unit != null) {
 							// potential matches were found while initializing the search pattern
@@ -153,6 +151,8 @@ public class MatchLocator implements ITypeRequestor {
 							this.addPotentialMatch(potentialMatch);
 						}
 						this.parser.matchSet = null;
+					} else {
+						this.parser.matchSet = originalMatchSet;
 					}
 				}
 			} catch (JavaModelException e) {
@@ -487,6 +487,9 @@ public class MatchLocator implements ITypeRequestor {
 		int accuracy)
 		throws CoreException {
 		if (this.scope.encloses(element)) {
+if (this.getCurrentResource().getFullPath().toString().endsWith("ResponseFactory.java")) {
+	System.out.println("Found ResponseFactory.java");
+}
 			this.collector.accept(
 				this.getCurrentResource(),
 				sourceStart,
