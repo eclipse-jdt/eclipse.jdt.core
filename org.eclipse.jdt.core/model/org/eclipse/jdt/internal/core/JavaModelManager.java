@@ -1188,8 +1188,10 @@ public class JavaModelManager implements ISaveParticipant {
 				throw new JavaModelException(ce);
 			}
 		} finally {
-			// update JavaModel using default recorded deltas
-			updateJavaModel(null);
+			// update JavaModel using deltas that were recorded during this operation
+			for (int i = previousDeltaCount, size = this.javaModelDeltas.size(); i < size; i++) {
+				updateJavaModel((IJavaElementDelta)this.javaModelDeltas.get(i));
+			}
 			
 			// fire only iff:
 			// - the operation did produce some delta(s)
