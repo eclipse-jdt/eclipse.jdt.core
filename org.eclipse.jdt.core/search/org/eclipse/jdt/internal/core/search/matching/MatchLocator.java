@@ -1271,21 +1271,21 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	boolean matchedClassContainer = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
 
 	// javadoc
-//	if (type.javadoc != null) {
-//		ASTNode[] nodes = nodeSet.matchingNodes(type.declarationSourceStart, type.sourceStart);
-//		if (nodes != null) {
-//			if (!matchedClassContainer) {
-//				for (int i = 0, l = nodes.length; i < l; i++)
-//					nodeSet.matchingNodes.removeKey(nodes[i]);
-//			} else {
-//				for (int i = 0, l = nodes.length; i < l; i++) {
-//					ASTNode node = nodes[i];
-//					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-//					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
-//				}
-//			}
-//		}
-//	}
+	if (type.javadoc != null) {
+		ASTNode[] nodes = nodeSet.matchingNodes(type.declarationSourceStart, type.sourceStart);
+		if (nodes != null) {
+			if (!matchedClassContainer) {
+				for (int i = 0, l = nodes.length; i < l; i++)
+					nodeSet.matchingNodes.removeKey(nodes[i]);
+			} else {
+				for (int i = 0, l = nodes.length; i < l; i++) {
+					ASTNode node = nodes[i];
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+				}
+			}
+		}
+	}
 	
 	// super types
 	if ((type.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
