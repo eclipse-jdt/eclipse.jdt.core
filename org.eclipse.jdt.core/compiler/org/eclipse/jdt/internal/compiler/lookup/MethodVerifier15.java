@@ -48,8 +48,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 						inheritedArg = inheritedArg.leafComponentType();
 						currentArg = currentArg.leafComponentType();
 					}
-					if (inheritedArg.isRawType()) {
-						if (currentArg.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) currentArg)) {
+					if (currentArg.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) currentArg)) {
+						if (inheritedArg.isRawType()) {
+//						if (inheritedArg.isRawType() || !inheritedArg.isEquivalentTo(currentArg)) {
 							this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
 							continue nextMethod;
 						}
@@ -124,6 +125,8 @@ boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) 
 }
 boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
 	TypeBinding[] arguments = parameterizedType.arguments;
+	if (arguments == null) return false;
+
 	nextArg : for (int i = 0, l = arguments.length; i < l; i++) {
 		if (arguments[i].isWildcard())
 			if (((WildcardBinding) arguments[i]).kind == org.eclipse.jdt.internal.compiler.ast.Wildcard.UNBOUND)
