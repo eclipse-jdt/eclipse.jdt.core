@@ -1442,6 +1442,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append('@').append(Signature.toCharArray(typeName)).append('(');
 		final IAnnotationComponent[] components = annotation.getComponents();
 		for (int i = 0, max = components.length; i < max; i++) {
+			if (i > 0) {
+				buffer.append(',');
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
 			disassembleAsModifier(components[i], buffer, lineSeparator, tabNumber + 1);
 		}
 		buffer.append(')');
