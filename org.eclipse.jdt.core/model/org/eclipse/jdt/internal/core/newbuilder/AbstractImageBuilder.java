@@ -63,7 +63,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.hasSeparateOutputFolder = true;
 	for (int i = 0; i < this.sourceFolders.length; i++) {
 		IContainer sourceFolder = this.sourceFolders[i];
-		if (sourceFolder.getFullPath().equals(this.outputFolder)){
+		if (sourceFolder.getFullPath().equals(this.outputFolder.getFullPath())){
 			this.hasSeparateOutputFolder = false;
 			break;
 		}
