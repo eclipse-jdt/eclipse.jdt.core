@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 
@@ -17,6 +18,9 @@ import org.eclipse.jdt.internal.core.util.LRUCache;
  * An LRU cache of <code>JavaElements</code>.
  */
 public class ElementCache extends OverflowingLRUCache {
+	
+	IJavaElement spaceLimitParent = null;
+	
 /**
  * Constructs a new element cache of the given size.
  */
@@ -56,10 +60,38 @@ protected boolean close(LRUCacheEntry entry) {
 		return false;
 	}
 }
-	/**
-	 * Returns a new instance of the reciever.
-	 */
-	protected LRUCache newInstance(int size, int overflow) {
-		return new ElementCache(size, overflow);
+
+/*
+ * Ensures that there is enough room for adding the given number of children.
+ * If the space limit must be increased, record the parent that needed this space limit.
+ */
+protected void ensureSpaceLimit(int childrenSize, IJavaElement parent) {
+	// ensure the children can be put without closing other elements
+	int spaceNeeded = 1 + (int)((1 + fLoadFactor) * (childrenSize + fOverflow));
+	if (fSpaceLimit < spaceNeeded) {
+		// parent is being opened with more children than the space limit
+		shrink(); // remove overflow
+		setSpaceLimit(spaceNeeded); 
+		this.spaceLimitParent = parent;
 	}
+}
+
+/*
+ * If the given parent was the one that increased the space limit, reset
+ * the space limit to the given default value.
+ */
+protected void resetSpaceLimit(int defaultLimit, IJavaElement parent) {
+	if (parent.equals(this.spaceLimitParent)) {
+		setSpaceLimit(defaultLimit);
+		this.spaceLimitParent = null;
+	}
+}
+
+/**
+ * Returns a new instance of the reciever.
+ */
+protected LRUCache newInstance(int size, int overflow) {
+	return new ElementCache(size, overflow);
+}
+
 }

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
@@ -19,7 +20,12 @@ import org.eclipse.jdt.core.IJavaElement;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
-	public static final int CACHE_RATIO = 20;
+	public static final int BASE_SIZE = 20;
+	public static final int DEFAULT_PROJECT_SIZE = 5;  // average 25552 bytes per project.
+	public static final int DEFAULT_ROOT_SIZE = BASE_SIZE*10; // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
+	public static final int DEFAULT_PKG_SIZE = BASE_SIZE*100; // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
+	public static final int DEFAULT_OPENABLE_SIZE = BASE_SIZE*100; // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
+	public static final int DEFAULT_CHILDREN_SIZE = BASE_SIZE*10*20; // average 20 children per openable
 	
 	/**
 	 * Active Java Model Info
@@ -34,17 +40,17 @@ public class JavaModelCache {
 	/**
 	 * Cache of open package fragment roots.
 	 */
-	protected OverflowingLRUCache rootCache;
+	protected ElementCache rootCache;
 	
 	/**
 	 * Cache of open package fragments
 	 */
-	protected OverflowingLRUCache pkgCache;
+	protected ElementCache pkgCache;
 
 	/**
 	 * Cache of open compilation unit and class files
 	 */
-	protected OverflowingLRUCache openableCache;
+	protected ElementCache openableCache;
 
 	/**
 	 * Cache of open children of openable Java Model Java elements
@@ -52,13 +58,66 @@ public class JavaModelCache {
 	protected Map childrenCache;
 	
 public JavaModelCache() {
-	this.projectCache = new HashMap(5); // average 25552 bytes per project. NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
-	this.rootCache = new ElementCache(CACHE_RATIO*10); // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
-	this.pkgCache = new ElementCache(CACHE_RATIO*100); // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
-	this.openableCache = new ElementCache(CACHE_RATIO*100); // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
-	this.childrenCache = new HashMap(CACHE_RATIO*10*20); // average 20 children per openable
+	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
+	this.rootCache = new ElementCache(DEFAULT_ROOT_SIZE);
+	this.pkgCache = new ElementCache(DEFAULT_PKG_SIZE);
+	this.openableCache = new ElementCache(DEFAULT_OPENABLE_SIZE);
+	this.childrenCache = new HashMap(DEFAULT_CHILDREN_SIZE);
 }
 
+/*
+ * Ensures there is enough room in each ElementCache to put the given new elements.
+ */
+protected void ensureSpaceLimit(Map newElements) {
+	int rootSize = 0;
+	IJavaElement project = null;
+	int pkgSize = 0;
+	IJavaElement root = null;
+	int openableSize = 0;
+	IJavaElement pkg = null;
+	Iterator iterator = newElements.keySet().iterator();
+	while (iterator.hasNext()) {
+		IJavaElement element = (IJavaElement) iterator.next();
+		switch (element.getElementType()) {
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				project = element.getParent();
+				rootSize++;
+				break;
+			case IJavaElement.PACKAGE_FRAGMENT:
+				root = element.getParent();
+				pkgSize++;
+				break;
+			case IJavaElement.COMPILATION_UNIT:
+			case IJavaElement.CLASS_FILE:
+				pkg = element.getParent();
+				openableSize++;
+				break;
+		}
+	}
+	this.rootCache.ensureSpaceLimit(rootSize, project);
+	this.pkgCache.ensureSpaceLimit(pkgSize, root);
+	this.openableCache.ensureSpaceLimit(openableSize, pkg);
+}
+
+/*
+ * The given element is being removed.
+ * Ensures that the corresponding children cache's space limit is reset if this was the parent
+ * that increased the space limit.
+ */
+protected void resetSpaceLimit(IJavaElement element) {
+	switch (element.getElementType()) {
+		case IJavaElement.JAVA_PROJECT:
+			this.rootCache.resetSpaceLimit(DEFAULT_ROOT_SIZE, element);
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			this.pkgCache.resetSpaceLimit(DEFAULT_PKG_SIZE, element);
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT:
+			this.openableCache.resetSpaceLimit(DEFAULT_OPENABLE_SIZE, element);
+			break;
+	}
+}
+		
 /**
  *  Returns the info for the element.
  */
