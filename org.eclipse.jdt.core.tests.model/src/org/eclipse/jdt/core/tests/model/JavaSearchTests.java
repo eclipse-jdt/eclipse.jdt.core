@@ -320,7 +320,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testVarargs";
-//	TESTS_NAMES = new String[] { "testConstructorReferenceBug77388" };
+//	TESTS_NAMES = new String[] { "testTypeReferenceBug79803" };
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 	}
@@ -3737,6 +3737,48 @@ public void testTypeReference40() throws CoreException {
 	assertSearchResults(
 		"src/s1/E.java [s1.j.l.S.Member]\n" + 
 		"src/s1/E.java s1.E.m [Member]",
+		this.resultCollector);
+}
+
+/**
+ * Regression tests for bug.
+ * Bug 79860: [1.5][search] Search doesn't find type reference in type parameter bound
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79860)
+ */
+public void testTypeReferenceBug79860() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b79860/X.java").getType("A");
+	search(type, REFERENCES, getJavaSearchScopeBugs("b79860", false), resultCollector);
+	assertSearchResults(
+		"src/b79860/X.java b79860.X [A]",
+		resultCollector);
+}
+public void testTypeReferenceBug79860b() throws CoreException {
+	search("I?", TYPE, REFERENCES, getJavaSearchScopeBugs("b79860", false), resultCollector);
+	assertSearchResults(
+		"src/b79860/Y.java b79860.Y [I1]\n" + 
+		"src/b79860/Y.java b79860.Y [I2]\n" + 
+		"src/b79860/Y.java b79860.Y [I3]",
+		resultCollector);
+}
+
+/**
+ * Type parameter with class name
+ * Regression tests for bug 79803: [1.5][search] Search for references to type A reports match for type variable A
+ */
+public void testTypeReferenceBug79803() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs", "src", "b79803", "A.java").getType("A");
+	search(type, REFERENCES, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+	assertSearchResults(
+		"src/b79803/A.java b79803.A.pa [b79803.A]\n" + 
+		"src/b79803/A.java b79803.A.pa [b79803.A]",
+		this.resultCollector);
+}
+public void testTypeReferenceBug79803b() throws CoreException {
+	search("A", TYPE, REFERENCES, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+	assertSearchResults(
+		"src/b79803/A.java b79803.A.a [A]\n" + 
+		"src/b79803/A.java b79803.A.pa [A]\n" + 
+		"src/b79803/A.java b79803.A.pa [A]",
 		this.resultCollector);
 }
 /**
