@@ -576,9 +576,6 @@ public class CodeFormatter implements TerminalSymbols {
 					}
 				}
 				switch (token) {
-					case TokenNamesynchronized :
-						indentationLevel += pushControlStatement(token);
-						break;
 					case TokenNameelse :
 					case TokenNamefinally :
 						expectingOpenBrace = true;
@@ -644,33 +641,36 @@ public class CodeFormatter implements TerminalSymbols {
 					case TokenNamenew :
 						break;
 					case TokenNameLPAREN :
-
-						// Put a space between the previous and current token if the
-						// previous token was not a keyword, open paren, logical
-						// compliment (eg: !), semi-colon, open brace, close brace,
-						// super, or this.
-						if (previousCompilableToken != TokenNameLBRACKET
-							&& previousToken != TokenNameIdentifier
-							&& previousToken != 0
-							&& previousToken != TokenNameNOT
-							&& previousToken != TokenNameLPAREN
-							&& previousToken != TokenNameTWIDDLE
-							&& previousToken != TokenNameSEMICOLON
-							&& previousToken != TokenNameLBRACE
-							&& previousToken != TokenNameRBRACE
-							&& previousToken != TokenNamesuper
-							&& previousToken != TokenNamethis) {
-							space();
+						if (previousToken == TokenNamesynchronized) {
+							indentationLevel += pushControlStatement(previousToken);
+						} else {
+							// Put a space between the previous and current token if the
+							// previous token was not a keyword, open paren, logical
+							// compliment (eg: !), semi-colon, open brace, close brace,
+							// super, or this.
+							if (previousCompilableToken != TokenNameLBRACKET
+								&& previousToken != TokenNameIdentifier
+								&& previousToken != 0
+								&& previousToken != TokenNameNOT
+								&& previousToken != TokenNameLPAREN
+								&& previousToken != TokenNameTWIDDLE
+								&& previousToken != TokenNameSEMICOLON
+								&& previousToken != TokenNameLBRACE
+								&& previousToken != TokenNameRBRACE
+								&& previousToken != TokenNamesuper
+								&& previousToken != TokenNamethis) {
+								space();
+							}
+							// If in a for/if/while statement, increase the parenthesis count
+							// for the current openParenthesisCount
+							// else increase the count for stand alone parenthesis.
+							if (openParenthesisCount > 0)
+								openParenthesis[openParenthesisCount - 1]++;
+							else
+								openParenthesis[0]++;
+	
+							pendingSpace = false;
 						}
-						// If in a for/if/while statement, increase the parenthesis count
-						// for the current openParenthesisCount
-						// else increase the count for stand alone parenthesis.
-						if (openParenthesisCount > 0)
-							openParenthesis[openParenthesisCount - 1]++;
-						else
-							openParenthesis[0]++;
-
-						pendingSpace = false;
 						break;
 					case TokenNameRPAREN :
 
