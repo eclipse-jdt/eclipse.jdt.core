@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -56,6 +57,12 @@ import org.eclipse.jdt.internal.core.Util;
  */
 public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	public static boolean DEBUG = false;
+	
+	/**
+	 * The project the hierarchy was specifically computed for,
+	 * possibly null.
+	 */
+	protected IJavaProject project;
 	/**
 	 * The type the hierarchy was specifically computed for,
 	 * possibly null.
@@ -134,6 +141,13 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
  * Creates an empty TypeHierarchy
  */
 public TypeHierarchy() throws JavaModelException {
+}
+/**
+ * Creates a TypeHierarchy on the given type.
+ */
+public TypeHierarchy(IType type, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+	this(type, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes);
+	this.project = project;
 }
 /**
  * Creates a TypeHierarchy on the given type.
@@ -1410,6 +1424,12 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		}
 		output.write(generalInfo);
 		
+		// save project
+		if(project != null) {
+			output.write(project.getHandleIdentifier().getBytes());
+		}
+		output.write(SEPARATOR1);
+		
 		// save missing types
 		for (int i = 0; i < missingTypes.size(); i++) {
 			if(i != 0) {
@@ -1501,11 +1521,29 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		
 		byte b;
 		byte[] bytes;
+		int length;
 		
-		int length = 0;
+		// read project
+		length = 0;
 		bytes = new byte[10];
+		while((b = (byte)input.read()) != SEPARATOR1) {
+			if(bytes.length == length) {
+				System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
+			}
+			bytes[length++]=(byte)b;
+		}
+		System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+		if(length > 0) {
+			typeHierarchy.project = (IJavaProject)JavaCore.create(new String(bytes));
+			typeHierarchy.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {typeHierarchy.project});
+		} else {
+			typeHierarchy.project = null;
+			typeHierarchy.scope = SearchEngine.createWorkspaceScope();
+		}
 		
 		// read missing type
+		length = 0;
+		bytes = new byte[10];
 		do {
 			b = (byte)input.read();
 			
@@ -1522,8 +1560,7 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 			}
 		} while(b != SEPARATOR1);
 
-		// read project
-//		typeHierarchy.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+		
 
 		// read types
 		int count = 0;

@@ -62,6 +62,15 @@ public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies,
 	this.workingCopies = workingCopies;
 }
 /**
+ * Constructs an operation to create a type hierarchy for the
+ * given type and working copies.
+ */
+public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+	super(element);
+	this.typeHierarchy = new TypeHierarchy(element, project, computeSubtypes);
+	this.workingCopies = workingCopies;
+}
+/**
  * Performs the operation - creates the type hierarchy
  * @exception JavaModelException The operation has failed.
  */

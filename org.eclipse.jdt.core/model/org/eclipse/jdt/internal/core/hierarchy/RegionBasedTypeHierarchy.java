@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Openable;
@@ -42,7 +43,7 @@ public class RegionBasedTypeHierarchy extends TypeHierarchy {
  * contain the branch including the specified type.
  */
 public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, IType type, boolean computeSubtypes) throws JavaModelException {
-	super(type, null, computeSubtypes);
+	super(type, (IJavaSearchScope)null, computeSubtypes);
 	fRegion = region;
 	fProject = project;
 }
