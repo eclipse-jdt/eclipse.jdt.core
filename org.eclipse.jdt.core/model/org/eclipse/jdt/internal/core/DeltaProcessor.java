@@ -300,9 +300,17 @@ public class DeltaProcessor {
 				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
 				for (int i = 0, length = projectDeltas.length; i < length; i++) {
 					IJavaElementDelta delta = projectDeltas[i];
-					((JavaProject)delta.getElement()).getResolvedClasspath(
+					JavaProject javaProject = (JavaProject)delta.getElement();
+					javaProject.getResolvedClasspath(
 						true, // ignoreUnresolvedEntry
 						true); // generateMarkerOnError
+					
+					try {
+						// touch the project to force it to be recompiled
+						javaProject.getProject().touch(monitor);
+					} catch (CoreException e) {
+						throw new JavaModelException(e);
+					}
 				}		
 				if (this.currentDelta != null) { // if delta has not been fired while creating markers
 					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);

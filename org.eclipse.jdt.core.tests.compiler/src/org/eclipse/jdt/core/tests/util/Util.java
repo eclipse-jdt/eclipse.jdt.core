@@ -12,9 +12,59 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.Locale;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
 
+public static CompilationUnit[] compilationUnits(String[] testFiles) {
+	int length = testFiles.length / 2;
+	CompilationUnit[] result = new CompilationUnit[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		result[i] = new CompilationUnit(testFiles[index + 1].toCharArray(), testFiles[index], null);
+		index += 2;
+	}
+	return result;
+}
+public static void compile(String[] pathsAndContents, Map options, String outputPath) {
+		IProblemFactory problemFactory = new DefaultProblemFactory(Locale.getDefault());
+		Requestor requestor = 
+			new Requestor(
+				problemFactory, 
+				outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator, 
+				false);
+		INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
+		IErrorHandlingPolicy errorHandlingPolicy = 
+			new IErrorHandlingPolicy() {
+				public boolean stopOnFirstError() {
+					return false;
+				}
+				public boolean proceedOnErrors() {
+					return true;
+				}
+			};
+		Compiler batchCompiler = 
+			new Compiler(
+				nameEnvironment, 
+				errorHandlingPolicy, 
+				options,
+				requestor, 
+				problemFactory);
+		batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
+		System.err.print(requestor.problemLog); // problem log empty if no problems
+}
 public static String[] concatWithClassLibs(String classpath, boolean inFront) {
 	String[] classLibs = getJavaClassLibs();
 	final int length = classLibs.length;
@@ -104,6 +154,13 @@ public static void copy(String sourcePath, String destPath) {
 			}
 		}
 	}
+}
+public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
+	String classesPath = getOutputDirectory() + File.separator + "classes";
+	File classesDir = new File(classesPath);
+	flushDirectoryContent(classesDir);
+	compile(pathsAndContents, options, classesPath);
+	zip(classesDir, jarPath);
 }
 /**
  * Generate a display string from the given String.
@@ -430,6 +487,36 @@ public static void writeToFile(String contents, String destinationFilePath) {
 			try {
 				output.close();
 			} catch (IOException e2) {
+			}
+		}
+	}
+}
+public static void zip(File rootDir, String zipPath) throws IOException {
+	ZipOutputStream zip = null;
+	try {
+		zip  = new ZipOutputStream(new FileOutputStream(zipPath));
+		zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash
+	} finally {
+		if (zip != null) {
+			zip.close();
+		}
+	}
+}
+private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throws IOException {
+	String[] list = dir.list();
+	if (list != null) {
+		for (int i = 0, length = list.length; i < length; i++) {
+			String name = list[i];
+			File file = new File(dir, name);
+			if (file.isDirectory()) {
+				zip(file, zip, rootPathLength);
+			} else {
+				String path = file.getPath();
+				path = path.substring(rootPathLength);
+				ZipEntry entry = new ZipEntry(path.replace('\\', '/'));
+				zip.putNextEntry(entry);
+				zip.write(org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file));
+				zip.closeEntry();
 			}
 		}
 	}
