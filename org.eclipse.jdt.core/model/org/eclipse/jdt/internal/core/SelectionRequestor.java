@@ -220,7 +220,8 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 		boolean match= true;
 		for (int p = 0; p < signatures.length; p++) {
 			String simpleName= Signature.getSimpleName(Signature.toString(signatures[p]));
-			if (!simpleName.equals(new String(parameterTypeNames[p]))) {
+			char[] simpleParameterName = CharOperation.lastSegment(parameterTypeNames[p], '.');
+			if (!simpleName.equals(new String(simpleParameterName))) {
 				match = false;
 				break;
 			}

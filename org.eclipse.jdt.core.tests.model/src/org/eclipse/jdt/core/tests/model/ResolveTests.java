@@ -82,6 +82,7 @@ public static Test suite() {
 	suite.addTest(new ResolveTests("testResolveCatchArgumentName1"));
 	suite.addTest(new ResolveTests("testResolveCatchArgumentName2"));
 	suite.addTest(new ResolveTests("testResolveAbstractMethod"));
+	suite.addTest(new ResolveTests("testResolveInnerClassAsParamater"));
 	return suite;
 }
 
@@ -809,5 +810,22 @@ public void testResolveAbstractMethod() throws JavaModelException {
 		elements[0].getElementName().equals("foo") &&
 		elements[0] instanceof IMethod &&
 		((IMethod)elements[0]).getDeclaringType().getElementName().equals("SuperInterface"));
+}
+/**
+ * bugs http://dev.eclipse.org/bugs/show_bug.cgi?id=25687
+ */
+public void testResolveInnerClassAsParamater() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveInnerClassAsParamater.java");
+	
+	String str = cu.getSource();
+	String selectAt = "foo";
+	String selection = "foo";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	
+	assertTrue("should have one method", elements.length == 1 && 
+		elements[0].getElementName().equals("foo") &&
+		elements[0] instanceof IMethod);
 }
 }
