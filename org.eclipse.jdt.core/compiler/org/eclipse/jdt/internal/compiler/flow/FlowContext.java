@@ -436,8 +436,7 @@ public class FlowContext implements TypeConstants {
 		return true; // keep going
 	}
 
-	// TODO: (philippe) should take FlowInfo in argument
-	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+	public void recordReturnFrom(FlowInfo flowInfo) {
 	}
 
 	public void recordSettingFinal(

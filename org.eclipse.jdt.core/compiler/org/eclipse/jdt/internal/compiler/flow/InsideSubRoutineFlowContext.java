@@ -46,7 +46,7 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 		return associatedNode;
 	}
 	
-	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+	public void recordReturnFrom(FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return; 
 		if (initsOnReturn == FlowInfo.DEAD_END) {

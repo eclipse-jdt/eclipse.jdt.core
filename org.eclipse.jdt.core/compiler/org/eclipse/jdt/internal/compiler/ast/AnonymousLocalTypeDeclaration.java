@@ -27,7 +27,7 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 	} 
 	
 	// use a default name in order to th name lookup 
-	// to operate juat like a regular type (which has a name)
+	// to operate just like a regular type (which has a name)
 	//without checking systematically if the naem is null .... 
 	public MethodBinding createsInternalConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
 
@@ -52,8 +52,7 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 		}
 
 		//the super call inside the constructor
-		cd.constructorCall =
-			new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
 		cd.constructorCall.sourceStart = sourceStart;
 		cd.constructorCall.sourceEnd = sourceEnd;
 

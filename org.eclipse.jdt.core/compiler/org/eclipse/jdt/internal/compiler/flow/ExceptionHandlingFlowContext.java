@@ -153,7 +153,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 				: initsOnExceptions[index].mergedWith(flowInfo);
 	}
 	
-	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+	public void recordReturnFrom(FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return; 
 		if (initsOnReturn == FlowInfo.DEAD_END) {
