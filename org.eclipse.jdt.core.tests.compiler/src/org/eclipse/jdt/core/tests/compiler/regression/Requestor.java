@@ -17,7 +17,6 @@ import java.util.Hashtable;
 
 import junit.framework.Assert;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;

@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.core.tests.compiler.parser.*;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
 public class CompletionParserTest extends AbstractCompletionTest {

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.core.tests.compiler.parser.*;
-
 public class CompletionParserTestKeyword extends AbstractCompletionTest {
 public CompletionParserTestKeyword(String testName) {
 	super(testName);

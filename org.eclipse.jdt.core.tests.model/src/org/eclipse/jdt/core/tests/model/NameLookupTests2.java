@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.model.*;
 import org.eclipse.jdt.internal.core.JavaProject;
 import junit.framework.Test;
 import junit.framework.TestSuite;

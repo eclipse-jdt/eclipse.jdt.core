@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.runtime;
 
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.core.tests.runtime.*;
 import java.io.*;
 import java.net.*;
 /**

@@ -14,7 +14,6 @@ import junit.framework.Test;
 import java.io.*;
 import junit.framework.Assert;
 
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;

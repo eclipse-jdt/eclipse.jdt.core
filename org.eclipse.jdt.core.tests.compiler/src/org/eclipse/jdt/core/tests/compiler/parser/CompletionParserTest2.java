@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.core.tests.compiler.parser.*;
-
 public class CompletionParserTest2 extends AbstractCompletionTest {
 public CompletionParserTest2(String testName) {
 	super(testName);

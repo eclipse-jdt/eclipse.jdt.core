@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import junit.framework.Test;
 

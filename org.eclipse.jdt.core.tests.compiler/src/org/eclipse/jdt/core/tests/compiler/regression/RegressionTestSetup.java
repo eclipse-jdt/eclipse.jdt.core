@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.util.*;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import java.util.Enumeration;
