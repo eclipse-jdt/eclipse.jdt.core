@@ -328,6 +328,7 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 					for (int j = 0, m = children.length; j < m; j++)
 						findSourceFiles(children[j], md, segmentCount);
 				} catch (org.eclipse.core.internal.resources.ResourceException e) {
+					// TODO (kent) API violation: The type ResourceException is referenced across API boundaries
 					// catch the case that a package has been renamed and collides on disk with an as-yet-to-be-deleted package
 					if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
 						if (JavaBuilder.DEBUG)
@@ -614,6 +615,7 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 		try {
 			file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
 		} catch (org.eclipse.core.internal.resources.ResourceException e) {
+			// TODO (kent) API violation: The type ResourceException is referenced across API boundaries
 			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
 				// catch the case that a nested type has been renamed and collides on disk with an as-yet-to-be-deleted type
 				throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedFileName));
