@@ -121,14 +121,15 @@ private void computeClasspathLocations(
 				if (!JavaProject.hasJavaNature(prereqProject)) continue nextEntry; // if project doesn't have java nature or is not accessible
 
 				JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
-				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getExpandedClasspath(true, false);
+				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getRawClasspath();
 				ArrayList seen = new ArrayList();
-				for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
-					ClasspathEntry e = (ClasspathEntry) prereqClasspathEntries[j];
-					Object t = JavaModel.getTarget(root, e.getPath(), true);
-					if (t instanceof IContainer && e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-						IPath prereqOutputPath = e.getOutputLocation() != null 
-							? e.getOutputLocation() 
+				nextPrereqEntry: for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
+					IClasspathEntry prereqEntry = (IClasspathEntry) prereqClasspathEntries[j];
+					if (prereqEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+						Object prereqTarget = JavaModel.getTarget(root, prereqEntry.getPath(), true);
+						if (!(prereqTarget instanceof IContainer)) continue nextPrereqEntry;
+						IPath prereqOutputPath = prereqEntry.getOutputLocation() != null 
+							? prereqEntry.getOutputLocation() 
 							: prereqJavaProject.getOutputLocation();
 						IContainer binaryFolder = prereqOutputPath.segmentCount() == 1
 							? (IContainer) prereqProject
