@@ -493,7 +493,31 @@ public class EnumTest extends AbstractComparisonTest {
 				"}\n"
 			},
 			"");
-	}			
+	}
+	// cannot extend enums
+	public void test018() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	BLEU()\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XX extends X implements X {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	class XX extends X implements X {\n" + 
+			"	                 ^\n" + 
+			"The type X cannot be the superclass of XX; a superclass must be a class\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	class XX extends X implements X {\n" + 
+			"	                              ^\n" + 
+			"The type X cannot be a superinterface of XX; a superinterface must be an interface\n" + 
+			"----------\n");
+	}		
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

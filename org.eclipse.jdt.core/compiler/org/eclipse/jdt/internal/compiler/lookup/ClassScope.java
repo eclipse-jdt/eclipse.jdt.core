@@ -728,7 +728,7 @@ public class ClassScope extends Scope {
 		TypeReference superclassRef = referenceContext.superclass;
 		ReferenceBinding superclass = findSupertype(superclassRef);
 		if (superclass != null) { // is null if a cycle was detected cycle or a problem
-			if (superclass.isInterface()) {
+			if (!superclass.isClass()) {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
 				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
@@ -812,7 +812,7 @@ public class ClassScope extends Scope {
 					continue nextInterface;
 				}
 			}
-			if (superInterface.isClass()) {
+			if (!superInterface.isInterface()) {
 				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
