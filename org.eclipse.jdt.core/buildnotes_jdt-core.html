@@ -77,6 +77,11 @@ aren't actually raised inside the method/constructor body.
 <li>Improved problem description for unreachable catch block problems. Message will now mention the exception type 
 name and better diagnose the cause of the problem. Also changed problem source range 
 to rather highlight the caught exception type instead of entire catch block. 
+<pre></pre>
+</li>
+<li>Added two new API methods <code>readRawClasspath()</code> and <code>readOutputLocation()</code> on IJavaProject
+interface to allow user to read .classpath file contents even if project is not opened yet (for example just after
+a new Java project creation and before that reconciliation mechanism has been performed).
 </li>
 </ul>
 

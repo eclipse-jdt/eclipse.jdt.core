@@ -666,7 +666,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Returns the default output location for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
 	 * if unable to read the file. 
-	 * <p>This output location may differ from the in-memory one returned by <code>getOutputLocation</code>, in case the 
+	 * <p>
+	 * This output location may differ from the in-memory one returned by <code>getOutputLocation</code>, in case the 
 	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
 	 * is automatically noticed and reconciled at the next resource change notification event. 
 	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
@@ -685,13 +686,15 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @return the workspace-relative absolute path of the default output folder
 	 * @see #getOutputLocation
+	 * @since 3.0
 	 */
 	IPath readOutputLocation();
 
 	/**
 	 * Returns the raw classpath for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
 	 * if unable to read the file. 
-	 * <p>This classpath may differ from the in-memory classpath returned by <code>getRawClasspath</code>, in case the 
+	 * <p>
+	 * This classpath may differ from the in-memory classpath returned by <code>getRawClasspath</code>, in case the 
 	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
 	 * is automatically noticed and reconciled at the next resource change notification event. 
 	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
