@@ -111,6 +111,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  3293      search does not work in inner class (1GEUQHJ)
   3249		Error message is confusing: using token instead of identifier (1GCTDYM) 
   5214      TVT: Apostrophe shows up multiple times in Java error messages in some translations (italian) 
   5263      TVT: Compiler error messages are hard for translators to understand
