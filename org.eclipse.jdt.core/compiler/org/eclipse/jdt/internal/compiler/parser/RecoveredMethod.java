@@ -328,14 +328,13 @@ public void updateFromParserState(){
 					if ((argument.modifiers & ~AccFinal) != 0
 						|| (argTypeName.length == 1
 							&& CharOperation.equals(argTypeName[0], VoidBinding.sourceName()))){
-						parser.astLengthStack[parser.astLengthPtr] = count-1; 
+						parser.astLengthStack[parser.astLengthPtr] = count; 
 						parser.astPtr = argStart+count-1; 
-						parser.listLength = count-1;
+						parser.listLength = count;
 						parser.currentToken = 0;
 						break;
 					}
 					if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
-					count++;
 				}
 				if (parser.listLength > 0){
 					parser.consumeMethodHeaderParameters();
