@@ -209,25 +209,26 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 	char previous = '/';
 	nextChar : for (
 		int i = commentStart + 1; i < commentEnd && i < this.eofPosition; i++) {
-		if (Character.isLetterOrDigit(previous)) {
-			previous = src[i];
-			continue nextChar;
-		}
 		char[] tag = null;
 		char[] priority = null;
-		previous = src[i];
 		// check for tag occurrence
 		nextTag : for (int itag = 0; itag < this.taskTags.length; itag++) {
 			tag = this.taskTags[itag];
-			priority = this.taskPriorities != null && itag < this.taskPriorities.length
-						? this.taskPriorities[itag]
-						: null;
 			int tagLength = tag.length;
+			if (tagLength == 0) continue nextTag;
+
+			// ensure tag is not leaded with letter if tag starts with a letter
+			if (Character.isLetterOrDigit(tag[0])) {
+				if (Character.isLetterOrDigit(previous)) {
+					continue nextTag;
+				}
+			}
+
 			for (int t = 0; t < tagLength; t++) {
 				if (src[i + t] != tag[t])
 					continue nextTag;
 			}
-			// ensure tag is followed by whitespace, line separator or asterisk if tag did finish with a letter
+			// ensure tag is not followed with letter if tag finishes with a letter
 			if (i+tagLength < commentEnd && Character.isLetterOrDigit(src[i+tagLength-1])) {
 				if (Character.isLetterOrDigit(src[i + tagLength]))
 					continue nextTag;
@@ -243,15 +244,20 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 				System.arraycopy(this.foundTaskPriorities, 0, this.foundTaskPriorities = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
 				System.arraycopy(this.foundTaskPositions, 0, this.foundTaskPositions = new int[this.foundTaskCount * 2][], 0, this.foundTaskCount);
 			}
+			
+			priority = this.taskPriorities != null && itag < this.taskPriorities.length
+						? this.taskPriorities[itag]
+						: null;
+			
 			this.foundTaskTags[this.foundTaskCount] = tag;
 			this.foundTaskPriorities[this.foundTaskCount] = priority;
 			this.foundTaskPositions[this.foundTaskCount] = new int[] { i, i + tagLength - 1 };
 			this.foundTaskMessages[this.foundTaskCount] = CharOperation.NO_CHAR;
 			this.foundTaskCount++;
 			i += tagLength - 1; // will be incremented when looping
-			previous = src[i];
 			break nextTag;
 		}
+		previous = src[i];
 	}
 	for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
 		// retrieve message start and end positions

@@ -1380,7 +1380,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters
 	 *    one of the corresponding tag inside any comment in Java source code.
 	 *    Generated task messages will include the tag, and range until the next line separator or comment ending.
-	 *    Note that tasks messages are trimmed.
+	 *    Note that tasks messages are trimmed. If a tag is starting with a letter or digit, then it cannot be leaded by
+	 *    another letter or digit to be recognized ("fooToDo" will not be recognized as a task for tag "ToDo", but "foo#ToDo"
+	 *    will be detected for either tag "ToDo" or "#ToDo"). Respectively, a tag ending with a letter or digit cannot be followed
+	 *    by a letter or digit to be recognized ("ToDofoo" will not be recognized as a task for tag "ToDo", but "ToDo:foo" will
+	 *    be detected either for tag "ToDo" or "ToDo:").
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskTags"
 	 *     - possible values:   { "<tag>[,<tag>]*" } where <tag> is a String without any wild-card or leading/trailing spaces 
 	 *     - default:           ""
