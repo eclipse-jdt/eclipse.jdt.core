@@ -320,7 +320,7 @@ protected void enterAbstractMethod(int declarationStart, int[] javaDocPositions,
 	int[] commentRange = {-1, -1};
 	if (javaDocPositions != null) {
 		int length = javaDocPositions.length;
-		commentRange[0] = javaDocPositions[0];
+		commentRange[0] = javaDocPositions[length - 2]; // get last javadoc comment (see bug 68772)
 		commentRange[1] = javaDocPositions[length - 1];
 	}
 	int[] modifiersRange = {-1, -1};
@@ -456,7 +456,7 @@ public void enterField(int declarationStart, int[] javaDocPositions, int modifie
 	int[] commentRange = {-1, -1};
 		if (javaDocPositions != null) {
 			int length = javaDocPositions.length;
-			commentRange[0] = javaDocPositions[0];
+			commentRange[0] = javaDocPositions[length - 2]; // get last javadoc comment (see bug 68772)
 			commentRange[1] = javaDocPositions[length - 1];
 		}
 	int[] modifiersRange = {-1, -1};
@@ -555,7 +555,7 @@ protected void enterType(int declarationStart, int[] javaDocPositions,
 		int[] commentRange = {-1, -1};
 		if (javaDocPositions != null) {
 			int length = javaDocPositions.length;
-			commentRange[0] = javaDocPositions[0];
+			commentRange[0] = javaDocPositions[length - 2];  // get last javadoc comment (see bug 68772)
 			commentRange[1] = javaDocPositions[length - 1];
 		}
 		int[] modifiersRange = {-1, -1};
