@@ -27,18 +27,11 @@ public class JavadocFieldReference extends FieldReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
 
-		constant = NotAConstant;
-
-		if (this.receiver == null) {
-			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
-			this.receiverType = sourceTypeBinding;
-			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
+		this.constant = NotAConstant;
+		if (scope.kind == Scope.CLASS_SCOPE) {
+			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			if (scope.kind == Scope.CLASS_SCOPE) {
-				this.receiverType = receiver.resolveType((ClassScope)scope);
-			} else {
-				this.receiverType = receiver.resolveType((BlockScope)scope);
-			}
+			this.receiverType = this.receiver.resolveType((BlockScope)scope);
 		}
 		if (this.receiverType == null) {
 			return null;
@@ -46,15 +39,14 @@ public class JavadocFieldReference extends FieldReference {
 
 		this.binding = scope.getField(this.receiverType, this.token, this);
 		if (!this.binding.isValidBinding()) {
-			constant = NotAConstant;
-			scope.problemReporter().invalidField(this, this.receiverType);
+			scope.problemReporter().javadocInvalidField(this, this.receiverType, scope.getModifiers());
 			return null;
 		}
 
-		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
-			scope.problemReporter().deprecatedField(this.binding, this);
+		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
+			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getModifiers());
 		}
-		return this.resolvedType = binding.type;
+		return this.resolvedType = this.binding.type;
 	}
 	
 	/* (non-Javadoc)
@@ -66,10 +58,10 @@ public class JavadocFieldReference extends FieldReference {
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		if (receiver != null) {
-			receiver.printExpression(0, output);
+		if (this.receiver != null) {
+			this.receiver.printExpression(0, output);
 		}
-		output.append('#').append(token);
+		output.append('#').append(this.token);
 		return output;
 	}
 
@@ -94,8 +86,8 @@ public class JavadocFieldReference extends FieldReference {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			if (receiver != null) {
-				receiver.traverse(visitor, scope);
+			if (this.receiver != null) {
+				this.receiver.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

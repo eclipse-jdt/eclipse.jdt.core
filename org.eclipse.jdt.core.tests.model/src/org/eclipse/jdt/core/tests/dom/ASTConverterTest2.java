@@ -30,7 +30,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
 
-		if (true) {
+		if (false) {
 			Class c = ASTConverterTest2.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {
@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0512"));
+		suite.addTest(new ASTConverterTest2("test0500"));
 		return suite;
 	}
 	/**
@@ -2790,7 +2790,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Map originalOptions = project.getOptions(true);
 		try {
 			project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
-			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);
+			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
 			CompilationUnit result = (CompilationUnit)runConversion(sourceUnit, true);
 			IProblem[] problems= result.getProblems();
 			assertTrue(problems.length == 1);

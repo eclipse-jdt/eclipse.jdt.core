@@ -22,8 +22,8 @@ public class JavadocMessageSend extends MessageSend {
 	public JavadocMessageSend(char[] name, long pos) {
 		this.selector = name;
 		this.nameSourcePosition = pos;
-		this.sourceStart = (int) (nameSourcePosition >>> 32);
-		this.sourceEnd = (int) nameSourcePosition;
+		this.sourceStart = (int) (this.nameSourcePosition >>> 32);
+		this.sourceEnd = (int) this.nameSourcePosition;
 		this.bits |= InsideJavadoc;
 	}
 	public JavadocMessageSend(char[] name, long pos, JavadocArgumentExpression[] arguments) {
@@ -37,22 +37,21 @@ public class JavadocMessageSend extends MessageSend {
 	private TypeBinding internalResolveType(Scope scope) {
 		// Answer the signature return type
 		// Base type promotion
-		constant = NotAConstant;
-		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		this.constant = NotAConstant;
 		if (scope.kind == Scope.CLASS_SCOPE) {
-			this.receiverType = receiver.resolveType((ClassScope)scope);
+			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			this.receiverType = receiver.resolveType((BlockScope)scope);
+			this.receiverType = this.receiver.resolveType((BlockScope) scope);
 		}
 
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = NoParameters;
-		if (arguments != null) {
+		if (this.arguments != null) {
 			boolean argHasError = false; // typeChecks all arguments 
-			int length = arguments.length;
+			int length = this.arguments.length;
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++){
-				Expression argument = arguments[i];
+				Expression argument = this.arguments[i];
 				if (scope.kind == Scope.CLASS_SCOPE) {
 					argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
@@ -63,10 +62,6 @@ public class JavadocMessageSend extends MessageSend {
 				}
 			}
 			if (argHasError) {
-				if(receiverType instanceof ReferenceBinding) {
-					// record any selector match, for clients who may still need hint about possible method match
-					this.codegenBinding = this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
-				}			
 				return null;
 			}
 		}
@@ -80,37 +75,32 @@ public class JavadocMessageSend extends MessageSend {
 
 		// base type cannot receive any message
 		if (this.receiverType.isBaseType()) {
-			scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getModifiers());
 			return null;
 		}
-		this.codegenBinding = this.binding = scope.getMethod(this.receiverType, selector, argumentTypes, this); 
-		if (!binding.isValidBinding()) {
-			if (binding.declaringClass == null) {
+		this.codegenBinding = this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+		if (!this.binding.isValidBinding()) {
+			if (this.binding.declaringClass == null) {
 				if (this.receiverType instanceof ReferenceBinding) {
-					binding.declaringClass = (ReferenceBinding) this.receiverType;
+					this.binding.declaringClass = (ReferenceBinding) this.receiverType;
 				} else { 
-					scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+					scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getModifiers());
 					return null;
 				}
 			}
-			scope.problemReporter().invalidMethod(this, binding);
+			scope.problemReporter().javadocInvalidMethod(this, this.binding, scope.getModifiers());
 			// record the closest match, for clients who may still need hint about possible method match
-			if (binding instanceof ProblemMethodBinding){
-				MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+			if (this.binding instanceof ProblemMethodBinding){
+				MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 				if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
 			}
-			return this.resolvedType = binding == null ? null : binding.returnType;
+			return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 		}
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
-			}
-		}
-		if (isMethodUseDeprecated(binding, scope)) {
-			scope.problemReporter().deprecatedMethod(binding, this);
+		if (isMethodUseDeprecated(this.binding, scope)) {
+			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getModifiers());
 		}
 
-		return this.resolvedType = binding.returnType;
+		return this.resolvedType = this.binding.returnType;
 	}
 	
 	/* (non-Javadoc)
@@ -122,14 +112,14 @@ public class JavadocMessageSend extends MessageSend {
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
 	
-		if (receiver != null) {
-			receiver.printExpression(0, output);
+		if (this.receiver != null) {
+			this.receiver.printExpression(0, output);
 		}
-		output.append('#').append(selector).append('(');
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length ; i ++) {	
+		output.append('#').append(this.selector).append('(');
+		if (this.arguments != null) {
+			for (int i = 0; i < this.arguments.length ; i ++) {	
 				if (i > 0) output.append(", "); //$NON-NLS-1$
-				arguments[i].printExpression(0, output);
+				this.arguments[i].printExpression(0, output);
 			}
 		}
 		return output.append(')');
@@ -149,13 +139,13 @@ public class JavadocMessageSend extends MessageSend {
 	 */
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
-			if (receiver != null) {
-				receiver.traverse(visitor, blockScope);
+			if (this.receiver != null) {
+				this.receiver.traverse(visitor, blockScope);
 			}
-			if (arguments != null) {
-				int argumentsLength = arguments.length;
+			if (this.arguments != null) {
+				int argumentsLength = this.arguments.length;
 				for (int i = 0; i < argumentsLength; i++)
-					arguments[i].traverse(visitor, blockScope);
+					this.arguments[i].traverse(visitor, blockScope);
 			}
 		}
 		visitor.endVisit(this, blockScope);

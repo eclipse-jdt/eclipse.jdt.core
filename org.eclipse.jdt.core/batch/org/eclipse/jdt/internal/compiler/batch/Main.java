@@ -100,6 +100,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	/**
 	 * Lookup the message with the given ID in this catalog 
+	 * @param id
+	 * @return
 	 */
 	public static String bind(String id) {
 		return bind(id, (String[]) null);
@@ -108,6 +110,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string.
+	 * @param id
+	 * @param binding
+	 * @return
 	 */
 	public static String bind(String id, String binding) {
 		return bind(id, new String[] { binding });
@@ -116,6 +121,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given strings.
+	 * @param id
+	 * @param binding1
+	 * @param binding2
+	 * @return
 	 */
 	public static String bind(String id, String binding1, String binding2) {
 		return bind(id, new String[] { binding1, binding2 });
@@ -124,6 +133,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string values.
+	 * @param id
+	 * @param bindings
+	 * @return
 	 */
 	public static String bind(String id, String[] bindings) {
 		if (id == null)
@@ -804,13 +816,37 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportInvalidJavadoc,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportInvalidJavadocTags,
+							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+						this.options.put(
+							CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingJavadocTags,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
 					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportInvalidJavadoc,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadoc,
+							CompilerOptions.OPTION_ReportInvalidJavadocTags,
 							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+						this.options.put(
+							CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingJavadocTags,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingJavadocComments,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$
 						int start = token.indexOf('(');

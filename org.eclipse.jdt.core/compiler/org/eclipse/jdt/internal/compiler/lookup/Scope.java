@@ -1538,7 +1538,7 @@ public abstract class Scope
 	}
 
 	public boolean isInsideDeprecatedCode(){
-		switch(kind){
+		switch(this.kind){
 			case Scope.BLOCK_SCOPE :
 			case Scope.METHOD_SCOPE :
 				MethodScope methodScope = methodScope();
@@ -1576,6 +1576,44 @@ public abstract class Scope
 				break;
 		}
 		return false;
+	}
+
+	public int getModifiers(){
+		switch(this.kind){
+			case Scope.BLOCK_SCOPE :
+			case Scope.METHOD_SCOPE :
+				MethodScope methodScope = methodScope();
+				if (!methodScope.isInsideInitializer()){
+					// check method modifiers to see if deprecated
+					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
+					if (context != null) {
+						return context.modifiers;
+					}
+				} else {
+					SourceTypeBinding type = ((BlockScope)this).referenceType().binding;
+
+					// inside field declaration ? check field modifier to see if deprecated
+					if (methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl) {
+						for (int i = 0; i < type.fields.length; i++){
+							if (type.fields[i].id == methodScope.fieldDeclarationIndex) {
+								// currently inside this field initialization
+								return type.fields[i].modifiers;
+							}
+						}
+					}
+					if (type != null) {
+						return type.modifiers;
+					}
+				}
+				break;
+			case Scope.CLASS_SCOPE :
+				ReferenceBinding context = ((ClassScope)this).referenceType().binding;
+				if (context != null) {
+					return context.modifiers;
+				}
+				break;
+		}
+		return -1;
 	}
 	
 	public final boolean isJavaIoSerializable(TypeBinding tb) {

@@ -110,7 +110,7 @@ public class TypeDeclaration
 		}
 	}
 
-	/**
+	/*
 	 * INTERNAL USE ONLY - Creates a fake method declaration for the corresponding binding.
 	 * It is used to report errors for missing abstract methods.
 	 */
@@ -871,8 +871,8 @@ public class TypeDeclaration
 
 	public void resolve() {
 
-		if (binding == null) {
-			ignoreFurtherInvestigation = true;
+		if (this.binding == null) {
+			this.ignoreFurtherInvestigation = true;
 			return;
 		}
 		try {
@@ -880,50 +880,50 @@ public class TypeDeclaration
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
 			// check superclass & interfaces
-			if (binding.superclass != null) // watch out for Object ! (and other roots)	
-				if (isTypeUseDeprecated(binding.superclass, scope))
-					scope.problemReporter().deprecatedType(binding.superclass, superclass);
-			if (superInterfaces != null)
-				for (int i = superInterfaces.length; --i >= 0;)
-					if (superInterfaces[i].resolvedType != null)
-						if (isTypeUseDeprecated(superInterfaces[i].resolvedType, scope))
-							scope.problemReporter().deprecatedType(
-								superInterfaces[i].resolvedType,
-								superInterfaces[i]);
-			maxFieldCount = 0;
+			if (this.binding.superclass != null) // watch out for Object ! (and other roots)	
+				if (isTypeUseDeprecated(this.binding.superclass, this.scope))
+					this.scope.problemReporter().deprecatedType(this.binding.superclass, this.superclass);
+			if (this.superInterfaces != null)
+				for (int i = this.superInterfaces.length; --i >= 0;)
+					if (this.superInterfaces[i].resolvedType != null)
+						if (isTypeUseDeprecated(this.superInterfaces[i].resolvedType, this.scope))
+							this.scope.problemReporter().deprecatedType(
+								this.superInterfaces[i].resolvedType,
+								this.superInterfaces[i]);
+			this.maxFieldCount = 0;
 			int lastFieldID = -1;
-			if (fields != null) {
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldDeclaration field = fields[i];
+			if (this.fields != null) {
+				for (int i = 0, count = this.fields.length; i < count; i++) {
+					FieldDeclaration field = this.fields[i];
 					if (field.isField()) {
 						if (field.binding == null) {
 							// still discover secondary errors
-							if (field.initialization != null) field.initialization.resolve(field.isStatic() ? staticInitializerScope : initializerScope);
-							ignoreFurtherInvestigation = true;
+							if (field.initialization != null) field.initialization.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
+							this.ignoreFurtherInvestigation = true;
 							continue;
 						}
-						maxFieldCount++;
+						this.maxFieldCount++;
 						lastFieldID = field.binding.id;
 					} else { // initializer
 						 ((Initializer) field).lastFieldID = lastFieldID + 1;
 					}
-					field.resolve(field.isStatic() ? staticInitializerScope : initializerScope);
+					field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 				}
 			}
-			if (memberTypes != null) {
-				for (int i = 0, count = memberTypes.length; i < count; i++) {
-					memberTypes[i].resolve(scope);
+			if (this.memberTypes != null) {
+				for (int i = 0, count = this.memberTypes.length; i < count; i++) {
+					this.memberTypes[i].resolve(this.scope);
 				}
 			}
 			int missingAbstractMethodslength = this.missingAbstractMethods == null ? 0 : this.missingAbstractMethods.length;
-			int methodsLength = this.methods == null ? 0 : methods.length;
+			int methodsLength = this.methods == null ? 0 : this.methods.length;
 			if ((methodsLength + missingAbstractMethodslength) > 0xFFFF) {
-				scope.problemReporter().tooManyMethods(this);
+				this.scope.problemReporter().tooManyMethods(this);
 			}
 			
-			if (methods != null) {
-				for (int i = 0, count = methods.length; i < count; i++) {
-					methods[i].resolve(scope);
+			if (this.methods != null) {
+				for (int i = 0, count = this.methods.length; i < count; i++) {
+					this.methods[i].resolve(this.scope);
 				}
 			}
 			// Resolve javadoc
@@ -931,8 +931,8 @@ public class TypeDeclaration
 				if (this.scope != null) {
 					this.javadoc.resolve(this.scope);
 				}
-			} else if ((this.binding != null) && this.binding.isPublic()) {
-				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
+			} else if (this.binding != null && !this.binding.isLocalType()) {
+				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
 			}
 			
 		} catch (AbortType e) {

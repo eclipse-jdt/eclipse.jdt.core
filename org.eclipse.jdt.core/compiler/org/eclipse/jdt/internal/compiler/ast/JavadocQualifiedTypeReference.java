@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 
 
@@ -25,7 +26,14 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 		this.tagSourceEnd = tagEnd;
 		this.bits |= InsideJavadoc;
 	}
-	
+
+	protected void reportInvalidType(Scope scope) {
+		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getModifiers());
+	}
+	protected void reportDeprecatedType(Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getModifiers());
+	}
+
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)

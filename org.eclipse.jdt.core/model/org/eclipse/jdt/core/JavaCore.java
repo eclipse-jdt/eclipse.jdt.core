@@ -325,24 +325,77 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.0
-	 */
-	public static final String COMPILER_PB_MISSING_JAVADOC = PLUGIN_ID + ".compiler.problem.missingJavadoc"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
 	 * @see #COMPILER_PB_INVALID_JAVADOC
 	 * @deprecated
+	 * TODO (frederic) remove after 3.0 M6
 	 */
 	public static final String COMPILER_PB_INVALID_ANNOTATION = COMPILER_PB_INVALID_JAVADOC;
 	public static final String OLD_COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS = PLUGIN_ID + ".compiler.problem.invalidJavadocTags"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsVisibility"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAGS = PLUGIN_ID + ".compiler.problem.missingJavadocTags"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY = PLUGIN_ID + ".compiler.problem.missingJavadocTagsVisibility"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING = PLUGIN_ID + ".compiler.problem.missingJavadocTagsOverriding"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_COMMENTS = PLUGIN_ID + ".compiler.problem.missingJavadocComments"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 * @deprecated
+	 * TODO (frederic) remove after 3.0 M7
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC = COMPILER_PB_MISSING_JAVADOC_COMMENTS;
+	public static final String OLD_COMPILER_PB_MISSING_JAVADOC = PLUGIN_ID + ".compiler.problem.missingJavadoc"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
 	 * @see #COMPILER_PB_MISSING_JAVADOC
 	 * @deprecated
+	 * TODO (frederic) after 3.0 M6
 	 */
 	public static final String COMPILER_PB_MISSING_ANNOTATION = COMPILER_PB_MISSING_JAVADOC;
 	public static final String OLD_COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_COMMENTS_VISIBILITY = PLUGIN_ID + ".compiler.problem.missingJavadocCommentsVisibility"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING = PLUGIN_ID + ".compiler.problem.missingJavadocCommentsOverriding"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -742,6 +795,30 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static final String CLEAN = "clean"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String PUBLIC = "public"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String PROTECTED = "protected"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String DEFAULT = "default"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String PRIVATE = "private"; //$NON-NLS-1$
 	
 	/**
 	 * Creates the Java core plug-in.
@@ -1186,11 +1263,9 @@ public final class JavaCore extends Plugin {
 			try {
 				// wrap initializer call with Safe runnable in case initializer would be causing some grief
 				Platform.run(new ISafeRunnable() {
-					/** @param exception */
 					public void handleException(Throwable exception) {
 						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer+" while initializing variable: "+variableName); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					/** @throws Exception */
 					public void run() throws Exception {
 						initializer.initialize(variableName);
 					}
@@ -1535,19 +1610,72 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Invalid Javadoc Comment
-	 *    When enabled, the compiler will issue an error or a warning when a javadoc comment is inconsistent,
-	 *    misses a tag entry or contains invalid references.
+	 *    This is the generic control for the severity of Javadoc problems.
+	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Visibility Level For Invalid Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
 	 * 
-	 * COMPILER / Reporting Missing Javadoc Comment
-	 *    When enabled, the compiler will signal cases where public class, interface, method, constructor or field
-	 *    (considered as part of the API) has no javadoc comment.
+	 * COMPILER / Reporting Invalid Javadoc Tags
+	 *    When enabled, the compiler will signal unbound or unexpected reference tags in Javadoc.
+	 *    A 'throws' tag referencing an undeclared exception would be considered as unexpected.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *    <br>
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadoc"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
+	 *     - possible values:   { "disabled", "enabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags
+	 *    This is the generic control for the severity of Javadoc missing tag problems.
+	 *    When enabled, the compiler will issue an error or a warning when tags are missing in Javadoc comments.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTags"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc missing tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments
+	 *    This is the generic control for the severity of missing Javadoc comment problems.
+	 *    When enabled, the compiler will issue an error or a warning when Javadoc comments are missing.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the expected Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocComments"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Comments
+	 *    Set the minimum visibility level for missing Javadoc problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "public"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report missing Javadoc comment problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
@@ -1876,15 +2004,6 @@ public final class JavaCore extends Plugin {
 			return ERROR;
 		}
 		String propertyName = optionName;
-		// bug 45112 backward compatibility.
-		// TODO (frederic) remove for 3.0
-		if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(optionName)) {
-			propertyName = COMPILER_PB_INVALID_JAVADOC;
-		}
-		else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(optionName)) {
-			propertyName = COMPILER_PB_MISSING_JAVADOC;
-		}
-		// end bug 45112
 		if (JavaModelManager.OptionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(propertyName).trim();
@@ -1930,18 +2049,30 @@ public final class JavaCore extends Plugin {
 					options.put(propertyName, value);
 				}
 				// bug 45112 backward compatibility.
-				// TODO (frederic) remove for 3.0
+				// TODO (frederic) remove after 3.0 M6
 				else if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
 					options.put(COMPILER_PB_INVALID_JAVADOC, value);
-					preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
-					preferences.setValue(COMPILER_PB_INVALID_JAVADOC, value);
 				}
 				else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
-					options.put(COMPILER_PB_MISSING_JAVADOC, value);
-					preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
-					preferences.setValue(COMPILER_PB_MISSING_JAVADOC, value);
+					if (ENABLED.equals(value)) {
+						value = preferences.getString(COMPILER_PB_INVALID_JAVADOC);
+					} else {
+						value = IGNORE;
+					}
+					options.put(COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
 				}
 				// end bug 45112
+				// bug 46854 backward compatibility
+				// TODO (frederic) remove after 3.0 M7
+				else if (OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+					if (ENABLED.equals(value)) {
+						value = preferences.getString(COMPILER_PB_INVALID_JAVADOC);
+					} else {
+						value = IGNORE;
+					}
+					options.put(COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
+				}
+				// end bug 46854
 			}
 			// get encoding through resource plugin
 			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
@@ -3252,7 +3383,26 @@ public final class JavaCore extends Plugin {
 			String value = (String)newOptions.get(key);
 			preferences.setValue(key, value);
 		}
-		
+
+		// Backward compatibility
+		String[] propertyNames = preferences.propertyNames();
+		for (int i = 0; i < propertyNames.length; i++){
+			String propertyName = propertyNames[i];
+			// bug 45112
+			if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+				preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
+			}
+			else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+				preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
+			}
+			// end bug 45112
+			// bug 46854
+			else if (OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+				preferences.setToDefault(OLD_COMPILER_PB_MISSING_JAVADOC);
+			}
+			// end bug 46854
+		}
+
 		// persist options
 		getPlugin().savePluginPreferences();
 	}

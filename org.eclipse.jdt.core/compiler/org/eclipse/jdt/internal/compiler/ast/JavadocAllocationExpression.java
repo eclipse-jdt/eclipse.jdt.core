@@ -31,18 +31,18 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	private TypeBinding internalResolveType(Scope scope) {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
-		constant = NotAConstant;
+		this.constant = NotAConstant;
 		if (scope.kind == Scope.CLASS_SCOPE) {
-			this.resolvedType = type.resolveType((ClassScope)scope);
+			this.resolvedType = this.type.resolveType((ClassScope)scope);
 		} else {
-			this.resolvedType = type.resolveType((BlockScope)scope);
+			this.resolvedType = this.type.resolveType((BlockScope)scope);
 		}
 
 		// buffering the arguments' types
 		TypeBinding[] argumentTypes = NoParameters;
-		if (arguments != null) {
+		if (this.arguments != null) {
 			boolean argHasError = false;
-			int length = arguments.length;
+			int length = this.arguments.length;
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
@@ -73,21 +73,15 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			if (methodBinding.isValidBinding()) {
 				this.binding = methodBinding;
 			} else {
-				if (binding.declaringClass == null) {
-					binding.declaringClass = allocationType;
+				if (this.binding.declaringClass == null) {
+					this.binding.declaringClass = allocationType;
 				}
-				scope.problemReporter().invalidConstructor(this, binding);
+				scope.problemReporter().javadocInvalidConstructor(this, this.binding, scope.getModifiers());
 			}
 			return this.resolvedType;
 		}
-		if (isMethodUseDeprecated(binding, scope)) {
-			scope.problemReporter().deprecatedMethod(binding, this);
-		}
-
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
-			}
+		if (isMethodUseDeprecated(this.binding, scope)) {
+			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getModifiers());
 		}
 
 		return allocationType;

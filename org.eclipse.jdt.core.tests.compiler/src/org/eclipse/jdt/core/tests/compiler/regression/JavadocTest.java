@@ -23,6 +23,7 @@ static {
 	allTestClasses.add(JavadocTestForInterface.class);
 	allTestClasses.add(JavadocTestForMethod.class);
 	allTestClasses.add(JavadocTestMixed.class);
+	allTestClasses.add(JavadocTestOptions.class);
 }
 
 
@@ -54,8 +55,6 @@ public static boolean equals(String c, String s) {
 
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
-	//options.put(CompilerOptions.OPTION_ReportMissingJavadoc, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	return options;

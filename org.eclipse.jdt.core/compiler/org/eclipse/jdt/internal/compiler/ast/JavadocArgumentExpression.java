@@ -34,7 +34,7 @@ public class JavadocArgumentExpression extends Expression {
 	 * Resolves type on a Block or Class scope.
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
-		constant = NotAConstant;
+		this.constant = NotAConstant;
 		if (this.resolvedType != null) { // is a shared type reference which was already resolved
 			if (!this.resolvedType.isValidBinding()) {
 				return null; // already reported error
@@ -46,11 +46,11 @@ public class JavadocArgumentExpression extends Expression {
 				if (typeRef != null) {
 					this.resolvedType = typeRef.getTypeBinding(scope);
 					if (!this.resolvedType.isValidBinding()) {
-						scope.problemReporter().invalidType(typeRef, this.resolvedType);
+						scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getModifiers());
 						return null;
 					}
 					if (isTypeUseDeprecated(this.resolvedType, scope)) {
-						scope.problemReporter().deprecatedType(this.resolvedType, typeRef);
+						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getModifiers());
 						return null;
 					}
 					return this.resolvedType;
@@ -61,20 +61,20 @@ public class JavadocArgumentExpression extends Expression {
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		if (argument == null) {
-			if (token != null) {
-				output.append(token);
+		if (this.argument == null) {
+			if (this.token != null) {
+				output.append(this.token);
 			}
 		}
 		else {
-			argument.print(indent, output);
+			this.argument.print(indent, output);
 		}
 		return output;
 	}
 
 	public void resolve(BlockScope scope) {
-		if (argument != null) {
-			argument.resolve(scope);
+		if (this.argument != null) {
+			this.argument.resolve(scope);
 		}
 	}
 
@@ -93,7 +93,7 @@ public class JavadocArgumentExpression extends Expression {
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
 			if (this.argument != null) {
-				argument.traverse(visitor, blockScope);
+				this.argument.traverse(visitor, blockScope);
 			}
 		}
 		visitor.endVisit(this, blockScope);

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 
 public class JavadocSingleTypeReference extends SingleTypeReference {
@@ -23,6 +24,13 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
 		this.bits |= InsideJavadoc;
+	}
+
+	protected void reportInvalidType(Scope scope) {
+		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getModifiers());
+	}
+	protected void reportDeprecatedType(Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getModifiers());
 	}
 
 	/* (non-Javadoc)

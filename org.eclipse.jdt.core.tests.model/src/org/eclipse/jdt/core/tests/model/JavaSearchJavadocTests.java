@@ -41,7 +41,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	private void setJavadocOptions() {
 		this.originalOptions = this.javaProject.getOptions(true);
 		this.javaProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
-		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC, JavaCore.ENABLED);
+		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
 	}
 	public static Test suite() {
 		// NOTE: cannot use 'new Suite(JavaSearchJavadocTests.class)' as this would include tests from super class

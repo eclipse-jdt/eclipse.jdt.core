@@ -215,7 +215,7 @@ public class JavaProject
 	/**
 	 * Constructor needed for <code>IProject.getNature()</code> and <code>IProject.addNature()</code>.
 	 *
-	 * @see #setProject
+	 * @see #setProject(IProject)
 	 */
 	public JavaProject() {
 		super(null, null);
@@ -223,7 +223,7 @@ public class JavaProject
 
 	public JavaProject(IProject project, JavaElement parent) {
 		super(parent, project.getName());
-		fProject = project;
+		this.fProject = project;
 	}
 
 	/**
@@ -848,7 +848,7 @@ public class JavaProject
 	 * project if they are identical or if they represent a project with 
 	 * the same underlying resource and occurrence counts.
 	 *
-	 * @see JavaElement#equals
+	 * @see JavaElement#equals(Object)
 	 */
 	public boolean equals(Object o) {
 	
@@ -864,7 +864,7 @@ public class JavaProject
 	}
 
 	public boolean exists() {
-		if (!hasJavaNature(fProject)) return false;
+		if (!hasJavaNature(this.fProject)) return false;
 		return super.exists();
 	}	
 
@@ -1411,15 +1411,6 @@ public class JavaProject
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
 		
 		String propertyName = optionName;
-		// bug 45112 backward compatibility.
-		// TODO (frederic) remove for 3.0
-		if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(optionName)) {
-			propertyName = JavaCore.COMPILER_PB_INVALID_JAVADOC;
-		}
-		else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(optionName)) {
-			propertyName = JavaCore.COMPILER_PB_MISSING_JAVADOC;
-		}
-		// end bug 45112
 		if (JavaModelManager.OptionNames.contains(propertyName)){
 			Preferences preferences = getPreferences();
 			if (preferences == null || preferences.isDefault(propertyName)) {
@@ -1461,18 +1452,30 @@ public class JavaProject
 				options.put(propertyName, value);
 			}		
 			// bug 45112 backward compatibility.
-			// TODO (frederic) remove for 3.0
+			// TODO (frederic) remove after 3.0 M6
 			else if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
 				options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
-				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION);
-				preferences.setValue(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
 			}
 			else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
-				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC, value);
-				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION);
-				preferences.setValue(JavaCore.COMPILER_PB_MISSING_JAVADOC, value);
+				if (JavaCore.ENABLED.equals(value)) {
+					value = preferences.getString(JavaCore.COMPILER_PB_INVALID_JAVADOC);
+				} else {
+					value = JavaCore.IGNORE;
+				}
+				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
 			}
 			// end bug 45112
+			// bug 46854 backward compatibility
+			// TODO (frederic) remove after 3.0 M7
+			else if (JavaCore.OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+				if (JavaCore.ENABLED.equals(value)) {
+					value = preferences.getString(JavaCore.COMPILER_PB_INVALID_JAVADOC);
+				} else {
+					value = JavaCore.IGNORE;
+				}
+				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
+			}
+			// end bug 46854
 		}		
 
 		return options;
@@ -1672,7 +1675,7 @@ public class JavaProject
 	}
 	
 	public JavaModelManager.PerProjectInfo getPerProjectInfo() throws JavaModelException {
-		return JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		return JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.fProject);
 	}
 	
 	/**
@@ -1680,7 +1683,7 @@ public class JavaProject
 	 */
 	public IProject getProject() {
 
-		return fProject;
+		return this.fProject;
 	}
 
 	/**
@@ -1749,7 +1752,7 @@ public class JavaProject
 		return classpath;
 	}
 	/**
-	 * @see IJavaProject#getRequiredProjectNames
+	 * @see IJavaProject#getRequiredProjectNames()
 	 */
 	public String[] getRequiredProjectNames() throws JavaModelException {
 
@@ -1797,7 +1800,7 @@ public class JavaProject
 		if (perProjectInfo != null){
 			if (perProjectInfo.rawClasspath == null // .classpath file could not be read
 				&& generateMarkerOnError 
-				&& JavaProject.hasJavaNature(fProject)) {
+				&& JavaProject.hasJavaNature(this.fProject)) {
 					// flush .classpath format markers (bug 39877), but only when file cannot be read (bug 42366)
 					this.flushClasspathProblemMarkers(false, true);
 					this.createClasspathProblemMarker(new JavaModelStatus(
@@ -1982,7 +1985,7 @@ public class JavaProject
 	}
 
 	public int hashCode() {
-		return fProject.hashCode();
+		return this.fProject.hashCode();
 	}
 
 	/**
@@ -2132,7 +2135,7 @@ public class JavaProject
 	 }
 	 
 	/**
-	 * @see IJavaProject#newEvaluationContext
+	 * @see IJavaProject#newEvaluationContext()
 	 */
 	public IEvaluationContext newEvaluationContext() {
 
@@ -2468,7 +2471,26 @@ public class JavaProject
 				preferences.setValue(key, value);
 			}
 		}
-		
+
+		// Backward compatibility
+		String[] propertyNames = preferences.propertyNames();
+		for (int i = 0; i < propertyNames.length; i++){
+			String propertyName = propertyNames[i];
+			// bug 45112
+			if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION);
+			}
+			else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION);
+			}
+			// end bug 45112
+			// bug 46854
+			else if (JavaCore.OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_JAVADOC);
+			}
+			// end bug 46854
+		}
+
 		// persist options
 		savePreferences(preferences);	
 	}
@@ -2503,11 +2525,11 @@ public class JavaProject
 	 * and fills in its parent and name.
 	 * Called by IProject.getNature().
 	 *
-	 * @see IProjectNature#setProject
+	 * @see IProjectNature#setProject(IProject)
 	 */
 	public void setProject(IProject project) {
 
-		fProject = project;
+		this.fProject = project;
 		this.parent = JavaModelManager.getJavaModelManager().getJavaModel();
 		this.name = project.getName();
 	}
