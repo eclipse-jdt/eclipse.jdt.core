@@ -172,6 +172,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		}
 		return dirFilePath;
 	}
+	/*
+	 * Write given source test files in current output sub-directory.
+	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
+	 */
+	private void printFiles(String[] testFiles) {
+		for (int i=0, length=testFiles.length; i<length; i++) {
+			System.out.println(testFiles[i++]);
+			System.out.println(testFiles[i]);
+		}
+		System.out.println("");
+	}
 
 	/*
 	 * Run Sun compilation using javac.
@@ -207,7 +218,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				cmdLine.append(" -classpath ");
 				cmdLine.append(cp);
 				cmdLine.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
-				if (GenericTypeTest.this.dirPath.equals(dirFilePath)) {
+				if (this.dirPath.equals(dirFilePath)) {
 					cmdLine.append("*.java");
 				} else {
 					IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(GenericTypeTest.this.dirPath.segmentCount());
@@ -234,35 +245,43 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				// Compare compilation results
 				if (expectedProblemLog == null) {
 					if (exitValue != 0) {
+						System.out.println("========================================");
 						System.out.println(testName+": javac has found error(s) although we're expecting conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
+						printFiles(testFiles);
 					}
-					if (errorLogger.buffer.length() > 0) {
+					else if (errorLogger.buffer.length() > 0) {
+						System.out.println("========================================");
 						System.out.println(testName+": javac displays warning(s) although we're expecting conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
+						printFiles(testFiles);
 					}
-				}
-				else if (expectedProblemLog != null) {
-					if (exitValue == 0) {
-						if (errorLogger.buffer.length() == 0) {
-							System.out.println(testName+": javac has found no error/warning although we're expecting negative result:");
-							System.out.println(expectedProblemLog);
-						} else if (expectedProblemLog.indexOf("ERROR") >0 ){
-							System.out.println(testName+": javac has found warning(s) although we're expecting error(s):");
-							System.out.print("javac:\n"+errorLogger.buffer.toString());
-							System.out.println("eclipse:");
-							System.out.println(expectedProblemLog);
-						} else {
-							// TODO (frederic) compare warnings in each result and verify they are similar...
-//							System.out.println(testName+": javac has found warnings :");
-//							System.out.print(errorLogger.buffer.toString());
-//							System.out.println(testName+": we're expecting warning results:");
-//							System.out.println(expectedProblemLog);
-						}
-					} else if (errorLogger.buffer.length() == 0) {
-						System.out.println(testName+": javac displays no output although we're expecting negative result:\n");
+				} else if (exitValue == 0) {
+					if (errorLogger.buffer.length() == 0) {
+						System.out.println("========================================");
+						System.out.println(testName+": javac has found no error/warning although we're expecting negative result:");
 						System.out.println(expectedProblemLog);
+						printFiles(testFiles);
+					} else if (expectedProblemLog.indexOf("ERROR") >0 ){
+						System.out.println("========================================");
+						System.out.println(testName+": javac has found warning(s) although we're expecting error(s):");
+						System.out.println("javac:");
+						System.out.println(errorLogger.buffer.toString());
+						System.out.println("eclipse:");
+						System.out.println(expectedProblemLog);
+						printFiles(testFiles);
+					} else {
+						// TODO (frederic) compare warnings in each result and verify they are similar...
+//						System.out.println(testName+": javac has found warnings :");
+//						System.out.print(errorLogger.buffer.toString());
+//						System.out.println(testName+": we're expecting warning results:");
+//						System.out.println(expectedProblemLog);
 					}
+				} else if (errorLogger.buffer.length() == 0) {
+					System.out.println("========================================");
+					System.out.println(testName+": javac displays no output although we're expecting negative result:\n");
+					System.out.println(expectedProblemLog);
+					printFiles(testFiles);
 				}
 			} catch (IOException ioe) {
 				System.out.println(testName+": Not possible to launch Sun javac compilation!");
@@ -1905,7 +1924,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// raw type: assignments 
 	public void test065() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1923,7 +1941,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n", 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
 			"	X<IOException> xioe2 = x; // unsafe\n" + 
 			"	                       ^\n" + 
 			"Unsafe type operation: Should not assign expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
@@ -2608,7 +2626,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 
 	public void test086() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2627,7 +2644,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
 		"	ax.p = new AX<String>();\n" + 
 		"	^^^^\n" + 
 		"Unsafe type operation: Should not assign expression of type AX<String> to the field p of raw type AX. References to generic type AX<P> should be parameterized\n" + 
@@ -3190,7 +3207,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// unsafe assignment thru binaries
 	public void test107() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3207,7 +3223,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"\n",
 			},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
 		"	Iterable<String> is = new ArrayList();\n" + 
 		"	                      ^^^^^^^^^^^^^^^\n" + 
 		"Unsafe type operation: Should not assign expression of raw type ArrayList to type Iterable<String>. References to generic type Iterable<T> should be parameterized\n" + 
@@ -4917,7 +4933,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// unsafe raw return value
 	public void test176() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4935,12 +4950,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n", 
 			},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
 		"	return new Vector();\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"Unsafe type operation: Should not return value of raw type Vector instead of type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
 		"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe type operation: The cast from Object to parameterized type Vector<Object> will not check conformance of type arguments at runtime\n" + 
@@ -4952,7 +4967,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// cast to type variable allowed, can be diagnosed as unnecessary
 	public void test177() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4976,7 +4990,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// reject instanceof type variable or parameterized type
 	public void test178() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5084,7 +5097,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}
 	public void test182() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5117,12 +5129,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	       ^^^^^^^^^^^\n" + 
 			"Unnecessary cast to type X<E> for expression of type X<E>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
 			"	return (AX<String>) o;\n" + 
 			"	       ^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: The cast from Object to parameterized type AX<String> will not check conformance of type arguments at runtime\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
 			"	return (AX<E>) o;\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"Unsafe type operation: The cast from Object to parameterized type AX<E> will not check conformance of type arguments at runtime\n" + 
@@ -5143,7 +5155,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}
 	public void test183() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5183,7 +5194,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Dictionary<String,Integer> to Hashtable<Float,Double>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 13)\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: The cast from Object to parameterized type Hashtable<String,Integer> will not check conformance of type arguments at runtime\n" + 
