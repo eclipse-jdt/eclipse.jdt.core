@@ -27,7 +27,7 @@ public interface ITypeNameRequestor {
  * @param simpleTypeName the simple name of the class
  * @param enclosingTypeNames if the class is a member type, 
  *          the simple names of the enclosing types from the outer-most to the
- *          direct parent of the class (e.g. if the class is x.y.A$B$C then
+ *          direct parent of the class (for example, if the class is x.y.A$B$C then
  *          the enclosing types are [A, B]. This is an empty array if the class
  *          is a top-level type.
  * @param path the full path to the resource containing the class. If the resource is a .class file
@@ -46,7 +46,7 @@ void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTy
  * @param simpleTypeName the simple name of the interface
  * @param enclosingTypeNames if the interface is a member type, 
  *          the simple names of the enclosing types from the outer-most to the
- *          direct parent of the interface (e.g. if the interface is x.y.A$B$I then
+ *          direct parent of the interface (for example, if the interface is x.y.A$B$I then
  *          the enclosing types are [A, B]. This is an empty array if the interface
  *          is a top-level type.
  * @param path the full path to the resource containing the interface. If the resource is a .class file

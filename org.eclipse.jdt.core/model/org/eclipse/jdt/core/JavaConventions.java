@@ -643,7 +643,7 @@ public final class JavaConventions {
 		}
 		// ensure that no output is coincidating with another source folder (only allowed if matching current source folder)
 		// perform one separate iteration so as to not take precedence over previously checked scenarii (in particular should
-		// diagnose nesting source folder issue before this one, e.g. [src]"Project/", [src]"Project/source/" and output="Project/" should
+		// diagnose nesting source folder issue before this one, for example, [src]"Project/", [src]"Project/source/" and output="Project/" should
 		// first complain about missing exclusion pattern
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry entry = classpath[i];

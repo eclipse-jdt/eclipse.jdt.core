@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * </p>
  * <p>
  * The order of the results is unspecified. Clients must not rely on this order to display results, 
- * but they should sort these results (e.g. in a syntactical order).
+ * but they should sort these results (for example, in syntactical order).
  * <p>
  * The <code>IJavaSearchResultCollector</code> is also used to provide a progress monitor to the 
  * <code>SearchEngine</code>.

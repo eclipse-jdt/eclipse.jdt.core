@@ -38,7 +38,7 @@ public interface IJavaModelMarker {
 	/**
 	 * Java model task marker type (value <code>"org.eclipse.jdt.core.task"</code>).
 	 * This can be used to recognize task markers in the workspace that correspond to tasks
-	 * specified in Java source comments and detected during compilation (e.g. 'TO-DO: ...').
+	 * specified in Java source comments and detected during compilation (for example, 'TO-DO: ...').
 	 * Tasks are identified by a task tag, which can be customized through <code>JavaCore</code>
 	 * option <code>"org.eclipse.jdt.core.compiler.taskTag"</code>.
 	 * @since 2.1
@@ -49,8 +49,7 @@ public interface IJavaModelMarker {
     /** 
 	 * Id marker attribute (value <code>"arguments"</code>).
 	 * Arguments are concatenated into one String, prefixed with an argument count (followed with colon
-	 * separator) and separated with '#' characters.
-	 * e.g. 
+	 * separator) and separated with '#' characters. For example:
 	 *     { "foo", "bar" } is encoded as "2:foo#bar",     
 	 *     {  } is encoded as "0: "
 	 * @since 2.0

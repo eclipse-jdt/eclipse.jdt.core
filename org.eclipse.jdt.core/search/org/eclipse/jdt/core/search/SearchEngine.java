@@ -127,7 +127,7 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
  * have their underlying resource included in or equals to one of the given
  * resources.
  * <p>
- * Resources must not overlap, e.g. one cannot include a folder and its children.
+ * Resources must not overlap, for example, one cannot include a folder and its children.
  * </p>
  *
  * @param resources the resources the scope is limited to
@@ -402,7 +402,7 @@ public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJav
 /**
  * Searches for matches of a given search pattern. Search patterns can be created using helper
  * methods (from a String pattern or a Java element) and encapsulate the description of what is
- * being searched (e.g. search method declarations in a case sensitive way).
+ * being searched (for example, search method declarations in a case sensitive way).
  *
  * @param workspace the workspace
  * @param searchPattern the pattern to be searched for

@@ -42,7 +42,7 @@ public interface IScanner {
 	/**
 	 * Answers the current identifier source, before unicode escape sequences have
 	 * been translated into unicode characters.
-	 * e.g. if original source was <code>\\u0061bc</code> then it will answer <code>\\u0061bc</code>.
+	 * For example, if original source was <code>\\u0061bc</code> then it will answer <code>\\u0061bc</code>.
 	 * 
 	 * @return the current identifier source, before unicode escape sequences have
 	 * been translated into unicode characters

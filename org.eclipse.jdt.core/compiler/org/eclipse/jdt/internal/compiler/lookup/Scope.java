@@ -1115,8 +1115,9 @@ public abstract class Scope
 				}
 			}
 			// check if the name is in the current package, skip it if its a sub-package
-			unitScope.recordReference(unitScope.fPackage.compoundName, name);
-			Binding binding = unitScope.fPackage.getTypeOrPackage(name);
+			PackageBinding currentPackage = unitScope.fPackage;
+			unitScope.recordReference(currentPackage.compoundName, name);
+			Binding binding = currentPackage.getTypeOrPackage(name);
 			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
 
 			// check on demand imports
@@ -1129,7 +1130,7 @@ public abstract class Scope
 						Binding resolvedImport = someImport.resolvedImport;
 						ReferenceBinding temp =
 							(resolvedImport instanceof PackageBinding)
-								? findType(name, (PackageBinding) resolvedImport, unitScope.fPackage)
+								? findType(name, (PackageBinding) resolvedImport, currentPackage)
 								: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
 						if (temp != null && temp.isValidBinding()) {
 							if (someImport.reference != null) someImport.reference.used = true;

@@ -53,15 +53,15 @@ public boolean encloses(IJavaElement element);
  * <ul>
  * <li> If the path is a project path, this is the full path of the project
  *       (see <code>IResource.getFullPath()</code>).
- *        E.g. /MyProject
+ *        For example, /MyProject
  * </li>
  * <li> If the path is a JAR path and this JAR is internal to the workspace,
  *        this is the full path of the JAR file (see <code>IResource.getFullPath()</code>).
- *        E.g. /MyProject/mylib.jar
+ *        For example, /MyProject/mylib.jar
  * </li>
  * <li> If the path is a JAR path and this JAR is external to the workspace,
  *        this is the full OS path to the JAR file on the file system.
- *        E.g. d:\libs\mylib.jar
+ *        For example, d:\libs\mylib.jar
  * </li>
  * </ul>
  * 

@@ -1180,7 +1180,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "disabled"
 	 *
 	 * COMPILER / Reporting Hidden Catch Block
-	 *    Locally to a try statement, some catch blocks may hide others , e.g.
+	 *    Locally to a try statement, some catch blocks may hide others . For example,
 	 *      try {  throw new java.io.CharConversionException();
 	 *      } catch (java.io.CharConversionException e) {
 	 *      } catch (java.io.IOException e) {}. 
@@ -1272,7 +1272,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * COMPILER / Reporting Interface Method not Compatible with non-Inherited Methods
 	 *    When enabled, the compiler will issue an error or a warning whenever an interface
 	 *    defines a method incompatible with a non-inherited Object method. Until this conflict
-	 *    is resolved, such an interface cannot be implemented, e.g.
+	 *    is resolved, such an interface cannot be implemented, For example, 
 	 *      interface I { 
 	 *         int clone();
 	 *      } 
@@ -1282,7 +1282,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * COMPILER / Reporting Usage of char[] Expressions in String Concatenations
 	 *    When enabled, the compiler will issue an error or a warning whenever a char[] expression
-	 *    is used in String concatenations (e.g. "hello" + new char[]{'w','o','r','l','d'}).
+	 *    is used in String concatenations (for example, "hello" + new char[]{'w','o','r','l','d'}).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
@@ -1369,7 +1369,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * JAVACORE / Reporting Incomplete Classpath
 	 *    Indicate the severity of the problem reported when an entry on the classpath does not exist, 
-	 *    is not legite or is not visible (e.g. a referenced project is closed).
+	 *    is not legite or is not visible (for example, a referenced project is closed).
 	 *     - option id:         "org.eclipse.jdt.core.incompleteClasspath"
 	 *     - possible values:   { "error", "warning"}
 	 *     - default:           "error"
@@ -1437,7 +1437,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "80"
 	 * 
 	 *	FORMATTER / Compacting Assignment
-	 *    Assignments can be formatted asymmetrically, e.g. 'int x= 2;', when Normal, a space
+	 *    Assignments can be formatted asymmetrically, for example 'int x= 2;', when Normal, a space
 	 *    is inserted before the assignment operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.style.assignment"
 	 *     - possible values:   { "compact", "normal" }
@@ -1464,7 +1464,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 *	CODEASSIST / Activate Visibility Sensitive Completion
 	 *    When active, completion doesn't show that you can not see
-	 *    (e.g. you can not see private methods of a super class).
+	 *    (for example, you can not see private methods of a super class).
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"

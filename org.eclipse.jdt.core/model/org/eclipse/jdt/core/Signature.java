@@ -495,7 +495,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 			}
 		default:
 			// non primitive type
-			int sigLength = arrayCount + 1 + length + 1; // e.g. '[[[Ljava.lang.String;'
+			int sigLength = arrayCount + 1 + length + 1; // for example '[[[Ljava.lang.String;'
 			sig = new char[sigLength];
 			int sigIndex = arrayCount+1; // index in sig
 			int startID = 0; // start of current ID in typeName
