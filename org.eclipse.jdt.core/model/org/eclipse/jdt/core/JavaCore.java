@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -1432,46 +1432,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentSuffixes"
 	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
-	 *
-	 *  SORTING / Define the category of a type declaration in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.type.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "1"
-	 * 
-	 *  SORTING / Define the category of a static initializer in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.static_initializer.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "2"
-	 * 
-	 *  SORTING / Define the category of a static field in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.static_field.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "3"
-	 * 
-	 *  SORTING / Define the category of a static method in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.static_method.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "4"
-	 * 
-	 *  SORTING / Define the category of an initializer in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.initializer.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "5"
-	 * 
-	 *  SORTING / Define the category of a field in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.field.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "6"
-	 * 
-	 *  SORTING / Define the category of a constructor in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.constructor.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "7"
-	 * 
-	 *  SORTING / Define the category of a method in order to be used in a sort operation
-	 *     - option id:         "org.eclipse.jdt.core.sorting.method.category"
-	 *     - possible values:   { "1", "2", "3", "4", "5", "6", "7", "8" }
-	 *     - default:           "8"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
