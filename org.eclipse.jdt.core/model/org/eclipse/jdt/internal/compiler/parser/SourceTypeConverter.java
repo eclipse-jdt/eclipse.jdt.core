@@ -157,7 +157,6 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int start = initializerInfo.getDeclarationSourceStart();
 		int end = initializerInfo.getDeclarationSourceEnd();
 
-		initializer.name = initializerInfo.getName();
 		initializer.sourceStart = initializer.declarationSourceStart = start;
 		initializer.sourceEnd = initializer.declarationSourceEnd = end;
 		initializer.modifiers = initializerInfo.getModifiers();

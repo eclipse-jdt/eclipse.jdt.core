@@ -18,6 +18,8 @@ import org.eclipse.jdt.internal.compiler.env.ISourceField;
  */
 
 public class SourceFieldElementInfo extends MemberElementInfo implements ISourceField {
+	
+	protected char[] fieldName;
 
 	/**
 	 * The type name of this field.
@@ -35,6 +37,9 @@ public class SourceFieldElementInfo extends MemberElementInfo implements ISource
  */
 public char[] getInitializationSource() {
 	return this.initializationSource;
+}
+public char[] getName() {
+	return this.fieldName;
 }
 /**
  * Returns the type name of the field.

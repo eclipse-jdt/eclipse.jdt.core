@@ -34,22 +34,12 @@ package org.eclipse.jdt.internal.core;
 	protected int nameEnd= -1;
 
 	/**
-	 * This member's name
-	 */
-	protected char[] name;
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getModifiers()
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getModifiers()
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericField#getModifiers()
 	 */
 	public int getModifiers() {
 		return this.flags;
-	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getName()
-	 */
-	public char[] getName() {
-		return this.name;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceEnd()
@@ -69,12 +59,6 @@ package org.eclipse.jdt.internal.core;
 	}
 	protected void setFlags(int flags) {
 		this.flags = flags;
-	}
-	/**
-	 * Sets this member's name
-	 */
-	protected void setName(char[] name) {
-		this.name= name;
 	}
 	/**
 	 * Sets the last position of this member's name, relative

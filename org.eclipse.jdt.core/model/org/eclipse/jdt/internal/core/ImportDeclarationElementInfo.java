@@ -18,9 +18,14 @@ import org.eclipse.jdt.internal.compiler.env.ISourceImport;
  */
 public class ImportDeclarationElementInfo extends MemberElementInfo implements ISourceImport{
 	
+	char[] name;
+	
 	// record if import is on demand, the import name doesn't have trailing start
 	boolean onDemand;
 	
+	public char[] getName() {
+		return this.name;
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceImport#onDemand()
 	 */

@@ -227,6 +227,12 @@ public ISourceMethod[] getMethods() {
 	return methods;
 }
 /**
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getName()
+ */
+public char[] getName() {
+	return this.handle.getElementName().toCharArray();
+}
+/**
  * @see ISourceType
  */
 public char[] getPackageName() {

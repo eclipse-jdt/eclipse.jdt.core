@@ -148,7 +148,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	info.setSourceRangeStart(declarationStart);
 	info.setSourceRangeEnd(declarationEnd);
 	info.setFlags(modifiers);
-	info.setName(name); // no trailing * if onDemand
+	info.name  = name; // no trailing * if onDemand
 	info.setOnDemand(onDemand);
 
 	this.importContainerInfo.addChild(handle);
@@ -275,7 +275,7 @@ public void enterField(
 		resolveDuplicates(handle);
 		
 		SourceFieldElementInfo info = new SourceFieldElementInfo();
-		info.setName(name);
+		info.fieldName = name;
 		info.setNameSourceStart(nameSourceStart);
 		info.setNameSourceEnd(nameSourceEnd);
 		info.setSourceRangeStart(declarationStart);
@@ -389,7 +389,7 @@ protected void enterMethod(
 		SourceMethodElementInfo info = new SourceMethodElementInfo();
 		info.setSourceRangeStart(declarationStart);
 		int flags = modifiers;
-		info.setName(name);
+		info.selector = name;
 		info.setNameSourceStart(nameSourceStart);
 		info.setNameSourceEnd(nameSourceEnd);
 		info.setConstructor(isConstructor);
@@ -425,7 +425,6 @@ protected void enterType(
 	info.setHandle(handle);
 	info.setSourceRangeStart(declarationStart);
 	info.setFlags(modifiers);
-	info.setName(name);
 	info.setNameSourceStart(nameSourceStart);
 	info.setNameSourceEnd(nameSourceEnd);
 	info.setSuperclassName(superclass);

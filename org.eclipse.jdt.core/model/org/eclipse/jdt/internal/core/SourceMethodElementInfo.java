@@ -20,6 +20,8 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
  * Element info for IMethod elements. 
  */
 public class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
+	
+	protected char[] selector;
 
 	/**
 	 * For a source method (that is, a method contained in a compilation unit)
@@ -79,7 +81,7 @@ public char[] getReturnTypeName() {
 	return this.returnType;
 }
 public char[] getSelector() {
-	return this.name;
+	return this.selector;
 }
 protected String getSignature() {
 
