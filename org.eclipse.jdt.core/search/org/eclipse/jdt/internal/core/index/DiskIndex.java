@@ -40,6 +40,31 @@ private static final int DELETED = -2;
 
 private static final int CHUNK_SIZE = 100;
 
+class IntList {
+
+int size;
+int[] elements;
+
+IntList(int[] elements) {
+	this.elements = elements;
+	this.size = elements.length;
+}
+void add(int newElement) {
+	if (this.size == this.elements.length) {
+		int newSize = this.size * 3;
+		if (newSize < 7) newSize = 7;
+		System.arraycopy(this.elements, 0, this.elements = new int[newSize], 0, this.size);
+	}
+	this.elements[this.size++] = newElement;
+}
+int[] asArray() {
+	int[] result = new int[this.size];
+	System.arraycopy(this.elements, 0, result, 0, this.size);
+	return result;
+}	
+}
+
+
 DiskIndex(String fileName) {
 	this.fileName = fileName;
 
@@ -241,24 +266,25 @@ private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition
 	for (int i = 0, l = categoryNames.length; i < l; i++) {
 		char[] categoryName = categoryNames[i];
 		if (categoryName != null) {
+			SimpleWordSet wordSet = (SimpleWordSet) wordSets[i];
 			HashtableOfObject wordsToDocs = (HashtableOfObject) this.categoryTables.get(categoryName);
 			if (wordsToDocs == null)
-				this.categoryTables.put(categoryName, wordsToDocs = new HashtableOfObject(3));
+				this.categoryTables.put(categoryName, wordsToDocs = new HashtableOfObject(wordSet.elementSize));
 
-			SimpleWordSet wordSet = (SimpleWordSet) wordSets[i];
 			char[][] words = wordSet.words;
 			for (int j = 0, m = words.length; j < m; j++) {
 				char[] word = words[j];
 				if (word != null) {
-					int[] docNumbers = (int[]) wordsToDocs.get(word);
-					if (docNumbers == null) {
-						docNumbers = new int[] {newPosition};
+					Object o = wordsToDocs.get(word);
+					if (o == null) {
+						wordsToDocs.put(word, new int[] {newPosition});
+					} else if (o instanceof IntList) {
+						((IntList) o).add(newPosition);
 					} else {
-						int itsLength = docNumbers.length;
-						System.arraycopy(docNumbers, 0, docNumbers = new int[itsLength + 1], 0, itsLength);
-						docNumbers[itsLength] = newPosition;
+						IntList list = new IntList((int[]) o);
+						list.add(newPosition);
+						wordsToDocs.put(word, list);
 					}
-					wordsToDocs.put(word, docNumbers);
 				}
 			}
 		}
@@ -362,14 +388,19 @@ private void mergeCategory(char[] categoryName, DiskIndex onDisk, int[] position
 					System.arraycopy(mappedNumbers, 0, mappedNumbers = new int[count], 0, count);
 				}
 
-				int[] docNumbers = (int[]) wordsToDocs.get(oldWord);
-				if (docNumbers == null) {
+				Object o = wordsToDocs.get(oldWord);
+				if (o == null) {
 					wordsToDocs.put(oldWord, mappedNumbers);
 				} else {
-					int[] merged = new int[count + docNumbers.length];
-					System.arraycopy(mappedNumbers, 0, merged, 0, count);
-					System.arraycopy(docNumbers, 0, merged, count, docNumbers.length);
-					wordsToDocs.put(oldWord, merged);
+					IntList list = null;
+					if (o instanceof IntList) {
+						list = (IntList) o;
+					} else {
+						list = new IntList((int[]) o);
+						wordsToDocs.put(oldWord, list);
+					}
+					for (int j = 0; j < count; j++)
+						list.add(mappedNumbers[j]);
 				}
 			}
 		}
@@ -378,7 +409,7 @@ private void mergeCategory(char[] categoryName, DiskIndex onDisk, int[] position
 	writeCategoryTable(categoryName, wordsToDocs, stream);
 }
 DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
-	// assume write lock is held
+ 	// assume write lock is held
 	// compute & write out new docNames
 	String[] docNames = readAllDocumentNames();
 	int previousLength = docNames.length;
@@ -703,8 +734,9 @@ private void writeCategoryTable(char[] categoryName, HashtableOfObject wordsToDo
 	// append the file with the document number arrays & remember the offsets
 	Object[] values = wordsToDocs.valueTable;
 	for (int i = 0, l = values.length; i < l; i++) {
-		int[] documentNumbers = (int[]) values[i];
-		if (documentNumbers != null) {
+		Object o = values[i];
+		if (o != null) {
+			int[] documentNumbers = o instanceof int[] ? (int[]) o : ((IntList) o).asArray();
 			int length = documentNumbers.length;
 			if (length == 1) {
 				values[i] = new Integer(-documentNumbers[0]); // store an array of 1 element by negating the documentNumber (can be zero)
