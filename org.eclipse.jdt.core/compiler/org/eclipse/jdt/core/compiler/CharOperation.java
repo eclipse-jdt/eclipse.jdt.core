@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.compiler;
 
 /**
  * This class is a collection of helper methods to manipulate char arrays.
+ * 
+ * @since 2.1
  */
 public final class CharOperation {
 
