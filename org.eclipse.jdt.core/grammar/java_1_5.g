@@ -1220,14 +1220,18 @@ UnaryExpressionNotPlusMinus -> CastExpression
 
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpression(); $break ./
-CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpressionWithNameArray(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenerics(); $break ./
+CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+/.$putCase consumeCastExpressionWithGenerics(); $break ./
+CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+/.$putCase consumeCastExpressionWithGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
+CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+/.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
 
 InsideCastExpression ::= $empty
@@ -1583,7 +1587,7 @@ TypeArgument1 -> Wildcard1
 ReferenceType1 ::= ReferenceType '>'
 /.$putCase consumeReferenceType1(); $break ./
 ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
-/.$putCase consumeReferenceType1(); $break ./
+/.$putCase consumeTypeArgumentReferenceType1(); $break ./
 /:$readableName ReferenceType1:/
 
 TypeArgumentList2 -> TypeArgument2
@@ -1598,7 +1602,7 @@ TypeArgument2 -> Wildcard2
 ReferenceType2 ::= ReferenceType '>>'
 /.$putCase consumeReferenceType2(); $break ./
 ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
-/.$putCase consumeReferenceType2(); $break ./
+/.$putCase consumeTypeArgumentReferenceType2(); $break ./
 /:$readableName ReferenceType2:/
 
 TypeArgumentList3 -> TypeArgument3
