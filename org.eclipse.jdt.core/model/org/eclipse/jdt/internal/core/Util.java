@@ -654,27 +654,21 @@ public class Util {
 		int elementType = element.getElementType();
 		switch (elementType) {
 			case IJavaElement.PACKAGE_FRAGMENT:
-			case IJavaElement.COMPILATION_UNIT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-				char[][] exclusionPatterns = root.getExclusionPatterns();
 				IResource resource = element.getResource();
-				if (resource != null && Util.isExcluded(resource, exclusionPatterns)) {
+				return resource != null && Util.isExcluded(resource, root.getExclusionPatterns());
+			case IJavaElement.COMPILATION_UNIT:
+				root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				resource = element.getResource();
+				if (resource != null && Util.isExcluded(resource, root.getExclusionPatterns()))
 					return true;
-				} else if (elementType == IJavaElement.COMPILATION_UNIT) {
-					return isExcluded(element.getParent());
-				} else {
-					return false;
-				}
+				return isExcluded(element.getParent());
 			default:
 				IJavaElement cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
-				if (cu == null) {
-					return false;
-				} else {
-					return isExcluded(cu);
-				}
+				return cu != null && isExcluded(cu);
 		}
 	}
-	
+
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.
 	 * 
@@ -682,13 +676,10 @@ public class Util {
 	 */
 	public final static boolean isExcluded(IResource resource, char[][] exclusionPatterns) {
 		if (exclusionPatterns == null) return false;
-		for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
-			char[] exclusionPattern = exclusionPatterns[i];
-			char[] path = resource.getFullPath().toString().toCharArray();
-			if (CharOperation.pathMatch(exclusionPattern, path, true, '/')) {
+		char[] path = resource.getFullPath().toString().toCharArray();
+		for (int i = 0, length = exclusionPatterns.length; i < length; i++)
+			if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/'))
 				return true;
-			}
-		}
 		return false;
 	}
 
