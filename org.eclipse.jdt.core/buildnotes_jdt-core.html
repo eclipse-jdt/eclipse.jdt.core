@@ -40,9 +40,10 @@ Eclipse SDK 2.1 Build - ?th March 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>The creation and destruction of of regular working copy (as opposed to a shared working copy) now fires an
-      <code>ElementChangedEvent</code> as well indicating that the working copy has been <code>ADDED</code>
-      or <code>REMOVED</code>.
+<li>Generalization of working copy deltas: the creation and destruction of any working copy (regular or shared) 
+	now fires an <code>ElementChangedEvent</code> as well indicating that the working copy has been 
+	<code>ADDED</code> or <code>REMOVED</code>. 
+	Until now, only shared working copies were providing such delta notifications.
       <br>See: 
       <ul>
       <li><code>IWorkingCopy.getWorkingCopy()</code></li>
