@@ -16,6 +16,18 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Java model API additions:
+	<ul>
+		<li><code>IJavaElement.getAncestor(int)</code></li>
+		<li><code>IJavaElement.getOpenable()</code></li>
+		<li><code>IJavaElement.getPath()</code></li>
+		<li><code>IJavaProject.isOnClasspath(IJavaElement)</code></li>
+		<li><code>IPackageFragmentRoot.getRawClasspathEntry()</code></li>
+		<li><code>IType.findCorrespondingMethod(IMethod)</code></li>
+		<li><code>IWorkingCopy.findCorrespondingElement(IJavaElement)</code></li>
+		<li><code>IWorkingCopy.findPrimaryType()</code></li>
+	</ul>
+</li>
 <li>ICompletionRequestor API change :
 	<ul>
 		<li> Added #beginReporting() and #endReporting() API on <code>IProblemRequestor</code>. #beginReporting is always called before restarting error detection. #endReporting is always called at the
