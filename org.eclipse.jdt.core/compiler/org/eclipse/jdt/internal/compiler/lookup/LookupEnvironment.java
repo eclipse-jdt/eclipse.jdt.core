@@ -364,7 +364,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
 				TypeBinding[] cachedArguments = cachedType.arguments;
 				int cachedArgLength = cachedArguments.length;
-				if (argLength != cachedArgLength) continue nextCachedType;
+				if (argLength != cachedArgLength) continue nextCachedType; // would be an error situation (from unresolved binaries)
 				for (int j = 0; j < cachedArgLength; j++){
 					if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
 				}
@@ -756,22 +756,28 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 	for (int i = 0, l = values.length; i < l; i++) {
 		if (values[i] != null) {
 			ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[]) values[i];
+			boolean didUpdate = false;
 			for (int j = 0, m = cachedInfo.length; j < m; j++) {
 				ParameterizedTypeBinding cachedType = cachedInfo[j];
-				if (cachedType.type == unresolvedType)
+				if (cachedType.type == unresolvedType) {
 					cachedType.type = resolvedType;
+					didUpdate = true;
+				}
 				TypeBinding[] cachedArguments = cachedType.arguments;
 				if (cachedArguments != null)
 					for (int k = 0, n = cachedArguments.length; k < n; k++)
-						if (cachedArguments[k] == unresolvedType)
+						if (cachedArguments[k] == unresolvedType) {
 							cachedArguments[k] = resolvedType;
-				if (cachedType.superclass == unresolvedType)
-					cachedType.superclass = resolvedType;
-				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
-				if (cachedInterfaces != null)
-					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
-						if (cachedInterfaces[k] == unresolvedType)
-							cachedInterfaces[k] = resolvedType;
+							didUpdate = true;
+						}
+				if (didUpdate) cachedType.initialize(cachedType.type, cachedType.arguments);
+//				if (cachedType.superclass == unresolvedType)
+//					cachedType.superclass = resolvedType;
+//				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
+//				if (cachedInterfaces != null)
+//					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
+//						if (cachedInterfaces[k] == unresolvedType)
+//							cachedInterfaces[k] = resolvedType;
 			}
 		}
 	}

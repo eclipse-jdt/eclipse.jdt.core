@@ -389,8 +389,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	ReferenceBinding resolve() {
 	    TypeBinding originalType = this.type;
-		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(originalType, this.environment, null, 0);
-		boolean isDifferent = resolvedType != originalType;
+		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
+		boolean isDifferent = resolvedType != originalType;  // TODO (kent) should disappear if cache updating takes care of it
 		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
 		int argLength = originalArguments.length;
 		for (int i = 0; i < argLength; i++) {
