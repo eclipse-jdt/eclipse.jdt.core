@@ -72,6 +72,7 @@ public static Test suite() {
 	suite.addTest(new ResolveTests("testResolveExplicitThisConstructorCall"));
 	suite.addTest(new ResolveTests("testResolveMessageSendOnBaseType"));
 	suite.addTest(new ResolveTests("testResolveMethodWithInnerTypeInClassFile"));
+	suite.addTest(new ResolveTests("testResolveMethodWithInnerTypeInClassFile2"));
 	suite.addTest(new ResolveTests("testResolveTypeInComment"));
 	suite.addTest(new ResolveTests("testResolveImport"));
 	suite.addTest(new ResolveTests("testResolveConstructorCallOfMemberType"));
@@ -222,6 +223,30 @@ public void testResolveMethodWithInnerTypeInClassFile() throws JavaModelExceptio
 	assertTrue("should have one method", elements.length == 1 && 
 		elements[0].getElementName().equals("test") &&
 		elements[0] instanceof IMethod);	
+}
+/**
+ * bug 33785
+ */
+public void testResolveMethodWithInnerTypeInClassFile2() throws JavaModelException {
+	IClassFile cu = getClassFile("Resolve", "zzz.jar", "", "MyClass2$Inner.class");
+
+	String str = cu.getSource();
+	String selectAt = "method";
+	String selection = "method";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+
+	assertTrue("should have one method", elements.length == 1 && 
+		elements[0].getElementName().equals("method") &&
+		elements[0] instanceof IMethod);	
+		
+	IMethod method = (IMethod) elements[0];
+	ISourceRange sourceRange = method.getSourceRange();
+	String methodString = "void method(MyClass2.Inner[] arg){}";
+	int o = str.indexOf(methodString);
+	int l = methodString.length();
+	assertTrue("source range should be ("+o+","+l+") and not ("+sourceRange.getOffset()+","+sourceRange.getLength()+")", sourceRange.getOffset() == o && sourceRange.getLength() == l);
 }
 /**
  * Resolve type in comment.
