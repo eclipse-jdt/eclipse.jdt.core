@@ -26,6 +26,7 @@ package org.eclipse.jdt.core.tests.builder;
 public final class Assert {
 /* This class is not intended to be instantiated. */
 private Assert() {
+    // prevent 3rd party from instantiating
 }
 /** Asserts that an argument is legal. If the given boolean is
  * not <code>true</code>, an <code>IllegalArgumentException</code>

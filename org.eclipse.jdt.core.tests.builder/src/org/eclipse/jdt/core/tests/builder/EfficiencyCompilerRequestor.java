@@ -45,6 +45,7 @@ public class EfficiencyCompilerRequestor implements IDebugRequestor {
 	}
 	
 	public void reset() {
+	    // do nothing by default
 	}
 	
 	public void activate() {

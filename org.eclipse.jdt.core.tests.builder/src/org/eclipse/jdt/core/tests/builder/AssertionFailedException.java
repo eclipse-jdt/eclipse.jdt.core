@@ -24,6 +24,7 @@ class AssertionFailedException extends RuntimeException {
 /** Constructs a new exception.
  */
 public AssertionFailedException() {
+    // default
 }
 /** Constructs a new exception with the given message.
  */
