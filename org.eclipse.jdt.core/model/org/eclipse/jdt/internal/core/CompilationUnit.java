@@ -260,7 +260,7 @@ public IJavaElement findCorrespondingElement(IJavaElement element) {
 		}
 		
 	}
-	if (currentElement.exists()) {
+	if (currentElement != null && currentElement.exists()) {
 		return currentElement;
 	} else {
 		return null;

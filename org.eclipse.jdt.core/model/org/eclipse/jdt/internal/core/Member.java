@@ -80,7 +80,7 @@ protected IMethod findCorrespondingMethod(IMethod method, IMethod[] methods) {
 				for (int j = 0; j < paramLength; j++) {
 					String simpleName = Signature.getSimpleName(Signature.toString(existingParams[j]));
 					if (!simpleNames[j].equals(simpleName)) {
-						break next;
+						continue next;
 					}
 				}
 				return existingMethod;
