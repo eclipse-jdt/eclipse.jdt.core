@@ -288,6 +288,36 @@ public void testCreateExcludedPackage() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
+ * Ensure that creating a folder that represents an excluded and included package
+ * have the correct delta, Java elements and non-Java resources.
+ * (regression test for 67789 Java element delta from refresh contains excluded package)
+ */
+public void testCreateExcludedAndIncludedPackages() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "p1/p2/"});
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	
+	clearDeltas();
+	createFolder("/P/src/p1/p2");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN}\n" + 
+		"		p1[+]: {}"
+	);
+	
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"<default> [in src [in P]]\n" + 
+		"p1 [in src [in P]]",
+		root.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"p2",
+		root.getPackageFragment("p1").getNonJavaResources());
+}
+/*
  * Ensure that creating a file that corresponds to an excluded compilation unit 
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
@@ -671,6 +701,37 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
 		"src/p/A.java p.A [A]",
 		resultCollector.toString());
 }
+/*
+ * Ensure that removing a folder that represents an excluded and included package
+ * have the correct delta, Java elements and non-Java resources.
+ * (regression test for 67789 Java element delta from refresh contains excluded package)
+ */
+public void testRemoveExcludedAndIncludedPackages() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "p1/p2/"});
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	createFolder("/P/src/p1/p2");
+	
+	clearDeltas();
+	deleteFolder("/P/src/p1");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN}\n" + 
+		"		p1[-]: {}"
+	);
+	
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"<default> [in src [in P]]",
+		root.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"",
+		root.getNonJavaResources());
+}
+
 /*
  * Ensure that renaming a folder that corresponds to an excluded package 
  * so that it is not excluded any longer
