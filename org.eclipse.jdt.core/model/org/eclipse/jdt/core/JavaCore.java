@@ -1989,10 +1989,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
 	 * <p>
 	 * In order to exclude resources from the source folder, the factory method <code>JavaCore.newSourceEntry(IPath,IPath[])
-	 * </code> should be used instead.
+	 * </code> should be used instead. When no exclusion patterns is specified, the source folder will automatically include all
+	 * resources located inside the source folder and implicitly ignore all ".class" files.
 	 * 
 	 * @param path the absolute path of a source folder
 	 * @return a new source classpath entry
+	 * 
 	 * @see #newSourceEntry(IPath,IPath[])
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
