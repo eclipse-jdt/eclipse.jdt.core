@@ -292,7 +292,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
-					this.needCycleCheck = true;
 					continue; 
 				}
 
@@ -314,7 +313,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					this.needCycleCheck |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 					continue; 
 				}				
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
@@ -356,7 +354,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
-					this.needCycleCheck = true;
 					continue; 
 				}
 				addClasspathDeltas(

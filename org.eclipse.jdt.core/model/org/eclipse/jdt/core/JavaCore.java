@@ -2184,7 +2184,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (monitor != null && monitor.isCanceled()) return;
 
 		final int projectLength = affectedProjects.length;
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
 
 		// filter out unmodified project containers
@@ -2232,7 +2231,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (remaining == 0) return;
 		
 		// trigger model refresh
-		int count = 0;
 		try {
 			JavaCore.run(new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -2534,8 +2532,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 				
 		// update affected project classpaths
-		int size = affectedProjects.size();
-		
 		if (!affectedProjects.isEmpty()) {
 			try {
 				JavaCore.run(

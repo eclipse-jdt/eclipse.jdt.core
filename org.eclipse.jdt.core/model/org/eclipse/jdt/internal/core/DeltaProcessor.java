@@ -963,10 +963,9 @@ private JavaModelException newInvalidElementType() {
 					JavaProject project = (JavaProject) parent;
 	
 					/* check classpath property file change */
-					QualifiedName classpathProp;
 					if (file.getName().equals(
 							project.computeSharedPropertyFileName(
-								classpathProp = project.getClasspathPropertyName()))) {
+								project.getClasspathPropertyName()))) {
 	
 						switch (delta.getKind()) {
 							case IResourceDelta.REMOVED : // recreate one based on in-memory path

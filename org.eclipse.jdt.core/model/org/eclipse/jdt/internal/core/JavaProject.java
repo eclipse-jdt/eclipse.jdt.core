@@ -1396,7 +1396,6 @@ public class JavaProject
 		}
 
 		int length = classpathEntries.length;
-		int index = 0;
 		ArrayList resolvedEntries = new ArrayList();
 		
 		for (int i = 0; i < length; i++) {
