@@ -3082,23 +3082,25 @@ class ASTConverter {
 				int start = name.getStartPosition();
 				// get compiler node and record nodes
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
+				// record nodes
 				if (compilerNode != null) {
-					recordNodes(name, compilerNode);
 					recordNodes(methodRef, compilerNode);
-				}
-				// Replace qualifier to have all nodes recorded
-				if (methodRef.getQualifier() != null) {
+					// get type ref
 					org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = null;
 					if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression) {
 						typeRef = ((org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression)compilerNode).type;
+						if (typeRef != null) recordNodes(name, typeRef);
 					} 
 					else if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend) {
 						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend)compilerNode).receiver;
 						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
 						}
+						// TODO (frederic) remove following line to fix bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650
+						recordNodes(name, compilerNode);
 					}
-					if (typeRef != null) {
+					// record name and qualifier
+					if (typeRef != null && methodRef.getQualifier() != null) {
 						recordName(methodRef.getQualifier(), typeRef);
 					}
 				}

@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.ImplicitDocTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
@@ -353,6 +354,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof AllocationExpression) {
 			AllocationExpression allocation = (AllocationExpression) node;
 			return getMethodBinding(allocation.binding);
+		} else if (node instanceof ImplicitDocTypeReference) {
+			ImplicitDocTypeReference implicitRef = (ImplicitDocTypeReference) node;
+			return getTypeBinding(implicitRef.resolvedType);
 		}
 		return null;
 	}

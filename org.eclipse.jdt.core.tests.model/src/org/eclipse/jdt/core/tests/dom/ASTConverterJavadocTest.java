@@ -125,9 +125,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Run test cases subset
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
-		suite.addTest(new ASTConverterJavadocTest("testBug51617"));
-		suite.addTest(new ASTConverterJavadocTest("testBug54424"));
+		suite.addTest(new ASTConverterJavadocTest("testBug63044"));
 		return suite;
 	}
 
@@ -670,9 +668,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			char[] result = new char[u];
 			System.arraycopy(unicodeSource, 0, result, 0, u);
 			return result;
-		} else {
-			return unicodeSource;
 		}
+		return unicodeSource;
 	}
 
 	/*
@@ -697,9 +694,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			char[] result = new char[u];
 			System.arraycopy(unixSource, 0, result, 0, u);
 			return result;
-		} else {
-			return unixSource;
 		}
+		return unixSource;
 	}
 	
 	/*
@@ -1078,8 +1074,41 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					MethodRef methodRef = (MethodRef) fragment;
 					previousBinding = methodRef.resolveBinding();
 					if (previousBinding != null) {
-						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!", methodRef.getName().resolveBinding());
-						verifyNameBindings(methodRef.getQualifier());
+						IBinding methNameBinding = methodRef.getName().resolveBinding();
+						Name methodQualifier = methodRef.getQualifier();
+						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
+						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+						verifyNameBindings(methodQualifier);
+						/*
+						if (methodQualifier == null) {
+							if (methNameBinding == null) {
+								char firstChar = methodRef.getName().getIdentifier().charAt(0);
+								if (Character.isUpperCase(firstChar)) {
+									// assume that selector starting with uppercase is for constructor => signal that binding is null
+									System.out.println(this.prefix+"Binding for selector of  '"+methodRef+"' is null.");
+								}
+							} else {
+								if (methNameBinding.getName().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
+									assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+								} else {
+									assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+								}
+							}
+						} else {
+							SimpleName methodSimpleType = null;
+							if (methodQualifier.isQualifiedName()) {
+								methodSimpleType = ((QualifiedName)methodQualifier).getName();
+							} else {
+								methodSimpleType = (SimpleName) methodQualifier;
+							}
+							if (methodSimpleType.getIdentifier().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
+								assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+							} else {
+								assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+							}
+							verifyNameBindings(methodRef.getQualifier());
+						}
+						*/
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
@@ -1918,5 +1947,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 		this.stopOnFailure = true;
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044
+	 */
+	public void testBug63044() throws JavaModelException {
+		verifyComments("testBug63044");
 	}
 }
