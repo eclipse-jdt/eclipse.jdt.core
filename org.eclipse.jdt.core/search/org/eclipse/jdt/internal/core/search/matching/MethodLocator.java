@@ -247,7 +247,11 @@ public int resolveLevel(Binding binding) {
 	char[] qualifiedPattern = qualifiedPattern(this.pattern.declaringSimpleName, this.pattern.declaringQualification);
 	if (qualifiedPattern == null) return methodLevel; // since any declaring class will do
 
-	int declaringLevel = !method.isStatic() && !method.isPrivate()
+	boolean subType = !method.isStatic() && !method.isPrivate();
+	if (subType && this.pattern.declaringQualification != null && method.declaringClass != null && method.declaringClass.fPackage != null) {
+		subType = CharOperation.compareWith(this.pattern.declaringQualification, method.declaringClass.fPackage.shortReadableName()) == 0;
+	}
+	int declaringLevel = subType
 		? resolveLevelAsSubtype(qualifiedPattern, method.declaringClass)
 		: resolveLevelForType(qualifiedPattern, method.declaringClass);
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match

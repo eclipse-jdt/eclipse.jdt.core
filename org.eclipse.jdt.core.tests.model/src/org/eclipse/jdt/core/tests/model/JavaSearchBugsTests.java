@@ -46,7 +46,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	// All specified tests which do not belong to the class are skipped...
 	static {
 	//	TESTS_PREFIX =  "testVarargs";
-//		TESTS_NAMES = new String[] { "testMethodReferenceBug80890" };
+//		TESTS_NAMES = new String[] { "testBug80223" };
 //		TESTS_NUMBERS = new int[] { 81084 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -923,6 +923,43 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 			"src/b79860/Y.java b79860.Y [I2] EXACT_MATCH\n" + 
 			"src/b79860/Y.java b79860.Y [I3] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 80223: [search] Declaration search doesn't consider visibility to determine overriding methods
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80223">80223</a>
+	 */
+	public void testBug80223() throws CoreException {
+		ICompilationUnit[] workingCopies = new ICompilationUnit[2];
+		try {
+			WorkingCopyOwner owner = new WorkingCopyOwner() {};
+			workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80223/a/A.java",
+				"package b80223.a;\n" + 
+				"public class A {\n" + 
+				"    void m() {}\n" + 
+				"}",
+				owner
+				);
+			workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b80223/b/B.java",
+				"package b80223.b;\n" + 
+				"public class B extends b80223.a.A {\n" + 
+				"    void m() {}\n" + 
+				"}",
+				owner);
+			// search for method declaration should find only A match
+			IType type = workingCopies[0].getType("A");
+			IMethod method = type.getMethod("m", new String[0]);
+			search(method,
+				DECLARATIONS,
+				getJavaSearchScopeBugs("b80223", true), 
+				this.resultCollector);
+			assertSearchResults(
+				"src/b80223/a/A.java void b80223.a.A.m() [m] EXACT_MATCH"
+			);
+		}
+		finally {
+			discardWorkingCopies(workingCopies);
+		}
 	}
 
 	/**
