@@ -306,7 +306,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 						archivePathsToRefresh.add(element.getPath());
 						break;
 					case IJavaElement.JAVA_PROJECT :
-						IClasspathEntry[] classpath = ((IJavaProject) element).getResolvedClasspath(true);
+						IJavaProject project = (IJavaProject) element;
+						if (!JavaProject.hasJavaNature(project.getProject())) {
+							// project is not accessible or has lost its Java nature
+							break;
+						}
+						IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 						for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
 							if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
 								archivePathsToRefresh.add(classpath[j].getPath());
@@ -316,7 +321,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 					case IJavaElement.JAVA_MODEL :
 						IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
 						for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
-							classpath = ((IJavaProject) projects[j]).getResolvedClasspath(true);
+							project = projects[j];
+							if (!JavaProject.hasJavaNature(project.getProject())) {
+								// project is not accessible or has lost its Java nature
+								continue;
+							}
+							classpath = project.getResolvedClasspath(true);
 							for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
 								if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
 									archivePathsToRefresh.add(classpath[k].getPath());
@@ -338,6 +348,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 			if (monitor != null && monitor.isCanceled()) break; 
 			
 			IJavaProject project = projects[i];
+			if (!JavaProject.hasJavaNature(project.getProject())) {
+				// project is not accessible or has lost its Java nature
+				continue;
+			}
 			IClasspathEntry[] entries = project.getResolvedClasspath(true);
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
