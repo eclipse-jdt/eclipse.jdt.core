@@ -91,11 +91,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0556"));
 		suite.addTest(new ASTConverterTest2("test0557"));
 		return suite;
 	}
