@@ -160,8 +160,8 @@ public abstract class AbstractCommentParser {
 				switch (nextCharacter) {
 					case '@' :
 						boolean valid = false;
-						// Start tag parsing only if we are on line beginning or at inline tag beginning
-						if (!this.lineStarted || previousChar == '{') {
+						// Start tag parsing only if we have a java identifier start character and if we are on line beginning or at inline tag beginning
+						if (Character.isJavaIdentifierStart(peekChar()) && (!this.lineStarted || previousChar == '{')) {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
@@ -189,12 +189,46 @@ public abstract class AbstractCommentParser {
 							this.scanner.resetTo(this.index, this.endComment);
 							this.currentTokenType = -1; // flush token cache at line begin
 							try {
-								int tk = readTokenAndConsume();
-								this.tagSourceStart = this.kind == COMPIL_PARSER ? this.scanner.getCurrentTokenStartPosition() : previousPosition;
+								int token = readTokenAndConsume();
+								this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-								switch (tk) {
+								char[] tag = this.scanner.getCurrentIdentifierSource(); // first token is either an identifier or a keyword
+								if (this.kind == DOM_PARSER) {
+									// For DOM parser, try to get tag name other than java identifier
+									// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
+									int tk = token;
+									int le = this.lineEnd;
+									char pc = peekChar();
+									tagNameToken: while (tk != TerminalTokens.TokenNameERROR && tk != TerminalTokens.TokenNameEOF) {
+										this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+										token = tk;
+										// !, ", #, %, &, ', -, :, <, >
+										if (Character.isWhitespace(pc)) break;
+										switch (pc) {
+											case '}':
+											case '!':
+											case '#':
+											case '%':
+											case '&':
+											case '\'':
+											case '-':
+											case '<' :
+											case '>':
+												break tagNameToken;
+										}
+										tk = readTokenAndConsume();
+										pc = peekChar();
+									}
+									int length = this.tagSourceEnd-this.tagSourceStart+1;
+									tag = new char[length];
+									System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+									this.index = this.tagSourceEnd+1;
+									this.scanner.currentPosition = this.tagSourceEnd+1;
+									this.tagSourceStart = previousPosition;
+									this.lineEnd = le;
+								}
+								switch (token) {
 									case TerminalTokens.TokenNameIdentifier :
-										char[] tag = this.scanner.getCurrentIdentifierSource();
 										if (CharOperation.equals(tag, TAG_DEPRECATED)) {
 											this.deprecated = true;
 											if (this.kind == DOM_PARSER) {
@@ -203,7 +237,12 @@ public abstract class AbstractCommentParser {
 												valid = true;
 											}
 										} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
-											this.inherited = true;
+											// inhibits inherited flag when tags have been already stored
+											// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
+											// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
+											// was encountered in comment. But it cannot be the case for COMPILER_PARSER
+											// and so is enough as it is only this parser which signals the missing tag warnings...
+											this.inherited = this.astPtr==-1;
 											if (this.kind == DOM_PARSER) {
 												valid = parseTag();
 											} else {
@@ -251,7 +290,7 @@ public abstract class AbstractCommentParser {
 										break;
 									default:
 										if (this.kind == DOM_PARSER) {
-											switch (tk) {
+											switch (token) {
 												case TerminalTokens.TokenNameabstract:
 												case TerminalTokens.TokenNameassert:
 												case TerminalTokens.TokenNameboolean:
@@ -422,7 +461,7 @@ public abstract class AbstractCommentParser {
 			return this.scanner.getCurrentTokenEndPosition();
 		}
 	}
-	
+
 	/*
 	 * Parse argument in @see tag method reference
 	 */
@@ -1000,6 +1039,10 @@ public abstract class AbstractCommentParser {
 	 */
 	protected abstract boolean pushThrowName(Object typeRef, boolean real);
 
+	/*
+	 * Read current character and move index position.
+	 * Warning: scanner position is unchanged using this method!
+	 */
 	protected char readChar() {
 	
 		char c = this.source[this.index++];
