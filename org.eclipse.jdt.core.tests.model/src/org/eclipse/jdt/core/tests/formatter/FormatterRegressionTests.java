@@ -66,7 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test013"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test450"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -80,9 +80,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	protected String getPluginDirectoryPath() {
 		try {
-			return new File(Platform.resolve(Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL()).getFile()).getAbsolutePath();
+			URL platformURL = Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL();
+	
+			// TODO (jerome) last slash removal not needed after I20040120
+			String path = platformURL.getPath();
+			int length = path.length();
+			if (path.charAt(length-1) == '/') {
+				path = path.substring(0, length-1);
+				platformURL = new URL(platformURL.getProtocol(), platformURL.getHost(), path);
+			}
+			
+			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
-			//Error
+			e.printStackTrace();
 		}
 		return null;
 	}
