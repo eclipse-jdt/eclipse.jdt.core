@@ -199,7 +199,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		boolean hasError = false;
 		boolean enclosingInstanceContainsCast = false;
 		boolean argsContainCast = false;
-		if (anonymousType == null) { //----------------no anonymous class------------------------	
+		
+		if (enclosingInstance != null) {
 			if (enclosingInstance instanceof CastExpression) {
 				enclosingInstance.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 				enclosingInstanceContainsCast = true;
@@ -213,32 +214,41 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
-				if (receiverType == null) {
-					hasError = true;
-				} else {
-					if (enclosingInstanceContainsCast) {
+				if (receiverType != null && enclosingInstanceContainsCast) {
 						CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
-					}
 				}
 			}
-			// will check for null after args are resolved
-			TypeBinding[] argumentTypes = NoParameters;
-			if (arguments != null) {
-				int length = arguments.length;
-				argumentTypes = new TypeBinding[length];
-				for (int i = 0; i < length; i++) {
-					Expression argument = this.arguments[i];
-					if (argument instanceof CastExpression) {
-						argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-						argsContainCast = true;
-					}
-					if ((argumentTypes[i] = argument.resolveType(scope)) == null){
-						hasError = true;
-					}
+		} else {
+			receiverType = type.resolveType(scope);
+		}
+		if (receiverType == null) {
+			hasError = true;
+		} else if (((ReferenceBinding) receiverType).isFinal() && this.anonymousType != null) {
+			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+			hasError = true;
+		}
+
+		// will check for null after args are resolved
+		TypeBinding[] argumentTypes = NoParameters;
+		if (arguments != null) {
+			int length = arguments.length;
+			argumentTypes = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				Expression argument = this.arguments[i];
+				if (argument instanceof CastExpression) {
+					argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+					argsContainCast = true;
+				}
+				if ((argumentTypes[i] = argument.resolveType(scope)) == null){
+					hasError = true;
 				}
 			}
-			// limit of fault-tolerance
-			if (hasError) return receiverType;
+		}
+		// limit of fault-tolerance
+		if (hasError) return this.resolvedType = receiverType;
+		
+		if (this.anonymousType == null) {
+			// qualified allocation with no anonymous type
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if (!receiverType.canBeInstantiated()) {
 				scope.problemReporter().cannotInstantiate(type, receiverType);
@@ -276,67 +286,21 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			return this.resolvedType = receiverType;
 		}
 
-		//--------------there is an anonymous type declaration-----------------
-		if (this.enclosingInstance != null) {
-			if (enclosingInstance instanceof CastExpression) {
-				enclosingInstance.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-				enclosingInstanceContainsCast = true;
-			}
-			if ((enclosingInstanceType = this.enclosingInstance.resolveType(scope)) == null) {
-				hasError = true;
-			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
-				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
-					enclosingInstanceType,
-					this.enclosingInstance);
-				hasError = true;
-			} else {
-				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
-										scope,
-										(ReferenceBinding) enclosingInstanceType);				
-				if (enclosingInstanceContainsCast) {
-					CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
-				}
-			}
-		} else {
-			receiverType = type.resolveType(scope);
-		}
-		if (receiverType == null) {
-			hasError = true;
-		} else if (((ReferenceBinding) receiverType).isFinal()) {
-			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
-			hasError = true;
-		}
-		TypeBinding[] argumentTypes = NoParameters;
-		if (arguments != null) {
-			int length = arguments.length;
-			argumentTypes = new TypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				Expression argument = this.arguments[i];
-				if (argument instanceof CastExpression) {
-					argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-					argsContainCast = true;
-				}
-				if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
-					hasError = true;
-				}
-			}
-		}
-		// limit of fault-tolerance
-		if (hasError) {
-			return this.resolvedType = receiverType;
-		}
-
+		// anonymous type scenario
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
-		this.superTypeBinding =
-			receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;
-		MethodBinding inheritedBinding =
-			scope.getConstructor(this.superTypeBinding, argumentTypes, this);
+		this.superTypeBinding = receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;
+		// insert anonymous type in scope
+		scope.addAnonymousType(this.anonymousType, (ReferenceBinding) receiverType);
+		this.anonymousType.resolve(scope);		
+		
+		// find anonymous super constructor
+		MethodBinding inheritedBinding = scope.getConstructor(this.superTypeBinding, argumentTypes, this);
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null) {
 				inheritedBinding.declaringClass = this.superTypeBinding;
 			}
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
-			return null;
+			return this.resolvedType = anonymousType.binding;
 		}
 		if (enclosingInstance != null) {
 			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
@@ -344,7 +308,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					enclosingInstance,
 					enclosingInstanceType,
 					inheritedBinding.declaringClass.enclosingType());
-				return null;
+				return this.resolvedType = anonymousType.binding;
 			}
 		}
 
@@ -359,8 +323,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 		}
 		// Update the anonymous inner class : superclass, interface  
-		scope.addAnonymousType(anonymousType, (ReferenceBinding) receiverType);
-		anonymousType.resolve(scope);
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
 		return this.resolvedType = anonymousType.binding; // 1.2 change
 	}
