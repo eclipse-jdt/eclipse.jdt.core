@@ -62,7 +62,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    return true;
 	}	
 	
-	private void initializeArguments() {
+	protected void initializeArguments() {
 		TypeVariableBinding[] typeVariables = this.type.typeVariables();
 		int length = typeVariables.length;
 		TypeBinding[] typeArguments = new TypeBinding[length];
@@ -105,8 +105,9 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		        // check this variable can be substituted given parameterized type
 		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
 				    // lazy init, since cannot do so during binding creation if during supertype connection
-				    if (this.arguments == null)  initializeArguments();
-		           return currentType.arguments[originalVariable.rank];
+				    if (currentType.arguments == null)  currentType.initializeArguments();
+				    if (currentType.arguments != null)
+			           return currentType.arguments[originalVariable.rank];
 		        }
 			    // recurse on enclosing type, as it may hold more substitutions to perform
 			    ReferenceBinding enclosing = currentType.enclosingType();

@@ -319,6 +319,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			    this.tagBits |= someArguments[i].tagBits & (HasTypeVariable | HasWildcard);
 		}	    
 	}
+
+	protected void initializeArguments() {
+	    // do nothing for true parameterized types (only for raw types)
+	}
 	
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (this == otherType) 
@@ -330,14 +334,17 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
                 ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
                 if (this.type != otherParamType.type) 
                     return false;
-                for (int i = 0, length = this.arguments.length; i < length; i++) {
+                int length = this.arguments == null ? 0 : this.arguments.length;
+                int otherLength = otherParamType.arguments == null ? 0 : otherParamType.arguments.length;
+                if (otherLength != length) 
+                    return false;
+                for (int i = 0; i < length; i++) {
                     if (!this.arguments[i].isEquivalentTo(otherParamType.arguments[i]))
                             return false;
                 }
                 return true;
             } else { // wildcard
                 return ((WildcardBinding) otherType).boundCheck(this);
-//                return this.isEquivalentTo(((WildcardBinding) otherType).bound);
             }
         }
         return false;
@@ -413,35 +420,39 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		} else {
 			nameBuffer.append(CharOperation.concatWith(this.type.compoundName, '.'));
 		}	    
-		nameBuffer.append('<');
-	    for (int i = 0, length = this.arguments.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(this.arguments[i].readableName());
-	    }
-	    nameBuffer.append('>');
+		if (this.arguments != null) {
+			nameBuffer.append('<');
+		    for (int i = 0, length = this.arguments.length; i < length; i++) {
+		        if (i > 0) nameBuffer.append(',');
+		        nameBuffer.append(this.arguments[i].readableName());
+		    }
+		    nameBuffer.append('>');
+		}
 	    return nameBuffer.toString().toCharArray();
 	}
 
 	ReferenceBinding resolve() {
 		ReferenceBinding resolvedType = BinaryTypeBinding.resolveType(this.type, this.environment, false); // still part of parameterized type ref
-		int argLength = this.arguments.length;
-		for (int i = 0; i < argLength; i++)
-			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
-		// arity check
-		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
-		if (refTypeVariables == NoTypeVariables) { // check generic
-			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
-			return this; // cannot reach here as AbortCompilation is thrown
-		} else if (argLength != refTypeVariables.length) { // check arity
-			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
-			return this; // cannot reach here as AbortCompilation is thrown
-		}			
-		// check argument type compatibility
-		for (int i = 0; i < argLength; i++) {
-		    TypeBinding resolvedArgument = this.arguments[i];
-			if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
-				this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
-		    }
+		if (this.arguments != null) {
+			int argLength = this.arguments.length;
+			for (int i = 0; i < argLength; i++)
+				BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
+			// arity check
+			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
+			if (refTypeVariables == NoTypeVariables) { // check generic
+				this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
+				return this; // cannot reach here as AbortCompilation is thrown
+			} else if (argLength != refTypeVariables.length) { // check arity
+				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
+				return this; // cannot reach here as AbortCompilation is thrown
+			}			
+			// check argument type compatibility
+			for (int i = 0; i < argLength; i++) {
+			    TypeBinding resolvedArgument = this.arguments[i];
+				if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
+					this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
+			    }
+			}
 		}
 		return this;
 	}
@@ -456,12 +467,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		} else {
 			nameBuffer.append(this.type.sourceName);
 		}	    
-		nameBuffer.append('<');
-	    for (int i = 0, length = this.arguments.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(this.arguments[i].shortReadableName());
-	    }
-	    nameBuffer.append('>');
+		if (this.arguments != null) {
+			nameBuffer.append('<');
+		    for (int i = 0, length = this.arguments.length; i < length; i++) {
+		        if (i > 0) nameBuffer.append(',');
+		        nameBuffer.append(this.arguments[i].shortReadableName());
+		    }
+		    nameBuffer.append('>');
+		}
 	    return nameBuffer.toString().toCharArray();
 	}
 	/**
@@ -492,12 +505,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
     	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
     		    ParameterizedTypeBinding currentType = this;
     	        while (true) {
-    		        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
-    		        int length = typeVariables.length;
-    		        // check this variable can be substituted given parameterized type
-    		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-    		           return currentType.arguments[originalVariable.rank];
-    		        }
+    	            if (currentType.arguments != null) {
+	    		        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
+	    		        int length = typeVariables.length;
+	    		        // check this variable can be substituted given parameterized type
+	    		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+	    		           return currentType.arguments[originalVariable.rank];
+	    		        }
+    	            }
     			    // recurse on enclosing type, as it may hold more substitutions to perform
     			    ReferenceBinding enclosing = currentType.enclosingType();
     			    if (!(enclosing instanceof ParameterizedTypeBinding))
