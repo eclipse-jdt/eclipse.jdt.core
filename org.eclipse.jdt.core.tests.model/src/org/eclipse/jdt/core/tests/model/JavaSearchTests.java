@@ -39,7 +39,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 /**
  * Collects results as a string.
  */
-public class JavaSearchResultCollector implements IJavaSearchResultCollector {
+public static class JavaSearchResultCollector implements IJavaSearchResultCollector {
 	public StringBuffer results = new StringBuffer();
 	public boolean showAccuracy = false;
 	public void aboutToStart() {

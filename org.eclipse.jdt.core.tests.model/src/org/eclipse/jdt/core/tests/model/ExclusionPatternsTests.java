@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.SearchEngine;
 
 import junit.framework.Test;
 
@@ -366,6 +368,59 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
 		"Unexpected non-java resources",
 		"",
 		pkg.getNonJavaResources());
+}
+/*
+ * Ensure search doesn't find matches in an excluded compilation unit.
+ */
+public void testSearchWithExcludedCompilationUnit1() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.createFolder("/P/src/p");
+	this.createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"A",
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS, 
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"",
+		resultCollector.toString());
+}
+/*
+ * Ensure search find matches in a compilation unit that was excluded but that is not any longer.
+ */
+public void testSearchWithExcludedCompilationUnit2() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.createFolder("/P/src/p");
+	this.createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	
+	this.setClasspath(new String[] {"/P/src", ""});
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"A",
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS, 
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"src/p/A.java p.A [A]",
+		resultCollector.toString());
 }
 /*
  * Ensure that renaming a folder that corresponds to an excluded package 
