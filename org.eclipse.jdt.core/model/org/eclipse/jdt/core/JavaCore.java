@@ -2641,9 +2641,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 			}
 			if (!found){
-				affectedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't Java project
+				affectedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
+				JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
+				continue;
 			}
-			
 			IClasspathContainer oldContainer = JavaModelManager.containerGet(affectedProject, containerPath);
 			if (oldContainer == JavaModelManager.ContainerInitializationInProgress) {
 				Map previousContainerValues = (Map)JavaModelManager.PreviousSessionContainers.get(affectedProject);
@@ -2651,21 +2652,21 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 					if (previousContainer != null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer.getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						}
 						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
 					}
 					oldContainer = previousContainer;
+				} else {
+					oldContainer = null;
 				}
 			}
 			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: could improve to only compare entries
 				affectedProjects[i] = null; // filter out this project - container did not change
 				continue;
 			}
-			if (found){
-				remaining++; 
-				oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
-			}
+			remaining++; 
+			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
 			JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
 		}
 		

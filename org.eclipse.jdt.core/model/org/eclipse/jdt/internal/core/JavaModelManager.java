@@ -91,9 +91,10 @@ public class JavaModelManager implements ISaveParticipant {
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
 	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
 		public IClasspathEntry[] getClasspathEntries() { return null; }
-		public String getDescription() { return null; }
+		public String getDescription() { return "Container Initialization In Progress"; } //$NON-NLS-1$
 		public int getKind() { return 0; }
 		public IPath getPath() { return null; }
+		public String toString() { return getDescription(); }
 	};
 	
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
@@ -139,7 +140,8 @@ public class JavaModelManager implements ISaveParticipant {
 		if (projectContainers == null){
 			return null;
 		}
-		return (IClasspathContainer)projectContainers.get(containerPath);
+		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
+		return container;
 	}
 
 	public static void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
@@ -1138,7 +1140,7 @@ public class JavaModelManager implements ISaveParticipant {
 				PreviousSessionVariables.put(varName, varPath);
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
-				recreatePersistedContainer(propertyName, preferences.getString(propertyName).trim(), true/*add to previous session values*/);
+				recreatePersistedContainer(propertyName, preferences.getString(propertyName).trim(), true/*add to container values*/);
 			}
 		}
 		// override persisted values for variables which have a registered initializer
@@ -1257,7 +1259,7 @@ public class JavaModelManager implements ISaveParticipant {
 		return null;
 	}
 
-	public static void recreatePersistedContainer(String propertyName, String containerString, boolean addToPreviousSessionValues) {
+	public static void recreatePersistedContainer(String propertyName, String containerString, boolean addToContainerValues) {
 		int containerPrefixLength = CP_CONTAINER_PREFERENCES_PREFIX.length();
 		int index = propertyName.indexOf('|', containerPrefixLength);
 		if (index > 0) {
@@ -1283,16 +1285,20 @@ public class JavaModelManager implements ISaveParticipant {
 						public IPath getPath() {
 							return containerPath;
 						}
-					};
-					containerPut(project, containerPath, container);
-					if (addToPreviousSessionValues) {
-						Map projectContainers = (Map)PreviousSessionContainers.get(project);
-						if (projectContainers == null){
-							projectContainers = new HashMap(1);
-							PreviousSessionContainers.put(project, projectContainers);
+						public String toString() {
+							return getDescription();
 						}
-						projectContainers.put(containerPath, container);
+
+					};
+					if (addToContainerValues) {
+						containerPut(project, containerPath, container);
 					}
+					Map projectContainers = (Map)PreviousSessionContainers.get(project);
+					if (projectContainers == null){
+						projectContainers = new HashMap(1);
+						PreviousSessionContainers.put(project, projectContainers);
+					}
+					projectContainers.put(containerPath, container);
 				}
 			}
 		}
