@@ -1357,6 +1357,20 @@ public void indirectAccessToStaticField(AstNode location, FieldBinding field){
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void indirectAccessToStaticField(QualifiedNameReference qualifiedNameReference, FieldBinding field){
+	int sourceStart = qualifiedNameReference.sourceStart;
+	int sourceEnd = qualifiedNameReference.sourceEnd;
+	final int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding;
+	if (indexOfFirstFieldBinding >= 1) {
+		sourceEnd = (int) qualifiedNameReference.sourcePositions[indexOfFirstFieldBinding - 1];
+	}
+	this.handle(
+		IProblem.IndirectAccessToStaticField,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
+		sourceStart,
+		sourceEnd);
+}
 public void indirectAccessToStaticMethod(AstNode location, MethodBinding method) {
 	this.handle(
 		IProblem.IndirectAccessToStaticMethod,

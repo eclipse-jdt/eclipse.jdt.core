@@ -41,13 +41,13 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnQualifiedNameReference extends QualifiedNameReference {
-	public long[] sourcePositions; // positions of each token, the last one being the positions of the completion identifier
+
 public SelectionOnQualifiedNameReference(char[][] previousIdentifiers, char[] selectionIdentifier, long[] positions) {
 	super(
 		CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
+		positions,
 		(int) (positions[0] >>> 32),
 		(int) positions[positions.length - 1]);
-	this.sourcePositions = positions;
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 

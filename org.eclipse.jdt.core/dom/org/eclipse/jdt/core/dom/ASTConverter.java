@@ -322,9 +322,7 @@ class ASTConverter {
 	}
 
 	public Name convert(QualifiedNameReference nameReference) {
-		char[][] typeName = nameReference.tokens;
-		long[] positions = scanAllIdentifiersPositions(nameReference.sourceStart, nameReference.sourceEnd, typeName.length);
-		return setQualifiedNameNameAndSourceRanges(typeName, positions, nameReference);
+		return setQualifiedNameNameAndSourceRanges(nameReference.tokens, nameReference.sourcePositions, nameReference);
 	}
 
 	private QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, AstNode node) {
@@ -3067,24 +3065,6 @@ class ASTConverter {
 		}
 	}
 
-	private long[] scanAllIdentifiersPositions(int start, int end, int length) {
-		scanner.resetTo(start, end);
-		long[] positions = new long[length];
-		int token;
-		int index = 0;
-		try {
-			while((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				if (token == TerminalTokens.TokenNameIdentifier) {
-					positions[index] = (((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1);
-					index++;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return positions;
-	}
-	
 	private void retrieveIdentifierAndSetPositions(int start, int end, Name name) {
 		scanner.resetTo(start, end);
 		int token;

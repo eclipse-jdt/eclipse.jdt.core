@@ -434,9 +434,12 @@ public NameReference getUnspecifiedReference() {
 		char[][] tokens = new char[length][];
 		identifierPtr -= length;
 		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+		long[] positions = new long[length];
+		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 		QualifiedNameReference ref = 
 			new QualifiedNameReference(
 				tokens, 
+				positions,
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
@@ -477,9 +480,12 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	char[][] tokens = new char[length][];
 	identifierPtr -= length;
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+	long[] positions = new long[length];
+	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	QualifiedNameReference ref = 
 		new QualifiedNameReference(
 			tokens, 
+			positions,
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
 	// sourceStart
 	 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd

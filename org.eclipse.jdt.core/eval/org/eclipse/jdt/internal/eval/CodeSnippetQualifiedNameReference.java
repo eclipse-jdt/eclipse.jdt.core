@@ -43,8 +43,8 @@ public class CodeSnippetQualifiedNameReference extends QualifiedNameReference im
  * @param sourceStart int
  * @param sourceEnd int
  */
-public CodeSnippetQualifiedNameReference(char[][] sources, int sourceStart, int sourceEnd, EvaluationContext evaluationContext) {
-	super(sources, sourceStart, sourceEnd);
+public CodeSnippetQualifiedNameReference(char[][] sources, long[] positions, int sourceStart, int sourceEnd, EvaluationContext evaluationContext) {
+	super(sources, positions, sourceStart, sourceEnd);
 	this.evaluationContext = evaluationContext;	
 }
 /**

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class QualifiedNameReference extends NameReference {
 	
 	public char[][] tokens;
+	public long[] sourcePositions;
 	public FieldBinding[] otherBindings, otherCodegenBindings;
 	int[] otherDepths;
 	public int indexOfFirstFieldBinding;//points (into tokens) for the first token that corresponds to first FieldBinding
@@ -28,10 +29,12 @@ public class QualifiedNameReference extends NameReference {
 	protected FieldBinding lastFieldBinding;
 	public QualifiedNameReference(
 		char[][] sources,
+		long[] positions,
 		int sourceStart,
 		int sourceEnd) {
 		super();
-		tokens = sources;
+		this.tokens = sources;
+		this.sourcePositions = positions;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}

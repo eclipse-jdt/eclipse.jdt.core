@@ -38,16 +38,9 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnQualifiedNameReference extends QualifiedNameReference {
 	public char[] completionIdentifier;
-	public long[] sourcePositions; // positions of each token, the last one being the positions of the completion identifier
 public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
-	super(previousIdentifiers, (int) (positions[0] >>> 32), (int) positions[positions.length - 1]);
+	super(previousIdentifiers, positions, (int) (positions[0] >>> 32), (int) positions[positions.length - 1]);
 	this.completionIdentifier = completionIdentifier;
-	this.sourcePositions = positions;
-}
-public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, int sourceStart, int sourceEnd) {
-	super(previousIdentifiers, sourceStart, sourceEnd);
-	this.completionIdentifier = completionIdentifier;
-	this.sourcePositions = new long[] {((long)sourceStart << 32) + sourceEnd};
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 

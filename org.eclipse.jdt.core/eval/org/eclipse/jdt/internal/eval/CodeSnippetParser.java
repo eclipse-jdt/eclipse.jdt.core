@@ -550,8 +550,11 @@ protected NameReference getUnspecifiedReference() {
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+			long[] positions = new long[length];
+			System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 			ref = 
-				new CodeSnippetQualifiedNameReference(tokens, 
+				new CodeSnippetQualifiedNameReference(tokens,
+					positions, 
 					(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 					(int) identifierPositionStack[identifierPtr + length],
 					evaluationContext); // sourceEnd
@@ -594,8 +597,11 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		char[][] tokens = new char[length][];
 		identifierPtr -= length;
 		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+		long[] positions = new long[length];
+		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 		ref = new CodeSnippetQualifiedNameReference(
-				tokens, 
+				tokens,
+				positions, 
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length],
 				evaluationContext); // sourceEnd
