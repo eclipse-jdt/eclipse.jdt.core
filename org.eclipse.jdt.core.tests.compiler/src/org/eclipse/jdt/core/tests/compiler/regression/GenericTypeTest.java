@@ -16088,4 +16088,39 @@ public void test500(){
 			"Type mismatch: cannot convert from List<X2> to List<X1>\n" + 
 			"----------\n");	
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89454
+	public void test567() {
+		this.runConformTest(
+			new String[] {
+				"Thrower.java",
+				"public interface Thrower<E extends Exception> {\n" + 
+				"    public void throwIt() throws E;\n" + 
+				"}\n",
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"GenericsTest.java",
+				"public class GenericsTest {\n" + 
+				"    public static void main(String[] args) throws MyException {\n" + 
+				"        Thrower<MyException> thrower = new Thrower<MyException>() {\n" + 
+				"            public void throwIt() throws MyException {\n" + 
+				"                throw new MyException();\n" + 
+				"            }\n" + 
+				"        };\n" + 
+				"        try {\n" + 
+				"           thrower.throwIt();\n" + 
+				"        } catch(Exception e) {\n" + 
+				"          System.out.println(\"SUCCESS\");\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class MyException extends Exception {\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+	}	
 }
