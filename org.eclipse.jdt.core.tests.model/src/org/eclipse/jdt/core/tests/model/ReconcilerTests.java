@@ -151,7 +151,7 @@ public void testAddDuplicateMember() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo#2()[+]: {}"
+		"	foo()#2[+]: {}"
 	);
 }
 /**
