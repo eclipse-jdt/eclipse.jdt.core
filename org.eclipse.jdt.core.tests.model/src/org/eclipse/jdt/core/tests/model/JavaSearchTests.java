@@ -426,6 +426,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testFieldReference4"));
 	suite.addTest(new JavaSearchTests("testFieldReference5"));
 	suite.addTest(new JavaSearchTests("testFieldReference6"));
+	suite.addTest(new JavaSearchTests("testFieldReference7"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInInnerClass"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInAnonymousClass"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceThroughSubclass"));
@@ -1156,6 +1157,24 @@ public void testFieldReference6() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/c4/X.java int c4.X.foo() [x]",
+		resultCollector);
+}
+/**
+ * Field reference test.
+ * (regression test for bug 61017 Refactoring - test case that results in uncompilable source)
+ */
+public void testFieldReference7() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s5", "A.java").getType("A");
+	IField field = type.getField("b");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		field, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/s5/A.java void s5.A.method() [b]",
 		resultCollector);
 }
 /**
