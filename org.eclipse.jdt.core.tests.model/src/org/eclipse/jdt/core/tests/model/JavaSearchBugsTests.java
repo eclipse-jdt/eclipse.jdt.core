@@ -49,7 +49,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug73112";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-//		TESTS_NUMBERS = new int[] { 84727 };
+		TESTS_NUMBERS = new int[] { 79378 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -689,6 +689,42 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b79267/Test.java b79267.Test.static {} [BEFORE] EXACT_MATCH\n" + 
 			"src/b79267/Test.java b79267.Test.static {} [objectToPrimitiveMap] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 79378: [search] IOOBE when inlining a method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79378"
+	 */
+	public void testBug79378() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79378/A.java",
+			"package b79378;\n" + 
+			"public class Test {\n" + 
+			"	void foo79378(String s, RuntimeException[] exceptions) {}\n" + 
+			"	void foo79378(RuntimeException[] exceptions) {}\n" + 
+			"	void call() {\n" + 
+			"		String s= null; \n" + 
+			"		Exception[] exceptions= null;\n" + 
+			"		foo79378(s, exceptions);\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IMethod[] methods = workingCopies[0].getType("Test").getMethods();
+		assertEquals("Invalid number of methods", 3, methods.length);
+		search(methods[0], REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b79378/A.java void b79378.Test.call() [foo79378(s, exceptions)] POTENTIAL_MATCH"
+		);
+	}
+	public void testBug79378b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IMethod[] methods = workingCopies[0].getType("Test").getMethods();
+		assertEquals("Invalid number of methods", 3, methods.length);
+		search(methods[1], REFERENCES);
+		assertSearchResults("");
 	}
 
 	/**
@@ -1490,5 +1526,31 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b85810/Test.java b85810.Test [E] EXACT_MATCH\n" + 
 			"src/b85810/Test.java b85810.Test.e [E] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 86596: [search] Search for type finds segments in import
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86596"
+	 */
+	public void testBug86596() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/A.java",
+			"package b86596.com.ibm.link;\n" + 
+			"public interface A {}\n"
+			);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86596/X.java",
+			"package b86596;\n" + 
+			"public class X {\n" + 
+			"	A a;\n" + 
+			"}\n"
+			);
+		search("link", TYPE, REFERENCES);
+		assertSearchResults("");
+	}
+	public void testBug86596b() throws CoreException {
+		resultCollector.showRule = true;
+		search("util", TYPE, REFERENCES);
+		assertSearchResults("");
 	}
 }
