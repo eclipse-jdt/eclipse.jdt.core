@@ -93,8 +93,10 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
-					currentElement = currentElement.add(
-						new CompletionOnFieldType((TypeReference)orphan), 0);
+					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan);
+					fieldDeclaration.modifiersSourceStart = intStack[intPtr-1];
+					fieldDeclaration.modifiers = intStack[intPtr-2];
+					currentElement = currentElement.add(fieldDeclaration, 0);
 					return;
 				}
 			}
