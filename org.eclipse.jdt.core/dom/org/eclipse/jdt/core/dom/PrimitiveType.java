@@ -170,11 +170,6 @@ public class PrimitiveType extends Type {
 	ASTNode clone(AST target) {
 		PrimitiveType result = new PrimitiveType(target);
 		result.setPrimitiveTypeCode(getPrimitiveTypeCode());
-		int startPosition = getStartPosition();
-		int length = getLength();
-		if (startPosition >= 0 && length > 0) {
-			result.setSourceRange(startPosition, length);
-		}
 		return result;
 	}
 

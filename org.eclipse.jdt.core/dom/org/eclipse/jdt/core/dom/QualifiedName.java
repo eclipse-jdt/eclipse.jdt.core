@@ -59,11 +59,6 @@ public class QualifiedName extends Name {
 		QualifiedName result = new QualifiedName(target);
 		result.setQualifier((Name) getQualifier().clone(target));
 		result.setName((SimpleName) getName().clone(target));
-		int startPosition = getStartPosition();
-		int length = getLength();
-		if (startPosition >= 0 && length > 0) {
-			result.setSourceRange(startPosition, length);
-		}
 		return result;
 	}
 

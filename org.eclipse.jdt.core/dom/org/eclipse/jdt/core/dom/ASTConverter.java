@@ -1672,9 +1672,13 @@ class ASTConverter {
 				forStatement.updaters().add(convertToExpression(increments[i]));				
 			}
 		}
-
-		if (statement.action != null) {
+		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
+		if (action != null) {
 			forStatement.setBody(convert(statement.action));
+			if (!(action instanceof org.eclipse.jdt.internal.compiler.ast.Block)) {
+				// set the end position of the for statement on the semi-colon
+				retrieveSemiColonPosition(forStatement);
+			}
 		} else {
 			retrieveSemiColonPosition(forStatement);
 		}
@@ -1819,8 +1823,13 @@ class ASTConverter {
 		WhileStatement whileStatement = this.ast.newWhileStatement();
 		whileStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		whileStatement.setExpression(convert(statement.condition));
-		if (statement.action != null) {
-			whileStatement.setBody(convert(statement.action));
+		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
+		if (action != null) {
+			whileStatement.setBody(convert(action));
+			if (!(action instanceof org.eclipse.jdt.internal.compiler.ast.Block)) {
+				// set the end position of the for statement on the semi-colon
+				retrieveSemiColonPosition(whileStatement);
+			}
 		}
 		return whileStatement;
 	}
@@ -2251,7 +2260,9 @@ class ASTConverter {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, arrayType.getElementType());
+				Type eltType = arrayType.getElementType();
+				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
+				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					fieldDeclaration.setType(elementType);
@@ -2273,7 +2284,9 @@ class ASTConverter {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, arrayType.getElementType());
+				Type eltType = arrayType.getElementType();
+				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
+				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					variableDeclarationStatement.setType(elementType);
@@ -2295,7 +2308,9 @@ class ASTConverter {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, arrayType.getElementType());
+				Type eltType = arrayType.getElementType();
+				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
+				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					variableDeclarationExpression.setType(elementType);
