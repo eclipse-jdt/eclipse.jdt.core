@@ -89,7 +89,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
-		suite.addTest(new ASTConverterTest2("test0513"));
+		suite.addTest(new ASTConverterTest2("test0515"));
 		return suite;
 	}
 	/**
@@ -3327,5 +3327,40 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48502
+	 */
+	public void _test0514() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0514", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=49204
+	 */
+	public void test0515() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0515", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a if statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		IfStatement ifStatement = (IfStatement) node;
+		assertTrue("not an empty statement", ifStatement.getThenStatement().getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(ifStatement.getThenStatement(), ";", source);
+		Statement statement = ifStatement.getElseStatement();
+		assertTrue("not a if statement", statement.getNodeType() == ASTNode.IF_STATEMENT);
+		ifStatement = (IfStatement) statement;
+		assertTrue("not an empty statement", ifStatement.getThenStatement().getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(ifStatement.getThenStatement(), ";", source);
+		Statement statement2 = ifStatement.getElseStatement();
+		assertTrue("not an empty statement", statement2.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement2, ";", source);
 	}
 }
