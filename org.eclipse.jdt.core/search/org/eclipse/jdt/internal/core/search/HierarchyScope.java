@@ -156,7 +156,8 @@ public class HierarchyScope extends AbstractSearchScope {
 			} else {
 				// be flexible: look at original element (see bug 14106 Declarations in Hierarchy does not find declarations in hierarchy)
 				IType original;
-				if ((original = (IType)type.getCompilationUnit().getOriginal(type)) != null) {
+				if (!type.isBinary() 
+						&& (original = (IType)type.getCompilationUnit().getOriginal(type)) != null) {
 					return fHierarchy.contains(original);
 				}
 			}
