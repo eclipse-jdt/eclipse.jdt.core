@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
-import java.text.NumberFormat;
 import java.util.*;
 
 public class BuildNotifier {
@@ -205,7 +204,8 @@ public void updateProgress(float percentComplete) {
 		if (work > this.workDone) {
 			if (monitor != null)
 				monitor.worked(work - this.workDone);
-			//if (JavaBuilder.DEBUG) System.out.println(NumberFormat.getPercentInstance().format(this.percentComplete));
+			//if (JavaBuilder.DEBUG)
+				//System.out.println(java.text.NumberFormat.getPercentInstance().format(this.percentComplete));
 			this.workDone = work;
 		}
 	}
