@@ -124,7 +124,8 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			if (resource instanceof IFile) {
 				char[] contents = null;
 				if ("java".equals(resource.getFileExtension())) {
-					if (!resource.equals(element.getUnderlyingResource())) {
+					ICompilationUnit cu = (ICompilationUnit)element.getAncestor(IJavaElement.COMPILATION_UNIT);
+					if (cu != null && cu.isWorkingCopy()) {
 						// working copy
 						contents = unit.getBuffer().getCharacters();
 					} else {

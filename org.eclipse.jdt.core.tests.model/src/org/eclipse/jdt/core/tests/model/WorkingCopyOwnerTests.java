@@ -520,6 +520,26 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 		}
 	}
+	
+	/*
+	 * Ensures that getCorrespondingResource() returns a non-null value for a primary working copy.
+	 * (regression test for bug 44065 NPE during hot code replace)
+	 */
+	public void testGetCorrespondingResource() throws CoreException {
+		ICompilationUnit cu = null;
+		try {
+			cu = getCompilationUnit("P/X.java");
+			cu.becomeWorkingCopy(null, null);
+			assertResourcesEqual(
+				"Unexpected resource",
+				"X.java",
+				new Object[] {cu.getCorrespondingResource()});
+		} finally {
+			if (cu != null) {
+				cu.discardWorkingCopy();
+			}
+		}
+	}
 
 	/*
 	 * Ensures that getOwner() returns the correct owner for a non-primary working copy.

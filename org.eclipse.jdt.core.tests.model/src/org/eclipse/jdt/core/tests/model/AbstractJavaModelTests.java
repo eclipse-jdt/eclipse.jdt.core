@@ -68,7 +68,8 @@ protected void assertResourcesEqual(String message, String expected, Object[] re
 	this.sortResources(resources);
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = resources.length; i < length; i++){
-		buffer.append(((IResource)resources[i]).getName());
+		IResource resource = (IResource)resources[i];
+		buffer.append(resource == null ? "<null>" : resource.getName());
 		if (i != length-1)buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {

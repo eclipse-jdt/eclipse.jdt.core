@@ -774,7 +774,7 @@ public IType[] getTypes() throws JavaModelException {
  * @see IJavaElement
  */
 public IResource getUnderlyingResource() throws JavaModelException {
-	if (isWorkingCopy()) return null;
+	if (isWorkingCopy() && !isPrimary()) return null;
 	return super.getUnderlyingResource();
 }
 /**
