@@ -67,9 +67,7 @@ public interface IVariableBinding extends IBinding {
 	 * <b>Local variables inside methods:</b> Local variables (and parameters)
 	 * declared within a single method are assigned ascending ids in normal
 	 * code reading order; var1.getVariableId()&lt;var2.getVariableId() means that var1 is
-	 * declared before var2. Note that the numbering does not include the local
-	 * variables declared within the method's local (or anonymous) types - their
-	 * ids would be relative to the methods of the local type.
+	 * declared before var2.
 	 * </p>
 	 * <p>
 	 * <b>Local variables outside methods:</b> Local variables declared in a
