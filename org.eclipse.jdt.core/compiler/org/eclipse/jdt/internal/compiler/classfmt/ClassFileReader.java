@@ -696,6 +696,8 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 		return true;
 	if (!CharOperation.equals(currentMethodInfo.getMethodDescriptor(), otherMethodInfo.getMethodDescriptor()))
 		return true;
+	if (!CharOperation.equals(currentMethodInfo.getSignature(), otherMethodInfo.getSignature()))
+		return true;
 
 	char[][] currentThrownExceptions = currentMethodInfo.getExceptionTypeNames();
 	char[][] otherThrownExceptions = otherMethodInfo.getExceptionTypeNames();
