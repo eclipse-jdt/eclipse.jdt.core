@@ -837,6 +837,7 @@ private void initialize() {
 			innerInfos[i].initialize();
 		}
 	}
+	this.reset();
 }
 protected void reset() {
 	this.constantPoolOffsets = null;
