@@ -1858,14 +1858,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return the list of shared working copies for a given buffer factory
 	 * @see IWorkingCopy
 	 * @since 2.0
+	 * @deprecated Use IPackageFragment.getCompilationUnits() instead
+	 * TODO: Remove before 3.0
 	 */
 	public static IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
 		
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
+
 		Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
 		
-		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(factory);
+		CompilationUnitOwner owner = new DefaultCompilationUnitOwner(factory, null);
+		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(owner);
 		if (perFactoryWorkingCopies == null) return JavaModelManager.NoWorkingCopy;
 		Collection copies = perFactoryWorkingCopies.values();
 		IWorkingCopy[] result = new IWorkingCopy[copies.size()];

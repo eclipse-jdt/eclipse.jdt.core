@@ -99,6 +99,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * This element is being closed.  Do any necessary cleanup.
 	 */
 	protected abstract void closing(Object info) throws JavaModelException;
+	/*
+	 * Returns a new element info for this element.
+	 */
+	protected abstract Object createElementInfo();
 	/**
 	 * Returns true if this handle represents the same Java element
 	 * as the given handle. By default, two handles represent the same
@@ -212,6 +216,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	
 	}
 	/**
+	 * Generates the element infos for this element, its ancestors (if they are not opened) and its children (if it is an Openable).
+	 * Puts the newly created element info in the given map.
+	 */
+	protected abstract void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException;
+	/**
 	 * @see IJavaElement
 	 */
 	public IJavaElement getAncestor(int ancestorType) {
@@ -281,32 +290,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		Object info = manager.getInfo(this);
 		if (info != null) return info;
-		
-		boolean hadTemporaryCache = manager.hasTemporaryCache();
-		try {
-			HashMap newElements = manager.getTemporaryCache();
-			info = openWhenClosed(newElements, monitor);
-			if (info == null) {
-				// close any buffer that was opened for the new elements
-				Iterator iterator = newElements.keySet().iterator();
-				while (iterator.hasNext()) {
-					IJavaElement element = (IJavaElement)iterator.next();
-					if (element instanceof Openable) {
-						((Openable)element).closeBuffer();
-					}
-				}
-				throw newNotPresentException();
-			}
-			if (!hadTemporaryCache) {
-				manager.putInfos(this, newElements);
-			}
-		} finally {
-			if (!hadTemporaryCache) {
-				manager.resetTemporaryCache();
-			}
-		}
-
-		return info;
+		return openWhenClosed(createElementInfo(), monitor);
 	}
 	/**
 	 * @see IAdaptable
@@ -470,20 +454,45 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected JavaModelException newNotPresentException() {
 		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
-	/**
-	 * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
+	/*
+	 * Opens an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
 	 * Returns the created element info.
 	 */
-	protected abstract Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException;
+	protected Object openWhenClosed(Object info, IProgressMonitor monitor) throws JavaModelException {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		boolean hadTemporaryCache = manager.hasTemporaryCache();
+		try {
+			HashMap newElements = manager.getTemporaryCache();
+			generateInfos(info, newElements, monitor);
+			if (info == null) {
+				info = newElements.get(this);
+			}
+			if (info == null) { // a source ref element could not be opened
+				// close any buffer that was opened for the openable parent
+				Iterator iterator = newElements.keySet().iterator();
+				while (iterator.hasNext()) {
+					IJavaElement element = (IJavaElement)iterator.next();
+					if (element instanceof Openable) {
+						((Openable)element).closeBuffer();
+					}
+				}
+				throw newNotPresentException();
+			}
+			if (!hadTemporaryCache) {
+				manager.putInfos(this, newElements);
+			}
+		} finally {
+			if (!hadTemporaryCache) {
+				manager.resetTemporaryCache();
+			}
+		}
+		return info;
+	}
 	/**
 	 */
 	public String readableName() {
 		return this.getElementName();
 	}
-	/**
-	 * Returns a copy of this element rooted at the given project.
-	 */
-	public abstract IJavaElement rootedAt(IJavaProject project);
 	/**
 	 * Runs a Java Model Operation
 	 */

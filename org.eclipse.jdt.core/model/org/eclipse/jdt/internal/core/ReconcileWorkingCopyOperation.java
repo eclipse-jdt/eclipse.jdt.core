@@ -35,7 +35,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			fMonitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
 		}
 	
-		WorkingCopy workingCopy = getWorkingCopy();
+		CompilationUnit workingCopy = getWorkingCopy();
 		boolean wasConsistent = workingCopy.isConsistent();
 		JavaElementDeltaBuilder deltaBuilder = null;
 	
@@ -56,7 +56,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			if (forceProblemDetection && wasConsistent){
 				if (fMonitor != null && fMonitor.isCanceled()) return;
 		
-				IProblemRequestor problemRequestor = workingCopy.problemRequestor;
+				IProblemRequestor problemRequestor = workingCopy.owner.getProblemRequestor();
 				if (problemRequestor != null && problemRequestor.isActive()){
 					problemRequestor.beginReporting();
 					CompilationUnitProblemFinder.process(workingCopy, problemRequestor, fMonitor);
@@ -77,8 +77,8 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	/**
 	 * Returns the working copy this operation is working on.
 	 */
-	protected WorkingCopy getWorkingCopy() {
-		return (WorkingCopy)getElementToProcess();
+	protected CompilationUnit getWorkingCopy() {
+		return (CompilationUnit)getElementToProcess();
 	}
 	/**
 	 * @see JavaModelOperation#isReadOnly
@@ -91,8 +91,8 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (!status.isOK()) {
 			return status;
 		}
-		WorkingCopy workingCopy = getWorkingCopy();
-		if (workingCopy.useCount == 0) {
+		CompilationUnit workingCopy = getWorkingCopy();
+		if (!workingCopy.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, workingCopy); //was destroyed
 		}
 		return status;

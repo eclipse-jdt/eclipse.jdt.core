@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,7 +33,6 @@ import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
@@ -68,6 +66,33 @@ protected ClassFile(IPackageFragment parent, String name) {
 	checkAutomaticSourceMapping = false;
 }
 
+/**
+ * Creates the children elements for this class file adding the resulting
+ * new handles and info objects to the newElements table. Returns true
+ * if successful, or false if an error is encountered parsing the class file.
+ * 
+ * @see Openable
+ * @see Signature
+ */
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	// check whether the class file can be opened
+	if (!isValidClassFile()) throw newNotPresentException();
+	if (underlyingResource != null && !underlyingResource.isAccessible()) throw newNotPresentException();
+
+	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
+	if (typeInfo == null) {
+		// The structure of a class file is unknown if a class file format errors occurred
+		//during the creation of the diet class file representative of this ClassFile.
+		info.setChildren(new IJavaElement[] {});
+		return false;
+	}
+
+	// Make the type
+	IType type = new BinaryType(this, new String(simpleName(typeInfo.getName())));
+	info.addChild(type);
+	newElements.put(type, typeInfo);
+	return true;
+}
 /**
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
@@ -107,7 +132,7 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 /**
  * Returns a new element info for this element.
  */
-protected OpenableElementInfo createElementInfo() {
+protected Object createElementInfo() {
 	return new ClassFileInfo(this);
 }
 public boolean exists() {
@@ -139,29 +164,6 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
 		}
 	}
 	return elt;
-}
-/**
- * Creates the children elements for this class file adding the resulting
- * new handles and info objects to the newElements table. Returns true
- * if successful, or false if an error is encountered parsing the class file.
- * 
- * @see Openable
- * @see Signature
- */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
-	if (typeInfo == null) {
-		// The structure of a class file is unknown if a class file format errors occurred
-		//during the creation of the diet class file representative of this ClassFile.
-		info.setChildren(new IJavaElement[] {});
-		return false;
-	}
-
-	// Make the type
-	IType type = new BinaryType(this, new String(simpleName(typeInfo.getName())));
-	info.addChild(type);
-	newElements.put(type, typeInfo);
-	return true;
 }
 /**
  * Returns the <code>ClassFileReader</code>specific for this IClassFile, based
@@ -405,7 +407,7 @@ private boolean isValidClassFile() {
  * 
  * @see Openable
  */
-protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
+protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
 		return mapSource(mapper);
@@ -481,15 +483,6 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	}
 	return null;
 }
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	if (!isValidClassFile()) throw newNotPresentException();
-	IResource resource = this.getResource();
-	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
-	return super.openWhenClosed(newElements, pm);
-}
 private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
 	char[] contents = mapper.findSource(getType());
 	if (contents != null) {
@@ -514,25 +507,6 @@ private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
 	}
 	return null;
 }
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return
-		new ClassFile(
-			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
-			fName);
-}
-/**
- * Returns the Java Model format of the simple class name for the
- * given className which is provided in diet class file format,
- * or <code>null</code> if the given className is <code>null</code>.
- * (This removes package name and enclosing type names).
- *
- * <p><code>ClassFileReader</code> format is similar to "java/lang/Object",
- * and corresponding Java Model simple name format is "Object".
- */
-
 /* package */ static char[] simpleName(char[] className) {
 	if (className == null)
 		return null;

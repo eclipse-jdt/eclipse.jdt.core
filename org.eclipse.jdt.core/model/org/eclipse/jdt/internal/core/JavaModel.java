@@ -64,6 +64,21 @@ public class JavaModel extends Openable implements IJavaModel {
 protected JavaModel() throws Error {
 	super(JAVA_MODEL, null, "" /*workspace has empty name*/); //$NON-NLS-1$
 }
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)	throws JavaModelException {
+
+	// determine my children
+	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	for (int i = 0, max = projects.length; i < max; i++) {
+		IProject project = projects[i];
+		if (JavaProject.hasJavaNature(project)) {
+			info.addChild(getJavaProject(project));
+		}
+	}
+
+	newElements.put(this, info);
+	
+	return true;
+}
 /*
  * @see IJavaModel
  */
@@ -101,7 +116,7 @@ public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 /**
  * Returns a new element info for this element.
  */
-protected OpenableElementInfo createElementInfo() {
+protected Object createElementInfo() {
 	return new JavaModelInfo();
 }
 
@@ -140,27 +155,6 @@ public static void flushExternalFileCache() {
 	existingExternalFiles = new HashSet();
 }
 
-/**
- */
-protected boolean generateInfos(
-	OpenableElementInfo info,
-	IProgressMonitor pm,
-	Map newElements,
-	IResource underlyingResource)	throws JavaModelException {
-
-	// determine my children
-	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-	for (int i = 0, max = projects.length; i < max; i++) {
-		IProject project = projects[i];
-		if (JavaProject.hasJavaNature(project)) {
-			info.addChild(getJavaProject(project));
-		}
-	}
-
-	newElements.put(this, info);
-	
-	return true;
-}
 /**
  * Returns the <code>IJavaElement</code> represented by the <code>String</code>
  * memento.
@@ -468,13 +462,6 @@ public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[
 	}
 	
 	runOperation(op, monitor);
-}
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return this;
-
 }
 /**
  * Configures and runs the <code>MultiOperation</code>.

@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -100,8 +99,18 @@ public ICompilationUnit createCompilationUnit(String name, String contents, bool
 /**
  * @see JavaElement
  */
-protected OpenableElementInfo createElementInfo() {
-	return new JarPackageFragmentInfo();
+protected Object createElementInfo() {
+	return null; // not used for JarPackageFragments: info is created when jar is opened
+}
+/*
+ * @see JavaElement#generateInfos
+ */
+protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	// Open my jar: this creates all the pkg infos
+	Openable openableParent = (Openable)fParent;
+	if (!openableParent.isOpen()) {
+		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
+	}
 }
 /**
  * @see IPackageFragment
@@ -143,27 +152,6 @@ public Object[] getNonJavaResources() throws JavaModelException {
  */
 public boolean isReadOnly() {
 	return true;
-}
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	// Open my jar
-	Openable openableParent = (Openable)fParent;
-	if (!openableParent.isOpen()) {
-		openableParent.openWhenClosed(newElements, pm);
-	}
-	
-	return newElements.get(this);
-}
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return
-		new JarPackageFragment(
-			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
-			fName);
 }
 protected Object[] storedNonJavaResources() throws JavaModelException {
 	return ((JarPackageFragmentInfo) getElementInfo()).getNonJavaResources();

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
@@ -158,6 +157,20 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 	}
 }
 
+/**
+ * @see Openable
+ */
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	
+	// check whether this pkg fragment root can be opened
+	if (!resourceExists() || !isOnClasspath()) {
+		throw newNotPresentException();
+	}
+
+	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
+	return computeChildren(info, newElements);
+}
+
 SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
 	SourceMapper mapper = new SourceMapper(
 		sourcePath, 
@@ -277,12 +290,10 @@ public void copy(
 	runOperation(op, monitor);
 }
 
-
-
 /**
  * Returns a new element info for this element.
  */
-protected OpenableElementInfo createElementInfo() {
+protected Object createElementInfo() {
 	return new PackageFragmentRootInfo();
 }
 
@@ -334,8 +345,10 @@ public boolean equals(Object o) {
  * @see IJavaElement
  */
 public boolean exists() {
-	return super.exists() 
-				&& isOnClasspath();
+	return 
+		parentExists() 
+			&& resourceExists() 
+			&& isOnClasspath();
 }
 
 public IClasspathEntry findSourceAttachmentRecommendation() {
@@ -428,15 +441,6 @@ char[][] fullExclusionPatternChars() {
 		return null;
 	}
 }		
-
-/**
- * @see Openable
- */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	
-	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
-	return computeChildren(info, newElements);
-}
 
 /**
  * @see JavaElement#getHandleMemento()
@@ -750,28 +754,6 @@ public void move(
 	MovePackageFragmentRootOperation op = 
 		new MovePackageFragmentRootOperation(this, destination, updateResourceFlags, updateModelFlags, sibling);
 	runOperation(op, monitor);
-}
-
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	if (!this.resourceExists() 
-			|| !this.isOnClasspath()) {
-		throw newNotPresentException();
-	}
-	return super.openWhenClosed(newElements, pm);
-}
-
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return
-		new PackageFragmentRoot(
-			getResource(),
-			project, 
-			fName);
 }
 
 /**

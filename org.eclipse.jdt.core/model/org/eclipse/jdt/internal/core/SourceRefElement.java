@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
@@ -35,6 +34,12 @@ protected SourceRefElement(int type, IJavaElement parent, String name) {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
+}
+/**
+ * Returns a new element info for this element.
+ */
+protected Object createElementInfo() {
+	return null; // not used for source ref elements
 }
 /**
  * @see ISourceManipulation
@@ -61,6 +66,20 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
+}
+/*
+ * @see JavaElement#generateInfos
+ */
+protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	Openable openableParent = (Openable)getOpenableParent();
+	if (openableParent != null) {
+		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+		if (openableParentInfo == null) {
+			openableParent.generateInfos(openableParent.createElementInfo(), newElements, null);
+		} else {
+			throw newNotPresentException();
+		}
+	}
 }
 /**
  * @see IMember
@@ -154,22 +173,6 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
 }
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent != null) {
-		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
-		if (openableParentInfo == null) {
-			openableParent.openWhenClosed(newElements, null);
-			return newElements.get(this);
-		} else {
-			throw newNotPresentException();
-		}
-	}
-	return null;
-}
 /**
  * @see ISourceManipulation
  */
@@ -181,12 +184,5 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
 	String[] renamings= new String[] {name};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
-}
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	// not needed
-	return null;
 }
 }

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -21,10 +20,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -50,6 +49,53 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
  */
 protected PackageFragment(IPackageFragmentRoot root, String name) {
 	super(PACKAGE_FRAGMENT, root, name);
+}
+/**
+ * @see Openable
+ */
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+
+	// check whether this pkg can be opened
+	if (!underlyingResource.isAccessible()) throw newNotPresentException();
+
+	int kind = getKind();
+	String extType;
+	if (kind == IPackageFragmentRoot.K_SOURCE) {
+		extType = EXTENSION_java;
+	} else {
+		extType = EXTENSION_class;
+	}
+
+	ArrayList vChildren = new ArrayList();
+	try {
+		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
+		IResource[] members = ((IContainer) underlyingResource).members();
+		for (int i = 0, max = members.length; i < max; i++) {
+			IResource child = members[i];
+			if (child.getType() != IResource.FOLDER
+					&& !Util.isExcluded(child, exclusionPatterns)) {
+				String extension = child.getProjectRelativePath().getFileExtension();
+				if (extension != null) {
+					if (extension.equalsIgnoreCase(extType)) {
+						IJavaElement childElement;
+						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
+							childElement = new CompilationUnit(this, child.getName(), DefaultCompilationUnitOwner.PRIMARY);
+							vChildren.add(childElement);
+						} else if (Util.isValidClassFileName(child.getName())) {
+							childElement = getClassFile(child.getName());
+							vChildren.add(childElement);
+						}
+					}
+				}
+			}
+		}
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	IJavaElement[] children = new IJavaElement[vChildren.size()];
+	vChildren.toArray(children);
+	info.setChildren(children);
+	return true;
 }
 /**
  * Returns true if this fragment contains at least one java resource.
@@ -83,12 +129,12 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 public ICompilationUnit createCompilationUnit(String name, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, name, contents, force);
 	runOperation(op, monitor);
-	return getCompilationUnit(name);
+	return new CompilationUnit(this, name, DefaultCompilationUnitOwner.PRIMARY);
 }
 /**
  * @see JavaElement
  */
-protected OpenableElementInfo createElementInfo() {
+protected Object createElementInfo() {
 	return new PackageFragmentInfo();
 }
 /**
@@ -97,50 +143,6 @@ protected OpenableElementInfo createElementInfo() {
 public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
-}
-/**
- * @see Openable
- */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-
-	int kind = getKind();
-	String extType;
-	if (kind == IPackageFragmentRoot.K_SOURCE) {
-		extType = EXTENSION_java;
-	} else {
-		extType = EXTENSION_class;
-	}
-
-	ArrayList vChildren = new ArrayList();
-	try {
-		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
-		IResource[] members = ((IContainer) underlyingResource).members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource child = members[i];
-			if (child.getType() != IResource.FOLDER
-					&& !Util.isExcluded(child, exclusionPatterns)) {
-				String extension = child.getProjectRelativePath().getFileExtension();
-				if (extension != null) {
-					if (extension.equalsIgnoreCase(extType)) {
-						IJavaElement childElement;
-						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
-							childElement = getCompilationUnit(child.getName());
-							vChildren.add(childElement);
-						} else if (Util.isValidClassFileName(child.getName())) {
-							childElement = getClassFile(child.getName());
-							vChildren.add(childElement);
-						}
-					}
-				}
-			}
-		}
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
-	}
-	IJavaElement[] children = new IJavaElement[vChildren.size()];
-	vChildren.toArray(children);
-	info.setChildren(children);
-	return true;
 }
 /**
  * @see IPackageFragment#getClassFile(String)
@@ -169,7 +171,24 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  */
 public ICompilationUnit getCompilationUnit(String name) {
-	return new CompilationUnit(this, name);
+	return getCompilationUnit(name, CompilationUnitOwner.getCurrentOwner());
+}
+/*
+ * Returns the shared working copy with the given name for the given owner.
+ * Returns the primary compilation unit if not shared.
+ */
+protected ICompilationUnit getCompilationUnit(String cuName, CompilationUnitOwner owner) {
+	ICompilationUnit primaryCU =  new CompilationUnit(this, cuName, DefaultCompilationUnitOwner.PRIMARY);
+	if (owner.equals(DefaultCompilationUnitOwner.PRIMARY)) return primaryCU;
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	Map sharedWorkingCopies = manager.sharedWorkingCopies;
+	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(owner);
+	ICompilationUnit sharedWC = (ICompilationUnit)perOwnerWorkingCopies.get(primaryCU);
+	if (sharedWC == null) {
+		return primaryCU;
+	} else {
+		return sharedWC;
+	}
 }
 /**
  * @see IPackageFragment#getCompilationUnits()
@@ -301,13 +320,6 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
 }
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	if (!this.resourceExists()) throw newNotPresentException();
-	return super.openWhenClosed(newElements, pm);
-}
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
@@ -319,15 +331,6 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
 	String[] renamings= new String[] {name};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
-}
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return
-		new PackageFragment(
-			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
-			fName);
 }
 /**
  * Debugging purposes

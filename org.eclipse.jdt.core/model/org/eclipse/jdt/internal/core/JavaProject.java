@@ -201,6 +201,42 @@ public class JavaProject
 		}
 	}
 
+	/**
+	 * @see Openable
+	 */
+	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	
+		// check whether the java project can be opened
+		if (!underlyingResource.isAccessible()) {
+			throw newNotPresentException();
+		}
+		
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot wRoot = workspace.getRoot();
+		// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
+		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
+
+		// compute the pkg fragment roots
+		computeChildren((JavaProjectElementInfo)info);				
+
+		// remember the timestamps of external libraries the first time they are looked up
+		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+			IClasspathEntry entry = resolvedClasspath[i];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				IPath path = entry.getPath();
+				Object target = JavaModel.getTarget(wRoot, path, true);
+				if (target instanceof java.io.File) {
+					Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
+					if (externalTimeStamps.get(path) == null) {
+						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+						externalTimeStamps.put(path, new Long(timestamp));							
+					}
+				}
+			}
+		}			
+
+		return true;
+	}
 	protected void closing(Object info) throws JavaModelException {
 		
 		// forget source attachment recommendations
@@ -610,8 +646,7 @@ public class JavaProject
 	/**
 	 * Returns a new element info for this element.
 	 */
-	protected OpenableElementInfo createElementInfo() {
-
+	protected Object createElementInfo() {
 		return new JavaProjectElementInfo();
 	}
 
@@ -1068,42 +1103,7 @@ public class JavaProject
 				}
 			}
 		}
-	}	/**
-	 * @see Openable
-	 */
-	protected boolean generateInfos(
-		OpenableElementInfo info,
-		IProgressMonitor pm,
-		Map newElements,
-		IResource underlyingResource) throws JavaModelException {
-	
-		if (getProject().isOpen()) {
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IWorkspaceRoot wRoot = workspace.getRoot();
-			// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
-			IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
-	
-			// compute the pkg fragment roots
-			computeChildren((JavaProjectElementInfo)info);				
-	
-			// remember the timestamps of external libraries the first time they are looked up
-			for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-				IClasspathEntry entry = resolvedClasspath[i];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					IPath path = entry.getPath();
-					Object target = JavaModel.getTarget(wRoot, path, true);
-					if (target instanceof java.io.File) {
-						Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
-						if (externalTimeStamps.get(path) == null) {
-							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-							externalTimeStamps.put(path, new Long(timestamp));							
-						}
-					}
-				}
-			}			
-		}
-		return true;
-	}
+	}	
 
 	/**
 	 * @see IJavaProject
@@ -1959,18 +1959,6 @@ public class JavaProject
 		return op.getResult();
 	}
 
-	/*
-	 * @see JavaElement#openWhenClosed
-	 */
-	protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-
-		if (!this.fProject.isOpen()) {
-			throw newNotPresentException();
-		} else {
-			return super.openWhenClosed(newElements, pm);
-		}
-	}
-
 	public String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
 			
@@ -2052,14 +2040,6 @@ public class JavaProject
 		}
 	}
 
-	/**
-	 * @see JavaElement#rootedAt(IJavaProject)
-	 */
-	public IJavaElement rootedAt(IJavaProject project) {
-		return project;
-	
-	}
-	
 	/**
 	 * Answers an ID which is used to distinguish project/entries during package
 	 * fragment root computations

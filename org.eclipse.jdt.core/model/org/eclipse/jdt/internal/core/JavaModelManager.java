@@ -1194,9 +1194,10 @@ public class JavaModelManager implements ISaveParticipant {
 
 	/*
 	 * Removes all cached info for the given element (including all children)
-	 * from the cache
+	 * from the cache.
+	 * Returns the info for the given element, or null if it was closed.
 	 */
-	public synchronized void removeInfoAndChildren(JavaElement element) throws JavaModelException {
+	public synchronized Object removeInfoAndChildren(JavaElement element) throws JavaModelException {
 		Object info = peekAtInfo(element);
 		if (info != null) {
 			boolean wasVerbose = false;
@@ -1211,7 +1212,7 @@ public class JavaModelManager implements ISaveParticipant {
 					IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 					for (int i = 0, size = children.length; i < size; ++i) {
 						JavaElement child = (JavaElement) children[i];
-						removeInfoAndChildren(child);
+						child.close();
 					}
 				}
 				this.cache.removeInfo(element);
@@ -1222,7 +1223,9 @@ public class JavaModelManager implements ISaveParticipant {
 			} finally {
 				JavaModelManager.VERBOSE = wasVerbose;
 			}
+			return info;
 		}
+		return null;
 	}	
 
 	public void removePerProjectInfo(JavaProject javaProject) {

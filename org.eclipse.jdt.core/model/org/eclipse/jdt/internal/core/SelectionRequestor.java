@@ -285,8 +285,8 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 
 	IType type= null;
 	
-	if (fCodeResolve instanceof WorkingCopy) {
-		WorkingCopy wc = (WorkingCopy) fCodeResolve;
+	if (fCodeResolve instanceof CompilationUnit && ((CompilationUnit)fCodeResolve).isWorkingCopy()) {
+		CompilationUnit wc = (CompilationUnit) fCodeResolve;
 		try {
 			if(((packageName == null || packageName.length == 0) && wc.getPackageDeclarations().length == 0) ||
 				(!(packageName == null || packageName.length == 0) && wc.getPackageDeclaration(new String(packageName)).exists())) {

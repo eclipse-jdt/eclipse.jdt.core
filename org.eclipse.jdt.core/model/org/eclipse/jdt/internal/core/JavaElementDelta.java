@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * @see IJavaElementDelta
@@ -240,33 +239,6 @@ public void changed(IJavaElement element, int changeFlag) {
 public void contentChanged() {
 	fChangeFlags |= F_CONTENT;
 }
-/**
- * Clone this delta so that its elements are rooted at the given project.
- */
-public IJavaElementDelta clone(IJavaProject project) {
-	JavaElementDelta clone = 
-		new JavaElementDelta(((JavaElement)fChangedElement).rootedAt(project));
-	if (fAffectedChildren != fgEmptyDelta) {
-		int length = fAffectedChildren.length;
-		IJavaElementDelta[] cloneChildren = new IJavaElementDelta[length];
-		for (int i= 0; i < length; i++) {
-			cloneChildren[i] = ((JavaElementDelta)fAffectedChildren[i]).clone(project);
-		}
-		clone.fAffectedChildren = cloneChildren;
-	}	
-	clone.fChangeFlags = fChangeFlags;
-	clone.fKind = fKind;
-	if (fMovedFromHandle != null) {
-		clone.fMovedFromHandle = ((JavaElement)fMovedFromHandle).rootedAt(project);
-	}
-	if (fMovedToHandle != null) {
-		clone.fMovedToHandle = ((JavaElement)fMovedToHandle).rootedAt(project);
-	}
-	clone.resourceDeltas = this.resourceDeltas;
-	clone.resourceDeltasCounter = this.resourceDeltasCounter;
-	return clone;
-}
-
 /**
  * Creates the nested deltas for a closed element.
  */

@@ -16,7 +16,15 @@ import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 public class WorkingCopyElementInfo extends CompilationUnitElementInfo implements IProblemRequestor {
+	/* Number of time the compilation unit has been opened for working copy */
+	private int useCount;
 	ArrayList problems;
+	public WorkingCopyElementInfo() {
+		this.useCount = 1;
+	}
+	public WorkingCopyElementInfo(int useCount) {
+		this.useCount = useCount;
+	}
 	public void endReporting() {
 	}
 	public void acceptProblem(IProblem problem) {
@@ -26,8 +34,34 @@ public class WorkingCopyElementInfo extends CompilationUnitElementInfo implement
 	}
 	public void beginReporting() {
 	}
+	public int decrementUseCount() {
+		if (this.useCount > 0) {
+			return --this.useCount;
+		} else {
+			return -(++this.useCount);
+		}
+	}
+	public int incrementUseCount() {
+		if (this.useCount > 0) {
+			return ++this.useCount;
+		} else {
+			return -(--this.useCount);
+		}
+	}
 	public boolean isActive() {
 		return true;
 	}
-
+	protected boolean isOpen() {
+		return this.useCount > 0;
+	}
+	public int useCount() {
+		if (this.useCount >= 0) {
+			return this.useCount;
+		} else {
+			return -this.useCount;
+		}
+	}
+	public String toString() {
+		return "Working copy info (useCount=" + this.useCount + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

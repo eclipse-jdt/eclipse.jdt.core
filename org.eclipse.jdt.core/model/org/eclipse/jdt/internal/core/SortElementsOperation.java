@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -63,7 +62,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
-			WorkingCopy copy = (WorkingCopy) fElementsToProcess[0];
+			CompilationUnit copy = (CompilationUnit) fElementsToProcess[0];
 			ICompilationUnit unit = (ICompilationUnit) copy.getOriginalElement();
 			IBuffer buffer = copy.getBuffer();
 			if (buffer  == null) { 
@@ -132,7 +131,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		if (fElementsToProcess[0] == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (!(fElementsToProcess[0] instanceof IWorkingCopy) || !((IWorkingCopy) fElementsToProcess[0]).isWorkingCopy()) {
+		if (!(fElementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) fElementsToProcess[0]).isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[0]);
 		}
 		return JavaModelStatus.VERIFIED_OK;

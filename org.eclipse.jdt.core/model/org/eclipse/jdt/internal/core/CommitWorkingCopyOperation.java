@@ -58,7 +58,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
-			WorkingCopy copy = (WorkingCopy)getCompilationUnit();
+			CompilationUnit copy = (CompilationUnit)getCompilationUnit();
 			ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
 		
 			

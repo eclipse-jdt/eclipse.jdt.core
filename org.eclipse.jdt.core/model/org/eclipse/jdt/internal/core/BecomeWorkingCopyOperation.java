@@ -12,39 +12,34 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Map;
 
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * Creates a new working copy and signal its addition through a delta.
+ * Switch and ICompilationUnit to working copy mode
+ * and signal the working copy addition through a delta.
  */
-public class CreateWorkingCopyOperation extends JavaModelOperation {
+public class BecomeWorkingCopyOperation extends JavaModelOperation {
 	
 	Map perFactoryWorkingCopies;
-	IBufferFactory factory;
-	IProblemRequestor problemRequestor;
 	
 	/*
-	 * Creates a working copy from the given original cu and the given buffer factory.
+	 * Creates a BecomeWorkingCopyOperation for the given working copy.
 	 * perFactoryWorkingCopies map is not null if the working copy is a shared working copy.
 	 */
-	public CreateWorkingCopyOperation(ICompilationUnit originalElement, Map perFactoryWorkingCopies, IBufferFactory factory, IProblemRequestor problemRequestor) {
-		super(new IJavaElement[] {originalElement});
+	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perFactoryWorkingCopies) {
+		super(new IJavaElement[] {workingCopy});
 		this.perFactoryWorkingCopies = perFactoryWorkingCopies;
-		this.factory = factory;
-		this.problemRequestor = problemRequestor;
 	}
 	protected void executeOperation() throws JavaModelException {
-		ICompilationUnit cu = getCompilationUnit();
 
-		WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)cu.getParent(), cu.getElementName(), this.factory, this.problemRequestor);
 		// open the working copy now to ensure contents are that of the current state of this element
-		workingCopy.open(this.fMonitor);
-		
+		CompilationUnit workingCopy = getWorkingCopy();
+		workingCopy.openWhenClosed(new WorkingCopyElementInfo(), fMonitor);
+
 		if (this.perFactoryWorkingCopies != null) {
-			this.perFactoryWorkingCopies.put(cu, workingCopy);
+			this.perFactoryWorkingCopies.put(workingCopy.getOriginalElement(), workingCopy);
 			if (CompilationUnit.SHARED_WC_VERBOSE) {
 				System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
 			}
@@ -58,10 +53,10 @@ public class CreateWorkingCopyOperation extends JavaModelOperation {
 		fResultElements = new IJavaElement[] {workingCopy};
 	}
 	/**
-	 * Returns the compilation unit this operation is working on.
+	 * Returns the working copy this operation is working on.
 	 */
-	protected ICompilationUnit getCompilationUnit() {
-		return (ICompilationUnit)getElementToProcess();
+	protected CompilationUnit getWorkingCopy() {
+		return (CompilationUnit)getElementToProcess();
 	}
 	/**
 	 * @see JavaModelOperation#isReadOnly

@@ -104,12 +104,14 @@ public class PotentialMatch implements ICompilationUnit, SuffixConstants {
 	public char[] getContents() {
 		char[] source = null;
 		try {
-			if (this.openable instanceof WorkingCopy) {
-				IBuffer buffer = this.openable.getBuffer();
-				if (buffer == null) return null;
-				source = buffer.getCharacters();
-			} else if (this.openable instanceof CompilationUnit) {
-				source = Util.getResourceContentsAsCharArray((IFile)this.resource);
+			if (this.openable instanceof CompilationUnit) {
+				if (((CompilationUnit)this.openable).isWorkingCopy()) {
+					IBuffer buffer = this.openable.getBuffer();
+					if (buffer == null) return null;
+					source = buffer.getCharacters();
+				} else {
+					source = Util.getResourceContentsAsCharArray((IFile)this.resource);
+				}
 			} else if (this.openable instanceof ClassFile) {
 				source = findClassFileSource();
 			}

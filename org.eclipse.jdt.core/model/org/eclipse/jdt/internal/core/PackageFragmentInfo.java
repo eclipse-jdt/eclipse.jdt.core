@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.CompilationUnitOwner;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -34,6 +38,26 @@ public PackageFragmentInfo() {
  */
 boolean containsJavaResources() {
 	return fChildren.length != 0;
+}
+public IJavaElement[] getChildren() {
+	IJavaElement[] children = super.getChildren();
+	int length = children.length;
+	if (length == 0) return children;
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	Map sharedWorkingCopies = manager.sharedWorkingCopies;
+	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(CompilationUnitOwner.getCurrentOwner());
+	if (perOwnerWorkingCopies == null) return children;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = children[i];
+		if (child instanceof CompilationUnit) {
+			CompilationUnit cu = (CompilationUnit)child;
+			CompilationUnit sharedWC = (CompilationUnit)perOwnerWorkingCopies.get(cu);
+			if (sharedWC != null ){
+				children[i] = sharedWC;
+			}
+		}
+	}
+	return children;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.

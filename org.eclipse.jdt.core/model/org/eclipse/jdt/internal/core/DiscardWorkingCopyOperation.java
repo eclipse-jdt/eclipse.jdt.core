@@ -16,20 +16,16 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * Destroys a working copy (remove it from its cache if it is shared)
+ * Discards a working copy (remove it from its cache if it is shared)
  * and signal its removal through a delta.
  */
-public class DestroyWorkingCopyOperation extends JavaModelOperation {
+public class DiscardWorkingCopyOperation extends JavaModelOperation {
 	
-	public DestroyWorkingCopyOperation(IJavaElement workingCopy) {
+	public DiscardWorkingCopyOperation(IJavaElement workingCopy) {
 		super(new IJavaElement[] {workingCopy});
 	}
-	/**
-	 * @exception JavaModelException if setting the source
-	 * 	of the original compilation unit fails
-	 */
 	protected void executeOperation() throws JavaModelException {
-		WorkingCopy workingCopy = getWorkingCopy();
+		CompilationUnit workingCopy = getWorkingCopy();
 		workingCopy.close();
 		workingCopy.closeBuffer();
 		
@@ -39,15 +35,18 @@ public class DestroyWorkingCopyOperation extends JavaModelOperation {
 			((CompilationUnit)originalElement).close();
 		}
 		
-		// remove working copy from the cache if it is shared
+		// remove working copy info from the JavaModelCache
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.removeInfoAndChildren(workingCopy);
+
+		// remove working copy from the shared working copy cache if needed
 		
 		// In order to be shared, working copies have to denote the same compilation unit 
 		// AND use the same buffer factory.
 		// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 		Map sharedWorkingCopies = manager.sharedWorkingCopies;
 		
-		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(workingCopy.bufferFactory);
+		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(workingCopy.owner);
 		if (perFactoryWorkingCopies != null){
 			if (perFactoryWorkingCopies.remove(originalElement) != null
 					&& CompilationUnit.SHARED_WC_VERBOSE) {
@@ -64,8 +63,8 @@ public class DestroyWorkingCopyOperation extends JavaModelOperation {
 	/**
 	 * Returns the working copy this operation is working on.
 	 */
-	protected WorkingCopy getWorkingCopy() {
-		return (WorkingCopy)getElementToProcess();
+	protected CompilationUnit getWorkingCopy() {
+		return (CompilationUnit)getElementToProcess();
 	}
 	/**
 	 * @see JavaModelOperation#isReadOnly

@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -41,7 +42,12 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	
 	public IBuffer buffer;
 	
-
+	/*
+	 * @see ICompilationUnit#becomeWorkingCopy(IProgressMonitor)
+	 */
+	public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
+	}
+	
 	/*
 	 * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
 	 */
@@ -75,6 +81,12 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
+	/*
+	 * @see ICompilationUnit#discardWorkingCopy
+	 */
+	public void discardWorkingCopy() throws JavaModelException {
+	}
+	
 	/*
 	 * @see ICompilationUnit#getAllTypes()
 	 */
@@ -114,6 +126,13 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see IJavaElement#getOpenable()
 	 */
 	public IOpenable getOpenable() {
+		return null;
+	}
+
+	/*
+	 * @see ICompilationUnit#getOwner()
+	 */
+	public CompilationUnitOwner getOwner() {
 		return null;
 	}
 
@@ -332,22 +351,32 @@ public IResource getResource() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#commit(boolean, IProgressMonitor)
+	 * @deprecated
 	 */
-	public void commit(boolean force, IProgressMonitor monitor)
+	public void commit(boolean force, IProgressMonitor monitor) throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+	
+	/*
+	 * @see IWorkingCopy#commitWorkingCopy(boolean, IProgressMonitor)
+	 */
+	public void commitWorkingCopy(boolean force, IProgressMonitor monitor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#destroy()
+	 * @deprecated
 	 */
 	public void destroy() {
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#findSharedWorkingCopy(IBufferFactory)
+	 * @deprecated
 	 */
 	public IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory) {
 		return null;
@@ -367,8 +396,9 @@ public IResource getResource() {
 		return new ClassFile((IPackageFragment)getParent(), getElementName());
 	}
 
-		/*
+	/**
 	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)
+	 * @deprecated
 	 */
 	public IJavaElement getSharedWorkingCopy(
 		IProgressMonitor monitor,
@@ -378,14 +408,17 @@ public IResource getResource() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#getWorkingCopy()
+	 * @deprecated
 	 */
 	public IJavaElement getWorkingCopy() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
-	/*
+
+	/**
 	 * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
+	 * @deprecated
 	 */
 	public IJavaElement getWorkingCopy(
 		IProgressMonitor monitor,
@@ -394,9 +427,6 @@ public IResource getResource() {
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
-	/*
-	 * @see IWorkingCopy#hasManagedWorkingCopy()
-	 */
 
 	/*
 	 * @see IWorkingCopy#isBasedOn(IResource)

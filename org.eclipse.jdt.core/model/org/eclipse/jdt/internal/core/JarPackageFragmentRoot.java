@@ -144,7 +144,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				
 				ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(packName);
 				JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(packName);
-				JarPackageFragmentInfo fragInfo= (JarPackageFragmentInfo) packFrag.createElementInfo();
+				JarPackageFragmentInfo fragInfo= new JarPackageFragmentInfo();
 				if (entries[0].size() > 0){
 					fragInfo.setEntryNames(entries[JAVA]);
 				}
@@ -176,7 +176,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 /**
 	 * Returns a new element info for this element.
 	 */
-	protected OpenableElementInfo createElementInfo() {
+	protected Object createElementInfo() {
 		return new JarPackageFragmentRootInfo();
 	}
 	/**
@@ -312,22 +312,6 @@ protected boolean resourceExists() {
 				true) != null;
 	} else {
 		return super.resourceExists();
-	}
-}
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	if (isExternal()) {
-		return
-			new JarPackageFragmentRoot(
-				this.jarPath,
-				project);
-	} else {
-		return
-			new JarPackageFragmentRoot(
-				getResource(),
-				project);
 	}
 }
 }

@@ -34,6 +34,21 @@ protected BinaryMember(int type, IJavaElement parent, String name) {
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
+/*
+ * @see JavaElement#generateInfos
+ */
+protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	Openable openableParent = (Openable)getOpenableParent();
+	if (openableParent == null) return;
+	
+	ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+	if (openableParentInfo == null) {
+		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
+		openableParentInfo = (ClassFileInfo)newElements.get(openableParent);
+	}
+	if (openableParentInfo == null) return;
+	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
+}
 /**
  * @see ISourceReference
  */
@@ -79,21 +94,6 @@ public boolean isStructureKnown() throws JavaModelException {
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-}
-/*
- * @see JavaElement#openWhenClosed
- */
-protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent != null) {
-		ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
-		if (openableParentInfo == null) {
-			openableParentInfo = (ClassFileInfo)openableParent.openWhenClosed(newElements, null);
-		}
-		openableParentInfo.getBinaryChildren(newElements); // forces the initialization
-		return newElements.get(this);
-	}
-	return null;
 }
 /**
  * @see ISourceManipulation
