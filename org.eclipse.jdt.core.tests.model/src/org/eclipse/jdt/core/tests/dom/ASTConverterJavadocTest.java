@@ -900,4 +900,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			if (debug) System.out.println(docComment+"\nsuccessfully verified.");
 		}
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51241
+	 */
+	public void testBug51241() throws JavaModelException {
+		verifyComments("Bug51241");
+	}
 }
