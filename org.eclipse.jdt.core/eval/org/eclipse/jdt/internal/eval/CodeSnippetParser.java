@@ -296,8 +296,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
 
-	if (scanner.startPosition >= codeSnippetStart
-		&& scanner.startPosition <= codeSnippetEnd + 1
+	if (scanner.startPosition >= this.codeSnippetStart
+		&& scanner.startPosition <= this.codeSnippetEnd + 1 + Util.LINE_SEPARATOR_CHARS.length // 14838
 		&& isTopLevelType()) {
 			
 		// when the name is only an identifier...we have a message send to "this" (implicit)
@@ -337,8 +337,8 @@ protected void consumeMethodInvocationSuper() {
 protected void consumePrimaryNoNewArrayThis() {
 	// PrimaryNoNewArray ::= 'this'
 
-	if (scanner.startPosition >= codeSnippetStart
-		&& scanner.startPosition <= codeSnippetEnd + 1
+	if (scanner.startPosition >= this.codeSnippetStart
+		&& scanner.startPosition <= this.codeSnippetEnd + 1 + Util.LINE_SEPARATOR_CHARS.length // 14838
 		&& isTopLevelType()) {
 		pushOnExpressionStack(
 			new CodeSnippetThisReference(intStack[intPtr--], endPosition, this.evaluationContext, false));
@@ -402,7 +402,7 @@ protected void consumeStatementReturn() {
 	// returned value intercepted by code snippet 
 	// support have to be defined at toplevel only
 	if ((this.hasRecoveredOnExpression
-			|| (scanner.startPosition >= codeSnippetStart && scanner.startPosition <= codeSnippetEnd+1))
+			|| (scanner.startPosition >= codeSnippetStart && scanner.startPosition <= codeSnippetEnd+1+Util.LINE_SEPARATOR_CHARS.length /* 14838*/))
 		&& this.expressionLengthStack[this.expressionLengthPtr] != 0
 		&& isTopLevelType()) {
 		this.expressionLengthPtr--;
@@ -526,7 +526,7 @@ protected NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/
 
 	if (scanner.startPosition >= codeSnippetStart 
-		&& scanner.startPosition <= codeSnippetEnd+1){
+		&& scanner.startPosition <= codeSnippetEnd+1+Util.LINE_SEPARATOR_CHARS.length /*14838*/){
 		int length;
 		NameReference ref;
 		if ((length = identifierLengthStack[identifierLengthPtr--]) == 1)
@@ -562,7 +562,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	look for that it is not a type reference */
 
 	if (scanner.startPosition >= codeSnippetStart 
-		&& scanner.startPosition <= codeSnippetEnd+1){
+		&& scanner.startPosition <= codeSnippetEnd+1+Util.LINE_SEPARATOR_CHARS.length /*14838*/){
 		int length;
 		NameReference ref;
 		if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
@@ -630,7 +630,7 @@ protected MessageSend newMessageSend() {
  * Records the scanner position if we're parsing a top level type.
  */
 private void recordLastStatementIfNeeded() {
-	if ((isTopLevelType()) && (this.scanner.startPosition <= this.codeSnippetEnd)) {
+	if ((isTopLevelType()) && (this.scanner.startPosition <= this.codeSnippetEnd+Util.LINE_SEPARATOR_CHARS.length /*14838*/)) {
 		this.lastStatement = this.scanner.startPosition;
 	}
 }

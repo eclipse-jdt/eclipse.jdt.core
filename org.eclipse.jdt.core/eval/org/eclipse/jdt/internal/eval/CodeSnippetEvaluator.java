@@ -115,7 +115,7 @@ Compiler getCompiler(ICompilerRequestor requestor) {
 				this.problemFactory,
 				this.context,
 				getMapper().startPosOffset,
-				getMapper().startPosOffset + codeSnippet.length - 1 + Util.LINE_SEPARATOR_CHARS.length); // 14838
+				getMapper().startPosOffset + codeSnippet.length - 1);
 		// Initialize the compiler's lookup environment with the already compiled super classes
 		IBinaryType binary = this.context.getRootCodeSnippetBinary();
 		if (binary != null) {
