@@ -172,7 +172,7 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		manager.flushZipFiles();
 	}
 }
-private void buildForProject(JavaProject project, ArrayList infos, ArrayList units) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, IWorkingCopy[] workingCopies) throws JavaModelException {
 	// copy vectors into arrays
 	IGenericType[] genericTypes;
 	int infosSize = infos.size();
@@ -197,12 +197,23 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 		IType focusType = this.getType();
 		this.nameLookup = project.getNameLookup();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
-		synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+		synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the units to look inside are set
 			if (inProjectOfFocusType) {
 				org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
+				IWorkingCopy[] unitsToLookInside;
 				if (unitToLookInside != null) {
-					this.nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+					int wcLength = workingCopies == null ? 0 : workingCopies.length;
+					if (wcLength == 0) {
+						unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
+					} else {
+						unitsToLookInside = new IWorkingCopy[wcLength+1];
+						unitsToLookInside[0] = unitToLookInside;
+						System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
+					}
+				} else {
+					unitsToLookInside = workingCopies;
 				}
+				this.nameLookup.setUnitsToLookInside(unitsToLookInside);
 			}
 			try {
 				this.hierarchyResolver = 
@@ -318,7 +329,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 				units = new ArrayList(5);
 			} else if (!currentProject.equals(project)) {
 				// build current project
-				this.buildForProject((JavaProject)currentProject, infos, units);
+				this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
 				currentProject = project;
 				infos = new ArrayList(5);
 				units = new ArrayList(5);
@@ -339,7 +350,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			currentProject = focusType.getJavaProject();
 			this.addInfosFromType(focusType, infos);
 		}
-		this.buildForProject((JavaProject)currentProject, infos, units);
+		this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
 	} catch (JavaModelException e) {
 	}
 	
@@ -350,7 +361,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			infos = new ArrayList();
 			units = new ArrayList();
 			this.addInfosFromType(focusType, infos);
-			this.buildForProject((JavaProject)currentProject, infos, units);
+			this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
 		} catch (JavaModelException e) {
 		}
 	}
@@ -430,13 +441,7 @@ protected IType getHandle(IGenericType genericType) {
 	} else
 		return super.getHandle(genericType);
 }
-private IWorkingCopy[] getWokingCopies() {
-	if (this.hierarchy.progressMonitor instanceof CreateTypeHierarchyOperation) {
-		return ((CreateTypeHierarchyOperation)this.hierarchy.progressMonitor).workingCopies;
-	} else {
-		return null;
-	}
-}
+
 /**
  * Find the set of candidate subtypes of a given type.
  *

@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.CreateTypeHierarchyOperation;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -110,10 +111,24 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		//    in the hierarchy resolver, thus there is no need to check that a type is 
 		//    a sub or super type of the focus type.
 		org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-		if (nameLookup != null && unitToLookInside != null) {
+		if (nameLookup != null) {
 			synchronized(nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+				IWorkingCopy[] workingCopies = this.getWokingCopies();
+				IWorkingCopy[] unitsToLookInside;
+				if (unitToLookInside != null) {
+					int wcLength = workingCopies == null ? 0 : workingCopies.length;
+					if (wcLength == 0) {
+						unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
+					} else {
+						unitsToLookInside = new IWorkingCopy[wcLength+1];
+						unitsToLookInside[0] = unitToLookInside;
+						System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
+					}
+				} else {
+					unitsToLookInside = workingCopies;
+				}
 				try {
-					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+					nameLookup.setUnitsToLookInside(unitsToLookInside);
 					// resolve
 					this.hierarchyResolver.resolve(type);
 				} finally {
@@ -247,6 +262,13 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected IType getType() {
 		return this.hierarchy.getType();
 	}
+protected IWorkingCopy[] getWokingCopies() {
+	if (this.hierarchy.progressMonitor instanceof CreateTypeHierarchyOperation) {
+		return ((CreateTypeHierarchyOperation)this.hierarchy.progressMonitor).workingCopies;
+	} else {
+		return null;
+	}
+}
 	/**
 	 * Looks up and returns a handle for the given binary info.
 	 */
