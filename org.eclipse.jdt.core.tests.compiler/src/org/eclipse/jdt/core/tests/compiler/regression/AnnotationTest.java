@@ -2687,4 +2687,16 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"true");
 	}
+	
+	// Add null check for empty array initializer
+	public void test086() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target({}) @interface X {}"
+			},
+			"");
+	}
 }
