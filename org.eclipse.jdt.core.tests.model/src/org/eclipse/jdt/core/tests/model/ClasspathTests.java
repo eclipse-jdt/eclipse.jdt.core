@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2002 IBM Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.IFolder;
@@ -44,13 +54,13 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 		if (markerCount > 0){
 			if (computedCount++ > 0) computed.append(", ");
 			computed.append(p[j].getElementName());
-			computed.append(" (" + markerCount + ")");
+			//computed.append(" (" + markerCount + ")");
 		}
 		markerCount = expectedCycleParticipants[j];
 		if (markerCount > 0){
 			if (expectedCount++ > 0) expected.append(", ");
 			expected.append(p[j].getElementName());
-			expected.append(" (" + markerCount + ")");
+			//expected.append(" (" + markerCount + ")");
 		}
 	}
 	expected.append("}");
@@ -83,46 +93,13 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(ClasspathTests.class.getName());
-	
-	suite.addTest(new ClasspathTests("testClasspathValidation1"));
-	suite.addTest(new ClasspathTests("testClasspathValidation2"));
-	suite.addTest(new ClasspathTests("testClasspathValidation3"));
-	suite.addTest(new ClasspathTests("testClasspathValidation4"));
-	suite.addTest(new ClasspathTests("testClasspathValidation5"));
-	suite.addTest(new ClasspathTests("testClasspathValidation6"));
-	suite.addTest(new ClasspathTests("testDefaultClasspathAndOutputLocation"));
-	suite.addTest(new ClasspathTests("testNullClasspath"));
-	suite.addTest(new ClasspathTests("testEmptyClasspath"));
-	suite.addTest(new ClasspathTests("testExportContainer"));
-	suite.addTest(new ClasspathTests("testClasspathNoChanges"));
-	suite.addTest(new ClasspathTests("testClasspathCreateLibraryEntry"));
-	suite.addTest(new ClasspathTests("testClasspathCreateLocalJarLibraryEntry"));
-	suite.addTest(new ClasspathTests("testClasspathWithDuplicateEntries"));
-	suite.addTest(new ClasspathTests("testClasspathWithNonExistentSourceEntry"));
-	suite.addTest(new ClasspathTests("testClasspathWithNonExistentProjectEntry"));
-	suite.addTest(new ClasspathTests("testClasspathWithNonExistentLibraryEntry"));
-	suite.addTest(new ClasspathTests("testClasspathDeleteNestedRoot"));
-	suite.addTest(new ClasspathTests("testClasspathDeleteNestedRootParent"));
-	suite.addTest(new ClasspathTests("testClasspathMoveNestedRoot"));
-	suite.addTest(new ClasspathTests("testClasspathMoveNestedRootParent"));
-	suite.addTest(new ClasspathTests("testClasspathAddRoot"));
-	suite.addTest(new ClasspathTests("testClasspathExternalize"));
-	suite.addTest(new ClasspathTests("testClasspathReordering"));
-	suite.addTest(new ClasspathTests("testClasspathChangeExternalResources"));
-	suite.addTest(new ClasspathTests("testClasspathCrossProject"));
-	suite.addTest(new ClasspathTests("testCycleReport"));
-	suite.addTest(new ClasspathTests("testHasClasspathCycle"));
-	suite.addTest(new ClasspathTests("testCycleDetection"));
-	suite.addTest(new ClasspathTests("testCycleDetectionThroughVariables"));
-	suite.addTest(new ClasspathTests("testCycleDetectionThroughContainers"));
-	suite.addTest(new ClasspathTests("testCycleDetectionThroughContainerVariants"));
-	suite.addTest(new ClasspathTests("testMissingPrereq1"));
-	suite.addTest(new ClasspathTests("testMissingPrereq2"));
-	suite.addTest(new ClasspathTests("testMissingPrereq3"));
-	suite.addTest(new ClasspathTests("testMissingPrereq4"));
-	
-	return suite;
+
+	if (false){
+		TestSuite suite = new Suite(ClasspathTests.class.getName());
+		suite.addTest(new ClasspathTests("testDenseCycleDetection"));
+		return suite;
+	}
+	return new Suite(ClasspathTests.class);	
 }
 /**
  * Add an entry to the classpath for a non-existent root. Then create
@@ -1388,4 +1365,169 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 		}
 	}
 }
+public void testCycleDetection2() throws CoreException {
+	
+	IJavaProject[] p = null;
+	try {
+
+		p = new IJavaProject[]{
+			this.createJavaProject("P0", new String[] {""}, ""),
+			this.createJavaProject("P1", new String[] {""}, ""),
+			this.createJavaProject("P2", new String[] {""}, ""),
+			this.createJavaProject("P3", new String[] {""}, ""),
+			this.createJavaProject("P4", new String[] {""}, ""),
+		};
+		
+		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
+			{ JavaCore.newProjectEntry(p[1].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
+			{ JavaCore.newProjectEntry(p[2].getPath()) },
+			{ JavaCore.newProjectEntry(p[0].getPath()) }, 
+			{ JavaCore.newProjectEntry(p[4].getPath())}, 
+			{ JavaCore.newProjectEntry(p[0].getPath()) } 
+		}; 
+
+		int[][] expectedCycleParticipants = new int[][] {
+			{ 0, 0, 0, 0, 0 }, // after setting CP p[0]
+			{ 0, 0, 0, 0, 0 }, // after setting CP p[1]
+			{ 1, 1, 1, 0, 0 }, // after setting CP p[2]
+			{ 1, 1, 1, 0, 0 }, // after setting CP p[3]
+			{ 1, 1, 1, 1, 1 }, // after setting CP p[4]
+		};
+		
+		for (int i = 0; i < p.length; i++){
+
+			// append project references			
+			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
+			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
+			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
+			for (int j = 0; j < extraEntries[i].length; j++){
+				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
+			}			
+			// set classpath
+			p[i].setRawClasspath(newClasspath, null);
+
+			// check cycle markers
+			this.assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+		}
+		//this.startDeltas();
+		
+	} finally {
+		//this.stopDeltas();
+		if (p != null){
+			for (int i = 0; i < p.length; i++){
+				this.deleteProject(p[i].getElementName());
+			}
+		}
+	}
+}
+
+public void testCycleDetection3() throws CoreException {
+	
+	IJavaProject[] p = null;
+	try {
+
+		p = new IJavaProject[]{
+			this.createJavaProject("P0", new String[] {""}, ""),
+			this.createJavaProject("P1", new String[] {""}, ""),
+			this.createJavaProject("P2", new String[] {""}, ""),
+			this.createJavaProject("P3", new String[] {""}, ""),
+			this.createJavaProject("P4", new String[] {""}, ""),
+			this.createJavaProject("P5", new String[] {""}, ""),
+		};
+		
+		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
+			{ JavaCore.newProjectEntry(p[2].getPath()), JavaCore.newProjectEntry(p[4].getPath()) },
+			{ JavaCore.newProjectEntry(p[0].getPath()) },
+			{ JavaCore.newProjectEntry(p[3].getPath()) }, 
+			{ JavaCore.newProjectEntry(p[1].getPath())}, 
+			{ JavaCore.newProjectEntry(p[5].getPath()) }, 
+			{ JavaCore.newProjectEntry(p[1].getPath()) } 
+		}; 
+
+		int[][] expectedCycleParticipants = new int[][] {
+			{ 0, 0, 0, 0, 0, 0 }, // after setting CP p[0]
+			{ 0, 0, 0, 0, 0, 0 }, // after setting CP p[1]
+			{ 0, 0, 0, 0, 0, 0 }, // after setting CP p[2]
+			{ 1, 1, 1, 1, 0, 0 }, // after setting CP p[3]
+			{ 1, 1, 1, 1, 0, 0 }, // after setting CP p[4]
+			{ 1, 1, 1, 1, 1 , 1}, // after setting CP p[5]
+		};
+		
+		for (int i = 0; i < p.length; i++){
+
+			// append project references			
+			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
+			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
+			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
+			for (int j = 0; j < extraEntries[i].length; j++){
+				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
+			}			
+			// set classpath
+			p[i].setRawClasspath(newClasspath, null);
+
+			// check cycle markers
+			this.assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+		}
+		//this.startDeltas();
+		
+	} finally {
+		//this.stopDeltas();
+		if (p != null){
+			for (int i = 0; i < p.length; i++){
+				this.deleteProject(p[i].getElementName());
+			}
+		}
+	}
+}
+public void testDenseCycleDetection() throws CoreException {
+	denseCycleDetection(5);
+	denseCycleDetection(10);
+	denseCycleDetection(20);
+	//denseCycleDetection(100);
+}
+
+private void denseCycleDetection(int numberOfParticipants) throws CoreException {
+	
+	long start = System.currentTimeMillis();
+	IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	int[] allProjectsInCycle = new int[numberOfParticipants];
+	try {
+		for (int i = 0; i < numberOfParticipants; i++){
+			projects[i] = this.createJavaProject("P"+i, new String[]{""}, "");
+			allProjectsInCycle[i] = 1;
+		}		
+		for (int i = 0; i < numberOfParticipants; i++){
+			IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
+			int index = 0;
+			for (int j = 0; j < numberOfParticipants; j++){
+				if (i == j) continue;
+				extraEntries[index++] = JavaCore.newProjectEntry(projects[j].getPath());
+			}
+			// append project references			
+			IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
+			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
+			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
+			for (int j = 0; j < extraEntries.length; j++){
+				newClasspath[oldClasspath.length+j] = extraEntries[j];
+			}			
+			// set classpath
+			projects[i].setRawClasspath(newClasspath, null);
+		};
+		
+		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+		for (int i = 0; i < numberOfParticipants; i++){
+			// check cycle markers
+			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
+		}
+		
+	} finally {
+		if (projects != null){
+			for (int i = 0; i < numberOfParticipants; i++){
+				if (projects[i] != null)
+					this.deleteProject(projects[i].getElementName());
+			}
+		}
+	}
+}
+
 }
