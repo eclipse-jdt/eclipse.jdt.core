@@ -344,7 +344,7 @@ public abstract class JobManager implements Runnable {
 				try {
 					IJob job;
 					synchronized (this) {
-						// handle shutdown case when processing thread is set to null
+						// handle shutdown case when notifyAll came before the wait but after the while loop was entered
 						if (this.processingThread == null) continue;
 
 						if ((job = currentJob()) == null) {

@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
 public abstract class Scope
@@ -1301,17 +1302,28 @@ public abstract class Scope
 		// ask for the imports + name
 		if ((mask & TYPE) != 0) {
 			// check single type imports.
+
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
-				// copy the list, since single type imports are removed if they cannot be resolved
-				for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding typeImport = imports[i];
-					if (!typeImport.onDemand) {
-						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
-							if (unitScope.resolveSingleTypeImport(typeImport) != null) {
-								ImportReference importReference = typeImport.reference;
-								if (importReference != null) importReference.used = true;
-								return typeImport.resolvedImport; // already know its visible
+				HashtableOfObject typeImports = unitScope.resolvedSingeTypeImports;
+				if (typeImports != null) {
+					ImportBinding typeImport = (ImportBinding) typeImports.get(name);
+					if (typeImport != null) {
+						ImportReference importReference = typeImport.reference;
+						if (importReference != null) importReference.used = true;
+						return typeImport.resolvedImport; // already know its visible
+					}
+				} else {
+					// walk all the imports since resolvedSingeTypeImports is not yet initialized
+					for (int i = 0, length = imports.length; i < length; i++) {
+						ImportBinding typeImport = imports[i];
+						if (!typeImport.onDemand) {
+							if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
+								if (unitScope.resolveSingleTypeImport(typeImport) != null) {
+									ImportReference importReference = typeImport.reference;
+									if (importReference != null) importReference.used = true;
+									return typeImport.resolvedImport; // already know its visible
+								}
 							}
 						}
 					}
