@@ -1073,6 +1073,54 @@ public void test046() {
 		"T cannot be resolved to a type\n" + 
 		"----------\n");
 }
+public void test047() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    private T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new MX<String>(\"INNER\") {\n" + 
+			"            void run() {\n" + 
+			"                \n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"		                String s = t = \"SUC\";\n" + 
+			"		                s = t+= \"CESS\";\n" + 
+			"				        System.out.println(t);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class MX<U> {\n" + 
+			"    MX(U u){}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	String s = t = \"SUC\";\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from T to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	String s = t = \"SUC\";\n" + 
+		"	               ^^^^^\n" + 
+		"Type mismatch: cannot convert from String to T\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	s = t+= \"CESS\";\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"The operator += is undefined for the argument type(s) T, String\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
