@@ -1545,7 +1545,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_unary_operator = false;
 		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_binary_operator = true;
-		this.insert_space_before_closing_brace_in_array_initializer = false;
+		this.insert_space_before_closing_brace_in_array_initializer = true;
 		this.insert_space_before_closing_bracket_in_array_allocation_expression = false;
 		this.insert_space_before_closing_bracket_in_array_reference = false;
 		this.insert_space_before_closing_paren_in_cast = false;
