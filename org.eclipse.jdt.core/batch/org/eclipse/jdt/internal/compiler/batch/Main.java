@@ -1256,6 +1256,9 @@ public class Main implements ProblemSeverities {
 		if (compilationUnit != null) {
 			char[] fileName = compilationUnit.getFileName();
 			int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
+			if (lastIndex == -1) {
+				return System.getProperty("user.dir"); //$NON-NLS-1$
+			}
 			return new String(CharOperation.subarray(fileName, 0, lastIndex));
 		}
 		return System.getProperty("user.dir"); //$NON-NLS-1$
