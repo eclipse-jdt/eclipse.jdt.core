@@ -48,5 +48,6 @@ public String toString(int tab, boolean withOnDemand) {
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope scope) {
 	visitor.visit(this, scope);
+	visitor.endVisit(this, scope);
 }
 }

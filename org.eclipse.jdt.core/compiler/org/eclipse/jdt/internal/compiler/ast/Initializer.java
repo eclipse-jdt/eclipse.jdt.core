@@ -82,7 +82,9 @@ public String toString(int tab){
 	}
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
+	if (visitor.visit(this, scope)) {
+		block.traverse(visitor, scope);
+	}
 	visitor.visit(this, scope);
-	block.traverse(visitor, scope);
 }
 }
