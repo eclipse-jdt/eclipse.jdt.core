@@ -213,7 +213,8 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		switch (operator) {
 			case NOT	: 	
 							return Constant.fromValue(!cst.booleanValue());
-			case PLUS	:	return cst; 
+			case PLUS	:
+							return computeConstantOperationPLUS(Zero,T_int,cst,id);
 			case MINUS	:	//the two special -9223372036854775808L and -2147483648 are inlined at parseTime
 							switch (id){
 								case T_float  :	float f;
@@ -233,7 +234,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 														return Constant.fromValue(0.0d);}
 												break; //default case
 							}
-							return computeConstantOperationMINUS(Zero,T_int,operator,cst,id);
+							return computeConstantOperationMINUS(Zero,T_int,cst,id);
 			case TWIDDLE:	
 				switch (id){
 					case T_char :	return Constant.fromValue(~ cst.charValue());
@@ -250,29 +251,29 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	public static final Constant computeConstantOperation(Constant left, int leftId, int operator, Constant right, int rightId) {
 
 		switch (operator) {
-			case AND		: return computeConstantOperationAND		(left,leftId,operator,right,rightId);
-			case AND_AND	: return computeConstantOperationAND_AND	(left,leftId,operator,right,rightId);
-			case DIVIDE 	: return computeConstantOperationDIVIDE		(left,leftId,operator,right,rightId);
-			case GREATER	: return computeConstantOperationGREATER	(left,leftId,operator,right,rightId);
-			case GREATER_EQUAL	: return computeConstantOperationGREATER_EQUAL(left,leftId,operator,right,rightId);
-			case LEFT_SHIFT	: return computeConstantOperationLEFT_SHIFT	(left,leftId,operator,right,rightId);
-			case LESS		: return computeConstantOperationLESS		(left,leftId,operator,right,rightId);
-			case LESS_EQUAL	: return computeConstantOperationLESS_EQUAL	(left,leftId,operator,right,rightId);
-			case MINUS		: return computeConstantOperationMINUS		(left,leftId,operator,right,rightId);
-			case MULTIPLY	: return computeConstantOperationMULTIPLY	(left,leftId,operator,right,rightId);
-			case OR			: return computeConstantOperationOR			(left,leftId,operator,right,rightId);
-			case OR_OR		: return computeConstantOperationOR_OR		(left,leftId,operator,right,rightId);
-			case PLUS		: return computeConstantOperationPLUS		(left,leftId,operator,right,rightId);
-			case REMAINDER	: return computeConstantOperationREMAINDER	(left,leftId,operator,right,rightId);
-			case RIGHT_SHIFT: return computeConstantOperationRIGHT_SHIFT(left,leftId,operator,right,rightId);
-			case UNSIGNED_RIGHT_SHIFT: return computeConstantOperationUNSIGNED_RIGHT_SHIFT(left,leftId,operator,right,rightId);
-			case XOR		: return computeConstantOperationXOR		(left,leftId,operator,right,rightId);
+			case AND		: return computeConstantOperationAND		(left,leftId,right,rightId);
+			case AND_AND	: return computeConstantOperationAND_AND	(left,leftId,right,rightId);
+			case DIVIDE 	: return computeConstantOperationDIVIDE		(left,leftId,right,rightId);
+			case GREATER	: return computeConstantOperationGREATER	(left,leftId,right,rightId);
+			case GREATER_EQUAL	: return computeConstantOperationGREATER_EQUAL(left,leftId,right,rightId);
+			case LEFT_SHIFT	: return computeConstantOperationLEFT_SHIFT	(left,leftId,right,rightId);
+			case LESS		: return computeConstantOperationLESS		(left,leftId,right,rightId);
+			case LESS_EQUAL	: return computeConstantOperationLESS_EQUAL	(left,leftId,right,rightId);
+			case MINUS		: return computeConstantOperationMINUS		(left,leftId,right,rightId);
+			case MULTIPLY	: return computeConstantOperationMULTIPLY	(left,leftId,right,rightId);
+			case OR			: return computeConstantOperationOR			(left,leftId,right,rightId);
+			case OR_OR		: return computeConstantOperationOR_OR		(left,leftId,right,rightId);
+			case PLUS		: return computeConstantOperationPLUS		(left,leftId,right,rightId);
+			case REMAINDER	: return computeConstantOperationREMAINDER	(left,leftId,right,rightId);
+			case RIGHT_SHIFT: return computeConstantOperationRIGHT_SHIFT(left,leftId,right,rightId);
+			case UNSIGNED_RIGHT_SHIFT: return computeConstantOperationUNSIGNED_RIGHT_SHIFT(left,leftId,right,rightId);
+			case XOR		: return computeConstantOperationXOR		(left,leftId,right,rightId);
 	
 			default : return NotAConstant;
 		}
 	}
 	
-	public static final Constant computeConstantOperationAND(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationAND(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_boolean :		return Constant.fromValue(left.booleanValue() & right.booleanValue());
@@ -325,12 +326,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	} 
 		
-	public static final Constant computeConstantOperationAND_AND(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationAND_AND(Constant left, int leftId, Constant right, int rightId) {
 	
 		return Constant.fromValue(left.booleanValue() && right.booleanValue());
 	}
 		
-	public static final Constant computeConstantOperationDIVIDE(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationDIVIDE(Constant left, int leftId, Constant right, int rightId) {
 		// division by zero must be handled outside this method (error reporting)
 	
 		switch (leftId){
@@ -416,7 +417,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	} 
 		
-	public static final Constant computeConstantOperationEQUAL_EQUAL(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationEQUAL_EQUAL(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_boolean :
@@ -520,7 +521,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return Constant.fromValue(false);
 	}
 		
-	public static final Constant computeConstantOperationGREATER(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationGREATER(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char : 
@@ -605,7 +606,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 
-	public static final Constant computeConstantOperationGREATER_EQUAL(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationGREATER_EQUAL(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char : 
@@ -690,7 +691,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}  
 		
-	public static final Constant computeConstantOperationLEFT_SHIFT(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationLEFT_SHIFT(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char :
@@ -743,7 +744,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	} 
 		
-	public static final Constant computeConstantOperationLESS(Constant left, int leftId, int operator, Constant right, int rightId) { 
+	public static final Constant computeConstantOperationLESS(Constant left, int leftId, Constant right, int rightId) { 
 		
 		switch (leftId){
 			case T_char : 
@@ -828,7 +829,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 		
-	public static final Constant computeConstantOperationLESS_EQUAL(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationLESS_EQUAL(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char : 
@@ -912,7 +913,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}  
 	
-	public static final Constant computeConstantOperationMINUS(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationMINUS(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char : 
@@ -997,7 +998,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 	
-	public static final Constant computeConstantOperationMULTIPLY(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationMULTIPLY(Constant left, int leftId, Constant right, int rightId) {
 	
 		switch (leftId){
 			case T_char :
@@ -1081,7 +1082,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 	
-	public static final Constant computeConstantOperationOR(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationOR(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_boolean :		return Constant.fromValue(left.booleanValue() | right.booleanValue());
@@ -1135,12 +1136,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 	
-	public static final Constant computeConstantOperationOR_OR(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationOR_OR(Constant left, int leftId, Constant right, int rightId) {
 	
 		return Constant.fromValue(left.booleanValue() || right.booleanValue());
 	}
 		
-	public static final Constant computeConstantOperationPLUS(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationPLUS(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_Object :
@@ -1267,7 +1268,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 		
-	public static final Constant computeConstantOperationREMAINDER(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationREMAINDER(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char : 
@@ -1352,7 +1353,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	} 
 	
-	public static final Constant computeConstantOperationRIGHT_SHIFT(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationRIGHT_SHIFT(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char :
@@ -1405,7 +1406,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 
-	public static final Constant computeConstantOperationUNSIGNED_RIGHT_SHIFT(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationUNSIGNED_RIGHT_SHIFT(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_char :
@@ -1458,7 +1459,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		return NotAConstant;
 	}
 	
-	public static final Constant computeConstantOperationXOR(Constant left, int leftId, int operator, Constant right, int rightId) {
+	public static final Constant computeConstantOperationXOR(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
 			case T_boolean :		return Constant.fromValue(left.booleanValue() ^ right.booleanValue());

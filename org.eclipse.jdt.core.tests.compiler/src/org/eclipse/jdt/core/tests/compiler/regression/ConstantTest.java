@@ -571,6 +571,23 @@ public void test011() {
 		"true");
 }
 
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=79545
+public void test012() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static String C = \"\" + +\' \';\n" +
+			"    public static String I = \"\" + +32;\n" +
+			"\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.print(C);\n" +
+			"        System.out.print(I);\n" +
+			"    }\n" +
+			"}",
+		},
+		"3232");
+}
 public static Class testClass() {
 	return ConstantTest.class;
 }

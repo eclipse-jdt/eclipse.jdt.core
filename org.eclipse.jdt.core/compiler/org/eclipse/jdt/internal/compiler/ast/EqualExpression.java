@@ -113,7 +113,6 @@ public class EqualExpression extends BinaryExpression {
 				Constant.computeConstantOperationEQUAL_EQUAL(
 					left.constant,
 					leftType.id,
-					EQUAL_EQUAL,
 					right.constant,
 					rightType.id);
 			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT_EQUAL)
