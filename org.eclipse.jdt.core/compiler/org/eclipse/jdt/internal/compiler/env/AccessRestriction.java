@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -55,5 +56,21 @@ public class AccessRestriction {
 	 */
 	public String getMessageTemplate() {
 			return this.messageTemplate;
+	}
+	
+	public String toString() {
+		StringBuffer buffer = new StringBuffer(20);
+		buffer
+			.append("AccessRestriction [includes:\"") //$NON-NLS-1$
+			.append(CharOperation.concatWith(this.inclusionPatterns,'/'))
+			.append("\"][excludes:\"") //$NON-NLS-1$
+			.append(CharOperation.concatWith(this.exclusionPatterns,'/'))
+			.append("\"][template:\"") //$NON-NLS-1$
+			.append(this.messageTemplate)
+			.append("\"]"); //$NON-NLS-1$
+		if (this.furtherRestriction != null) {
+			buffer.append('\n').append(this.furtherRestriction);
+		}
+		return buffer.toString();
 	}
 }
