@@ -311,6 +311,12 @@ void faultInImports() {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			}
+			if (typeBinding instanceof ReferenceBinding) {
+				ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
+				if (importReference.isTypeUseDeprecated(referenceBinding, this)) {
+					problemReporter().deprecatedType((TypeBinding) typeBinding, importReference);
+				}
+			}
 			ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
 			if (existingType != null) {
 				// duplicate test above should have caught this case, but make sure
