@@ -67,7 +67,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		maxType = qNameRef.tokens.length-1;
 		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 			case BindingIds.FIELD : // reading a field
-				typeBinding = ((FieldBinding)binding).declaringClass;
+				typeBinding = qNameRef.actualReceiverType;
 				int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
 				maxType -= otherBindingsCount + 1;
 				break;

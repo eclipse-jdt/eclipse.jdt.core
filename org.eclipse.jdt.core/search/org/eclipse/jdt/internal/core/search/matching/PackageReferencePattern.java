@@ -157,7 +157,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		TypeBinding typeBinding = null;
 		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 			case BindingIds.FIELD : // reading a field
-				typeBinding = ((FieldBinding)binding).declaringClass;
+				typeBinding = qNameRef.actualReceiverType;
 				break;
 			case BindingIds.TYPE : //=============only type ==============
 				typeBinding = (TypeBinding)binding;
@@ -295,7 +295,7 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 			int lastIndex = tokens.length-1;
 			switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 				case BindingIds.FIELD : // reading a field
-					typeBinding = ((FieldBinding)binding).declaringClass;
+					typeBinding = qNameRef.actualReceiverType;
 					// no valid match amongst fields
 					int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
 					lastIndex -= otherBindingsCount + 1;
