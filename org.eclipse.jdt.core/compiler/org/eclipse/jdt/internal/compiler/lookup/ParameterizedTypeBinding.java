@@ -126,7 +126,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public char[] genericTypeSignature() {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 	    StringBuffer sig = new StringBuffer(10);
-	    sig.append(this.type.genericTypeSignature()).append('<');
+	    char[] typeSig = this.type.genericTypeSignature();
+	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
+	    	sig.append(typeSig[i]);
+	    }
+	    sig.append('<');
 	    for (int i = 0, length = this.arguments.length; i < length; i++) {
 	        sig.append(this.arguments[i].genericTypeSignature());
 	    }
