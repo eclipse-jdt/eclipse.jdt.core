@@ -12,6 +12,8 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 /**
  * A binding resolver is an internal mechanism for figuring out the binding
@@ -109,6 +111,16 @@ class BindingResolver {
 		return null;
 	}
 
+	/**
+	 * Returns the compilation unit scope used by this binding resolver.
+	 * Returns <code>null</code> if none.
+	 * 
+	 * @return the compilation unit scope by this resolver, or <code>null</code> if none.
+	 */
+	public CompilationUnitScope scope() {
+		return null;
+	}
+	
 	/**
 	 * Resolves the given class or interface declaration and returns the binding
 	 * for it.
@@ -674,6 +686,16 @@ class BindingResolver {
 	 * @return the new variable binding
 	 */
 	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
+		return null;
+	}
+	
+	/**
+	 * Returns the compiler lookup environment used by this binding resolver.
+	 * Returns <code>null</code> if none.
+	 * 
+	 * @return the lookup environment used by this resolver, or <code>null</code> if none.
+	 */
+	LookupEnvironment lookupEnvironment() {
 		return null;
 	}
 	

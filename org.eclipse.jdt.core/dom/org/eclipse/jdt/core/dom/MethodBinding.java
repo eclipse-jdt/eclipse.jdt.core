@@ -407,8 +407,8 @@ class MethodBinding implements IMethodBinding {
 			return false;
 		if (!this.binding.declaringClass.isCompatibleWith(otherCompilerBinding.declaringClass))
 			return false;
-		if (!(this.resolver instanceof DefaultBindingResolver)) return false;
-		LookupEnvironment lookupEnvironment = ((DefaultBindingResolver) this.resolver).lookupEnvironment;
+		LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
+		if (lookupEnvironment == null) return false;
 		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 		return methodVerifier.doesMethodOverride(this.binding, otherCompilerBinding);
 	}

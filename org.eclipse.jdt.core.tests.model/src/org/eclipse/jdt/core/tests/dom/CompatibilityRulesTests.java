@@ -294,8 +294,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that a subtype is cast compatible with its super type
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test013() throws JavaModelException {
+	public void test013() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
@@ -317,8 +316,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that a type is cast compatible with itself
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test014() throws JavaModelException {
+	public void test014() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
@@ -335,8 +333,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that a supertype is cast compatible with its subtype
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test015() throws JavaModelException {
+	public void test015() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
@@ -358,8 +355,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that a type is not cast compatible with an unrelated type.
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test016() throws JavaModelException {
+	public void test016() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
@@ -381,8 +377,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that the int base type is cast compatible with the long base type
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test017() throws JavaModelException {
+	public void test017() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {},
 			new String[] {
@@ -395,8 +390,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	/*
 	 * Ensures that the int base type is not cast compatible with the java.lang.Object type
 	 */
-	// TODO (jerome) reenable when isCastCompatible works again
-	public void _test018() throws JavaModelException {
+	public void test018() throws JavaModelException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {},
 			new String[] {

@@ -115,11 +115,6 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	BindingTables bindingTables;
 	
-	/*
-	 * The lookup environment used to resolved bindings.
-	 */
-	LookupEnvironment lookupEnvironment;
-
 	/**
 	 * This map is used to retrieve an old ast node using the new ast node. This is not an
 	 * identity map.
@@ -146,7 +141,6 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingTables = bindingTables;
 		this.scope = scope;
 		this.workingCopyOwner = workingCopyOwner;
-		this.lookupEnvironment = scope.environment;
 	}
 
 	DefaultBindingResolver(LookupEnvironment lookupEnvironment, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables) {
@@ -154,8 +148,8 @@ class DefaultBindingResolver extends BindingResolver {
 		this.astNodesToBlockScope = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
 		this.bindingTables = bindingTables;
+		this.scope = new CompilationUnitScope(new CompilationUnitDeclaration(null, null, -1), lookupEnvironment);
 		this.workingCopyOwner = workingCopyOwner;
-		this.lookupEnvironment = lookupEnvironment;
 	}
 
 	/*
@@ -332,6 +326,14 @@ class DefaultBindingResolver extends BindingResolver {
  		}
 		return null;
 	}
+	
+	/*
+	 * Method declared on BindingResolver.
+	 */
+	LookupEnvironment lookupEnvironment() {
+		return this.scope.environment();
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.core.dom.BindingResolver#recordScope(ASTNode, BlockScope)
 	 */
@@ -1203,6 +1205,13 @@ class DefaultBindingResolver extends BindingResolver {
 		} else {
 			return null;
 		}
+	}
+	
+	/*
+	 * Method declared on BindingResolver.
+	 */
+	public CompilationUnitScope scope() {
+		return this.scope;
 	}
 		
 	/*

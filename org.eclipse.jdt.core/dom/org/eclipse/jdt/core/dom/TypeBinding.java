@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
@@ -749,7 +750,9 @@ class TypeBinding implements ITypeBinding {
 				return null;
 			}
 		};
-		return expression.checkCastTypesCompatibility(null, this.binding, ((TypeBinding) type).binding, null);
+		Scope scope = this.resolver.scope();
+		if (scope == null) return false;
+		return expression.checkCastTypesCompatibility(scope, this.binding, ((TypeBinding) type).binding, null);
 	}
 
 	/*
