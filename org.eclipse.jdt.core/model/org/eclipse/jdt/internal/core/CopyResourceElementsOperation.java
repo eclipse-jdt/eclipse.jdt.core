@@ -160,7 +160,7 @@ private JavaElementDelta getDeltaFor(IJavaProject javaProject) {
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
+	return org.eclipse.jdt.internal.core.Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
 }
 /**
  * Sets the deltas to register the changes resulting from this operation
