@@ -641,7 +641,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 
 		if (this.progressMonitor != null) {
 			// 1 for file path, 4 for parsing and binding creation, 5 for binding resolution? //$NON-NLS-1$
-			this.progressMonitor.beginTask("", filePaths.length * (this.pattern.mustResolve ? 10 : 5));
+			this.progressMonitor.beginTask("", filePaths.length * (this.pattern.mustResolve ? 10 : 5)); //$NON-NLS-1$
 		}
 
 		// initialize pattern for polymorphic search (ie. method reference pattern)
