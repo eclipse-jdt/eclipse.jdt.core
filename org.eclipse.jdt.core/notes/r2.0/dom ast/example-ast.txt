@@ -54,7 +54,7 @@ public class HelloWorld {
 						<PrimitiveType primitiveTypeCode: PrimitiveType.VOID>
 					parameters:
 						[
-						<VariableDeclaration
+						<SingleVariableDeclaration
 							modifiers: IModifier.NONE
 							type:
 								<ArrayType
