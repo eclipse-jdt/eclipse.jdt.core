@@ -283,6 +283,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		try {
 			configure(argv);
 			if (this.proceed) {
+//				if (this.verbose) {
+//					System.out.println(new CompilerOptions(this.options));
+//				}
 				if (this.showProgress)
 					this.out.println(Main.bind("progress.compiling")); //$NON-NLS-1$
 				for (int i = 0; i < this.repetitions; i++) {
@@ -1398,9 +1401,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			defaultEncoding = null; //$NON-NLS-1$	
 		return new FileSystem(this.classpaths, this.filenames, defaultEncoding);
 	}
-	public Map getOptions() {
-		return this.options;
-	}
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -1473,7 +1473,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			new Compiler(
 				environment,
 				getHandlingPolicy(),
-				getOptions(),
+				this.options,
 				getBatchRequestor(),
 				getProblemFactory());
 		CompilerOptions compilerOptions = batchCompiler.options;
