@@ -325,6 +325,8 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 			if (isBinary) {
 				locator.reportBinaryMemberDeclaration(resource, type, info, SearchMatch.A_ACCURATE);
 			} else {
+				if (typeBinding instanceof ParameterizedTypeBinding)
+					typeBinding = ((ParameterizedTypeBinding) typeBinding).type;
 				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;

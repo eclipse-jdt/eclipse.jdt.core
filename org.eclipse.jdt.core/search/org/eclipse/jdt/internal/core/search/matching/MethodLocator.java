@@ -189,6 +189,8 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
 		locator.reportBinaryMemberDeclaration(resource, method, info, SearchMatch.A_ACCURATE);
 	} else {
+		if (declaringClass instanceof ParameterizedTypeBinding)
+			declaringClass = ((ParameterizedTypeBinding) declaringClass).type;
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;

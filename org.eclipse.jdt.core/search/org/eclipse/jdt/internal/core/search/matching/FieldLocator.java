@@ -206,6 +206,8 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
 		locator.reportBinaryMemberDeclaration(resource, field, info, SearchMatch.A_ACCURATE);
 	} else {
+		if (declaringClass instanceof ParameterizedTypeBinding)
+			declaringClass = ((ParameterizedTypeBinding) declaringClass).type;
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;
@@ -221,7 +223,6 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 				int offset = fieldDecl.sourceStart;
 				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, offset, fieldDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
-
 			}
 		}
 	}
