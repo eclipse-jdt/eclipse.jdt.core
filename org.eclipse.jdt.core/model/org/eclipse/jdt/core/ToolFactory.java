@@ -112,7 +112,7 @@ public class ToolFactory {
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
 		if (options == null) options = JavaCore.getOptions();
-		return new org.eclipse.jdt.internal.formatter.CodeFormatter(options);
+		return new org.eclipse.jdt.internal.formatter.old.CodeFormatter(options);
 	}
 	
 	/**
