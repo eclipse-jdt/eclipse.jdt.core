@@ -169,9 +169,14 @@ public class CastExpression extends Expression {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			preLazyInit();
-			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}
@@ -203,9 +208,14 @@ public class CastExpression extends Expression {
 	 */ 
 	public Expression getExpression() {
 		if (this.expression == null) {
-			preLazyInit();
-			this.expression = new SimpleName(this.ast);
-			postLazyInit(this.expression, EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.expression == null) {
+					preLazyInit();
+					this.expression = new SimpleName(this.ast);
+					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.expression;
 	}

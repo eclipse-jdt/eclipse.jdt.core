@@ -283,9 +283,14 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.memberName == null) {
-			preLazyInit();
-			this.memberName = new SimpleName(this.ast);
-			postLazyInit(this.memberName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.memberName == null) {
+					preLazyInit();
+					this.memberName = new SimpleName(this.ast);
+					postLazyInit(this.memberName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.memberName;
 	}
@@ -319,9 +324,14 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.memberType == null) {
-			preLazyInit();
-			this.memberType = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.memberType, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.memberType == null) {
+					preLazyInit();
+					this.memberType = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.memberType, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.memberType;
 	}

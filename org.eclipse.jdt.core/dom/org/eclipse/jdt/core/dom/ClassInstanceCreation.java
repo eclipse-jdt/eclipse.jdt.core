@@ -406,10 +406,15 @@ public class ClassInstanceCreation extends Expression {
 	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
 	    supportedOnlyIn2();
-		if (typeName == null) {
-			preLazyInit();
-			this.typeName = new SimpleName(this.ast);
-			postLazyInit(this.typeName, NAME_PROPERTY);
+		if (this.typeName == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.typeName == null) {
+					preLazyInit();
+					this.typeName = new SimpleName(this.ast);
+					postLazyInit(this.typeName, NAME_PROPERTY);
+				}
+			}
 		}
 		return typeName;
 	}
@@ -451,9 +456,14 @@ public class ClassInstanceCreation extends Expression {
 	public Type getType() {
 	    unsupportedIn2();
 		if (this.type == null) {
-			preLazyInit();
-			this.type = new SimpleType(this.ast);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}

@@ -195,9 +195,14 @@ public class QualifiedType extends Type {
 	 */ 
 	public Type getQualifier() {
 		if (this.qualifier == null) {
-			preLazyInit();
-			this.qualifier = new SimpleType(this.ast);
-			postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.qualifier == null) {
+					preLazyInit();
+					this.qualifier = new SimpleType(this.ast);
+					postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
+				}
+			}
 		}
 		return this.qualifier;
 	}
@@ -229,9 +234,14 @@ public class QualifiedType extends Type {
 	 */ 
 	public SimpleName getName() {
 		if (this.name == null) {
-			preLazyInit();
-			this.name = new SimpleName(this.ast);
-			postLazyInit(this.name, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.name == null) {
+					preLazyInit();
+					this.name = new SimpleName(this.ast);
+					postLazyInit(this.name, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.name;
 	}

@@ -172,10 +172,15 @@ public class AssertStatement extends Statement {
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			preLazyInit();
-			this.expression = new SimpleName(this.ast);
-			postLazyInit(this.expression, EXPRESSION_PROPERTY);
+		if (this.expression == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.expression == null) {
+					preLazyInit();
+					this.expression = new SimpleName(this.ast);
+					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return expression;
 	}

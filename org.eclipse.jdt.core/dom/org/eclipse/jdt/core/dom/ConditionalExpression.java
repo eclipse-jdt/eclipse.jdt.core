@@ -197,9 +197,14 @@ public class ConditionalExpression extends Expression {
 	 */ 
 	public Expression getExpression() {
 		if (this.conditionExpression == null) {
-			preLazyInit();
-			this.conditionExpression = new SimpleName(this.ast);
-			postLazyInit(this.conditionExpression, EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.conditionExpression == null) {
+					preLazyInit();
+					this.conditionExpression = new SimpleName(this.ast);
+					postLazyInit(this.conditionExpression, EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.conditionExpression;
 	}
@@ -232,9 +237,14 @@ public class ConditionalExpression extends Expression {
 	 */ 
 	public Expression getThenExpression() {
 		if (this.thenExpression == null) {
-			preLazyInit();
-			this.thenExpression = new SimpleName(this.ast);
-			postLazyInit(this.thenExpression, THEN_EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.thenExpression == null) {
+					preLazyInit();
+					this.thenExpression = new SimpleName(this.ast);
+					postLazyInit(this.thenExpression, THEN_EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.thenExpression;
 	}
@@ -267,9 +277,14 @@ public class ConditionalExpression extends Expression {
 	 */ 
 	public Expression getElseExpression() {
 		if (this.elseExpression == null) {
-			preLazyInit();
-			this.elseExpression = new SimpleName(this.ast);
-			postLazyInit(this.elseExpression, ELSE_EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.elseExpression == null) {
+					preLazyInit();
+					this.elseExpression = new SimpleName(this.ast);
+					postLazyInit(this.elseExpression, ELSE_EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.elseExpression;
 	}

@@ -178,9 +178,14 @@ public class MemberValuePair extends ASTNode {
 	 */ 
 	public SimpleName getName() {
 		if (this.name == null) {
-			preLazyInit();
-			this.name = new SimpleName(this.ast);
-			postLazyInit(this.name, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.name == null) {
+					preLazyInit();
+					this.name = new SimpleName(this.ast);
+					postLazyInit(this.name, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.name;
 	}
@@ -212,9 +217,14 @@ public class MemberValuePair extends ASTNode {
 	 */ 
 	public Expression getValue() {
 		if (this.value == null) {
-			preLazyInit();
-			this.value= new SimpleName(this.ast);
-			postLazyInit(this.value, VALUE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.value == null) {
+					preLazyInit();
+					this.value= new SimpleName(this.ast);
+					postLazyInit(this.value, VALUE_PROPERTY);
+				}
+			}
 		}
 		return this.value;
 	}

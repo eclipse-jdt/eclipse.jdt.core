@@ -148,9 +148,14 @@ public class ArrayType extends Type {
 	 */ 
 	public Type getComponentType() {
 		if (this.componentType == null) {
-			preLazyInit();
-			this.componentType = new SimpleType(this.ast);
-			postLazyInit(this.componentType, COMPONENT_TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.componentType == null) {
+					preLazyInit();
+					this.componentType = new SimpleType(this.ast);
+					postLazyInit(this.componentType, COMPONENT_TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.componentType;
 	}

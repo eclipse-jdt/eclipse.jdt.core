@@ -201,9 +201,14 @@ public class FieldAccess extends Expression {
 	 */ 
 	public Expression getExpression() {
 		if (this.expression == null) {
-			preLazyInit();
-			this.expression = new SimpleName(this.ast);
-			postLazyInit(this.expression, EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.expression == null) {
+					preLazyInit();
+					this.expression = new SimpleName(this.ast);
+					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.expression;
 	}
@@ -236,9 +241,14 @@ public class FieldAccess extends Expression {
 	 */ 
 	public SimpleName getName() {
 		if (this.fieldName == null) {
-			preLazyInit();
-			this.fieldName = new SimpleName(this.ast);
-			postLazyInit(this.fieldName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.fieldName == null) {
+					preLazyInit();
+					this.fieldName = new SimpleName(this.ast);
+					postLazyInit(this.fieldName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.fieldName;
 	}

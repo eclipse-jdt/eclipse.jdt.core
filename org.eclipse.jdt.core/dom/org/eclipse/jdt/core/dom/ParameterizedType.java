@@ -186,9 +186,14 @@ public class ParameterizedType extends Type {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			preLazyInit();
-			this.type = new SimpleType(this.ast);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}

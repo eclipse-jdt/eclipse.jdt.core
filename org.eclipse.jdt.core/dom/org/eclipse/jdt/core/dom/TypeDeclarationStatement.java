@@ -197,9 +197,14 @@ public class TypeDeclarationStatement extends Statement {
 	 */ 
 	public AbstractTypeDeclaration getDeclaration() {
 		if (this.typeDecl == null) {
-			preLazyInit();
-			this.typeDecl = new TypeDeclaration(this.ast);
-			postLazyInit(this.typeDecl, TYPE_DECLARATION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.typeDecl == null) {
+					preLazyInit();
+					this.typeDecl = new TypeDeclaration(this.ast);
+					postLazyInit(this.typeDecl, TYPE_DECLARATION_PROPERTY);
+				}
+			}
 		}
 		return this.typeDecl;
 	}

@@ -167,9 +167,14 @@ public class InstanceofExpression extends Expression {
 	 */ 
 	public Expression getLeftOperand() {
 		if (this.leftOperand  == null) {
-			preLazyInit();
-			this.leftOperand= new SimpleName(this.ast);
-			postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.leftOperand == null) {
+					preLazyInit();
+					this.leftOperand= new SimpleName(this.ast);
+					postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+				}
+			}
 		}
 		return this.leftOperand;
 	}
@@ -202,9 +207,14 @@ public class InstanceofExpression extends Expression {
 	 */ 
 	public Type getRightOperand() {
 		if (this.rightOperand  == null) {
-			preLazyInit();
-			this.rightOperand= new SimpleType(this.ast);
-			postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.rightOperand == null) {
+					preLazyInit();
+					this.rightOperand= new SimpleType(this.ast);
+					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+				}
+			}
 		}
 		return this.rightOperand;
 	}

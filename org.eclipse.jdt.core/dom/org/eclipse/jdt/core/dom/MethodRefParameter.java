@@ -169,9 +169,14 @@ public class MethodRefParameter extends ASTNode {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			preLazyInit();
-			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}

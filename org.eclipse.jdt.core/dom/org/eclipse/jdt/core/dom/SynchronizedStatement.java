@@ -171,9 +171,14 @@ public class SynchronizedStatement extends Statement {
 	 */ 
 	public Expression getExpression() {
 		if (this.expression == null) {
-			preLazyInit();
-			this.expression = new SimpleName(this.ast);
-			postLazyInit(this.expression, EXPRESSION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.expression == null) {
+					preLazyInit();
+					this.expression = new SimpleName(this.ast);
+					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+				}
+			}
 		}
 		return this.expression;
 	}
@@ -206,9 +211,14 @@ public class SynchronizedStatement extends Statement {
 	 */ 
 	public Block getBody() {
 		if (this.body == null) {
-			preLazyInit();
-			this.body = new Block(this.ast);
-			postLazyInit(this.body, BODY_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.body == null) {
+					preLazyInit();
+					this.body = new Block(this.ast);
+					postLazyInit(this.body, BODY_PROPERTY);
+				}
+			}
 		}
 		return this.body;
 	}

@@ -171,9 +171,14 @@ public class ArrayAccess extends Expression {
 	 */ 
 	public Expression getArray() {
 		if (this.arrayExpression == null) {
-			preLazyInit();
-			this.arrayExpression = new SimpleName(this.ast);
-			postLazyInit(this.arrayExpression, ARRAY_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.arrayExpression == null) {
+					preLazyInit();
+					this.arrayExpression = new SimpleName(this.ast);
+					postLazyInit(this.arrayExpression, ARRAY_PROPERTY);
+				}
+			}
 		}
 		return this.arrayExpression;
 	}
@@ -208,9 +213,14 @@ public class ArrayAccess extends Expression {
 	 */ 
 	public Expression getIndex() {
 		if (this.indexExpression == null) {
-			preLazyInit();
-			this.indexExpression = new SimpleName(this.ast);
-			postLazyInit(this.indexExpression, INDEX_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.indexExpression == null) {
+					preLazyInit();
+					this.indexExpression = new SimpleName(this.ast);
+					postLazyInit(this.indexExpression, INDEX_PROPERTY);
+				}
+			}
 		}
 		return this.indexExpression;
 	}

@@ -292,9 +292,14 @@ public class PrefixExpression extends Expression {
 	 */ 
 	public Expression getOperand() {
 		if (this.operand  == null) {
-			preLazyInit();
-			this.operand= new SimpleName(this.ast);
-			postLazyInit(this.operand, OPERAND_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.operand == null) {
+					preLazyInit();
+					this.operand= new SimpleName(this.ast);
+					postLazyInit(this.operand, OPERAND_PROPERTY);
+				}
+			}
 		}
 		return this.operand;
 	}

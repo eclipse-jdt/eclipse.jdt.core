@@ -568,9 +568,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.methodName == null) {
-			preLazyInit();
-			this.methodName = new SimpleName(this.ast);
-			postLazyInit(this.methodName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.methodName == null) {
+					preLazyInit();
+					this.methodName = new SimpleName(this.ast);
+					postLazyInit(this.methodName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.methodName;
 	}
@@ -669,9 +674,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
-			preLazyInit();
-			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
-			postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.returnType == null) {
+					preLazyInit();
+					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+					postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.returnType;
 	}
@@ -727,10 +737,15 @@ public class MethodDeclaration extends BodyDeclaration {
 	public Type getReturnType2() {
 	    unsupportedIn2();
 		if (this.returnType == null && !this.returnType2Initialized) {
-			preLazyInit();
-			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
-			this.returnType2Initialized = true;
-			postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.returnType == null && !this.returnType2Initialized) {
+					preLazyInit();
+					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+					this.returnType2Initialized = true;
+					postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
+				}
+			}
 		}
 		return this.returnType;
 	}

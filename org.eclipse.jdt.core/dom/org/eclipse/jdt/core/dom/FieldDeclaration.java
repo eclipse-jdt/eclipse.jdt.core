@@ -299,9 +299,14 @@ public class FieldDeclaration extends BodyDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.baseType == null) {
-			preLazyInit();
-			this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.baseType, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.baseType == null) {
+					preLazyInit();
+					this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.baseType, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.baseType;
 	}

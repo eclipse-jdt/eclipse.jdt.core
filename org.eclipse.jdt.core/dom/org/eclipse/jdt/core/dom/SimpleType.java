@@ -149,9 +149,14 @@ public class SimpleType extends Type {
 	 */ 
 	public Name getName() {
 		if (this.typeName == null) {
-			preLazyInit();
-			this.typeName = new SimpleName(this.ast);
-			postLazyInit(this.typeName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.typeName == null) {
+					preLazyInit();
+					this.typeName = new SimpleName(this.ast);
+					postLazyInit(this.typeName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.typeName;
 	}

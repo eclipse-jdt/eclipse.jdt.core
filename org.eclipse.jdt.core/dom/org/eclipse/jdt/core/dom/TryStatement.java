@@ -203,9 +203,14 @@ public class TryStatement extends Statement {
 	 */ 
 	public Block getBody() {
 		if (this.body == null) {
-			preLazyInit();
-			this.body = new Block(this.ast);
-			postLazyInit(this.body, BODY_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.body == null) {
+					preLazyInit();
+					this.body = new Block(this.ast);
+					postLazyInit(this.body, BODY_PROPERTY);
+				}
+			}
 		}
 		return this.body;
 	}

@@ -269,9 +269,14 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.constantName == null) {
-			preLazyInit();
-			this.constantName = new SimpleName(this.ast);
-			postLazyInit(this.constantName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.constantName == null) {
+					preLazyInit();
+					this.constantName = new SimpleName(this.ast);
+					postLazyInit(this.constantName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.constantName;
 	}

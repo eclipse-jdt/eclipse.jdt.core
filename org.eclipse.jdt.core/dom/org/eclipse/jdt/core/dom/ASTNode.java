@@ -91,9 +91,11 @@ import java.util.Map;
  * these properties.
  * </p>
  * <p>
- * AST nodes are <b>not</b> thread-safe; this is true even for trees that
- * are read-only. If synchronization is required, consider using the common AST
- * object that owns the node; that is, use 
+ * AST nodes are thread-safe for readers provided there are no active writers.
+ * If one thread is modifying an AST, it is <b>not</b> safe for another thread
+ * to read, write, create, visit, or rewrite <em>any</em> of the nodes on the
+ * same AST. When synchronization is required, consider using the common AST
+ * object that owns the node; that is, use  
  * <code>synchronize (node.getAST()) {...}</code>.
  * </p>
  * <p>
@@ -1359,37 +1361,55 @@ public abstract class ASTNode {
 		/**
 		 * Allocate a cursor to use for a visit. The client must call
 		 * <code>releaseCursor</code> when done.
+		 * <p>
+		 * This method is internally synchronized on this NodeList.
+		 * It is thread-safe to create a cursor.
+		 * </p>
 		 * 
 		 * @return a new cursor positioned before the first element 
 		 *    of the list
 		 */
 		Cursor newCursor() {
-			if (this.cursors == null) {
-				// convert null to empty list
-				this.cursors = new ArrayList(1);
+			synchronized (this) {
+				// serialize cursor management on this NodeList
+				if (this.cursors == null) {
+					// convert null to empty list
+					this.cursors = new ArrayList(1);
+				}
+				Cursor result = new Cursor();
+				this.cursors.add(result);
+				return result;
 			}
-			Cursor result = new Cursor();
-			this.cursors.add(result);
-			return result;
 		}
 		
 		/**
 		 * Releases the given cursor at the end of a visit.
+		 * <p>
+		 * This method is internally synchronized on this NodeList.
+		 * It is thread-safe to release a cursor.
+		 * </p>
 		 * 
 		 * @param cursor the cursor
 		 */
 		void releaseCursor(Cursor cursor) {
-			this.cursors.remove(cursor);
-			if (this.cursors.isEmpty()) {
-				// important: convert empty list back to null
-				// otherwise the node will hang on to needless junk
-				this.cursors = null;
+			synchronized (this) {
+				// serialize cursor management on this NodeList
+				this.cursors.remove(cursor);
+				if (this.cursors.isEmpty()) {
+					// important: convert empty list back to null
+					// otherwise the node will hang on to needless junk
+					this.cursors = null;
+				}
 			}
 		}
 
 		/**
 		 * Adjusts all cursors to accomodate an add/remove at the given
 		 * index.
+		 * <p>
+		 * This method is only used when the list is being modified.
+		 * The AST is not thread-safe if any of the clients are modifying it.
+		 * </p>
 		 * 
 		 * @param index the position at which the element was added
 		 *    or removed

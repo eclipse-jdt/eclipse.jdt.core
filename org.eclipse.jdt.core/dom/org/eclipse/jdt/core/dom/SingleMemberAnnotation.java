@@ -181,9 +181,14 @@ public final class SingleMemberAnnotation extends Annotation {
 	 */ 
 	public Expression getValue() {
 		if (this.value == null) {
-			preLazyInit();
-			this.value = new SimpleName(this.ast);
-			postLazyInit(this.value, VALUE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.value == null) {
+					preLazyInit();
+					this.value = new SimpleName(this.ast);
+					postLazyInit(this.value, VALUE_PROPERTY);
+				}
+			}
 		}
 		return this.value;
 	}

@@ -298,9 +298,14 @@ public class PackageDeclaration extends ASTNode {
 	 */ 
 	public Name getName() {
 		if (this.packageName == null) {
-			preLazyInit();
-			this.packageName = new SimpleName(this.ast);
-			postLazyInit(this.packageName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.packageName == null) {
+					preLazyInit();
+					this.packageName = new SimpleName(this.ast);
+					postLazyInit(this.packageName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.packageName;
 	}

@@ -342,9 +342,14 @@ public class Assignment extends Expression {
 	 */ 
 	public Expression getLeftHandSide() {
 		if (this.leftHandSide  == null) {
-			preLazyInit();
-			this.leftHandSide= new SimpleName(this.ast);
-			postLazyInit(this.leftHandSide, LEFT_HAND_SIDE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.leftHandSide == null) {
+					preLazyInit();
+					this.leftHandSide= new SimpleName(this.ast);
+					postLazyInit(this.leftHandSide, LEFT_HAND_SIDE_PROPERTY);
+				}
+			}
 		}
 		return this.leftHandSide;
 	}
@@ -378,9 +383,14 @@ public class Assignment extends Expression {
 	 */ 
 	public Expression getRightHandSide() {
 		if (this.rightHandSide  == null) {
-			preLazyInit();
-			this.rightHandSide= new SimpleName(this.ast);
-			postLazyInit(this.rightHandSide, RIGHT_HAND_SIDE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.rightHandSide == null) {
+					preLazyInit();
+					this.rightHandSide= new SimpleName(this.ast);
+					postLazyInit(this.rightHandSide, RIGHT_HAND_SIDE_PROPERTY);
+				}
+			}
 		}
 		return this.rightHandSide;
 	}

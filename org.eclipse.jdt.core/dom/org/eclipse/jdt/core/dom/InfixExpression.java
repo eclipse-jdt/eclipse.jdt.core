@@ -402,9 +402,14 @@ public class InfixExpression extends Expression {
 	 */ 
 	public Expression getLeftOperand() {
 		if (this.leftOperand  == null) {
-			preLazyInit();
-			this.leftOperand= new SimpleName(this.ast);
-			postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.leftOperand == null) {
+					preLazyInit();
+					this.leftOperand= new SimpleName(this.ast);
+					postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+				}
+			}
 		}
 		return this.leftOperand;
 	}
@@ -437,9 +442,14 @@ public class InfixExpression extends Expression {
 	 */ 
 	public Expression getRightOperand() {
 		if (this.rightOperand  == null) {
-			preLazyInit();
-			this.rightOperand= new SimpleName(this.ast);
-			postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.rightOperand  == null) {
+					preLazyInit();
+					this.rightOperand= new SimpleName(this.ast);
+					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+				}
+			}
 		}
 		return this.rightOperand;
 	}

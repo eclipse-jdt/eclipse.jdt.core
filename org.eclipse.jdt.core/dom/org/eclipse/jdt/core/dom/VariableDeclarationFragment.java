@@ -205,9 +205,14 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.variableName == null) {
-			preLazyInit();
-			this.variableName = new SimpleName(this.ast);
-			postLazyInit(this.variableName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.variableName == null) {
+					preLazyInit();
+					this.variableName = new SimpleName(this.ast);
+					postLazyInit(this.variableName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.variableName;
 	}

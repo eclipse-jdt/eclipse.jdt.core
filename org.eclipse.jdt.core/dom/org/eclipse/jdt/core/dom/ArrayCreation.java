@@ -218,13 +218,18 @@ public class ArrayCreation extends Expression {
 	 * @return the array type
 	 */ 
 	public ArrayType getType() {
-		if (arrayType == null) {
-			preLazyInit();
-			this.arrayType = this.ast.newArrayType(
-					this.ast.newPrimitiveType(PrimitiveType.INT));
-			postLazyInit(this.arrayType, TYPE_PROPERTY);
+		if (this.arrayType == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.arrayType == null) {
+					preLazyInit();
+					this.arrayType = this.ast.newArrayType(
+							this.ast.newPrimitiveType(PrimitiveType.INT));
+					postLazyInit(this.arrayType, TYPE_PROPERTY);
+				}
+			}
 		}
-		return arrayType;
+		return this.arrayType;
 	}
 
 	/**

@@ -304,9 +304,14 @@ public class MethodInvocation extends Expression {
 	 */ 
 	public SimpleName getName() {
 		if (this.methodName == null) {
-			preLazyInit();
-			this.methodName = new SimpleName(this.ast);
-			postLazyInit(this.methodName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.methodName == null) {
+					preLazyInit();
+					this.methodName = new SimpleName(this.ast);
+					postLazyInit(this.methodName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.methodName;
 	}

@@ -171,9 +171,14 @@ public class CatchClause extends ASTNode {
 	 */ 
 	public SingleVariableDeclaration getException() {
 		if (this.exceptionDecl == null) {
-			preLazyInit();
-			this.exceptionDecl = new SingleVariableDeclaration(this.ast);
-			postLazyInit(this.exceptionDecl, EXCEPTION_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.exceptionDecl == null) {
+					preLazyInit();
+					this.exceptionDecl = new SingleVariableDeclaration(this.ast);
+					postLazyInit(this.exceptionDecl, EXCEPTION_PROPERTY);
+				}
+			}
 		}
 		return this.exceptionDecl;
 	}
@@ -206,9 +211,14 @@ public class CatchClause extends ASTNode {
 	 */ 
 	public Block getBody() {
 		if (this.body == null) {
-			preLazyInit();
-			this.body = new Block(this.ast);
-			postLazyInit(this.body, BODY_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.body == null) {
+					preLazyInit();
+					this.body = new Block(this.ast);
+					postLazyInit(this.body, BODY_PROPERTY);
+				}
+			}
 		}
 		return this.body;
 	}

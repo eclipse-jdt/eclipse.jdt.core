@@ -173,9 +173,14 @@ public class LabeledStatement extends Statement {
 	 */ 
 	public SimpleName getLabel() {
 		if (this.labelName == null) {
-			preLazyInit();
-			this.labelName= new SimpleName(this.ast);
-			postLazyInit(this.labelName, LABEL_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.labelName == null) {
+					preLazyInit();
+					this.labelName= new SimpleName(this.ast);
+					postLazyInit(this.labelName, LABEL_PROPERTY);
+				}
+			}
 		}
 		return this.labelName;
 	}
@@ -207,9 +212,14 @@ public class LabeledStatement extends Statement {
 	 */ 
 	public Statement getBody() {
 		if (this.body == null) {
-			preLazyInit();
-			this.body= new EmptyStatement(this.ast);
-			postLazyInit(this.body, BODY_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.body == null) {
+					preLazyInit();
+					this.body= new EmptyStatement(this.ast);
+					postLazyInit(this.body, BODY_PROPERTY);
+				}
+			}
 		}
 		return this.body;
 	}

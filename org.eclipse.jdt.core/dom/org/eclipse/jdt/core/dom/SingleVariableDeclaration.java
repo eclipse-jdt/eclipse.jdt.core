@@ -432,9 +432,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.variableName == null) {
-			preLazyInit();
-			this.variableName = new SimpleName(this.ast);
-			postLazyInit(this.variableName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.variableName == null) {
+					preLazyInit();
+					this.variableName = new SimpleName(this.ast);
+					postLazyInit(this.variableName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.variableName;
 	}
@@ -460,9 +465,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			preLazyInit();
-			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this.ast) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}
