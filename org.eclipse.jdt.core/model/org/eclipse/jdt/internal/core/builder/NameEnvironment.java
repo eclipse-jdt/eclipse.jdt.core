@@ -102,11 +102,14 @@ private void computeClasspathLocations(
 				IPath outputPath = entry.getOutputLocation() != null 
 					? entry.getOutputLocation() 
 					: javaProject.getOutputLocation();
-				IContainer outputFolder = outputPath.segmentCount() == 1
-					? (IContainer) javaProject.getProject()
-					: (IContainer) root.getFolder(outputPath);
-				if (!outputFolder.exists())
-					createFolder(outputFolder, javaProject.getProject());
+				IContainer outputFolder;
+				if (outputPath.segmentCount() == 1) {
+					outputFolder = javaProject.getProject();
+				} else {
+					outputFolder = root.getFolder(outputPath);
+					if (!outputFolder.exists())
+						createFolder(outputFolder);
+				}
 				sLocations.add(
 					ClasspathLocation.forSourceFolder((IContainer) target, outputFolder, entry.fullExclusionPatternChars()));
 				continue nextEntry;
@@ -228,11 +231,9 @@ public void cleanup() {
 		binaryLocations[i].cleanup();
 }
 
-void createFolder(IContainer folder, IProject p) throws CoreException {
+private void createFolder(IContainer folder) throws CoreException {
 	if (!folder.exists()) {
-		IContainer parent = folder.getParent();
-		if (!p.getFullPath().equals(parent.getFullPath()))
-			createFolder(parent, p);
+		createFolder(folder.getParent());
 		((IFolder) folder).create(true, true, null);
 	}
 }
