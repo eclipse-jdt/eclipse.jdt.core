@@ -116,23 +116,23 @@ public class Disassembler implements IClassFileDisassembler {
 		}
 		decodeModifiersForType(buffer, classFileReader.getAccessFlags());
 		if (classFileReader.isClass()) {
-			buffer.append("class"); //$NON-NLS-1$
+			buffer.append("class "); //$NON-NLS-1$
 		} else {
-			buffer.append("interface"); //$NON-NLS-1$
+			buffer.append("interface "); //$NON-NLS-1$
 		}
 		CharOperation.replace(className, '/', '.');
 		buffer.append(className);
 		
 		char[] superclassName = classFileReader.getSuperclassName();
 		if (superclassName != null) {
-			buffer.append("extends"); //$NON-NLS-1$
+			buffer.append(" extends "); //$NON-NLS-1$
 			CharOperation.replace(superclassName, '/', '.');
 			buffer.append(superclassName);
 		}
 		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
 		int length = superclassInterfaces.length;
 		if (length != 0) {
-			buffer.append("implements"); //$NON-NLS-1$
+			buffer.append(" implements "); //$NON-NLS-1$
 			for (int i = 0; i < length - 1; i++) {
 				char[] superinterface = superclassInterfaces[i];
 				CharOperation.replace(superinterface, '/', '.');
@@ -404,7 +404,7 @@ public class Disassembler implements IClassFileDisassembler {
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
-			buffer.append("throws"); //$NON-NLS-1$
+			buffer.append(" throws "); //$NON-NLS-1$
 			char[][] exceptionNames = exceptionAttribute.getExceptionNames();
 			int length = exceptionNames.length;
 			for (int i = 0; i < length - 1; i++) {

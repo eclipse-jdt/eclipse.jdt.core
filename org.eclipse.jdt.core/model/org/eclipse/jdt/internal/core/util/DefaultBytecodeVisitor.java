@@ -2922,7 +2922,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 	private void appendOutputForConstantString(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append("<String ") //$NON-NLS-1$
+			.append("<String \"") //$NON-NLS-1$
 			.append(constantPoolEntry.getStringValue())
 			.append("\">"); //$NON-NLS-1$
 	}
