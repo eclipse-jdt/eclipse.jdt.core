@@ -4236,8 +4236,8 @@ protected void consumeToken(int type) {
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
 			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
-			pushOnIntStack(scanner.startPosition);
 			pushOnIntStack(scanner.currentPosition - 1);			
+			pushOnIntStack(scanner.startPosition);
 //			scanner.commentPtr = -1;
 			break;
 		case TokenNameabstract :
