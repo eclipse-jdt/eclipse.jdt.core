@@ -77,8 +77,7 @@ public class Assignment extends Expression {
 		FieldBinding leftField = getLastField(this.lhs);
 		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).kind != Wildcard.SUPER) {
 		    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
-		} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType() 
-		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
+		} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
 		} else if (rhsType.needsUncheckedConversion(lhsType)) {
 		    scope.problemReporter().unsafeTypeConversion(this.expression, rhsType, lhsType);

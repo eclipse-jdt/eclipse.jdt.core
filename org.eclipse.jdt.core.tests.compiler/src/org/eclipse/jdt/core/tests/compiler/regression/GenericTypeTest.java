@@ -15867,4 +15867,54 @@ public void test500(){
 			false,
 			null);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86902
+	public void test559() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Cell<T> {\n" + 
+				"	T t;\n" + 
+				"	public void setT(T t) {\n" + 
+				"		this.t= t;\n" + 
+				"	}\n" + 
+				"	public T getT() {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  Zork z;\n" +
+				"	public static void main(String[] args) {\n" + 
+				"		Cell c= new Cell();\n" + 
+				"		c.setT(Boolean.FALSE); //javac: warning: [unchecked] unchecked\n" + 
+				"			// call to setT(T) as a member of the raw type p.Cell\n" + 
+				"		c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
+				"			// to setT(T) as a member of the raw type p.Cell\n" + 
+				"		boolean b1= (Boolean) c.getT();\n" + 
+				"		boolean b2= (Boolean) c.t;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	c.setT(Boolean.FALSE); //javac: warning: [unchecked] unchecked\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method setT(Object) belongs to the raw type Cell. References to generic type Cell<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 17)\n" + 
+			"	c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
+			"	^^^\n" + 
+			"Type safety: The field t from the raw type Cell is assigned a value of type Boolean. References to generic type Cell<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 19)\n" + 
+			"	boolean b1= (Boolean) c.getT();\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"Type safety: The method getT() belongs to the raw type Cell. References to generic type Cell<T> should be parameterized\n" + 
+			"----------\n");
+	}		
 }
