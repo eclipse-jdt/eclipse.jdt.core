@@ -162,12 +162,9 @@ public class HandleFactory {
 		    int nodeIndex = -1;
 			
 		    public void push(ASTNode node) {
-		        try {
-		            this.nodeStack[++this.nodeIndex] = node;
-		        } catch (IndexOutOfBoundsException e) {
+		    	if (++this.nodeIndex >= this.nodeStack.length) 
 		            System.arraycopy(this.nodeStack, 0, this.nodeStack = new ASTNode[this.nodeStack.length*2], 0, this.nodeIndex-1);
-		            this.nodeStack[this.nodeIndex] = node;
-		        }
+	            this.nodeStack[this.nodeIndex] = node;
 		    }
 		    
 		    public void pop(ASTNode node) {
