@@ -241,6 +241,14 @@ public final class Signature {
  */
 private Signature() {}
 
+private static boolean checkPrimitiveType(char[] primitiveTypeName, char[] typeName) {
+	return CharOperation.fragmentEquals(primitiveTypeName, typeName, 0, true) &&
+		(typeName.length == primitiveTypeName.length
+		 || Character.isWhitespace(typeName[primitiveTypeName.length])
+		 || typeName[primitiveTypeName.length] == C_ARRAY
+		 || typeName[primitiveTypeName.length] == C_DOT);
+}
+
 private static long copyType(char[] signature, int sigPos, char[] dest, int index, boolean fullyQualifyTypeNames) {
 	int arrayCount = 0;
 	loop: while (true) {
@@ -442,53 +450,53 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 	switch (typeName[0]) {
 		// primitive type?
 		case 'b' :
-			if (CharOperation.fragmentEquals(BOOLEAN, typeName, 0, true)) {
+			if (checkPrimitiveType(BOOLEAN, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_BOOLEAN;
 				break;
-			} else if (CharOperation.fragmentEquals(BYTE, typeName, 0, true)) {
+			} else if (checkPrimitiveType(BYTE, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_BYTE;
 				break;
 			}
 		case 'c':
-			if (CharOperation.fragmentEquals(CHAR, typeName, 0, true)) {
+			if (checkPrimitiveType(CHAR, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_CHAR;
 				break;
 			}
 		case 'd':
-			if (CharOperation.fragmentEquals(DOUBLE, typeName, 0, true)) {
+			if (checkPrimitiveType(DOUBLE, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_DOUBLE;
 				break;
 			}
 		case 'f':
-			if (CharOperation.fragmentEquals(FLOAT, typeName, 0, true)) {
+			if (checkPrimitiveType(FLOAT, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_FLOAT;
 				break;
 			}
 		case 'i':
-			if (CharOperation.fragmentEquals(INT, typeName, 0, true)) {
+			if (checkPrimitiveType(INT, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_INT;
 				break;
 			}
 		case 'l':
-			if (CharOperation.fragmentEquals(LONG, typeName, 0, true)) {
+			if (checkPrimitiveType(LONG, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_LONG;
 				break;
 			}
 		case 's':
-			if (CharOperation.fragmentEquals(SHORT, typeName, 0, true)) {
+			if (checkPrimitiveType(SHORT, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_SHORT;
 				break;
 			}
 		case 'v':
-			if (CharOperation.fragmentEquals(VOID, typeName, 0, true)) {
+			if (checkPrimitiveType(VOID, typeName)) {
 				sig = new char[arrayCount+1];
 				sig[arrayCount] = C_VOID;
 				break;

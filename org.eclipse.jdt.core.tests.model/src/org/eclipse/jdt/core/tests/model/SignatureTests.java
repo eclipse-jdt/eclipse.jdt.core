@@ -69,6 +69,16 @@ public void testCreateTypeSignature() throws JavaModelException {
 	assertEquals("Signature#createTypeSignature is not correct6", "[QString;", Signature.createTypeSignature("String []".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct7", "[Ljava.util.Vector;", Signature.createTypeSignature("java.util.Vector []".toCharArray(), true));
 	assertEquals("Signature#createTypeSignature is not correct8", "[[Ljava.util.Vector;", Signature.createTypeSignature("java .\n util  .  Vector[  ][]".toCharArray(), true));
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=41019
+	assertEquals("Signature#createTypeSignature is not correct9", "Linteration.test.MyData;", Signature.createTypeSignature("interation.test.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct10", "Llongtest.MyData;", Signature.createTypeSignature("longtest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct11", "Lbooleantest.MyData;", Signature.createTypeSignature("booleantest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct12", "Lbytetest.MyData;", Signature.createTypeSignature("bytetest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct13", "Lchartest.MyData;", Signature.createTypeSignature("chartest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct14", "Lshorttest.MyData;", Signature.createTypeSignature("shorttest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct15", "Ldoubletest.MyData;", Signature.createTypeSignature("doubletest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct16", "Lfloattest.MyData;", Signature.createTypeSignature("floattest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct17", "Lvoidtest.MyData;", Signature.createTypeSignature("voidtest.MyData".toCharArray(), true));
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
