@@ -212,7 +212,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fields()
 	 */
 	public FieldBinding[] fields() {
-		if (this.fields == null) {
+		if ((tagBits & AreFieldsComplete) == 0) {
 			try {
 				FieldBinding[] originalFields = this.type.fields();
 				int length = originalFields.length;
@@ -225,6 +225,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields
 				if (this.fields == null) 
 					this.fields = NoFields;
+				tagBits |= AreFieldsComplete;
 			}
 		}
 		return this.fields;
@@ -273,7 +274,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 		int argCount = argumentTypes.length;
 
-		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+		if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
 				if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
@@ -310,7 +311,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		boolean foundNothing = true;
 		MethodBinding match = null;
 
-		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+		if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
 				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
@@ -411,7 +412,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				return result;
 			}
 		}
-		if ((modifiers & AccUnresolved) == 0) return NoMethods; // have created all the methods and there are no matches
+		if ((tagBits & AreMethodsComplete) != 0) return NoMethods; // have created all the methods and there are no matches
 
 		MethodBinding[] parameterizedMethods = null;
 		try {
@@ -462,7 +463,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		// this.superInterfaces = null;
 		// this.fields = null;
 		// this.methods = null;		
-		this.modifiers = someType.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
+		this.modifiers = someType.modifiers | AccGenericSignature;
 		if (someArguments != null) {
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
@@ -478,6 +479,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 		}	    
 		this.tagBits |= someType.tagBits & (IsLocalType| IsMemberType | IsNestedType);
+		this.tagBits &= ~(AreFieldsComplete|AreMethodsComplete);
 	}
 
 	protected void initializeArguments() {
@@ -562,24 +564,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#methods()
 	 */
 	public MethodBinding[] methods() {
-		if ((modifiers & AccUnresolved) == 0)
-			return this.methods;
-
-		try {
-		    MethodBinding[] originalMethods = this.type.methods();
-		    int length = originalMethods.length;
-		    MethodBinding[] parameterizedMethods = new MethodBinding[length];
-		    for (int i = 0; i < length; i++)
-		    	// substitute all methods, so as to get updated declaring class at least
-	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
-		    this.methods = parameterizedMethods;
-		} finally {
-			// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
-		    if (this.methods == null) 
-		        this.methods = NoMethods;
-
-			modifiers &= ~AccUnresolved;
-		}		
+		if ((tagBits & AreMethodsComplete) == 0) {
+			try {
+			    MethodBinding[] originalMethods = this.type.methods();
+			    int length = originalMethods.length;
+			    MethodBinding[] parameterizedMethods = new MethodBinding[length];
+			    for (int i = 0; i < length; i++)
+			    	// substitute all methods, so as to get updated declaring class at least
+		            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
+			    this.methods = parameterizedMethods;
+			} finally {
+				// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
+			    if (this.methods == null) 
+			        this.methods = NoMethods;
+	
+				tagBits |=  AreMethodsComplete;
+			}		
+		}
 		return this.methods;
 	}
 	

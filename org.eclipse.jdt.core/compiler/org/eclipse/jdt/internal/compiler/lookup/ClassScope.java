@@ -301,7 +301,6 @@ public class ClassScope extends Scope {
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
 
 		referenceContext.binding.methods = methodBindings;
-		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
 	}
 	
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding, AccessRestriction accessRestriction) {

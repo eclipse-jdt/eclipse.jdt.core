@@ -589,6 +589,8 @@ void faultInTypesForFieldsAndMethods() {
 
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
+	if ((tagBits & AreFieldsComplete) != 0)
+		return fields;	
 	int failed = 0;
 	try {
 		boolean isViewedAsDeprecated = isViewedAsDeprecated();
@@ -623,6 +625,7 @@ public FieldBinding[] fields() {
 			fields = newFields;
 		}
 	}
+	tagBits |= AreFieldsComplete;
 	return fields;
 }
 /**
@@ -705,7 +708,7 @@ public MethodBinding[] getDefaultAbstractMethods() {
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
 
-	if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+	if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
 			if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
@@ -740,7 +743,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	int selectorLength = selector.length;
 	boolean foundNothing = true;
 
-	if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+	if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
 			if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
@@ -818,7 +821,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] getMethods(char[] selector) {
 	int selectorLength = selector.length;
-	boolean methodsAreResolved = (modifiers & AccUnresolved) == 0; // have resolved all arg types & return type of the methods
+	boolean methodsAreResolved = (tagBits & AreMethodsComplete) != 0; // have resolved all arg types & return type of the methods
 	java.util.ArrayList matchingMethods = null;
 	for (int i = 0, length = methods.length; i < length; i++) {
 		MethodBinding method = methods[i];
@@ -970,7 +973,7 @@ public boolean hasMemberTypes() {
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
-	if ((modifiers & AccUnresolved) == 0)
+	if ((tagBits & AreMethodsComplete) != 0)
 		return methods;
 
 	int failed = 0;
@@ -1056,8 +1059,7 @@ public MethodBinding[] methods() {
 
 		// handle forward references to potential default abstract methods
 		addDefaultAbstractMethods();
-
-		modifiers &= ~AccUnresolved;
+		tagBits |= AreMethodsComplete;
 	}		
 	return methods;
 }

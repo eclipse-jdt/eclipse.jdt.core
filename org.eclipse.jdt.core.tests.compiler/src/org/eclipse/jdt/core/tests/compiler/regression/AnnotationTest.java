@@ -3835,4 +3835,49 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
     }  		
+    // check missing @Deprecated detection
+    public void test121() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"/** @deprecated */\n" + 
+				"public class X {\n" + 
+				"	/** @deprecated */\n" + 
+				"	public static class Y {\n" + 
+				"	}\n" + 
+				"	/** @deprecated */\n" + 
+				"	int i;\n" + 
+				"	/** @deprecated */\n" + 
+				"	public void flag() {}\n" + 
+				"	void doNotFlag() {}\n" + 
+				"  Zork z;\n" +
+				"} \n",
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public class X {\n" + 
+			"	             ^\n" + 
+			"The deprecated type X should be annotated with @Deprecated\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	public static class Y {\n" + 
+			"	                    ^\n" + 
+			"The deprecated type X.Y should be annotated with @Deprecated\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	int i;\n" + 
+			"	    ^\n" + 
+			"The deprecated field X.i should be annotated with @Deprecated\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	public void flag() {}\n" + 
+			"	            ^^^^^^\n" + 
+			"The deprecated method flag() of type X should be annotated with @Deprecated\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    } 	
 }

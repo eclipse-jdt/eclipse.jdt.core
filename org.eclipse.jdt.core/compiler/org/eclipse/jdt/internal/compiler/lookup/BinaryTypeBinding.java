@@ -137,6 +137,9 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 }
 
 public FieldBinding[] availableFields() {
+	if ((tagBits & AreFieldsComplete) != 0)
+		return fields;
+	
 	FieldBinding[] availableFields = new FieldBinding[fields.length];
 	int count = 0;
 	
@@ -154,7 +157,7 @@ public FieldBinding[] availableFields() {
 }
 
 public MethodBinding[] availableMethods() {
-	if ((modifiers & AccUnresolved) == 0)
+	if ((tagBits & AreMethodsComplete) != 0)
 		return methods;
 		
 	MethodBinding[] availableMethods = new MethodBinding[methods.length];
@@ -470,7 +473,6 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 				this.methods[index++] = method;
 			}
 	}
-	modifiers |= AccUnresolved; // until methods() is sent
 }
 
 private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Binding declaringElement) {
@@ -533,8 +535,11 @@ public ReferenceBinding enclosingType() {
 // NOTE: the type of each field of a binary type is resolved when needed
 
 public FieldBinding[] fields() {
-	for (int i = fields.length; --i >= 0;)
-		resolveTypeFor(fields[i]);
+	if ((tagBits & AreFieldsComplete) == 0) {
+		for (int i = fields.length; --i >= 0;)
+			resolveTypeFor(fields[i]);
+		tagBits |= AreFieldsComplete;
+	}
 	return fields;
 }
 
@@ -740,12 +745,11 @@ public ReferenceBinding[] memberTypes() {
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 
 public MethodBinding[] methods() {
-	if ((modifiers & AccUnresolved) == 0)
-		return methods;
-
-	for (int i = methods.length; --i >= 0;)
-		resolveTypesFor(methods[i]);
-	modifiers &= ~AccUnresolved;
+	if ((tagBits & AreMethodsComplete) == 0) {
+		for (int i = methods.length; --i >= 0;)
+			resolveTypesFor(methods[i]);
+		tagBits |= AreMethodsComplete;
+	}
 	return methods;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
