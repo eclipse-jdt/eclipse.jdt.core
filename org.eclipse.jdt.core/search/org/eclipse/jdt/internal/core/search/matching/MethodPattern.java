@@ -177,8 +177,8 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 
 	// declaring type
 	if (enclosingBinaryInfo != null && (this.declaringSimpleName != null || this.declaringQualification != null)) {
-		IBinaryType declaring = (IBinaryType) enclosingBinaryInfo;
-		char[] declaringTypeName = (char[]) declaring.getName().clone();
+		char[] name = ((IBinaryType) enclosingBinaryInfo).getName();
+		char[] declaringTypeName = (char[]) name.clone();
 		CharOperation.replace(declaringTypeName, '/', '.');
 		if (!matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName))
 			return false;

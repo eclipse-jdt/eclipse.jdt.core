@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.core.search.IInfoConstants;
 public class OrPattern extends SearchPattern {
 
 protected SearchPattern[] patterns;
-protected SearchPattern bestMatch;
 
 public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	super(
@@ -119,12 +118,10 @@ public int matchLevel(AstNode node, boolean resolve) {
  * @see SearchPattern#matchLevel(Binding)
  */
 public int matchLevel(Binding binding) {
-	this.bestMatch = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patterns.length; i < length; i++) {
 		int newLevel = this.patterns[i].matchLevel(binding);
 		if (newLevel > level) {
-			this.bestMatch = this.patterns[i]; // cache the best match
 			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
 			level = newLevel; // want to answer the stronger match
 		}
@@ -135,11 +132,6 @@ public int matchLevel(Binding binding) {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-//	if (this.bestMatch != null) {
-//		this.bestMatch.matchReportReference(reference, element, accuracy, locator);
-//		return;
-//	}
-
 	SearchPattern closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patterns.length; i < length; i++) {
