@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
@@ -34,13 +34,17 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
+	public static Test setUpTest(Test someTest) {
+		TestSuite suite= new Suite("one test");
+		suite.addTest(someTest);
+		return suite;
+	}
+	
 	public static Test suite() {
 		if (true) {
 			return allTests();
 		}
-		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
-		return suite;
+		return setUpTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
 	}
 	
 	public void testMethodDeclChanges() throws Exception {
@@ -841,6 +845,128 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
+	public void testModifiers() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public Object foo1() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public Object foo2() { return null; }\n");
+		buf.append("    public Object foo3() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");	
+		buf.append("    public Object foo4() { return null; }\n");
+		buf.append("    Object foo5() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public Object foo6() { return null; }\n");
+		buf.append("    public Object foo7() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public static Object foo8() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    Object foo9() { return null; }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		{ // insert first and last
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD), null);
+		}
+		{ // insert 2x first
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD), null);
+		}		
+		{ // remove and insert first
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+		}
+		{ // remove and insert last
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+		}
+		{ // insert first and insert Javadoc
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
+			Javadoc javadoc= ast.newJavadoc();
+			TextElement textElem= ast.newTextElement();
+			textElem.setText("Hello");
+			TagElement tagElement= ast.newTagElement();
+			tagElement.fragments().add(textElem);
+			javadoc.tags().add(tagElement);
+			rewrite.set(methodDecl, MethodDeclaration.JAVADOC_PROPERTY, javadoc, null);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+		}
+		{ // remove modifer and remove javadoc
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
+			rewrite.remove(methodDecl.getJavadoc(), null);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+		}
+		{ // remove modifer and insert javadoc
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
+			
+			Javadoc javadoc= ast.newJavadoc();
+			TextElement textElem= ast.newTextElement();
+			textElem.setText("Hello");
+			TagElement tagElement= ast.newTagElement();
+			tagElement.fragments().add(textElem);
+			javadoc.tags().add(tagElement);
+			rewrite.set(methodDecl, MethodDeclaration.JAVADOC_PROPERTY, javadoc, null);
+			
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+		}
+		{ // remove all
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo8");
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(1), null);
+		}
+		{ // insert (first) with javadoc
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo9");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+		}	
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    final public synchronized Object foo1() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    static final public Object foo2() { return null; }\n");
+		buf.append("    final Object foo3() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final Object foo4() { return null; }\n");
+		buf.append("    /**\n");
+		buf.append("     * Hello\n");
+		buf.append("     */\n");
+		buf.append("    final Object foo5() { return null; }\n");
+		buf.append("    Object foo6() { return null; }\n");
+		buf.append("    /**\n");
+		buf.append("     * Hello\n");
+		buf.append("     */\n");
+		buf.append("    Object foo7() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    Object foo8() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final Object foo9() { return null; }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
+
 	
 	
 	public void testFieldDeclaration() throws Exception {
