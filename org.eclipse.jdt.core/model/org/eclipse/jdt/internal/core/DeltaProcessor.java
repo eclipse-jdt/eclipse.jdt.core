@@ -105,6 +105,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	public HashMap externalTimeStamps = new HashMap();
 	public HashSet projectsToUpdate = new HashSet();
 	// list of root projects which namelookup caches need to be updated for dependents
+	// TODO: (jerome) is it needed? projectsToUpdate might be sufficient
 	public HashSet projectsForDependentNamelookupRefresh = new HashSet();  
 	
 	JavaModelManager manager;
