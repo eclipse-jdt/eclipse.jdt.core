@@ -51,31 +51,28 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		//ensure correct position
 		if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
 			ensureCorrectPositioning((IParent) container, sibling, copy);
-		} else {
-			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
-			} else {
-				// ensure package name is correct
-				if (container.getElementName().equals("")) {
-					// default package - should be no package decl
-					IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
-					boolean found = false;
-					for (int i = 0; i < children.length; i++) {
-						if (children[i] instanceof IPackageDeclaration) {
-							found = true;
-						}
+		} else if (container.getElementType() != IJavaElement.PACKAGE_FRAGMENT_ROOT) {
+			// ensure package name is correct
+			if (container.getElementName().equals("")) {
+				// default package - should be no package decl
+				IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
+				boolean found = false;
+				for (int i = 0; i < children.length; i++) {
+					if (children[i] instanceof IPackageDeclaration) {
+						found = true;
 					}
-					assertTrue("Should not find package decl", !found);
-				} else {
-					IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
-					boolean found = false;
-					for (int i = 0; i < children.length; i++) {
-						if (children[i] instanceof IPackageDeclaration) {
-							assertTrue("package declaration incorrect", ((IPackageDeclaration) children[i]).getElementName().equals(container.getElementName()));
-							found = true;
-						}
-					}
-					assertTrue("Did not find package decl", found);
 				}
+				assertTrue("Should not find package decl", !found);
+			} else {
+				IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
+				boolean found = false;
+				for (int i = 0; i < children.length; i++) {
+					if (children[i] instanceof IPackageDeclaration) {
+						assertTrue("package declaration incorrect", ((IPackageDeclaration) children[i]).getElementName().equals(container.getElementName()));
+						found = true;
+					}
+				}
+				assertTrue("Did not find package decl", found);
 			}
 		}
 		IJavaElementDelta destDelta = getDeltaFor(container, true);
@@ -299,22 +296,26 @@ public void testCopyCURename() throws CoreException {
  * Ensures that a read-only CU can be copied to a different package.
  */
 public void testCopyCUReadOnly() throws CoreException {
-	this.createFolder("/P/src/p1");
-	IFile file = this.createFile(
-		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	file.setReadOnly(true);
-	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-
-	this.createFolder("/P/src/p2");
-	IPackageFragment pkgDest = getPackage("/P/src/p2");
-
-	copyPositive(cuSource, pkgDest, null, null, false);
+	try {
+		this.createFolder("/P/src/p1");
+		IFile file = this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		file.setReadOnly(true);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	
-	assertTrue("Destination cu should be read-only", getFile("/P/src/p2/X.java").isReadOnly());
+		this.createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyPositive(cuSource, pkgDest, null, null, false);
+		
+		assertTrue("Destination cu should be read-only", getFile("/P/src/p2/X.java").isReadOnly());
+	} finally {
+		deleteFolder("/P/src/p1");
+	}
 }
 /**
  * Ensures that a CU can be copied to a different package,
