@@ -79,7 +79,7 @@ public class CompletionParser extends AssistParser {
 	static final int FOR = 6;
 	static final int DO = 7;
 	static final int SYNCHRONIZED = 8;
-	static final int METHOD = 9;
+	static final int METHOD = 9; // TODO: (david) is this used?
 	
 	// label kind
 	static final int DEFAULT = 1;
