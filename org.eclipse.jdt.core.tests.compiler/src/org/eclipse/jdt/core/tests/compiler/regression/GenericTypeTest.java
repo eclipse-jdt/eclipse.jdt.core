@@ -8182,4 +8182,20 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");	
 	}
+	// 72583
+	public void test307() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public class X {\n" + 
+				"	static <T> T foo(T t1, T t2){ return t1; }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		IX s = null;\n" + 
+				"		 foo(new Object(), s);\n" + 
+				"	}\n" + 
+				"}\n" +
+				"interface IX {}\n"
+			},
+			"");	
+	}	
 }
