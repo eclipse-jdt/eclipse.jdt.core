@@ -2270,4 +2270,29 @@ public void test057() {
 			"TOTO"
 		);
 	}
+	
+	// A is not an interface
+	public void _test081() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends Object & p.A> extends p.A<T> {\n" + 
+				"    protected T t;\n" + 
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"}",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A<P> {\n" + 
+				"    protected P p;\n" + 
+				"    protected A(P p) {\n" + 
+				"        this.p = p;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"TOTO"
+		);
+	}	
 }
