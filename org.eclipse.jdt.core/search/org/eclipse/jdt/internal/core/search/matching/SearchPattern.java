@@ -1220,6 +1220,9 @@ protected boolean matchesName(char[] pattern, char[] name) {
 			case PREFIX_MATCH :
 				return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
 			case PATTERN_MATCH :
+				if (!this.isCaseSensitive) {
+					pattern = CharOperation.toLowerCase(pattern);
+				}
 				return CharOperation.match(pattern, name, this.isCaseSensitive);
 		}
 	}
@@ -1243,6 +1246,9 @@ protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPatt
 		} else {
 			pattern = CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
 		}
+	}
+	if (!this.isCaseSensitive) {
+		pattern = CharOperation.toLowerCase(pattern);
 	}
 	return 
 		CharOperation.match(

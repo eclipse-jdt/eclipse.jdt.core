@@ -45,6 +45,9 @@ public class PackageReferencePattern extends AndPattern {
 	
 public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
+	if (!isCaseSensitive) {
+		pkgName = CharOperation.toLowerCase(pkgName);
+	}
 	this.pkgName = pkgName;
 	char[][] splittedName = CharOperation.splitOn('.', pkgName);
 	this.segments = splittedName == CharOperation.NO_CHAR_CHAR ? new char[][]{ pkgName } : splittedName;

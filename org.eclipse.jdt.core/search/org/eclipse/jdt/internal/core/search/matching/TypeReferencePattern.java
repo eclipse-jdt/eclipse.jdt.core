@@ -66,7 +66,7 @@ public TypeReferencePattern(
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null) {
-		this.segments = qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', qualification);
+		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
 	}
 	
 	this.needsResolve = qualification != null;
@@ -467,6 +467,9 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				case BindingIds.LOCAL : // reading a local variable
 					return IMPOSSIBLE_MATCH; // no type match in it
 				case BindingIds.TYPE : //=============only type ==============
+					if (binding instanceof ProblemReferenceBinding) {
+						return INACCURATE_MATCH;
+					}
 					typeBinding = (TypeBinding)binding;
 					break;
 				/*
@@ -481,6 +484,8 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 						char[] partialQualifiedName = pbBinding.name;
 						lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
 						if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
+					} else if (binding instanceof ProblemReferenceBinding) {
+						return INACCURATE_MATCH;
 					}
 					break;
 			}
