@@ -29,7 +29,7 @@ class ASTConverter {
 	
 	public ASTConverter(boolean resolveBindings) {
 		this.resolveBindings = resolveBindings;
-		scanner = new Scanner(true, false);
+		scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*todo*/);
 	}
 	
 	public void setAST(AST ast) {

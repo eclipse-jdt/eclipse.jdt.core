@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**

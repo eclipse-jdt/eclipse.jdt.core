@@ -102,7 +102,7 @@ public final class AST {
 			this.scanner = new Scanner();
 		} else {
 			// use a 1.4 scanner - treats assert as an keyword
-			this.scanner = new Scanner(false, false, false, true);
+			this.scanner = new Scanner(false, false, false, true, null);
 		}
 	}
 		

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-
 public final class CharOperation {
 	
 	public static final char[] NO_CHAR = new char[0];

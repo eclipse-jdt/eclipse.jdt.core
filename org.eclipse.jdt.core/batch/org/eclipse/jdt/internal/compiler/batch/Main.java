@@ -691,6 +691,10 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportStaticAccessReceiver,
 							CompilerOptions.WARNING);
+					} else if (token.equals("todo")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportToDo,
+							CompilerOptions.WARNING);
 					} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportAssertIdentifier,

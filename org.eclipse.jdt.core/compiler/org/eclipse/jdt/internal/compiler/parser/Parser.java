@@ -963,15 +963,15 @@ public void checkAnnotation() {
 	int lastAnnotationIndex = -1;
 
 	//since jdk1.2 look only in the last java doc comment...
-	found : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
+	nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
 		//look for @deprecated into the first javadoc comment preceeding the declaration
 		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 		// javadoc only (non javadoc comment have negative end positions.)
 		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
-			continue;
+			continue nextComment;
 		}
 		if (scanner.commentStops[lastAnnotationIndex] < 0) {
-			break found;
+			break nextComment;
 		}
 		checkDeprecated = true;
 		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
@@ -992,10 +992,10 @@ public void checkAnnotation() {
 				// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
 				int nextPos = i+11;
 				deprecated = (comment[nextPos] == ' ') || (comment[nextPos] == '\t') || (comment[nextPos] == '\n') || (comment[nextPos] == '\r') || (comment[nextPos] == '*');
-				break found;
+				break nextComment;
 			}
 		}
-		break found;
+		break nextComment;
 	}
 	if (deprecated) {
 		checkAndSetModifiers(AccDeprecated);
@@ -4759,6 +4759,11 @@ protected CompilationUnitDeclaration endParse(int act) {
 	if (scanner.recordLineSeparator) {
 		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	}
+	if (scanner.toDoTag != null){
+		for (int i = 0; i < scanner.todoCount; i++){
+			problemReporter().todo(new String(scanner.todoMessages[i]), scanner.todoPositions[i][0], scanner.todoPositions[i][1]);
+		}
+	}
 	return compilationUnit;
 }
 /*
@@ -5039,6 +5044,7 @@ public void goForCompilationUnit(){
 
 	firstToken = TokenNamePLUS_PLUS ;
 	scanner.linePtr = -1;	
+	scanner.todoCount = 0;
 	scanner.recordLineSeparator = true;
 	scanner.currentLine= null;
 	scanner.lines= new ArrayList();
@@ -6495,6 +6501,7 @@ public void initialize() {
 
 	// reset scanner state
 	scanner.commentPtr = -1;
+	scanner.todoCount = 0;
 	scanner.eofPosition = Integer.MAX_VALUE;
 
 	resetModifiers();
@@ -6510,7 +6517,13 @@ public void initialize() {
 	listLength = 0;
 }
 public void initializeScanner(){
-	this.scanner = new Scanner(false, false, this.problemReporter.options.getNonExternalizedStringLiteralSeverity() != ProblemSeverities.Ignore , this.assertMode);
+	CompilerOptions options = this.problemReporter.options;
+	this.scanner = new Scanner(
+		false /*comment*/, 
+		false /*whitespace*/, 
+		options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
+		this.assertMode /*assert*/, 
+		options.getSeverity(CompilerOptions.ToDo) == ProblemSeverities.Ignore ? null : options.toDoTag/*todo*/);
 }
 public final static void initTables() throws java.io.IOException {
 
@@ -6606,6 +6619,7 @@ protected boolean moveRecoveryCheckpoint() {
 	scanner.startPosition = pos;
 	scanner.currentPosition = pos;
 	scanner.commentPtr = -1;
+	scanner.todoCount = 0;
 
 	return true;
 

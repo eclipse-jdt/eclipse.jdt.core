@@ -203,6 +203,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_TODO = PLUGIN_ID + ".compiler.problem.todo"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_TODO_TAG = PLUGIN_ID + ".compiler.problem.todoTag"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_MAX_PER_UNIT = PLUGIN_ID + ".compiler.maxProblemPerUnit"; //$NON-NLS-1$
@@ -1002,6 +1014,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "error", "warning", "ignore" }
 	 *     - default:			"ignore"
 	 * 
+	 * COMPILER / Reporting occurrences of TODO tags in comments
+	 *    When enabled, the compiler will issue an error or a warning whenever it encounters
+	 *    a TODO tag inside any comment. The tag value itself is defined by the option
+	 *    "org.eclipse.jdt.core.compiler.problem.todoTag".
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.todo"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:			"warning"
+	 * 
+	 * COMPILER / Define the TODO task tag
+	 *    Define the tag used to recognize TODO tasks in comments.
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.todoTag"
+	 *     - possible values:	"<t>" where <t> is a non-empty string, without any wild-card.
+	 *     - default:			"TODO:"
+	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
@@ -1026,7 +1052,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
-	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
+	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (* and ? wild-cards allowed)
 	 *       or the name of a folder which ends with '/'
 	 *     - default:			""
 	 * 
@@ -1478,6 +1504,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_STATIC_ACCESS_RECEIVER, IGNORE); 
 		optionNames.add(COMPILER_PB_STATIC_ACCESS_RECEIVER);
+
+		preferences.setDefault(COMPILER_PB_TODO, IGNORE); 
+		optionNames.add(COMPILER_PB_TODO);
+
+		preferences.setDefault(COMPILER_PB_TODO_TAG, "TODO:"); //$NON-NLS-1$
+		optionNames.add(COMPILER_PB_TODO_TAG);
 
 		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
 		optionNames.add(COMPILER_SOURCE);

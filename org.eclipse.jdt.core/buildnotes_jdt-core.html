@@ -38,6 +38,33 @@ Eclipse SDK 2.0 Build - ? August 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Compiler can now optionally collect TODO tasks from the source code. Occurrences of
+a TODO tag are looked for inside any type of comments, and reported along with problems.
+ <ul>
+ <li> New problem ID got created: <code>org.eclipse.jdt.core.compiler.IProblem#ToDo</code>.
+ </li>
+ <li> JavaCore option added to control the severity of TODO reports (ignore/warning/error).
+<pre>
+* COMPILER / Reporting occurrences of TODO tags in comments
+*    When enabled, the compiler will issue an error or a warning whenever it encounters
+*    a TODO tag inside any comment. The tag value itself is defined by the option
+*    "org.eclipse.jdt.core.compiler.problem.todoTag".
+*     - option id:			"org.eclipse.jdt.core.compiler.problem.todo"
+*     - possible values:	{ "error", "warning", "ignore" }
+*     - default:			"warning"
+</pre>
+ </li>
+ <li> JavaCore option added for specifying the TODO tag value (default is <code>"TODO:"</code>).
+<pre>
+* COMPILER / Define the TODO task tag
+*    Define the tag used to recognize TODO tasks in comments.
+*     - option id:			"org.eclipse.jdt.core.compiler.problem.todoTag"
+*     - possible values:	"<t>" where <t> is a non-empty string, without any wild-card.
+*     - default:			"TODO:"
+</pre>	 
+ </li>
+ </ul>
+</li>
 <li> Creating a working copy on a non-existing ICompilationUnit is now allowed. 
        Such a working copy will have its contents initialized to an empty string.
        Commiting this working copy creates the underlying compilation unit.

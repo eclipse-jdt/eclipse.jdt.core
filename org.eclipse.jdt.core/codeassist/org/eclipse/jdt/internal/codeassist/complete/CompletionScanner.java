@@ -37,7 +37,7 @@ public class CompletionScanner extends Scanner {
 
 	public static final char[] EmptyCompletionIdentifier = {};
 public CompletionScanner(boolean assertMode) {
-	super(false, false, false, assertMode);
+	super(false /*comment*/, false /*whitespace*/, false /*nls*/, assertMode /*assert*/, null /*todo*/);
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed

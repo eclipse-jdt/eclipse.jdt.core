@@ -47,6 +47,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
+	public static final String OPTION_ReportToDo = "org.eclipse.jdt.core.compiler.problem.todo"; //$NON-NLS-1$
+	public static final String OPTION_ToDoTag = "org.eclipse.jdt.core.compiler.problem.todoTag"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -83,6 +85,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int AssertUsedAsAnIdentifier = 0x200000;
 	public static final int UnusedImport = 0x400000;
 	public static final int StaticAccessReceiver = 0x800000;
+	public static final int ToDo = 0x1000000;
 		
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
@@ -136,6 +139,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// max problems per compilation unit
 	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
 	
+	// tag used to recognize TODO tasks in comments
+	public char[] toDoTag = DEFAULT_TODO_TAG;
+	public static final char[] DEFAULT_TODO_TAG = "TODO:".toCharArray(); //$NON-NLS-1$
+
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -446,17 +453,32 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			} 
+			// Report todo
+			if(optionID.equals(OPTION_ReportToDo)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= ToDo;
+					this.warningThreshold &= ~ToDo;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~ToDo;
+					this.warningThreshold |= ToDo;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~ToDo;
+					this.warningThreshold &= ~ToDo;
+				}
+				continue;
+			} 
+			// Report todo
+			if(optionID.equals(OPTION_ToDoTag)){
+				this.toDoTag = optionValue.toCharArray();
+				continue;
+			} 
 		}
 	}
 	
-	public int getTargetJDK() {
-		return this.targetJDK;
-	}
-
-	public int getNonExternalizedStringLiteralSeverity() {
-		if((warningThreshold & NonExternalizedString) != 0)
+	public int getSeverity(int irritant) {
+		if((warningThreshold & irritant) != 0)
 			return Warning;
-		if((errorThreshold & NonExternalizedString) != 0)
+		if((errorThreshold & irritant) != 0)
 			return Error;
 		return Ignore;
 	}

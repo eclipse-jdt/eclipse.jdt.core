@@ -547,6 +547,14 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
+		case IProblem.ToDo :
+			if ((errorThreshold & CompilerOptions.ToDo) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.ToDo) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -2574,6 +2582,16 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
+public void todo(String message, int start, int end){
+	String tag = new String(this.options.toDoTag);
+	this.handle(
+		IProblem.ToDo,
+		new String[] { tag, message },
+		new String[] { tag, message },
+		start,
+		end);
+}
+
 public void typeCastError(CastExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());

@@ -242,7 +242,7 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 
-		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false, assertMode);
+		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode, null/*todo*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}

@@ -63,6 +63,12 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
 
+	// TODO tag support
+	public char[][] todoMessages;
+	public int[][] todoPositions;
+	public int todoCount = 0;
+	public char[] toDoTag = null;
+	
 	//diet parsing support - jump over some method body when requested
 	public boolean diet = false;
 
@@ -154,18 +160,97 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;	
 	public static final int BracketKinds = 3;
+
 public Scanner() {
-	this(false, false);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*toDoTag*/);
 }
-public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace) {
-	this(tokenizeComments, tokenizeWhiteSpace, false);	
+public Scanner(
+	boolean tokenizeComments, 
+	boolean tokenizeWhiteSpace, 
+	boolean checkNonExternalizedStringLiterals, 
+	boolean assertMode,
+	char[] toDoTag) {
+		
+	this.eofPosition = Integer.MAX_VALUE;
+	this.tokenizeComments = tokenizeComments;
+	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
+	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.assertMode = assertMode;
+	this.toDoTag = toDoTag;
 }
+
+
 public  final boolean atEnd() {
 	// This code is not relevant if source is 
 	// Only a part of the real stream input
 
 	return source.length == currentPosition;
 }
+
+// chech presence of TODO: tags
+public void checkToDoTag(int commentStart, int commentEnd) {
+
+	// only look for newer TODO: tags
+	if (this.todoCount > 0 && this.todoPositions[this.todoCount-1][0] >= commentStart) {
+		return;
+	}
+	int tagLength = this.toDoTag.length;
+	for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
+
+		// check for tag occurrence
+		boolean foundTag = true;
+		for (int t = 0; t < tagLength; t++){
+			if (this.source[i+t] != this.toDoTag[t]){
+				foundTag = false;
+				break;
+			}
+		}
+		if (foundTag){
+
+			int nextPos = i+5;
+			char c = this.source[nextPos];
+
+			int start = i; 
+			int end = -1;
+			for (int j = nextPos; j < commentEnd; j++){
+				if ((c = this.source[j]) == '\n' || c == '\r'){
+					end = j - 1;
+					i = j+1;
+					break;
+				}
+			}
+			if (end < 0){
+				for (int j = commentEnd; j >= nextPos; j--){
+					if ((c = this.source[j]) == '*') {
+						end = j - 1;
+						break;
+					}
+				}
+				if (end < 0) end = nextPos+1;
+			}
+			
+			// trim message
+			int msgStart = nextPos;
+			while (source[msgStart] == ' ' && msgStart < end) msgStart++;
+			while (source[end] == ' ' && msgStart <= end) end--;
+			
+			char[] message = new char[end-msgStart+1];
+			System.arraycopy(source, msgStart, message, 0, end-msgStart+1);
+					
+			if (this.todoMessages == null){
+				this.todoMessages = new char[5][];
+				this.todoPositions = new int[5][];
+			} else if (this.todoCount == this.todoMessages.length) {
+				System.arraycopy(this.todoMessages, 0, this.todoMessages = new char[this.todoCount*2][], 0, this.todoCount);
+				System.arraycopy(this.todoPositions, 0, this.todoPositions = new int[this.todoCount*2][], 0, this.todoCount);
+			}
+			this.todoMessages[this.todoCount] = message;
+			this.todoPositions[this.todoCount] = new int[]{ start, end };
+			this.todoCount++;
+		}
+	}
+}
+
 public char[] getCurrentIdentifierSource() {
 	//return the token REAL source (aka unicodes are precomputed)
 
@@ -1037,6 +1122,7 @@ public int getNextToken() throws InvalidInputException {
 									endPositionForLineComment = currentPosition - 1;
 								}
 								recordComment(false);
+								if (this.toDoTag != null) checkToDoTag(this.startPosition, this.currentPosition);
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 									checkNonExternalizeString();
 									if (recordLineSeparator) {
@@ -1127,6 +1213,7 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								recordComment(isJavadoc);
+								if (this.toDoTag != null) checkToDoTag(this.startPosition, this.currentPosition);
 								if (tokenizeComments) {
 									if (isJavadoc)
 										return TokenNameCOMMENT_JAVADOC;
@@ -1900,22 +1987,23 @@ public final void recordComment(boolean isJavadoc) {
 
 	// a new annotation comment is recorded
 	try {
-		commentStops[++commentPtr] = isJavadoc ? currentPosition : -currentPosition;
+		this.commentStops[++this.commentPtr] = isJavadoc ? this.currentPosition : -this.currentPosition;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = commentStops.length;
-		int[] oldStack = commentStops;
-		commentStops = new int[oldStackLength + 30];
-		System.arraycopy(oldStack, 0, commentStops, 0, oldStackLength);
-		commentStops[commentPtr] = isJavadoc ? currentPosition : -currentPosition;
+		int oldStackLength = this.commentStops.length;
+		int[] oldStack = this.commentStops;
+		this.commentStops = new int[oldStackLength + 30];
+		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
+		this.commentStops[this.commentPtr] = isJavadoc ? this.currentPosition : -this.currentPosition;
 		//grows the positions buffers too
-		int[] old = commentStarts;
-		commentStarts = new int[oldStackLength + 30];
-		System.arraycopy(old, 0, commentStarts, 0, oldStackLength);
+		int[] old = this.commentStarts;
+		this.commentStarts = new int[oldStackLength + 30];
+		System.arraycopy(old, 0, this.commentStarts, 0, oldStackLength);
 	}
 
 	//the buffer is of a correct size here
-	commentStarts[commentPtr] = startPosition;
+	this.commentStarts[this.commentPtr] = this.startPosition;
 }
+
 public void resetTo(int begin, int end) {
 	//reset the scanner to a given position where it may rescan again
 
@@ -1923,6 +2011,8 @@ public void resetTo(int begin, int end) {
 	initialPosition = startPosition = currentPosition = begin;
 	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
+	todoCount = 0;
+
 }
 
 public final void scanEscapeCharacter() throws InvalidInputException {
@@ -3001,18 +3091,6 @@ public final String toStringAction(int act) {
 		default :
 			return "not-a-token"; //$NON-NLS-1$
 	}
-}
-
-public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals) {
-	this(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false);
-}
-
-public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals, boolean assertMode) {
-	this.eofPosition = Integer.MAX_VALUE;
-	this.tokenizeComments = tokenizeComments;
-	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = assertMode;
 }
 
 private void checkNonExternalizeString()  throws InvalidInputException {
