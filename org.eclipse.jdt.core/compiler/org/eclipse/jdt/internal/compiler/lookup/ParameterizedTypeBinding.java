@@ -426,7 +426,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				if (!isWildcardArgument || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
 					this.tagBits |= IsBoundParameterizedType;
 				}
-			    this.tagBits |= someArgument.tagBits & (HasTypeVariable);
+			    this.tagBits |= someArgument.tagBits & HasTypeVariable;
 			}
 		}	    
 		this.tagBits |= someType.tagBits & (IsLocalType| IsMemberType | IsNestedType);
