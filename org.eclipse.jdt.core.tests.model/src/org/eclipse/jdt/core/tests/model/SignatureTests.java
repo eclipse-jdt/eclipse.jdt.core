@@ -527,6 +527,10 @@ public void testToString1() {
 		"Signature#toString is not correct 22", 
 		"java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>",
 		Signature.toString("Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;"));
+	assertEquals(
+		"Signature#toString is not correct 23", 
+		"Stack<List<Object>>",
+		Signature.toString("QStack<QList<QObject;>;>;"));
 }
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)
