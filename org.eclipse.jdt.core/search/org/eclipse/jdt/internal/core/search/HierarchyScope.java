@@ -53,11 +53,14 @@ public class HierarchyScope
 			if (root instanceof JarPackageFragmentRoot) {
 				// type in a jar
 				JarPackageFragmentRoot jar = (JarPackageFragmentRoot) root;
-				Object target = JavaModel.getTarget(workspaceRoot, jar.getPath(), true);
+				IPath jarPath = jar.getPath();
+				Object target = JavaModel.getTarget(workspaceRoot, jarPath, true);
 				String zipFileName;
 				if (target instanceof IFile) {
-					zipFileName = ((IFile)target).getLocation().toOSString();
+					// internal jar
+					zipFileName = jarPath.toString();
 				} else if (target instanceof File) {
+					// external jar
 					zipFileName = ((File)target).getPath();
 				} else {
 					continue; // unknown target
@@ -69,7 +72,7 @@ public class HierarchyScope
 						+ ".class";//$NON-NLS-1$
 				
 				this.resourcePaths.add(resourcePath);
-				paths.put(jar.getPath(), type);
+				paths.put(jarPath, type);
 			} else {
 				// type is a project
 				paths.put(type.getJavaProject().getProject().getFullPath(), type);
