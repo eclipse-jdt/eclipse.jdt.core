@@ -53,4 +53,12 @@ NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
  */
 
 boolean isPackage(char[][] parentPackageName, char[] packageName);
+
+/**
+ * This method resets the environment. It is responsible for releasing the memory
+ * and freeing resources.
+ */
+
+void reset();
+
 }

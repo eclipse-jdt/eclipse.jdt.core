@@ -77,4 +77,8 @@ public NameEnvironmentAnswer readJavaFile(String fileName, char[][] packageName)
 public String toString() {
 	return "ClasspathDirectory " + path; //$NON-NLS-1$
 }
+public void reset() {
+	this.missingPackages = new Hashtable(11);
+	this.directoryCache = new Hashtable(11);
+}
 }

@@ -370,6 +370,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							pkgName.append("." ); //$NON-NLS-1$
 						}
 					}
+					if (!JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
+						return null;
+					}
 					return root.getPackageFragment(pkgName.toString());
 				}
 			}

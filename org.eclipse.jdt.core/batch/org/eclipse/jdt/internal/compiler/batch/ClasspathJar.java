@@ -104,4 +104,13 @@ class ClasspathJar implements FileSystem.Classpath {
 		
 		return "Classpath for jar file " + zipFile; //$NON-NLS-1$
 	}
+	public void reset() {
+		try {
+			if (this.zipFile != null) {
+				this.zipFile.close();
+			}
+			directoryCache = new Hashtable(101);
+		} catch(IOException e) {
+		}
+	}
 }

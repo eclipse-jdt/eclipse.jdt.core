@@ -19,6 +19,11 @@ public class FileSystem implements INameEnvironment  {
 		NameEnvironmentAnswer readClassFile(String filename, char[][] packageName);
 		NameEnvironmentAnswer readJavaFile(String filename, char[][] packageName);
 		boolean isPackage(char[][] compoundName, char[] packageName); 
+		/**
+		 * This method resets the environment. The resulting state is equivalent to
+		 * a new name environment without creating a new object.
+		 */
+		void reset();
 	}
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
@@ -147,5 +152,11 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 		if (classpaths[i].isPackage(compoundName, packageName))
 			return true;
 	return false;
+}
+
+public void reset() {
+	for (int i = 0, max = classpaths.length; i < max; i++) {
+		classpaths[i].reset();
+	}
 }
 }

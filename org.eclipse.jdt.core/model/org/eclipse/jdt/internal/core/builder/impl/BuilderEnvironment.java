@@ -178,4 +178,6 @@ public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	public void setNotifier(BuildNotifier notifier) {
 		fNotifier = notifier;
 	}
+	public void reset() {
+	}
 }

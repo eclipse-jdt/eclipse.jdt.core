@@ -74,4 +74,7 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	return this.env.isPackage(parentPackageName, packageName);
 }
+public void reset() {
+	this.env.reset();
+}
 }
