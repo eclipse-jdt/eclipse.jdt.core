@@ -3342,26 +3342,59 @@ class ASTConverter {
 		}
 		if (currentNode instanceof Initializer) {
 			Initializer initializer = (Initializer) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
+			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
+			if (currentNode instanceof TypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+					return typeDecl.staticInitializerScope;
+				} else {
+					return typeDecl.initializerScope;
+				}
+			} else if (currentNode instanceof EnumDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+					return enumDecl.staticInitializerScope;
+				} else {
+					return enumDecl.initializerScope;
+				}
+			} else if (currentNode instanceof AnnotationTypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration annotationTypeDecl = (org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+					return annotationTypeDecl.staticInitializerScope;
+				} else {
+					return annotationTypeDecl.initializerScope;
+				}
 			}
 		} else if (currentNode instanceof FieldDeclaration) {
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
+			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
+			if (currentNode instanceof TypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+					return typeDecl.staticInitializerScope;
+				} else {
+					return typeDecl.initializerScope;
+				}
+			} else if (currentNode instanceof EnumDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+					return enumDecl.staticInitializerScope;
+				} else {
+					return enumDecl.initializerScope;
+				}
+			} else if (currentNode instanceof AnnotationTypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration annotationTypeDecl = (org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+					return annotationTypeDecl.staticInitializerScope;
+				} else {
+					return annotationTypeDecl.initializerScope;
+				}
 			}
+
 		}
 		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 		return abstractMethodDeclaration.scope;
