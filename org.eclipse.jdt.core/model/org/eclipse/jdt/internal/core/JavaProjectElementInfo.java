@@ -122,7 +122,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						resFullPath = res.getFullPath();
 						
 						// ignore non-excluded folders on the classpath or that correspond to an output location
-						if ((srcIsProject && !Util.isExcluded(res, exclusionPatterns))
+						if ((srcIsProject && !Util.isExcluded(res, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName()))
 								|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 							break;
 						}

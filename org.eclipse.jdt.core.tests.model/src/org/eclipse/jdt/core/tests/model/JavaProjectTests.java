@@ -91,6 +91,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources1"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources2"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources3"));
+	suite.addTest(new JavaProjectTests("testGetNonJavaResources4"));
 	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
@@ -456,6 +457,24 @@ public void testGetNonJavaResources3() throws CoreException {
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
 			"/P/.project",
+			(IResource[])project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that the non-java resources for a project contain a folder that have an invalid name for a package fragment.
+ * (regression test for bug 31757 Folder with invalid pkg name should be non-Java resource)
+ */
+public void testGetNonJavaResources4() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P");
+		this.createFolder("/P/x.y");
+		assertResources(
+			"Unexpected non-java resources for project",
+			"/P/.classpath\n" + 
+			"/P/.project\n" + 
+			"/P/x.y",
 			(IResource[])project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
