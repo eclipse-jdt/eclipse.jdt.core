@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -23,6 +24,8 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -37,8 +40,6 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * (e.g. closing them or updating classpaths).
  */
 public class DeltaProcessor {
-	
-
 	
 	/**
 	 * The <code>JavaElementDelta</code> corresponding to the <code>IResourceDelta</code> being translated.
@@ -60,6 +61,8 @@ public class DeltaProcessor {
 	Openable currentElement;
 	
 	HashSet projectsToUpdate = new HashSet();
+
+	static final IJavaElementDelta[] NO_DELTA = new IJavaElementDelta[0];
 
 	public static boolean VERBOSE = false;
 
@@ -518,26 +521,34 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 	 */
 	protected IJavaElementDelta[] filterRealDeltas(IJavaElementDelta[] deltas) {
 
-		IJavaElementDelta[] realDeltas = new IJavaElementDelta[deltas.length];
+		int length = deltas.length;
+		IJavaElementDelta[] realDeltas = null;
 		int index = 0;
-		for (int i = 0; i < deltas.length; i++) {
-			IJavaElementDelta delta = deltas[i];
+		for (int i = 0; i < length; i++) {
+			JavaElementDelta delta = (JavaElementDelta)deltas[i];
 			if (delta == null) {
 				continue;
 			}
 			if (delta.getAffectedChildren().length > 0
-				|| delta.getKind() != IJavaElementDelta.CHANGED
+				|| delta.getKind() == IJavaElementDelta.ADDED
+				|| delta.getKind() == IJavaElementDelta.REMOVED
 				|| (delta.getFlags() & IJavaElementDelta.F_CLOSED) != 0
-				|| (delta.getFlags() & IJavaElementDelta.F_OPENED) != 0) {
+				|| (delta.getFlags() & IJavaElementDelta.F_OPENED) != 0
+				|| delta.resourceDeltasCounter > 0) {
 
+				if (realDeltas == null) {
+					realDeltas = new IJavaElementDelta[length];
+				}
 				realDeltas[index++] = delta;
 			}
 		}
-		IJavaElementDelta[] result = new IJavaElementDelta[index];
-		if (result.length > 0) {
-			System.arraycopy(realDeltas, 0, result, 0, result.length);
+		if (index > 0) {
+			IJavaElementDelta[] result = new IJavaElementDelta[index];
+			System.arraycopy(realDeltas, 0, result, 0, index);
+			return result;
+		} else {
+			return NO_DELTA;
 		}
-		return result;
 	}
 
 	/**
@@ -608,6 +619,9 @@ private void initializeRoots() {
 		}
 	}
 
+private JavaModelException newInvalidElementType() {
+	return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES));
+}
 	/**
 	 * Generic processing for elements with changed contents:<ul>
 	 * <li>The element is closed such that any subsequent accesses will re-open
@@ -727,19 +741,20 @@ private void initializeRoots() {
 /*
  * Update the current delta (ie. add/remove/change the given element) and update the correponding index.
  * Returns whether the children of the given delta must be processed.
+ * @throws a JavaModelException if the delta doesn't correspond to a java element of the given type.
  */
-private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType, IJavaProject project) {
+private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType, IJavaProject project) throws JavaModelException {
 	Openable element;
 	switch (delta.getKind()) {
 		case IResourceDelta.ADDED :
 			element = this.createElement(delta.getResource(), elementType, project);
-			if (element == null) return false;
+			if (element == null) throw newInvalidElementType();
 			updateIndex(element, delta);
 			elementAdded(element, delta);
 			return false;
 		case IResourceDelta.REMOVED :
 			element = this.createElement(delta.getResource(), elementType, project);
-			if (element == null) return false;
+			if (element == null) throw newInvalidElementType();
 			updateIndex(element, delta);
 			elementRemoved(element, delta);
 			return false;
@@ -747,12 +762,12 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			int flags = delta.getFlags();
 			if ((flags & IResourceDelta.CONTENT) != 0) {
 				element = this.createElement(delta.getResource(), elementType, project);
-				if (element == null) return false;
+				if (element == null) throw newInvalidElementType();
 				updateIndex(element, delta);
 				contentChanged(element, delta);
 			} else if ((flags & IResourceDelta.OPEN) != 0) {
 				element = this.createElement(delta.getResource(), elementType, project);
-				if (element == null) return false;
+				if (element == null) throw newInvalidElementType();
 				updateIndex(element, delta);
 				if (isOpen(delta.getResource())) {
 					elementOpened(element, delta);
@@ -802,15 +817,21 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				// force the currentProject to be used
 				this.currentElement = (Openable)currentProject;
 			}
-			processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
+			try {
+				processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
+			} catch (JavaModelException e) {
+				// non java resource
+				return false;
+			}
 		} else {
 			if (res instanceof IProject) {
 				try {
 					if (this.isOpen(res) && !((IProject)res).hasNature(JavaCore.NATURE_ID)) return false; // non java project
+					processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
 				} catch (CoreException e) {
+					// invalid project
 					return false;
 				}
-				processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
 				if (delta.getKind() != IResourceDelta.CHANGED 
 						|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
 					return false; // don't go deeper for added, removed, opened or closed projects
