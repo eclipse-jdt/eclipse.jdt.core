@@ -57,7 +57,7 @@ public void close() throws JavaModelException {
 		closing(info);
 		fgJavaModelManager.removeInfo(this);
 		if (JavaModelManager.VERBOSE){
-			System.out.println("-> Package cache filling rate = " + fgJavaModelManager.cache.pkgFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
 			System.out.println("-> Openable cache filling rate = " + fgJavaModelManager.cache.openableFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
@@ -72,7 +72,7 @@ protected void closing(Object info) throws JavaModelException {
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 	if (JavaModelManager.VERBOSE){
-		System.out.println("-> Package cache filling rate = " + fgJavaModelManager.cache.pkgFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
 		System.out.println("-> Openable cache filling rate = " + fgJavaModelManager.cache.openableFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }

@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IOpenable;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
-	public static final int PKG_CACHE_SIZE = 1000;
+	public static final int PKG_CACHE_SIZE = 500;
 	public static final int OPENABLE_CACHE_SIZE = 2000;
 	
 	/**
@@ -39,7 +39,7 @@ public class JavaModelCache {
 	/**
 	 * Cache of open package fragments
 	 */
-	protected OverflowingLRUCache pkgCache;
+	protected Map pkgCache;
 
 	/**
 	 * Cache of open compilation unit and class files
@@ -53,7 +53,7 @@ public class JavaModelCache {
 	
 public JavaModelCache() {
 	this.projectAndRootCache = new HashMap(50);
-	this.pkgCache = new ElementCache(PKG_CACHE_SIZE);
+	this.pkgCache = new HashMap(PKG_CACHE_SIZE);
 	this.openableCache = new ElementCache(OPENABLE_CACHE_SIZE);
 	this.childrenCache = new HashMap(OPENABLE_CACHE_SIZE*20); // average 20 chilren per openable
 }
@@ -61,8 +61,8 @@ public JavaModelCache() {
 public double openableFillingRate() {
 	return this.openableCache.fillingRate();
 }
-public double pkgFillingRate() {
-	return this.pkgCache.fillingRate();
+public int pkgSize() {
+	return this.pkgCache.size();
 }
 	
 /**
@@ -107,7 +107,7 @@ protected Object peekAtInfo(IJavaElement element) {
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			return this.projectAndRootCache.get(element);
 		case IJavaElement.PACKAGE_FRAGMENT:
-			return this.pkgCache.peek(element);
+			return this.pkgCache.get(element);
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.peek(element);

@@ -397,7 +397,7 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 		opening(info);
 		
 		if (JavaModelManager.VERBOSE) {
-			System.out.println("-> Package cache filling rate = " + fgJavaModelManager.cache.pkgFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
 			System.out.println("-> Openable cache filling rate = " + fgJavaModelManager.cache.openableFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
