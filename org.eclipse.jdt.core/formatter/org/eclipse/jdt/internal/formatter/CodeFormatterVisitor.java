@@ -2444,63 +2444,56 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConditionalExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(
-		ConditionalExpression conditionalExpression,
-		BlockScope scope) {
-
-		final int numberOfParens = (conditionalExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(conditionalExpression, numberOfParens);
-		}
-		conditionalExpression.condition.traverse(this, scope);
-
-		boolean placeSpaceImmediately = this.preferences.insert_space_before_question_in_conditional
-				&& ((this.preferences.conditional_expression_alignment & Alignment.M_INDENT_ON_COLUMN) != 0)
-				&& ((this.preferences.conditional_expression_alignment & Alignment.M_NEXT_PER_LINE_SPLIT) != 0);
-		if (placeSpaceImmediately) {
-			this.scribe.space();
-		}
-		
-		Alignment conditionalExpressionAlignment =this.scribe.createAlignment(
-				"conditionalExpression", //$NON-NLS-1$
-				this.preferences.conditional_expression_alignment,
-				2,
-				this.scribe.scanner.currentPosition);
-
-		this.scribe.enterAlignment(conditionalExpressionAlignment);
-		boolean ok = false;
-		do {
-			try {
-				this.scribe.alignFragment(conditionalExpressionAlignment, 0);
-				this.scribe.printNextToken(TerminalTokens.TokenNameQUESTION, !placeSpaceImmediately && this.preferences.insert_space_before_question_in_conditional);
-
-				if (this.preferences.insert_space_after_question_in_conditional) {
-					this.scribe.space();
-				}
-				conditionalExpression.valueIfTrue.traverse(this, scope);
-				this.scribe.printTrailingComment();
-				this.scribe.alignFragment(conditionalExpressionAlignment, 1);
-				this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_conditional);
-
-				if (this.preferences.insert_space_after_colon_in_conditional) {
-					this.scribe.space();
-				}
-				conditionalExpression.valueIfFalse.traverse(this, scope);
-
-				ok = true;
-			} catch (AlignmentException e) {
-				this.scribe.redoAlignment(e);
-			}
-		} while (!ok);
-		this.scribe.exitAlignment(conditionalExpressionAlignment, true);
-			
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(conditionalExpression, numberOfParens);
-		}
-		return false;	
-	}
+     * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConditionalExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+     */
+    public boolean visit(
+    	ConditionalExpression conditionalExpression,
+    	BlockScope scope) {
+    
+    	final int numberOfParens = (conditionalExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+    	if (numberOfParens > 0) {
+    		manageOpeningParenthesizedExpression(conditionalExpression, numberOfParens);
+    	}
+    	conditionalExpression.condition.traverse(this, scope);
+    
+    	Alignment conditionalExpressionAlignment =this.scribe.createAlignment(
+    			"conditionalExpression", //$NON-NLS-1$
+    			this.preferences.conditional_expression_alignment,
+    			2,
+    			this.scribe.scanner.currentPosition);
+    
+    	this.scribe.enterAlignment(conditionalExpressionAlignment);
+    	boolean ok = false;
+    	do {
+    		try {
+    			this.scribe.alignFragment(conditionalExpressionAlignment, 0);
+    			this.scribe.printNextToken(TerminalTokens.TokenNameQUESTION, this.preferences.insert_space_before_question_in_conditional);
+    
+    			if (this.preferences.insert_space_after_question_in_conditional) {
+    				this.scribe.space();
+    			}
+    			conditionalExpression.valueIfTrue.traverse(this, scope);
+    			this.scribe.printTrailingComment();
+    			this.scribe.alignFragment(conditionalExpressionAlignment, 1);
+    			this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_conditional);
+    
+    			if (this.preferences.insert_space_after_colon_in_conditional) {
+    				this.scribe.space();
+    			}
+    			conditionalExpression.valueIfFalse.traverse(this, scope);
+    
+    			ok = true;
+    		} catch (AlignmentException e) {
+    			this.scribe.redoAlignment(e);
+    		}
+    	} while (!ok);
+    	this.scribe.exitAlignment(conditionalExpressionAlignment, true);
+    		
+    	if (numberOfParens > 0) {
+    		manageClosingParenthesizedExpression(conditionalExpression, numberOfParens);
+    	}
+    	return false;	
+    }
 
 
 	/**
