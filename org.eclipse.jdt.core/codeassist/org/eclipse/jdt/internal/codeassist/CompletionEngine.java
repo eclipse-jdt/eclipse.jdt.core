@@ -767,10 +767,6 @@ public final class CompletionEngine
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 
 			boolean prefixRequired = false;
-			
-			if(receiverType != invocationScope.enclosingSourceType()){
-				prefixRequired = implicitCall && isEnclosed(receiverType,invocationScope.enclosingSourceType());
-			}
 
 			for (int i = fieldsFound.size; --i >= 0;) {
 				FieldBinding otherField = (FieldBinding) fieldsFound.elementAt(i);
@@ -782,6 +778,7 @@ public final class CompletionEngine
 					if (otherField.declaringClass.isInterface())
 						if (field.declaringClass.implementsInterface(otherField.declaringClass, true))
 							continue next;
+					prefixRequired = true;
 				}
 			}
 
@@ -1375,10 +1372,6 @@ public final class CompletionEngine
 			
 			boolean prefixRequired = false;
 			
-			if(receiverType != invocationScope.enclosingSourceType()){
-				prefixRequired = implicitCall && isEnclosed(receiverType,invocationScope.enclosingSourceType());
-			}
-			
 			for (int i = methodsFound.size; --i >= 0;) {
 
 				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
@@ -1402,6 +1395,7 @@ public final class CompletionEngine
 							.declaringClass
 							.implementsInterface(method.declaringClass,true))
 							continue next;
+					prefixRequired = true;
 				}
 			}
 
