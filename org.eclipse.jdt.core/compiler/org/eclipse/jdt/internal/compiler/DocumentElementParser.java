@@ -250,11 +250,11 @@ protected void consumeClassHeaderName() {
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
 	intPtr--;
-	int declarationSourceStart = intStack[intPtr--];
+	int declSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
-	if (typeDecl.declarationSourceStart > declarationSourceStart) {
-		typeDecl.declarationSourceStart = declarationSourceStart;
+	if (typeDecl.declarationSourceStart > declSourceStart) {
+		typeDecl.declarationSourceStart = declSourceStart;
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
@@ -414,7 +414,7 @@ protected void consumeEnterVariable() {
 	if (!isLocalDeclaration && (variablesCounter[nestedType] != 0)) {
 		requestor.exitField(lastFieldBodyEndPosition, lastFieldEndPosition);
 	}
-	char[] name = identifierStack[identifierPtr];
+	char[] varName = identifierStack[identifierPtr];
 	long namePosition = identifierPositionStack[identifierPtr--];
 	int extendedTypeDimension = intStack[intPtr--];
 
@@ -422,11 +422,11 @@ protected void consumeEnterVariable() {
 	if (nestedMethod[nestedType] != 0) {
 		// create the local variable declarations
 		declaration = 
-			new LocalDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition); 
+			new LocalDeclaration(null, varName, (int) (namePosition >>> 32), (int) namePosition); 
 	} else {
 		// create the field declaration
 		declaration = 
-			new FieldDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition); 
+			new FieldDeclaration(null, varName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
 	identifierLengthPtr--;
 	TypeReference type;
@@ -492,7 +492,7 @@ protected void consumeEnterVariable() {
 				type.sourceStart, 
 				type.sourceEnd, 
 				typeDims, 
-				name, 
+				varName, 
 				(int) (namePosition >>> 32), 
 				(int) namePosition, 
 				extendedTypeDimension, 
@@ -551,13 +551,13 @@ protected void consumeFormalParameter() {
 	*/
 
 	identifierLengthPtr--;
-	char[] name = identifierStack[identifierPtr];
+	char[] parameterName = identifierStack[identifierPtr];
 	long namePositions = identifierPositionStack[identifierPtr--];
 	TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
 	intPtr -= 3;
 	Argument arg = 
 		new Argument(
-			name, 
+			parameterName, 
 			namePositions, 
 			type, 
 			intStack[intPtr + 1]); // modifiers
@@ -653,11 +653,11 @@ protected void consumeInterfaceHeaderName() {
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
 	intPtr--;
-	int declarationSourceStart = intStack[intPtr--];
+	int declSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
-	if (typeDecl.declarationSourceStart > declarationSourceStart) {
-		typeDecl.declarationSourceStart = declarationSourceStart;
+	if (typeDecl.declarationSourceStart > declSourceStart) {
+		typeDecl.declarationSourceStart = declSourceStart;
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);

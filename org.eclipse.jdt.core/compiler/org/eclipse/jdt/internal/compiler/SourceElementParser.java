@@ -85,8 +85,8 @@ public SourceElementParser(
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
 		options, 
 		problemFactory) {
-		public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
-			unitResult.record(problem, referenceContext);
+		public void record(IProblem problem, CompilationResult unitResult, ReferenceContext context) {
+			unitResult.record(problem, context);
 			requestor.acceptProblem(problem);
 		}
 	},
@@ -328,8 +328,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
-protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	return new SourceFieldDeclaration(null, name, sourceStart, sourceEnd);
+protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] fieldName, int sourceStart, int sourceEnd) {
+	return new SourceFieldDeclaration(null, fieldName, sourceStart, sourceEnd);
 }
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {
@@ -758,11 +758,11 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
 	}
 	if (isInRange) {
-		int modifiers = methodDeclaration.modifiers;
-		boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+		int currentModifiers = methodDeclaration.modifiers;
+		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		requestor.enterMethod(
 			methodDeclaration.declarationSourceStart, 
-			deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
+			deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
 			returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
 			methodDeclaration.selector, 
 			methodDeclaration.sourceStart, 
@@ -797,11 +797,11 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			}
 		}
 		if (isInRange) {
-			int modifiers = fieldDeclaration.modifiers;
-			boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			int currentModifiers = fieldDeclaration.modifiers;
+			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 			requestor.enterField(
 				fieldDeclaration.declarationSourceStart, 
-				deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
+				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
 				returnTypeName(fieldDeclaration.type), 
 				fieldDeclaration.name, 
 				fieldDeclaration.sourceStart, 
@@ -865,9 +865,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 	FieldDeclaration[] fields = typeDeclaration.fields;
 	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 	MemberTypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-	int fieldCount = fields == null ? 0 : fields.length;
-	int methodCount = methods == null ? 0 : methods.length;
-	int memberTypeCount = memberTypes == null ? 0 : memberTypes.length;
+	int fieldCounter = fields == null ? 0 : fields.length;
+	int methodCounter = methods == null ? 0 : methods.length;
+	int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
 	int fieldIndex = 0;
 	int methodIndex = 0;
 	int memberTypeIndex = 0;
@@ -899,11 +899,11 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		}
 		if (isInterface) {
 			if (isInRange){
-				int modifiers = typeDeclaration.modifiers;
-				boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				int currentModifiers = typeDeclaration.modifiers;
+				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 				requestor.enterInterface(
 					typeDeclaration.declarationSourceStart, 
-					deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
+					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
 					typeDeclaration.sourceEnd, 
@@ -950,30 +950,30 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getTypeName(), '.');
 		}
 	}
-	while ((fieldIndex < fieldCount)
-		|| (memberTypeIndex < memberTypeCount)
-		|| (methodIndex < methodCount)) {
+	while ((fieldIndex < fieldCounter)
+		|| (memberTypeIndex < memberTypeCounter)
+		|| (methodIndex < methodCounter)) {
 		FieldDeclaration nextFieldDeclaration = null;
 		AbstractMethodDeclaration nextMethodDeclaration = null;
 		TypeDeclaration nextMemberDeclaration = null;
 
 		int position = Integer.MAX_VALUE;
 		int nextDeclarationType = -1;
-		if (fieldIndex < fieldCount) {
+		if (fieldIndex < fieldCounter) {
 			nextFieldDeclaration = fields[fieldIndex];
 			if (nextFieldDeclaration.declarationSourceStart < position) {
 				position = nextFieldDeclaration.declarationSourceStart;
 				nextDeclarationType = 0; // FIELD
 			}
 		}
-		if (methodIndex < methodCount) {
+		if (methodIndex < methodCounter) {
 			nextMethodDeclaration = methods[methodIndex];
 			if (nextMethodDeclaration.declarationSourceStart < position) {
 				position = nextMethodDeclaration.declarationSourceStart;
 				nextDeclarationType = 1; // METHOD
 			}
 		}
-		if (memberTypeIndex < memberTypeCount) {
+		if (memberTypeIndex < memberTypeCounter) {
 			nextMemberDeclaration = memberTypes[memberTypeIndex];
 			if (nextMemberDeclaration.declarationSourceStart < position) {
 				position = nextMemberDeclaration.declarationSourceStart;
@@ -1070,7 +1070,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 	return null;
 }
 public void parseTypeMemberDeclarations(
-	ISourceType sourceType, 
+	ISourceType type, 
 	ICompilationUnit sourceUnit, 
 	int start, 
 	int end, 
@@ -1088,7 +1088,7 @@ public void parseTypeMemberDeclarations(
 			new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
-				new ISourceType[]{sourceType}, 
+				new ISourceType[]{type}, 
 				false, // no need for field and methods
 				false, // no need for member types
 				false, // no need for field initialization
@@ -1096,7 +1096,7 @@ public void parseTypeMemberDeclarations(
 				compilationUnitResult); 
 		if ((unit == null) || (unit.types == null) || (unit.types.length != 1))
 			return;
-		this.sourceType = sourceType;
+		this.sourceType = type;
 		try {
 			/* automaton initialization */
 			initialize();
@@ -1253,9 +1253,9 @@ private void visitIfNeeded(Initializer initializer) {
 	}
 }
 
-protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
+protected void reportSyntaxError(int act, int currentKind, int currrentStateStackTop) {
 	if (compilationUnit == null) return;
-	super.reportSyntaxError(act, currentKind,stateStackTop);
+	super.reportSyntaxError(act, currentKind,currrentStateStackTop);
 }
 
 }
