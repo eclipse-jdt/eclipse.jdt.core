@@ -19,8 +19,9 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 
 /**
  * Implements <code>IJavaElementRequestor</code>, wrappering and forwarding
@@ -65,7 +66,9 @@ public SearchableEnvironmentRequestor(ISearchRequestor requestor, ICompilationUn
 	this.unitToSkip= unitToSkip;
 	this.project= project;
 	this.nameLookup = nameLookup;
-	this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
+	this.checkAccessRestrictions = 
+		!JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
+		|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 }
 /**
  * Do nothing, a SearchRequestor does not accept initializers
@@ -100,12 +103,12 @@ public void acceptType(IType type) {
 			PackageFragmentRoot root = (PackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			ClasspathEntry entry = (ClasspathEntry) this.nameLookup.rootToResolvedEntries.get(root);
 			if (entry != null) { // reverse map always contains resolved CP entry
-				accessRestriction = entry.getImportRestriction();
-				if (accessRestriction != null) {
+				AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
+				if (accessRuleSet != null) {
 					// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
 					char[][] packageChars = CharOperation.splitOn('.', packageName);
-					char[] classFileChars = type.getParent().getElementName().toCharArray();
-					accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'), null);
+					char[] fileChars = type.getParent().getElementName().toCharArray();
+					accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, fileChars, '/'));
 				}
 			}
 		}

@@ -574,7 +574,7 @@ public class JavaProject
 							requiredProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
 							accumulatedRoots, 
 							rootIDs, 
-							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith(referringEntry), // only combine if need to build the reverse map 
+							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry), // only combine if need to build the reverse map 
 							checkExistency, 
 							retrieveExportedRoots,
 							rootToResolvedEntries);
@@ -585,7 +585,7 @@ public class JavaProject
 		if (root != null) {
 			accumulatedRoots.add(root);
 			rootIDs.add(rootID);
-			if (rootToResolvedEntries != null) rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith(referringEntry));
+			if (rootToResolvedEntries != null) rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
 		}
 	}
 	
@@ -2041,13 +2041,13 @@ public class JavaProject
 
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-						ClasspathEntry cEntry = (ClasspathEntry)containerEntries[j];
+						ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
 						if (generateMarkerOnError) {
 							IJavaModelStatus containerStatus = ClasspathEntry.validateClasspathEntry(this, cEntry, false, true /*recurse*/);
 							if (!containerStatus.isOK()) createClasspathProblemMarker(containerStatus);
 						}
 						// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
-						cEntry = cEntry.combineWith(rawEntry);
+						cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
 						if (rawReverseMap != null) {
 							if (rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
 						}

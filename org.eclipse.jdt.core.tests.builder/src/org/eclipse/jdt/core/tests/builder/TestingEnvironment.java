@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import java.io.*;
 import java.util.*;
@@ -171,9 +172,10 @@ public class TestingEnvironment {
 	
 	/** Adds a project to the classpath of a project.
 	 */
-	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, IPath[] inclusionPatterns, IPath[] exclusionPatterns, boolean isExported) throws JavaModelException {
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean isExported) throws JavaModelException {
 		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
-		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, inclusionPatterns, exclusionPatterns, true, new IClasspathAttribute[0], isExported));
+		IAccessRule[] accessRules = ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles);
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, accessRules, true, new IClasspathAttribute[0], isExported));
 	}
 
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {

@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 
 /**
  * Collects the resource paths reported by a client to this search requestor.
@@ -28,7 +28,7 @@ public class PathCollector extends IndexQueryRequestor {
 	/* (non-Javadoc)
 	 * @seeIndexQueryRequestor#acceptIndexMatch(IndexRecord, SearchParticipant, SearchPattern)
 	 */
-	public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access) {
+	public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 		paths.add(documentPath);
 		return true;
 	}

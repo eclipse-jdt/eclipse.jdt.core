@@ -16,22 +16,19 @@ package org.eclipse.jdt.core;
  * 
  * @see JavaCore#newContainerEntry(
  *			org.eclipse.core.runtime.IPath containerPath, 
- *			org.eclipse.core.runtime.IPath[] accessibleFiles, 
- *			org.eclipse.core.runtime.IPath[] nonAccessibleFiles, 
+ *			IAccessRule[] accessRules, 
  *			IClasspathAttribute[] extraAttributes,
  *			boolean isExported)
  * @see JavaCore#newLibraryEntry(
  *			org.eclipse.core.runtime.IPath path,
  *			org.eclipse.core.runtime.IPath sourceAttachmentPath,
  *			org.eclipse.core.runtime.IPath sourceAttachmentRootPath,
- *			org.eclipse.core.runtime.IPath[] accessibleFiles, 
- *			org.eclipse.core.runtime.IPath[] nonAccessibleFiles, 
+ *			IAccessRule[] accessRules, 
  *			IClasspathAttribute[] extraAttributes,
  *			boolean isExported)
  * @see JavaCore#newProjectEntry(
  *			org.eclipse.core.runtime.IPath path, 
- *			org.eclipse.core.runtime.IPath[] accessibleFiles, 
- *			org.eclipse.core.runtime.IPath[] nonAccessibleFiles, 
+ *			IAccessRule[] accessRules, 
  *			boolean combineAccessRestrictions,
  *			IClasspathAttribute[] extraAttributes,
  *			boolean isExported)	
@@ -45,8 +42,7 @@ package org.eclipse.jdt.core;
  *			org.eclipse.core.runtime.IPath variablePath,
  *			org.eclipse.core.runtime.IPath variableSourceAttachmentPath,
  *			org.eclipse.core.runtime.IPath variableSourceAttachmentRootPath,
- *			org.eclipse.core.runtime.IPath[] accessibleFiles, 
- *			org.eclipse.core.runtime.IPath[] nonAccessibleFiles, 
+ *			IAccessRule[] accessRules, 
  *			IClasspathAttribute[] extraAttributes,
  *			boolean isExported)
  * @since 3.1

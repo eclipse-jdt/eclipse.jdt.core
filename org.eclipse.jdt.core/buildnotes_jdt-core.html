@@ -47,6 +47,56 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added the following APIs to control access rules severity:
+     <ul>
+     <li><code>org.eclipse.jdt.core.IAccessRule</code>
+           <ul>
+           <li><code>int K_ACCESSIBLE;</code></li>
+           <li><code>int K_NON_ACCESSIBLE;</code></li>
+           <li><code>int K_DISCOURAGED;</code></li>
+           <li><code>IPath getPattern();</code></li>
+           <li><code>int getKind();</code></li>
+           </ul>
+      </li>
+      <li><code>org.eclipse.jdt.core.JavaCore</code>
+           <ul>
+           <li><code>String COMPILER_PB_DISCOURAGED_REFERENCE;</code></li>
+           <li><code>IAccessRule newAccessRule(IPath pattern, int kind);</code></li>
+           <li><code>IClasspathEntry newContainerEntry(
+							IPath containerPath, 
+							IAccessRule[] accessRules, 
+							IClasspathAttribute[] extraAttributes,
+							boolean isExported);</code></li>
+           <li><code>IClasspathEntry newLibraryEntry(
+							IPath path,
+							IPath sourceAttachmentPath,
+							IPath sourceAttachmentRootPath,
+							IAccessRule[] accessRules, 
+							IClasspathAttribute[] extraAttributes,
+							boolean isExported);</code></li>
+           <li><code>IClasspathEntry newProjectEntry(
+							IPath path, 
+							IAccessRule[] accessRules, 
+							boolean combineAccessRules,
+							IClasspathAttribute[] extraAttributes,
+							boolean isExported);</code></li>
+           <li><code>IClasspathEntry newVariableEntry(
+							IPath variablePath,
+							IPath variableSourceAttachmentPath,
+							IPath variableSourceAttachmentRootPath,
+							IAccessRule[] accessRules, 
+							IClasspathAttribute[] extraAttributes,
+							boolean isExported);</code></li>
+           </ul>
+      </li>
+      <li><code>org.eclipse.jdt.core.IClasspathEntry</code>
+            <ul>
+           <li><code>boolean combineAccessRules();
+           <li><code>IAccessRule[] getAccessRules();
+           </ul>
+      </li>
+      </ul>
+</li>
 <li>Code select now works into Javadoc comment wherever a reference can be specified
 (ie. @see, @link, @linkplain, @throws, @exception, @param or @value tags)<br>
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54968">54968</a>).<br>
@@ -98,7 +148,9 @@ public class CompletionRequestor {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88625">88625</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87644">87644</a>
+Control access rules severity
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88625">88625</a>
 [1.5][compiler] Invalid Enum comparing (Build id: I20050219-1500)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87998">87998</a>
 [1.5][compiler] Enum constants generate warnings about synthetic constructor access

@@ -154,8 +154,20 @@ public interface IClasspathEntry {
 	 * 
 	 * @return whether the access restrictions of the project's exported entries should be combined with these access restrictions
 	 * @since 3.1
+	 * @deprecated use combineAccessRules() instead
 	 */
+	// TODO (jerome) remove before 3.1 M6
 	boolean combineAccessRestrictions();
+
+	/**
+	 * Returns whether the access rules of the project's exported entries should be combined with this entry's access rules.
+	 * Returns true for container entries.
+	 * Returns false otherwise.
+	 * 
+	 * @return whether the access rules of the project's exported entries should be combined with this entry's access rules
+	 * @since 3.1
+	 */
+	boolean combineAccessRules();
 
 	/**
 	 * Returns the set of patterns used to explicitly allow access to files 
@@ -199,8 +211,17 @@ public interface IClasspathEntry {
 	 *   associated with this classpath entry, or an empty array if this kind
 	 *   of classpath entry does not support accessible files patterns
 	 * @since 3.1
+	 * @deprecated use getAccessRules() instead
 	 */
+	// TODO (jerome) remove before 3.1 M6
 	IPath[] getAccessibleFiles();
+	/**
+	 * Returns the possibly empty list of access rules for this entry.
+	 * 
+	 * @return the possibly empty list of access rules for this entry
+	 * @since 3.1
+	 */
+	IAccessRule[] getAccessRules();
 	/**
 	 * Returns the set of patterns used to limit access to files associated with
 	 * this classpath entry. Only project, library, container and variable entries
@@ -273,7 +294,9 @@ public interface IClasspathEntry {
 	 *   associated with this classpath entry, or an empty array if this kind
 	 *   of classpath entry does not support non accessible file patterns
 	 * @since 3.1
+	 * @deprecated use getAccessRules() instead
 	 */
+	// TODO (jerome) remove before 3.1 M6
 	IPath[] getNonAccessibleFiles();
 	/**
 	 * Returns the kind of files found in the package fragments identified by this

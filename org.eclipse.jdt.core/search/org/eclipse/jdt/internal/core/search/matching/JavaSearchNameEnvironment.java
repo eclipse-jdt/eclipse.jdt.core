@@ -94,7 +94,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 		try {
 			if (root.isArchive()) {
 				ZipFile zipFile = manager.getZipFile(path);
-				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
+				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (target == null) {
@@ -104,7 +104,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 				} else if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
 				} else {
-					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
+					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
 				}
 			}
 		} catch (CoreException e1) {

@@ -328,6 +328,7 @@ public void testAccessRestriction1() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.CODEASSIST_RESTRICTIONS_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
@@ -400,6 +401,7 @@ public void testAccessRestriction2() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.CODEASSIST_RESTRICTIONS_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
@@ -560,6 +562,7 @@ public void testAccessRestriction4() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.CODEASSIST_RESTRICTIONS_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		

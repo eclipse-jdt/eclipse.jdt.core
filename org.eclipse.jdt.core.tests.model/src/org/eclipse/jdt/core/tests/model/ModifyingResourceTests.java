@@ -224,7 +224,7 @@ protected IClassFile createClassFile(String libPath, String classFileRelativePat
 	return classFile;
 }
 /*
- * Returns a new classpath from the given folders and their respective exclusion/inclusion patterns.
+ * Returns a new classpath from the given source folders and their respective exclusion/inclusion patterns.
  * The folder path is an absolute workspace-relative path.
  * The given array as the following form:
  * [<folder>, "<pattern>[|<pattern]*"]*
@@ -234,20 +234,6 @@ protected IClassFile createClassFile(String libPath, String classFileRelativePat
  * }
  */
 protected IClasspathEntry[] createClasspath(String[] foldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
-	return createClasspath(null, foldersAndPatterns, hasInclusionPatterns, hasExclusionPatterns);
-}
-/*
- * Returns a new classpath from the given folders and their respective exclusion/inclusion patterns.
- * The folder path is an absolute workspace-relative path. If the given project name is non-null, 
- * the folder path is considered a project path if it has 1 segment that is different from the project name.
- * The given array as the following form:
- * [<folder>, "<pattern>[|<pattern]*"]*
- * E.g. new String[] {
- *   "/P/src1", "p/A.java",
- *   "/P", "*.txt|com.tests/**"
- * }
- */
-protected IClasspathEntry[] createClasspath(String projectName, String[] foldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
 	int length = foldersAndPatterns.length;
 	int increment = 1;
 	if (hasInclusionPatterns) increment++;
@@ -255,31 +241,80 @@ protected IClasspathEntry[] createClasspath(String projectName, String[] folders
 	IClasspathEntry[] classpath = new IClasspathEntry[length/increment];
 	for (int i = 0; i < length; i+=increment) {
 		String src = foldersAndPatterns[i];
-		IPath[] inclusionPatternPaths = new IPath[0];
+		IPath[] accessibleFiles = new IPath[0];
 		if (hasInclusionPatterns) {
 			String patterns = foldersAndPatterns[i+1];
 			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
 			int patternsCount =  tokenizer.countTokens();
-			inclusionPatternPaths = new IPath[patternsCount];
+			accessibleFiles = new IPath[patternsCount];
 			for (int j = 0; j < patternsCount; j++) {
-				inclusionPatternPaths[j] = new Path(tokenizer.nextToken());
+				accessibleFiles[j] = new Path(tokenizer.nextToken());
 			}
 		}
-		IPath[] exclusionPatternPaths = new IPath[0];
+		IPath[] nonAccessibleFiles = new IPath[0];
 		if (hasExclusionPatterns) {
 			String patterns = foldersAndPatterns[i+increment-1];
 			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
 			int patternsCount =  tokenizer.countTokens();
-			exclusionPatternPaths = new IPath[patternsCount];
+			nonAccessibleFiles = new IPath[patternsCount];
 			for (int j = 0; j < patternsCount; j++) {
-				exclusionPatternPaths[j] = new Path(tokenizer.nextToken());
+				nonAccessibleFiles[j] = new Path(tokenizer.nextToken());
 			}
 		}
 		IPath folderPath = new Path(src);
+		classpath[i/increment] = JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
+	}
+	return classpath;
+}
+/*
+ * Returns a new classpath from the given folders and their respective accessible/non accessible files patterns.
+ * The folder path is an absolute workspace-relative path. If the given project name is non-null, 
+ * the folder path is considered a project path if it has 1 segment that is different from the project name.
+ * The given array as the following form:
+ * [<folder>, "<+|-><pattern>[|<+|-><pattern]*"]*
+ * E.g. new String[] {
+ *   "/P/src1", "+p/A.java",
+ *   "/P", "-*.txt|+com.tests/**"
+ * }
+ */
+protected IClasspathEntry[] createClasspath(String projectName, String[] foldersAndPatterns) {
+	int length = foldersAndPatterns.length;
+	IClasspathEntry[] classpath = new IClasspathEntry[length/2];
+	for (int i = 0; i < length; i+=2) {
+		String src = foldersAndPatterns[i];
+		String patterns = foldersAndPatterns[i+1];
+		StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
+		int ruleCount =  tokenizer.countTokens();
+		IAccessRule[] accessRules = new IAccessRule[ruleCount];
+		int nonAccessibleRules = 0;
+		for (int j = 0; j < ruleCount; j++) {
+			String rule = tokenizer.nextToken();
+			int kind;
+			if (rule.charAt(0) == '+') {
+				kind = IAccessRule.K_ACCESSIBLE;
+			} else {
+				kind = IAccessRule.K_NON_ACCESSIBLE;
+				nonAccessibleRules++;
+			}
+			accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), kind);
+		}
+
+		IPath folderPath = new Path(src);
 		if (projectName != null && folderPath.segmentCount() == 1 && !projectName.equals(folderPath.lastSegment())) {
-			classpath[i/increment] = JavaCore.newProjectEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
+			classpath[i/2] = JavaCore.newProjectEntry(folderPath, accessRules, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
 		} else {
-			classpath[i/increment] = JavaCore.newSourceEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, null); 
+			IPath[] accessibleFiles = new IPath[ruleCount-nonAccessibleRules];
+			int accessibleIndex = 0;
+			IPath[] nonAccessibleFiles = new IPath[nonAccessibleRules];
+			int nonAccessibleIndex = 0;
+			for (int j = 0; j < ruleCount; j++) {
+				IAccessRule accessRule = accessRules[i];
+				if (accessRule.getKind() == IAccessRule.K_ACCESSIBLE) 
+					accessibleFiles[accessibleIndex++] = accessRule.getPattern();
+				else
+					nonAccessibleFiles[nonAccessibleIndex++] = accessRule.getPattern();
+			}
+			classpath[i/2] = JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
 		}
 	}
 	return classpath;

@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
@@ -81,30 +81,30 @@ IFile resource;
 ZipFile zipFile;
 boolean closeZipFileAtEnd;
 SimpleSet knownPackageNames;
-AccessRestriction accessRestriction;
+AccessRuleSet accessRuleSet;
 
-ClasspathJar(String zipFilename, AccessRestriction accessRestriction) {
+ClasspathJar(String zipFilename, AccessRuleSet accessRuleSet) {
 	this.zipFilename = zipFilename;
 	this.zipFile = null;
 	this.knownPackageNames = null;
-	this.accessRestriction = accessRestriction;
+	this.accessRuleSet = accessRuleSet;
 }
 
-ClasspathJar(IFile resource, AccessRestriction accessRestriction) {
+ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.resource = resource;
 	IPath location = resource.getLocation();
 	this.zipFilename = location != null ? location.toString() : ""; //$NON-NLS-1$
 	this.zipFile = null;
 	this.knownPackageNames = null;
-	this.accessRestriction = accessRestriction;
+	this.accessRuleSet = accessRuleSet;
 }
 
-public ClasspathJar(ZipFile zipFile, AccessRestriction accessRestriction) {
+public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet) {
 	this.zipFilename = zipFile.getName();
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = false;
 	this.knownPackageNames = null;
-	this.accessRestriction = accessRestriction;
+	this.accessRuleSet = accessRuleSet;
 }
 
 public void cleanup() {
@@ -123,8 +123,8 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathJar)) return false;
 
 	ClasspathJar jar = (ClasspathJar) o;
-	if (this.accessRestriction != jar.accessRestriction)
-		if (this.accessRestriction == null || !this.accessRestriction.equals(jar.accessRestriction))
+	if (this.accessRuleSet != jar.accessRuleSet)
+		if (this.accessRuleSet == null || !this.accessRuleSet.equals(jar.accessRuleSet))
 			return false;
 	return this.zipFilename.equals(((ClasspathJar) o).zipFilename);
 } 
@@ -135,9 +135,9 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
-			if (this.accessRestriction == null)
+			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
-			return new NameEnvironmentAnswer(reader, this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null));
+			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(qualifiedBinaryFileName.toCharArray()));
 		}
 	} catch (Exception e) { // treat as if class file is missing
 	}
@@ -170,8 +170,8 @@ public boolean isPackage(String qualifiedPackageName) {
 
 public String toString() {
 	String start = "Classpath jar file " + this.zipFilename; //$NON-NLS-1$
-	if (this.accessRestriction == null)
+	if (this.accessRuleSet == null)
 		return start;
-	return start + " with " + this.accessRestriction; //$NON-NLS-1$
+	return start + " with " + this.accessRuleSet; //$NON-NLS-1$
 }
 }

@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.*;
@@ -250,7 +250,7 @@ protected String[] getPathsOfDeclaringType() {
 		IIndexConstants.TYPE_SUFFIX,
 		this.pattern.getMatchRule());
 	IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
-		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access) {
+		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 			TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
 			if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) {  // filter out local and anonymous classes
 				pathCollector.acceptIndexMatch(documentPath, indexRecord, participant, access);

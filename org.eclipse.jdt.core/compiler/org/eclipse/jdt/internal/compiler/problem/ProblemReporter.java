@@ -703,6 +703,9 @@ public int computeSeverity(int problemId){
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 
+		case IProblem.DiscouragedReference:
+			return this.options.getSeverity(CompilerOptions.DiscouragedReference);
+
 		case IProblem.MethodVarargsArgumentNeedCast :
 		case IProblem.ConstructorVarargsArgumentNeedCast :
 			return this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast);
@@ -1369,11 +1372,12 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate) {
-	if (location == null) return; 
+public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate, int severity) {
+	if (location == null) return;
 	// this problem has a message template extracted from the access restriction rule
+	int problemId = severity == ProblemSeverities.Error ? IProblem.ForbiddenReference : IProblem.DiscouragedReference;
 	this.handle(
-		IProblem.ForbiddenReference,
+		problemId,
 		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose
 		new String[] { MessageFormat.format(messageTemplate, new String[]{ new String(type.shortReadableName())})},
 		location.sourceStart,

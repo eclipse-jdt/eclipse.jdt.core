@@ -14,8 +14,10 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 
 import java.io.*;
 import java.util.*;
@@ -303,25 +305,35 @@ static State read(IProject project, DataInputStream in) throws IOException {
 	return newState;
 }
 
+private static char[] readName(DataInputStream in) throws IOException {
+	int nLength = in.readInt();
+	char[] name = new char[nLength];
+	for (int j = 0; j < nLength; j++)
+		name[j] = in.readChar();
+	return name;
+}
+
 private static char[][] readNames(DataInputStream in) throws IOException {
 	int length = in.readInt();
 	char[][] names = new char[length][];
-	for (int i = 0; i < length; i++) {
-		int nLength = in.readInt();
-		char[] name = new char[nLength];
-		for (int j = 0; j < nLength; j++)
-			name[j] = in.readChar();
-		names[i] = name;
-	}
+	for (int i = 0; i < length; i++) 
+		names[i] = readName(in);
 	return names;
 }
 
-private static AccessRestriction readRestriction(DataInputStream in) throws IOException {
-	if (in.readBoolean())
-		// skip the AccessRestriction.furtherRestriction until we decide if it will be used
-		return new AccessRestriction(in.readUTF(), readNames(in), readNames(in), null);
-
-	return null; // no restriction specified
+private static AccessRuleSet readRestriction(DataInputStream in) throws IOException {
+	int length = in.readInt();
+	if (length == 0) return null; // no restriction specified
+	AccessRule[] accessRules = new AccessRule[length];
+	for (int i = 0; i < length; i++) {
+		char[] pattern = readName(in);
+		int severity = in.readInt();
+		accessRules[i] = new ClasspathAccessRule(pattern, severity);
+	}
+	String messageTemplate = in.readUTF();
+	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
+	accessRuleSet.messageTemplate = messageTemplate;
+	return accessRuleSet;
 }
 
 void tagAsNoopBuild() {
@@ -408,7 +420,7 @@ void write(DataOutputStream out) throws IOException {
 			ClasspathDirectory cd = (ClasspathDirectory) c;
 			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
-			writeRestriction(cd.accessRestriction, out);
+			writeRestriction(cd.accessRuleSet, out);
 		} else {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
@@ -418,7 +430,7 @@ void write(DataOutputStream out) throws IOException {
 				out.writeByte(INTERNAL_JAR);
 				out.writeUTF(jar.resource.getFullPath().toString());
 			}
-			writeRestriction(jar.accessRestriction, out);
+			writeRestriction(jar.accessRuleSet, out);
 		}
 	}
 
@@ -561,27 +573,35 @@ void write(DataOutputStream out) throws IOException {
 	}
 }
 
+private void writeName(char[] name, DataOutputStream out) throws IOException {
+	int nLength = name.length;
+	out.writeInt(nLength);
+	for (int j = 0; j < nLength; j++)
+		out.writeChar(name[j]);
+}
+
 private void writeNames(char[][] names, DataOutputStream out) throws IOException {
 	int length = names == null ? 0 : names.length;
 	out.writeInt(length);
-	for (int i = 0; i < length; i++) {
-		char[] name = names[i];
-		int nLength = name.length;
-		out.writeInt(nLength);
-		for (int j = 0; j < nLength; j++)
-			out.writeChar(name[j]);
-	}
+	for (int i = 0; i < length; i++)
+		writeName(names[i], out);
 }
 
-private void writeRestriction(AccessRestriction restriction, DataOutputStream out) throws IOException {
-	if (restriction == null) {
-		out.writeBoolean(false);
+private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out) throws IOException {
+	if (accessRuleSet == null) {
+		out.writeInt(0);
 	} else {
-		out.writeBoolean(true);
-		out.writeUTF(restriction.getMessageTemplate());
-		writeNames(restriction.getInclusionPatterns(), out); // inclusion patterns come first, see readRestriction()
-		writeNames(restriction.getExclusionPatterns(), out);
-		// skip the AccessRestriction.furtherRestriction until we decide if it will be used
+		AccessRule[] accessRules = accessRuleSet.getAccessRules();
+		int length = accessRules.length;
+		out.writeInt(length);
+		if (length != 0) { 
+			for (int i = 0; i < length; i++) {
+				AccessRule accessRule = accessRules[i];
+				writeName(accessRule.pattern, out);
+				out.writeInt(accessRule.severity);
+			}
+			out.writeUTF(accessRuleSet.messageTemplate);
+		}
 	}
 }
 

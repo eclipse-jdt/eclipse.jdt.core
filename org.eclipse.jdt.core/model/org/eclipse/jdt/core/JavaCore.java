@@ -584,6 +584,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_DISCOURAGED_REFERENCE = PLUGIN_ID + ".compiler.problem.discouragedReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -2035,9 +2041,16 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "enabled"
 	 *
 	 * COMPILER / Reporting Forbidden Reference to Type with Restricted Access
-	 *    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
-	 *    to the access restriction specifications.
+	 *    When enabled, the compiler will issue an error or a warning when referring to a type that is non accessible, as defined according
+	 *    to the access rule specifications.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Discouraged Reference to Type with Restricted Access
+	 *    When enabled, the compiler will issue an error or a warning when referring to a type with discouraged access, as defined according
+	 *    to the access rule specifications.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.discouragedReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
@@ -2468,8 +2481,12 @@ public final class JavaCore extends Plugin {
 					
 					case IResource.PROJECT :  
 						// internal project
-						return JavaCore.newProjectEntry(resolvedPath, entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.isExported());
-						
+						return JavaCore.newProjectEntry(
+								resolvedPath, 
+								entry.getAccessRules(),
+								entry.combineAccessRules(), 
+								entry.getExtraAttributes(), 
+								entry.isExported());
 					case IResource.FILE : 
 						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
 							// internal binary archive
@@ -2477,8 +2494,8 @@ public final class JavaCore extends Plugin {
 									resolvedPath,
 									getResolvedVariablePath(entry.getSourceAttachmentPath()),
 									getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-									entry.getAccessibleFiles(), 
-									entry.getNonAccessibleFiles(), 
+									entry.getAccessRules(), 
+									entry.getExtraAttributes(), 
 									entry.isExported());
 						}
 						break;
@@ -2489,8 +2506,8 @@ public final class JavaCore extends Plugin {
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
 								getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-								entry.getAccessibleFiles(), 
-								entry.getNonAccessibleFiles(), 
+								entry.getAccessRules(), 
+								entry.getExtraAttributes(), 
 								entry.isExported());
 				}
 			}
@@ -2506,8 +2523,8 @@ public final class JavaCore extends Plugin {
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),
 							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-							entry.getAccessibleFiles(), 
-							entry.getNonAccessibleFiles(), 
+							entry.getAccessRules(),
+							entry.getExtraAttributes(),
 							entry.isExported());
 				}
 			} else { // external binary folder
@@ -2516,8 +2533,8 @@ public final class JavaCore extends Plugin {
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),
 							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-							entry.getAccessibleFiles(), 
-							entry.getNonAccessibleFiles(), 
+							entry.getAccessRules(),
+							entry.getExtraAttributes(),
 							entry.isExported());
 				}
 			}
@@ -2687,6 +2704,18 @@ public final class JavaCore extends Plugin {
 	}
 	
 	/**
+	 * Creates and returns a new access rule with the given file pattern and kind.
+	 * 
+	 * @param filePattern the file pattern this access rule should match
+	 * @param kind one of IAccessRule#K_ACCESSIBLE, IAcccessRule#K_STRICTLY_NON_ACCESSIBLE, or IAcccessRule#K_LOOSELY_NON_ACCESSIBLE
+	 * @return a new access rule
+	 * @since 3.1
+	 */
+	public static IAccessRule newAccessRule(IPath filePattern, int kind) {
+		return new ClasspathAccessRule(filePattern, kind);
+	}
+	
+	/**
 	 * Creates and returns a new classpath attribute with the given name and the given value.
 	 * 
 	 * @return a new classpath attribute
@@ -2762,9 +2791,9 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
 	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @since 3.1
-	 * @deprecated use newContainerEntry(containerPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported) instead
+	 * @deprecated usenewContainerEntry(IPath containerPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
 	 */
-	// TODO (jerome) delete before 3.1 M6
+	// TODO (jerome) remove before 3.1 M6
 	public static IClasspathEntry newContainerEntry(
 			IPath containerPath, 
 			IPath[] accessibleFiles, 
@@ -2774,6 +2803,23 @@ public final class JavaCore extends Plugin {
 		return newContainerEntry(containerPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
 	}
 	
+	/**
+	 * @deprecated use newContainerEntry(IPath containerPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported), null, extraAttributes, isExported) instead
+	 */
+	// TODO (jerome) remove before 3.1 M6
+	public static IClasspathEntry newContainerEntry(
+			IPath containerPath, 
+			IPath[] accessibleFiles, 
+			IPath[] nonAccessibleFiles, 
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
+		return newContainerEntry(
+			containerPath,
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
+			extraAttributes,
+			isExported);
+	}
+
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
 	 * for the given path. The path of the container will be used during resolution so as to map this
@@ -2805,42 +2851,14 @@ public final class JavaCore extends Plugin {
 	 *       class="com.example.MyInitializer"/&gt; 
 	 * </pre>
 	 * <p>
-	 * The accessible files patterns determine the initial set of accessible source and class files in 
-	 * the container; the non accessible files patterns are then used to reduce this
-	 * set. A source or class file that is not accessible can still be refered to but it is 
-	 * tagged as being not accessible - the Java builder will create a problem 
-	 * marker for example. The severity of this marker is controled through
-	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
-	 * Note this is different from inclusion and 
-	 * exclusion patterns on source classpath entries, where a source file that
-	 * is excluded is not even compiled.
-	 * When no accessible files patterns are specified, all source and class files
-	 * in the container are initially accessible. On the other hand, specifying one 
-	 * or more accessible files patterns means that all <b>and only</b> source and
-	 * class files matching at least one of the specified patterns are accessible. 
-	 * If non accessible files patterns are specified, the initial set of accessible source and 
-	 * class files is then reduced by eliminating source and class files matched 
-	 * by at least one of the non accessible files patterns. Accessible and non accessible files 
-	 * patterns look like relative file paths with wildcards and are interpreted 
-	 * relative to each entry's path of the container. Patterns are case-sensitive 
-	 * and they can contain '**', '*' or '?' wildcards (see 
-	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
-	 * of their syntax and semantics).
-	 * If an entry defined by the container defines access restrictions,
-	 * then these restrictions are combined with the given access restrictions.
-	 * The given restrictions are considered first, then the entry's restrictions are 
+	 * The access rules determine the set of accessible source and class files
+	 * in the container. If the list of access rules is empty, then all files
+	 * in this container are accessible.
+	 * See {@link IAccessRule} for a detailed description of access
+	 * rules. Note that if an entry defined by the container defines access rules,
+	 * then these access rules are combined with the given access rules.
+	 * The given access rules are considered first, then the entry's access rules are 
 	 * considered.
-	 * </p>
-	 * <p>
-	 * For example, if one of the container's entry path is 
-	 * <code>/Project/someLib.jar</code>, there are no accessible files patterns, and the
-	 * non accessible files pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
-	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
-	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
-	 * accessible. 
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
@@ -2860,10 +2878,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
+	 * @param accessRules the possibly empty list of access rules for this entry
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
 	 * @param isExported a boolean indicating whether this entry is contributed to dependent
 	 *    projects in addition to the output location
@@ -2872,12 +2887,12 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
 	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @see JavaCore#newContainerEntry(IPath, boolean)
+	 * @see JavaCore#newAccessRule(IPath, int)
 	 * @since 3.1
 	 */	
 	public static IClasspathEntry newContainerEntry(
 			IPath containerPath, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
+			IAccessRule[] accessRules, 
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 			
@@ -2897,9 +2912,8 @@ public final class JavaCore extends Plugin {
 			null, // source attachment root
 			null, // specific output folder
 			isExported,
-			accessibleFiles,
-			nonAccessibleFiles,
-			true, // combine access restrictions
+			accessRules,
+			true, // combine access rules
 			extraAttributes);
 	}	
 	
@@ -3022,7 +3036,7 @@ public final class JavaCore extends Plugin {
 	 * 	  projects in addition to the output location
 	 * @return a new library classpath entry
 	 * @since 3.1
-	 * @deprecated use newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported) instead
+	 * @deprecated use newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
 	 */
 	// TODO (jerome) remove before 3.1 M6
 	public static IClasspathEntry newLibraryEntry(
@@ -3033,6 +3047,27 @@ public final class JavaCore extends Plugin {
 			IPath[] nonAccessibleFiles, 
 			boolean isExported) {
 		return newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
+	}
+	
+	/**
+	 * @deprecated use newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
+	 */
+	// TODO (jerome) remove before 3.1 M6
+	public static IClasspathEntry newLibraryEntry(
+			IPath path,
+			IPath sourceAttachmentPath,
+			IPath sourceAttachmentRootPath,
+			IPath[] accessibleFiles, 
+			IPath[] nonAccessibleFiles, 
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
+		return newLibraryEntry(
+			path, 
+			sourceAttachmentPath,
+			sourceAttachmentRootPath,
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
+			extraAttributes,
+			isExported);
 	}
 	
 	/**
@@ -3055,39 +3090,11 @@ public final class JavaCore extends Plugin {
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
 	 * <p>
-	 * The accessible files patterns determines the initial set of accessible class files in 
-	 * the library; the non accessible files patterns are then used to reduce this
-	 * set. A class file that is not accessible can still be refered to but it is 
-	 * tagged as being not accessible - the Java builder will create a problem 
-	 * marker for example. The severity of this marker is controled through
-	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
-	 * Note this is different from inclusion and 
-	 * exclusion patterns on source classpath entries, where a source file that
-	 * is excluded is not even compiled.
-	 * When no accessible files patterns are specified, all class files
-	 * in the resource tree (or in the jar file) rooted at the library
-	 * entry's path are initially accessible. On the other hand, specifying one 
-	 * or more accessible files patterns means that all <b>and only</b> class 
-	 * files matching at least one of the specified patterns are accessible. 
-	 * If non accessible files patterns are specified, the initial set of accessible class files is 
-	 * then reduced by eliminating class files matched by at least one of 
-	 * the non accessible files patterns. Accessible files and non accessible files patterns look like 
-	 * relative file paths with wildcards and are interpreted relative to the 
-	 * library entry's path. Patterns are case-sensitive and they can 
-	 * contain '**', '*' or '?' wildcards (see 
-	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
-	 * of their syntax and semantics).
-	 * </p>
-	 * <p>
-	 * For example, if the library path is 
-	 * <code>/Project/someLib.jar</code>, there are no accessible files filters, and the
-	 * non accessible files pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
-	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
-	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
-	 * accessible. 
+	 * The access rules determine the set of accessible class files
+	 * in the library. If the list of access rules is empty then all files
+	 * in this library are accessible.
+	 * See {@link IAccessRule} for a detailed description of access
+	 * rules.
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
@@ -3107,10 +3114,7 @@ public final class JavaCore extends Plugin {
 	 *   and will be automatically converted to <code>null</code>.
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
+	 * @param accessRules the possibly empty list of access rules for this entry
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -3121,8 +3125,7 @@ public final class JavaCore extends Plugin {
 			IPath path,
 			IPath sourceAttachmentPath,
 			IPath sourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
+			IAccessRule[] accessRules, 
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 			
@@ -3147,9 +3150,8 @@ public final class JavaCore extends Plugin {
 			sourceAttachmentRootPath,
 			null, // specific output folder
 			isExported,
-			accessibleFiles,
-			nonAccessibleFiles,
-			false, // no access restrictions to combine
+			accessRules,
+			false, // no access rules to combine
 			extraAttributes);
 	}
 	
@@ -3207,7 +3209,7 @@ public final class JavaCore extends Plugin {
 	 * 	  projects in addition to the output location
 	 * @return a new project classpath entry
 	 * @since 3.1
-	 * @deprecated use newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true, new IClasspathAttribute[0], isExported) instead
+	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
 	 */
 	// TODO (jerome) remove before 3.1 M6
 	public static IClasspathEntry newProjectEntry(
@@ -3215,7 +3217,7 @@ public final class JavaCore extends Plugin {
 			IPath[] accessibleFiles, 
 			IPath[] nonAccessibleFiles, 
 			boolean isExported) {
-		return newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true/*default is to combine access restrictions*/, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
+		return newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true/*default is to combine access rules*/, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
 	}
 	
 	/**
@@ -3288,7 +3290,7 @@ public final class JavaCore extends Plugin {
 	 * 	  projects in addition to the output location
 	 * @return a new project classpath entry
 	 * @since 3.1
- * @deprecated use newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true, extraAttributes, isExported) instead
+ 	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
 	 */
 	// TODO (jerome) remove before 3.1 M6
 	public static IClasspathEntry newProjectEntry(
@@ -3301,7 +3303,26 @@ public final class JavaCore extends Plugin {
 			path, 
 			accessibleFiles, 
 			nonAccessibleFiles,
-			true/*default is to combine access restrictions*/,
+			true/*default is to combine access rules*/,
+			extraAttributes,
+			isExported);
+	}
+	
+	/**
+	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
+	 */
+	// TODO (jerome) remove before 3.1 M6
+	public static IClasspathEntry newProjectEntry(
+			IPath path, 
+			IPath[] accessibleFiles, 
+			IPath[] nonAccessibleFiles, 
+			boolean combineAccessRestrictions,
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
+		return newProjectEntry(
+			path,
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
+			combineAccessRestrictions,
 			extraAttributes,
 			isExported);
 	}
@@ -3321,43 +3342,15 @@ public final class JavaCore extends Plugin {
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
 	 * </p>
 	 * <p>
-	 * The accessible files patterns determines the initial set of accessible source and class files in 
-	 * the project; the non accessible files patterns are then used to reduce this
-	 * set. A source or class file that is not accessible can still be refered to but it is 
-	 * tagged as being not accessible - the Java builder will create a problem 
-	 * marker for example. The severity of this marker is controled through
-	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
-	 * Note this is different from inclusion and 
-	 * exclusion patterns on source classpath entries, where a source file that
-	 * is excluded is not even compiled.
-	 * When no accessible files patterns are specified, all source and class files
-	 * in the project are initially accessible. On the other hand, specifying one 
-	 * or more accessible files patterns means that all <b>and only</b> source and
-	 * class files matching at least one of the specified patterns are accessible. 
-	 * If non accessible files patterns are specified, the initial set of accessible source and 
-	 * class files is then reduced by eliminating source and class files matched 
-	 * by at least one of the non accessible files patterns. Accessible files and non accessible files 
-	 * patterns look like relative file paths with wildcards and are interpreted 
-	 * relative to each entry's path of the project. Patterns are case-sensitive 
-	 * and they can contain '**', '*' or '?' wildcards (see 
-	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
-	 * of their syntax and semantics).
+	 * The access rules determine the set of accessible class files
+	 * in the project. If the list of access rules is empty then all files
+	 * in this project are accessible.
+	 * See {@link IAccessRule} for a detailed description of access rules.
 	 * </p>
 	 * <p>
-	 * For example, if one of the project's entry path is 
-	 * <code>/Project/someLib.jar</code>, there are no accessible files filters, and the
-	 * non accessible files pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
-	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
-	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
-	 * accessible. 
-	 * </p>
-	 * <p>
-	 * The <code>combineAccessRestrictions</code> flag indicates whether access restrictions of one (or more)
-	 * exported entry of the project should be combined with the given access restrictions. 
-	 * The given restrictions are considered first, then the entry's restrictions are 
+	 * The <code>combineAccessRules</code> flag indicates whether access rules of one (or more)
+	 * exported entry of the project should be combined with the given access rules. If they should
+	 * be combined, the given access rules are considered first, then the entry's access rules are 
 	 * considered.
 	 * </p>
 	 * <p>
@@ -3373,11 +3366,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * 
 	 * @param path the absolute path of the prerequisite project
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param combineAccessRestrictions whether the access restrictions of the project's exported entries should be combined with the given access restrictions
+	 * @param accessRules the possibly empty list of access rules for this entry
+	 * @param combineAccessRules whether the access rules of the project's exported entries should be combined with the given access rules
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -3386,9 +3376,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newProjectEntry(
 			IPath path, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean combineAccessRestrictions,
+			IAccessRule[] accessRules, 
+			boolean combineAccessRules,
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 		
@@ -3404,9 +3393,8 @@ public final class JavaCore extends Plugin {
 			null, // source attachment root
 			null, // specific output folder
 			isExported,
-			accessibleFiles,
-			nonAccessibleFiles,
-			combineAccessRestrictions,
+			accessRules,
+			combineAccessRules,
 			extraAttributes);
 	}
 
@@ -3609,8 +3597,7 @@ public final class JavaCore extends Plugin {
 			null, // source attachment root
 			specificOutputLocation, // custom output location
 			false,
-			ClasspathEntry.INCLUDE_ALL, // accessible files
-			ClasspathEntry.EXCLUDE_NONE, // non accessible files
+			null,
 			false, // no access restrictions to combine
 			extraAttributes); 
 	}
@@ -3695,7 +3682,7 @@ public final class JavaCore extends Plugin {
 	 * 	  projects in addition to the output location
 	 * @return a new variable classpath entry
 	 * @since 3.1
-	 * @deprecated use newVariableEntry(variablePath, variableSourceAttachmentPath, variableSourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported)
+	 * @deprecated use newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath variableSourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
 	 */
 	// TODO (jerome) remove before 3.1 M6
 	public static IClasspathEntry newVariableEntry(
@@ -3706,6 +3693,28 @@ public final class JavaCore extends Plugin {
 			IPath[] nonAccessibleFiles, 
 			boolean isExported) {
 		return newVariableEntry(variablePath, variableSourceAttachmentPath, variableSourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
+	}
+	
+	/**
+	 * @deprecated use newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath variableSourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
+	 */
+	// TODO (jerome) remove before 3.1 M6
+	public static IClasspathEntry newVariableEntry(
+			IPath variablePath,
+			IPath variableSourceAttachmentPath,
+			IPath variableSourceAttachmentRootPath,
+			IPath[] accessibleFiles, 
+			IPath[] nonAccessibleFiles, 
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
+		
+		return newVariableEntry(
+			variablePath,
+			variableSourceAttachmentPath,
+			variableSourceAttachmentRootPath,
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
+			extraAttributes,
+			isExported);
 	}
 	
 	/**
@@ -3729,38 +3738,10 @@ public final class JavaCore extends Plugin {
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
 	 * <p>
-	 * The accessible files patterns determines the initial set of accessible source and class files in 
-	 * the project or library; the non accessible files patterns are then used to reduce this
-	 * set. A source or class file that is not accessible can still be refered to but it is 
-	 * tagged as being not accessible - the Java builder will create a problem 
-	 * marker for example. The severity of this marker is controled through
-	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
-	 * Note this is different from inclusion and 
-	 * exclusion patterns on source classpath entries, where a source file that
-	 * is excluded is not even compiled.
-	 * When no accessible files patterns are specified, all source and class files
-	 * in the project or library are initially accessible. On the other hand, specifying one 
-	 * or more accessible files patterns means that all <b>and only</b> source and
-	 * class files matching at least one of the specified patterns are accessible. 
-	 * If non accessible files patterns are specified, the initial set of accessible source and 
-	 * class files is then reduced by eliminating source and class files matched 
-	 * by at least one of the non accessible files patterns. Accessible files and non accessible files 
-	 * patterns look like relative file paths with wildcards and are interpreted 
-	 * relative to the resolved entry's path. Patterns are case-sensitive 
-	 * and they can contain '**', '*' or '?' wildcards (see 
-	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
-	 * of their syntax and semantics).
-	 * </p>
-	 * <p>
-	 * For example, if the resolved entry path is 
-	 * <code>/Project/someLib.jar</code>, there are no accessible files filters, and the
-	 * non accessible files pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
-	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
-	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
-	 * accessible. 
+	 * The access rules determine the set of accessible class files
+	 * in the project or library. If the list of access rules is empty then all files
+	 * in this project or library are accessible.
+	 * See {@link IAccessRule} for a detailed description of access rules.
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
@@ -3786,10 +3767,7 @@ public final class JavaCore extends Plugin {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
+	 * @param accessRules the possibly empty list of access rules for this entry
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -3800,8 +3778,7 @@ public final class JavaCore extends Plugin {
 			IPath variablePath,
 			IPath variableSourceAttachmentPath,
 			IPath variableSourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
+			IAccessRule[] accessRules, 
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 
@@ -3822,9 +3799,8 @@ public final class JavaCore extends Plugin {
 			variableSourceAttachmentRootPath, // source attachment root			
 			null, // specific output folder
 			isExported,
-			accessibleFiles,
-			nonAccessibleFiles,
-			false, // no access restrictions to combine
+			accessRules,
+			false, // no access rules to combine
 			extraAttributes);
 	}	
 	/**

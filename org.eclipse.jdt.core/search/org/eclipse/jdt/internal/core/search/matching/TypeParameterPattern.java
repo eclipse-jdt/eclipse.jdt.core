@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
@@ -90,7 +90,7 @@ public class TypeParameterPattern extends JavaSearchPattern implements IIndexCon
 			JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
-			AccessRestriction access = javaSearchScope.getAccessRestriction(path);
+			AccessRuleSet access = javaSearchScope.getAccessRuleSet(path);
 			if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the path
 				if (!requestor.acceptIndexMatch(path, this, participant, access)) 
 					throw new OperationCanceledException();

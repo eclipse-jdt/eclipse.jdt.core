@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
@@ -53,7 +54,9 @@ public class SearchableEnvironment
 	 */
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this.project = project;
-		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
+		this.checkAccessRestrictions = 
+			!JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
+			|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies);
 
@@ -95,12 +98,12 @@ public class SearchableEnvironment
 				PackageFragmentRoot root = (PackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				ClasspathEntry entry = (ClasspathEntry) this.nameLookup.rootToResolvedEntries.get(root);
 				if (entry != null) { // reverse map always contains resolved CP entry
-					accessRestriction = entry.getImportRestriction();
-					if (accessRestriction != null) {
+					AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
+					if (accessRuleSet != null) {
 						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
 						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
 						char[] classFileChars = type.getParent().getElementName().toCharArray();
-						accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'), null);
+						accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'));
 					}
 				}
 			}

@@ -958,7 +958,7 @@ public class MultiProjectTests extends Tests {
 		IJavaProject project2 = env.getJavaProject(project2Path);
 		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
-		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
@@ -1004,7 +1004,7 @@ public class MultiProjectTests extends Tests {
 		IJavaProject project2 = env.getJavaProject(project2Path);
 		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
-		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
@@ -1057,7 +1057,7 @@ public class MultiProjectTests extends Tests {
 		IJavaProject project2 = env.getJavaProject(project2Path);
 		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
-		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$

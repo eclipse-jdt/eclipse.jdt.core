@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -415,14 +415,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 					ClasspathEntry oldEntry = (ClasspathEntry) oldResolvedPath[i];
 					ClasspathEntry newEntry = (ClasspathEntry) newResolvedPath[index];
 					if (oldEntry.isExported || newEntry.isExported) { // then we need to verify if there's access restriction
-						AccessRestriction oldRestriction = oldEntry.getImportRestriction();
-						AccessRestriction newRestriction = newEntry.getImportRestriction();
+						AccessRuleSet oldRuleSet = oldEntry.getAccessRuleSet();
+						AccessRuleSet newRuleSet = newEntry.getAccessRuleSet();
 						if (index != i) { // entry has been moved
-							needToUpdateDependents |= (oldRestriction != null || newRestriction != null); // there's an access restriction, this may change combination
-						} else if (oldRestriction == null) {
-							needToUpdateDependents |= newRestriction != null; // access restriction was added
+							needToUpdateDependents |= (oldRuleSet != null || newRuleSet != null); // there's an access restriction, this may change combination
+						} else if (oldRuleSet == null) {
+							needToUpdateDependents |= newRuleSet != null; // access restriction was added
 						} else {
-							needToUpdateDependents |= !oldRestriction.equals(newRestriction); // access restriction has changed or has been removed
+							needToUpdateDependents |= !oldRuleSet.equals(newRuleSet); // access restriction has changed or has been removed
 						}
 					}
 					this.needCycleCheck |= (oldEntry.isExported() != newEntry.isExported());

@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -432,7 +432,7 @@ public static void searchAllPossibleSubTypes(
 
 	/* use a special collector to collect paths and queue new subtype names */
 	IndexQueryRequestor searchRequestor = new IndexQueryRequestor() {
-		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access) {
+		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 			SuperTypeReferencePattern record = (SuperTypeReferencePattern)indexRecord;
 			pathRequestor.acceptPath(documentPath, record.enclosingTypeName == IIndexConstants.ONE_ZERO);
 			char[] typeName = record.simpleName;

@@ -189,21 +189,21 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 	protected IClasspathEntry copy(IClasspathEntry entry) throws JavaModelException {
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_CONTAINER:
-				return JavaCore.newContainerEntry(entry.getPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.getExtraAttributes(), entry.isExported());
+				return JavaCore.newContainerEntry(entry.getPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
 			case IClasspathEntry.CPE_LIBRARY:
 				try {
-					return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.getExtraAttributes(), entry.isExported());
+					return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
 				} catch (Assert.AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);
 				}
 			case IClasspathEntry.CPE_PROJECT:
-				return JavaCore.newProjectEntry(entry.getPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.combineAccessRestrictions(), entry.getExtraAttributes(), entry.isExported());
+				return JavaCore.newProjectEntry(entry.getPath(), entry.getAccessRules(), entry.combineAccessRules(), entry.getExtraAttributes(), entry.isExported());
 			case IClasspathEntry.CPE_SOURCE:
 				return JavaCore.newSourceEntry(this.destination, entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.getOutputLocation(), entry.getExtraAttributes());
 			case IClasspathEntry.CPE_VARIABLE:
 				try {
-					return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.getExtraAttributes(), entry.isExported());
+					return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
 				} catch (Assert.AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);

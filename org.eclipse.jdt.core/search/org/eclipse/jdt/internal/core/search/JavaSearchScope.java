@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -46,11 +46,11 @@ public class JavaSearchScope extends AbstractSearchScope {
 	   if the resources are projects) */
 	private IPath[] paths;
 	private boolean[] pathWithSubFolders;
-	private AccessRestriction[] pathRestrictions;
+	private AccessRuleSet[] pathRestrictions;
 	private int pathsCount;
 	
 	private IPath[] enclosingProjectsAndJars;
-	public final static AccessRestriction NOT_INITIALIZED_RESTRICTION = new AccessRestriction(null, null, null, null);
+	public final static AccessRuleSet NOT_INITIALIZED_RESTRICTION = new AccessRuleSet(null);
 	
 public JavaSearchScope() {
 	this.initialize();
@@ -107,16 +107,13 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 			rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
 		}
 		if (rawEntry == null) continue;
-		AccessRestriction access = null;
-		ClasspathEntry cpEntry = null;
-		if (rawEntry instanceof ClasspathEntry) {
-			cpEntry = (ClasspathEntry) rawEntry;
-			if (referringEntry != null) {
-				cpEntry = cpEntry.combineWith(referringEntry);
+		AccessRuleSet access = null;
+		ClasspathEntry cpEntry = (ClasspathEntry) rawEntry;
+		if (referringEntry != null) {
+			cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
 //				cpEntry = ((ClasspathEntry)referringEntry).combineWith(cpEntry);
-			}
-			access = cpEntry.getImportRestriction();
 		}
+		access = cpEntry.getAccessRuleSet();
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
 				switch (rawEntry.getEntryKind()) {
@@ -251,7 +248,7 @@ public void add(IJavaElement element, IJavaProject project) throws JavaModelExce
  * Adds the given path to this search scope. Remember if subfolders need to be included
  * and associated access restriction as well.
  */
-private void add(IPath path, boolean withSubFolders, AccessRestriction access) {
+private void add(IPath path, boolean withSubFolders, AccessRuleSet access) {
 	if (this.paths.length == this.pathsCount) {
 		System.arraycopy(
 			this.paths,
@@ -268,7 +265,7 @@ private void add(IPath path, boolean withSubFolders, AccessRestriction access) {
 		System.arraycopy(
 			this.pathRestrictions,
 			0,
-			this.pathRestrictions = new AccessRestriction[this.pathsCount * 2],
+			this.pathRestrictions = new AccessRuleSet[this.pathsCount * 2],
 			0,
 			this.pathsCount);
 	}
@@ -364,12 +361,12 @@ private IPath fullPath(IJavaElement element) {
 }
 
 /**
- * Get access restriction corresponding to a given path.
+ * Get access rule set corresponding to a given path.
  * @param path The path user want to have restriction access
- * @return The access restriction for given path or null if none is set for it.
- * 	Returns specific uninit restriction when scope does not enclose the given path.
+ * @return The access rule set for given path or null if none is set for it.
+ * 	Returns specific uninit access rule set when scope does not enclose the given path.
  */
-public AccessRestriction getAccessRestriction(String path) {
+public AccessRuleSet getAccessRuleSet(String path) {
 	int index = encloses(fullPath(path));
 	if (index == -1) {
 		// this search scope does not enclose given path
@@ -381,7 +378,7 @@ public AccessRestriction getAccessRestriction(String path) {
 protected void initialize() {
 	this.paths = new IPath[1];
 	this.pathWithSubFolders = new boolean[1];
-	this.pathRestrictions = new AccessRestriction[1];
+	this.pathRestrictions = new AccessRuleSet[1];
 	this.pathsCount = 0;
 	this.enclosingProjectsAndJars = new IPath[0];
 }

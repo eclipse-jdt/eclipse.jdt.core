@@ -525,6 +525,9 @@ public interface IProblem {
 	
 
 	// type related problems
+	/** @since 3.1 */
+	int DiscouragedReference = TypeRelated + 280;
+
 	int InterfaceCannotHaveInitializers = TypeRelated + 300;
 	int DuplicateModifierForType = TypeRelated + 301;
 	int IllegalModifierForClass = TypeRelated + 302;

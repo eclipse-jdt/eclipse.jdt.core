@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
@@ -215,7 +216,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			exported
 		);
 	}
-	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] inclusionPatterns, IPath[] exclusionPatterns, boolean exported) throws JavaModelException{
+	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
@@ -223,8 +224,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			path, 
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
-			inclusionPatterns == null ? new IPath[0] : inclusionPatterns, 
-			exclusionPatterns == null ? new IPath[0] : exclusionPatterns, 
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
 			new IClasspathAttribute[0], 
 			exported);
 		project.setRawClasspath(entries, null);
@@ -814,30 +814,30 @@ protected void assertDeltas(String message, String expected) {
 						}
 					}
 					
-//					 inclusion patterns
-					IPath[] inclusionPaths;
+					// accessible files
+					IPath[] accessibleFiles;
 					if (librariesInclusionPatterns == null) {
-						inclusionPaths = new IPath[0];
+						accessibleFiles = new IPath[0];
 					} else {
 						String[] patterns = librariesInclusionPatterns[i];
 						int length = patterns.length;
-						inclusionPaths = new IPath[length];
+						accessibleFiles = new IPath[length];
 						for (int j = 0; j < length; j++) {
 							String inclusionPattern = patterns[j];
-							inclusionPaths[j] = new Path(inclusionPattern);
+							accessibleFiles[j] = new Path(inclusionPattern);
 						}
 					}
-					// exclusion patterns
-					IPath[] exclusionPaths;
+					// non accessible files
+					IPath[] nonAccessibleFiles;
 					if (librariesExclusionPatterns == null) {
-						exclusionPaths = new IPath[0];
+						nonAccessibleFiles = new IPath[0];
 					} else {
 						String[] patterns = librariesExclusionPatterns[i];
 						int length = patterns.length;
-						exclusionPaths = new IPath[length];
+						nonAccessibleFiles = new IPath[length];
 						for (int j = 0; j < length; j++) {
 							String exclusionPattern = patterns[j];
-							exclusionPaths[j] = new Path(exclusionPattern);
+							nonAccessibleFiles[j] = new Path(exclusionPattern);
 						}
 					}
 					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var 
@@ -849,8 +849,7 @@ protected void assertDeltas(String message, String expected) {
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 						entries[sourceLength+i] = JavaCore.newContainerEntry(
 								new Path(lib),
-								inclusionPaths,
-								exclusionPaths, 
+								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
 								new IClasspathAttribute[0],
 								false);
 					} else {
@@ -863,8 +862,7 @@ protected void assertDeltas(String message, String expected) {
 								libPath,
 								null,
 								null,
-								inclusionPaths,
-								exclusionPaths,
+								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
 								new IClasspathAttribute[0], 
 								false);
 					}
@@ -872,38 +870,37 @@ protected void assertDeltas(String message, String expected) {
 				for  (int i= 0; i < projectLength; i++) {
 					boolean isExported = exportedProjects != null && exportedProjects.length > i && exportedProjects[i];
 					
-					// inclusion patterns
-					IPath[] inclusionPaths;
+					// accessible files
+					IPath[] accessibleFiles;
 					if (projectsInclusionPatterns == null) {
-						inclusionPaths = new IPath[0];
+						accessibleFiles = new IPath[0];
 					} else {
 						String[] patterns = projectsInclusionPatterns[i];
 						int length = patterns.length;
-						inclusionPaths = new IPath[length];
+						accessibleFiles = new IPath[length];
 						for (int j = 0; j < length; j++) {
 							String inclusionPattern = patterns[j];
-							inclusionPaths[j] = new Path(inclusionPattern);
+							accessibleFiles[j] = new Path(inclusionPattern);
 						}
 					}
-					// exclusion patterns
-					IPath[] exclusionPaths;
+					// non accessible files
+					IPath[] nonAccessibleFiles;
 					if (projectsExclusionPatterns == null) {
-						exclusionPaths = new IPath[0];
+						nonAccessibleFiles = new IPath[0];
 					} else {
 						String[] patterns = projectsExclusionPatterns[i];
 						int length = patterns.length;
-						exclusionPaths = new IPath[length];
+						nonAccessibleFiles = new IPath[length];
 						for (int j = 0; j < length; j++) {
 							String exclusionPattern = patterns[j];
-							exclusionPaths[j] = new Path(exclusionPattern);
+							nonAccessibleFiles[j] = new Path(exclusionPattern);
 						}
 					}
 					
 					entries[sourceLength+libLength+i] =
 						JavaCore.newProjectEntry(
 								new Path(projects[i]),
-								inclusionPaths,
-								exclusionPaths,
+								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
 								combineAccessRestrictions,
 								new IClasspathAttribute[0], 
 								isExported);
@@ -1823,8 +1820,7 @@ protected void assertDeltas(String message, String expected) {
 							new Path("JCL15_LIB"), 
 							new Path("JCL15_SRC"), 
 							entry.getSourceAttachmentRootPath(), 
-							entry.getAccessibleFiles(), 
-							entry.getNonAccessibleFiles(), 
+							entry.getAccessRules(), 
 							new IClasspathAttribute[0], 
 							entry.isExported());
 					break;

@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//TESTS_NAMES = new String[] { "testAccessRestriction4" };
+	//TESTS_NAMES = new String[] { "testIncludePartOfAnotherProject2" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -666,7 +666,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
  * Ensures that excluded part of prereq project are not visible
  */
 public void testExcludePartOfAnotherProject1() throws CoreException {
-	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/internal/"}, false/*no inclusion*/, true/*has exclusion*/);
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "-**/internal/"});
 	try {
 		addClasspathEntries(newEntries, true);
 		createJavaProject("P");
@@ -701,7 +701,7 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
  * Ensures that packages that are not in excluded part of prereq project are visible
  */
 public void testExcludePartOfAnotherProject2() throws CoreException {
-	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/internal/"}, false/*no inclusion*/, true/*has exclusion*/);
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "-**/internal/"});
 	try {
 		addClasspathEntries(newEntries, true);
 		createJavaProject("P");
@@ -732,7 +732,7 @@ public void testExcludePartOfAnotherProject2() throws CoreException {
  * Ensures that included part of prereq project are visible
  */
 public void testIncludePartOfAnotherProject1() throws CoreException {
-	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/api/"}, true/*has inclusion*/, false/*no exclusion*/);
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "+**/api/"});
 	try {
 		addClasspathEntries(newEntries, true);
 		createJavaProject("P");
@@ -763,7 +763,7 @@ public void testIncludePartOfAnotherProject1() throws CoreException {
  * Ensures that packages that are not in included part of prereq project are not visible
  */
 public void testIncludePartOfAnotherProject2() throws CoreException {
-	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/api/"}, true/*has inclusion*/, false/*no exclusion*/);
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "+**/api/|-**"});
 	try {
 		addClasspathEntries(newEntries, true);
 		createJavaProject("P");

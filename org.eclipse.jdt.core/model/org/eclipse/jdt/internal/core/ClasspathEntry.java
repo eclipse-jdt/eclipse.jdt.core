@@ -22,6 +22,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -32,8 +33,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,13 +57,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	public static final String TAG_EXPORTED = "exported"; //$NON-NLS-1$
 	public static final String TAG_INCLUDING = "including"; //$NON-NLS-1$
 	public static final String TAG_EXCLUDING = "excluding"; //$NON-NLS-1$
-	public static final String TAG_ACCESSIBLE = "accessible"; //$NON-NLS-1$
-	public static final String TAG_NONACCESSIBLE = "nonaccessible"; //$NON-NLS-1$
-	public static final String TAG_COMBINE_ACCESS_RESTRICTIONS = "combinerestrictions"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTES = "attributes"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTE = "attribute"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTE_VALUE = "value"; //$NON-NLS-1$
+	public static final String TAG_COMBINE_ACCESS_RULES = "combineaccessrules"; //$NON-NLS-1$
+	public static final String TAG_ACCESS_RULES = "accessrules"; //$NON-NLS-1$
+	public static final String TAG_ACCESS_RULE = "accessrule"; //$NON-NLS-1$
+	public static final String TAG_PATTERN = "pattern"; //$NON-NLS-1$
+	public static final String TAG_ACCESSIBLE = "accessible"; //$NON-NLS-1$
+	public static final String TAG_NON_ACCESSIBLE = "nonaccessible"; //$NON-NLS-1$
+	public static final String TAG_DISCOURAGED = "discouraged"; //$NON-NLS-1$
 	
 	/**
 	 * Describes the kind of classpath entry - one of 
@@ -106,16 +113,10 @@ public class ClasspathEntry implements IClasspathEntry {
 	private char[][] fullExclusionPatternChars;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 	
-	/*
-	 * Patterns allowing to restrict access to files
-	 */
-	private IPath[] accessibleFiles;
-	private IPath[] nonAccessibleFiles;
-	private boolean combineAccessRestrictions;
+	private boolean combineAccessRules;
 	
 	private String rootID;
-	private AccessRestriction importRestriction;
-	private final static AccessRestriction UNINIT_RESTRICTION = new AccessRestriction(null, null, null, null);
+	private AccessRuleSet accessRuleSet;
 	
 	/*
 	 * Default inclusion pattern set
@@ -131,6 +132,11 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * Default extra attributes
 	 */
 	public final static IClasspathAttribute[] NO_EXTRA_ATTRIBUTES = {};
+	
+	/*
+	 * Default access rules
+	 */
+	public final static IAccessRule[] NO_ACCESS_RULES = {};
 				
 	/**
 	 * Describes the path to the source archive associated with this
@@ -187,9 +193,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath sourceAttachmentRootPath,
 		IPath specificOutputLocation,
 		boolean isExported,
-		IPath[] accessibleFiles,
-		IPath[] nonAccessibleFiles,
-		boolean combineAccessRestrictions,
+		IAccessRule[] accessRules,
+		boolean combineAccessRules,
 		IClasspathAttribute[] extraAttributes) {
 
 		this.contentKind = contentKind;
@@ -197,9 +202,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.path = path;
 		this.inclusionPatterns = inclusionPatterns;
 		this.exclusionPatterns = exclusionPatterns;
-		this.accessibleFiles = accessibleFiles;
-		this.nonAccessibleFiles = nonAccessibleFiles;
-		this.combineAccessRestrictions = combineAccessRestrictions;
+		
+		AccessRuleSet ruleSet = createAccessRuleSet(accessRules);
+		if (ruleSet != null) {
+			// compute message template
+			ruleSet.messageTemplate = getMessageTemplate();
+		}
+		this.accessRuleSet = ruleSet;
+		
+		this.combineAccessRules = combineAccessRules;
 		this.extraAttributes = extraAttributes;
 		
 	    if (inclusionPatterns != INCLUDE_ALL && inclusionPatterns.length > 0) {
@@ -208,57 +219,62 @@ public class ClasspathEntry implements IClasspathEntry {
 	    if (exclusionPatterns.length > 0) {
 			this.fullExclusionPatternChars = UNINIT_PATTERNS;
 	    }
-	    if (accessibleFiles != INCLUDE_ALL && accessibleFiles.length > 0) {
-			this.importRestriction = UNINIT_RESTRICTION;
-	    }
-	    if (nonAccessibleFiles.length > 0) {
-			this.importRestriction = UNINIT_RESTRICTION;
-	    }
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.specificOutputLocation = specificOutputLocation;
 		this.isExported = isExported;
 	}
 	
+	private static AccessRuleSet createAccessRuleSet(IAccessRule[] accessRules) {
+		int length = accessRules == null ? 0 : accessRules.length;
+		if (length == 0) return null;
+		AccessRule[] rules = new AccessRule[length];
+		System.arraycopy(accessRules, 0, rules, 0, length);
+		return new AccessRuleSet(rules);
+	}
+	
+	// TODO (jerome) remove before 3.1 M6
 	public boolean combineAccessRestrictions() {
-		return this.combineAccessRestrictions;
+		return combineAccessRules();
+	}
+	
+	public boolean combineAccessRules() {
+		return this.combineAccessRules;
 	}
 	
 	/**
 	 * Used to perform export/restriction propagation across referring projects/containers
 	 */
-	public ClasspathEntry combineWith(IClasspathEntry referringEntry) {
+	public ClasspathEntry combineWith(ClasspathEntry referringEntry) {
 		if (referringEntry == null) return this;
-		if (referringEntry.isExported() 
-				|| referringEntry.getAccessibleFiles().length > 0 
-				|| referringEntry.getNonAccessibleFiles().length > 0) {
-			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRestrictions();
+		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null ) {
+			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRules();
 			return new ClasspathEntry(
 								this.getContentKind(), this.getEntryKind(), this.getPath(),
-								this.getInclusionPatterns(), 
-								this.getExclusionPatterns(), 
+								this.inclusionPatterns, 
+								this.exclusionPatterns, 
 								this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), this.getOutputLocation(), 
-								referringEntry.isExported()|| this.isExported, // duplicate container entry for tagging it as exported
-								combine ? ClasspathEntry.concatPatterns(referringEntry.getAccessibleFiles(), this.getAccessibleFiles()) : this.getAccessibleFiles(), 
-								combine ? ClasspathEntry.concatPatterns(referringEntry.getNonAccessibleFiles(), this.getNonAccessibleFiles()) : this.getNonAccessibleFiles(),
-								this.combineAccessRestrictions,
+								referringEntry.isExported() || this.isExported, // duplicate container entry for tagging it as exported
+								combine(referringEntry.getAccessRules(), getAccessRules(), combine),
+								this.combineAccessRules,
 								this.extraAttributes); 
 		}
 		// no need to clone
 		return this;
 	}
 
-	/**
-	 * Concatenate two pattern lists
-	 */
-	public static IPath[] concatPatterns(IPath[] patternList1, IPath[] patternList2) {
-		int length1 = patternList1.length;
-		if (length1 == 0) return patternList2;
-		int length2 = patternList2.length;
-		if (length2 == 0) return patternList1;
-		IPath[] result = new IPath[length1+length2];
-		System.arraycopy(patternList1, 0, result, 0, length1);
-		System.arraycopy(patternList2, 0, result, length1, length2);
+	private IAccessRule[] combine(IAccessRule[] referringRules, IAccessRule[] rules, boolean combine) {
+		if (!combine) return rules;
+		if (rules == null) return referringRules;
+		
+		// concat access rules
+		int referringRulesLength = referringRules.length;
+		int accessRulesLength = rules.length;
+		int rulesLength = referringRulesLength + accessRulesLength;
+		IAccessRule[] result = new IAccessRule[rulesLength];
+		System.arraycopy(referringRules, 0, result, 0, referringRulesLength);
+		System.arraycopy(rules, 0, result, referringRulesLength, accessRulesLength);
+		
 		return result;
 	}
 
@@ -284,6 +300,37 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		if (index != length)
 			System.arraycopy(result, 0, result = new IClasspathAttribute[index], 0, index);
+		return result;
+	}
+	
+	private static IAccessRule[] decodeAccessRules(Element element) {
+		Node accessRules = element.getElementsByTagName(TAG_ACCESS_RULES).item(0);
+		if (accessRules == null || accessRules.getNodeType() != Node.ELEMENT_NODE) return null;
+		NodeList list = ((Element) accessRules).getElementsByTagName(TAG_ACCESS_RULE);
+		int length = list.getLength();
+		if (length == 0) return null;
+		IAccessRule[] result = new IAccessRule[length];
+		int index = 0;
+		for (int i = 0; i < length; i++) {
+			Node accessRule = list.item(i);
+			if (accessRule == null || accessRule.getNodeType() != Node.ELEMENT_NODE) return null;
+			Element elementAccessRule = (Element) accessRule;
+			String pattern = elementAccessRule.getAttribute(TAG_PATTERN);
+			if (pattern == null) continue;
+			String tagKind =  elementAccessRule.getAttribute(TAG_KIND);
+			int kind;
+			if (TAG_ACCESSIBLE.equals(tagKind))
+				kind = IAccessRule.K_ACCESSIBLE;
+			else if (TAG_NON_ACCESSIBLE.equals(tagKind))
+				kind = IAccessRule.K_NON_ACCESSIBLE;
+			else if (TAG_DISCOURAGED.equals(tagKind))
+				kind = IAccessRule.K_DISCOURAGED;
+			else
+				continue;
+			result[index++] = new ClasspathAccessRule(new Path(pattern), kind);
+		}
+		if (index != length)
+			System.arraycopy(result, 0, result = new IAccessRule[index], 0, index);
 		return result;
 	}
 	
@@ -382,10 +429,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		encodePatterns(this.inclusionPatterns, TAG_INCLUDING, parameters);
 		encodePatterns(this.exclusionPatterns, TAG_EXCLUDING, parameters);
-		encodePatterns(this.accessibleFiles, TAG_ACCESSIBLE, parameters);
-		encodePatterns(this.nonAccessibleFiles, TAG_NONACCESSIBLE, parameters);
-		if (this.entryKind == CPE_PROJECT && !this.combineAccessRestrictions)
-			parameters.put(TAG_COMBINE_ACCESS_RESTRICTIONS, "false"); //$NON-NLS-1$
+		if (this.entryKind == CPE_PROJECT && !this.combineAccessRules)
+			parameters.put(TAG_COMBINE_ACCESS_RULES, "false"); //$NON-NLS-1$
 		
 		
 		if (this.specificOutputLocation != null) {
@@ -395,13 +440,17 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 
 		boolean hasExtraAttributes = this.extraAttributes != NO_EXTRA_ATTRIBUTES;
-		writer.printTag(TAG_CLASSPATHENTRY, parameters, indent, newLine, !hasExtraAttributes /*close tag if no extra attributes*/);
+		boolean hasRestrictions = getAccessRuleSet() != null;
+		writer.printTag(TAG_CLASSPATHENTRY, parameters, indent, newLine, !hasExtraAttributes && !hasRestrictions /*close tag if no extra attributes and no restriction*/);
 		
-		if (hasExtraAttributes) {
+		if (hasExtraAttributes)
 			encodeExtraAttributes(writer, indent, newLine);
+	
+		if (hasRestrictions)
+			encodeAccessRules(writer, indent, newLine);
+
+		if (hasExtraAttributes || hasRestrictions)
 			writer.endTag(TAG_CLASSPATHENTRY, indent);
-			
-		}
 	}
 	
 	private void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
@@ -414,6 +463,37 @@ public class ClasspathEntry implements IClasspathEntry {
 			writer.printTag(TAG_ATTRIBUTE, parameters, indent, newLine, true);
 		}
 		writer.endTag(TAG_ATTRIBUTES, indent);
+	}
+	
+	private void encodeAccessRules(XMLWriter writer, boolean indent, boolean newLine) {
+
+		writer.startTag(TAG_ACCESS_RULES, indent);
+		AccessRule[] rules = getAccessRuleSet().getAccessRules();
+		for (int i = 0, length = rules.length; i < length; i++) {
+			encodeAccessRule(rules[i], writer, indent, newLine);
+		}
+		writer.endTag(TAG_ACCESS_RULES, indent);
+	}
+	
+	private void encodeAccessRule(AccessRule accessRule, XMLWriter writer, boolean indent, boolean newLine) {
+
+		HashMap parameters = new HashMap();
+		parameters.put(TAG_PATTERN, new String(accessRule.pattern));
+		
+		switch (accessRule.severity) {
+			case ProblemSeverities.Error:
+				parameters.put(TAG_KIND, TAG_NON_ACCESSIBLE);
+				break;
+			case ProblemSeverities.Warning:
+				parameters.put(TAG_KIND, TAG_DISCOURAGED);
+				break;
+			default:
+				parameters.put(TAG_KIND, TAG_ACCESSIBLE);
+				break;
+		}
+		
+		writer.printTag(TAG_ACCESS_RULE, parameters, indent, newLine, true);
+
 	}
 	
 	public static IClasspathEntry elementDecode(Element element, IJavaProject project) {
@@ -452,16 +532,16 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath[] exclusionPatterns = decodePatterns(element, TAG_EXCLUDING);
 		if (exclusionPatterns == null) exclusionPatterns = EXCLUDE_NONE;
 		
-		// accessible files patterns (optional)
-		IPath[] accessibleFiles = decodePatterns(element, TAG_ACCESSIBLE);
-		if (accessibleFiles == null) accessibleFiles = inclusionPatterns; // backward compatible
+		// access rules (optional)
+		IAccessRule[] accessRules = decodeAccessRules(element);
 		
-		// non accessible files patterns (optional)
-		IPath[] nonAccessibleFiles = decodePatterns(element, TAG_NONACCESSIBLE);
-		if (nonAccessibleFiles == null) nonAccessibleFiles = exclusionPatterns; // backward compatible
-		
-		// combine access restrictions (optional)
-		boolean combineAccessRestrictions = !element.getAttribute(TAG_COMBINE_ACCESS_RESTRICTIONS).equals("false"); //$NON-NLS-1$
+		// backward compatibility
+		if (accessRules == null) {
+			accessRules = getAccessRules(inclusionPatterns, exclusionPatterns);
+		}
+
+		// combine access rules (optional)
+		boolean combineAccessRestrictions = !element.getAttribute(TAG_COMBINE_ACCESS_RULES).equals("false"); //$NON-NLS-1$
 		
 		// extra attributes (optional)
 		IClasspathAttribute[] extraAttributes = decodeExtraAttributes(element);
@@ -470,27 +550,26 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath outputLocation = element.hasAttribute(TAG_OUTPUT) ? projectPath.append(element.getAttribute(TAG_OUTPUT)) : null;
 		
 		// recreate the CP entry
+		IClasspathEntry entry = null;
 		switch (kind) {
 
 			case IClasspathEntry.CPE_PROJECT :
-				return JavaCore.newProjectEntry(
+				entry = JavaCore.newProjectEntry(
 												path, 
-												accessibleFiles,
-												nonAccessibleFiles,
+												accessRules,
 												combineAccessRestrictions,
 												extraAttributes,
 												isExported);
-				
+				break;				
 			case IClasspathEntry.CPE_LIBRARY :
-				return JavaCore.newLibraryEntry(
+				entry = JavaCore.newLibraryEntry(
 												path,
 												sourceAttachmentPath,
 												sourceAttachmentRootPath,
-												accessibleFiles,
-												nonAccessibleFiles,
+												accessRules,
 												extraAttributes,
 												isExported);
-				
+				break;
 			case IClasspathEntry.CPE_SOURCE :
 				// must be an entry in this project or specify another project
 				String projSegment = path.segment(0);
@@ -499,10 +578,9 @@ public class ClasspathEntry implements IClasspathEntry {
 				} else { 
 					if (path.segmentCount() == 1) {
 						// another project
-						return JavaCore.newProjectEntry(
+						entry = JavaCore.newProjectEntry(
 												path, 
-												accessibleFiles,
-												nonAccessibleFiles,
+												accessRules,
 												combineAccessRestrictions,
 												extraAttributes,
 												isExported);
@@ -511,25 +589,23 @@ public class ClasspathEntry implements IClasspathEntry {
 						return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
 					}
 				}
-
+				break;
 			case IClasspathEntry.CPE_VARIABLE :
-				return JavaCore.newVariableEntry(
+				entry = JavaCore.newVariableEntry(
 						path,
 						sourceAttachmentPath,
 						sourceAttachmentRootPath, 
-						accessibleFiles,
-						nonAccessibleFiles,
+						accessRules,
 						extraAttributes,
 						isExported);
-				
+				break;
 			case IClasspathEntry.CPE_CONTAINER :
-				return JavaCore.newContainerEntry(
+				entry = JavaCore.newContainerEntry(
 						path,
-						accessibleFiles,
-						nonAccessibleFiles,
+						accessRules,
 						extraAttributes,
 						isExported);
-
+				break;
 			case ClasspathEntry.K_OUTPUT :
 				if (!path.isAbsolute()) return null;
 				return new ClasspathEntry(
@@ -542,13 +618,13 @@ public class ClasspathEntry implements IClasspathEntry {
 						null, // source attachment root
 						null, // custom output location
 						false,
-						INCLUDE_ALL, 
-						EXCLUDE_NONE,
+						null,
 						false, // no accessible files to combine
 						NO_EXTRA_ATTRIBUTES);
 			default :
 				throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", kindAttr)); //$NON-NLS-1$
 		}
+		return entry;
 	}
 
 	/**
@@ -572,8 +648,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	public boolean equals(Object object) {
 		if (this == object)
 			return true;
-		if (object instanceof IClasspathEntry) {
-			IClasspathEntry otherEntry = (IClasspathEntry) object;
+		if (object instanceof ClasspathEntry) {
+			ClasspathEntry otherEntry = (ClasspathEntry) object;
 
 			if (this.contentKind != otherEntry.getContentKind())
 				return false;
@@ -609,11 +685,13 @@ public class ClasspathEntry implements IClasspathEntry {
 				return false;
 			if (!equalPatterns(this.exclusionPatterns, otherEntry.getExclusionPatterns()))
 				return false;
-			if (!equalPatterns(this.accessibleFiles, otherEntry.getAccessibleFiles()))
+			AccessRuleSet otherRuleSet = otherEntry.getAccessRuleSet();
+			if (getAccessRuleSet() != null) {
+				if (!getAccessRuleSet().equals(otherRuleSet))
+					return false;
+			} else if (otherRuleSet != null)
 				return false;
-			if (!equalPatterns(this.nonAccessibleFiles, otherEntry.getNonAccessibleFiles()))
-				return false;
-			if (this.combineAccessRestrictions != otherEntry.combineAccessRestrictions())
+			if (this.combineAccessRules != otherEntry.combineAccessRules())
 				return false;
 			otherPath = otherEntry.getOutputLocation();
 			if (this.specificOutputLocation == null) {
@@ -663,16 +741,58 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	/**
 	 * @see IClasspathEntry#getAccessibleFiles()
+	 * @deprecated
 	 */
+	// TODO (jerome) remove before 3.1 M6
 	public IPath[] getAccessibleFiles() {
-		return this.accessibleFiles;
+		if (this.accessRuleSet == null) return INCLUDE_ALL;
+		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), -1);
+		if (result == null) return INCLUDE_ALL;
+		return result;
+	}
+	
+	/**
+	 * @see IClasspathEntry#getAccessRules()
+	 */
+	public IAccessRule[] getAccessRules() {
+		if (this.accessRuleSet == null) return NO_ACCESS_RULES;
+		AccessRule[] rules = this.accessRuleSet.getAccessRules();
+		int length = rules.length;
+		if (length == 0) return NO_ACCESS_RULES;
+		IAccessRule[] result = new IAccessRule[length];
+		System.arraycopy(rules, 0, result, 0, length);
+		return result;
+	}
+	
+	public AccessRuleSet getAccessRuleSet() {
+		return this.accessRuleSet;
 	}
 
 	/**
 	 * @see IClasspathEntry#getNonAccessibleFiles()
+	 * @deprecated
 	 */
+	// TODO (jerome) remove before 3.1 M6
 	public IPath[] getNonAccessibleFiles() {
-		return this.nonAccessibleFiles;
+		if (this.accessRuleSet == null) return EXCLUDE_NONE;
+		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), ProblemSeverities.Error);
+		if (result == null) return EXCLUDE_NONE;
+		return result;
+	}
+	
+	private IPath[] getFilePaths(AccessRule[] rules, int severity) {
+		int length;
+		if (rules == null || (length = rules.length) == 0) return null;
+		IPath[] result = new IPath[length];
+		int index = 0;
+		for (int i = 0; i < length; i++) {
+			AccessRule accessRule = rules[i];
+			if (accessRule.severity == severity)
+				result[index++] = new Path(new String(accessRule.pattern));
+		}
+		if (index != length)
+			System.arraycopy(result, 0, result = new IPath[index], 0, index);
+		return result;
 	}
 	
 	/**
@@ -696,11 +816,26 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (this.entryKind == CPE_SOURCE) // TODO (jerome) remove this check once clients have switched to getAccessibleFiles()
 			return this.exclusionPatterns;
 		else
-			return this.nonAccessibleFiles;
+			return getNonAccessibleFiles();
 	}
 	
 	public IClasspathAttribute[] getExtraAttributes() {
 		return this.extraAttributes;
+	}
+	
+	private String getMessageTemplate() {
+		if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
+			return org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.project", "{0}", getPath().segment(0)); //$NON-NLS-1$//$NON-NLS-2$
+		} else {
+			IPath libPath = getPath();
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), libPath, false);
+			String pathString;
+			if (target instanceof java.io.File)
+				pathString = libPath.toOSString();
+			else
+				pathString = libPath.makeRelative().toString();
+			return org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.library", "{0}", pathString); //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 
 	/**
@@ -710,54 +845,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (this.entryKind == CPE_SOURCE) // TODO (jerome) remove this check once clients have switched to getAccessibleFiles()
 			return this.inclusionPatterns;
 		else
-			return this.accessibleFiles;
+			return getAccessibleFiles();
 	}
-
-	/**
-	 * Defines access restriction restrictions for project import
-	 */	
-	public AccessRestriction getImportRestriction() {
-		
-		if (this.importRestriction == UNINIT_RESTRICTION) {
-			char[][] accessibleFilesPatterns = getAccessRestrictionPatterns(this.accessibleFiles);
-			char[][] nonAccessibleFilesPatterns = getAccessRestrictionPatterns(this.nonAccessibleFiles);
-			if (accessibleFilesPatterns == null && nonAccessibleFilesPatterns == null) {
-				this.importRestriction = null;
-			} else {
-				String messageTemplate;
-				if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
-					messageTemplate = org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.project", "{0}", getPath().segment(0)); //$NON-NLS-1$//$NON-NLS-2$
-				} else {
-					IPath libPath = getPath();
-					Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), libPath, false);
-					String pathString;
-					if (target instanceof java.io.File)
-						pathString = libPath.toOSString();
-					else
-						pathString = libPath.makeRelative().toString();
-					messageTemplate = org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.library", "{0}", pathString); //$NON-NLS-1$//$NON-NLS-2$
-				}	
-				this.importRestriction = 
-					new AccessRestriction(
-						messageTemplate,
-						accessibleFilesPatterns, 
-						nonAccessibleFilesPatterns,
-						null /* no further restriction */);
-			}
-		}
-		return this.importRestriction;
-	}
-	
-	public static char[][] getAccessRestrictionPatterns(IPath[] patternSequence) {
-		if (patternSequence == null) return null;
-		int length = patternSequence.length;
-		if (length == 0) return null;
-		char[][] patternChars = new char[length][];
-		for (int i = 0; i < length; i++) {
-			patternChars[i] = patternSequence[i].toString().toCharArray();
-		}
-		return patternChars;
-	}		
 
 	/**
 	 * @see IClasspathEntry#getOutputLocation()
@@ -772,7 +861,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath getPath() {
 		return this.path;
 	}
-
+	
 	/**
 	 * @see IClasspathEntry
 	 */
@@ -844,6 +933,21 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 	}
 
+	public static IAccessRule[] getAccessRules(IPath[] accessibleFiles, IPath[] nonAccessibleFiles) {
+		int accessibleFilesLength = accessibleFiles == null ? 0 : accessibleFiles.length;
+		int nonAccessibleFilesLength = nonAccessibleFiles == null ? 0 : nonAccessibleFiles.length;
+		int length = accessibleFilesLength + nonAccessibleFilesLength;
+		if (length == 0) return null;
+		IAccessRule[] accessRules = new IAccessRule[length];
+		for (int i = 0; i < accessibleFilesLength; i++) {
+			accessRules[i] = JavaCore.newAccessRule(accessibleFiles[i], IAccessRule.K_ACCESSIBLE);
+		}
+		for (int i = 0; i < nonAccessibleFilesLength; i++) {
+			accessRules[accessibleFilesLength + i] = JavaCore.newAccessRule(nonAccessibleFiles[i], IAccessRule.K_NON_ACCESSIBLE);
+		}
+		return accessRules;
+	}
+	
 	/**
 	 * Returns a printable representation of this classpath entry.
 	 */
@@ -917,31 +1021,14 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 			buffer.append(']');
 		}
-		patterns = getAccessibleFiles();
-		if ((length = patterns == null ? 0 : patterns.length) > 0) {
-			buffer.append("[accessible files:"); //$NON-NLS-1$
-			for (int i = 0; i < length; i++) {
-				buffer.append(patterns[i]);
-				if (i != length-1) {
-					buffer.append('|');
-				}
-			}
-			buffer.append(']');
-		}
-		patterns = getNonAccessibleFiles();
-		if ((length = patterns == null ? 0 : patterns.length) > 0) {
-			buffer.append("[non accessible files:"); //$NON-NLS-1$
-			for (int i = 0; i < length; i++) {
-				buffer.append(patterns[i]);
-				if (i != length-1) {
-					buffer.append('|');
-				}
-			}
+		if (this.accessRuleSet != null) {
+			buffer.append('[');
+			buffer.append(this.accessRuleSet);
 			buffer.append(']');
 		}
 		if (this.entryKind == CPE_PROJECT) {
-			buffer.append("[combine access restrictions:"); //$NON-NLS-1$
-			buffer.append(this.combineAccessRestrictions);
+			buffer.append("[combine access rules:"); //$NON-NLS-1$
+			buffer.append(this.combineAccessRules);
 			buffer.append(']');
 		}
 		if (getOutputLocation() != null) {

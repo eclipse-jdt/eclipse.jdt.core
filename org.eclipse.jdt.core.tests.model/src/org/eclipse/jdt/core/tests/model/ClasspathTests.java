@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -75,7 +76,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testCombineAccessRestrictions";
-//	TESTS_NAMES = new String[] {"testCombineAccessRestrictions5"};
+//	TESTS_NAMES = new String[] {"testExportContainer"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -2450,20 +2451,20 @@ public void testReadEmptyCustomOutput() throws CoreException {
 }
 
 /*
- * Ensures that setting the 'combineAccessRestrictions' flag to false on a project entry generates the correct .classpath file.
+ * Ensures that setting the 'combineAccessRules' flag to false on a project entry generates the correct .classpath file.
  */
-public void testCombineAccessRestrictions1() throws CoreException {
+public void testCombineAccessRules1() throws CoreException {
 	try {
 		createJavaProject("P1");
 		IJavaProject project = createJavaProject("P2");
-		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), new IPath[0], new IPath[0], false/*don't combine*/, new IClasspathAttribute[] {}, false);
+		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), (IAccessRule[]) null, false/*don't combine*/, new IClasspathAttribute[] {}, false);
 		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
 		assertSourceEquals(
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" combinerestrictions=\"false\" path=\"/P1\">\n" + 
+			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\">\n" + 
 			"		<attributes>\n" + 
 			"		</attributes>\n" + 
 			"	</classpathentry>\n" + 
@@ -2477,13 +2478,13 @@ public void testCombineAccessRestrictions1() throws CoreException {
 }
 
 /*
- * Ensures that setting the 'combineAccessRestrictions' flag to true on a project entry generates the correct .classpath file.
+ * Ensures that setting the 'combineAccessRules' flag to true on a project entry generates the correct .classpath file.
  */
-public void testCombineAccessRestrictions2() throws CoreException {
+public void testCombineAccessRules2() throws CoreException {
 	try {
 		createJavaProject("P1");
 		IJavaProject project = createJavaProject("P2");
-		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), new IPath[0], new IPath[0], true/*combine*/, new IClasspathAttribute[] {}, false);
+		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), (IAccessRule[]) null, true/*combine*/, new IClasspathAttribute[] {}, false);
 		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
 		assertSourceEquals(
@@ -2504,22 +2505,22 @@ public void testCombineAccessRestrictions2() throws CoreException {
 }
 
 /*
- * Ensures that 'combineAccessRestrictions' flag in a .classpath file is correctly read.
+ * Ensures that 'combineAccessRules' flag in a .classpath file is correctly read.
  */
-public void testCombineAccessRestrictions3() throws CoreException {
+public void testCombineAccessRules3() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
 			"/P2/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" combinerestrictions=\"false\" path=\"/P1\"/>\n" + 
+			"	<classpathentry kind=\"src\" combineaccessrules=\"false\" path=\"/P1\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n"
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
-			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access restrictions:false]"
+			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access rules:false]"
 		);
 	} finally {
 		deleteProject("P2");
@@ -2527,9 +2528,9 @@ public void testCombineAccessRestrictions3() throws CoreException {
 }
 
 /*
- * Ensures that the absence of 'combineAccessRestrictions' flag in a .classpath file is correctly handled.
+ * Ensures that the absence of 'combineAccessRules' flag in a .classpath file is correctly handled.
  */
-public void testCombineAccessRestrictions4() throws CoreException {
+public void testCombineAccessRules4() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
@@ -2542,7 +2543,7 @@ public void testCombineAccessRestrictions4() throws CoreException {
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
-			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access restrictions:true]"
+			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access rules:true]"
 		);
 	} finally {
 		deleteProject("P2");
@@ -2550,9 +2551,9 @@ public void testCombineAccessRestrictions4() throws CoreException {
 }
 
 /*
- * Ensures that the absence of 'combineAccessRestrictions' flag in a .classpath file is correctly handled.
+ * Ensures that the absence of 'combineAccessRules' flag in a .classpath file is correctly handled.
  */
-public void testCombineAccessRestrictions5() throws CoreException {
+public void testCombineAccessRules5() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
@@ -3305,8 +3306,7 @@ public void testBug55992a() throws CoreException {
 			null,
 			null, // specific output folder
 			false,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE,
+			(IAccessRule[]) null,
 			false,
 			ClasspathEntry.NO_EXTRA_ATTRIBUTES);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cp, false);

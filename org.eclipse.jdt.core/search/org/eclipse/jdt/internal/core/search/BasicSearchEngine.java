@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -485,8 +486,9 @@ public class BasicSearchEngine {
 		}
 	
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
-			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access) {
+			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
+				AccessRestriction accessRestriction = null;
 				if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
@@ -516,10 +518,10 @@ public class BasicSearchEngine {
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {
-							access = access.getViolatedRestriction(path, null);
+							accessRestriction = access.getViolatedRestriction(path);
 						}
 					}
-					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, access);
+					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
 				}
 				return true;
 			}
@@ -701,9 +703,10 @@ public class BasicSearchEngine {
 		}
 
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
-			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access) {
+			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 				if (!workingCopyPaths.contains(documentPath)) { // filter out working copies
 					QualifiedTypeDeclarationPattern record = (QualifiedTypeDeclarationPattern) indexRecord;
+					AccessRestriction accessRestriction = null;
 					if (access != null) {
 						// Compute document relative path
 						int pos = documentPath.lastIndexOf('.');
@@ -729,10 +732,10 @@ public class BasicSearchEngine {
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {
-							access = access.getViolatedRestriction(path, null);
+							accessRestriction = access.getViolatedRestriction(path);
 						}
 					}
-					nameRequestor.acceptType(record.modifiers, record.getPackageName(), record.simpleName, record.getEnclosingTypeNames(), documentPath, access);
+					nameRequestor.acceptType(record.modifiers, record.getPackageName(), record.simpleName, record.getEnclosingTypeNames(), documentPath, accessRestriction);
 				}
 				return true;
 			}

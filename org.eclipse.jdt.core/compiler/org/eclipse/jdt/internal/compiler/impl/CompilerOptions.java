@@ -98,6 +98,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportMissingDeprecatedAnnotation = "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompleteEnumSwitch = "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
+	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.include"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionExclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
 	public static final String OPTION_ExportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.export.include"; //$NON-NLS-1$
@@ -179,6 +180,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
 	public static final long IncompleteEnumSwitch = ASTNode.Bit42L;
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
+	public static final long DiscouragedReference = ASTNode.Bit44L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -200,6 +202,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| MissingSerialVersion
 		| VarargsArgumentNeedCast
 		| ForbiddenReference
+		| DiscouragedReference
 		| AnnotationSuperInterface
 		| TypeParameterHiding
 		| FinalParameterBound
@@ -357,6 +360,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportFinalParameterBound, getSeverityString(FinalParameterBound));
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
+		optionsMap.put(OPTION_ReportDiscouragedReference, getSeverityString(DiscouragedReference));
 		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast)); 
 		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
 		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
@@ -635,6 +639,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportFinalParameterBound)) != null) updateSeverity(FinalParameterBound, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedReference)) != null) updateSeverity(DiscouragedReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportVarargsArgumentNeedCast)) != null) updateSeverity(VarargsArgumentNeedCast, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(Autoboxing, optionValue);
@@ -795,6 +800,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- missing serialVersionUID: ").append(getSeverityString(MissingSerialVersion)); //$NON-NLS-1$
 		buf.append("\n\t- varargs argument need cast: ").append(getSeverityString(VarargsArgumentNeedCast)); //$NON-NLS-1$
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
+		buf.append("\n\t- discouraged reference to type with access restriction: ").append(getSeverityString(DiscouragedReference)); //$NON-NLS-1$
 		buf.append("\n\t- import access restriction includes: ").append(this.importRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- import access restriction excludes: ").append(this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- export access restriction includes: ").append(this.exportRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
