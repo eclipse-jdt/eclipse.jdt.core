@@ -2967,4 +2967,82 @@ public class EnumTest extends AbstractComparableTest {
 			"Name clash: The method foo(A<String>) of type X has the same erasure as foo(A) of type I but does not override it\n" + 
 			"----------\n");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89982
+	public void test097() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public class E {\n" + 
+				"	enum Numbers { ONE, TWO, THREE }\n" + 
+				"	static final String BLANK = \"    \";\n" + 
+				"	void foo(Colors color) {\n" + 
+				"		switch (color) {\n" + 
+				"			case BLUE:\n" + 
+				"			case RED:\n" + 
+				"				break;\n" + 
+				"		} \n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/**\n" + 
+				" * Enumeration of some basic colors.\n" + 
+				" */\n" + 
+				"enum Colors {\n" + 
+				"	BLACK,\n" + 
+				"	WHITE,\n" + 
+				"	RED  \n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in E.java (at line 6)\n" + 
+			"	case BLUE:\n" + 
+			"	     ^^^^\n" + 
+			"BLUE cannot be resolved or is not a field\n" + 
+			"----------\n");
+	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89982 - variation
+	public void test098() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public class E {\n" + 
+				"	enum Numbers { ONE, TWO, THREE }\n" + 
+				"	static final String BLANK = \"    \";\n" + 
+				"	void foo(Colors color) {\n" + 
+				"		switch (color) {\n" + 
+				"		} \n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/**\n" + 
+				" * Enumeration of some basic colors.\n" + 
+				" */\n" + 
+				"enum Colors {\n" + 
+				"	BLACK,\n" + 
+				"	WHITE,\n" + 
+				"	RED;  \n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in E.java (at line 5)\n" + 
+			"	switch (color) {\n" + 
+			"	        ^^^^^\n" + 
+			"The enum constant Colors.BLACK has no corresponding case label\n" + 
+			"----------\n" + 
+			"2. WARNING in E.java (at line 5)\n" + 
+			"	switch (color) {\n" + 
+			"	        ^^^^^\n" + 
+			"The enum constant Colors.RED has no corresponding case label\n" + 
+			"----------\n" + 
+			"3. WARNING in E.java (at line 5)\n" + 
+			"	switch (color) {\n" + 
+			"	        ^^^^^\n" + 
+			"The enum constant Colors.WHITE has no corresponding case label\n" + 
+			"----------\n" + 
+			"4. ERROR in E.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
 }

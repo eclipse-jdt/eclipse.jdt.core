@@ -297,18 +297,21 @@ public class SwitchStatement extends Statement {
 			}
 			// for enum switch, check if all constants are accounted for (if no default) 
 			if (isEnumSwitch && defaultCase == null 
-					&& scope.environment().options.getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore
-					&& caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
-				FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
-				for (int i = 0, max = enumFields.length; i <max; i++) {
-					FieldBinding enumConstant = enumFields[i];
-					if ((enumConstant.modifiers & AccEnum) == 0) continue;
-					findConstant : {
-						for (int j = 0; j < caseCount; j++) {
-							if (enumConstant.id == this.constants[j]) break findConstant;
+					&& upperScope.environment().options.getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore) {
+				int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
+				if (constantCount == caseCount // ignore diagnosis if unresolved constants
+						&& caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
+					FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
+					for (int i = 0, max = enumFields.length; i <max; i++) {
+						FieldBinding enumConstant = enumFields[i];
+						if ((enumConstant.modifiers & AccEnum) == 0) continue;
+						findConstant : {
+							for (int j = 0; j < caseCount; j++) {
+								if (enumConstant.id == this.constants[j]) break findConstant;
+							}
+							// enum constant did not get referenced from switch
+							upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 						}
-						// enum constant did not get referenced from switch
-						scope.problemReporter().missingEnumConstantCase(this, enumConstant);
 					}
 				}
 			}
