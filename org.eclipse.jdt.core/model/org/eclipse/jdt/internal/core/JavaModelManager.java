@@ -445,7 +445,30 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	private HashMap zipFiles = new HashMap();
 	
+	
+	/**
+	 * Update the classpath variable cache
+	 */
+	public static class PluginPreferencesListener implements Preferences.IPropertyChangeListener {
+		/**
+		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(PropertyChangeEvent)
+		 */
+		public void propertyChange(Preferences.PropertyChangeEvent event) {
 
+			String propertyName = event.getProperty();
+			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
+
+				// update path cache
+				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
+				String newValue = (String)event.getNewValue();
+				if (newValue == null || newValue.equals(CP_VARIABLE_IGNORE)) {
+					Variables.remove(varName);
+				} else {
+					Variables.put(varName, new Path(newValue));
+				}
+			}
+		}
+	}
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
@@ -1412,14 +1435,7 @@ public class JavaModelManager implements ISaveParticipant {
 		return result;
 	}
 	
-	public static void variablePut(String varName, IPath varPath){
-		// update path cache
-		if (varPath == null){
-			Variables.remove(varName);
-		} else {
-			Variables.put(varName, varPath);
-		}
-		
+	public static void variablePut(String varName, IPath varPath){		
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		String varPref = CP_VARIABLE_PREFERENCES_PREFIX+varName;
 		String varString = varPath == null ? CP_VARIABLE_IGNORE : varPath.toString();

@@ -2346,6 +2346,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.configurePluginDebugOptions();
+			
+			// retrieve variable values
+			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(new JavaModelManager.PluginPreferencesListener());
 			manager.loadVariables();
 
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
