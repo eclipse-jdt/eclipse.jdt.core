@@ -1,6 +1,6 @@
 package test0409;
 
-import java.lang.*;
+import java.io.*;
 import java.lang.Object;
 
 class Super extends java.lang.Object {
@@ -13,8 +13,9 @@ class Super extends java.lang.Object {
 /**
  *
  */
-public class A extends Super implements Cloneable {
+public class A extends Super implements Cloneable, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	public static final int i = 0;
 
 	{
@@ -33,8 +34,14 @@ public class A extends Super implements Cloneable {
 			}
 		}
 		Object o = new Object();
+		int k = 0;
 		do {
-			o = null;
+			o = new Object();
+			k++;
+			if (k < 10) {
+				o = null;
+				break;
+			}
 		} while (o != null);
 		;
 		if (o == null) {

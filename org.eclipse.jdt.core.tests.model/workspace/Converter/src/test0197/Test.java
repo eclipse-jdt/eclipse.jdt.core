@@ -10,7 +10,7 @@ class A {
 
 public class Test {
 	public void foo() {
-		A a= null;
+		A a= new A();
 		/*]*/a.getFile()/*[*/.getName();
 	}
 }

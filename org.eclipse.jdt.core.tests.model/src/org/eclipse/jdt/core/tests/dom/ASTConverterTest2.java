@@ -284,14 +284,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ASTNode result = runConversion(sourceUnit, true);
 			assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit compilationUnit = (CompilationUnit) result; 
-			// TODO (olivier) problem count  got incremented (null check)
-			assertEquals("Wrong number of problems", 2, compilationUnit.getProblems().length); //$NON-NLS-1$ 
-			assertEquals("Unexpected problem", "The import java.lang is never used", compilationUnit.getProblems()[0].getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			assertProblemsSize(compilationUnit, 0);
 			BindingsCollectorVisitor bindingsCollectorVisitor = new BindingsCollectorVisitor();
 			compilationUnit.accept(bindingsCollectorVisitor);
 			assertEquals("wrong number", 3, bindingsCollectorVisitor.getUnresolvedNodesSet().size()); //$NON-NLS-1$
 			Map bindingsMap = bindingsCollectorVisitor.getBindingsMap();
-			assertEquals("wrong number", 187, bindingsMap.size()); //$NON-NLS-1$
+			assertEquals("wrong number", 205, bindingsMap.size()); //$NON-NLS-1$
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();

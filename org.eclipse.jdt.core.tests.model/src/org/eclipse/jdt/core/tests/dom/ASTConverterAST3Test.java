@@ -4505,8 +4505,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 		CompilationUnit unit = (CompilationUnit) result;
-		// TODO (olivier) problem count  got incremented (null check)
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length);
+		assertProblemsSize(unit, 0);
 		ASTNode node2 = getASTNode(unit, 1, 0, 1);
 		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
