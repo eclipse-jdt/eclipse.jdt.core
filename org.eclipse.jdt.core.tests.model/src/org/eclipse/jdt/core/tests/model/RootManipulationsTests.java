@@ -398,7 +398,6 @@ public void testDeleteSourceFolder2() throws CoreException {
 		this.startDeltas();
 		root.delete(IResource.NONE, true, null);
 		
-		// TODO: Improve delta (should not have a ResourceDelta)
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -549,7 +548,6 @@ public void testMoveSourceFolder3() throws CoreException {
 		this.startDeltas();
 		root.move(new Path("/P2/src1"), IResource.NONE, true, null, null);
 		
-		// TODO: (jerome) Move delta should have MOVED_FROM and MOVED_TO
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
