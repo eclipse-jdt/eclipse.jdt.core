@@ -183,7 +183,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 	}
 	/* if member type not finished, then member type becomes current */
 	if (memberTypeDeclaration.declarationSourceEnd == 0) {
-		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
+		this.parser().pushOnEnumConstantPartStack(memberTypeDeclaration.getKind() == IGenericType.ENUM);
 		return element;
 	}
 	return this;
