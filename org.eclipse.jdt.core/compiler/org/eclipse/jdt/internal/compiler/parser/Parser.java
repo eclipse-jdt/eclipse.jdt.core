@@ -908,18 +908,21 @@ protected void classInstanceCreationWithTypeArguments(boolean alwaysQualified) {
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
-		if (anonymousTypeDeclaration.allocation != null) {
-			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
-		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
 			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
 		}
 		astPtr--;
 		astLengthPtr--;
 
-		// TODO need to handle type arguments
-		length = astLengthStack[astLengthPtr--];
-		astPtr -= length;
+		QualifiedAllocationExpression anonymousTypeDeclarationAllocationExpression = anonymousTypeDeclaration.allocation;
+		if (anonymousTypeDeclarationAllocationExpression != null) {
+			anonymousTypeDeclarationAllocationExpression.sourceEnd = endStatementPosition;
+			// handle type arguments
+			anonymousTypeDeclarationAllocationExpression = ParameterizedQualifiedAllocationExpression.copyInto(anonymousTypeDeclarationAllocationExpression);
+			length = astLengthStack[astLengthPtr--];
+			astPtr -= length;
+			System.arraycopy(astStack, astPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
+		}
 		
 		// mark initializers with local type mark if needed
 		markInitializersWithLocalType(anonymousTypeDeclaration);

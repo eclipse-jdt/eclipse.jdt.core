@@ -16,6 +16,20 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public class ParameterizedQualifiedAllocationExpression extends QualifiedAllocationExpression {
 	public TypeReference[] typeArguments;
 
+	public static ParameterizedQualifiedAllocationExpression copyInto(QualifiedAllocationExpression allocationExpression) {
+		ParameterizedQualifiedAllocationExpression parameterizedQualifiedAllocationExpression = new ParameterizedQualifiedAllocationExpression();
+		parameterizedQualifiedAllocationExpression.anonymousType = allocationExpression.anonymousType;
+		parameterizedQualifiedAllocationExpression.arguments = allocationExpression.arguments;
+		parameterizedQualifiedAllocationExpression.bits = allocationExpression.bits;
+		parameterizedQualifiedAllocationExpression.constant = allocationExpression.constant;
+		parameterizedQualifiedAllocationExpression.enclosingInstance = allocationExpression.enclosingInstance;
+		parameterizedQualifiedAllocationExpression.implicitConversion = allocationExpression.implicitConversion;
+		parameterizedQualifiedAllocationExpression.sourceEnd = allocationExpression.sourceEnd;
+		parameterizedQualifiedAllocationExpression.sourceStart = allocationExpression.sourceStart;
+		parameterizedQualifiedAllocationExpression.type = allocationExpression.type;
+		return parameterizedQualifiedAllocationExpression;
+	}
+	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
