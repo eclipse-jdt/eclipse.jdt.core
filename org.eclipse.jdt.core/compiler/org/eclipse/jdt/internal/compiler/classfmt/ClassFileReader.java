@@ -34,10 +34,18 @@ public class ClassFileReader extends ClassFileStruct implements AttributeNamesCo
 	private int classNameIndex;
 	private int innerInfoIndex;
 /**
- * @param classFileBytes actual bytes of a .class file
- * @param fileName actual name of the file that contains the bytes, can be null
+ * @param classFileBytes byte[]
+ * 		Actual bytes of a .class file
+ * 
+ * @param fileName char[]
+ * 		Actual name of the file that contains the bytes, can be null
+ * 
+ * @param fullyInitialize boolean
+ * 		Flag to fully initialize the new object
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @exception ClassFormatException
  */
-public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
+public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize) throws ClassFormatException {
 	// This method looks ugly but is actually quite simple, the constantPool is constructed
 	// in 3 passes.  All non-primitive constant pool members that usually refer to other members
 	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
@@ -191,12 +199,30 @@ public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassForma
 			}
 			readOffset += (6 + u4At(readOffset + 2));
 		}
+		if (fullyInitialize) {
+			this.initialize();
+		}
 	} catch (Exception e) {
 		throw new ClassFormatException(
 			ClassFormatException.ErrTruncatedInput, 
 			readOffset); 
 	}
 }
+
+/**
+ * @param classFileBytes byte[]
+ * 		Actual bytes of a .class file
+ * 
+ * @param fileName char[]
+ * 		Actual name of the file that contains the bytes, can be null
+ * 
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @exception ClassFormatException
+ */
+public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
+	this(classFileBytes, fileName, false);
+}
+
 /**
  * 	Answer the receiver's access flags.  The value of the access_flags
  *	item is a mask of modifiers used with class and interface declarations.
