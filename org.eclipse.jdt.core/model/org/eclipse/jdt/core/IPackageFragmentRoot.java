@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - specified that a source archive or a source folder can be attached to a binary
+ *                               package fragment root.
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -46,26 +48,28 @@ public interface IPackageFragmentRoot
 	String DEFAULT_PACKAGEROOT_PATH = ""; //$NON-NLS-1$
 	/**
 	 * Attaches the source archive identified by the given absolute path to this
-	 * JAR package fragment root. <code>rootPath</code> specifies the location
-	 * of the root within the archive (<code>null</code> or empty specifies the default root).
-	 * Once a source archive is attached to the JAR,
+	 * binary package fragment root. For source archives, 
+	 * <code>rootPath</code> specifies the location of the root within the archive 
+	 * (<code>null</code> or empty specifies the default root).
+	 * Once a source archive or folder is attached to the package fragment root,
 	 * the <code>getSource</code> and <code>getSourceRange</code>
 	 * methods become operational for binary types/members.
-	 * To detach a source archive from a JAR, specify <code>null</code> as the
-	 * archivePath.
+	 * To detach a source archive or folder from a package fragment root, specify 
+	 * <code>null</code> as the source path.
 	 *
-	 * @param archivePath the given absolute path to this JAR package fragment root
-	 * @param rootPath specifies the location of the root within the archive (<code>null</code> or empty specifies the default root)
+	 * @param sourcePath the given absolute path to the source archive or folder
+	 * @param rootPath specifies the location of the root within the archive 
+	 *              (<code>null</code> or empty specifies the default root)
 	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this operation fails. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while updating a server property
-	 * <li> This package fragment root is not a JAR (INVALID_ELEMENT_TYPES)
+	 * <li> This package fragment root is not of kind binary (INVALID_ELEMENT_TYPES)
 	 * <li> The path provided is not absolute (RELATIVE_PATH)
 	 * </ul>
 	 */
-	void attachSource(IPath archivePath, IPath rootPath, IProgressMonitor monitor)
+	void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor monitor)
 		throws JavaModelException;
 		
 	/**

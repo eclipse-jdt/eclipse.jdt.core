@@ -685,15 +685,18 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 
 /**
  * Possible failures: <ul>
- *  <li>RELATIVE_PATH - the path supplied to this operation must be
- *      an absolute path
  *  <li>ELEMENT_NOT_PRESENT - the root supplied to the operation
  *      does not exist
- * </ul>
+ *  <li>INVALID_ELEMENT_TYPES - the root is not of kind K_BINARY
+ *   <li>RELATIVE_PATH - the path supplied to this operation must be
+ *      an absolute path
+ *  </ul>
  */
 protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 	if (!exists()) {
 		throw newNotPresentException();
+	} else if (this.getKind() != K_BINARY) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
 	} else if (sourcePath != null && !sourcePath.isAbsolute()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, sourcePath));
 	}
