@@ -563,7 +563,10 @@ public void testClasspathValidation01() throws CoreException {
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
-		assertTrue("should have detected duplicate entries on the classpath", !status.isOK());
+		assertEquals(
+			"should have detected duplicate entries on the classpath", 
+			"Classpath contains duplicate entry: P/src",
+			status.getMessage());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -583,7 +586,10 @@ public void testClasspathValidation02() throws CoreException {
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
-		assertTrue("should have detected nested source folders on the classpath", !status.isOK());
+		assertEquals(
+			"should have detected nested source folders on the classpath", 
+			"Cannot nest 'P/src' inside 'P'. To enable the nesting exclude 'src/' from 'P'.",
+			status.getMessage());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -603,7 +609,10 @@ public void testClasspathValidation03() throws CoreException {
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
-		assertTrue("should have detected library folder nested inside source folder on the classpath", !status.isOK());
+		assertEquals(
+			"should have detected library folder nested inside source folder on the classpath", 
+			"Cannot nest 'P/src/lib' inside 'P/src'. To enable the nesting exclude 'lib/' from 'P/src'.",
+			status.getMessage());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -628,7 +637,10 @@ public void testClasspathValidation04() throws CoreException {
 				
 		// validate classpath
 		IJavaModelStatus status = JavaConventions.validateClasspath(p[0], newClasspath, p[0].getOutputLocation());
-		assertTrue("should not detect external source folder through a variable on the classpath", status.isOK());
+		assertEquals(
+			"should not detect external source folder through a variable on the classpath", 
+			"OK",
+			status.getMessage());
 
 	} finally {
 		if (p != null){
@@ -667,11 +679,17 @@ public void testClasspathValidation05() throws CoreException {
 				
 		// validate classpath
 		IJavaModelStatus status = JavaConventions.validateClasspath(p[0], newClasspath, p[0].getOutputLocation());
-		assertTrue("should not have detected external source folder through a container on the classpath", status.isOK());
+		assertEquals(
+			"should not have detected external source folder through a container on the classpath", 
+			"OK",
+			status.getMessage());
 
 		// validate classpath entry
 		status = JavaConventions.validateClasspathEntry(p[0], newClasspath[1], true);
-		assertTrue("should have detected external source folder through a container on the classpath", !status.isOK());
+		assertEquals(
+			"should have detected external source folder through a container on the classpath", 
+			"Invalid classpath container: container/default",
+			status.getMessage());
 
 	} finally {
 		if (p != null){
@@ -698,7 +716,10 @@ public void testClasspathValidation06() throws CoreException {
 		};
 				
 		IJavaModelStatus status = JavaConventions.validateClasspath(p[0], newClasspath, p[0].getOutputLocation());
-		assertTrue("should have detected nested source folder", !status.isOK());
+		assertEquals(
+			"should have detected nested source folder", 
+			"Cannot nest 'P0/src' inside 'P0'. To enable the nesting exclude 'src/' from 'P0'.",
+			status.getMessage());
 	} finally {
 		if (p != null){
 			for (int i = 0; i < p.length; i++){
@@ -974,6 +995,28 @@ public void testClasspathValidation18() throws CoreException {
 		
 		assertEquals(
 			"Path '/S/bin' must denote location inside project P",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should detect source folder nested inside library folder on the classpath
+ */ 
+public void testClasspathValidation19() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, new String[] {"lib"}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/lib/src"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should have detected library folder nested inside source folder on the classpath", 
+			"Cannot nest 'P/lib/src' inside library 'P/lib'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");

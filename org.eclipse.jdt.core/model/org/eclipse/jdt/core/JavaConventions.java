@@ -604,8 +604,12 @@ public final class JavaConventions {
 							if (Util.isExcluded(entryPath, exclusionPatterns)) {
 								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash", exclusionPattern, entryPath.makeRelative().toString())); //$NON-NLS-1$
 							} else {
-								exclusionPattern += '/';
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern})); //$NON-NLS-1$
+								if (otherKind == IClasspathEntry.CPE_SOURCE) {
+									exclusionPattern += '/';
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern})); //$NON-NLS-1$
+								} else {
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInLibrary", new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString()})); //$NON-NLS-1$
+								}
 							}
 						}
 					}
@@ -668,7 +672,7 @@ public final class JavaConventions {
 									|| kind == IClasspathEntry.CPE_CONTAINER){
 										return new JavaModelStatus(
 											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
-											container.getPath().toString());
+											Util.bind("classpath.invalidContainer", container.getPath().toString())); //$NON-NLS-1$
 								}
 								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntry, checkSourceAttachment);
 								if (!containerEntryStatus.isOK()){
