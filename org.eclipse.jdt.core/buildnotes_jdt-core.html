@@ -67,7 +67,16 @@ dependencies is lowered to a warning (see Preferences>Java>Compiler>Other>Circul
 </li>
 <li>Added API for sorting the members of types in a compilation.
   <ul>
-    <li><code>org.eclipse.jdt.core.util.CompilationUnitSorter</code></li>
+    <li><code>org.eclipse.jdt.core.util.CompilationUnitSorter</code>
+    <pre>
+public static final String RELATIVE_ORDER = "relativeOrder";
+public static void sort(ICompilationUnit compilationUnit,
+	int[] positions,
+	Comparator comparator,
+	int options,
+	IProgressMonitor monitor) throws JavaModelException;
+    </pre>
+    </li>
   </ul>
 </li>
 </ul>
