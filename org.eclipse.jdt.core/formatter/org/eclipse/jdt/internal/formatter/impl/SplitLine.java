@@ -12,8 +12,9 @@ package org.eclipse.jdt.internal.formatter.impl;
 
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
-/** Represents a split line: contains an operator and all substrings
-*/
+/**
+ * Represents a split line: contains an operator and all substrings
+ */
 public class SplitLine implements TerminalTokens{
 	public int[] operators; // the operator on which the string was split.
 	public String[] substrings;
