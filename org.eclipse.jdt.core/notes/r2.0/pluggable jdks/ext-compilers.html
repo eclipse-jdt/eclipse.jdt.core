@@ -2,7 +2,7 @@
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (Windows NT 5.0; U) [Netscape]">
    <meta name="Author" content="Build">
    <title>JDT - Pluggable JDKs</title>
 </head>
@@ -76,15 +76,17 @@ In the simple world of the command line compiler, it's easy to use whatever
 Java compiler you choose to use. The command lines are substantially the
 same, and the overt compiler behavior of translating .java source files
 to .class files is utterly standard.
-<p>In additional to the basic compiler functionality, there are usually
-a number of IDE features that also need to be "language aware" (to some
-extent), including:
+<p><i><font color="#FF0000">[pm: Each compiler can produce distinct bytecode
+patterns, and may implement the specification in a subtle different way]</font></i>
+<p>In addition to the basic compiler functionality, there are usually a
+number of IDE features that also need to be "language aware" (to some extent),
+including:
 <ul>
 <li>
 source code editing (syntax highlighting)</li>
 
 <li>
-code assist</li>
+code assist (completion, selection)</li>
 
 <li>
 code reformatter</li>
@@ -94,7 +96,12 @@ search</li>
 </ul>
 The language aware features require either reimplementing those portions
 of a compiler that are needed (e.g., a scanner), or using APIs implemented
-the compiler (e.g., its scanner API).
+by the compiler (e.g., its scanner API).
+<p><i><font color="#FF0000">[pm: It should rather say that some functionalities
+can be built on top of a compiler infrastructure. But the only task of
+the compiler is to compile. It could have some APIs allowing to better
+reuse its internals, but it should not comprise other pieces such as code
+assist.]</font></i>
 <p>The standard Sun Java compiler has no official APIs. This means that
 Java IDEs have no choice but to reimplement those portions of the Java
 compiler that they might need. Without standard Java compiler APIs, no
@@ -130,6 +137,8 @@ The net result should be almost indistinguishable from running the Eclipse
 compiler; the one difference is that the Java builder would not be able
 to produce anything resembling its current internal built state (i.e.,
 no dependency graph).
+<p><i><font color="#FF0000">[pm: Also, no error marker for free, no resource
+change information for generated .class files - Javac is not Eclipse-compliant]</font></i>
 <p>For an incremental build, it is impossible to do anything more than
 a cursory job without proper dependency information. The Java builder is
 passed a resource delta for the project showing which source files have
@@ -151,6 +160,10 @@ include source file in list to be recompiled</li>
 The compiler is called to recompile the identified list of source files.
 The Java builder would analyze the -verbose output stream to discover which
 source files were actually compiled and update their Java problem markers.
+<p><i><font color="#FF0000">[pm: -verbose may not produce a standard output.
+We are just guessing at this point that we might figure something useful
+in their information dumping. Do we still have the LF javac wrapper around
+? This one was probably doing it, wasn't it ?]</font></i>
 <p>This kind of simple-minded incremental build handles many simple cases
 (e.g., changing the body of a method, fixing javadoc comments, reformatting).
 The results would usually be less satisfactory when the principal structure
@@ -159,6 +172,9 @@ The developer would need to be educated about when to be asking for a full
 build. Many will already be familiar with these rules from using other
 Java IDEs. With a Java compiler that does not produce dependency information,
 it is hard for an IDE with pluggable Java compilers to do any better.
+<p><i><font color="#FF0000">[pm: I wouldn't call this incremental compilation,
+in the sense that this is expected to be smart, I would use partial recompilation
+that may not guarantee binary compatibility]</font></i>
 <p>Autobuild is just an incremental build that is triggered automatically.
 Note that the user may find it intolerable to run with autobuild enabled
 if the overhead for invoking the pluggable compiler is high (which it is
