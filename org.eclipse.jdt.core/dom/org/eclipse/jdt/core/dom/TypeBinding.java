@@ -459,7 +459,11 @@ class TypeBinding implements ITypeBinding {
 						.append(getName());
 					this.key = buffer.toString();
 				} else if (this.binding.isArrayType()) {
-					this.key = this.getElementType().getKey() + this.getDimensions();
+					if (this.getElementType() != null) {
+						this.key = this.getElementType().getKey() + this.getDimensions();
+					} else {
+						this.key = Integer.toString(this.getDimensions());
+					}
 				} else {
 					// this is a primitive type
 					this.key = this.getName();
