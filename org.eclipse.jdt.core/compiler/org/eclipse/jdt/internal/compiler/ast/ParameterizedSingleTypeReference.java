@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -155,5 +156,23 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 	    return internalResolveType(scope, enclosingType);
-	}	
+	}
+	
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+				this.typeArguments[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+				this.typeArguments[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
 }

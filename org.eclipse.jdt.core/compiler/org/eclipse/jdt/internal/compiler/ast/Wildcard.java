@@ -78,17 +78,19 @@ public class Wildcard extends SingleTypeReference {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		visitor.visit(this, scope);
-		if (this.bound != null) {
-			this.bound.traverse(visitor, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.bound != null) {
+				this.bound.traverse(visitor, scope);
+			}
 		}
 		visitor.endVisit(this, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		visitor.visit(this, scope);
-		if (this.bound != null) {
-			this.bound.traverse(visitor, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.bound != null) {
+				this.bound.traverse(visitor, scope);
+			}
 		}
 		visitor.endVisit(this, scope);
 	}

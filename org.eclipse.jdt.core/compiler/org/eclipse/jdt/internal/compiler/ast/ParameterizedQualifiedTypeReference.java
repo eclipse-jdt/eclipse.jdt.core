@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -199,6 +200,32 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	    return internalResolveType(scope);
 	}	
 	public TypeBinding resolveType(ClassScope scope) {
-	    	    return internalResolveType(scope);
-	}	
+	    return internalResolveType(scope);
+	}
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+				if (this.typeArguments[i] != null) {
+					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
+						this.typeArguments[i][j].traverse(visitor, scope);
+					}
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+				if (this.typeArguments[i] != null) {
+					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
+						this.typeArguments[i][j].traverse(visitor, scope);
+					}
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+
 }
