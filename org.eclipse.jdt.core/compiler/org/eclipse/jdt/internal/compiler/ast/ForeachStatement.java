@@ -152,7 +152,8 @@ public class ForeachStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		if (this.action.isEmptyBlock()
+		if (this.action == null
+				|| this.action.isEmptyBlock()
 				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0)) {
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
@@ -184,50 +185,61 @@ public class ForeachStatement extends Statement {
 		}
 		
 		// label management
-		Label actionLabel = new Label(codeStream);
 		Label conditionLabel = new Label(codeStream);
 		breakLabel.codeStream = codeStream;
 		if (this.continueLabel != null) {
 			this.continueLabel.codeStream = codeStream;
-			// jump over the actionBlock
-			if (this.action != null && !this.action.isEmptyBlock()) {
-				int jumpPC = codeStream.position;
-				codeStream.goto_(conditionLabel);
-				codeStream.recordPositionsFrom(jumpPC, this.elementVariable.sourceStart);
-			}
-			// generate the loop action
-			actionLabel.place();
-		}
-		if (action != null) {
-			// initialize the indexVariable value
-			switch(this.kind) {
-				case ARRAY :
-					if (this.elementVariable.binding.resolvedPosition != -1) {
-						codeStream.load(this.collectionVariable);
-						codeStream.load(this.indexVariable);
-						codeStream.arrayAt(this.arrayElementTypeID);
-						if (this.elementVariableImplicitWidening != -1) {
-							codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
-						}
-						codeStream.store(this.elementVariable.binding, false);
-						codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-						if (this.postCollectionInitStateIndex != -1) {
-							codeStream.addDefinitelyAssignedVariables(
-								currentScope,
-								postCollectionInitStateIndex);
-						}
-					}
-					break;
-				case RAW_ITERABLE :
-					// TODO to be completed
-					break;
-				case GENERIC_ITERABLE :
-					// TODO to be completed
-					break;
-			}
-			action.generateCode(scope, codeStream);
 		}
 		
+		// generate the condition
+		conditionLabel.place();
+		if (this.postCollectionInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(
+				currentScope,
+				postCollectionInitStateIndex);
+		}
+		switch(this.kind) {
+			case ARRAY :
+				codeStream.load(this.indexVariable);
+				codeStream.load(this.maxVariable);
+				codeStream.if_icmpge(breakLabel);
+				break;
+			case RAW_ITERABLE :
+				// TODO to be completed
+				break;
+			case GENERIC_ITERABLE :
+				// TODO to be completed
+				break;
+		}
+
+		// generate the loop action
+		switch(this.kind) {
+			case ARRAY :
+				if (this.elementVariable.binding.resolvedPosition != -1) {
+					codeStream.load(this.collectionVariable);
+					codeStream.load(this.indexVariable);
+					codeStream.arrayAt(this.arrayElementTypeID);
+					if (this.elementVariableImplicitWidening != -1) {
+						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+					}
+					codeStream.store(this.elementVariable.binding, false);
+					codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+					if (this.postCollectionInitStateIndex != -1) {
+						codeStream.addDefinitelyAssignedVariables(
+							currentScope,
+							postCollectionInitStateIndex);
+					}
+				}
+				break;
+			case RAW_ITERABLE :
+				// TODO to be completed
+				break;
+			case GENERIC_ITERABLE :
+				// TODO to be completed
+				break;
+		}
+		action.generateCode(scope, codeStream);
+			
 		// continuation point
 		if (this.continueLabel != null) {
 			this.continueLabel.place();
@@ -243,26 +255,7 @@ public class ForeachStatement extends Statement {
 					// TODO to be completed
 					break;
 			}
-			// generate the condition
-			conditionLabel.place();
-			if (this.postCollectionInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					postCollectionInitStateIndex);
-			}
-			switch(this.kind) {
-				case ARRAY :
-					codeStream.load(this.indexVariable);
-					codeStream.load(this.maxVariable);
-					codeStream.if_icmplt(actionLabel);
-					break;
-				case RAW_ITERABLE :
-					// TODO to be completed
-					break;
-				case GENERIC_ITERABLE :
-					// TODO to be completed
-					break;
-			}
+			codeStream.goto_(conditionLabel);
 		}
 		breakLabel.place();
 		codeStream.exitUserScope(scope);
