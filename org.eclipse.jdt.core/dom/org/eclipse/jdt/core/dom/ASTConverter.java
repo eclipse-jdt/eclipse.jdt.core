@@ -1729,6 +1729,7 @@ class ASTConverter {
 		SwitchCase switchCase = this.ast.newSwitchCase();
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		switchCase.setExpression(convert(statement.constantExpression));
+		retrieveColonPosition(switchCase);
 		return switchCase;
 	}
 	
@@ -1736,6 +1737,7 @@ class ASTConverter {
 		SwitchCase switchCase = this.ast.newSwitchCase();
 		switchCase.setExpression(null);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		retrieveColonPosition(switchCase);		
 		return switchCase;
 	}
 	
@@ -2183,6 +2185,29 @@ class ASTConverter {
 						break;
 					case Scanner.TokenNameRBRACKET :
 						count--;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+	}
+
+	/**
+	 * This method is used to set the right end position for expression
+	 * statement. The actual AST nodes don't include the trailing semicolon.
+	 * This method fixes the length of the corresponding node.
+	 */
+	private void retrieveColonPosition(ASTNode node) {
+		int start = node.getStartPosition();
+		int length = node.getLength();
+		int end = start + length;
+		scanner.resetTo(end, this.compilationUnitSource.length);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameCOLON:
+						node.setSourceRange(start, scanner.currentPosition - start);
+						return;
 				}
 			}
 		} catch(InvalidInputException e) {
