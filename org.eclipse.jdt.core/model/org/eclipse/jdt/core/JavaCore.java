@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.*;
@@ -140,6 +141,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
 
+	private static Hashtable DefaultOptions;
+	private final static String PropertiesBundleName = "org.eclipse.jdt.core.pluginIni"/*nonNLS*/;
 /**
  * Creates the Java core plug-in.
  */
@@ -540,31 +543,33 @@ public static String[] getClasspathVariableNames() {
  */
  
 public static Hashtable getDefaultOptions(){
+	if (DefaultOptions == null) {
+		DefaultOptions = new Hashtable(10);
+		
+		try{
+			ResourceBundle bundle =
+				ResourceBundle.getBundle(PropertiesBundleName,Locale.getDefault());
+			
+			Enumeration enum = bundle.getKeys();
+			while(enum.hasMoreElements()){
+				String id = (String)enum.nextElement();
+				System.out.println(id);
+				DefaultOptions.put(id,bundle.getString(id));
+			}
+		} catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
 
-	Hashtable defaultOptions = new Hashtable(10);
-
-	// Compiler settings
-	defaultOptions.put(COMPILER_LOCAL_VARIABLE_ATTR, 					GENERATE);
-	defaultOptions.put(COMPILER_LINE_NUMBER_ATTR, 						GENERATE);
-	defaultOptions.put(COMPILER_SOURCE_FILE_ATTR,						GENERATE);
-	defaultOptions.put(COMPILER_CODEGEN_UNUSED_LOCAL,					PRESERVE);
-	defaultOptions.put(COMPILER_CODEGEN_TARGET_PLATFORM,				VERSION_1_1);
-	defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE,					ERROR);
-	defaultOptions.put(COMPILER_PB_INVALID_IMPORT,						ERROR);
-	defaultOptions.put(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD, 	WARNING);
-	defaultOptions.put(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME,		WARNING);
-	defaultOptions.put(COMPILER_PB_DEPRECATION,							WARNING);
-	defaultOptions.put(COMPILER_PB_HIDDEN_CATCH_BLOCK,					WARNING);
-	defaultOptions.put(COMPILER_PB_UNUSED_LOCAL,						IGNORE);
-	defaultOptions.put(COMPILER_PB_UNUSED_PARAMETER,					IGNORE);
-	defaultOptions.put(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION,			IGNORE);
-	defaultOptions.put(COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL,		WARNING);
+	return (Hashtable)DefaultOptions.clone();
 	
-	// JavaCore settings
-	defaultOptions.put(CORE_JAVA_BUILD_ORDER,							IGNORE);
-
-	return defaultOptions;
+	
 }
+
+private static IPath getInstallLocation() {
+	return new Path(getPlugin().getDescriptor().getInstallURL().getFile());
+}
+
 /**
  * Returns the single instance of the Java core plug-in runtime class.
  * Equivalent to <code>(JavaCore) getPlugin()</code>.
@@ -1074,4 +1079,5 @@ private static void updateVariableValue(String variableName, IPath path, IProgre
 		}
 	}
 }
+
 }
