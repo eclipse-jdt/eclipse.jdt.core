@@ -128,6 +128,10 @@ public class WildcardBinding extends ReferenceBinding {
         return this.genericSignature;
     }
     
+	public int hashCode() {
+		return this.genericType.hashCode();
+	}
+
 	void initialize(ReferenceBinding someGenericType, TypeBinding someBound) {
 		this.genericType = someGenericType;
 		this.bound = someBound;
