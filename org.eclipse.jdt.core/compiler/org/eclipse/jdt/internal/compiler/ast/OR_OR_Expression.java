@@ -191,15 +191,17 @@ public class OR_OR_Expression extends BinaryExpression {
 		if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 			if (condConst.booleanValue() == true) {
 				// x || <something equivalent to true>
+				Label internalFalseLabel = new Label(codeStream);
 				left.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
-					trueLabel,
-					falseLabel,
+					null,
+					internalFalseLabel, // will be true in the end
 					false);
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}
+				internalFalseLabel.place();
 				right.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
