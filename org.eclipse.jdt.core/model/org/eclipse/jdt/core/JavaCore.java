@@ -2312,10 +2312,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
 	 * <code>newLibraryEntry(-,-,-,false)</code>.
 	 * <p>
-	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
-	 *    or <code>null</code> if none
+	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
+	 *   and will be automatically converted to <code>null</code>.
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @return a new library classpath entry
@@ -2350,7 +2350,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
-	 *    or <code>null</code> if none
+	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
+	 *   and will be automatically converted to <code>null</code>.
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -2365,11 +2366,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		boolean isExported) {
 			
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-		if (sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
-			// TODO: (philippe) should use assertion instead once clients are behaving
-			//Assert.isTrue(false, "Source attachment path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-			Util.log(new IllegalArgumentException(), "Source attachment path should be absolute: \"" + sourceAttachmentPath.toOSString()+"\""); //$NON-NLS-1$//$NON-NLS-2$
-			sourceAttachmentPath = sourceAttachmentPath.makeAbsolute();
+		if (sourceAttachmentPath != null) {
+			if (sourceAttachmentPath.isEmpty()) {
+				sourceAttachmentPath = null; // treat empty path as none
+			} else if (!sourceAttachmentPath.isAbsolute()) {
+				// TODO: (philippe) should use assertion instead once clients are behaving
+				//Assert.isTrue(false, "Source attachment path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+				Util.log(new IllegalArgumentException(), "Source attachment path should be absolute: \"" + sourceAttachmentPath.toOSString()+"\""); //$NON-NLS-1$//$NON-NLS-2$
+				sourceAttachmentPath = sourceAttachmentPath.makeAbsolute();
+			}
 		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY,
