@@ -629,7 +629,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 		this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
 		
-		if ((this.codegenBinding = this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this)).isValidBinding()) {
+		if ((this.codegenBinding = this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {
 				case VARIABLE : // =========only variable============
 				case VARIABLE | TYPE : //====both variable and type============

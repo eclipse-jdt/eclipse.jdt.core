@@ -43,7 +43,7 @@ public SelectionOnSingleNameReference(char[] source, long pos) {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// it can be a package, type, member type, local variable or field
-	binding = scope.getBinding(token, VARIABLE | TYPE | PACKAGE, this);
+	binding = scope.getBinding(token, VARIABLE | TYPE | PACKAGE, this, true /*resolve*/);
 	if (!binding.isValidBinding()) {
 		if (binding instanceof ProblemFieldBinding) {
 			// tolerate some error cases

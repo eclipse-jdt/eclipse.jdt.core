@@ -78,9 +78,9 @@ public class AnnotationFieldReference extends FieldReference {
 			return null;
 		}
 
-		this.binding = scope.findField(this.receiverType, token, this);
+		this.binding = scope.findField(this.receiverType, token, this, true /*resolve*/);
 		if (this.binding == null) {
-			Binding fieldBinding = scope.getBinding(token, BindingIds.FIELD, this);
+			Binding fieldBinding = scope.getBinding(token, BindingIds.FIELD, this, true /*resolve*/);
 			if (fieldBinding != null && fieldBinding instanceof FieldBinding) {
 				this.binding = (FieldBinding) fieldBinding;
 			} else {

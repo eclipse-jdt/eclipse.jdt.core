@@ -280,7 +280,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	if (!currentType.canBeSeenBy(this))
 		return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
 
-	FieldBinding field = currentType.getField(fieldName);
+	FieldBinding field = currentType.getField(fieldName, true /*resolve*/);
 	if (field != null) {
 		if (canBeSeenByForCodeSnippet(field, currentType, invocationSite, this))
 			return field;
@@ -306,7 +306,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 		if ((currentType = currentType.superclass()) == null)
 			break;
 
-		if ((field = currentType.getField(fieldName)) != null) {
+		if ((field = currentType.getField(fieldName, true /*resolve*/)) != null) {
 			keepLooking = false;
 			if (canBeSeenByForCodeSnippet(field, receiverType, invocationSite, this)) {
 				if (visibleField == null)
@@ -328,7 +328,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 				ReferenceBinding anInterface = interfaces[j];
 				if ((anInterface.tagBits & InterfaceVisited) == 0) { // if interface as not already been visited
 					anInterface.tagBits |= InterfaceVisited;
-					if ((field = anInterface.getField(fieldName)) != null) {
+					if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 						if (visibleField == null) {
 							visibleField = field;
 						} else {
@@ -538,7 +538,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 */
 
 public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, ReferenceBinding receiverType) {
-	Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite);
+	Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite, true /*resolve*/);
 	invocationSite.setFieldIndex(1);
 	if (!binding.isValidBinding() || binding instanceof VariableBinding)
 		return binding;

@@ -186,7 +186,7 @@ public abstract class Scope
 	
 		If no visible field is discovered, null is answered.
 	*/
-	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
+	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
 		if (receiverType.isBaseType()) return null;
 		if (receiverType.isArrayType()) {
 			TypeBinding leafType = receiverType.leafComponentType();
@@ -205,7 +205,7 @@ public abstract class Scope
 		if (!currentType.canBeSeenBy(this))
 			return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
 
-		FieldBinding field = currentType.getField(fieldName);
+		FieldBinding field = currentType.getField(fieldName, true /*resolve*/);
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
 				return field;
@@ -236,7 +236,7 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
-			if ((field = currentType.getField(fieldName)) != null) {
+			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
 					if (visibleField == null)
@@ -259,7 +259,7 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
-						if ((field = anInterface.getField(fieldName)) != null) {
+						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
 								visibleField = field;
 							} else {
@@ -855,7 +855,7 @@ public abstract class Scope
 	 *
 	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
 	 */
-	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) {
+	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve) {
 			
 		Binding binding = null;
 		FieldBinding problemField = null;
@@ -908,7 +908,7 @@ public abstract class Scope
 						ClassScope classScope = (ClassScope) scope;
 						SourceTypeBinding enclosingType = classScope.referenceContext.binding;
 						FieldBinding fieldBinding =
-							classScope.findField(enclosingType, name, invocationSite);
+							classScope.findField(enclosingType, name, invocationSite, needResolve);
 						// Use next line instead if willing to enable protected access accross inner types
 						// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
 						if (fieldBinding != null) { // skip it if we did not find anything

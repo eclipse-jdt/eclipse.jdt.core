@@ -272,19 +272,6 @@ public class BlockScope extends Scope {
 			this.maxOffset = this.offset;
 	}
 
-	/* Answer true if the variable name already exists within the receiver's scope.
-	 */
-	public final LocalVariableBinding duplicateName(char[] name) {
-		for (int i = 0; i < localIndex; i++)
-			if (CharOperation.equals(name, locals[i].name))
-				return locals[i];
-
-		if (this instanceof MethodScope)
-			return null;
-		else
-			return ((BlockScope) parent).duplicateName(name);
-	}
-
 	/*
 	 *	Record the suitable binding denoting a synthetic field or constructor argument,
 	 * mapping to the actual outer local variable in the scope context.
@@ -388,9 +375,9 @@ public class BlockScope extends Scope {
 	 *
 	 *	IMPORTANT NOTE: This method is written under the assumption that compoundName is longer than length 1.
 	 */
-	public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite) {
+	public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, boolean needResolve) {
 
-		Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite);
+		Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite, needResolve);
 		invocationSite.setFieldIndex(1);
 		if (binding instanceof VariableBinding) return binding;
 		compilationUnitScope().recordSimpleReference(compoundName[0]);
@@ -442,7 +429,7 @@ public class BlockScope extends Scope {
 			char[] nextName = compoundName[currentIndex++];
 			invocationSite.setFieldIndex(currentIndex);
 			invocationSite.setActualReceiverType(typeBinding);
-			if ((mask & FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite)) != null) {
+			if ((mask & FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
 						((FieldBinding) binding).declaringClass,
@@ -500,7 +487,8 @@ public class BlockScope extends Scope {
 			getBinding(
 				compoundName[currentIndex++],
 				VARIABLE | TYPE | PACKAGE,
-				invocationSite);
+				invocationSite, 
+				true /*resolve*/);
 		if (!binding.isValidBinding())
 			return binding;
 
@@ -539,7 +527,7 @@ public class BlockScope extends Scope {
 			while (currentIndex < length) {
 				ReferenceBinding typeBinding = (ReferenceBinding) binding;
 				char[] nextName = compoundName[currentIndex++];
-				if ((binding = findField(typeBinding, nextName, invocationSite)) != null) {
+				if ((binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 					if (!binding.isValidBinding())
 						return new ProblemFieldBinding(
 							((FieldBinding) binding).declaringClass,
@@ -574,7 +562,7 @@ public class BlockScope extends Scope {
 					CharOperation.subarray(compoundName, 0, currentIndex + 1),
 					NotFound);
 			variableBinding =
-				findField(typeBinding, compoundName[currentIndex++], invocationSite);
+				findField(typeBinding, compoundName[currentIndex++], invocationSite, true /*resolve*/);
 			if (variableBinding == null)
 				return new ProblemFieldBinding(
 					null,
@@ -815,7 +803,7 @@ public class BlockScope extends Scope {
 		char[] fieldName,
 		InvocationSite invocationSite) {
 
-		FieldBinding field = findField(receiverType, fieldName, invocationSite);
+		FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
 		if (field == null)
 			return new ProblemFieldBinding(
 				receiverType instanceof ReferenceBinding
@@ -1006,6 +994,20 @@ public class BlockScope extends Scope {
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
 
+	/* Answer true if the variable name already exists within the receiver's scope.
+	 */
+	public final boolean isDuplicateLocalVariable(char[] name) {
+		BlockScope current = this;
+		while (true) {
+			for (int i = 0; i < localIndex; i++) {
+				if (CharOperation.equals(name, current.locals[i].name))
+					return true;
+			}
+			if (current.kind != BLOCK_SCOPE) return false;
+			current = (BlockScope)current.parent;
+		}
+	}
+	
 	public int maxShiftedOffset() {
 		int max = -1;
 		if (this.shiftScopes != null){

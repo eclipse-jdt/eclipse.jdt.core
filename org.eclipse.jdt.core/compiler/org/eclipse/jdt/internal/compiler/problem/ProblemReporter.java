@@ -966,21 +966,21 @@ public void expressionShouldBeAVariable(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void fieldHiding(FieldDeclaration fieldDecl, Binding otherVariable) {
+public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 	FieldBinding field = fieldDecl.binding;
-	if (otherVariable instanceof LocalVariableBinding) {
+	if (hiddenVariable instanceof LocalVariableBinding) {
 		this.handle(
 			IProblem.FieldHidingLocalVariable,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name) },
 			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) },
 			fieldDecl.sourceStart,
 			fieldDecl.sourceEnd);
-	} else if (otherVariable instanceof FieldBinding) {
-		FieldBinding otherField = (FieldBinding) otherVariable;
+	} else if (hiddenVariable instanceof FieldBinding) {
+		FieldBinding hiddenField = (FieldBinding) hiddenVariable;
 		this.handle(
 			IProblem.FieldHidingField,
-			new String[] {new String(field.declaringClass.readableName()), new String(field.name) , new String(otherField.declaringClass.readableName())  },
-			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) , new String(otherField.declaringClass.shortReadableName()) },
+			new String[] {new String(field.declaringClass.readableName()), new String(field.name) , new String(hiddenField.declaringClass.readableName())  },
+			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) , new String(hiddenField.declaringClass.shortReadableName()) },
 			fieldDecl.sourceStart,
 			fieldDecl.sourceEnd);
 	}
@@ -2192,8 +2192,8 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
 		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
 }
-public void localVariableHiding(LocalDeclaration local, Binding otherVariable, boolean  isSpecialArgHidingField) {
-	if (otherVariable instanceof LocalVariableBinding) {
+public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
+	if (hiddenVariable instanceof LocalVariableBinding) {
 		String[] arguments = new String[] {new String(local.name)  };
 		this.handle(
 			(local instanceof Argument) 
@@ -2203,11 +2203,11 @@ public void localVariableHiding(LocalDeclaration local, Binding otherVariable, b
 			arguments,
 			local.sourceStart,
 			local.sourceEnd);
-	} else if (otherVariable instanceof FieldBinding) {
+	} else if (hiddenVariable instanceof FieldBinding) {
 		if (isSpecialArgHidingField && !this.options.reportSpecialParameterHidingField){
 			return;
 		}
-		FieldBinding field = (FieldBinding) otherVariable;
+		FieldBinding field = (FieldBinding) hiddenVariable;
 		this.handle(
 			(local instanceof Argument)
 				? IProblem.ArgumentHidingField

@@ -132,7 +132,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	do {
 		needRecheck = false;
 		FieldBinding existingField;
-		if ((existingField = this.getField(synthField.name)) != null) {
+		if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;
 			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
 				FieldDeclaration fieldDecl = typeDecl.fields[i];
@@ -177,7 +177,7 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 	}
 	// ensure there is not already such a field defined by the user
 	FieldBinding existingField;
-	if ((existingField = this.getField(synthField.name)) != null) {
+	if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
 		TypeDeclaration typeDecl = scope.referenceContext;
 		for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
 			FieldDeclaration fieldDecl = typeDecl.fields[i];
@@ -216,7 +216,7 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	}
 	// ensure there is not already such a field defined by the user
 	FieldBinding existingField;
-	if ((existingField = this.getField(synthField.name)) != null) {
+	if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
 		TypeDeclaration typeDecl = blockScope.referenceType();
 		for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
 			FieldDeclaration fieldDecl = typeDecl.fields[i];
@@ -259,7 +259,7 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 	do {
 		needRecheck = false;
 		FieldBinding existingField;
-		if ((existingField = this.getField(synthField.name)) != null) {
+		if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;
 			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
 				FieldDeclaration fieldDecl = typeDecl.fields[i];
@@ -481,7 +481,8 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 }
 // NOTE: the type of a field of a source type is resolved when needed
 
-public FieldBinding getField(char[] fieldName) {
+public FieldBinding getField(char[] fieldName, boolean needResolve) {
+	// always resolve anyway on source types
 	int fieldLength = fieldName.length;
 	for (int f = fields.length; --f >= 0;) {
 		FieldBinding field = fields[f];

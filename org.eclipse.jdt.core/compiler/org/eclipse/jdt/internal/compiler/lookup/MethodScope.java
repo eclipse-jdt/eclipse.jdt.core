@@ -326,9 +326,10 @@ public class MethodScope extends BlockScope {
 	public FieldBinding findField(
 		TypeBinding receiverType,
 		char[] fieldName,
-		InvocationSite invocationSite) {
+		InvocationSite invocationSite,
+		boolean needResolve) {
 
-		FieldBinding field = super.findField(receiverType, fieldName, invocationSite);
+		FieldBinding field = super.findField(receiverType, fieldName, invocationSite, needResolve);
 		if (field == null)
 			return null;
 		if (!field.isValidBinding())

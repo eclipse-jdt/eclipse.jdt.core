@@ -38,7 +38,7 @@ public class AnnotationArgument extends Argument {
 
 	public void resolve(BlockScope scope) {
 		
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, true /*resolve*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				LocalVariableBinding local = (LocalVariableBinding) existingVariable;

@@ -128,7 +128,7 @@ class DefaultBindingResolver extends BindingResolver {
 									case ProblemReasons.NonStaticReferenceInStaticContext :
 										ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
 										if (declaringClass != null) {
-											FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1]);
+											FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1], true /*resolve*/);
 											if (exactBinding != null) {
 												IVariableBinding variableBinding = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
 												if (variableBinding != null) {
@@ -248,7 +248,7 @@ class DefaultBindingResolver extends BindingResolver {
 								case ProblemReasons.NonStaticReferenceInStaticContext :
 								case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 									ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
-									FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name);
+									FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name, true /*resolve*/);
 									if (exactBinding != null) {
 										IVariableBinding variableBinding2 = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
 										if (variableBinding2 != null) {
@@ -824,7 +824,7 @@ class DefaultBindingResolver extends BindingResolver {
 						case ProblemReasons.NonStaticReferenceInStaticContext :
 						case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 							ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
-							FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name);
+							FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name, true /*resolve*/);
 							if (exactBinding != null) {
 								IVariableBinding variableBinding2 = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
 								if (variableBinding2 != null) {

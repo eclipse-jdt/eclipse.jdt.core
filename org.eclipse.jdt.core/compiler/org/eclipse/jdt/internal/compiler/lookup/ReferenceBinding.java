@@ -341,7 +341,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes) {
 	return null;
 }
-public FieldBinding getField(char[] fieldName) {
+public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
 /**

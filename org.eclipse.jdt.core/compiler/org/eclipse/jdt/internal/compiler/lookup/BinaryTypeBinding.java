@@ -341,12 +341,12 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 }
 // NOTE: the type of a field of a binary type is resolved when needed
 
-public FieldBinding getField(char[] fieldName) {
+public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	int fieldLength = fieldName.length;
 	for (int f = fields.length; --f >= 0;) {
 		char[] name = fields[f].name;
 		if (name.length == fieldLength && CharOperation.prefixEquals(name, fieldName))
-			return resolveTypeFor(fields[f]);
+			return needResolve ? resolveTypeFor(fields[f]) : fields[f];
 	}
 	return null;
 }

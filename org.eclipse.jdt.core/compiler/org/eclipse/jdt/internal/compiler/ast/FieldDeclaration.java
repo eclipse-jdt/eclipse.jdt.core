@@ -152,7 +152,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				SourceTypeBinding declaringType = classScope.enclosingSourceType();
 				boolean checkLocal = true;
 				if (declaringType.superclass != null) {
-					Binding existingVariable = classScope.findField(declaringType.superclass, name, this);
+					Binding existingVariable = classScope.findField(declaringType.superclass, name, this, true /*resolve*/);
 					if (existingVariable != null && existingVariable.isValidBinding()) {
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 						checkLocal = false; // already found a matching field
@@ -160,7 +160,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 				if (checkLocal) {
 					Scope outerScope = classScope.parent;
-					Binding existingVariable = outerScope.getBinding(name, BindingIds.VARIABLE, this);
+					Binding existingVariable = outerScope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
 					if (existingVariable != null && existingVariable.isValidBinding()){
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 					}

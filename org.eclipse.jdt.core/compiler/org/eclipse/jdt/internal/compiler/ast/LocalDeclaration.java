@@ -155,7 +155,8 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				return;
 			}
 		}
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
 		boolean shouldInsertInScope = true;
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {

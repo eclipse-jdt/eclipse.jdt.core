@@ -35,7 +35,7 @@ public class Argument extends LocalDeclaration {
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
 
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
@@ -93,7 +93,7 @@ public class Argument extends LocalDeclaration {
 		if (tb == null)
 			return null;
 
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
