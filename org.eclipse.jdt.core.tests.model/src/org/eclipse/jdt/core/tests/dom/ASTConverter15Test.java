@@ -830,11 +830,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		modifier = (Modifier) extendedModifier;
 		checkSourceRange(modifier, "abstract", source);
 		assertEquals("wrong name", "X", enumDeclaration.getName().getIdentifier());
-		EnumConstantDeclaration[] enumConstantDeclarations = enumDeclaration.getEnumConstants();
-		assertEquals("wrong size", 4, enumConstantDeclarations.length);
+		List enumConstants = enumDeclaration.enumConstants();
+		assertEquals("wrong size", 4, enumConstants.size());
 		List bodyDeclarations = enumDeclaration.bodyDeclarations();
-		assertEquals("wrong size", 6, bodyDeclarations.size());
-		EnumConstantDeclaration enumConstantDeclaration = enumConstantDeclarations[0];
+		assertEquals("wrong size", 2, bodyDeclarations.size());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
 		checkSourceRange(enumConstantDeclaration, "PLUS {\n" + 
 				"        double eval(double x, double y) { return x + y; }\n" + 
@@ -849,7 +849,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x + y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 		
-		enumConstantDeclaration = enumConstantDeclarations[1];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "MINUS", source);
 		checkSourceRange(enumConstantDeclaration, "MINUS {\n" + 
 				"        double eval(double x, double y) { return x - y; }\n" + 
@@ -863,7 +863,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x - y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
-		enumConstantDeclaration = enumConstantDeclarations[2];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		checkSourceRange(enumConstantDeclaration.getName(), "TIMES", source);
 		checkSourceRange(enumConstantDeclaration, "TIMES {\n" + 
 				"        double eval(double x, double y) { return x * y; }\n" + 
@@ -877,7 +877,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x * y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
-		enumConstantDeclaration = enumConstantDeclarations[3];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
 		checkSourceRange(enumConstantDeclaration.getName(), "DIVIDED_BY", source);
 		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" + 
 				"        double eval(double x, double y) { return x / y; }\n" + 
@@ -909,9 +909,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Modifier modifier = (Modifier) extendedModifier;
 		checkSourceRange(modifier, "public", source);
 		assertEquals("wrong name", "X", enumDeclaration.getName().getIdentifier());
-		EnumConstantDeclaration[] enumConstantDeclarations = enumDeclaration.getEnumConstants();
-		assertEquals("wrong size", 4, enumConstantDeclarations.length);
-		EnumConstantDeclaration enumConstantDeclaration = enumConstantDeclarations[0];
+		List enumConstants = enumDeclaration.enumConstants();
+		assertEquals("wrong size", 4, enumConstants.size());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		checkSourceRange(enumConstantDeclaration.getName(), "PENNY", source);
 		checkSourceRange(enumConstantDeclaration, "PENNY(1)", source);
 		List arguments = enumConstantDeclaration.arguments();
@@ -920,7 +920,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(argument, "1", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
 		
-		enumConstantDeclaration = enumConstantDeclarations[1];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);
 		checkSourceRange(enumConstantDeclaration, "NICKEL(5)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -929,7 +929,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(argument, "5", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
 		
-		enumConstantDeclaration = enumConstantDeclarations[2];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		checkSourceRange(enumConstantDeclaration.getName(), "DIME", source);
 		checkSourceRange(enumConstantDeclaration, "DIME(10)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -939,7 +939,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
 
 	
-		enumConstantDeclaration = enumConstantDeclarations[3];
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
 		checkSourceRange(enumConstantDeclaration.getName(), "QUARTER", source);
 		checkSourceRange(enumConstantDeclaration, "QUARTER(25)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -1378,14 +1378,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
-		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
-		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List enumConstants = enumDeclaration.enumConstants();
+		assertEquals("wrong size", 2, enumConstants.size());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
 		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
-		node = getASTNode(compilationUnit, 0, 1);
-		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
-		enumConstantDeclaration = (EnumConstantDeclaration) node;
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED()", source);
 	}
@@ -1401,14 +1402,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
-		ASTNode node = getASTNode(compilationUnit, 0, 0);
-		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
-		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List enumConstants = enumDeclaration.enumConstants();
+		assertEquals("wrong size", 2, enumConstants.size());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
 		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
-		node = getASTNode(compilationUnit, 0, 1);
-		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
-		enumConstantDeclaration = (EnumConstantDeclaration) node;
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED", source);
 	}
