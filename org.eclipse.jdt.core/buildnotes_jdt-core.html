@@ -46,11 +46,19 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>In order to fix <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73104">73104</a>, we have added the following new API:
+<ul><li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_INDENTATION_SIZE</code></li>
+<li>Added new API <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#MIXED</code>. This new constant is used for the option:
+<code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_TAB_CHAR</code>.</li>
+</ul>
+</li>
 <li>Added new API on <code>org.eclipse.jdt.core.dom.ITypeBinding#getDeclaringMethod()</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86580">86580</a> for details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89299">89299</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73104">73104</a>
+[format] indentation amount tied to tab size
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89299">89299</a>
 [formatter] Keep empty array initializer on one line option has no effect
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84872">84872</a>
 Improve string sharing in JavaModelCache
