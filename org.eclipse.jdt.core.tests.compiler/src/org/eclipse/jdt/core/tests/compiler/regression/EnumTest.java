@@ -88,14 +88,14 @@ public class EnumTest extends AbstractComparisonTest {
 					"	JEROME(33),\n" + 
 					"	OLIVIER(35),\n" + 
 					"	KENT(40),\n" + 
-					"	FREDERIC(54);\n" +  // TODO (frederic) check value
+					"	FREDERIC();\n" + 
 					"\n" + 
 					"   enum Role { M, D }\n" + 
 					"\n" + 
 					"   int age;\n" + 
 					"	Role role;\n" + 
 					"\n" + 
-					"	T() {}\n" + 
+					"	T() { this(54); }\n" + 
 					"	T(int age) {\n" + 
 					"		this.age = age;\n" + 
 					"	}\n" + 
