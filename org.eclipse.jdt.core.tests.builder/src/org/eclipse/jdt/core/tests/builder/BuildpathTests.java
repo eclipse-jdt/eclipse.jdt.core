@@ -201,7 +201,7 @@ public class BuildpathTests extends Tests {
 		);
 		
 		// refresh project and rebuild -> expecting no problems
-		IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project"));
+		IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project")); //$NON-NLS-1$
 		project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
 		incrementalBuild();
 		expectingNoProblems();
