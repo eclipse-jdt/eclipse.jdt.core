@@ -24,6 +24,13 @@ public final class CharOperation {
 
 	/**
 	 * Return a new array with appending the suffix character at the end of the array.
+	 * For example:
+	 * 1) array = { 'a', 'b' }
+	 *    suffix = 'c'
+	 *    => result = { 'a', 'b' , 'c' }
+	 * 2) array = null
+	 *    suffix = 'c'
+	 *    => result = { 'c' }
 	 * 	 * @param array the array that is concanated with the suffix character	 * @param suffix the suffix character	 * @return the new array	 */
 	public static final char[] append(char[] array, char suffix) {
 		if (array == null)
@@ -38,6 +45,19 @@ public final class CharOperation {
 	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
+	 * For example:
+	 * 1) first = null
+	 *    second = null
+	 *    => result = null
+	 * 2) first = { { ' a' } }
+	 *    second = null
+	 *    => result = { { ' a' } }
+	 * 3) first = null
+	 *    second = { { ' a' } }
+	 *    => result = { { ' a' } }
+	 * 4) first = { { ' b' } }
+	 *    second = { { ' a' } }
+	 *    => result = { { ' b' }, { ' a' } }
 	 * 	 * @param first the first array to concatenate	 * @param second the second array to concatenate	 * @return the concatenation of the two arrays, or null if the two arrays are null.	 */
 	public static final char[][] arrayConcat(char[][] first, char[][] second) {
 		if (first == null)
@@ -53,6 +73,27 @@ public final class CharOperation {
 		return result;
 	}
 	
+	/**
+	 * Returns a new array adding the second array at the end of first array.
+	 * It returns null if the first and second are null.
+	 * If the first array is null, then a new array char[][] is created with second.
+	 * If the second array is null, then the first array is returned.
+	 * 
+	 * For example:
+	 * 1) first = null
+	 *    second = { 'a' }
+	 *    => result = { { ' a' } }
+	 * 2) first = { { ' a' } }
+	 *    second = null
+	 *    => result = { { ' a' } }
+	 * 3) first = { { ' a' } }
+	 *    second = { ' b' }
+	 *    => result = { { ' a' } , { ' b' } }
+	 * 
+	 * @param first the first array to concatenate
+	 * @param second the array to add at the end of the first array
+	 * @return a new array adding the second array at the end of first array, or null if the two arrays are null.
+	 */
 	public static final char[][] arrayConcat(char[][] first, char[] second) {
 		if (second == null)
 			return first;
@@ -70,6 +111,17 @@ public final class CharOperation {
 	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
+	 * 
+	 * For example:
+	 * 1) first = null
+	 *    second = { 'a' }
+	 *    => result = { ' a' }
+	 * 2) first = { ' a' }
+	 *    second = null
+	 *    => result = { ' a' }
+	 * 3) first = { ' a' }
+	 *    second = { ' b' }
+	 *    => result = { ' a' , ' b' }
 	 * 
 	 * @param first the first array to concatenate
 	 * @param second the second array to concatenate
@@ -91,12 +143,37 @@ public final class CharOperation {
 	
 	/**
 	 * Returns the concatenation of the three arrays. It returns null if the three arrays are null.
+	 * If first is null, it returns the concatenation of second and third.
+	 * If second is null, it returns the concatenation of first and third.
+	 * If third is null, it returns the concatenation of first and second.
+	 * 
+	 * For example:
+	 * 1) first = null
+	 *    second = { 'a' }
+	 *    third = { 'b' }
+	 *    => result = { ' a', 'b' }
+	 * 2) first = { 'a' }
+	 *    second = null
+	 *    third = { 'b' }
+	 *    => result = { ' a', 'b' }
+	 * 3) first = { 'a' }
+	 *    second = { 'b' }
+	 *    third = null
+	 *    => result = { ' a', 'b' }
+	 * 4) first = null
+	 *    second = null
+	 *    third = null
+	 *    => result = null
+	 * 5) first = { 'a' }
+	 *    second = { 'b' }
+	 *    third = { 'c' }
+	 *    => result = { 'a', 'b', 'c' }
 	 * 
 	 * @param first the first array to concatenate
 	 * @param second the second array to concatenate
 	 * @param third the third array to concatenate
 	 * 
-	 * @return the concatenation of the two arrays, or null if the two arrays are null.
+	 * @return the concatenation of the three arrays, or null if the three arrays are null.
 	 */
 	public static final char[] concat(
 		char[] first,
