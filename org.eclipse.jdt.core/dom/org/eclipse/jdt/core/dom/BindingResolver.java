@@ -133,7 +133,23 @@ class BindingResolver {
 	}
 	
 	/**
-	 * TODO (jeem) add javadoc
+	 * Resolves the given type parameter and returns the type binding for the
+	 * type parameter.
+	 * <p>
+	 * The implementation of <code>TypeParameter.resolveBinding</code> 
+	 * forwards to this method. How the declaration resolves is often a 
+	 * function of the context in which the declaration node is embedded as well
+	 * as the declaration subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param typeParameter the type paramter of interest
+	 * @return the binding for the given type parameter, or <code>null</code>
+	 *    if no binding is available
+	 * @since 3.1
 	 */
 	ITypeBinding resolveTypeParameter(TypeParameter typeParameter) {
 		return null;
