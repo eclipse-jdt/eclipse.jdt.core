@@ -966,6 +966,14 @@ public void forwardReference(Reference reference, int indexInQualification, Type
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+public void forwardTypeVariableReference(ASTNode location, TypeVariableBinding type) {
+	this.handle(
+		IProblem.ReferenceToForwardTypeVariable,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 // use this private API when the compilation unit result can be found through the
 // reference context. Otherwise, use the other API taking a problem and a compilation result
 // as arguments

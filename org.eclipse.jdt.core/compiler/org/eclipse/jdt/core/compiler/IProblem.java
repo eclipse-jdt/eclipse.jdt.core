@@ -827,5 +827,7 @@ public interface IProblem {
 	int TypeArgumentMismatch = TypeRelated + 526;
 	/** @since 3.0 */
 	int DuplicateMethodErasure = TypeRelated + 527;
+	/** @since 3.0 */
+	int ReferenceToForwardTypeVariable = TypeRelated + 528;
 	
 }

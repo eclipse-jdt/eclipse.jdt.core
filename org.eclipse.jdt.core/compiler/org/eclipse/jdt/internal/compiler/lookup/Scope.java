@@ -104,7 +104,7 @@ public abstract class Scope
 		return new ParameterizedTypeBinding(rawType, arguments, environment());
 	}
 
-	protected boolean detectCycle(ReferenceBinding superType) {
+	public boolean detectCycle(ReferenceBinding superType) {
 		return false;
 	}
 
@@ -1347,10 +1347,11 @@ public abstract class Scope
 						case CLASS_SCOPE :
 							SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
 							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
-							if ((sourceType.tagBits & EndHierarchyCheck) == 0 && (sourceType.tagBits & BeginHierarchyCheck) != 0) {
+							if (sourceType.isHierarchyBeingConnected()) {
 								resolvingHierarchy = true;
-								if (sourceType.getTypeVariable(name) != null)
-									return new ProblemReferenceBinding(name, IllegalSuperTypeVariable); // cannot bind to a type variable
+								TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
+								if (typeVariable != null)
+									return typeVariable;
 								if (CharOperation.equals(name, sourceType.sourceName))
 									return sourceType;
 								break;

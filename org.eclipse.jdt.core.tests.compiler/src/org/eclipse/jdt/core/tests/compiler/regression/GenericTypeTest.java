@@ -924,7 +924,7 @@ public void test037() {
 		"SUCCESS");
 }	
 
-// TODO (kent) reenable once supported
+// TODO (philippe) assignment of x fails
 public void _test038() {
 	this.runNegativeTest(
 		new String[] {
@@ -974,8 +974,7 @@ public void test039() {
 		"----------\n");
 }
 
-// TODO (kent) reenable once supported
-public void _test040() {
+public void test040() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -988,8 +987,7 @@ public void _test040() {
 		"SUCCESS");
 }	
 
-// TODO (kent) reenable once supported
-public void _test041() {
+public void test041() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1002,34 +1000,36 @@ public void _test041() {
 		"SUCCESS");
 }	
 
-// TODO (kent) reenable once supported
-public void _test042() {
-	this.runConformTest(
+public void test042() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X <T extends U, U> {\n" + 
 			"}\n",
 		},
-		"illegal forward reference");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T extends U, U> {\n" + 
+		"	^\n" + 
+		"Illegal forward reference to type variable U\n" + 
+		"----------\n");
 }	
 
-// TODO (kent) reenable once supported
-public void _test043() {
+public void test043() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X <T extends L<T> , U extends T> {\n" + 
 			"    public static void main(String[] args) {\n" + 
 			"        System.out.println(\"SUCCESS\");\n" + 
-			"    }    \n" + 
-			"class L<E>{}\n" +
-			"}\n",
+			"    }\n" + 
+			"}\n" +
+			"class L<E>{}\n",
 		},
 		"SUCCESS");
 }	
 
-// TODO (kent) reenable once supported
-public void _test044() {
+public void test044() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

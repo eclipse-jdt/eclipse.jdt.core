@@ -89,6 +89,16 @@ public abstract char [][] getTypeName() ;
 public boolean isTypeReference() {
 	return true;
 }
+public TypeBinding resolveSuperType(ClassScope scope) {
+	if (resolveType(scope) == null) return null;
+
+	if (this.resolvedType instanceof TypeVariableBinding) {
+		this.resolvedType = new ProblemReferenceBinding(getTypeName(), (ReferenceBinding) this.resolvedType, ProblemReasons.IllegalSuperTypeVariable);
+		reportInvalidType(scope);
+		return null;
+	}
+	return this.resolvedType;
+}
 public TypeBinding resolveType(BlockScope blockScope) {
 	// handle the error here
 	this.constant = NotAConstant;
@@ -107,7 +117,6 @@ public TypeBinding resolveType(BlockScope blockScope) {
 	}
 	return this.resolvedType;
 }
-
 public TypeBinding resolveType(ClassScope classScope) {
 	// handle the error here
 	this.constant = NotAConstant;

@@ -61,18 +61,18 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return null;
 		}
 		currentType = (ReferenceBinding) this.resolvedType;
+		if (isClassScope)
+			if (((ClassScope) scope).detectCycle(currentType))
+				return null;
 	    // check generic and arity
 		TypeVariableBinding[] typeVariables = currentType.typeVariables();
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
 		for (int j = 0; j < argLength; j++) {
-		    TypeBinding argType;
-		    if (isClassScope) {
-		        	argType = this.typeArguments[j].resolveType((ClassScope)scope);
-		    } else {
-		        	argType = this.typeArguments[j].resolveType((BlockScope)scope);
-		    }
+		    TypeBinding argType = isClassScope
+				? this.typeArguments[j].resolveType((ClassScope) scope)
+				: this.typeArguments[j].resolveType((BlockScope) scope);
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
@@ -81,11 +81,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		if (argHasError) return null;
 		if (typeVariables == NoTypeVariables) { // check generic
-				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
-				return null;
+			scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
+			return null;
 		} else if (argLength != typeVariables.length) { // check arity
-				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
-				return null;
+			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+			return null;
 		}			
 		// check argument type compatibility
 		for (int j = 0; j < argLength; j++) {

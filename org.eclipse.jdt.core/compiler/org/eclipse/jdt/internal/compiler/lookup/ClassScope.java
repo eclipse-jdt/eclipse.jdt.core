@@ -742,9 +742,10 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
 			sourceType.tagBits |= BeginHierarchyCheck;
-			boolean noProblems = connectTypeVariables();
+			boolean noProblems = true;
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
+			noProblems &= connectTypeVariables();
 			noProblems &= connectSuperInterfaces();
 			sourceType.tagBits |= EndHierarchyCheck;
 			if (noProblems && sourceType.isHierarchyInconsistent())
@@ -770,9 +771,10 @@ public class ClassScope extends Scope {
 			return;
 
 		sourceType.tagBits |= BeginHierarchyCheck;
-		boolean noProblems = connectTypeVariables();
+		boolean noProblems = true;
 		if (sourceType.isClass())
 			noProblems &= connectSuperclass();
+		noProblems &= connectTypeVariables();
 		noProblems &= connectSuperInterfaces();
 		sourceType.tagBits |= EndHierarchyCheck;
 		if (noProblems && sourceType.isHierarchyInconsistent())
@@ -798,11 +800,21 @@ public class ClassScope extends Scope {
 			TypeReference typeRef = typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
-			ReferenceBinding superType = findSupertype(typeRef);
-			if (superType == null) { // detected cycle
+			ReferenceBinding superType = (ReferenceBinding) typeRef.resolveType(this);
+			if (superType == null) {
 				typeVariable.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextVariable;
+			}
+			if (superType instanceof TypeVariableBinding) {
+				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
+				if (varSuperType.rank >= typeVariable.rank) {
+					// TODO replace with illegal forward reference
+					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
+					typeVariable.tagBits |= HierarchyHasProblems;
+					noProblems = false;
+					continue nextVariable;
+				}
 			}
 			// TODO (philippe) add warning to flag final superClass scenario (not useful usage of generics)
 			typeRef.resolvedType = superType; // hold onto the problem type
@@ -816,18 +828,13 @@ public class ClassScope extends Scope {
 			if (boundRefs != null) {
 				for (int j = 0, k = boundRefs.length; j < k; j++) {
 					typeRef = boundRefs[j];
-					superType = findSupertype(typeRef);
-					if (superType == null) { // detected cycle
-						noProblems = false;
-						continue nextVariable;
-					}
-					typeRef.resolvedType = superType; // hold onto the problem type
-					if (!superType.isValidBinding()) {
-						problemReporter().invalidType(typeRef, superType);
+					superType = (ReferenceBinding) typeRef.resolveType(this);
+					if (superType == null) {
 						typeVariable.tagBits |= HierarchyHasProblems;
 						noProblems = false;
 						continue nextVariable;
 					}
+					typeRef.resolvedType = superType; // hold onto the problem type
 					if (superType.isClass()) {
 //					problemReporter().superinterfaceMustBeAnInterface(sourceType, referenceContext, superInterface);
 						typeVariable.tagBits |= HierarchyHasProblems;
@@ -843,8 +850,8 @@ public class ClassScope extends Scope {
 		return noProblems;
 	}
 
-	protected boolean detectCycle(ReferenceBinding superType) {
-		if ((superType.tagBits & EndHierarchyCheck) == 0 && (superType.tagBits & BeginHierarchyCheck) != 0)
+	public boolean detectCycle(ReferenceBinding superType) {
+		if (referenceContext.binding.isHierarchyBeingConnected())
 			return detectCycle(referenceContext.binding, superType, null);
 		return false;
 	}
@@ -899,8 +906,7 @@ public class ClassScope extends Scope {
 			return hasCycle;
 		}
 
-		if ((superType.tagBits & EndHierarchyCheck) == 0
-			&& (superType.tagBits & BeginHierarchyCheck) != 0) {
+		if (superType.isHierarchyBeingConnected()) {
 			problemReporter().hierarchyCircularity(sourceType, superType, reference);
 			sourceType.tagBits |= HierarchyHasProblems;
 			superType.tagBits |= HierarchyHasProblems;
@@ -917,10 +923,13 @@ public class ClassScope extends Scope {
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 		compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
-		ReferenceBinding superType = (ReferenceBinding) typeReference.resolveType(this);
+		ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
 		if (superType == null) return null;
 
 		compilationUnitScope().recordTypeReference(superType); // to record supertypes
+		if (superType instanceof ParameterizedTypeBinding)
+			return superType; // already checked cycle before resolving its type variables
+
 		// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
 		// must be guaranteed that the superType knows its entire hierarchy
 		if (detectCycle(referenceContext.binding, superType, typeReference))
