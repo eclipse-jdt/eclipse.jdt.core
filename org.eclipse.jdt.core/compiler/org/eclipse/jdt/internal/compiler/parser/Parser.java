@@ -952,44 +952,56 @@ public final void checkAndSetModifiers(int flag){
 public void checkAnnotation() {
 
 	boolean deprecated = false;
+	boolean checkDeprecated = false;
 	int lastAnnotationIndex = -1;
 
 	//since jdk1.2 look only in the last java doc comment...
-	found : {
-		if ((lastAnnotationIndex = scanner.commentPtr) >= 0) { //look for @deprecated
-			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
-			// javadoc only (non javadoc comment have negative end positions.)
-			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
-			char[] comment = scanner.source;
-
-			for (int i = commentSourceStart + 3; i < commentSourceEnd - 10; i++) {
-				if ((comment[i] == '@') 
-					&& (comment[i + 1] == 'd')
-					&& (comment[i + 2] == 'e')
-					&& (comment[i + 3] == 'p')
-					&& (comment[i + 4] == 'r')
-					&& (comment[i + 5] == 'e')
-					&& (comment[i + 6] == 'c')
-					&& (comment[i + 7] == 'a')
-					&& (comment[i + 8] == 't')
-					&& (comment[i + 9] == 'e')
-					&& (comment[i + 10] == 'd')) {
-					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-					int nextPos = i+11;
-					deprecated = (comment[nextPos] == ' ') || (comment[nextPos] == '\t') || (comment[nextPos] == '\n') || (comment[nextPos] == '\r') || (comment[nextPos] == '*');
-					break found;
-				}
+	found : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; ){
+		//look for @deprecated into the first javadoc comment preceeding the declaration
+		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
+		// javadoc only (non javadoc comment have negative end positions.)
+		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
+			if (lastAnnotationIndex-- >= 0) {
+				continue;
+			} else {
+				return;
 			}
 		}
+		if (scanner.commentStops[lastAnnotationIndex] < 0) {
+			break found;
+		}
+		checkDeprecated = true;
+		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
+		char[] comment = scanner.source;
+
+		for (int i = commentSourceStart + 3; i < commentSourceEnd - 10; i++) {
+			if ((comment[i] == '@') 
+				&& (comment[i + 1] == 'd')
+				&& (comment[i + 2] == 'e')
+				&& (comment[i + 3] == 'p')
+				&& (comment[i + 4] == 'r')
+				&& (comment[i + 5] == 'e')
+				&& (comment[i + 6] == 'c')
+				&& (comment[i + 7] == 'a')
+				&& (comment[i + 8] == 't')
+				&& (comment[i + 9] == 'e')
+				&& (comment[i + 10] == 'd')) {
+				// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+				int nextPos = i+11;
+				deprecated = (comment[nextPos] == ' ') || (comment[nextPos] == '\t') || (comment[nextPos] == '\n') || (comment[nextPos] == '\r') || (comment[nextPos] == '*');
+				break found;
+			}
+		}
+		break found;
 	}
 	if (deprecated) {
 		checkAndSetModifiers(AccDeprecated);
 	}
 	// modify the modifier source start to point at the first comment
-	if (lastAnnotationIndex >= 0) {
-		modifiersSourceStart = scanner.commentStarts[scanner.commentPtr]; 
-		scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
+	if (lastAnnotationIndex >= 0 && checkDeprecated) {
+		modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
 	}
+	scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -2583,8 +2595,12 @@ protected void consumeMethodPushModifiersHeaderName() {
 	}
 }
 protected void consumeModifiers() {
+	int savedModifiersSourceStart = modifiersSourceStart;	
 	checkAnnotation(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
+	if (modifiersSourceStart >= savedModifiersSourceStart) {
+		modifiersSourceStart = savedModifiersSourceStart;
+	}
 	pushOnIntStack(modifiersSourceStart);
 	resetModifiers();
 }
@@ -2736,8 +2752,6 @@ protected void consumePushModifiers() {
 		  */
 		intPtr--;
 	}
-	
-	checkAnnotation(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(modifiersSourceStart);
 	resetModifiers();
@@ -3890,7 +3904,11 @@ protected void consumeStaticInitializer() {
 }
 protected void consumeStaticOnly() {
 	// StaticOnly ::= 'static'
+	int savedModifiersSourceStart = modifiersSourceStart;
 	checkAnnotation(); // might update declaration source start
+	if (modifiersSourceStart >= savedModifiersSourceStart) {
+		modifiersSourceStart = savedModifiersSourceStart;
+	}
 	pushOnIntStack(
 		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition);
 	jumpOverMethodBody();
@@ -6973,6 +6991,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 protected void resetModifiers() {
 	modifiers = AccDefault;
 	modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	scanner.commentPtr = -1;
 }
 /*
  * Reset context so as to resume to regular parse loop

@@ -955,6 +955,7 @@ public int getNextToken() throws InvalidInputException {
 					{
 						int test;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
+							int endPositionForLineComment = 0;
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
@@ -1015,6 +1016,11 @@ public int getNextToken() throws InvalidInputException {
 											currentPosition++;
 									} //jump over the \\
 								}
+								if (isUnicode) {
+									endPositionForLineComment = currentPosition - 6;
+								} else {
+									endPositionForLineComment = currentPosition - 1;
+								}
 								recordComment(false);
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 									checkNonExternalizeString();
@@ -1030,7 +1036,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 								if (tokenizeComments) {
 									if (!isUnicode) {
-										currentPosition--; // reset one character behind
+										currentPosition = endPositionForLineComment; // reset one character behind
 									}
 									return TokenNameCOMMENT_LINE;
 								}
@@ -1772,12 +1778,16 @@ public final void pushLineSeparator() throws InvalidInputException {
 			lineEnds[linePtr] = separatorPos;
 		}
 		// look-ahead for merged cr+lf
-		if (source[currentPosition] == '\n') {
-			//System.out.println("look-ahead LF-" + currentPosition);			
-			lineEnds[linePtr] = currentPosition;
-			currentPosition++;
-			wasAcr = false;
-		} else {
+		try {
+			if (source[currentPosition] == '\n') {
+				//System.out.println("look-ahead LF-" + currentPosition);			
+				lineEnds[linePtr] = currentPosition;
+				currentPosition++;
+				wasAcr = false;
+			} else {
+				wasAcr = true;
+			}
+		} catch(IndexOutOfBoundsException e) {
 			wasAcr = true;
 		}
 	} else {
