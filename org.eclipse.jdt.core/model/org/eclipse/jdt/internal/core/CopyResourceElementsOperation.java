@@ -467,10 +467,13 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	
 			// Update package statement in compilation unit if needed
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
+				char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
+				char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 				for (int i = 0; i < resources.length; i++) {
 					if (resources[i].getName().endsWith(SUFFIX_STRING_java)) {
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
+						if (Util.isExcluded(cu.getPath(), inclusionPatterns, exclusionPatterns, false/*not a folder*/)) continue;
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
 						if (domCU != null) {
 							updatePackageStatement(domCU, newFragName);

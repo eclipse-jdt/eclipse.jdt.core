@@ -679,13 +679,50 @@ public void testRenameIncludedCompilationUnit() throws CoreException {
 }
 /*
  * Ensure that renaming an included package so that it is not included any longer
- * makes it disappears from thechildren of its package fragment root 
+ * makes it disappears from the children of its package fragment root 
  * and it is added to the non-java resources.
  */
-public void testRenameIncludedPackage() throws CoreException {
+public void testRenameIncludedPackage1() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
+	
+	clearDeltas();
+	pkg.rename("q", false, null);
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p[-]: {}\n" + 
+		"		ResourceDelta(/P/src/q)[+]"
+	);
+	
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"",
+		root.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"q",
+		root.getNonJavaResources());
+}
+/*
+ * Ensure that renaming an included package that has compilation units
+ * so that it is not included any longer doesn't throw a JavaModelException.
+ * (regression test for bug 67297 Renaming included package folder throws JME)
+ */
+public void testRenameIncludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p/"});
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	IPackageFragment pkg = root.createPackageFragment("p", false, null);
+	createFile(
+		"/P/src/p/X.java",
+		"package p;\n" +
+		"public class X {\n" +
+		"}"
+	);
 	
 	clearDeltas();
 	pkg.rename("q", false, null);
