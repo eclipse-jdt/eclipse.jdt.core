@@ -43,16 +43,14 @@ Eclipse SDK 3.0M5 Build - ?th October 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Searching for references to and declarations of local variables is now supported (only by passing an 
-     <code>ILocalVariable</code> to the <code>SearchEngine</code>). Searching a local variable by name is not supported.
+<li>Search is now able to find local variable references and declarations. In order to trigger such a search, the search engine must
+	be fed with an <code>ILocalVariable</code> element. Searching a local variable by its name is not supported.
 </li>
-<li>Searching for references in Javadoc comments is now supported (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">45518</a>).
-	Found references are method parameters declared in @param tags,	types of exceptions declared in @throws/@exception tags
-	and all instance variables, methods, types or packages declared in @see tags.
-	<br>Note that this search does not depend on compiler option "Problem in Javadoc tags".
-	This means that valid references put in Javadoc comments (eg. /** ??? */ comments) will be reported in search view.
-	If some references are not found, verify that these references are correctly written in the Javadoc comments
-	using the compiler option "Problem in Javadoc tags".
+<li>Search is now finding references in Javadoc comments. Found references are method parameters declared in <code>@param</code> tags, 
+	types of exceptions declared in <code>@throws</code>/<code>@exception</code> tags and all instance variables, methods, types or 
+	packages declared in <code>@see</code> tags.
+	<br>Note that only valid references in Javadoc comments will be reported during search. In order to ensure the integrity of your Javadoc comments,
+	you may want to enable the compiler check for Javadoc (Preferences>Java>Compiler>Style>Problem in Javadoc tags).
 </li>
 </ul>
 
