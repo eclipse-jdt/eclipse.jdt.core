@@ -45,13 +45,12 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  */
 public class SetClasspathOperation extends JavaModelOperation {
 
-	IClasspathEntry[] oldResolvedPath;
+	IClasspathEntry[] oldResolvedPath, newResolvedPath;
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
 	boolean needCycleCheck;
 	boolean needValidation;
 	boolean needSave;
-	
 	IPath newOutputLocation;
 	
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
@@ -549,15 +548,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 		project.setRawClasspath0(this.newRawPath);
 
 		// resolve new path (asking for marker creation if problems)
-		IClasspathEntry[] newResolvedPath = 
-			project.getResolvedClasspath(
-				true, // ignoreUnresolvedEntry
-				this.canChangeResource);// also update cp markers
-
+		if (this.newResolvedPath == null) {
+			this.newResolvedPath = 
+				this.newResolvedPath = project.getResolvedClasspath(true, this.canChangeResource);
+		}
 		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
 				this.oldResolvedPath,
-				newResolvedPath,
+				this.newResolvedPath,
 				project.getJavaModelManager(),
 				project);
 		} else {
@@ -699,8 +697,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath) return;
 	
 		JavaProject jproject = getProject();
-		String[] oldRequired = jproject.getRequiredProjectNames();
-		String[] newRequired =jproject.projectPrerequisites(jproject.getResolvedClasspath(this.newRawPath, true, false));
+		String[] oldRequired = jproject.projectPrerequisites(this.oldResolvedPath);
+
+		if (this.newResolvedPath == null) {
+			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, true, this.canChangeResource);
+		}
+		String[] newRequired = jproject.projectPrerequisites(this.newResolvedPath);
 	
 		try {		
 			IProject project = jproject.getProject();
