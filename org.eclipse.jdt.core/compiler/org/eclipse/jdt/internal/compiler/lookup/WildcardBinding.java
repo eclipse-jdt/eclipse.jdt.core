@@ -15,22 +15,17 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * abstract parameterized types, e.g. List<String> is not compatible with List<Object>, 
  * but compatible with List<?>.
  */
-public class WildcardBinding extends TypeVariableBinding {
+public class WildcardBinding extends ReferenceBinding {
 
+    ReferenceBinding bound;
+	boolean isSuper;
+	
     public final static char[] WILDCARD_NAME = { '?' };
     
 	public WildcardBinding() {
-	    super(WILDCARD_NAME, -1);
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
-		this.tagBits ^= HasTypeVariable;
 	}
 	
-	/**
-	 * Returns true if the type was declared as a type variable
-	 */
-	public boolean isTypeVariable() {
-	    return false;
-	}    
 	/**
 	 * Returns true if the type is a wildcard
 	 */
