@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.jdt.core.CodeFormatter;
 import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -144,9 +143,11 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 
 		ConstructorDeclaration constructorDeclaration = new ConstructorDeclaration(compilationResult);
 		constructorDeclaration.sourceEnd  = -1;
-		constructorDeclaration.declarationSourceEnd = source.length + 1;
+		constructorDeclaration.declarationSourceEnd = source.length - 1;
+		constructorDeclaration.bodyStart = 0;
+		constructorDeclaration.bodyEnd = source.length - 1;
 		
-		parser.scanner.setSource(CharOperation.concat('{', source, '}'));
+		parser.scanner.setSource(source);
 		parser.parse(constructorDeclaration, compilationUnitDeclaration);
 		
 		return constructorDeclaration;

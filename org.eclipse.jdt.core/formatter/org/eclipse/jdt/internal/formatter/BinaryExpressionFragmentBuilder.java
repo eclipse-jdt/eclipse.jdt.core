@@ -14,6 +14,9 @@ import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
@@ -43,13 +46,14 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
 public class BinaryExpressionFragmentBuilder
 	extends AbstractSyntaxTreeVisitorAdapter {
 		
 	ArrayList fragmentsList;
 	ArrayList operatorsList;
-	
+
 	BinaryExpressionFragmentBuilder() {
 		this.fragmentsList = new ArrayList();
 		this.operatorsList = new ArrayList();
@@ -111,6 +115,39 @@ public class BinaryExpressionFragmentBuilder
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
 		this.fragmentsList.add(arrayInitializer);
 		return false;
+	}
+	
+	public boolean visit(
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
+		BlockScope scope) {
+			this.fragmentsList.add(arrayQualifiedTypeReference);
+			return false;
+	}
+
+	public boolean visit(
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
+		ClassScope scope) {
+			this.fragmentsList.add(arrayQualifiedTypeReference);
+			return false;
+	}
+
+	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
+		this.fragmentsList.add(arrayReference);
+		return false;
+	}
+
+	public boolean visit(
+		ArrayTypeReference arrayTypeReference,
+		BlockScope scope) {
+			this.fragmentsList.add(arrayTypeReference);
+			return false;
+	}
+
+	public boolean visit(
+		ArrayTypeReference arrayTypeReference,
+		ClassScope scope) {
+			this.fragmentsList.add(arrayTypeReference);
+			return false;
 	}
 
 	public boolean visit(Assignment assignment, BlockScope scope) {
