@@ -2826,6 +2826,8 @@ public final class CompletionEngine
 				if (typeLength > sourceType.sourceName.length)	continue;
 				
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false))	continue;
+				
+				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();
@@ -2960,6 +2962,8 @@ public final class CompletionEngine
 				if (typeLength > qualifiedSourceTypeName.length) continue;
 				if (!(packageBinding == sourceType.getPackage())) continue;
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;
+				
+				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();

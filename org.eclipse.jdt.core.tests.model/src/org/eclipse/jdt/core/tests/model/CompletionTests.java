@@ -154,6 +154,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionPackageAndClass2"));
 	suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
 	suite.addTest(new CompletionTests("testCompletionInsideStaticMethod"));
+	suite.addTest(new CompletionTests("testCompletionSameClass"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8628,6 +8629,22 @@ public void testCompletionExactNameCaseInsensitive() throws JavaModelException {
 	assertEquals(
 			"element:CompletionExactNameCaseInsensitive    completion:CompletionExactNameCaseInsensitive    relevance:"+(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_UNQUALIFIED)+ "\n" +
 			"element:CompletionExactNameCaseInsensitivePlus    completion:CompletionExactNameCaseInsensitivePlus    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66908
+ */
+public void testCompletionSameClass() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionSameClass.java");
+
+	String str = cu.getSource();
+	String completeBehind = "(CompletionSameClas";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:CompletionSameClass    completion:CompletionSameClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }
