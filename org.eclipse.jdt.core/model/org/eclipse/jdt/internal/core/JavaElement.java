@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.*;
