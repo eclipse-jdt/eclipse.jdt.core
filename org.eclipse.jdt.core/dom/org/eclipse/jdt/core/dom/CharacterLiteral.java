@@ -162,6 +162,7 @@ public class CharacterLiteral extends Expression {
 	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setEscapedValue(String value) {
+		// check setInternalEscapedValue(String) if this method is changed
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
@@ -180,6 +181,16 @@ public class CharacterLiteral extends Expression {
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
+		preValueChange(ESCAPED_VALUE_PROPERTY);
+		this.escapedValue = value;
+		postValueChange(ESCAPED_VALUE_PROPERTY);
+	}
+
+
+	/* (omit javadoc for this method)
+	 * This method is a copy of setEscapedValue(String) that doesn't do any validation.
+	 */
+	void internalSetEscapedValue(String value) {
 		preValueChange(ESCAPED_VALUE_PROPERTY);
 		this.escapedValue = value;
 		postValueChange(ESCAPED_VALUE_PROPERTY);

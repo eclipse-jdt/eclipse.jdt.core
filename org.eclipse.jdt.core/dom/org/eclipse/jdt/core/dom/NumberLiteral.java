@@ -153,6 +153,7 @@ public class NumberLiteral extends Expression {
 	 * @exception IllegalArgumentException if the argument is incorrect
 	 */ 
 	public void setToken(String token) {
+		// update internalSetToken(String) if this is changed
 		if (token == null || token.length() == 0) {
 			throw new IllegalArgumentException();
 		}
@@ -196,6 +197,14 @@ public class NumberLiteral extends Expression {
 		postValueChange(TOKEN_PROPERTY);
 	}
 	
+	/* (omit javadoc for this method)
+	 * This method is a copy of setToken(String) that doesn't do any validation.
+	 */
+	void internalSetToken(String token) {
+		preValueChange(TOKEN_PROPERTY);
+		this.tokenValue = token;
+		postValueChange(TOKEN_PROPERTY);
+	}
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

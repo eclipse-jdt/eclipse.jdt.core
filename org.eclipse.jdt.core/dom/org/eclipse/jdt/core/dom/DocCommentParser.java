@@ -55,7 +55,7 @@ class DocCommentParser extends AbstractCommentParser {
 		// Init
 		this.source = this.scanner.source;
 		this.lineEnds = this.scanner.lineEnds;
-		this.docComment = this.ast.newJavadoc();
+		this.docComment = new Javadoc(this.ast);
 		
 		// Parse
 		if (this.checkDocComment) {
@@ -97,7 +97,8 @@ class DocCommentParser extends AbstractCommentParser {
 			if (dim > 0) argEnd = (int) dimPositions[dim-1];
 			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			if (name.length != 0) {
-				SimpleName argName = this.ast.newSimpleName(new String(name));
+				final SimpleName argName = new SimpleName(this.ast);
+				argName.internalSetIdentifier(new String(name));
 				argument.setName(argName);
 				int argNameStart = (int) (argNamePos >>> 32);
 				argName.setSourceRange(argNameStart, argEnd-argNameStart+1);
@@ -134,7 +135,8 @@ class DocCommentParser extends AbstractCommentParser {
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
 		try {
 			MemberRef fieldRef = this.ast.newMemberRef();
-			SimpleName fieldName = this.ast.newSimpleName(new String(this.identifierStack[0]));
+			SimpleName fieldName = new SimpleName(this.ast);
+			fieldName.internalSetIdentifier(new String(this.identifierStack[0]));
 			fieldRef.setName(fieldName);
 			int start = (int) (this.identifierPositionStack[0] >>> 32);
 			int end = (int) this.identifierPositionStack[0];
@@ -162,7 +164,8 @@ class DocCommentParser extends AbstractCommentParser {
 		try {
 			// Create method ref
 			MethodRef methodRef = this.ast.newMethodRef();
-			SimpleName methodName = this.ast.newSimpleName(new String(this.identifierStack[0]));
+			SimpleName methodName = new SimpleName(this.ast);
+			methodName.internalSetIdentifier(new String(this.identifierStack[0]));
 			methodRef.setName(methodName);
 			int start = (int) (this.identifierPositionStack[0] >>> 32);
 			int end = (int) this.identifierPositionStack[0];
@@ -266,7 +269,7 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		ASTNode typeRef = null;
 		if (primitiveToken == -1) {
-			typeRef = this.ast.newName(identifiers);
+			typeRef = this.ast.internalNewName(identifiers);
 		} else {
 			switch (primitiveToken) {
 				case TerminalTokens.TokenNamevoid :
@@ -554,7 +557,8 @@ class DocCommentParser extends AbstractCommentParser {
 	 */
 	protected boolean pushParamName(boolean isTypeParam) {
 		int idIndex = isTypeParam ? 1 : 0;
-		SimpleName name = this.ast.newSimpleName(new String(this.identifierStack[idIndex]));
+		final SimpleName name = new SimpleName(this.ast);
+		name.internalSetIdentifier(new String(this.identifierStack[idIndex]));
 		int nameStart = (int) (this.identifierPositionStack[idIndex] >>> 32);
 		int nameEnd = (int) (this.identifierPositionStack[idIndex] & 0x00000000FFFFFFFFL);
 		name.setSourceRange(nameStart, nameEnd-nameStart+1);
