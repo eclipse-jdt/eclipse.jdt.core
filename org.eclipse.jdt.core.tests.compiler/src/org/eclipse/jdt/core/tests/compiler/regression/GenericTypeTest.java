@@ -1399,6 +1399,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
+	// TODO javac finds no error/warning on this test
 	public void test048() {
 		this.runNegativeTest(
 			new String[] {
@@ -1539,6 +1540,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// TODO javac finds no error/warning on this test
 	public void test054() {
 		this.runNegativeTest(
 			new String[] {
@@ -1579,106 +1581,107 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 
-public void test055() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X <T> extends p.A<T> {\n" + 
-			"    protected T t;\n" + 
-			"    X(T t) {\n" + 
-			"        super(t);\n" + 
-			"        this.t = t;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"	  X<String> xs = new X<String>(\"SUCCESS\");\n" + 
-			"	  System.out.println(xs.t);\n" + 
-			"    }\n" + 
-			"}\n", 
-			"p/A.java",
-			"package p; \n" +
-			"public class A<P> {\n" + 
-			"	 protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"       this.p = p; \n" +
-			"    } \n" +
-			"    protected void print(P p) {\n" + 
-			"        System.out.println(\"SUCCESS\"+p);\n" + 
-			"    }\n" + 
-			"}\n", 
-		},
-		"SUCCESS");
-}
-
-public void test056() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X <T> extends p.A<T> {\n" + 
-			"    protected T t;\n" + 
-			"    X(T t) {\n" + 
-			"        super(t);\n" + 
-			"        this.t = t;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"	  X<String> xs = new X<String>(\"SUCCESS\");\n" + 
-			"	  System.out.println((X)xs.t);\n" + 
-			"    }\n" + 
-			"}\n", 
-			"p/A.java",
-			"package p; \n" +
-			"public class A<P> {\n" + 
-			"	 protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"       this.p = p; \n" +
-			"    } \n" +
-			"    protected void print(P p) {\n" + 
-			"        System.out.println(\"SUCCESS\"+p);\n" + 
-			"    }\n" + 
-			"}\n", 
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	System.out.println((X)xs.t);\n" + 
-		"	                   ^^^^^^^\n" + 
-		"Cannot cast from String to X\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p\\A.java (at line 7)\n" + 
-		"	protected void print(P p) {\n" + 
-		"	                       ^\n" + 
-		"The parameter p is hiding a field from type A<P>\n" + 
-		"----------\n");
-}
-
-public void test057() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X <T> extends p.A<T> {\n" + 
-			"    protected T t;\n" + 
-			"    X(T t) {\n" + 
-			"        super(t);\n" + 
-			"        this.t = t;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"	  X<X<String>> xs = new X<X<String>>(new X<String>(\"SUCCESS\"));\n" + 
-			"	  System.out.println(xs.t.t);\n" + 
-			"    }\n" + 
-			"}\n", 
-			"p/A.java",
-			"package p; \n" +
-			"public class A<P> {\n" + 
-			"	 protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"       this.p = p; \n" +
-			"    } \n" +
-			"    protected void print(P p) {\n" + 
-			"        System.out.println(\"SUCCESS\"+p);\n" + 
-			"    }\n" + 
-			"}\n", 
-		},
-		"SUCCESS");
-}
+	public void test055() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> extends p.A<T> {\n" + 
+				"    protected T t;\n" + 
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"	  X<String> xs = new X<String>(\"SUCCESS\");\n" + 
+				"	  System.out.println(xs.t);\n" + 
+				"    }\n" + 
+				"}\n", 
+				"p/A.java",
+				"package p; \n" +
+				"public class A<P> {\n" + 
+				"	 protected P p;\n" +
+				"    protected A(P p) {\n" +
+				"       this.p = p; \n" +
+				"    } \n" +
+				"    protected void print(P p) {\n" + 
+				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}
+	
+	// TODO javac finds no error/warning on this test
+	public void test056() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> extends p.A<T> {\n" + 
+				"    protected T t;\n" + 
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"	  X<String> xs = new X<String>(\"SUCCESS\");\n" + 
+				"	  System.out.println((X)xs.t);\n" + 
+				"    }\n" + 
+				"}\n", 
+				"p/A.java",
+				"package p; \n" +
+				"public class A<P> {\n" + 
+				"	 protected P p;\n" +
+				"    protected A(P p) {\n" +
+				"       this.p = p; \n" +
+				"    } \n" +
+				"    protected void print(P p) {\n" + 
+				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	System.out.println((X)xs.t);\n" + 
+			"	                   ^^^^^^^\n" + 
+			"Cannot cast from String to X\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\A.java (at line 7)\n" + 
+			"	protected void print(P p) {\n" + 
+			"	                       ^\n" + 
+			"The parameter p is hiding a field from type A<P>\n" + 
+			"----------\n");
+	}
+	
+	public void test057() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> extends p.A<T> {\n" + 
+				"    protected T t;\n" + 
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"	  X<X<String>> xs = new X<X<String>>(new X<String>(\"SUCCESS\"));\n" + 
+				"	  System.out.println(xs.t.t);\n" + 
+				"    }\n" + 
+				"}\n", 
+				"p/A.java",
+				"package p; \n" +
+				"public class A<P> {\n" + 
+				"	 protected P p;\n" +
+				"    protected A(P p) {\n" +
+				"       this.p = p; \n" +
+				"    } \n" +
+				"    protected void print(P p) {\n" + 
+				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}
 
 	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types
 	public void test058() {
@@ -1810,6 +1813,7 @@ public void test057() {
 			""
 		);
 	}
+	// TODO javac finds no error/warning on this test
 	public void test063() {
 		this.runNegativeTest(
 			new String[] {
@@ -2184,6 +2188,7 @@ public void test057() {
 		);
 	}	
 	// unsafe type operation: only for constructors with signature change
+	// TODO javac finds no error/warning on this test
 	public void test077() {
 		this.runNegativeTest(
 			new String[] {
@@ -2236,6 +2241,7 @@ public void test057() {
 			"The constructor X<String>(String[]) is undefined\n" + 
 			"----------\n");
 	}	
+	// TODO javac finds no error/warning on this test
 	public void test078() {
 		this.runNegativeTest(
 			new String[] {
