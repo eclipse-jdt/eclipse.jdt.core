@@ -162,12 +162,8 @@ public boolean exists() {
 }
 		
 public boolean exists0() {
-	if (!JavaModelManager.USING_NEW_BUILDER) {
-		return this.resourceExists();
-	} else {
-		// should not be used with new builder
-		return false;
-	}
+	// should not be used with new builder
+	return false;
 }
 
 /**
@@ -282,11 +278,6 @@ protected boolean isOnClasspath() {
 	IPath path = this.getPath();
 
 	try {
-		// special permission granted to project binary output (when using old builder)
-		if (!JavaModelManager.USING_NEW_BUILDER && project.getOutputLocation().isPrefixOf(path)) { 
-			return true;
-		}
-	
 		// check package fragment root on classpath of its project
 		IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
 		for (int i = 0, length = classpath.length; i < length; i++) {

@@ -14,14 +14,8 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.builder.IPackage;
-import org.eclipse.jdt.internal.core.builder.impl.BatchImageBuilder;
-import org.eclipse.jdt.internal.core.builder.impl.BuilderEnvironment;
-import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
-import org.eclipse.jdt.internal.core.builder.impl.PackageImpl;
-import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
-import org.eclipse.jdt.internal.core.builder.impl.StateImpl;
 import org.eclipse.jdt.internal.core.newbuilder.NameEnvironment;
+import org.eclipse.jdt.internal.core.newbuilder.ProblemFactory;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 
@@ -58,12 +52,7 @@ public IGlobalVariable[] allVariables() {
  */
 protected void checkBuilderState() throws JavaModelException {
 	
-	if (JavaModelManager.USING_NEW_BUILDER){
-		return;
-	}
-	if (!getProject().hasBuildState()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"))); //$NON-NLS-1$
-	}
+	return;
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
@@ -222,22 +211,7 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
  * Returns a name environment for the last built state.
  */
 protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
-	
-	if (JavaModelManager.USING_NEW_BUILDER){
-		return new NameEnvironment(getProject());
-	} else {
-		IProject project = getProject().getProject();
-		StateImpl state= (StateImpl) JavaModelManager.getJavaModelManager().getLastBuiltState(project, null);
-		if (state == null)
-			return null;
-		BuilderEnvironment env = new BuilderEnvironment(new BatchImageBuilder(state));
-		
-		// Fix for 1GB7PUI: ITPJCORE:WINNT - evaluation from type in default package
-		IPackage defaultPackage = state.getDevelopmentContext().getImage().getPackageHandle(PackageImpl.DEFAULT_PACKAGE_PREFIX + project.getName(), true);
-		env.setDefaultPackage(defaultPackage);
-		
-		return env;
-	}
+	return new NameEnvironment(getProject());
 }
 
 /**
