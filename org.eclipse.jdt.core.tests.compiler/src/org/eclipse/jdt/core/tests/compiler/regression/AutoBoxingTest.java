@@ -2330,4 +2330,128 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83965
+	public void test085() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	private static void checkByteConversions(Byte _byte) {\n" + 
+				"		short s = (short) _byte;\n" + 
+				"		short s2 = _byte;\n" + 
+				"		int i = (int) _byte;\n" + 
+				"		long l = (long) _byte;\n" + 
+				"		float f = (float) _byte;\n" + 
+				"		double d = (double) _byte;\n" + 
+				"		if ( _byte.byteValue() != s ) {\n" + 
+				"            System.err.println(\"Must be equal 0\");\n" + 
+				"        }\n" + 
+				"		if ( _byte.byteValue() != i ) {\n" + 
+				"            System.err.println(\"Must be equal 1\");\n" + 
+				"        }\n" + 
+				"		if ( _byte.byteValue() != l ) {\n" + 
+				"            System.err.println(\"Must be equal 2\");\n" + 
+				"        }\n" + 
+				"		if ( _byte.byteValue() != f ) {\n" + 
+				"            System.err.println(\"Must be equal 3\");\n" + 
+				"        }\n" + 
+				"		if ( _byte.byteValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 4\");\n" + 
+				"        }\n" + 
+				"	} \n" + 
+				"\n" + 
+				"	private static void checkCharacterConversions(Character _character) {\n" + 
+				"		int i = (int) _character;\n" + 
+				"		long l = (long) _character;\n" + 
+				"		float f = (float) _character;\n" + 
+				"		double d = (double) _character;\n" + 
+				"		if ( _character.charValue() != i ) {\n" + 
+				"            System.err.println(\"Must be equal 9\");\n" + 
+				"        }\n" + 
+				"		if ( _character.charValue() != l ) {\n" + 
+				"            System.err.println(\"Must be equal 10\");\n" + 
+				"        }\n" + 
+				"		if ( _character.charValue() != f ) {\n" + 
+				"            System.err.println(\"Must be equal 11\");\n" + 
+				"        }\n" + 
+				"		if ( _character.charValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 12\");\n" + 
+				"        }\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void checkFloatConversions(Float _float) {\n" + 
+				"		double d = (double) _float;\n" + 
+				"		if ( _float.floatValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 18\");\n" + 
+				"        }\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void checkIntegerConversions(Integer _integer) {\n" + 
+				"		long l = (long) _integer;\n" + 
+				"		float f = (float) _integer;\n" + 
+				"		double d = (double) _integer;\n" + 
+				"		if ( _integer.intValue() != l ) {\n" + 
+				"            System.err.println(\"Must be equal 13\");\n" + 
+				"        }\n" + 
+				"		if ( _integer.intValue() != f ) {\n" + 
+				"            System.err.println(\"Must be equal 14\");\n" + 
+				"        }\n" + 
+				"		if ( _integer.intValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 15\");\n" + 
+				"        }\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void checkIntegerConversions(Short _short) {\n" + 
+				"		int i = (int) _short;\n" + 
+				"		long l = (long) _short;\n" + 
+				"		float f = (float) _short;\n" + 
+				"		double d = (double) _short;\n" + 
+				"		if ( _short.shortValue() != i ) {\n" + 
+				"            System.err.println(\"Must be equal 5\");\n" + 
+				"        }\n" + 
+				"		if ( _short.shortValue() != l ) {\n" + 
+				"            System.err.println(\"Must be equal 6\");\n" + 
+				"        }\n" + 
+				"		if ( _short.shortValue() != f ) {\n" + 
+				"            System.err.println(\"Must be equal 7\");\n" + 
+				"        }\n" + 
+				"		if ( _short.shortValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 8\");\n" + 
+				"        }\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void checkLongConversions(Long _long) {\n" + 
+				"		float f = (float) _long;\n" + 
+				"		double d = (double) _long;\n" + 
+				"		if ( _long.longValue() != f ) {\n" + 
+				"            System.err.println(\"Must be equal 16\");\n" + 
+				"        }\n" + 
+				"		if ( _long.longValue() != d ) {\n" + 
+				"            System.err.println(\"Must be equal 17\");\n" + 
+				"        }\n" + 
+				"	}\n" + 
+				"\n" + 
+				"    public static void main(String args[]) {\n" + 
+				"        Byte _byte = new Byte((byte)2);\n" + 
+				"        Character _character = new Character(\'@\');\n" + 
+				"        Short _short = new Short((short)255);\n" + 
+				"        Integer _integer = new Integer(12345678);\n" + 
+				"        Long _long = new Long(1234567890);\n" + 
+				"        Float _float = new Float(-0.0);\n" + 
+				"\n" + 
+				"        checkByteConversions(_byte);\n" + 
+				"        checkIntegerConversions(_short);\n" + 
+				"        checkCharacterConversions(_character);\n" + 
+				"        checkIntegerConversions(_integer);\n" + 
+				"        checkLongConversions(_long);\n" + 
+				"        checkFloatConversions(_float);\n" + 
+				"\n" + 
+				"        System.out.println(\"OK\");\n" + 
+				"      }\n" + 
+				"}\n"
+			},
+			"OK"
+		);
+	}	
 }

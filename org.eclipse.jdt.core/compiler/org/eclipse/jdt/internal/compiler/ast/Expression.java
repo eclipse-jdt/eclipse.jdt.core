@@ -245,18 +245,17 @@ public abstract class Expression extends Statement {
 					return true;
 					
 				}
-			} else if (use15specifics) { // unboxing - only exact match is allowed
-				if (env.computeBoxingType(expressionType) == castType) {
-					// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
-					return true;
-				}
-			}
-			return false;
-		} else if (use15specifics && expressionType.isBaseType()) { // boxing - only exact match is allowed
-			if (env.computeBoxingType(castType) == expressionType) {
-				// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
+			} else if (use15specifics 
+								&& env.computeBoxingType(expressionType).isCompatibleWith(castType)) { // unboxing - only widening match is allowed
+				tagAsUnnecessaryCast(scope, castType);  
 				return true;
 			}
+			return false;
+		} else if (use15specifics 
+							&& expressionType.isBaseType() 
+							&& env.computeBoxingType(castType) == expressionType) { // boxing - only exact match is allowed
+			tagAsUnnecessaryCast(scope, castType);  
+			return true;
 		}
 	
 		//-----------cast to something which is NOT a base type--------------------------	
