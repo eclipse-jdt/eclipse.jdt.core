@@ -201,47 +201,63 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 	IFile sourceResource = (IFile)(source.isWorkingCopy() ? source.getOriginalElement() : source).getCorrespondingResource();
 	IContainer destFolder = (IContainer)dest.getCorrespondingResource(); // can be an IFolder or an IProject
 	IFile destFile = destFolder.getFile(new Path(destName));
-	try {
-		if (destFile.exists()) {
-			if (fForce) {
-				// we can remove it
-				deleteResource(destFile, false);
-			} else {
-				// abort
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+	if (!destFile.equals(sourceResource)) {
+		try {
+			if (destFile.exists()) {
+				if (fForce) {
+					// we can remove it
+					deleteResource(destFile, false);
+				} else {
+					// abort
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+				}
 			}
+			if (this.isMove()) {
+				sourceResource.move(destFile.getFullPath(), fForce, true, getSubProgressMonitor(1));
+			} else {
+				sourceResource.copy(destFile.getFullPath(), fForce, getSubProgressMonitor(1));
+			}
+			this.hasModifiedResource = true;
+		} catch (JavaModelException e) {
+			throw e;
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
 		}
-		if (this.isMove()) {
-			sourceResource.move(destFile.getFullPath(), fForce, true, getSubProgressMonitor(1));
-		} else {
-			sourceResource.copy(destFile.getFullPath(), fForce, getSubProgressMonitor(1));
-		}
-		this.hasModifiedResource = true;
-	} catch (JavaModelException e) {
-		throw e;
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
-	}
 
-	// update new resource content
-	try {
-		if (newContent != null){
-			destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+		// update new resource content
+		try {
+			if (newContent != null){
+				destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+			}
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
 		}
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
-	}
-
-	// register the correct change deltas
-	ICompilationUnit destCU = dest.getCompilationUnit(destName);
-	prepareDeltas(source, destCU);
-	if (newCUName != null) {
-		//the main type has been renamed
-		String oldName = source.getElementName();
-		oldName = oldName.substring(0, oldName.length() - 5);
-		String newName = newCUName;
-		newName = newName.substring(0, newName.length() - 5);
-		prepareDeltas(source.getType(oldName), destCU.getType(newName));
+	
+		// register the correct change deltas
+		ICompilationUnit destCU = dest.getCompilationUnit(destName);
+		prepareDeltas(source, destCU);
+		if (newCUName != null) {
+			//the main type has been renamed
+			String oldName = source.getElementName();
+			oldName = oldName.substring(0, oldName.length() - 5);
+			String newName = newCUName;
+			newName = newName.substring(0, newName.length() - 5);
+			prepareDeltas(source.getType(oldName), destCU.getType(newName));
+		}
+	} else {
+		if (!fForce) {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+		}
+		// update new resource content
+		// in case we do a saveas on the same resource we have to simply update the contents
+		// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
+		try {
+			if (newContent != null){
+				destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+			}
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
 	}
 }
 /**
