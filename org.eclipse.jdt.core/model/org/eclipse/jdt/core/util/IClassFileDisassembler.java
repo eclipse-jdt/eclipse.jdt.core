@@ -52,4 +52,17 @@ public interface IClassFileDisassembler {
 	 * @return the disassembled string of the IClassFileReader according to the mode
 	 */
 	String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode);
+
+	/**
+	 * Answers back the disassembled string of the classfile bytes according to the
+	 * mode.
+	 * This is an output quite similar to the javap tool.
+	 * 
+	 * @param classFileBytes The bytes of the classfile to disassemble
+	 * @param lineSeparator the line separator to use.
+	 * @param mode the mode used to disassemble the classfile
+	 * 
+	 * @return the disassembled string of the classfile according to the mode
+	 */
+	String disassemble(byte[] classfileBytes, String lineSeparator, int mode);
 }
