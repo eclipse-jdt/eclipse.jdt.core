@@ -680,6 +680,10 @@ public abstract class Expression extends Statement {
 	}
 	
 	public int nullStatus(FlowInfo flowInfo) {
+		
+		if (this.constant != null && this.constant != NotAConstant)
+			return FlowInfo.NON_NULL; // constant expression cannot be null
+		
 		LocalVariableBinding local = localVariableBinding();
 		if (local != null) {
 			if (flowInfo.isDefinitelyNull(local))

@@ -68,6 +68,10 @@ public abstract void generateCompoundAssignment(BlockScope currentScope, CodeStr
 public abstract void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired);
 
 public int nullStatus(FlowInfo flowInfo) {
+
+	if (this.constant != null && this.constant != NotAConstant)
+		return FlowInfo.NON_NULL; // constant expression cannot be null
+	
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null) {
 		if (flowInfo.isDefinitelyNull(local))
