@@ -196,7 +196,7 @@ public interface IProblem {
 	final int IllegalModifierForMemberClass = TypeRelated + 304;
 	final int IllegalModifierForMemberInterface = TypeRelated + 305;
 	final int IllegalModifierForLocalClass = TypeRelated + 306;
-	//  final int IllegalModifierForLocalInterface = TypeRelated + 307; 
+
 	final int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
 	final int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
 	final int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
