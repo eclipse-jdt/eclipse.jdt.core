@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -26,8 +25,8 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
+import org.eclipse.jdt.core.tests.util.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -44,9 +43,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 
 	// static variables for subsets tests
-	public static String[] testsNames = null; // list of test names to perform
-	public static int[] testsNumbers = null; // list of test numbers to perform
-	public static int[] testsRange = null; // range of test numbers to perform
+	protected static String[] testsNames = null; // list of test names to perform
+	protected static int[] testsNumbers = null; // list of test numbers to perform
+	protected static int[] testsRange = null; // range of test numbers to perform
+	protected static NumberFormat methNameFormat = NumberFormat.getIntegerInstance();
+	static {
+		methNameFormat.setMinimumIntegerDigits(3);
+		methNameFormat.setMaximumIntegerDigits(3);
+	}
 
 
 	protected INameEnvironment javaClassLib;
@@ -66,10 +70,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		final SearchParticipant participant = new JavaSearchParticipant(null) {
 			final SearchParticipant searchParticipant = this;
 			public SearchDocument getDocument(final String documentPath) {
-				return new SearchDocument(documentPath, this.searchParticipant) {
+				return new SearchDocument(documentPath, searchParticipant) {
 					public byte[] getByteContents() {
 						try {
-							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(this.documentPath));
+							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(documentPath));
 						} catch (IOException e) {
 							e.printStackTrace();
 							return null;
@@ -397,13 +401,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		return suite;
 	}
 	public static Test suite(Class evaluationTestClass, String suiteName) {
-		return suite(evaluationTestClass, suiteName, 3);
-	}
-	public static Test suite(Class evaluationTestClass, String suiteName, int testDigits) {
-		DecimalFormat format = (DecimalFormat) NumberFormat.getIntegerInstance();
-		format.setMinimumIntegerDigits(testDigits);
-		format.setMaximumIntegerDigits(testDigits);
-		format.setGroupingSize(0);
 		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
 		try {
 			Class[] paramTypes = new Class[] { String.class };
@@ -417,14 +414,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 			else if (testsNumbers != null) {
 				for (int i = 0; i < testsNumbers.length; i++) {
-					Object[] params = {"test" + format.format(testsNumbers[i])};
+					Object[] params = {"test" + methNameFormat.format(testsNumbers[i])};
 					suite.addTest((Test)constructor.newInstance(params));
 				}
 			}
 			else if (testsRange != null && testsRange.length == 2) {
 				if (testsRange[0]>=0 && testsRange[0]<=testsRange[1]) {
 					for (int i=testsRange[0]; i<=testsRange[1]; i++) {
-						Object[] params = {"test" + format.format(i)};
+						Object[] params = {"test" + methNameFormat.format(i)};
 						suite.addTest((Test)constructor.newInstance(params));
 					}
 				} else if (testsRange[0] <0) { // run all tests under a specific test number

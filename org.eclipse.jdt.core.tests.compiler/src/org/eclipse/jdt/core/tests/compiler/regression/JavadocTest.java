@@ -33,6 +33,9 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 //	String docCommentSupport;
 	boolean supportJavadoc;
 	static boolean debug = false;
+	static String[] testNames = null;
+	static int[] testNumbers = null;
+	static int[] testRange = null;
 
 	static {
 		allTestClasses = new ArrayList(6);
@@ -43,10 +46,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		allTestClasses.add(JavadocTestForMethod.class);
 		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestOptions.class);
-		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
 	}
 	
 	
