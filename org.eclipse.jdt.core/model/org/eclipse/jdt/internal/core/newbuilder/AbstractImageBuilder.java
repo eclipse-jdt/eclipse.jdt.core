@@ -141,6 +141,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 				doNow.add(compUnit);
 // WHY is there no notification about which files are about to compiled?
 // Would the names go by too fast?
+//@PM YES, AND ALSO IF PACKAGES ARE PROCESSED IN SEQUENCE WE COULD NOTIFY FILE NAMES.
 			}
 		}
 		inFirstPass = false;
@@ -188,6 +189,7 @@ protected IMarker[] getProblemsFor(IResource resource) {
 		if (resource != null && resource.exists())
 			return resource.findMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
 	} catch (CoreException e) {
+//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 		throw internalException(e);
 	}
 	return new IMarker[0];
@@ -198,7 +200,9 @@ protected void removeProblemsFor(IResource resource) {
 		if (resource != null && resource.exists())
 			resource.deleteMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
 	} catch (CoreException e) {
+//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 		throw internalException(e);
+
 	}
 }
 
@@ -219,6 +223,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) {
 			IProblem problem = problems[i];
 			IMarker marker = resource.createMarker(ProblemMarkerTag);
 // WHY are we holding onto the problem id?
+//@PM WE WILL NEED IT FOR COMPUTING CLUES LATER ON
 			marker.setAttributes(
 				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
 				new Object[] { 
@@ -231,6 +236,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) {
 				});
 
 // Do we need to do this?
+//@PM WE SHOULD HAVE IT COME FROM THE PROBLEM ITSELF INSTEAD OF POPULATING THE JAVA MODEL
 			// compute a user-friendly location
 			IJavaElement element = JavaCore.create(resource);
 			if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
@@ -287,5 +293,6 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 		file.create(new ByteArrayInputStream(bytes), true, null);
 	}
 	return file.getName().toCharArray();
+//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 }
 }
