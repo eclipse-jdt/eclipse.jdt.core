@@ -7087,7 +7087,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
 			"----------\n");		
 	}
-	// reference to binary Enum
+	// 70616 - reference to binary Enum
 	public void test256() {
 		this.runNegativeTest(
 			new String[] {
