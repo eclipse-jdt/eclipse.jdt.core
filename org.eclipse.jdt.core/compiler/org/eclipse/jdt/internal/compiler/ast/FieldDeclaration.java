@@ -37,12 +37,10 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	}
 
 	public FieldDeclaration(
-		Expression initialization,
 		char[] name,
 		int sourceStart,
 		int sourceEnd) {
 
-		this.initialization = initialization;
 		this.name = name;
 
 		//due to some declaration like 

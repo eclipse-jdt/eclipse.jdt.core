@@ -2490,22 +2490,22 @@ protected void updateRecoveryState() {
 	this.recoveryExitFromVariable();
 }
 
-protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] assistName, int sourceStart, int sourceEnd) {
+protected LocalDeclaration createLocalDeclaration(char[] assistName, int sourceStart, int sourceEnd) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		return super.createLocalDeclaration(initialization, assistName, sourceStart, sourceEnd);
+		return super.createLocalDeclaration(assistName, sourceStart, sourceEnd);
 	} else {
-		CompletionOnLocalName local = new CompletionOnLocalName(initialization, assistName, sourceStart, sourceEnd);
+		CompletionOnLocalName local = new CompletionOnLocalName(assistName, sourceStart, sourceEnd);
 		this.assistNode = local;
 		this.lastCheckPoint = sourceEnd + 1;
 		return local;
 	}
 }
 
-protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] assistName, int sourceStart, int sourceEnd) {
+protected FieldDeclaration createFieldDeclaration(char[] assistName, int sourceStart, int sourceEnd) {
 	if (this.indexOfAssistIdentifier() < 0 || (currentElement instanceof RecoveredUnit && ((RecoveredUnit)currentElement).typeCount == 0)) {
-		return super.createFieldDeclaration(initialization, assistName, sourceStart, sourceEnd);
+		return super.createFieldDeclaration(assistName, sourceStart, sourceEnd);
 	} else {
-		CompletionOnFieldName field = new CompletionOnFieldName(initialization, assistName, sourceStart, sourceEnd);
+		CompletionOnFieldName field = new CompletionOnFieldName(assistName, sourceStart, sourceEnd);
 		this.assistNode = field;
 		this.lastCheckPoint = sourceEnd + 1;
 		return field;

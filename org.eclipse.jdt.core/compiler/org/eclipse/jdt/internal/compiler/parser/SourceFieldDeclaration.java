@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 
 public class SourceFieldDeclaration extends FieldDeclaration {
 	public int fieldEndPosition;
 public SourceFieldDeclaration(
-	Expression initialization, 
 	char[] name, 
 	int sourceStart, 
 	int sourceEnd) {
-	super(initialization, name, sourceStart, sourceEnd);
+	super(name, sourceStart, sourceEnd);
 }
 }

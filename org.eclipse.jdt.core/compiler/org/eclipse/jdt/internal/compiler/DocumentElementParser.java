@@ -425,11 +425,11 @@ protected void consumeEnterVariable() {
 	if (nestedMethod[nestedType] != 0) {
 		// create the local variable declarations
 		declaration = 
-			new LocalDeclaration(null, varName, (int) (namePosition >>> 32), (int) namePosition); 
+			new LocalDeclaration(varName, (int) (namePosition >>> 32), (int) namePosition); 
 	} else {
 		// create the field declaration
 		declaration = 
-			new FieldDeclaration(null, varName, (int) (namePosition >>> 32), (int) namePosition); 
+			new FieldDeclaration(varName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
 	identifierLengthPtr--;
 	TypeReference type;

@@ -278,7 +278,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			}
 			NameReference init = new SingleNameReference(
 									CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position);
-			LocalDeclaration declaration = new LocalDeclaration(init, this.evaluationContext.localVariableNames[i], start, end);
+			LocalDeclaration declaration = new LocalDeclaration(this.evaluationContext.localVariableNames[i], start, end);
+			declaration.initialization = init;
 			declaration.type = typeReference;
 			declaration.modifiers = this.evaluationContext.localVariableModifiers[i];
 			newStatements[i] = declaration;

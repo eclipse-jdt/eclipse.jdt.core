@@ -352,8 +352,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
-protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] fieldName, int sourceStart, int sourceEnd) {
-	return new SourceFieldDeclaration(null, fieldName, sourceStart, sourceEnd);
+protected FieldDeclaration createFieldDeclaration(char[] fieldName, int sourceStart, int sourceEnd) {
+	return new SourceFieldDeclaration(fieldName, sourceStart, sourceEnd);
 }
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {

@@ -675,6 +675,16 @@ public IJavaProject getJavaProject(String name) {
 	IProject project = getProject(name);
 	return JavaCore.create(project);
 }
+protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
+	ISourceReference cu = (ISourceReference)getCompilationUnit(cuPath);
+	IJavaElement[] elements = codeSelect(cu, selectAt, selection);
+	if (elements.length == 0) return null;
+	if (elements[0] instanceof ILocalVariable) {
+		return (ILocalVariable)elements[0];
+	} else {
+		return null;
+	}
+}
 /**
  * Returns the specified package fragment in the given project and root, or
  * <code>null</code> if it does not exist.

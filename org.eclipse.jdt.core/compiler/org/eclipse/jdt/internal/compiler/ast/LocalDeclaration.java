@@ -21,21 +21,14 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	public LocalVariableBinding binding;
 	
 	public LocalDeclaration(
-		Expression expr,
 		char[] name,
 		int sourceStart,
 		int sourceEnd) {
 
-		initialization = expr;
 		this.name = name;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
-		if (initialization != null) {
-			this.declarationSourceEnd = initialization.sourceEnd;
-			this.declarationEnd = initialization.sourceEnd;
-		} else {
-			this.declarationEnd = sourceEnd;
-		}
+		this.declarationEnd = sourceEnd;
 	}
 
 	public FlowInfo analyseCode(

@@ -21,7 +21,7 @@ public class Argument extends LocalDeclaration {
 
 	public Argument(char[] name, long posNom, TypeReference tr, int modifiers) {
 
-		super(null, name, (int) (posNom >>> 32), (int) posNom);
+		super(name, (int) (posNom >>> 32), (int) posNom);
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		type = tr;

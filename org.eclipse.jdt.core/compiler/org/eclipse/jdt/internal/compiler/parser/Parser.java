@@ -1948,11 +1948,11 @@ protected void consumeEnterVariable() {
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration = 
-			this.createLocalDeclaration(null, identifierName, (int) (namePosition >>> 32), (int) namePosition);
+			this.createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	} else {
 		// create the field declaration
 		declaration = 
-			this.createFieldDeclaration(null, identifierName, (int) (namePosition >>> 32), (int) namePosition); 
+			this.createFieldDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
 	
 	identifierPtr--;
@@ -2442,6 +2442,15 @@ protected void consumeLocalVariableDeclarationStatement() {
 	// see blockReal in case of change: duplicated code
 	// increment the amount of declared variables for this block
 	realBlockStack[realBlockPtr]++;
+	
+	// update source end to include the semi-colon
+	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
+	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
+		LocalDeclaration localDeclaration = (LocalDeclaration) astStack[astPtr - i];
+		localDeclaration.declarationSourceEnd = endStatementPosition; 
+		localDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
+	}
+
 }
 protected void consumeMethodBody() {
 	// MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
@@ -4684,12 +4693,12 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
 }
-protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
-	return new FieldDeclaration(initialization, fieldDeclarationName, sourceStart, sourceEnd);
+protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
+	return new FieldDeclaration(fieldDeclarationName, sourceStart, sourceEnd);
 }
 
-protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] localDeclarationName, int sourceStart, int sourceEnd) {
-	return new LocalDeclaration(initialization, localDeclarationName, sourceStart, sourceEnd);
+protected LocalDeclaration createLocalDeclaration(char[] localDeclarationName, int sourceStart, int sourceEnd) {
+	return new LocalDeclaration(localDeclarationName, sourceStart, sourceEnd);
 }
 
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {

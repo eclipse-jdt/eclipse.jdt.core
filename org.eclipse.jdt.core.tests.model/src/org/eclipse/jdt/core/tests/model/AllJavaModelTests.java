@@ -154,6 +154,9 @@ public static Test suite() {
 		suite.addTest(LocalElementTests.suite());
 	}
 	
+	//Get source tests
+	suite.addTest(GetSourceTests.suite());
+		
 	return suite;
 }
 

@@ -178,7 +178,7 @@ public class HandleFactory {
 						(JavaElement)currentElement, 
 						new String(node.name), 
 						node.declarationSourceStart,
-						node.declarationEnd,
+						node.declarationSourceEnd,
 						node.sourceStart,
 						node.sourceEnd);
 				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions
@@ -225,7 +225,7 @@ public class HandleFactory {
 						(JavaElement)currentElement, 
 						new String(node.name), 
 						node.declarationSourceStart,
-						node.declarationEnd,
+						node.declarationSourceEnd,
 						node.sourceStart,
 						node.sourceEnd);
 				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions

@@ -16,11 +16,14 @@ package org.eclipse.jdt.core;
  * operation. They are not part of the Java model (<code>exists()</code> always returns <code>false</code>) and
  * they are not included in the children of an <code>IMethod</code> or an <code>IInitializer</code>.
  * <p>
+ * In particular such a pseudo-element should not be used as a handle. For example its name range won't be updated
+ * if the underlying source changes.
+ * </p><p>
  * This interface is not intended to be implemented by clients.
  * </p>
  * @since 3.0
  */
-public interface ILocalVariable extends IJavaElement {
+public interface ILocalVariable extends IJavaElement, ISourceReference {
 	/**
 	 * Returns the name of this local variable.
 	 * 

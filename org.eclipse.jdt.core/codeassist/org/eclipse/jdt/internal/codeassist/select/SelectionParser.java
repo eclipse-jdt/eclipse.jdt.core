@@ -255,9 +255,10 @@ protected void consumeExitVariableWithInitialization() {
 	int start = variable.initialization.sourceStart;
 	int end =  variable.initialization.sourceEnd;
 	if ((selectionStart < start) &&  (selectionEnd < start) ||
-		(selectionStart > end) && (selectionEnd > end)) {
+			(selectionStart > end) && (selectionEnd > end)) {
 		variable.initialization = null;
 	}
+
 }
 
 protected void consumeFieldAccess(boolean isSuperAccess) {
@@ -308,13 +309,15 @@ protected void consumeFormalParameter() {
 		char[] identifierName = identifierStack[identifierPtr];
 		long namePositions = identifierPositionStack[identifierPtr--];
 		TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
-		intPtr -= 2;
+		int modifierPositions = intStack[intPtr--];
+		intPtr--;
 		Argument arg = 
 			new SelectionOnArgumentName(
 				identifierName, 
 				namePositions, 
 				type, 
 				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+		arg.declarationSourceStart = modifierPositions;
 		pushOnAstStack(arg);
 		
 		assistNode = arg;
@@ -339,6 +342,19 @@ protected void consumeInstanceOfExpression(int op) {
 		this.isOrphanCompletionNode = true;
 		this.restartRecovery = true;
 		this.lastIgnoredToken = -1;
+	}
+}
+protected void consumeLocalVariableDeclarationStatement() {
+	super.consumeLocalVariableDeclarationStatement();
+	
+	// force to restart in recovery mode if the declaration contains the selection
+	if (!this.diet) {
+		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
+		if ((this.selectionStart >= localDeclaration.declarationSourceStart) 
+				&&  (this.selectionEnd <= localDeclaration.declarationSourceEnd)) {
+			this.restartRecovery	= true;	
+			this.lastIgnoredToken = -1;	
+		}
 	}
 }
 protected void consumeMethodInvocationName() {
@@ -498,17 +514,13 @@ public ImportReference createAssistImportReference(char[][] tokens, long[] posit
 public ImportReference createAssistPackageReference(char[][] tokens, long[] positions){
 	return new SelectionOnPackageReference(tokens, positions);
 }
-protected LocalDeclaration createLocalDeclaration(Expression initialization,char[] assistName,int sourceStart,int sourceEnd) {
+protected LocalDeclaration createLocalDeclaration(char[] assistName,int sourceStart,int sourceEnd) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		return super.createLocalDeclaration(initialization, assistName, sourceStart, sourceEnd);
+		return super.createLocalDeclaration(assistName, sourceStart, sourceEnd);
 	} else {
-		SelectionOnLocalName local = new SelectionOnLocalName(initialization, assistName, sourceStart, sourceEnd);
+		SelectionOnLocalName local = new SelectionOnLocalName(assistName, sourceStart, sourceEnd);
 		this.assistNode = local;
 		this.lastCheckPoint = sourceEnd + 1;
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
 		return local;
 	}
 }

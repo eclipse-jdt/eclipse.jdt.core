@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
-import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class SelectionOnLocalName extends LocalDeclaration{
 	
-	public SelectionOnLocalName(Expression expr, char[] name,	int sourceStart, int sourceEnd) {
+	public SelectionOnLocalName(char[] name,	int sourceStart, int sourceEnd) {
 
-		super(expr, name, sourceStart, sourceEnd);
+		super(name, sourceStart, sourceEnd);
 	}
 	
 	public void resolve(BlockScope scope) {

@@ -22,22 +22,22 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
 
-public class LocalVariable extends JavaElement implements ILocalVariable, ISourceReference {
+public class LocalVariable extends JavaElement implements ILocalVariable {
 
-	public int declarationSourceStart, declarationEnd;
+	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
 	
 	public LocalVariable(
 			JavaElement parent, 
 			String name, 
 			int declarationSourceStart, 
-			int declarationEnd,
+			int declarationSourceEnd,
 			int nameStart, 
 			int nameEnd) {
 		
 		super(parent, name);
 		this.declarationSourceStart = declarationSourceStart;
-		this.declarationEnd = declarationEnd;
+		this.declarationSourceEnd = declarationSourceEnd;
 		this.nameStart = nameStart;
 		this.nameEnd = nameEnd;
 	}
@@ -56,7 +56,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable, ISourc
 		LocalVariable other = (LocalVariable)o;
 		return 
 			this.declarationSourceStart == other.declarationSourceStart 
-			&& this.declarationEnd == other.declarationEnd
+			&& this.declarationSourceEnd == other.declarationSourceEnd
 			&& this.nameStart == other.nameStart
 			&& this.nameEnd == other.nameEnd
 			&& super.equals(o);
@@ -84,7 +84,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable, ISourc
 		buff.append(JEM_COUNT);
 		buff.append(this.declarationSourceStart);
 		buff.append(JEM_COUNT);
-		buff.append(this.declarationEnd);
+		buff.append(this.declarationSourceEnd);
 		buff.append(JEM_COUNT);
 		buff.append(this.nameStart);
 		buff.append(JEM_COUNT);
@@ -146,7 +146,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable, ISourc
 	 * @see ISourceReference
 	 */
 	public ISourceRange getSourceRange() throws JavaModelException {
-		return new SourceRange(this.declarationSourceStart, this.declarationEnd-this.declarationSourceStart+1);
+		return new SourceRange(this.declarationSourceStart, this.declarationSourceEnd-this.declarationSourceStart+1);
 	}
 
 	public IResource getUnderlyingResource() throws JavaModelException {
