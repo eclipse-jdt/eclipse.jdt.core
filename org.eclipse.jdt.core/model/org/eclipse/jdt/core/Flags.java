@@ -24,64 +24,77 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 public final class Flags {
 
 	/**
+	 * Public access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccPublic = IConstants.AccPublic;
 	/**
+	 * Private access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccPrivate = IConstants.AccPrivate;
 	/**
+	 * Protected access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccProtected = IConstants.AccProtected;
 	/**
+	 * Static access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccStatic = IConstants.AccStatic;
 	/**
+	 * Final access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccFinal = IConstants.AccFinal;
 	/**
+	 * Synchronized access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccSynchronized = IConstants.AccSynchronized;
 	/**
+	 * Volatile property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccVolatile = IConstants.AccVolatile;
 	/**
+	 * Transient property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccTransient = IConstants.AccTransient;
 	/**
+	 * Native property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccNative = IConstants.AccNative;
 	/**
+	 * Interface property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccInterface = IConstants.AccInterface;
 	/**
+	 * Abstract property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccAbstract = IConstants.AccAbstract;
 	/**
+	 * Strictfp property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccStrictfp = IConstants.AccStrictfp;
-
 	/**
+	 * Super property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccSuper = IConstants.AccSuper;
-
 	/**
+	 * Synthetic property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccSynthetic = IConstants.AccSynthetic;
 	/**
+	 * Deprecated property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
 	public static final int AccDeprecated = IConstants.AccDeprecated;
