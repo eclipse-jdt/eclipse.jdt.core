@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0398"));
+//		suite.addTest(new ASTConverterTest("test0400"));
 		return suite;
 	}
 		
@@ -9887,6 +9887,40 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not an infix expression", expression3.getNodeType() == ASTNode.INFIX_EXPRESSION);
 		checkSourceRange(expression3, "1 + 2", source);
 	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22306
+	 */
+	public void test0399() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0399", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 2, statements.size());
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22306
+	 */
+	public void test0400() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0400", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 3, statements.size());
+	}	
 	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);

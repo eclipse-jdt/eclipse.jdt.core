@@ -641,7 +641,7 @@ class ASTConverter {
 			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
 			block.setSourceRange(start, end - start + 1);
-			if (explicitConstructorCall != null) {
+			if (explicitConstructorCall != null && explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
 				block.statements().add(convert(explicitConstructorCall));
 			}
 			int statementsLength = statements == null ? 0 : statements.length;
