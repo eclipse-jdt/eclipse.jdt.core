@@ -117,6 +117,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GJYFUO: ITPDUI:ALL - Evaluation hangs, evaluation thread is suspended
   1FWG453: ITPJCORE:WIN98 - OpenOnSelection - fails for default constructors
   1GDQD37: ITPJUI:WIN2000 - OpenOnSelection - Open on selection failure
   1GGZ2R7: ITPJUI:WIN2000 - Search for method refs failed
