@@ -92,9 +92,10 @@ import java.util.Map;
  * </p>
  * <p>
  * AST nodes are thread-safe for readers provided there are no active writers.
- * If one thread is modifying an AST, it is <b>not</b> safe for another thread
- * to read, write, create, visit, or rewrite <em>any</em> of the nodes on the
- * same AST. When synchronization is required, consider using the common AST
+ * If one thread is modifying an AST, including creating new nodes or cloning
+ * existing ones, it is <b>not</b> safe for another thread to read, visit,
+ * write, create, or clone <em>any</em> of the nodes on the same AST.
+ * When synchronization is required, consider using the common AST
  * object that owns the node; that is, use  
  * <code>synchronize (node.getAST()) {...}</code>.
  * </p>
@@ -2124,8 +2125,10 @@ public abstract class ASTNode {
      * @since 3.0
      */
 	final void preLazyInit() {
-		this.ast.disableEvents++;
-		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
+		// IMPORTANT: this method is called by readers
+		// ASTNode.this is locked at this point
+		this.ast.disableEvents();
+		// will turn events back on in postLasyInit
 	}
 	
 	/**
@@ -2138,8 +2141,12 @@ public abstract class ASTNode {
      * @since 3.0
      */
 	final void postLazyInit(ASTNode newChild, ChildPropertyDescriptor property) {
+		// IMPORTANT: this method is called by readers
+		// ASTNode.this is locked at this point
+		// newChild is brand new (so no chance of concurrent access)
 		newChild.setParent(this, property);
-		this.ast.disableEvents--;
+		// turn events back on (they were turned off in corresponding preLazyInit)
+		this.ast.reenableEvents();
 	}
 
 	/**
