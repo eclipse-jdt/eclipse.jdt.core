@@ -516,7 +516,7 @@ public final class CompletionEngine
 							} else {
 	
 								if (astNode instanceof CompletionOnMemberAccess) {
-	
+									insideQualifiedReference = true;
 									CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
 									long completionPosition = access.nameSourcePosition;
 									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
@@ -1113,6 +1113,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
+			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 
 			requestor
 				.acceptField(
@@ -1790,6 +1791,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
+			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 
 			requestor.acceptMethod(
 				method.declaringClass.qualifiedPackageName(),
@@ -1825,6 +1827,12 @@ public final class CompletionEngine
 	private int computeRelevanceForInterface(){
 		if(assistNodeIsInterface) {
 			return R_INTERFACE;
+		}
+		return 0;
+	}
+	private int computeRelevanceForStatic(boolean onlyStatic, boolean isStatic) {
+		if(insideQualifiedReference && !onlyStatic && !isStatic) {
+			return R_NON_STATIC;
 		}
 		return 0;
 	}

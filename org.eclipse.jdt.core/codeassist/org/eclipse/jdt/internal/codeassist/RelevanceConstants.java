@@ -21,4 +21,5 @@ public interface RelevanceConstants {
 	int R_CLASS = 20;
 	int R_EXCEPTION = 20;
 	int R_ABSTRACT_METHOD = 20;
+	int R_NON_STATIC = 10;
 }

@@ -45,17 +45,33 @@ source folder. In particular, mixed modes are supported (binary archive associat
 and reciprocally). For more details, see <code>IPackageFragmentRoot.attachSource(IPath, IPath, 
 IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>.
 </li>
-<li><b>Code completion enhancement:</b> Relevance of a proposal is lesser if the proposal is in a variable initializer and the proposal is the variable.
+<li><b>Code completion enhancement:</b>
+   <ul>
+   <li>Relevance of a proposal is lesser if the proposal is in a variable initializer and the proposal is the variable.
    <br>In the following example <code>var2</code> is less relevant than <code>var1</code>.<pre>
    public class X {
       int var1;
       int var2 = var&lt;cursor&gt;
    }</pre>
+   </li>
+   <li>Relevance of a proposal is lesser if the proposal is static and the qualified expression is non-static.
+   <br>In the following example <code>var2</code> is more relevant than <code>var1</code>.<pre>
+   public class X {
+      static int var1;
+      int var2;
+      void foo() {
+         this.var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
+   </ul>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26025">26025</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25890">25890</a>
+code assist displays static members on non-static expressions
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26025">26025</a>
 Search should not use a file based name environment 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138">26138</a>
 JACKS - The null literal should not be considered as a constant expression
