@@ -53,7 +53,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * <li><code>F_SOURCEATTACHED</code> - The source attachment path or the source attachment root path
  * of a classpath entry corresponding to the element was added. This flag is only valid if the element is an 
  * <code>IPackageFragmentRoot</code>.</li>
- * <li><code>F_SOURCEDETTACHED</code> - The source attachment path or the source attachment root path
+ * <li><code>F_SOURCEDETACHED</code> - The source attachment path or the source attachment root path
  * of a classpath entry corresponding to the element was removed. This flag is only valid if the element is an 
  * <code>IPackageFragmentRoot</code>.</li>
  * <li><code>F_SUPER_TYPES</code> - One of the supertypes of an <code>IType</code> has changed</li>.
