@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.util.BindingKey;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.DOMFinder;
 
@@ -186,7 +187,7 @@ class CompilationUnitResolver extends Compiler {
 		// walk the binding keys
 		this.requestedKeys = new HashtableOfObject();
 		for (int i = 0; i < keyLength; i++) {
-			BindingKey bindingKey = new BindingKey(bindingKeys[i], this);
+			BindingKey bindingKey = new BindingKey(bindingKeys[i], this, this.lookupEnvironment);
 			CompilationUnitDeclaration parsedUnit = bindingKey.getCompilationUnitDeclaration();
 			if (parsedUnit != null) {
 				char[] fileName = parsedUnit.compilationResult.getFileName();
@@ -204,12 +205,12 @@ class CompilationUnitResolver extends Compiler {
 					
 			} else {
 				switch (bindingKey.scanner.token) {
-					case BindingKeyScanner.PACKAGE:
+					case BindingKey.Scanner.PACKAGE:
 						// package binding key
 						char[] pkgName = CharOperation.concatWith(bindingKey.compoundName(), '.');
 						this.requestedKeys.put(pkgName, bindingKey);
 						break;
-					case BindingKeyScanner.TYPE:
+					case BindingKey.Scanner.TYPE:
 						// base type binding
 						char[] key = bindingKey.scanner.source;
 						this.requestedKeys.put(key, bindingKey);
@@ -225,7 +226,7 @@ class CompilationUnitResolver extends Compiler {
 	IBinding createBinding(String key) {
 		if (this.bindingTables == null)
 			throw new RuntimeException("Cannot be called outside ASTParser#createASTs(...)"); //$NON-NLS-1$
-		BindingKey bindingKey = new BindingKey(key, this);
+		BindingKey bindingKey = new BindingKey(key, this, this.lookupEnvironment);
 		Binding compilerBinding = bindingKey.getCompilerBinding();
 		if (compilerBinding == null) return null;
 		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
@@ -288,6 +289,12 @@ class CompilationUnitResolver extends Compiler {
 	 */
 	public void initializeParser() {
 		this.parser = new CommentRecorderParser(this.problemReporter, false);
+	}
+	public void process(CompilationUnitDeclaration unit, int i) {
+		// don't resolve a second time the same unit (this would create the same binding twice)
+		char[] fileName = unit.compilationResult.getFileName();
+		if (!this.requestedKeys.containsKey(fileName) && !this.requestedSources.containsKey(fileName))
+			super.process(unit, i);
 	}
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
@@ -618,7 +625,7 @@ class CompilationUnitResolver extends Compiler {
 			for (; i < this.totalUnits; i++) {
 				unit = this.unitsToProcess[i];
 				try {
-					process(unit, i);
+					super.process(unit, i); // this.process(...) is optimized to not process already known units
 					
 					ICompilationUnit source = (ICompilationUnit) this.requestedSources.removeKey(unit.compilationResult.getFileName());
 					if (source != null) {

@@ -8,9 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -31,62 +32,323 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
-/**
- * Internal class.
- * @since 3.1
+/*
+ * A wrapper class arround a binding key (see Binding#computeUniqueKey()).
+ * This decodes a binding keys, and optionally creates the corresponding compiler binding,
+ * or computes its signature.
  */
-class BindingKey {
-	 char[][] compoundName;
-	 int dimension;
-	 BindingKeyScanner scanner;
-	 CompilationUnitResolver resolver;
-	 LookupEnvironment environment;
-	 
-	 BindingKey(String key, CompilationUnitResolver resolver) {
-	 	this.scanner = new BindingKeyScanner(key.toCharArray());
-	 	this.resolver = resolver;
-	 	this.environment = resolver.lookupEnvironment;
-	 	reset();
-	 }
-	 
-	 /*
-	  * If not already cached, computes and cache the compound name (pkg name + top level name) of this key.
-	  * Returns the package name if key is a pkg key.
-	  * Returns an empty array if malformed.
-	  * This key's scanner should be positioned on the package or type token.
-	  */
-	 char[][] compoundName() {
-	 	if (this.compoundName == null) {
-	 		switch(this.scanner.nextToken()) {
-	 			case BindingKeyScanner.PACKAGE:
-	 			case BindingKeyScanner.TYPE:
-		 			this.compoundName = CharOperation.splitOn('/', this.scanner.getTokenSource());
-		 			break;
-		 		case BindingKeyScanner.ARRAY:
+public class BindingKey {
+	
+	public class Scanner {
+		
+		public static final int START = -1;
+		public static final int PACKAGE = 0;
+		public static final int TYPE = 1;
+		public static final int FIELD = 2;
+		public static final int METHOD = 3;
+		public static final int ARRAY = 4;
+		public static final int LOCAL_VAR = 5;
+		public static final int END = 6;
+		
+		int index = 0, start;
+		public char[] source;
+		public int token = START;
+	
+		Scanner(char[] source) {
+			this.source = source;
+		}
+		
+		char[] getTokenSource() {
+			int length = this.index-this.start;
+			char[] result = new char[length];
+			System.arraycopy(this.source, this.start, result, 0, length);
+			return result;
+		}
+		
+		boolean isAtFieldOrMethodStart() {
+			return 
+				this.index+1 < this.source.length
+				&& this.source[this.index+1] == '.';
+		}
+		
+		boolean isAtLocalVariableStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '#';
+		}
+		
+		boolean isAtMemberTypeStart() {
+			return 
+				this.index < this.source.length
+				&& (this.source[this.index] == '$'
+					|| (this.source[this.index] == '.' && this.source[this.index-1] == '>'));
+		}
+		
+		boolean isAtParametersStart() {
+			char currentChar;
+			return 
+				this.index > 0
+				&& this.index < this.source.length
+				&& ((currentChar = this.source[this.index]) == '<'
+					|| currentChar == '%');
+		}
+		
+		boolean isAtTypeParameterStart() {
+			return 
+				this.index+1 < this.source.length
+				&& this.source[this.index+1] == 'T';
+		}
+		
+		boolean isAtTypeVariableStart() {
+			return 
+				this.index+3 < this.source.length
+				&& this.source[this.index+3] == ':';
+		}
+	
+		boolean isAtTypeStart() {
+			return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+		}
+		
+		boolean isAtWildCardStart() {
+			return this.index+1 < this.source.length && "*+-".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+		}
+		
+		int nextToken() {
+			int previousTokenEnd = this.index;
+			this.start = this.index;
+			int length = this.source.length;
+			while (this.index <= length) {
+				char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
+				switch (currentChar) {
+					case 'B':
+					case 'C':
+					case 'D':
+					case 'F':
+					case 'I':
+					case 'J':
+					case 'S':
+					case 'V':
+					case 'Z':
+						// base type
+						if (this.index == previousTokenEnd) {
+							this.index++;
+							this.token = TYPE;
+							return this.token;
+						}
+						break;
+					case 'L':
+					case 'T':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
+						}
+						break;
+					case ';':
+					case '$':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
+							previousTokenEnd = this.start;
+						} else {
+							this.token = TYPE;
+							return this.token;
+						}
+						break;
+					case '.':
+					case '%':
+					case ':':
+						this.start = this.index+1;
+						previousTokenEnd = this.start;
+						break;
+					case '[':
+						while (this.index < length && this.source[this.index] == '[')
+							this.index++;
+						this.token = ARRAY;
+						return this.token;
+					case '<':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
+							previousTokenEnd = this.start;
+						} else if (this.start > 0) {
+							switch (this.source[this.start-1]) {
+								case '.':
+									if (this.source[this.start-2] == '>')
+										// case of member type where enclosing type is parameterized
+										this.token = TYPE;
+									else
+										this.token = METHOD;
+									return this.token;
+								default:
+									this.token = TYPE;
+									return this.token;
+							}
+						} 
+						break;
+					case '(':
+						this.token = METHOD;
+						return this.token;
+					case ')':
+						this.start = ++this.index;
+						this.token = END;
+						return this.token;
+					case '#':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
+							previousTokenEnd = this.start;
+						} else {
+							this.token = LOCAL_VAR;
+							return this.token;
+						}
+						break;
+					case Character.MIN_VALUE:
+						switch (this.token) {
+							case START:
+								this.token = PACKAGE;
+								break;
+							case METHOD:
+							case LOCAL_VAR:
+								this.token = LOCAL_VAR;
+								break;
+							case TYPE:
+								if (this.index > this.start && this.source[this.start-1] == '.')
+									this.token = FIELD;
+								else
+									this.token = END;
+								break;
+							default:
+								this.token = END;
+								break;
+						}
+						return this.token;
+					case '*':
+					case '+':
+					case '-':
+						this.index++;
+						this.token = TYPE;
+						return this.token;
+				}
+				this.index++;
+			}
+			this.token = END;
+			return this.token;
+		}
+		
+		void skipMethodSignature() {
+			char currentChar;
+			while (this.index < this.source.length && (currentChar = this.source[this.index]) != '#' && currentChar != '%')
+				this.index++;
+		}
+		
+		void skipParametersEnd() {
+			while (this.index < this.source.length && this.source[this.index] != '>')
+				this.index++;
+			this.index++;
+		}
+		
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			switch (this.token) {
+				case START:
+					buffer.append("START: "); //$NON-NLS-1$
+					break;
+				case PACKAGE:
+					buffer.append("PACKAGE: "); //$NON-NLS-1$
+					break;
+				case TYPE:
+					buffer.append("TYPE: "); //$NON-NLS-1$
+					break;
+				case FIELD:
+					buffer.append("FIELD: "); //$NON-NLS-1$
+					break;
+				case METHOD:
+					buffer.append("METHOD: "); //$NON-NLS-1$
+					break;
+				case ARRAY:
+					buffer.append("ARRAY: "); //$NON-NLS-1$
+					break;
+				case LOCAL_VAR:
+					buffer.append("LOCAL VAR: "); //$NON-NLS-1$
+					break;
+				case END:
+					buffer.append("END: "); //$NON-NLS-1$
+					break;
+			}
+			if (this.index < 0) {
+				buffer.append("**"); //$NON-NLS-1$
+				buffer.append(this.source);
+			} else if (this.index <= this.source.length) {
+				buffer.append(CharOperation.subarray(this.source, 0, this.start));
+				buffer.append('*');
+				if (this.start <= this.index) {
+					buffer.append(CharOperation.subarray(this.source, this.start, this.index));
+					buffer.append('*');
+					buffer.append(CharOperation.subarray(this.source, this.index, this.source.length));
+				} else {
+					buffer.append('*');
+					buffer.append(CharOperation.subarray(this.source, this.start, this.source.length));
+				}
+			} else {
+				buffer.append(this.source);
+				buffer.append("**"); //$NON-NLS-1$
+			}
+			return buffer.toString();
+		}
+	
+	}
+	
+	char[][] compoundName;
+	int dimension;
+	public Scanner scanner;
+	Compiler compiler;
+	LookupEnvironment environment;
+	
+	public BindingKey(String key) {
+		this(key, null, null);
+	}
+
+	public BindingKey(String key, Compiler compiler, LookupEnvironment environment) {
+		this.scanner = new Scanner(key.toCharArray());
+		this.compiler = compiler;
+		this.environment = environment;
+		reset();
+	}
+	
+	/*
+	 * If not already cached, computes and cache the compound name (pkg name + top level name) of this key.
+	 * Returns the package name if key is a pkg key.
+	 * Returns an empty array if malformed.
+	 * This key's scanner should be positioned on the package or type token.
+	 */
+	public char[][] compoundName() {
+		if (this.compoundName == null) {
+			switch(this.scanner.nextToken()) {
+				case Scanner.PACKAGE:
+				case Scanner.TYPE:
+	 				this.compoundName = CharOperation.splitOn('/', this.scanner.getTokenSource());
+	 				break;
+		 		case Scanner.ARRAY:
 		 			this.dimension = this.scanner.getTokenSource().length;
-		 			if (this.scanner.nextToken() == BindingKeyScanner.TYPE)
-			 			this.compoundName = CharOperation.splitOn('/', this.scanner.getTokenSource());
-		 			else
-		 				// malformed key
+	 				if (this.scanner.nextToken() == Scanner.TYPE)
+		 				this.compoundName = CharOperation.splitOn('/', this.scanner.getTokenSource());
+	 				else
+	 					// malformed key
 				 		this.compoundName = CharOperation.NO_CHAR_CHAR;
 		 			break;
-		 		default:
-			 		// malformed key
-			 		this.compoundName = CharOperation.NO_CHAR_CHAR;
-		 			break;
-	 		}
-	 	}
-	 	return this.compoundName;
-	 }
-	 
-	 /*
-	  * If the given dimension is greater than 0 returns an array binding for the given type binding.
-	  * Otherwise return the given type binding.
-	  * Returns null if the given type binding is null.
-	  */
-	 TypeBinding getArrayBinding(int dim, TypeBinding binding) {
-	 	if (binding == null) return null;
-	 	if (dim == 0) return binding;
+				default:
+		 			// malformed key
+		 			this.compoundName = CharOperation.NO_CHAR_CHAR;
+					break;
+			}
+		}
+		return this.compoundName;
+	}
+	
+	/*
+	 * If the given dimension is greater than 0 returns an array binding for the given type binding.
+	 * Otherwise return the given type binding.
+	 * Returns null if the given type binding is null.
+	 */
+	TypeBinding getArrayBinding(int dim, TypeBinding binding) {
+		if (binding == null) return null;
+		if (dim == 0) return binding;
 		return this.environment.createArrayType(binding, dim);
 	}
 	
@@ -125,24 +387,26 @@ class BindingKey {
 		return getArrayBinding(this.dimension, binding);
 	}
 	 
-	 /*
-	  * Finds the compilation unit declaration corresponding to the key in the given lookup environment.
-	  * Returns null if no compilation unit declaration could be found.
-	  * This key's scanner should be positioned on the package token.
-	  */
-	 CompilationUnitDeclaration getCompilationUnitDeclaration() {
+	/*
+	 * Finds the compilation unit declaration corresponding to the key in the given lookup environment.
+	 * Returns null if no compilation unit declaration could be found.
+	 * This key's scanner should be positioned on the package token.
+	 */
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
 		char[][] name = compoundName();
 		if (name.length == 0) return null;
+		if (this.environment == null) return null;
 		ReferenceBinding binding = this.environment.getType(name);
 		if (!(binding instanceof SourceTypeBinding)) return null;
 		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
-	 }
+	}
 	 
-	  Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit) {
-	 	switch (this.scanner.token) {
-	 		case BindingKeyScanner.PACKAGE:
+	public Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit) {
+		if (this.environment == null) return null;
+		switch (this.scanner.token) {
+			case Scanner.PACKAGE:
 	 			return new PackageBinding(this.compoundName, null, this.environment);
-	 		case BindingKeyScanner.TYPE:
+	 		case Scanner.TYPE:
 	 			if (this.compoundName.length == 1 && this.compoundName[0].length == 1) {
 	 				// case of base type
 		 			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
@@ -169,9 +433,9 @@ class BindingKey {
 					typeBinding = binding;
 	 			if (this.scanner.isAtFieldOrMethodStart()) {
 	 				switch (this.scanner.nextToken()) {
-		 				case BindingKeyScanner.FIELD:
+		 				case Scanner.FIELD:
 		 					return getFieldBinding(((ReferenceBinding) typeBinding).fields());
-		 				case BindingKeyScanner.METHOD:
+		 				case Scanner.METHOD:
 		 					MethodBinding methodBinding = getMethodBinding(((ReferenceBinding) typeBinding).methods());
 		 					if (this.scanner.isAtParametersStart())
 		 						// parameterized generic method binding
@@ -192,21 +456,18 @@ class BindingKey {
 	 	return null;
 	 }
 	 
-	 /*
-	  * Returns the compiler binding corresponding to this key.
-	  * Returns null is malformed.
-	  * This key's scanner should be positioned on the package token.
-	  */
-	 Binding getCompilerBinding() {
+	/*
+	 * Returns the compiler binding corresponding to this key.
+	 * Returns null is malformed.
+	 * This key's scanner should be positioned on the package token.
+	 */
+	public Binding getCompilerBinding() {
 		CompilationUnitDeclaration parsedUnit = getCompilationUnitDeclaration();
-		if (parsedUnit != null) {
-			char[] fileName = parsedUnit.compilationResult.getFileName();
-			// don't resolve a second time the same unit (this would create the same bindingd twice)
-			if (!this.resolver.requestedKeys.containsKey(fileName) && !this.resolver.requestedSources.containsKey(fileName))
-				this.resolver.process(parsedUnit, this.resolver.totalUnits+1);
+		if (parsedUnit != null && this.compiler != null) {
+			this.compiler.process(parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved
 		}
 		return getCompilerBinding(parsedUnit);
-	 }
+	}
 
 	/*
 	 * Finds the field binding that corresponds to this key in the given field bindings.
@@ -232,7 +493,7 @@ class BindingKey {
 	 	TypeVariableBinding[] typeVariableBindings = typeBinding.typeVariables();
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
-			if (this.scanner.nextToken() != BindingKeyScanner.TYPE)
+			if (this.scanner.nextToken() != Scanner.TYPE)
 				return null;
 		 	char[] typeVariableName = this.scanner.getTokenSource();
 			if (!CharOperation.equals(typeVariableName, typeVariableBinding.sourceName()))
@@ -241,15 +502,15 @@ class BindingKey {
 	 	return typeBinding;
 	 }
 	 
-	 /*
-	  * Returns the string that this binding key wraps.
-	  */
-	 String getKey() {
-	 	return new String(this.scanner.source);
-	 }
+	/*
+	 * Returns the string that this binding key wraps.
+	 */
+	public String getKey() {
+		return new String(this.scanner.source);
+	}
 	 
 	 LocalVariableBinding getLocalVariableBinding(BlockScope scope) {
-	 	if (this.scanner.nextToken() != BindingKeyScanner.LOCAL_VAR)
+	 	if (this.scanner.nextToken() != Scanner.LOCAL_VAR)
 			return null; // malformed key
 		char[] varName = this.scanner.getTokenSource();
 		if (Character.isDigit(varName[0])) {
@@ -333,15 +594,22 @@ class BindingKey {
 	 	ParameterizedTypeBinding parameterizedTypeBinding = this.environment.createParameterizedType(genericType, arguments, enclosingType);
 	 	// skip ";>"
 	 	this.scanner.skipParametersEnd();
-	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == BindingKeyScanner.TYPE) {
+	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
 	 		char[] typeName = this.scanner.getTokenSource();
 	 		ReferenceBinding memberType = genericType.getMemberType(typeName);
 	 		return getParameterizedTypeBinding(memberType, parameterizedTypeBinding);
 	 	} else {
 		 	return parameterizedTypeBinding;
-	 	}
-	 }
-	 
+		}
+	}
+	
+	/*
+	 * Returns the signature of this binding key
+	 */
+	public String getSignature() {
+		return null; // TODO (jerome) implement
+	}
+	
 	/*
 	 * Finds the type binding that corresponds to this key in the given type bindings.
 	 * Returns null if not found.
@@ -350,10 +618,10 @@ class BindingKey {
 	 TypeBinding getTypeBinding(CompilationUnitDeclaration parsedUnit, TypeDeclaration[] types, char[] typeName) {
 	 	if (Character.isDigit(typeName[0])) {
 	 		// anonymous or local type
-	 		int nextToken = BindingKeyScanner.TYPE;
+	 		int nextToken = Scanner.TYPE;
 	 		while (this.scanner.isAtMemberTypeStart()) 
 	 			nextToken = this.scanner.nextToken();
-	 		typeName = nextToken == BindingKeyScanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, 0, this.scanner.index+1);
+	 		typeName = nextToken == Scanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, 0, this.scanner.index+1);
 	 		LocalTypeBinding[] localTypeBindings  = parsedUnit.localTypes;
 	 		for (int i = 0; i < parsedUnit.localTypeCount; i++)
 	 			if (CharOperation.equals(typeName, localTypeBindings[i].signature()))
@@ -365,7 +633,7 @@ class BindingKey {
 			for (int i = 0, length = types.length; i < length; i++) {
 				TypeDeclaration declaration = types[i];
 				if (CharOperation.equals(typeName, declaration.name)) {
-					if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == BindingKeyScanner.TYPE)
+					if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE)
 						return getTypeBinding(parsedUnit, declaration.memberTypes, this.scanner.getTokenSource());
 					else
 						return declaration.binding;
@@ -378,7 +646,7 @@ class BindingKey {
 	 TypeVariableBinding getTypeVariableBinding(SourceTypeBinding typeBinding) {
 	 	// skip ";>"
 	 	this.scanner.skipParametersEnd();
-		if (this.scanner.nextToken() != BindingKeyScanner.TYPE)
+		if (this.scanner.nextToken() != Scanner.TYPE)
 			return null;
 	 	char[] typeVariableName = this.scanner.getTokenSource();
 	 	TypeVariableBinding[] typeVariableBindings = typeBinding.typeVariables();
@@ -391,7 +659,7 @@ class BindingKey {
 	 }
 	 
 	 TypeBinding getWildCardBinding(ReferenceBinding genericType, int rank) {
-	 	if (this.scanner.nextToken() != BindingKeyScanner.TYPE) return null;
+	 	if (this.scanner.nextToken() != Scanner.TYPE) return null;
 	 	char[] source = this.scanner.getTokenSource();
 	 	if (source.length == 0) return null; //malformed key
 	 	int kind = -1;
