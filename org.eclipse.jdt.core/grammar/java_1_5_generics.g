@@ -18,7 +18,7 @@
 --Usefull macros helping reading/writing semantic actions
 $Define 
 $putCase 
-/.    case $rule_number : // System.out.println("$rule_text");  //$NON-NLS-1$
+/.    case $rule_number : System.out.println("$rule_text");  //$NON-NLS-1$
 		   ./
 
 $break
@@ -465,11 +465,11 @@ ClassMemberDeclaration ::= ';'
 --    | 'transient'
 --    | 'volatile'
 
-FieldDeclaration ::= Modifiers Type VariableDeclarators ';'
+FieldDeclaration ::= Modifiers Type PushModifiers VariableDeclarators ';'
 /.$putCase consumeFieldDeclaration(); $break ./
 /:$readableName FieldDeclaration:/
 
-FieldDeclaration ::= Type VariableDeclarators ';'
+FieldDeclaration ::= Type PushModifiers VariableDeclarators ';'
 /.$putCase consumeFieldDeclaration(); $break ./
 /:$readableName FieldDeclaration:/
 
@@ -554,19 +554,19 @@ MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderName ::= Modifiers TypeParameters Type 'Identifier' PushModifiers '('
+MethodHeaderName ::= Modifiers TypeParameters Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderName ::= Modifiers Type 'Identifier' PushModifiers '('
+MethodHeaderName ::= Modifiers Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderName ::= TypeParameters  Type 'Identifier' PushModifiers '('
+MethodHeaderName ::= TypeParameters Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderName ::= Type 'Identifier' PushModifiers '('
+MethodHeaderName ::= Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
@@ -1476,9 +1476,6 @@ Catchesopt ::= $empty
 Catchesopt ::= Catches
 /:$readableName Catches:/
 
-/.	}
-} ./
-
 ---------------------------------------------------------------------------------------
 
 -----------------------------------------------
@@ -1795,7 +1792,7 @@ RelationalExpression_NotName ::= RelationalExpression_NotName '<=' ShiftExpressi
 RelationalExpression_NotName ::= Name '<=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression_NotName ::= RelationalExpression_NotName '>=' ShiftExpression
-/.$putCase consumeBinaryE(OperatorIds.GREATER_EQUAL); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName ::= Name '>=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName  ::= RelationalExpression_NotName 'instanceof' ReferenceType
@@ -1866,6 +1863,10 @@ Expression_NotName ::= AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : end of generics
 -----------------------------------------------
+
+
+/.	}
+} ./
 
 $names
 
