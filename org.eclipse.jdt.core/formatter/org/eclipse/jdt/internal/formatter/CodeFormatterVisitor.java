@@ -470,6 +470,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
 		if (newLinesBeforeMethod > 0) {
 			this.scribe.printNewLines(newLinesBeforeMethod);
+		} else {
+			this.scribe.printNewLine();
 		}
 		methodDeclaration.traverse(this, scope);
 	}
@@ -650,7 +652,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			return string;
 		}
 
-		this.lastLocalDeclarationSourceStart = 0;
+		this.lastLocalDeclarationSourceStart = -1;
 		try {
 			if (nodes != null) {
 				formatClassBodyDeclarations(nodes);
@@ -683,7 +685,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			return string;
 		}
 
-		this.lastLocalDeclarationSourceStart = 0;
+		this.lastLocalDeclarationSourceStart = -1;
 		try {
 			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
 		} catch(AbortFormatting e){
@@ -714,7 +716,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			return string;
 		}
 
-		this.lastLocalDeclarationSourceStart = 0;
+		this.lastLocalDeclarationSourceStart = -1;
 		try {
 			ExplicitConstructorCall explicitConstructorCall = constructorDeclaration.constructorCall;
 			if (explicitConstructorCall != SuperReference.implicitSuperConstructorCall()) {
@@ -724,7 +726,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (statements != null) {
 				formatStatements(null, statements);
 			}
-			this.scribe.printComment();
+			this.scribe.printLastComment();
 		} catch(AbortFormatting e){
 			return failedToFormat(compilationUnitSource);
 		}
@@ -753,10 +755,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			return string;
 		}
 
-		this.lastLocalDeclarationSourceStart = 0;
+		this.lastLocalDeclarationSourceStart = -1;
 		try {
 			expression.traverse(this, null);
-			this.scribe.printComment();
+			this.scribe.printLastComment();
 		} catch(AbortFormatting e){
 			return failedToFormat(compilationUnitSource);
 		}
@@ -942,7 +944,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		} while (!ok);		
 		this.scribe.exitAlignment(memberAlignment, true);
-		this.scribe.printComment();
+		this.scribe.printLastComment();
 	}
 	
 	private void formatEmptyStatement() {
@@ -2004,7 +2006,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				types[i].traverse(this, scope);
 			}
 		}
-		this.scribe.printComment();
+		this.scribe.printLastComment();
 		return false;
 	}
 

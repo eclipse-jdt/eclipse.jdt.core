@@ -228,6 +228,13 @@ public class Scribe {
 		}
 	}
 	
+	private void mapRemainingPositions() {
+		final int bufferLength = this.buffer.length() - 1;
+		for (; this.positionsIndex < this.positionsToMap.length; this.positionsIndex++) {
+			this.mappedPositions[this.positionsIndex] = bufferLength;
+		}
+	}
+	
 	private void preserveEmptyLines(int count) {
 		if (count > 0) {
 			if (this.formatter.preferences.preserve_user_linebreaks) {
@@ -396,6 +403,13 @@ public class Scribe {
 					this.needSpace = false;
 				}
 			}
+		}
+	}
+
+	public void printLastComment() {
+		this.printComment();
+		if (positionsToMap != null) {
+			this.mapRemainingPositions();
 		}
 	}
 
@@ -626,6 +640,8 @@ public class Scribe {
 								preserveEmptyLines(1);
 							} else if (hasComment) {
 								printNewLine();
+							} else if (currentTokenStartPosition >= this.scannerEndPosition - 1) {
+								printNewLine();
 							}
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
@@ -666,7 +682,7 @@ public class Scribe {
 		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.currentAlignment.chunkKind = 0;
-		this.formatter.lastLocalDeclarationSourceStart = 0;
+		this.formatter.lastLocalDeclarationSourceStart = -1;
 	}
 
 	public void reset(int[] positionsToMapValue) {

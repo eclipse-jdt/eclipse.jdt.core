@@ -181,7 +181,7 @@ public class FormattingPreferences {
 	public static final String DEFAULT_METHOD_DECLARATION_BRACE_POSITION = END_OF_LINE;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FIRST_ARGUMENT = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN = false;
@@ -195,7 +195,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER = false;	
 	public static final String DEFAULT_BLOCK_BRACE_POSITION = END_OF_LINE;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CASE = false;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST = false;
@@ -263,7 +263,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES = true;
 	public static final boolean DEFAULT_INDENT_BREAKS_COMPARE_TO_CASES = true;
 	public static final String DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION = END_OF_LINE;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE = false; 
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE = true; 
 	public static final boolean DEFAULT_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER = true;
 	public static final char DEFAULT_FILLING_SPACE = DASH;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST = true;
@@ -275,9 +275,9 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHIZED_EXPRESSION = false;
 	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = true;
 	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = true;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 1;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 1;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 1;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 0;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 1;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = false;
