@@ -117,7 +117,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			TypeDeclaration type = (TypeDeclaration) referenceContext;
 			for (int i = 0; i < type.fields.length; i++){
 				FieldDeclaration field = type.fields[i];					
-				if (!field.isField()
+				if (field != null
+						&& !field.isField()
 						&& field.declarationSourceStart <= scanner.initialPosition
 						&& scanner.initialPosition <= field.declarationSourceEnd
 						&& scanner.eofPosition <= field.declarationSourceEnd+1){
