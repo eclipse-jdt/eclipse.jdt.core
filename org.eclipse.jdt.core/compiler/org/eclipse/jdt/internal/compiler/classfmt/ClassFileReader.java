@@ -504,7 +504,7 @@ public String toString() {
  * @return boolean Returns true is there is a structural change between the two .class files, false otherwise
  */
 public boolean hasStructuralChanges(byte[] newBytes) {
-	return hasStructuralChanges(newBytes, false, false);
+	return hasStructuralChanges(newBytes, true, false);
 }
 /**
  * Check if the receiver has structural changes compare to the byte array in argument.
@@ -561,41 +561,61 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		// fields
 		FieldInfo[] otherFieldInfos = (FieldInfo[]) newClassFile.getFields();
 		int otherFieldInfosLength = otherFieldInfos == null ? 0 : otherFieldInfos.length;
-		if (orderRequired) {
-			if (this.fieldsCount != 0)
-				Arrays.sort(this.fields);
-			if (otherFieldInfosLength != 0)
-				Arrays.sort(otherFieldInfos);
+		boolean compareFields = true;
+		if (this.fieldsCount == otherFieldInfosLength) {
+			int i = 0;
+			for (; i < this.fieldsCount; i++)
+				if (hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i])) break;
+			if ((compareFields = i != this.fieldsCount) && !orderRequired && !excludesSynthetic)
+				return true;
 		}
-		if (excludesSynthetic) {
-			if (hasNonSyntheticFieldChanges(this.fields, otherFieldInfos))
-				return true;
-		} else {
-			if (this.fieldsCount != otherFieldInfosLength)
-				return true;
-			for (int i = 0; i < this.fieldsCount; i++)
-				if (hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i]))
+		if (compareFields) {
+			if (orderRequired) {
+				if (this.fieldsCount != 0)
+					Arrays.sort(this.fields);
+				if (otherFieldInfosLength != 0)
+					Arrays.sort(otherFieldInfos);
+			}
+			if (excludesSynthetic) {
+				if (hasNonSyntheticFieldChanges(this.fields, otherFieldInfos))
 					return true;
+			} else {
+				if (this.fieldsCount != otherFieldInfosLength)
+					return true;
+				for (int i = 0; i < this.fieldsCount; i++)
+					if (hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i]))
+						return true;
+			}
 		}
 		
 		// methods
 		MethodInfo[] otherMethodInfos = (MethodInfo[]) newClassFile.getMethods();
 		int otherMethodInfosLength = otherMethodInfos == null ? 0 : otherMethodInfos.length;
-		if (orderRequired) {
-			if (this.methodsCount != 0)
-				Arrays.sort(this.methods);
-			if (otherMethodInfosLength != 0)
-				Arrays.sort(otherMethodInfos);	
+		boolean compareMethods = true;
+		if (this.methodsCount == otherMethodInfosLength) {
+			int i = 0;
+			for (; i < this.methodsCount; i++)
+				if (hasStructuralMethodChanges(this.methods[i], otherMethodInfos[i])) break;
+			if ((compareMethods = i != this.methodsCount) && !orderRequired && !excludesSynthetic)
+				return true;
 		}
-		if (excludesSynthetic) {
-			if (hasNonSyntheticMethodChanges(this.methods, otherMethodInfos))
-				return true;
-		} else {
-			if (this.methodsCount != otherMethodInfosLength)
-				return true;
-			for (int i = 0; i < this.methodsCount; i++)
-				if (hasStructuralMethodChanges(this.methods[i], otherMethodInfos[i]))
+		if (compareMethods) {
+			if (orderRequired) {
+				if (this.methodsCount != 0)
+					Arrays.sort(this.methods);
+				if (otherMethodInfosLength != 0)
+					Arrays.sort(otherMethodInfos);	
+			}
+			if (excludesSynthetic) {
+				if (hasNonSyntheticMethodChanges(this.methods, otherMethodInfos))
 					return true;
+			} else {
+				if (this.methodsCount != otherMethodInfosLength)
+					return true;
+				for (int i = 0; i < this.methodsCount; i++)
+					if (hasStructuralMethodChanges(this.methods[i], otherMethodInfos[i]))
+						return true;
+			}
 		}
 
 		return false;
