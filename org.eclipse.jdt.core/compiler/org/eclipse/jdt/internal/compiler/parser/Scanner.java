@@ -862,10 +862,6 @@ public boolean getNextCharAsJavaIdentifierPart() {
 	}
 }
 public int getNextToken() throws InvalidInputException {
-	// if resetTo is used with currentPosition > than eofPosition.
-	if (currentPosition > eofPosition) {
-		return TokenNameEOF;
-	}
 	this.wasAcr = false;
 	if (diet) {
 		jumpOverMethodBody();
@@ -2249,6 +2245,11 @@ public void resetTo(int begin, int end) {
 	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
 	foundTaskCount = 0;
+	
+//	// if resetTo is used with being > than end.
+//	if (begin > eofPosition) {
+//		begin = eofPosition;
+//	}
 }
 
 public final void scanEscapeCharacter() throws InvalidInputException {

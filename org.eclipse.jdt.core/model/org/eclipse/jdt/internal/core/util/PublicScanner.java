@@ -447,6 +447,58 @@ public final int getLineStart(int lineNumber) {
 		return initialPosition;
 	return lineEnds[lineNumber-2]+1; // next line start one character behind the lineEnd of the previous line
 }
+public final int getNextChar() {
+	try {
+		if (((currentCharacter = source[currentPosition++]) == '\\')
+			&& (source[currentPosition] == 'u')) {
+			//-------------unicode traitement ------------
+			int c1, c2, c3, c4;
+			int unicodeSize = 6;
+			currentPosition++;
+			while (source[currentPosition] == 'u') {
+				currentPosition++;
+				unicodeSize++;
+			}
+
+			if (((c1 = Character.getNumericValue(source[currentPosition++])) > 15
+				|| c1 < 0)
+				|| ((c2 = Character.getNumericValue(source[currentPosition++])) > 15 || c2 < 0)
+				|| ((c3 = Character.getNumericValue(source[currentPosition++])) > 15 || c3 < 0)
+				|| ((c4 = Character.getNumericValue(source[currentPosition++])) > 15 || c4 < 0)) {
+				return -1;
+			}
+
+			currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+
+			unicodeAsBackSlash = currentCharacter == '\\';
+
+			//need the unicode buffer
+			if (withoutUnicodePtr == 0) {
+				//buffer all the entries that have been left aside....
+				withoutUnicodePtr = currentPosition - unicodeSize - startPosition;
+				System.arraycopy(
+					source, 
+					startPosition, 
+					withoutUnicodeBuffer, 
+					1, 
+					withoutUnicodePtr); 
+			}
+			//fill the buffer with the char
+			withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+			return currentCharacter;
+
+		} //-------------end unicode traitement--------------
+		else {
+			unicodeAsBackSlash = false;
+			if (withoutUnicodePtr != 0) {
+				withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+			}
+			return currentCharacter;
+		}
+	} catch (IndexOutOfBoundsException e) {
+		return -1;
+	}
+}
 public final boolean getNextChar(char testedChar) {
 	//BOOLEAN
 	//handle the case of unicode.
@@ -2189,6 +2241,11 @@ public void resetTo(int begin, int end) {
 	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
 	foundTaskCount = 0;
+	
+//	// if resetTo is used with being > than end.
+//	if (begin > eofPosition) {
+//		begin = eofPosition;
+//	}
 }
 
 public final void scanEscapeCharacter() throws InvalidInputException {
@@ -3023,6 +3080,7 @@ public final void setSource(char[] sourceString){
 	containsAssertKeyword = false;
 	withoutUnicodeBuffer = new char[sourceLength];
 }
+
 public String toString() {
 	if (startPosition == source.length)
 		return "EOF\n\n" + new String(source); //$NON-NLS-1$
