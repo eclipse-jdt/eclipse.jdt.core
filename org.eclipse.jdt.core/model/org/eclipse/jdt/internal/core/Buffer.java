@@ -332,11 +332,11 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		// use a platform operation to update the resource contents
 		try {
 			String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
-			String contents = this.getContents();
-			if (contents == null) return;
+			String stringContents = this.getContents();
+			if (stringContents == null) return;
 			byte[] bytes = encoding == null 
-				? contents.getBytes() 
-				: contents.getBytes(encoding);
+				? stringContents.getBytes() 
+				: stringContents.getBytes(encoding);
 			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
 			this.file.setContents(
@@ -403,14 +403,14 @@ public String toString() {
 	buffer.append("\nIs readonly: " + this.isReadOnly()); //$NON-NLS-1$
 	buffer.append("\nIs closed: " + this.isClosed()); //$NON-NLS-1$
 	buffer.append("\nContents:\n"); //$NON-NLS-1$
-	char[] contents = this.getCharacters();
-	if (contents == null) {
+	char[] charContents = this.getCharacters();
+	if (charContents == null) {
 		buffer.append("<null>"); //$NON-NLS-1$
 	} else {
-		int length = contents.length;
+		int length = charContents.length;
 		for (int i = 0; i < length; i++) {
-			char car = contents[i];
-			switch (car) {
+			char c = charContents[i];
+			switch (c) {
 				case '\n': 
 					buffer.append("\\n\n"); //$NON-NLS-1$
 					break;
@@ -423,7 +423,7 @@ public String toString() {
 					}
 					break;
 				default:
-					buffer.append(car);
+					buffer.append(c);
 					break;
 			}
 		}
