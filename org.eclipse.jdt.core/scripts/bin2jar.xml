@@ -1,5 +1,5 @@
 <!-- build script to create a plugin from org.eclipse.jdt.core -->
-<project name="org.eclipse.jdt.core" default="export" basedir=".">
+<project name="org.eclipse.jdt.core" default="export" basedir="..">
 	<target name="init">
 		<tstamp/>
 		<property name="destdir" value="../../../../plugin-export" />
@@ -12,7 +12,7 @@
 		<mkdir dir="${dest}" />
 		<jar 
 			jarfile="${dest}/jdtcore.jar"
-			basedir="$bin"
+			basedir="bin"
 		/>
 		<copy file="plugin.xml" todir="${dest}"/>
 		<copy file="notice.html" todir="${dest}"/>

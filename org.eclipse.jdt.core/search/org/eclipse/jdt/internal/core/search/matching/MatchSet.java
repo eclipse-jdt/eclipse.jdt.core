@@ -312,13 +312,51 @@ public String toString() {
 	for (Enumeration enum = this.matchingNodes.keys(); enum.hasMoreElements();) {
 		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
-		result.append(node.toString(1));
+		Object value = this.matchingNodes.get(node);
+		if (value instanceof Integer) {
+			result.append("\t");
+			int accuracy = ((Integer)value).intValue();
+			switch (accuracy) {
+				case SearchPattern.IMPOSSIBLE_MATCH:
+					result.append("IMPOSSIBLE_MATCH: ");
+					break;
+				case SearchPattern.POSSIBLE_MATCH:
+					result.append("POSSIBLE_MATCH: ");
+					break;
+				case SearchPattern.INACCURATE_MATCH:
+					result.append("INACCURATE_MATCH: ");
+					break;
+				case SearchPattern.ACCURATE_MATCH:
+					result.append("ACCURATE_MATCH: ");
+					break;
+			}
+		} 
+		result.append(node.toString(0));
 	}
 	result.append("\nPotential matches:"/*nonNLS*/);
 	for (Enumeration enum = this.potentialMatchingNodes.keys(); enum.hasMoreElements();) {
 		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
-		result.append(node.toString(1));
+		Object value = this.potentialMatchingNodes.get(node);
+		if (value instanceof Integer) {
+			result.append("\t");
+			int accuracy = ((Integer)value).intValue();
+			switch (accuracy) {
+				case SearchPattern.IMPOSSIBLE_MATCH:
+					result.append("IMPOSSIBLE_MATCH: ");
+					break;
+				case SearchPattern.POSSIBLE_MATCH:
+					result.append("POSSIBLE_MATCH: ");
+					break;
+				case SearchPattern.INACCURATE_MATCH:
+					result.append("INACCURATE_MATCH: ");
+					break;
+				case SearchPattern.ACCURATE_MATCH:
+					result.append("ACCURATE_MATCH: ");
+					break;
+			}
+		}
+		result.append(node.toString(0));
 	}
 	return result.toString();
 }
