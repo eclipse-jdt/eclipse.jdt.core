@@ -478,8 +478,7 @@ private boolean isWorthBuilding() throws CoreException {
 	if (!abortBuilds) return true;
 
 	// Abort build only if there are classpath errors
-	IClasspathEntry[] classpath = javaProject.getRawClasspath();
-	if (isClasspathBroken(classpath, currentProject)) {
+	if (isClasspathBroken(javaProject.getRawClasspath(), currentProject)) {
 		if (DEBUG)
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
