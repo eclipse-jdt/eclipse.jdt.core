@@ -627,7 +627,7 @@ public final boolean isStrictfp() {
 
 public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
-		if (this.isEquivalentTo(otherType)) return true;
+		if (otherType.isEquivalentTo(this)) return true;
 	}
 	return false;
 }

@@ -8289,5 +8289,45 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"	
 			},
 			"should report name clash");	
-	}			
+	}
+	// 73963 
+	public void test313() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.net.Inet6Address;\n" + 
+				"import java.net.InetAddress;\n" + 
+				"import java.util.AbstractList;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"void takeAbstract(AbstractList<? extends InetAddress> arg) { }\n" + 
+				"\n" + 
+				"void takeList(List<? extends InetAddress> arg) { }\n" + 
+				"\n" + 
+				"void construct() {\n" + 
+				"	AbstractList<InetAddress> a= new ArrayList<InetAddress>();\n" + 
+				"	takeAbstract(a);\n" + 
+				"	takeAbstract(new ArrayList<InetAddress>()); // a inlined: error 1:\n" + 
+				"//The method takeAbstract(AbstractList<? extends InetAddress>) in the type A\n" + 
+				"// is not applicable for the arguments (ArrayList<InetAddress>)\n" + 
+				"	\n" + 
+				"	List<InetAddress> l= new ArrayList<InetAddress>();\n" + 
+				"	takeList(l);\n" + 
+				"	takeList(new ArrayList<InetAddress>()); // l inlined: ok\n" + 
+				"	\n" + 
+				"	ArrayList<? extends InetAddress> aw= new ArrayList<InetAddress>();\n" + 
+				"	takeAbstract(aw);\n" + 
+				"	takeAbstract(new ArrayList<Inet6Address>()); // aw inlined: error 2:\n" + 
+				"//The method takeAbstract(AbstractList<? extends InetAddress>) in the type A\n" + 
+				"// is not applicable for the arguments (ArrayList<Inet6Address>)\n" + 
+				"\n" + 
+				"	takeList(aw);\n" + 
+				"	takeList(new ArrayList<Inet6Address>()); //aw inlined: ok\n" + 
+				"}\n" + 
+				"}"
+			},
+			"");	
+	}				
 }
