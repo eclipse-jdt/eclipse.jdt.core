@@ -2473,6 +2473,8 @@ public abstract class Scope
 	}
 
 	public boolean isBoxingCompatibleWith(TypeBinding type, TypeBinding otherType) {
+		if (environment().options.sourceLevel < JDK1_5) 
+			return false;
 		return type.isBaseType() != otherType.isBaseType()
 			&& computeBoxingType(type).isCompatibleWith(otherType);
 	}

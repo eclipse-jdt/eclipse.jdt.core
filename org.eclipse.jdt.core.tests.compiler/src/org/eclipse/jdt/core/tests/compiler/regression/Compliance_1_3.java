@@ -3147,6 +3147,27 @@ public void test091() {
 		"----------\n"
 	);
 }
+// check autoboxing only enabled in 1.5 source mode
+public void test092() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(Boolean b) {\n" + 
+			"		if (b) { \n" + 
+			"			int i = 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (b) { \n" + 
+		"	    ^\n" + 
+		"Type mismatch: cannot convert from Boolean to boolean\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

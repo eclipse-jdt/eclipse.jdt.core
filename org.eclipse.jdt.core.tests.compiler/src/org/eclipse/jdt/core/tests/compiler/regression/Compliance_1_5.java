@@ -3146,6 +3146,22 @@ public void test091() {
 		""
 	);
 }
+// check autoboxing only enabled in 1.5 source mode
+public void test092() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(Boolean b) {\n" + 
+			"		if (b) { \n" + 
+			"			int i = 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		}, 
+		""
+	);
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
