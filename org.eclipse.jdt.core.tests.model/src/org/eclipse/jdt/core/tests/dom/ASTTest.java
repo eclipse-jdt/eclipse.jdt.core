@@ -8161,7 +8161,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(Modifier.VOLATILE == 0x0040);
 		
 		// check that all
-		int[] mods =
+		final int[] mods =
 			{
 				Modifier.ABSTRACT,
 				Modifier.FINAL,
@@ -8199,8 +8199,17 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			} catch (UnsupportedOperationException e) {
 				// pass
 			}
+			try {
+				ast.newModifiers(Modifier.NONE);
+				assertTrue(false);
+			} catch (UnsupportedOperationException e) {
+				// pass
+			}
+			// skip rest of tests
 			return;
 		}
+		
+		// JLS3 only
 		long previousCount = ast.modificationCount();
 		final Modifier x = ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 		assertTrue(ast.modificationCount() > previousCount);
@@ -8228,7 +8237,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(Modifier.ModifierKeyword.VOLATILE_KEYWORD.toString().equals("volatile")); //$NON-NLS-1$
 		assertTrue(Modifier.ModifierKeyword.STRICTFP_KEYWORD.toString().equals("strictfp")); //$NON-NLS-1$
 
-		Modifier.ModifierKeyword[] known = {
+		final Modifier.ModifierKeyword[] known = {
 			Modifier.ModifierKeyword.PUBLIC_KEYWORD,
 			Modifier.ModifierKeyword.PROTECTED_KEYWORD,
 			Modifier.ModifierKeyword.PRIVATE_KEYWORD,
@@ -8271,6 +8280,38 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		assertTrue(Modifier.ModifierKeyword.toKeyword("huh") == null); //$NON-NLS-1$
 
+		// check AST.newModifiers(flags)
+		for (int i = 0; i < mods.length; i++) {
+			int m = mods[i];
+			List result = ast.newModifiers(m);
+			assertEquals(1, result.size());
+			Modifier modNode = (Modifier) result.get(0);
+			assertEquals(m, modNode.getKeyword().toFlagValue());
+		}
+		
+		// check AST.newModifiers ordering
+		final Modifier.ModifierKeyword[] expectedOrder = {
+				Modifier.ModifierKeyword.PUBLIC_KEYWORD,
+				Modifier.ModifierKeyword.PROTECTED_KEYWORD,
+				Modifier.ModifierKeyword.PRIVATE_KEYWORD,
+				Modifier.ModifierKeyword.ABSTRACT_KEYWORD,
+				Modifier.ModifierKeyword.STATIC_KEYWORD,
+				Modifier.ModifierKeyword.FINAL_KEYWORD,
+				Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD,
+				Modifier.ModifierKeyword.NATIVE_KEYWORD,
+				Modifier.ModifierKeyword.STRICTFP_KEYWORD,
+				Modifier.ModifierKeyword.TRANSIENT_KEYWORD,
+				Modifier.ModifierKeyword.VOLATILE_KEYWORD,
+			};
+		int all = 0;
+		for (int i = 0; i < mods.length; i++) {
+			all |= mods[i];
+		}
+		List result = ast.newModifiers(all);
+		assertEquals(expectedOrder.length, result.size());
+		for (int i = 0; i< expectedOrder.length; i++) {
+			assertEquals(expectedOrder[i], ((Modifier) result.get(i)).getKeyword());
+		}
 	}
 		
 	public void testSubtreeBytes() {

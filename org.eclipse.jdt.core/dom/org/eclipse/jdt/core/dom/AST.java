@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -1632,6 +1634,62 @@ public final class AST {
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
 		Modifier result = new Modifier(this);
 		result.setKeyword(keyword);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a list of new unparented modifier nodes 
+	 * for the given modifier flags. When multiple modifiers are 
+	 * requested the modifiers nodes will appear in the following order:
+	 * public, protected, private, abstract, static, final, synchronized,
+	 * native, strictfp, transient, volatile. This order is consistent
+	 * with the recommendations in JLS2 8.1.1, 8.3.1, and 8.4.3.
+	 * 
+	 * @param flags bitwise or of modifier flags declared on {@link Modifier}
+	 * @return a possibly empty list of new unparented modifier nodes
+	 *   (element type <code>Modifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS2 AST
+	 * @since 3.1
+	 */
+	public List newModifiers(int flags) {
+		if (this.apiLevel == AST.JLS2) {
+			unsupportedIn2();
+		}
+		List result = new ArrayList(3); // 3 modifiers is more than average
+		if (Modifier.isPublic(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+		}
+		if (Modifier.isProtected(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD));
+		}
+		if (Modifier.isPrivate(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+		}
+		if (Modifier.isAbstract(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD));
+		}
+		if (Modifier.isStatic(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+		}
+		if (Modifier.isFinal(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
+		}
+		if (Modifier.isSynchronized(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD));
+		}
+		if (Modifier.isNative(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD));
+		}
+		if (Modifier.isStrictfp(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD));
+		}
+		if (Modifier.isTransient(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD));
+		}
+		if (Modifier.isVolatile(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD));
+		}
 		return result;
 	}
 
