@@ -917,6 +917,7 @@ public class Scribe {
 	}
 
 	public void printQualifiedReference(int sourceEnd) {
+		int currentTokenStartPosition = this.scanner.currentPosition;
 		try {
 			do {
 				this.printComment();
@@ -925,10 +926,25 @@ public class Scribe {
 						return;
 					case TerminalTokens.TokenNameWHITESPACE :
 						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
-					default: 
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						this.printCommentLine(this.scanner.getRawTokenSource());
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameIdentifier :
+					case TerminalTokens.TokenNameDOT :
 						this.print(this.scanner.getRawTokenSource(), false);
+						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
+					default:
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+						return;
 				}
 			} while (this.scanner.currentPosition < sourceEnd);
 		} catch(InvalidInputException e) {

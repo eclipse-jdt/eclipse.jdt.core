@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
@@ -32,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 class ASTConverter {
 
 	private AST ast;
-	private char[] compilationUnitSource;
+	char[] compilationUnitSource;
 	private Scanner scanner;
 	private boolean resolveBindings;
 	private Set pendingThisExpressionScopeResolution;
@@ -52,7 +53,50 @@ class ASTConverter {
 	public void setAST(AST ast) {
 		this.ast = ast;
 	}
-	
+	/*
+	 * Internal use only
+	 * Used to convert class body declarations
+	 */
+	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes) {
+		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
+		int nodesLength = nodes.length;
+		for (int i = 0; i < nodesLength; i++) {
+			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodes[i];
+			if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
+				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+					org.eclipse.jdt.internal.compiler.ast.Initializer oldInitializer = (org.eclipse.jdt.internal.compiler.ast.Initializer) node;
+					Initializer initializer = this.ast.newInitializer();
+					initializer.setBody(convert(oldInitializer.block));
+					initializer.setModifiers(oldInitializer.modifiers);
+					initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
+					setJavaDocComment(initializer);
+					typeDecl.bodyDeclarations().add(initializer);
+				} else {
+					org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+					if (i > 0
+						&& (nodes[i - 1] instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)
+						&& ((org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)nodes[i - 1]).declarationSourceStart == fieldDeclaration.declarationSourceStart) {
+						// we have a multiple field declaration
+						// We retrieve the existing fieldDeclaration to add the new VariableDeclarationFragment
+						FieldDeclaration currentFieldDeclaration = (FieldDeclaration) typeDecl.bodyDeclarations().get(typeDecl.bodyDeclarations().size() - 1);
+						currentFieldDeclaration.fragments().add(convertToVariableDeclarationFragment(fieldDeclaration));
+					} else {
+						// we can create a new FieldDeclaration
+						typeDecl.bodyDeclarations().add(convertToFieldDeclaration(fieldDeclaration));
+					}
+				}
+			} else if(node instanceof org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration) {
+				AbstractMethodDeclaration nextMethodDeclaration = (AbstractMethodDeclaration) node;
+				if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
+					typeDecl.bodyDeclarations().add(convert(nextMethodDeclaration));
+				}
+			} else if(node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+				typeDecl.bodyDeclarations().add(convert(nextMemberDeclaration));
+			}
+		}
+		return typeDecl;
+	}
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
 		this.compilationUnitSource = source;
 		scanner.setSource(source);

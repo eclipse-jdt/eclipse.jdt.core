@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,162 +23,6 @@ import org.eclipse.jdt.internal.formatter.align.Alignment;
  */
 
 public class DefaultCodeFormatterOptions {
-	public static final char DASH = ' ';//183
-	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final String DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final String DEFAULT_ARRAY_INITIALIZER_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_ARRAY_INITIALIZER_CONTINUATION_INDENTATION = 2; // 2 indentations
-	public static final int DEFAULT_BINARY_EXPRESSION_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 0;
-	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_IMPORTS = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_PACKAGE = 0;
-	public static final int DEFAULT_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS = 0;
-	public static final String DEFAULT_BLOCK_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final boolean DEFAULT_COMPACT_ELSE_IF = true;
-	public static final int DEFAULT_COMPACT_IF_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
-	public static final int DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
-	public static final int DEFAULT_CONTINUATION_INDENTATION = 2; // 2 indentations
-	// TODO remove before 3.0
-	/**
-	 * @deprecated
-	 */
-	public static final boolean DEFAULT_CONVERT_OLD_TO_NEW = true;
-	public static final int DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final char DEFAULT_FILLING_SPACE = DASH;
-	public static final boolean DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE = false;
-	public static final boolean DEFAULT_INDENT_BLOCK_STATEMENTS = true;
-	public static final boolean DEFAULT_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER = true;
-	public static final boolean DEFAULT_INDENT_BREAKS_COMPARE_TO_CASES = true;
-	public static final boolean DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES = true;
-	public static final boolean DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH = true;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = false;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = true;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY = true;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_BINARY_OPERATOR = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COLON_IN_ASSERT = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST = false;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_MESSAGE_SEND = false;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_POSTFIX_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_PREFIX_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR = true;
-	public static final boolean DEFAULT_INSERT_SPACE_AFTER_UNARY_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE = true; 
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BINARY_OPERATOR = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CATCH_EXPRESSION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_MESSAGE_SEND = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_ASSERT = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CASE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FIRST_ARGUMENT = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FIRST_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FOR_PAREN = true;	
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_IF_CONDITION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_MESSAGE_SEND = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_PREFIX_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SWITCH_CONDITION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_UNARY_OPERATOR = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_WHILE_CONDITION = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER = false;	
-	public static final boolean DEFAULT_INSERT_SPACE_IN_CATCH_EXPRESSION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_IN_FOR_PARENS = false;
-	public static final boolean DEFAULT_INSERT_SPACE_IN_IF_CONDITION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_IN_SWITCH_CONDITION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION = false;
-	public static final boolean DEFAULT_INSERT_SPACE_IN_WHILE_CONDITION = false;
-	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = false;
-	public static final boolean DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE = false; 
-	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = false;
-	public static final int DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final String DEFAULT_METHOD_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;//$NON-NLS-1$
-	public static final int DEFAULT_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY = 0;
-	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
-	public static final int DEFAULT_PAGE_WIDTH = 80;
-	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
-	public static final boolean DEFAULT_PUT_EMPTY_STATEMENT_ON_NEW_LINE = false;
-	public static final int DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final boolean DEFAULT_REMOVE_UNNECESSARY_SEMICOLON = false;
-	public static final String DEFAULT_SWITCH_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_TAB_SIZE = 4;
-	public static final String DEFAULT_TYPE_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
-	public static final int DEFAULT_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
-	public static final int DEFAULT_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
-	public static final int DEFAULT_TYPE_MEMBER_ALIGNMENT = Alignment.M_NO_ALIGNMENT;
-	public static final boolean DEFAULT_USE_TAB = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
-
 	public static DefaultCodeFormatterOptions getDefaultSettings() {
 		DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions();
 		options.setDefaultSettings();
@@ -191,12 +35,36 @@ public class DefaultCodeFormatterOptions {
 		return options;
 	}
 
-	public int allocation_expression_arguments_alignment;
-	public String anonymous_type_declaration_brace_position;
-	public String array_initializer_brace_position;
-	public int array_initializer_continuation_indentation;
-	public int array_initializer_expressions_alignment;
-	public int binary_expression_alignment;
+	public int alignment_for_arguments_in_allocation_expression;
+	public int alignment_for_arguments_in_explicit_constructor_call;
+	public int alignment_for_arguments_in_method_invocation;
+	public int alignment_for_arguments_in_qualified_allocation_expression;
+	public int alignment_for_binary_expression;
+	public int alignment_for_compact_if;
+	public int alignment_for_conditional_expression;
+	public int alignment_for_expressions_in_array_initializer;
+	public int alignment_for_multiple_fields;
+	public int alignment_for_parameters_in_constructor_declaration;
+	public int alignment_for_parameters_in_method_declaration;
+	public int alignment_for_selector_in_method_invocation;
+	public int alignment_for_superclass_in_type_declaration;
+	public int alignment_for_superinterfaces_in_type_declaration;
+	public int alignment_for_throws_clause_in_constructor_declaration;
+	public int alignment_for_throws_clause_in_method_declaration;
+	
+	public boolean align_type_members_on_columns;
+	
+	public String brace_position_for_anonymous_type_declaration;
+	public String brace_position_for_array_initializer;
+	public String brace_position_for_block;
+	public String brace_position_for_constructor_declaration;
+	public String brace_position_for_method_declaration;
+	public String brace_position_for_type_declaration;
+	public String brace_position_for_switch;
+	
+	public int continuation_indentation;
+	public int continuation_indentation_for_array_initializer;
+	
 	public int blank_lines_after_imports;
 	public int blank_lines_after_package;
 	public int blank_lines_before_field;
@@ -207,20 +75,14 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_before_new_chunk;
 	public int blank_lines_before_package;
 	public int blank_lines_between_type_declarations;
-	public String block_brace_position;
-	public boolean compact_else_if;
-	public int compact_if_alignment;
-	public int conditional_expression_alignment;
-	public int continuation_indentation;
-	public int explicit_constructor_arguments_alignment;
-	public char filling_space; 	// TODO remove when testing is over
-	public boolean format_guardian_clause_on_one_line;
+	public int blank_lines_at_beginning_of_method_body;
+	
 	public boolean indent_block_statements;
 	public boolean indent_body_declarations_compare_to_type_header;
 	public boolean indent_breaks_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_switch;
-	public int initial_indentation_level;
+	
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
 	public boolean insert_new_line_in_control_statements;
@@ -228,46 +90,61 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_in_empty_block;
 	public boolean insert_new_line_in_empty_method_body;
 	public boolean insert_new_line_in_empty_type_declaration;
-	public boolean insert_space_after_assignment_operators;
+	public boolean insert_space_after_assignment_operator;
 	public boolean insert_space_after_binary_operator;
-	public boolean insert_space_after_block_close_brace;
 	public boolean insert_space_after_closing_paren_in_cast;
+	public boolean insert_space_after_closing_brace_in_block;
 	public boolean insert_space_after_colon_in_assert;
 	public boolean insert_space_after_colon_in_conditional;
 	public boolean insert_space_after_colon_in_labeled_statement;
 	public boolean insert_space_after_comma_in_allocation_expression;
 	public boolean insert_space_after_comma_in_array_initializer;
-	public boolean insert_space_after_comma_in_constructor_arguments;
-	public boolean insert_space_after_comma_in_constructor_throws;
-	public boolean insert_space_after_comma_in_explicitconstructorcall_arguments;
+	public boolean insert_space_after_comma_in_constructor_declaration_parameters;
+	public boolean insert_space_after_comma_in_constructor_declaration_throws;
+	public boolean insert_space_after_comma_in_explicit_constructor_call_arguments;
 	public boolean insert_space_after_comma_in_for_increments;
 	public boolean insert_space_after_comma_in_for_inits;
-	public boolean insert_space_after_comma_in_messagesend_arguments;
-	public boolean insert_space_after_comma_in_method_arguments;
-	public boolean insert_space_after_comma_in_method_throws;
+	public boolean insert_space_after_comma_in_method_invocation_arguments;
+	public boolean insert_space_after_comma_in_method_declaration_parameters;
+	public boolean insert_space_after_comma_in_method_declaration_throws;
 	public boolean insert_space_after_comma_in_multiple_field_declarations;
 	public boolean insert_space_after_comma_in_multiple_local_declarations;
 	public boolean insert_space_after_comma_in_superinterfaces;
+	public boolean insert_space_after_opening_bracket_in_array_allocation_expression;
+	public boolean insert_space_after_opening_bracket_in_array_reference;
+	public boolean insert_space_after_opening_brace_in_array_initializer;
 	public boolean insert_space_after_opening_paren_in_cast;
-	public boolean insert_space_after_opening_paren_in_message_send;
+	public boolean insert_space_after_opening_paren_in_catch;
+	public boolean insert_space_after_opening_paren_in_constructor_declaration;
+	public boolean insert_space_after_opening_paren_in_for;
+	public boolean insert_space_after_opening_paren_in_if;
+	public boolean insert_space_after_opening_paren_in_method_declaration;
+	public boolean insert_space_after_opening_paren_in_method_invocation;
 	public boolean insert_space_after_opening_paren_in_parenthesized_expression;
+	public boolean insert_space_after_opening_paren_in_switch;
+	public boolean insert_space_after_opening_paren_in_synchronized;
+	public boolean insert_space_after_opening_paren_in_while;
 	public boolean insert_space_after_postfix_operator;
 	public boolean insert_space_after_prefix_operator;
 	public boolean insert_space_after_question_in_conditional;
 	public boolean insert_space_after_semicolon_in_for;
 	public boolean insert_space_after_unary_operator;
-	public boolean insert_space_before_anonymous_type_open_brace;
-	public boolean insert_space_before_assignment_operators;
+	public boolean insert_space_before_assignment_operator;
 	public boolean insert_space_before_binary_operator;
-	public boolean insert_space_before_block_open_brace;
-	public boolean insert_space_before_bracket_in_array_reference;
-	public boolean insert_space_before_bracket_in_array_type_reference;
-	public boolean insert_space_before_catch_expression;
 	public boolean insert_space_before_closing_brace_in_array_initializer;
-	public boolean insert_space_before_closing_paren;
+	public boolean insert_space_before_closing_bracket_in_array_allocation_expression;
+	public boolean insert_space_before_closing_bracket_in_array_reference;
 	public boolean insert_space_before_closing_paren_in_cast;
-	public boolean insert_space_before_closing_paren_in_message_send;
+	public boolean insert_space_before_closing_paren_in_catch;
+	public boolean insert_space_before_closing_paren_in_constructor_declaration;
+	public boolean insert_space_before_closing_paren_in_for;
+	public boolean insert_space_before_closing_paren_in_if;
+	public boolean insert_space_before_closing_paren_in_method_declaration;
+	public boolean insert_space_before_closing_paren_in_method_invocation;
 	public boolean insert_space_before_closing_paren_in_parenthesized_expression;
+	public boolean insert_space_before_closing_paren_in_switch;
+	public boolean insert_space_before_closing_paren_in_synchronized;
+	public boolean insert_space_before_closing_paren_in_while;
 	public boolean insert_space_before_colon_in_assert;
 	public boolean insert_space_before_colon_in_case;
 	public boolean insert_space_before_colon_in_conditional;
@@ -275,73 +152,65 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_colon_in_labeled_statement;
 	public boolean insert_space_before_comma_in_allocation_expression;
 	public boolean insert_space_before_comma_in_array_initializer;
-	public boolean insert_space_before_comma_in_constructor_arguments;
-	public boolean insert_space_before_comma_in_constructor_throws;
-	public boolean insert_space_before_comma_in_explicitconstructorcall_arguments;
+	public boolean insert_space_before_comma_in_constructor_declaration_parameters;
+	public boolean insert_space_before_comma_in_constructor_declaration_throws;
+	public boolean insert_space_before_comma_in_explicit_constructor_call_arguments;
 	public boolean insert_space_before_comma_in_for_increments;
 	public boolean insert_space_before_comma_in_for_inits;
-	public boolean insert_space_before_comma_in_messagesend_arguments;
-	public boolean insert_space_before_comma_in_method_arguments;
-	public boolean insert_space_before_comma_in_method_throws;
+	public boolean insert_space_before_comma_in_method_invocation_arguments;
+	public boolean insert_space_before_comma_in_method_declaration_parameters;
+	public boolean insert_space_before_comma_in_method_declaration_throws;
 	public boolean insert_space_before_comma_in_multiple_field_declarations;
 	public boolean insert_space_before_comma_in_multiple_local_declarations;
 	public boolean insert_space_before_comma_in_superinterfaces;
-	public boolean insert_space_before_constructor_declaration_open_paren;
-	public boolean insert_space_before_first_argument;
-	public boolean insert_space_before_first_initializer;
-	public boolean insert_space_before_for_paren;
-	public boolean insert_space_before_if_condition;
-	public boolean insert_space_before_message_send;
-	public boolean insert_space_before_method_declaration_open_paren;
-	public boolean insert_space_before_method_open_brace;
-	public boolean insert_space_before_open_paren_in_parenthesized_expression;
+	public boolean insert_space_before_opening_brace_in_anonymous_type_declaration;
 	public boolean insert_space_before_opening_brace_in_array_initializer;
+	public boolean insert_space_before_opening_brace_in_block;
+	public boolean insert_space_before_opening_brace_in_constructor_declaration;
+	public boolean insert_space_before_opening_brace_in_method_declaration;
+	public boolean insert_space_before_opening_brace_in_type_declaration;
+	public boolean insert_space_before_opening_bracket_in_array_allocation_expression;
+	public boolean insert_space_before_opening_bracket_in_array_reference;
+	public boolean insert_space_before_opening_bracket_in_array_type_reference;
+	public boolean insert_space_before_opening_paren_in_catch;
+	public boolean insert_space_before_opening_paren_in_constructor_declaration;
+	public boolean insert_space_before_opening_paren_in_for;
+	public boolean insert_space_before_opening_paren_in_if;
+	public boolean insert_space_before_opening_paren_in_method_invocation;
+	public boolean insert_space_before_opening_paren_in_method_declaration;
+	public boolean insert_space_before_opening_paren_in_switch;
+	public boolean insert_space_before_opening_brace_in_switch;
+	public boolean insert_space_before_opening_paren_in_synchronized;
+	public boolean insert_space_before_opening_paren_in_parenthesized_expression;
+	public boolean insert_space_before_opening_paren_in_while;
 	public boolean insert_space_before_postfix_operator;
 	public boolean insert_space_before_prefix_operator;
 	public boolean insert_space_before_question_in_conditional;
 	public boolean insert_space_before_semicolon;
 	public boolean insert_space_before_semicolon_in_for;
-	public boolean insert_space_before_switch_condition;
-	public boolean insert_space_before_switch_open_brace;
-	public boolean insert_space_before_synchronized_condition;
-	public boolean insert_space_before_type_open_brace;
 	public boolean insert_space_before_unary_operator;
-	public boolean insert_space_before_while_condition;
-	public boolean insert_space_between_brackets_in_array_reference;
 	public boolean insert_space_between_brackets_in_array_type_reference;
-	public boolean insert_space_between_empty_arguments;
-	public boolean insert_space_between_empty_messagesend_arguments;
-	public boolean insert_space_between_empty_array_initializer;
-	public boolean insert_space_in_catch_expression;
-	public boolean insert_space_in_for_parens;
-	public boolean insert_space_in_if_condition;
-	public boolean insert_space_in_switch_condition;
-	public boolean insert_space_in_synchronized_condition;
-	public boolean insert_space_in_while_condition;
+	public boolean insert_space_between_empty_braces_in_array_initializer;
+	public boolean insert_space_between_empty_brackets_in_array_allocation_expression;
+	public boolean insert_space_between_empty_parens_in_constructor_declaration;
+	public boolean insert_space_between_empty_parens_in_method_declaration;
+	public boolean insert_space_between_empty_parens_in_method_invocation;
+	public boolean compact_else_if;
+	public boolean keep_guardian_clause_on_one_line;
 	public boolean keep_else_statement_on_same_line;
 	public boolean keep_simple_if_on_one_line;
 	public boolean keep_then_statement_on_same_line;
-	public String line_separator;
-	public int message_send_arguments_alignment;
-	public int message_send_selector_alignment;
-	public int method_declaration_arguments_alignment;
-	public String method_declaration_brace_position;
-	public int method_throws_clause_alignment;
-	public int multiple_fields_alignment;
-	public int number_of_blank_lines_to_insert_at_beginning_of_method_body;
 	public int number_of_empty_lines_to_preserve;
-	public int page_width;
 	public boolean preserve_user_linebreaks;
-	public boolean put_empty_statement_on_new_line; 
-	public int qualified_allocation_expression_arguments_alignment;
+	public boolean put_empty_statement_on_new_line;
 	public boolean remove_unnecessary_semicolon;
-	public String switch_brace_position;
 	public int tab_size;
-	public String type_declaration_brace_position;
-	public int type_declaration_superclass_alignment;
-	public int type_declaration_superinterfaces_alignment;
-	public int type_member_alignment;
+	public char filling_space;
+	public int page_width;
 	public boolean use_tab;
+
+	public int initial_indentation_level;
+	public String line_separator;
 	
 	private DefaultCodeFormatterOptions() {
 		// cannot be instantiated
@@ -359,12 +228,32 @@ public class DefaultCodeFormatterOptions {
 
 	public Map getMap() {
 		Map options = new HashMap();
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT, getAlignment(this.allocation_expression_arguments_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION, this.anonymous_type_declaration_brace_position);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_BRACE_POSITION, this.array_initializer_brace_position);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_CONTINUATION_INDENTATION, Integer.toString(this.array_initializer_continuation_indentation));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT, getAlignment(this.array_initializer_expressions_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT, getAlignment(this.binary_expression_alignment));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_allocation_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL, getAlignment(this.alignment_for_arguments_in_explicit_constructor_call));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_arguments_in_method_invocation));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_qualified_allocation_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION, getAlignment(this.alignment_for_binary_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF, getAlignment(this.alignment_for_compact_if));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER, getAlignment(this.alignment_for_expressions_in_array_initializer));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS, getAlignment(this.alignment_for_multiple_fields));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_parameters_in_constructor_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_parameters_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_selector_in_method_invocation));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERCLASS_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superclass_in_type_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_type_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_constructor_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, this.align_type_members_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION, this.brace_position_for_anonymous_type_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER, this.brace_position_for_array_initializer);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, this.brace_position_for_block);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION, this.brace_position_for_constructor_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, this.brace_position_for_method_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, this.brace_position_for_type_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, Integer.toString(this.continuation_indentation));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER, Integer.toString(this.continuation_indentation_for_array_initializer));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, Integer.toString(this.blank_lines_after_imports));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, Integer.toString(this.blank_lines_after_package));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD, Integer.toString(this.blank_lines_before_field));
@@ -375,166 +264,244 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK, Integer.toString(this.blank_lines_before_new_chunk));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, Integer.toString(this.blank_lines_before_package));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS, Integer.toString(this.blank_lines_between_type_declarations));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION, this.block_brace_position);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF, this.compact_else_if ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT, getAlignment(this.compact_if_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT, getAlignment(this.conditional_expression_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, Integer.toString(this.continuation_indentation));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT, getAlignment(this.explicit_constructor_arguments_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE, this.format_guardian_clause_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY, Integer.toString(this.blank_lines_at_beginning_of_method_body));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS, this.indent_block_statements ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, this.indent_body_declarations_compare_to_type_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES, this.indent_breaks_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_before_closing_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, this.insert_new_line_in_control_statements ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION, this.insert_new_line_in_empty_anonymous_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, this.insert_new_line_in_empty_block ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY, this.insert_new_line_in_empty_method_body ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION, this.insert_new_line_in_empty_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS, this.insert_space_after_assignment_operators ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, this.insert_space_after_binary_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE, this.insert_space_after_block_close_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST, this.insert_space_after_closing_paren_in_cast ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_ASSERT, this.insert_space_after_colon_in_assert ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL, this.insert_space_after_colon_in_conditional ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT, this.insert_space_after_colon_in_labeled_statement ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION, this.insert_space_after_comma_in_allocation_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER, this.insert_space_after_comma_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS, this.insert_space_after_comma_in_constructor_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS, this.insert_space_after_comma_in_constructor_throws ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS, this.insert_space_after_comma_in_explicitconstructorcall_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS, this.insert_space_after_comma_in_for_increments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS, this.insert_space_after_comma_in_for_inits ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS, this.insert_space_after_comma_in_messagesend_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS, this.insert_space_after_comma_in_method_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS, this.insert_space_after_comma_in_method_throws ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_after_comma_in_multiple_field_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_after_comma_in_multiple_local_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, this.insert_space_after_comma_in_superinterfaces ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST, this.insert_space_after_opening_paren_in_cast ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_MESSAGE_SEND, this.insert_space_after_opening_paren_in_message_send ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_after_opening_paren_in_parenthesized_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_POSTFIX_OPERATOR, this.insert_space_after_postfix_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR, this.insert_space_after_prefix_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL, this.insert_space_after_question_in_conditional ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR, this.insert_space_after_semicolon_in_for ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR, this.insert_space_after_unary_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE, this.insert_space_before_anonymous_type_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS, this.insert_space_before_assignment_operators ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, this.insert_space_before_binary_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE, this.insert_space_before_block_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE, this.insert_space_before_bracket_in_array_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE, this.insert_space_before_bracket_in_array_type_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CATCH_EXPRESSION, this.insert_space_before_catch_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_space_before_closing_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN, this.insert_space_before_closing_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST, this.insert_space_before_closing_paren_in_cast ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_MESSAGE_SEND, this.insert_space_before_closing_paren_in_message_send ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_closing_paren_in_parenthesized_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_ASSERT, this.insert_space_before_colon_in_assert ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CASE, this.insert_space_before_colon_in_case ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL, this.insert_space_before_colon_in_conditional ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT, this.insert_space_before_colon_in_default ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT, this.insert_space_before_colon_in_labeled_statement ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION, this.insert_space_before_comma_in_allocation_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER, this.insert_space_before_comma_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS, this.insert_space_before_comma_in_constructor_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS, this.insert_space_before_comma_in_constructor_throws ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS, this.insert_space_before_comma_in_explicitconstructorcall_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS, this.insert_space_before_comma_in_for_increments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS, this.insert_space_before_comma_in_for_inits ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS, this.insert_space_before_comma_in_messagesend_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS, this.insert_space_before_comma_in_method_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS, this.insert_space_before_comma_in_method_throws ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN, this.insert_space_before_constructor_declaration_open_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT, this.insert_space_before_first_argument ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER, this.insert_space_before_first_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN, this.insert_space_before_for_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_IF_CONDITION, this.insert_space_before_if_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MESSAGE_SEND, this.insert_space_before_message_send ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN, this.insert_space_before_method_declaration_open_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE, this.insert_space_before_method_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_open_paren_in_parenthesized_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_space_before_opening_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR, this.insert_space_before_postfix_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR, this.insert_space_before_prefix_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL, this.insert_space_before_question_in_conditional ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, this.insert_space_before_semicolon ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR, this.insert_space_before_semicolon_in_for ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION, this.insert_space_before_switch_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE, this.insert_space_before_switch_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION, this.insert_space_before_synchronized_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE, this.insert_space_before_type_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_UNARY_OPERATOR, this.insert_space_before_unary_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_WHILE_CONDITION, this.insert_space_before_while_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE, this.insert_space_between_brackets_in_array_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE, this.insert_space_between_brackets_in_array_type_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS, this.insert_space_between_empty_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS, this.insert_space_between_empty_messagesend_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER, this.insert_space_between_empty_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION, this.insert_space_in_catch_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_FOR_PARENS, this.insert_space_in_for_parens ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_IF_CONDITION, this.insert_space_in_if_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SWITCH_CONDITION, this.insert_space_in_switch_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION, this.insert_space_in_synchronized_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_WHILE_CONDITION, this.insert_space_in_while_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_before_closing_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, this.insert_new_line_in_control_statements? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION, this.insert_new_line_in_empty_anonymous_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, this.insert_new_line_in_empty_block? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY, this.insert_new_line_in_empty_method_body? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION, this.insert_new_line_in_empty_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, this.insert_space_after_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, this.insert_space_after_binary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST, this.insert_space_after_closing_paren_in_cast? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_BRACE_IN_BLOCK, this.insert_space_after_closing_brace_in_block? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_ASSERT, this.insert_space_after_colon_in_assert? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL, this.insert_space_after_colon_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT, this.insert_space_after_colon_in_labeled_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION, this.insert_space_after_comma_in_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER, this.insert_space_after_comma_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS, this.insert_space_after_comma_in_constructor_declaration_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS, this.insert_space_after_comma_in_constructor_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS, this.insert_space_after_comma_in_explicit_constructor_call_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS, this.insert_space_after_comma_in_for_increments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS, this.insert_space_after_comma_in_for_inits? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_INVOCATION_ARGUMENTS, this.insert_space_after_comma_in_method_invocation_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_PARAMETERS, this.insert_space_after_comma_in_method_declaration_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_THROWS, this.insert_space_after_comma_in_method_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_after_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_after_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, this.insert_space_after_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_after_opening_bracket_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_REFERENCE, this.insert_space_after_opening_bracket_in_array_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_space_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST, this.insert_space_after_opening_paren_in_cast? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CATCH, this.insert_space_after_opening_paren_in_catch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CONSTRUCTOR_DECLARATION, this.insert_space_after_opening_paren_in_constructor_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_FOR, this.insert_space_after_opening_paren_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_IF, this.insert_space_after_opening_paren_in_if? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_DECLARATION, this.insert_space_after_opening_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION, this.insert_space_after_opening_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_after_opening_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SWITCH, this.insert_space_after_opening_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SYNCHRONIZED, this.insert_space_after_opening_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_WHILE, this.insert_space_after_opening_paren_in_while? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_POSTFIX_OPERATOR, this.insert_space_after_postfix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR, this.insert_space_after_prefix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL, this.insert_space_after_question_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR, this.insert_space_after_semicolon_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR, this.insert_space_after_unary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, this.insert_space_before_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, this.insert_space_before_binary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_space_before_closing_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_before_closing_bracket_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACKET_IN_ARRAY_REFERENCE, this.insert_space_before_closing_bracket_in_array_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST, this.insert_space_before_closing_paren_in_cast? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CATCH, this.insert_space_before_closing_paren_in_catch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CONSTRUCTOR_DECLARATION, this.insert_space_before_closing_paren_in_constructor_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_FOR, this.insert_space_before_closing_paren_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_IF, this.insert_space_before_closing_paren_in_if? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_DECLARATION, this.insert_space_before_closing_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION, this.insert_space_before_closing_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_closing_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SWITCH, this.insert_space_before_closing_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SYNCHRONIZED, this.insert_space_before_closing_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_WHILE, this.insert_space_before_closing_paren_in_while? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_ASSERT, this.insert_space_before_colon_in_assert? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CASE, this.insert_space_before_colon_in_case? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL, this.insert_space_before_colon_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT, this.insert_space_before_colon_in_default? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT, this.insert_space_before_colon_in_labeled_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION, this.insert_space_before_comma_in_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER, this.insert_space_before_comma_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS, this.insert_space_before_comma_in_constructor_declaration_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS, this.insert_space_before_comma_in_constructor_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS, this.insert_space_before_comma_in_explicit_constructor_call_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS, this.insert_space_before_comma_in_for_increments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS, this.insert_space_before_comma_in_for_inits? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_INVOCATION_ARGUMENTS, this.insert_space_before_comma_in_method_invocation_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_PARAMETERS, this.insert_space_before_comma_in_method_declaration_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_THROWS, this.insert_space_before_comma_in_method_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ANONYMOUS_TYPE_DECLARATION, this.insert_space_before_opening_brace_in_anonymous_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_space_before_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_BLOCK, this.insert_space_before_opening_brace_in_block? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_CONSTRUCTOR_DECLARATION, this.insert_space_before_opening_brace_in_constructor_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_METHOD_DECLARATION, this.insert_space_before_opening_brace_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_TYPE_DECLARATION, this.insert_space_before_opening_brace_in_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_before_opening_bracket_in_array_allocation_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_REFERENCE, this.insert_space_before_opening_bracket_in_array_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_TYPE_REFERENCE, this.insert_space_before_opening_bracket_in_array_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CATCH, this.insert_space_before_opening_paren_in_catch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CONSTRUCTOR_DECLARATION, this.insert_space_before_opening_paren_in_constructor_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_FOR, this.insert_space_before_opening_paren_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_IF, this.insert_space_before_opening_paren_in_if? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_INVOCATION, this.insert_space_before_opening_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_DECLARATION, this.insert_space_before_opening_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SWITCH, this.insert_space_before_opening_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_SWITCH, this.insert_space_before_opening_brace_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED, this.insert_space_before_opening_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_opening_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE, this.insert_space_before_opening_paren_in_while? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR, this.insert_space_before_postfix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR, this.insert_space_before_prefix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL, this.insert_space_before_question_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, this.insert_space_before_semicolon? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR, this.insert_space_before_semicolon_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_UNARY_OPERATOR, this.insert_space_before_unary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE, this.insert_space_between_brackets_in_array_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_BRACES_IN_ARRAY_INITIALIZER, this.insert_space_between_empty_braces_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_BRACKETS_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_between_empty_brackets_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_CONSTRUCTOR_DECLARATION, this.insert_space_between_empty_parens_in_constructor_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_DECLARATION, this.insert_space_between_empty_parens_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION, this.insert_space_between_empty_parens_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF, this.compact_else_if ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_GUARDIAN_CLAUSE_ON_ONE_LINE, this.keep_guardian_clause_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE, this.keep_else_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE, this.keep_simple_if_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE, this.keep_then_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT, getAlignment(this.message_send_arguments_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT, getAlignment(this.message_send_selector_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT, getAlignment(this.method_declaration_arguments_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_BRACE_POSITION, this.method_declaration_brace_position);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_METHOD_THROWS_CLAUSE_ALIGNMENT, getAlignment(this.method_throws_clause_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_MULTIPLE_FIELDS_ALIGNMENT, getAlignment(this.multiple_fields_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY, Integer.toString(number_of_blank_lines_to_insert_at_beginning_of_method_body));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS, this.preserve_user_linebreaks ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT, getAlignment(this.qualified_allocation_expression_arguments_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, this.remove_unnecessary_semicolon ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION, this.switch_brace_position);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_BRACE_POSITION, this.type_declaration_brace_position);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT, getAlignment(this.type_declaration_superclass_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT, getAlignment(this.type_declaration_superinterfaces_alignment));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TYPE_MEMBER_ALIGNMENT, getAlignment(this.type_member_alignment));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
 		return options;
 	}
 
 	public void set(Map settings) {
-		final Object allocationExpressionArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT);
-		if (allocationExpressionArgumentsAlignmentOption != null) {
-			this.allocation_expression_arguments_alignment = Integer.parseInt((String) allocationExpressionArgumentsAlignmentOption);
+		final Object alignmentForArgumentsInAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION);
+		if (alignmentForArgumentsInAllocationExpressionOption != null) {
+			this.alignment_for_arguments_in_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInAllocationExpressionOption);
 		}
-		final Object anonymousTypeDeclarationBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION);
-		if (anonymousTypeDeclarationBracePositionOption != null) {
-			this.anonymous_type_declaration_brace_position = (String) anonymousTypeDeclarationBracePositionOption;
+		final Object alignmentForArgumentsInExplicitConstructorCallOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL);
+		if (alignmentForArgumentsInExplicitConstructorCallOption != null) {
+			this.alignment_for_arguments_in_explicit_constructor_call = Integer.parseInt((String) alignmentForArgumentsInExplicitConstructorCallOption);
 		}
-		final Object arrayInitializerBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_BRACE_POSITION);
-		if (arrayInitializerBracePositionOption != null) {
-			this.array_initializer_brace_position = (String) arrayInitializerBracePositionOption;
+		final Object alignmentForArgumentsInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION);
+		if (alignmentForArgumentsInMethodInvocationOption != null) {
+			this.alignment_for_arguments_in_method_invocation = Integer.parseInt((String) alignmentForArgumentsInMethodInvocationOption);
 		}
-		final Object arrayInitializerContinuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_CONTINUATION_INDENTATION);
-		if (arrayInitializerContinuationIndentationOption != null) {
-			this.array_initializer_continuation_indentation = Integer.parseInt((String) arrayInitializerContinuationIndentationOption);
+		final Object alignmentForArgumentsInQualifiedAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION);
+		if (alignmentForArgumentsInQualifiedAllocationExpressionOption != null) {
+			this.alignment_for_arguments_in_qualified_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInQualifiedAllocationExpressionOption);
 		}
-		final Object arrayInitializerExpressionsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT);
-		if (arrayInitializerExpressionsAlignmentOption != null) {
-			this.array_initializer_expressions_alignment = Integer.parseInt((String) arrayInitializerExpressionsAlignmentOption);
+		final Object alignmentForBinaryExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION);
+		if (alignmentForBinaryExpressionOption != null) {
+			this.alignment_for_binary_expression = Integer.parseInt((String) alignmentForBinaryExpressionOption);
 		}
-		final Object binaryExpressionAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT);
-		if (binaryExpressionAlignmentOption != null) {
-			this.binary_expression_alignment = Integer.parseInt((String) binaryExpressionAlignmentOption);
+		final Object alignmentForCompactIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF);
+		if (alignmentForCompactIfOption != null) {
+			this.alignment_for_compact_if = Integer.parseInt((String) alignmentForCompactIfOption);
+		}
+		final Object alignmentForConditionalExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION);
+		if (alignmentForConditionalExpressionOption != null) {
+			this.alignment_for_conditional_expression = Integer.parseInt((String) alignmentForConditionalExpressionOption);
+		}
+		final Object alignmentForExpressionsInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER);
+		if (alignmentForExpressionsInArrayInitializerOption != null) {
+			this.alignment_for_expressions_in_array_initializer = Integer.parseInt((String) alignmentForExpressionsInArrayInitializerOption);
+		}
+		final Object alignmentForMultipleFieldsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS);
+		if (alignmentForMultipleFieldsOption != null) {
+			this.alignment_for_multiple_fields = Integer.parseInt((String) alignmentForMultipleFieldsOption);
+		}
+		final Object alignmentForParametersInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION);
+		if (alignmentForParametersInConstructorDeclarationOption != null) {
+			this.alignment_for_parameters_in_constructor_declaration = Integer.parseInt((String) alignmentForParametersInConstructorDeclarationOption);
+		}
+		final Object alignmentForParametersInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION);
+		if (alignmentForParametersInMethodDeclarationOption != null) {
+			this.alignment_for_parameters_in_method_declaration = Integer.parseInt((String) alignmentForParametersInMethodDeclarationOption);
+		}
+		final Object alignmentForSelectorInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION);
+		if (alignmentForSelectorInMethodInvocationOption != null) {
+			this.alignment_for_selector_in_method_invocation = Integer.parseInt((String) alignmentForSelectorInMethodInvocationOption);
+		}
+		final Object alignmentForSuperclassInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERCLASS_IN_TYPE_DECLARATION);
+		if (alignmentForSuperclassInTypeDeclarationOption != null) {
+			this.alignment_for_superclass_in_type_declaration = Integer.parseInt((String) alignmentForSuperclassInTypeDeclarationOption);
+		}
+		final Object alignmentForSuperinterfacesInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION);
+		if (alignmentForSuperinterfacesInTypeDeclarationOption != null) {
+			this.alignment_for_superinterfaces_in_type_declaration = Integer.parseInt((String) alignmentForSuperinterfacesInTypeDeclarationOption);
+		}
+		final Object alignmentForThrowsClauseInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION);
+		if (alignmentForThrowsClauseInConstructorDeclarationOption != null) {
+			this.alignment_for_throws_clause_in_constructor_declaration = Integer.parseInt((String) alignmentForThrowsClauseInConstructorDeclarationOption);
+		}
+		final Object alignmentForThrowsClauseInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION);
+		if (alignmentForThrowsClauseInMethodDeclarationOption != null) {
+			this.alignment_for_throws_clause_in_method_declaration = Integer.parseInt((String) alignmentForThrowsClauseInMethodDeclarationOption);
+		}
+		final Object alignTypeMembersOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
+		if (alignTypeMembersOnColumnsOption != null) {
+			this.align_type_members_on_columns = DefaultCodeFormatterConstants.TRUE.equals(alignTypeMembersOnColumnsOption);
+		}
+		final Object bracePositionForAnonymousTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION);
+		if (bracePositionForAnonymousTypeDeclarationOption != null) {
+			this.brace_position_for_anonymous_type_declaration = (String) bracePositionForAnonymousTypeDeclarationOption;
+		}
+		final Object bracePositionForArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER);
+		if (bracePositionForArrayInitializerOption != null) {
+			this.brace_position_for_array_initializer = (String) bracePositionForArrayInitializerOption;
+		}
+		final Object bracePositionForBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK);
+		if (bracePositionForBlockOption != null) {
+			this.brace_position_for_block = (String) bracePositionForBlockOption;
+		}
+		final Object bracePositionForConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION);
+		if (bracePositionForConstructorDeclarationOption != null) {
+			this.brace_position_for_constructor_declaration = (String) bracePositionForConstructorDeclarationOption;
+		}
+		final Object bracePositionForMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION);
+		if (bracePositionForMethodDeclarationOption != null) {
+			this.brace_position_for_method_declaration = (String) bracePositionForMethodDeclarationOption;
+		}
+		final Object bracePositionForTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION);
+		if (bracePositionForTypeDeclarationOption != null) {
+			this.brace_position_for_type_declaration = (String) bracePositionForTypeDeclarationOption;
+		}
+		final Object bracePositionForSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH);
+		if (bracePositionForSwitchOption != null) {
+			this.brace_position_for_switch = (String) bracePositionForSwitchOption;
+		}
+		final Object continuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION);
+		if (continuationIndentationOption != null) {
+			this.continuation_indentation = Integer.parseInt((String) continuationIndentationOption);
+		}
+		final Object continuationIndentationForArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER);
+		if (continuationIndentationForArrayInitializerOption != null) {
+			this.continuation_indentation_for_array_initializer = Integer.parseInt((String) continuationIndentationForArrayInitializerOption);
 		}
 		final Object blankLinesAfterImportsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS);
 		if (blankLinesAfterImportsOption != null) {
@@ -575,41 +542,10 @@ public class DefaultCodeFormatterOptions {
 		final Object blankLinesBetweenTypeDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS);
 		if (blankLinesBetweenTypeDeclarationsOption != null) {
 			this.blank_lines_between_type_declarations = Integer.parseInt((String) blankLinesBetweenTypeDeclarationsOption);
-		}		
-		final Object blockBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION);
-		if (blockBracePositionOption != null) {
-			this.block_brace_position = (String) blockBracePositionOption;
 		}
-		final Object compactElseIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF);
-		if (compactElseIfOption != null) {
-			this.compact_else_if = DefaultCodeFormatterConstants.TRUE.equals(compactElseIfOption);
-		}
-		final Object compactIfAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT);
-		if (compactIfAlignmentOption != null) {
-			this.compact_if_alignment = Integer.parseInt((String) compactIfAlignmentOption);
-		}
-		final Object conditionalExpressionAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT);
-		if (conditionalExpressionAlignmentOption != null) {
-			this.conditional_expression_alignment = Integer.parseInt((String) conditionalExpressionAlignmentOption);
-		}
-		final Object continuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION);
-		if (continuationIndentationOption != null) {
-			this.continuation_indentation = Integer.parseInt((String) continuationIndentationOption);
-		}
-		final Object explicitConstructorArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT);
-		if (explicitConstructorArgumentsAlignmentOption != null) {
-			this.explicit_constructor_arguments_alignment = Integer.parseInt((String) explicitConstructorArgumentsAlignmentOption);
-		}
-		final Object fillingSpaceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
-		if (fillingSpaceOption != null) {
-			String fillingSpaceOptionValue = (String) fillingSpaceOption;
-			if (fillingSpaceOptionValue.length() >= 1) {
-				this.filling_space = fillingSpaceOptionValue.charAt(0);
-			}
-		}
-		final Object formatGuardianClauseOnOneLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE);
-		if (formatGuardianClauseOnOneLineOption != null) {
-			this.format_guardian_clause_on_one_line = DefaultCodeFormatterConstants.TRUE.equals(formatGuardianClauseOnOneLineOption);
+		final Object blankLinesAtBeginningOfMethodBodyOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY);
+		if (blankLinesAtBeginningOfMethodBodyOption != null) {
+			this.blank_lines_at_beginning_of_method_body = Integer.parseInt((String) blankLinesAtBeginningOfMethodBodyOption);
 		}
 		final Object indentBlockStatementsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS);
 		if (indentBlockStatementsOption != null) {
@@ -659,21 +595,21 @@ public class DefaultCodeFormatterOptions {
 		if (insertNewLineInEmptyTypeDeclarationOption != null) {
 			this.insert_new_line_in_empty_type_declaration = JavaCore.INSERT.equals(insertNewLineInEmptyTypeDeclarationOption);
 		}
-		final Object insertSpaceAfterAssignmentOperatorsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS);
-		if (insertSpaceAfterAssignmentOperatorsOption != null) {
-			this.insert_space_after_assignment_operators = JavaCore.INSERT.equals(insertSpaceAfterAssignmentOperatorsOption);
+		final Object insertSpaceAfterAssignmentOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR);
+		if (insertSpaceAfterAssignmentOperatorOption != null) {
+			this.insert_space_after_assignment_operator = JavaCore.INSERT.equals(insertSpaceAfterAssignmentOperatorOption);
 		}
 		final Object insertSpaceAfterBinaryOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR);
 		if (insertSpaceAfterBinaryOperatorOption != null) {
 			this.insert_space_after_binary_operator = JavaCore.INSERT.equals(insertSpaceAfterBinaryOperatorOption);
 		}
-		final Object insertSpaceAfterBlockCloseBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE);
-		if (insertSpaceAfterBlockCloseBraceOption != null) {
-			this.insert_space_after_block_close_brace = JavaCore.INSERT.equals(insertSpaceAfterBlockCloseBraceOption);
-		}
 		final Object insertSpaceAfterClosingParenInCastOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST);
 		if (insertSpaceAfterClosingParenInCastOption != null) {
 			this.insert_space_after_closing_paren_in_cast = JavaCore.INSERT.equals(insertSpaceAfterClosingParenInCastOption);
+		}
+		final Object insertSpaceAfterClosingBraceInBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_BRACE_IN_BLOCK);
+		if (insertSpaceAfterClosingBraceInBlockOption != null) {
+			this.insert_space_after_closing_brace_in_block = JavaCore.INSERT.equals(insertSpaceAfterClosingBraceInBlockOption);
 		}
 		final Object insertSpaceAfterColonInAssertOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_ASSERT);
 		if (insertSpaceAfterColonInAssertOption != null) {
@@ -695,17 +631,17 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInArrayInitializerOption != null) {
 			this.insert_space_after_comma_in_array_initializer = JavaCore.INSERT.equals(insertSpaceAfterCommaInArrayInitializerOption);
 		}
-		final Object insertSpaceAfterCommaInConstructorArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS);
-		if (insertSpaceAfterCommaInConstructorArgumentsOption != null) {
-			this.insert_space_after_comma_in_constructor_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInConstructorArgumentsOption);
+		final Object insertSpaceAfterCommaInConstructorDeclarationParametersOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS);
+		if (insertSpaceAfterCommaInConstructorDeclarationParametersOption != null) {
+			this.insert_space_after_comma_in_constructor_declaration_parameters = JavaCore.INSERT.equals(insertSpaceAfterCommaInConstructorDeclarationParametersOption);
 		}
-		final Object insertSpaceAfterCommaInConstructorThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS);
-		if (insertSpaceAfterCommaInConstructorThrowsOption != null) {
-			this.insert_space_after_comma_in_constructor_throws = JavaCore.INSERT.equals(insertSpaceAfterCommaInConstructorThrowsOption);
+		final Object insertSpaceAfterCommaInConstructorDeclarationThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS);
+		if (insertSpaceAfterCommaInConstructorDeclarationThrowsOption != null) {
+			this.insert_space_after_comma_in_constructor_declaration_throws = JavaCore.INSERT.equals(insertSpaceAfterCommaInConstructorDeclarationThrowsOption);
 		}
-		final Object insertSpaceAfterCommaInExplicitconstructorcallArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS);
-		if (insertSpaceAfterCommaInExplicitconstructorcallArgumentsOption != null) {
-			this.insert_space_after_comma_in_explicitconstructorcall_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInExplicitconstructorcallArgumentsOption);
+		final Object insertSpaceAfterCommaInExplicitConstructorCallArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS);
+		if (insertSpaceAfterCommaInExplicitConstructorCallArgumentsOption != null) {
+			this.insert_space_after_comma_in_explicit_constructor_call_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInExplicitConstructorCallArgumentsOption);
 		}
 		final Object insertSpaceAfterCommaInForIncrementsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS);
 		if (insertSpaceAfterCommaInForIncrementsOption != null) {
@@ -715,17 +651,17 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInForInitsOption != null) {
 			this.insert_space_after_comma_in_for_inits = JavaCore.INSERT.equals(insertSpaceAfterCommaInForInitsOption);
 		}
-		final Object insertSpaceAfterCommaInMessagesendArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS);
-		if (insertSpaceAfterCommaInMessagesendArgumentsOption != null) {
-			this.insert_space_after_comma_in_messagesend_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInMessagesendArgumentsOption);
+		final Object insertSpaceAfterCommaInMethodInvocationArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_INVOCATION_ARGUMENTS);
+		if (insertSpaceAfterCommaInMethodInvocationArgumentsOption != null) {
+			this.insert_space_after_comma_in_method_invocation_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInMethodInvocationArgumentsOption);
 		}
-		final Object insertSpaceAfterCommaInMethodArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS);
-		if (insertSpaceAfterCommaInMethodArgumentsOption != null) {
-			this.insert_space_after_comma_in_method_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInMethodArgumentsOption);
+		final Object insertSpaceAfterCommaInMethodDeclarationParametersOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_PARAMETERS);
+		if (insertSpaceAfterCommaInMethodDeclarationParametersOption != null) {
+			this.insert_space_after_comma_in_method_declaration_parameters = JavaCore.INSERT.equals(insertSpaceAfterCommaInMethodDeclarationParametersOption);
 		}
-		final Object insertSpaceAfterCommaInMethodThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS);
-		if (insertSpaceAfterCommaInMethodThrowsOption != null) {
-			this.insert_space_after_comma_in_method_throws = JavaCore.INSERT.equals(insertSpaceAfterCommaInMethodThrowsOption);
+		final Object insertSpaceAfterCommaInMethodDeclarationThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_THROWS);
+		if (insertSpaceAfterCommaInMethodDeclarationThrowsOption != null) {
+			this.insert_space_after_comma_in_method_declaration_throws = JavaCore.INSERT.equals(insertSpaceAfterCommaInMethodDeclarationThrowsOption);
 		}
 		final Object insertSpaceAfterCommaInMultipleFieldDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS);
 		if (insertSpaceAfterCommaInMultipleFieldDeclarationsOption != null) {
@@ -739,17 +675,61 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInSuperinterfacesOption != null) {
 			this.insert_space_after_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceAfterCommaInSuperinterfacesOption);
 		}
-		final Object insertSpaceAfterOpeningParenInMessageSendOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_MESSAGE_SEND);
-		if (insertSpaceAfterOpeningParenInMessageSendOption != null) {
-			this.insert_space_after_opening_paren_in_message_send = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInMessageSendOption);
+		final Object insertSpaceAfterOpeningBracketInArrayAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION);
+		if (insertSpaceAfterOpeningBracketInArrayAllocationExpressionOption != null) {
+			this.insert_space_after_opening_bracket_in_array_allocation_expression = JavaCore.INSERT.equals(insertSpaceAfterOpeningBracketInArrayAllocationExpressionOption);
+		}
+		final Object insertSpaceAfterOpeningBracketInArrayReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_REFERENCE);
+		if (insertSpaceAfterOpeningBracketInArrayReferenceOption != null) {
+			this.insert_space_after_opening_bracket_in_array_reference = JavaCore.INSERT.equals(insertSpaceAfterOpeningBracketInArrayReferenceOption);
+		}
+		final Object insertSpaceAfterOpeningBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER);
+		if (insertSpaceAfterOpeningBraceInArrayInitializerOption != null) {
+			this.insert_space_after_opening_brace_in_array_initializer = JavaCore.INSERT.equals(insertSpaceAfterOpeningBraceInArrayInitializerOption);
+		}
+		final Object insertSpaceAfterOpeningParenInCastOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST);
+		if (insertSpaceAfterOpeningParenInCastOption != null) {
+			this.insert_space_after_opening_paren_in_cast = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInCastOption);
+		}
+		final Object insertSpaceAfterOpeningParenInCatchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CATCH);
+		if (insertSpaceAfterOpeningParenInCatchOption != null) {
+			this.insert_space_after_opening_paren_in_catch = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInCatchOption);
+		}
+		final Object insertSpaceAfterOpeningParenInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CONSTRUCTOR_DECLARATION);
+		if (insertSpaceAfterOpeningParenInConstructorDeclarationOption != null) {
+			this.insert_space_after_opening_paren_in_constructor_declaration = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInConstructorDeclarationOption);
+		}
+		final Object insertSpaceAfterOpeningParenInForOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_FOR);
+		if (insertSpaceAfterOpeningParenInForOption != null) {
+			this.insert_space_after_opening_paren_in_for = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInForOption);
+		}
+		final Object insertSpaceAfterOpeningParenInIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_IF);
+		if (insertSpaceAfterOpeningParenInIfOption != null) {
+			this.insert_space_after_opening_paren_in_if = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInIfOption);
+		}
+		final Object insertSpaceAfterOpeningParenInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_DECLARATION);
+		if (insertSpaceAfterOpeningParenInMethodDeclarationOption != null) {
+			this.insert_space_after_opening_paren_in_method_declaration = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInMethodDeclarationOption);
+		}
+		final Object insertSpaceAfterOpeningParenInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION);
+		if (insertSpaceAfterOpeningParenInMethodInvocationOption != null) {
+			this.insert_space_after_opening_paren_in_method_invocation = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInMethodInvocationOption);
 		}
 		final Object insertSpaceAfterOpeningParenInParenthesizedExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION);
 		if (insertSpaceAfterOpeningParenInParenthesizedExpressionOption != null) {
 			this.insert_space_after_opening_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInParenthesizedExpressionOption);
 		}
-		final Object insertSpaceAfterOpeningParenInCastOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST);
-		if (insertSpaceAfterOpeningParenInCastOption != null) {
-			this.insert_space_after_opening_paren_in_cast = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInCastOption);
+		final Object insertSpaceAfterOpeningParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SWITCH);
+		if (insertSpaceAfterOpeningParenInSwitchOption != null) {
+			this.insert_space_after_opening_paren_in_switch = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInSwitchOption);
+		}
+		final Object insertSpaceAfterOpeningParenInSynchronizedOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SYNCHRONIZED);
+		if (insertSpaceAfterOpeningParenInSynchronizedOption != null) {
+			this.insert_space_after_opening_paren_in_synchronized = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInSynchronizedOption);
+		}
+		final Object insertSpaceAfterOpeningParenInWhileOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_WHILE);
+		if (insertSpaceAfterOpeningParenInWhileOption != null) {
+			this.insert_space_after_opening_paren_in_while = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInWhileOption);
 		}
 		final Object insertSpaceAfterPostfixOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_POSTFIX_OPERATOR);
 		if (insertSpaceAfterPostfixOperatorOption != null) {
@@ -771,53 +751,69 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterUnaryOperatorOption != null) {
 			this.insert_space_after_unary_operator = JavaCore.INSERT.equals(insertSpaceAfterUnaryOperatorOption);
 		}
-		final Object insertSpaceBeforeAnonymousTypeOpenBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE);
-		if (insertSpaceBeforeAnonymousTypeOpenBraceOption != null) {
-			this.insert_space_before_anonymous_type_open_brace = JavaCore.INSERT.equals(insertSpaceBeforeAnonymousTypeOpenBraceOption);
-		}
-		final Object insertSpaceBeforeAssignmentOperatorsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS);
-		if (insertSpaceBeforeAssignmentOperatorsOption != null) {
-			this.insert_space_before_assignment_operators = JavaCore.INSERT.equals(insertSpaceBeforeAssignmentOperatorsOption);
+		final Object insertSpaceBeforeAssignmentOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR);
+		if (insertSpaceBeforeAssignmentOperatorOption != null) {
+			this.insert_space_before_assignment_operator = JavaCore.INSERT.equals(insertSpaceBeforeAssignmentOperatorOption);
 		}
 		final Object insertSpaceBeforeBinaryOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR);
 		if (insertSpaceBeforeBinaryOperatorOption != null) {
 			this.insert_space_before_binary_operator = JavaCore.INSERT.equals(insertSpaceBeforeBinaryOperatorOption);
 		}
-		final Object insertSpaceBeforeBlockOpenBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE);
-		if (insertSpaceBeforeBlockOpenBraceOption != null) {
-			this.insert_space_before_block_open_brace = JavaCore.INSERT.equals(insertSpaceBeforeBlockOpenBraceOption);
-		}
-		final Object insertSpaceBeforeBracketInArrayReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE);
-		if (insertSpaceBeforeBracketInArrayReferenceOption != null) {
-			this.insert_space_before_bracket_in_array_reference = JavaCore.INSERT.equals(insertSpaceBeforeBracketInArrayReferenceOption);
-		}
-		final Object insertSpaceBeforeBracketInArrayTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE);
-		if (insertSpaceBeforeBracketInArrayTypeReferenceOption != null) {
-			this.insert_space_before_bracket_in_array_type_reference = JavaCore.INSERT.equals(insertSpaceBeforeBracketInArrayTypeReferenceOption);
-		}
-		final Object insertSpaceBeforeCatchExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CATCH_EXPRESSION);
-		if (insertSpaceBeforeCatchExpressionOption != null) {
-			this.insert_space_before_catch_expression = JavaCore.INSERT.equals(insertSpaceBeforeCatchExpressionOption);
-		}
 		final Object insertSpaceBeforeClosingBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER);
 		if (insertSpaceBeforeClosingBraceInArrayInitializerOption != null) {
 			this.insert_space_before_closing_brace_in_array_initializer = JavaCore.INSERT.equals(insertSpaceBeforeClosingBraceInArrayInitializerOption);
 		}
-		final Object insertSpaceBeforeClosingParenOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN);
-		if (insertSpaceBeforeClosingParenOption != null) {
-			this.insert_space_before_closing_paren = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenOption);
+		final Object insertSpaceBeforeClosingBracketInArrayAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION);
+		if (insertSpaceBeforeClosingBracketInArrayAllocationExpressionOption != null) {
+			this.insert_space_before_closing_bracket_in_array_allocation_expression = JavaCore.INSERT.equals(insertSpaceBeforeClosingBracketInArrayAllocationExpressionOption);
+		}
+		final Object insertSpaceBeforeClosingBracketInArrayReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACKET_IN_ARRAY_REFERENCE);
+		if (insertSpaceBeforeClosingBracketInArrayReferenceOption != null) {
+			this.insert_space_before_closing_bracket_in_array_reference = JavaCore.INSERT.equals(insertSpaceBeforeClosingBracketInArrayReferenceOption);
 		}
 		final Object insertSpaceBeforeClosingParenInCastOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST);
 		if (insertSpaceBeforeClosingParenInCastOption != null) {
 			this.insert_space_before_closing_paren_in_cast = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInCastOption);
 		}
-		final Object insertSpaceBeforeClosingParenInMessageSendOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_MESSAGE_SEND);
-		if (insertSpaceBeforeClosingParenInMessageSendOption != null) {
-			this.insert_space_before_closing_paren_in_message_send = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInMessageSendOption);
+		final Object insertSpaceBeforeClosingParenInCatchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CATCH);
+		if (insertSpaceBeforeClosingParenInCatchOption != null) {
+			this.insert_space_before_closing_paren_in_catch = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInCatchOption);
+		}
+		final Object insertSpaceBeforeClosingParenInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CONSTRUCTOR_DECLARATION);
+		if (insertSpaceBeforeClosingParenInConstructorDeclarationOption != null) {
+			this.insert_space_before_closing_paren_in_constructor_declaration = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInConstructorDeclarationOption);
+		}
+		final Object insertSpaceBeforeClosingParenInForOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_FOR);
+		if (insertSpaceBeforeClosingParenInForOption != null) {
+			this.insert_space_before_closing_paren_in_for = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInForOption);
+		}
+		final Object insertSpaceBeforeClosingParenInIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_IF);
+		if (insertSpaceBeforeClosingParenInIfOption != null) {
+			this.insert_space_before_closing_paren_in_if = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInIfOption);
+		}
+		final Object insertSpaceBeforeClosingParenInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_DECLARATION);
+		if (insertSpaceBeforeClosingParenInMethodDeclarationOption != null) {
+			this.insert_space_before_closing_paren_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInMethodDeclarationOption);
+		}
+		final Object insertSpaceBeforeClosingParenInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION);
+		if (insertSpaceBeforeClosingParenInMethodInvocationOption != null) {
+			this.insert_space_before_closing_paren_in_method_invocation = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInMethodInvocationOption);
 		}
 		final Object insertSpaceBeforeClosingParenInParenthesizedExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION);
 		if (insertSpaceBeforeClosingParenInParenthesizedExpressionOption != null) {
 			this.insert_space_before_closing_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInParenthesizedExpressionOption);
+		}
+		final Object insertSpaceBeforeClosingParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SWITCH);
+		if (insertSpaceBeforeClosingParenInSwitchOption != null) {
+			this.insert_space_before_closing_paren_in_switch = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInSwitchOption);
+		}
+		final Object insertSpaceBeforeClosingParenInSynchronizedOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SYNCHRONIZED);
+		if (insertSpaceBeforeClosingParenInSynchronizedOption != null) {
+			this.insert_space_before_closing_paren_in_synchronized = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInSynchronizedOption);
+		}
+		final Object insertSpaceBeforeClosingParenInWhileOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_WHILE);
+		if (insertSpaceBeforeClosingParenInWhileOption != null) {
+			this.insert_space_before_closing_paren_in_while = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInWhileOption);
 		}
 		final Object insertSpaceBeforeColonInAssertOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_ASSERT);
 		if (insertSpaceBeforeColonInAssertOption != null) {
@@ -847,17 +843,17 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInArrayInitializerOption != null) {
 			this.insert_space_before_comma_in_array_initializer = JavaCore.INSERT.equals(insertSpaceBeforeCommaInArrayInitializerOption);
 		}
-		final Object insertSpaceBeforeCommaInConstructorArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS);
-		if (insertSpaceBeforeCommaInConstructorArgumentsOption != null) {
-			this.insert_space_before_comma_in_constructor_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInConstructorArgumentsOption);
+		final Object insertSpaceBeforeCommaInConstructorDeclarationParametersOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS);
+		if (insertSpaceBeforeCommaInConstructorDeclarationParametersOption != null) {
+			this.insert_space_before_comma_in_constructor_declaration_parameters = JavaCore.INSERT.equals(insertSpaceBeforeCommaInConstructorDeclarationParametersOption);
 		}
-		final Object insertSpaceBeforeCommaInConstructorThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS);
-		if (insertSpaceBeforeCommaInConstructorThrowsOption != null) {
-			this.insert_space_before_comma_in_constructor_throws = JavaCore.INSERT.equals(insertSpaceBeforeCommaInConstructorThrowsOption);
+		final Object insertSpaceBeforeCommaInConstructorDeclarationThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS);
+		if (insertSpaceBeforeCommaInConstructorDeclarationThrowsOption != null) {
+			this.insert_space_before_comma_in_constructor_declaration_throws = JavaCore.INSERT.equals(insertSpaceBeforeCommaInConstructorDeclarationThrowsOption);
 		}
-		final Object insertSpaceBeforeCommaInExplicitconstructorcallArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS);
-		if (insertSpaceBeforeCommaInExplicitconstructorcallArgumentsOption != null) {
-			this.insert_space_before_comma_in_explicitconstructorcall_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInExplicitconstructorcallArgumentsOption);
+		final Object insertSpaceBeforeCommaInExplicitConstructorCallArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS);
+		if (insertSpaceBeforeCommaInExplicitConstructorCallArgumentsOption != null) {
+			this.insert_space_before_comma_in_explicit_constructor_call_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInExplicitConstructorCallArgumentsOption);
 		}
 		final Object insertSpaceBeforeCommaInForIncrementsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS);
 		if (insertSpaceBeforeCommaInForIncrementsOption != null) {
@@ -867,17 +863,17 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInForInitsOption != null) {
 			this.insert_space_before_comma_in_for_inits = JavaCore.INSERT.equals(insertSpaceBeforeCommaInForInitsOption);
 		}
-		final Object insertSpaceBeforeCommaInMessagesendArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS);
-		if (insertSpaceBeforeCommaInMessagesendArgumentsOption != null) {
-			this.insert_space_before_comma_in_messagesend_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMessagesendArgumentsOption);
+		final Object insertSpaceBeforeCommaInMethodInvocationArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_INVOCATION_ARGUMENTS);
+		if (insertSpaceBeforeCommaInMethodInvocationArgumentsOption != null) {
+			this.insert_space_before_comma_in_method_invocation_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMethodInvocationArgumentsOption);
 		}
-		final Object insertSpaceBeforeCommaInMethodArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS);
-		if (insertSpaceBeforeCommaInMethodArgumentsOption != null) {
-			this.insert_space_before_comma_in_method_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMethodArgumentsOption);
+		final Object insertSpaceBeforeCommaInMethodDeclarationParametersOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_PARAMETERS);
+		if (insertSpaceBeforeCommaInMethodDeclarationParametersOption != null) {
+			this.insert_space_before_comma_in_method_declaration_parameters = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMethodDeclarationParametersOption);
 		}
-		final Object insertSpaceBeforeCommaInMethodThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS);
-		if (insertSpaceBeforeCommaInMethodThrowsOption != null) {
-			this.insert_space_before_comma_in_method_throws = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMethodThrowsOption);
+		final Object insertSpaceBeforeCommaInMethodDeclarationThrowsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_THROWS);
+		if (insertSpaceBeforeCommaInMethodDeclarationThrowsOption != null) {
+			this.insert_space_before_comma_in_method_declaration_throws = JavaCore.INSERT.equals(insertSpaceBeforeCommaInMethodDeclarationThrowsOption);
 		}
 		final Object insertSpaceBeforeCommaInMultipleFieldDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS);
 		if (insertSpaceBeforeCommaInMultipleFieldDeclarationsOption != null) {
@@ -891,45 +887,85 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInSuperinterfacesOption != null) {
 			this.insert_space_before_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceBeforeCommaInSuperinterfacesOption);
 		}
-		final Object insertSpaceBeforeConstructorDeclarationOpenParenOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN);
-		if (insertSpaceBeforeConstructorDeclarationOpenParenOption != null) {
-			this.insert_space_before_constructor_declaration_open_paren = JavaCore.INSERT.equals(insertSpaceBeforeConstructorDeclarationOpenParenOption);
-		}
-		final Object insertSpaceBeforeFirstArgumentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT);
-		if (insertSpaceBeforeFirstArgumentOption != null) {
-			this.insert_space_before_first_argument = JavaCore.INSERT.equals(insertSpaceBeforeFirstArgumentOption);
-		}
-		final Object insertSpaceBeforeFirstInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER);
-		if (insertSpaceBeforeFirstInitializerOption != null) {
-			this.insert_space_before_first_initializer = JavaCore.INSERT.equals(insertSpaceBeforeFirstInitializerOption);
-		}
-		final Object insertSpaceBeforeForParenOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN);
-		if (insertSpaceBeforeForParenOption != null) {
-			this.insert_space_before_for_paren = JavaCore.INSERT.equals(insertSpaceBeforeForParenOption);
-		}
-		final Object insertSpaceBeforeIfConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_IF_CONDITION);
-		if (insertSpaceBeforeIfConditionOption != null) {
-			this.insert_space_before_if_condition = JavaCore.INSERT.equals(insertSpaceBeforeIfConditionOption);
-		}
-		final Object insertSpaceBeforeMessageSendOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MESSAGE_SEND);
-		if (insertSpaceBeforeMessageSendOption != null) {
-			this.insert_space_before_message_send = JavaCore.INSERT.equals(insertSpaceBeforeMessageSendOption);
-		}
-		final Object insertSpaceBeforeMethodDeclarationOpenParenOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN);
-		if (insertSpaceBeforeMethodDeclarationOpenParenOption != null) {
-			this.insert_space_before_method_declaration_open_paren = JavaCore.INSERT.equals(insertSpaceBeforeMethodDeclarationOpenParenOption);
-		}
-		final Object insertSpaceBeforeMethodOpenBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE);
-		if (insertSpaceBeforeMethodOpenBraceOption != null) {
-			this.insert_space_before_method_open_brace = JavaCore.INSERT.equals(insertSpaceBeforeMethodOpenBraceOption);
-		}
-		final Object insertSpaceBeforeOpenParenInParenthesizedExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION);
-		if (insertSpaceBeforeOpenParenInParenthesizedExpressionOption != null) {
-			this.insert_space_before_open_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceBeforeOpenParenInParenthesizedExpressionOption);
+		final Object insertSpaceBeforeOpeningBraceInAnonymousTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ANONYMOUS_TYPE_DECLARATION);
+		if (insertSpaceBeforeOpeningBraceInAnonymousTypeDeclarationOption != null) {
+			this.insert_space_before_opening_brace_in_anonymous_type_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInAnonymousTypeDeclarationOption);
 		}
 		final Object insertSpaceBeforeOpeningBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER);
 		if (insertSpaceBeforeOpeningBraceInArrayInitializerOption != null) {
 			this.insert_space_before_opening_brace_in_array_initializer = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInArrayInitializerOption);
+		}
+		final Object insertSpaceBeforeOpeningBraceInBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_BLOCK);
+		if (insertSpaceBeforeOpeningBraceInBlockOption != null) {
+			this.insert_space_before_opening_brace_in_block = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInBlockOption);
+		}
+		final Object insertSpaceBeforeOpeningBraceInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_CONSTRUCTOR_DECLARATION);
+		if (insertSpaceBeforeOpeningBraceInConstructorDeclarationOption != null) {
+			this.insert_space_before_opening_brace_in_constructor_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInConstructorDeclarationOption);
+		}
+		final Object insertSpaceBeforeOpeningBraceInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_METHOD_DECLARATION);
+		if (insertSpaceBeforeOpeningBraceInMethodDeclarationOption != null) {
+			this.insert_space_before_opening_brace_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInMethodDeclarationOption);
+		}
+		final Object insertSpaceBeforeOpeningBraceInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_TYPE_DECLARATION);
+		if (insertSpaceBeforeOpeningBraceInTypeDeclarationOption != null) {
+			this.insert_space_before_opening_brace_in_type_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInTypeDeclarationOption);
+		}
+		final Object insertSpaceBeforeOpeningBracketInArrayAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION);
+		if (insertSpaceBeforeOpeningBracketInArrayAllocationExpressionOption != null) {
+			this.insert_space_before_opening_bracket_in_array_allocation_expression = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBracketInArrayAllocationExpressionOption);
+		}
+		final Object insertSpaceBeforeOpeningBracketInArrayReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_REFERENCE);
+		if (insertSpaceBeforeOpeningBracketInArrayReferenceOption != null) {
+			this.insert_space_before_opening_bracket_in_array_reference = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBracketInArrayReferenceOption);
+		}
+		final Object insertSpaceBeforeOpeningBracketInArrayTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_TYPE_REFERENCE);
+		if (insertSpaceBeforeOpeningBracketInArrayTypeReferenceOption != null) {
+			this.insert_space_before_opening_bracket_in_array_type_reference = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBracketInArrayTypeReferenceOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInCatchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CATCH);
+		if (insertSpaceBeforeOpeningParenInCatchOption != null) {
+			this.insert_space_before_opening_paren_in_catch = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInCatchOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CONSTRUCTOR_DECLARATION);
+		if (insertSpaceBeforeOpeningParenInConstructorDeclarationOption != null) {
+			this.insert_space_before_opening_paren_in_constructor_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInConstructorDeclarationOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInForOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_FOR);
+		if (insertSpaceBeforeOpeningParenInForOption != null) {
+			this.insert_space_before_opening_paren_in_for = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInForOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_IF);
+		if (insertSpaceBeforeOpeningParenInIfOption != null) {
+			this.insert_space_before_opening_paren_in_if = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInIfOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_INVOCATION);
+		if (insertSpaceBeforeOpeningParenInMethodInvocationOption != null) {
+			this.insert_space_before_opening_paren_in_method_invocation = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInMethodInvocationOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_DECLARATION);
+		if (insertSpaceBeforeOpeningParenInMethodDeclarationOption != null) {
+			this.insert_space_before_opening_paren_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInMethodDeclarationOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SWITCH);
+		if (insertSpaceBeforeOpeningParenInSwitchOption != null) {
+			this.insert_space_before_opening_paren_in_switch = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInSwitchOption);
+		}
+		final Object insertSpaceBeforeOpeningBraceInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_SWITCH);
+		if (insertSpaceBeforeOpeningBraceInSwitchOption != null) {
+			this.insert_space_before_opening_brace_in_switch = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInSwitchOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInSynchronizedOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED);
+		if (insertSpaceBeforeOpeningParenInSynchronizedOption != null) {
+			this.insert_space_before_opening_paren_in_synchronized = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInSynchronizedOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInParenthesizedExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION);
+		if (insertSpaceBeforeOpeningParenInParenthesizedExpressionOption != null) {
+			this.insert_space_before_opening_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInParenthesizedExpressionOption);
+		}
+		final Object insertSpaceBeforeOpeningParenInWhileOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE);
+		if (insertSpaceBeforeOpeningParenInWhileOption != null) {
+			this.insert_space_before_opening_paren_in_while = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInWhileOption);
 		}
 		final Object insertSpaceBeforePostfixOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR);
 		if (insertSpaceBeforePostfixOperatorOption != null) {
@@ -951,73 +987,41 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeSemicolonInForOption != null) {
 			this.insert_space_before_semicolon_in_for = JavaCore.INSERT.equals(insertSpaceBeforeSemicolonInForOption);
 		}
-		final Object insertSpaceBeforeSwitchConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION);
-		if (insertSpaceBeforeSwitchConditionOption != null) {
-			this.insert_space_before_switch_condition = JavaCore.INSERT.equals(insertSpaceBeforeSwitchConditionOption);
-		}
-		final Object insertSpaceBeforeSwitchOpenBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE);
-		if (insertSpaceBeforeSwitchOpenBraceOption != null) {
-			this.insert_space_before_switch_open_brace = JavaCore.INSERT.equals(insertSpaceBeforeSwitchOpenBraceOption);
-		}
-		final Object insertSpaceBeforeSynchronizedConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION);
-		if (insertSpaceBeforeSynchronizedConditionOption != null) {
-			this.insert_space_before_synchronized_condition = JavaCore.INSERT.equals(insertSpaceBeforeSynchronizedConditionOption);
-		}
-		final Object insertSpaceBeforeTypeOpenBraceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE);
-		if (insertSpaceBeforeTypeOpenBraceOption != null) {
-			this.insert_space_before_type_open_brace = JavaCore.INSERT.equals(insertSpaceBeforeTypeOpenBraceOption);
-		}
 		final Object insertSpaceBeforeUnaryOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_UNARY_OPERATOR);
 		if (insertSpaceBeforeUnaryOperatorOption != null) {
 			this.insert_space_before_unary_operator = JavaCore.INSERT.equals(insertSpaceBeforeUnaryOperatorOption);
-		}
-		final Object insertSpaceBeforeWhileConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_WHILE_CONDITION);
-		if (insertSpaceBeforeWhileConditionOption != null) {
-			this.insert_space_before_while_condition = JavaCore.INSERT.equals(insertSpaceBeforeWhileConditionOption);
-		}
-		final Object insertSpaceBetweenBracketsInArrayReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE);
-		if (insertSpaceBetweenBracketsInArrayReferenceOption != null) {
-			this.insert_space_between_brackets_in_array_reference = JavaCore.INSERT.equals(insertSpaceBetweenBracketsInArrayReferenceOption);
 		}
 		final Object insertSpaceBetweenBracketsInArrayTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE);
 		if (insertSpaceBetweenBracketsInArrayTypeReferenceOption != null) {
 			this.insert_space_between_brackets_in_array_type_reference = JavaCore.INSERT.equals(insertSpaceBetweenBracketsInArrayTypeReferenceOption);
 		}
-		final Object insertSpaceBetweenEmptyArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS);
-		if (insertSpaceBetweenEmptyArgumentsOption != null) {
-			this.insert_space_between_empty_arguments = JavaCore.INSERT.equals(insertSpaceBetweenEmptyArgumentsOption);
+		final Object insertSpaceBetweenEmptyBracesInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_BRACES_IN_ARRAY_INITIALIZER);
+		if (insertSpaceBetweenEmptyBracesInArrayInitializerOption != null) {
+			this.insert_space_between_empty_braces_in_array_initializer = JavaCore.INSERT.equals(insertSpaceBetweenEmptyBracesInArrayInitializerOption);
 		}
- 		final Object insertSpaceBetweenEmptyMessageSendArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS);
-		if (insertSpaceBetweenEmptyMessageSendArgumentsOption != null) {
-			this.insert_space_between_empty_messagesend_arguments = JavaCore.INSERT.equals(insertSpaceBetweenEmptyMessageSendArgumentsOption);
+		final Object insertSpaceBetweenEmptyBracketsInArrayAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_BRACKETS_IN_ARRAY_ALLOCATION_EXPRESSION);
+		if (insertSpaceBetweenEmptyBracketsInArrayAllocationExpressionOption != null) {
+			this.insert_space_between_empty_brackets_in_array_allocation_expression = JavaCore.INSERT.equals(insertSpaceBetweenEmptyBracketsInArrayAllocationExpressionOption);
 		}
-		final Object insertSpaceBetweenEmptyArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER);
-		if (insertSpaceBetweenEmptyArrayInitializerOption != null) {
-			this.insert_space_between_empty_array_initializer = JavaCore.INSERT.equals(insertSpaceBetweenEmptyArrayInitializerOption);
+		final Object insertSpaceBetweenEmptyParensInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_CONSTRUCTOR_DECLARATION);
+		if (insertSpaceBetweenEmptyParensInConstructorDeclarationOption != null) {
+			this.insert_space_between_empty_parens_in_constructor_declaration = JavaCore.INSERT.equals(insertSpaceBetweenEmptyParensInConstructorDeclarationOption);
 		}
-		final Object insertSpaceInCatchExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION);
-		if (insertSpaceInCatchExpressionOption != null) {
-			this.insert_space_in_catch_expression = JavaCore.INSERT.equals(insertSpaceInCatchExpressionOption);
+		final Object insertSpaceBetweenEmptyParensInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_DECLARATION);
+		if (insertSpaceBetweenEmptyParensInMethodDeclarationOption != null) {
+			this.insert_space_between_empty_parens_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBetweenEmptyParensInMethodDeclarationOption);
 		}
-		final Object insertSpaceInForParensOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_FOR_PARENS);
-		if (insertSpaceInForParensOption != null) {
-			this.insert_space_in_for_parens = JavaCore.INSERT.equals(insertSpaceInForParensOption);
+		final Object insertSpaceBetweenEmptyParensInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION);
+		if (insertSpaceBetweenEmptyParensInMethodInvocationOption != null) {
+			this.insert_space_between_empty_parens_in_method_invocation = JavaCore.INSERT.equals(insertSpaceBetweenEmptyParensInMethodInvocationOption);
 		}
-		final Object insertSpaceInIfConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_IF_CONDITION);
-		if (insertSpaceInIfConditionOption != null) {
-			this.insert_space_in_if_condition = JavaCore.INSERT.equals(insertSpaceInIfConditionOption);
+		final Object compactElseIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF);
+		if (compactElseIfOption != null) {
+			this.compact_else_if = DefaultCodeFormatterConstants.TRUE.equals(compactElseIfOption);
 		}
-		final Object insertSpaceInSwitchConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SWITCH_CONDITION);
-		if (insertSpaceInSwitchConditionOption != null) {
-			this.insert_space_in_switch_condition = JavaCore.INSERT.equals(insertSpaceInSwitchConditionOption);
-		}
-		final Object insertSpaceInSynchronizedConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION);
-		if (insertSpaceInSynchronizedConditionOption != null) {
-			this.insert_space_in_synchronized_condition = JavaCore.INSERT.equals(insertSpaceInSynchronizedConditionOption);
-		}
-		final Object insertSpaceInWhileConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_WHILE_CONDITION);
-		if (insertSpaceInWhileConditionOption != null) {
-			this.insert_space_in_while_condition = JavaCore.INSERT.equals(insertSpaceInWhileConditionOption);
+		final Object keepGuardianClauseOnOneLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_GUARDIAN_CLAUSE_ON_ONE_LINE);
+		if (keepGuardianClauseOnOneLineOption != null) {
+			this.keep_guardian_clause_on_one_line = DefaultCodeFormatterConstants.TRUE.equals(keepGuardianClauseOnOneLineOption);
 		}
 		final Object keepElseStatementOnSameLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE);
 		if (keepElseStatementOnSameLineOption != null) {
@@ -1031,41 +1035,9 @@ public class DefaultCodeFormatterOptions {
 		if (keepThenStatementOnSameLineOption != null) {
 			this.keep_then_statement_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepThenStatementOnSameLineOption);
 		}
-		final Object messageSendArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT);
-		if (messageSendArgumentsAlignmentOption != null) {
-			this.message_send_arguments_alignment = Integer.parseInt((String) messageSendArgumentsAlignmentOption);
-		}
-		final Object messageSendSelectorAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT);
-		if (messageSendSelectorAlignmentOption != null) {
-			this.message_send_selector_alignment = Integer.parseInt((String) messageSendSelectorAlignmentOption);
-		}
-		final Object methodDeclarationArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT);
-		if (methodDeclarationArgumentsAlignmentOption != null) {
-			this.method_declaration_arguments_alignment = Integer.parseInt((String) methodDeclarationArgumentsAlignmentOption);
-		}
-		final Object methodDeclarationBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_BRACE_POSITION);
-		if (methodDeclarationBracePositionOption != null) {
-			this.method_declaration_brace_position = (String) methodDeclarationBracePositionOption;
-		}
-		final Object methodThrowsClauseAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_THROWS_CLAUSE_ALIGNMENT);
-		if (methodThrowsClauseAlignmentOption != null) {
-			this.method_throws_clause_alignment = Integer.parseInt((String) methodThrowsClauseAlignmentOption);
-		}
-		final Object multipleFieldsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_MULTIPLE_FIELDS_ALIGNMENT);
-		if (multipleFieldsAlignmentOption != null) {
-			this.multiple_fields_alignment = Integer.parseInt((String) multipleFieldsAlignmentOption);
-		}
-		final Object numberOfBlankLinesToInsertAtBeginningOfMethodBodyOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY);
-		if (numberOfBlankLinesToInsertAtBeginningOfMethodBodyOption != null) {
-			this.number_of_blank_lines_to_insert_at_beginning_of_method_body = Integer.parseInt((String) numberOfBlankLinesToInsertAtBeginningOfMethodBodyOption);
-		}
 		final Object numberOfEmptyLinesToPreserveOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE);
 		if (numberOfEmptyLinesToPreserveOption != null) {
 			this.number_of_empty_lines_to_preserve = Integer.parseInt((String) numberOfEmptyLinesToPreserveOption);
-		}
-		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
-		if (pageWidthOption != null) {
-			this.page_width = Integer.parseInt((String) pageWidthOption);
 		}
 		final Object preserveUserLinebreaksOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS);
 		if (preserveUserLinebreaksOption != null) {
@@ -1075,221 +1047,236 @@ public class DefaultCodeFormatterOptions {
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
 		}
-		final Object qualifiedAllocationExpressionArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT);
-		if (qualifiedAllocationExpressionArgumentsAlignmentOption != null) {
-			this.qualified_allocation_expression_arguments_alignment = Integer.parseInt((String) qualifiedAllocationExpressionArgumentsAlignmentOption);
-		}
-		final Object removeUnnecessarySemiColonOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON);
-		if (removeUnnecessarySemiColonOption != null) {
-			this.remove_unnecessary_semicolon = DefaultCodeFormatterConstants.TRUE.equals(removeUnnecessarySemiColonOption);
-		}		
-		final Object switchBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION);
-		if (switchBracePositionOption != null) {
-			this.switch_brace_position = (String) switchBracePositionOption;
+		final Object removeUnnecessarySemicolonOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON);
+		if (removeUnnecessarySemicolonOption != null) {
+			this.remove_unnecessary_semicolon = DefaultCodeFormatterConstants.TRUE.equals(removeUnnecessarySemicolonOption);
 		}
 		final Object tabSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
 		if (tabSizeOption != null) {
 			this.tab_size = Integer.parseInt((String) tabSizeOption);
 		}
-		final Object typeDeclarationBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_BRACE_POSITION);
-		if (typeDeclarationBracePositionOption != null) {
-			this.type_declaration_brace_position = (String) typeDeclarationBracePositionOption;
+		final Object fillingSpaceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
+		if (fillingSpaceOption != null) {
+			this.filling_space = ((String) fillingSpaceOption).charAt(0);
 		}
-		final Object typeDeclarationSuperclassAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT);
-		if (typeDeclarationSuperclassAlignmentOption != null) {
-			this.type_declaration_superclass_alignment = Integer.parseInt((String) typeDeclarationSuperclassAlignmentOption);
-		}
-		final Object typeDeclarationSuperinterfacesAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT);
-		if (typeDeclarationSuperinterfacesAlignmentOption != null) {
-			this.type_declaration_superinterfaces_alignment = Integer.parseInt((String) typeDeclarationSuperinterfacesAlignmentOption);
-		}
-		final Object typeMemberAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_MEMBER_ALIGNMENT);
-		if (typeMemberAlignmentOption != null) {
-			this.type_member_alignment = Integer.parseInt((String) typeMemberAlignmentOption);
+		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
+		if (pageWidthOption != null) {
+			this.page_width = Integer.parseInt((String) pageWidthOption);
 		}
 		final Object useTabOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
 	}
-
 	
 	public void setDefaultSettings() {
-		this.allocation_expression_arguments_alignment = DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT;
-		this.anonymous_type_declaration_brace_position = DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION;
-		this.array_initializer_brace_position = DEFAULT_ARRAY_INITIALIZER_BRACE_POSITION;
-		this.array_initializer_continuation_indentation = DEFAULT_ARRAY_INITIALIZER_CONTINUATION_INDENTATION;
-		this.array_initializer_expressions_alignment = DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT;
-		this.binary_expression_alignment = DEFAULT_BINARY_EXPRESSION_ALIGNMENT;
-		this.blank_lines_after_imports = DEFAULT_BLANK_LINES_AFTER_IMPORTS;
-		this.blank_lines_after_package = DEFAULT_BLANK_LINES_AFTER_PACKAGE;
-		this.blank_lines_before_field = DEFAULT_BLANK_LINES_BEFORE_FIELD;
-		this.blank_lines_before_first_class_body_declaration = DEFAULT_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION;
-		this.blank_lines_before_imports = DEFAULT_BLANK_LINES_BEFORE_IMPORTS;
-		this.blank_lines_before_member_type = DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE;
-		this.blank_lines_before_method = DEFAULT_BLANK_LINES_BEFORE_METHOD;
-		this.blank_lines_before_new_chunk = DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK;
-		this.blank_lines_before_package = DEFAULT_BLANK_LINES_BEFORE_PACKAGE;
-		this.blank_lines_between_type_declarations = DEFAULT_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS;
-		this.block_brace_position = DEFAULT_BLOCK_BRACE_POSITION;
-		this.compact_else_if = DEFAULT_COMPACT_ELSE_IF;
-		this.compact_if_alignment = DEFAULT_COMPACT_IF_ALIGNMENT;
-		this.conditional_expression_alignment = DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT;
-		this.continuation_indentation = DEFAULT_CONTINUATION_INDENTATION;
-		this.explicit_constructor_arguments_alignment = DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT;
-		this.filling_space = DEFAULT_FILLING_SPACE;
-		this.format_guardian_clause_on_one_line = DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE;
-		this.indent_block_statements = DEFAULT_INDENT_BLOCK_STATEMENTS;
-		this.indent_body_declarations_compare_to_type_header = DEFAULT_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER;
-		this.indent_breaks_compare_to_cases = DEFAULT_INDENT_BREAKS_COMPARE_TO_CASES;
-		this.indent_switchstatements_compare_to_cases = DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES;
-		this.indent_switchstatements_compare_to_switch = DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH;
-		this.insert_new_line_after_opening_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER;
-		this.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
-		this.insert_new_line_in_control_statements = DEFAULT_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS;
-		this.insert_new_line_in_empty_anonymous_type_declaration = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION;
-		this.insert_new_line_in_empty_block = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK;
-		this.insert_new_line_in_empty_method_body = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY;
-		this.insert_new_line_in_empty_type_declaration = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION;
-		this.insert_space_after_assignment_operators = DEFAULT_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS;
-		this.insert_space_after_binary_operator = DEFAULT_INSERT_SPACE_AFTER_BINARY_OPERATOR;
-		this.insert_space_after_block_close_brace = DEFAULT_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE;
-		this.insert_space_after_closing_paren_in_cast = DEFAULT_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST;
-		this.insert_space_after_colon_in_assert = DEFAULT_INSERT_SPACE_AFTER_COLON_IN_ASSERT;
-		this.insert_space_after_colon_in_conditional = DEFAULT_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL;
-		this.insert_space_after_colon_in_labeled_statement = DEFAULT_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT;
-		this.insert_space_after_comma_in_allocation_expression = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION;
-		this.insert_space_after_comma_in_array_initializer = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER;
-		this.insert_space_after_comma_in_constructor_arguments = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS;
-		this.insert_space_after_comma_in_constructor_throws = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS;
-		this.insert_space_after_comma_in_explicitconstructorcall_arguments = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS;
-		this.insert_space_after_comma_in_for_increments = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS;
-		this.insert_space_after_comma_in_for_inits = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS;
-		this.insert_space_after_comma_in_messagesend_arguments = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS;
-		this.insert_space_after_comma_in_method_arguments = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS;
-		this.insert_space_after_comma_in_method_throws = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS;
-		this.insert_space_after_comma_in_multiple_field_declarations = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS;
-		this.insert_space_after_comma_in_multiple_local_declarations = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS;
-		this.insert_space_after_comma_in_superinterfaces = DEFAULT_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES;
-		this.insert_space_after_opening_paren_in_cast = DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST;
-		this.insert_space_after_opening_paren_in_message_send = DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_MESSAGE_SEND;
-		this.insert_space_after_opening_paren_in_parenthesized_expression = DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION;
-		this.insert_space_after_postfix_operator = DEFAULT_INSERT_SPACE_AFTER_POSTFIX_OPERATOR;
-		this.insert_space_after_prefix_operator = DEFAULT_INSERT_SPACE_AFTER_PREFIX_OPERATOR;
-		this.insert_space_after_question_in_conditional = DEFAULT_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL;
-		this.insert_space_after_semicolon_in_for = DEFAULT_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR;
-		this.insert_space_after_unary_operator = DEFAULT_INSERT_SPACE_AFTER_UNARY_OPERATOR;
-		this.insert_space_before_anonymous_type_open_brace = DEFAULT_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE;
-		this.insert_space_before_assignment_operators = DEFAULT_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS;
-		this.insert_space_before_binary_operator = DEFAULT_INSERT_SPACE_BEFORE_BINARY_OPERATOR;
-		this.insert_space_before_block_open_brace = DEFAULT_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE;
-		this.insert_space_before_bracket_in_array_reference = DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE;
-		this.insert_space_before_bracket_in_array_type_reference = DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE;
-		this.insert_space_before_catch_expression = DEFAULT_INSERT_SPACE_BEFORE_CATCH_EXPRESSION;
-		this.insert_space_before_closing_brace_in_array_initializer = DEFAULT_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
-		this.insert_space_before_closing_paren = DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN;
-		this.insert_space_before_closing_paren_in_cast = DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST;
-		this.insert_space_before_closing_paren_in_message_send = DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_MESSAGE_SEND;
-		this.insert_space_before_closing_paren_in_parenthesized_expression = DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION;
-		this.insert_space_before_colon_in_assert = DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_ASSERT;
-		this.insert_space_before_colon_in_case = DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CASE;
-		this.insert_space_before_colon_in_conditional = DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL;
-		this.insert_space_before_colon_in_default = DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT;
-		this.insert_space_before_colon_in_labeled_statement = DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT;
-		this.insert_space_before_comma_in_allocation_expression = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION;
-		this.insert_space_before_comma_in_array_initializer = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER;
-		this.insert_space_before_comma_in_constructor_arguments = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS;
-		this.insert_space_before_comma_in_constructor_throws = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS;
-		this.insert_space_before_comma_in_explicitconstructorcall_arguments = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS;
-		this.insert_space_before_comma_in_for_increments = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS;
-		this.insert_space_before_comma_in_for_inits = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS;
-		this.insert_space_before_comma_in_messagesend_arguments = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS;
-		this.insert_space_before_comma_in_method_arguments = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS;
-		this.insert_space_before_comma_in_method_throws = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS;
-		this.insert_space_before_comma_in_multiple_field_declarations = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS;
-		this.insert_space_before_comma_in_multiple_local_declarations = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS;
-		this.insert_space_before_comma_in_superinterfaces = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES;
-		this.insert_space_before_constructor_declaration_open_paren = DEFAULT_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN;
-		this.insert_space_before_first_argument = DEFAULT_INSERT_SPACE_BEFORE_FIRST_ARGUMENT;
-		this.insert_space_before_first_initializer = DEFAULT_INSERT_SPACE_BEFORE_FIRST_INITIALIZER;
-		this.insert_space_before_for_paren = DEFAULT_INSERT_SPACE_BEFORE_FOR_PAREN;
-		this.insert_space_before_if_condition = DEFAULT_INSERT_SPACE_BEFORE_IF_CONDITION;
-		this.insert_space_before_message_send = DEFAULT_INSERT_SPACE_BEFORE_MESSAGE_SEND;
-		this.insert_space_before_method_declaration_open_paren = DEFAULT_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN;
-		this.insert_space_before_method_open_brace = DEFAULT_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE;
-		this.insert_space_before_open_paren_in_parenthesized_expression = DEFAULT_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION;
-		this.insert_space_before_opening_brace_in_array_initializer = DEFAULT_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER;
-		this.insert_space_before_postfix_operator = DEFAULT_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR;
-		this.insert_space_before_prefix_operator = DEFAULT_INSERT_SPACE_BEFORE_PREFIX_OPERATOR;
-		this.insert_space_before_question_in_conditional = DEFAULT_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL;
-		this.insert_space_before_semicolon = DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON;
-		this.insert_space_before_semicolon_in_for = DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR;
-		this.insert_space_before_switch_condition = DEFAULT_INSERT_SPACE_BEFORE_SWITCH_CONDITION;
-		this.insert_space_before_switch_open_brace = DEFAULT_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE;
-		this.insert_space_before_synchronized_condition = DEFAULT_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION;
-		this.insert_space_before_type_open_brace = DEFAULT_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE;
-		this.insert_space_before_unary_operator = DEFAULT_INSERT_SPACE_BEFORE_UNARY_OPERATOR;
-		this.insert_space_before_while_condition = DEFAULT_INSERT_SPACE_BEFORE_WHILE_CONDITION;
-		this.insert_space_between_brackets_in_array_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE;
-		this.insert_space_between_brackets_in_array_type_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE;
-		this.insert_space_between_empty_arguments = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS;
-		this.insert_space_between_empty_messagesend_arguments = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS;
-		this.insert_space_between_empty_array_initializer = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER;
-		this.insert_space_in_catch_expression = DEFAULT_INSERT_SPACE_IN_CATCH_EXPRESSION;
-		this.insert_space_in_for_parens = DEFAULT_INSERT_SPACE_IN_FOR_PARENS;
-		this.insert_space_in_if_condition = DEFAULT_INSERT_SPACE_IN_IF_CONDITION;
-		this.insert_space_in_switch_condition = DEFAULT_INSERT_SPACE_IN_SWITCH_CONDITION;
-		this.insert_space_in_synchronized_condition = DEFAULT_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION;
-		this.insert_space_in_while_condition = DEFAULT_INSERT_SPACE_IN_WHILE_CONDITION;
-		this.keep_else_statement_on_same_line = DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE;
-		this.keep_simple_if_on_one_line = DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE;
-		this.keep_then_statement_on_same_line = DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE;
-		this.message_send_arguments_alignment = DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT;
-		this.message_send_selector_alignment = DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT;
-		this.method_declaration_arguments_alignment = DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT;
-		this.method_declaration_brace_position = DEFAULT_METHOD_DECLARATION_BRACE_POSITION;
-		this.method_throws_clause_alignment = DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT;
-		this.multiple_fields_alignment = DEFAULT_MULTIPLE_FIELDS_ALIGNMENT;
-		this.number_of_blank_lines_to_insert_at_beginning_of_method_body = DEFAULT_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY;
-		this.number_of_empty_lines_to_preserve = DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE;
-		this.page_width = DEFAULT_PAGE_WIDTH;
-		this.preserve_user_linebreaks = DEFAULT_PRESERVE_USER_LINEBREAKS;
-		this.put_empty_statement_on_new_line = DEFAULT_PUT_EMPTY_STATEMENT_ON_NEW_LINE;
-		this.qualified_allocation_expression_arguments_alignment = DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT;
-		this.remove_unnecessary_semicolon = DEFAULT_REMOVE_UNNECESSARY_SEMICOLON;
-		this.switch_brace_position = DEFAULT_SWITCH_BRACE_POSITION;
-		this.tab_size = DEFAULT_TAB_SIZE;
-		this.type_declaration_brace_position = DEFAULT_TYPE_DECLARATION_BRACE_POSITION;
-		this.type_declaration_superclass_alignment = DEFAULT_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT;
-		this.type_declaration_superinterfaces_alignment = DEFAULT_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT;
-		this.type_member_alignment = DEFAULT_TYPE_MEMBER_ALIGNMENT;
-		this.use_tab = DEFAULT_USE_TAB;
+		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
+		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_superclass_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.align_type_members_on_columns = false;
+		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_block = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_constructor_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.continuation_indentation = 2;
+		this.continuation_indentation_for_array_initializer = 2;
+		this.blank_lines_after_imports = 0;
+		this.blank_lines_after_package = 0;
+		this.blank_lines_before_field = 0;
+		this.blank_lines_before_first_class_body_declaration = 0;
+		this.blank_lines_before_imports = 0;
+		this.blank_lines_before_member_type = 0;
+		this.blank_lines_before_method = 0;
+		this.blank_lines_before_new_chunk = 0;
+		this.blank_lines_before_package = 0;
+		this.blank_lines_between_type_declarations = 0;
+		this.blank_lines_at_beginning_of_method_body = 0;
+		this.indent_block_statements = true;
+		this.indent_body_declarations_compare_to_type_header = true;
+		this.indent_breaks_compare_to_cases = true;
+		this.indent_switchstatements_compare_to_cases = true;
+		this.indent_switchstatements_compare_to_switch = true;
+		this.insert_new_line_after_opening_brace_in_array_initializer = false;
+		this.insert_new_line_before_closing_brace_in_array_initializer = false;
+		this.insert_new_line_in_control_statements = false;
+		this.insert_new_line_in_empty_anonymous_type_declaration = true;
+		this.insert_new_line_in_empty_block = true;
+		this.insert_new_line_in_empty_method_body = true;
+		this.insert_new_line_in_empty_type_declaration = true;
+		this.insert_space_after_assignment_operator = true;
+		this.insert_space_after_binary_operator = true;
+		this.insert_space_after_closing_paren_in_cast = true;
+		this.insert_space_after_closing_brace_in_block = true;
+		this.insert_space_after_colon_in_assert = true;
+		this.insert_space_after_colon_in_conditional = true;
+		this.insert_space_after_colon_in_labeled_statement = true;
+		this.insert_space_after_comma_in_allocation_expression = true;
+		this.insert_space_after_comma_in_array_initializer = true;
+		this.insert_space_after_comma_in_constructor_declaration_parameters = true;
+		this.insert_space_after_comma_in_constructor_declaration_throws = true;
+		this.insert_space_after_comma_in_explicit_constructor_call_arguments = true;
+		this.insert_space_after_comma_in_for_increments = true;
+		this.insert_space_after_comma_in_for_inits = true;
+		this.insert_space_after_comma_in_method_invocation_arguments = true;
+		this.insert_space_after_comma_in_method_declaration_parameters = true;
+		this.insert_space_after_comma_in_method_declaration_throws = true;
+		this.insert_space_after_comma_in_multiple_field_declarations = true;
+		this.insert_space_after_comma_in_multiple_local_declarations = true;
+		this.insert_space_after_comma_in_superinterfaces = true;
+		this.insert_space_after_opening_bracket_in_array_allocation_expression = false;
+		this.insert_space_after_opening_bracket_in_array_reference = false;
+		this.insert_space_after_opening_brace_in_array_initializer = false;
+		this.insert_space_after_opening_paren_in_cast = false;
+		this.insert_space_after_opening_paren_in_catch = false;
+		this.insert_space_after_opening_paren_in_constructor_declaration = false;
+		this.insert_space_after_opening_paren_in_for = false;
+		this.insert_space_after_opening_paren_in_if = false;
+		this.insert_space_after_opening_paren_in_method_declaration = false;
+		this.insert_space_after_opening_paren_in_method_invocation = false;
+		this.insert_space_after_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_after_opening_paren_in_switch = false;
+		this.insert_space_after_opening_paren_in_synchronized = false;
+		this.insert_space_after_opening_paren_in_while = false;
+		this.insert_space_after_postfix_operator = false;
+		this.insert_space_after_prefix_operator = false;
+		this.insert_space_after_question_in_conditional = true;
+		this.insert_space_after_semicolon_in_for = true;
+		this.insert_space_after_unary_operator = false;
+		this.insert_space_before_assignment_operator = true;
+		this.insert_space_before_binary_operator = true;
+		this.insert_space_before_closing_brace_in_array_initializer = false;
+		this.insert_space_before_closing_bracket_in_array_allocation_expression = false;
+		this.insert_space_before_closing_bracket_in_array_reference = false;
+		this.insert_space_before_closing_paren_in_cast = false;
+		this.insert_space_before_closing_paren_in_catch = false;
+		this.insert_space_before_closing_paren_in_constructor_declaration = false;
+		this.insert_space_before_closing_paren_in_for = false;
+		this.insert_space_before_closing_paren_in_if = false;
+		this.insert_space_before_closing_paren_in_method_declaration = false;
+		this.insert_space_before_closing_paren_in_method_invocation = false;
+		this.insert_space_before_closing_paren_in_parenthesized_expression = false;
+		this.insert_space_before_closing_paren_in_switch = false;
+		this.insert_space_before_closing_paren_in_synchronized = false;
+		this.insert_space_before_closing_paren_in_while = false;
+		this.insert_space_before_colon_in_assert = true;
+		this.insert_space_before_colon_in_case = true;
+		this.insert_space_before_colon_in_conditional = true;
+		this.insert_space_before_colon_in_default = true;
+		this.insert_space_before_colon_in_labeled_statement = true;
+		this.insert_space_before_comma_in_allocation_expression = false;
+		this.insert_space_before_comma_in_array_initializer = false;
+		this.insert_space_before_comma_in_constructor_declaration_parameters = false;
+		this.insert_space_before_comma_in_constructor_declaration_throws = false;
+		this.insert_space_before_comma_in_explicit_constructor_call_arguments = false;
+		this.insert_space_before_comma_in_for_increments = false;
+		this.insert_space_before_comma_in_for_inits = false;
+		this.insert_space_before_comma_in_method_invocation_arguments = false;
+		this.insert_space_before_comma_in_method_declaration_parameters = false;
+		this.insert_space_before_comma_in_method_declaration_throws = false;
+		this.insert_space_before_comma_in_multiple_field_declarations = false;
+		this.insert_space_before_comma_in_multiple_local_declarations = false;
+		this.insert_space_before_comma_in_superinterfaces = false;
+		this.insert_space_before_opening_brace_in_anonymous_type_declaration = true;
+		this.insert_space_before_opening_brace_in_array_initializer = false;
+		this.insert_space_before_opening_brace_in_block = true;
+		this.insert_space_before_opening_brace_in_constructor_declaration = true;
+		this.insert_space_before_opening_brace_in_method_declaration = true;
+		this.insert_space_before_opening_brace_in_switch = true;
+		this.insert_space_before_opening_brace_in_type_declaration = true;
+		this.insert_space_before_opening_bracket_in_array_allocation_expression = false;
+		this.insert_space_before_opening_bracket_in_array_reference = false;
+		this.insert_space_before_opening_bracket_in_array_type_reference = false;
+		this.insert_space_before_opening_paren_in_catch = true;
+		this.insert_space_before_opening_paren_in_constructor_declaration = false;
+		this.insert_space_before_opening_paren_in_for = true;
+		this.insert_space_before_opening_paren_in_if = true;
+		this.insert_space_before_opening_paren_in_method_invocation = false;
+		this.insert_space_before_opening_paren_in_method_declaration = false;
+		this.insert_space_before_opening_paren_in_switch = true;
+		this.insert_space_before_opening_paren_in_synchronized = true;
+		this.insert_space_before_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_before_opening_paren_in_while = true;
+		this.insert_space_before_postfix_operator = false;
+		this.insert_space_before_prefix_operator = false;
+		this.insert_space_before_question_in_conditional = true;
+		this.insert_space_before_semicolon = false;
+		this.insert_space_before_semicolon_in_for = false;
+		this.insert_space_before_unary_operator = false;
+		this.insert_space_between_brackets_in_array_type_reference = false;
+		this.insert_space_between_empty_braces_in_array_initializer = false;
+		this.insert_space_between_empty_brackets_in_array_allocation_expression = false;
+		this.insert_space_between_empty_parens_in_constructor_declaration = false;
+		this.insert_space_between_empty_parens_in_method_declaration = false;
+		this.insert_space_between_empty_parens_in_method_invocation = false;
+		this.compact_else_if = true;
+		this.keep_guardian_clause_on_one_line = false;
+		this.keep_else_statement_on_same_line = false;
+		this.keep_simple_if_on_one_line = false;
+		this.keep_then_statement_on_same_line = false;
+		this.number_of_empty_lines_to_preserve = 0;
+		this.preserve_user_linebreaks = false;
+		this.put_empty_statement_on_new_line = false;
+		this.remove_unnecessary_semicolon = false;
+		this.tab_size = 4;
+		this.filling_space = ' ';
+		this.page_width = 80;
+		this.use_tab = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 	}
+	
 	public void setJavaConventionsSettings() {
-		this.allocation_expression_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.array_initializer_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.array_initializer_continuation_indentation = 2;
-		this.array_initializer_expressions_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.binary_expression_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
+		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
+		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_superclass_in_type_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.align_type_members_on_columns = false;
+		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_block = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_constructor_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.continuation_indentation = 2;
+		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
 		this.blank_lines_before_field = 1;
 		this.blank_lines_before_first_class_body_declaration = 1;
-		this.blank_lines_before_imports= 1;
+		this.blank_lines_before_imports = 1;
 		this.blank_lines_before_member_type = 1;
 		this.blank_lines_before_method = 1;
 		this.blank_lines_before_new_chunk = 1;
 		this.blank_lines_before_package = 0;
 		this.blank_lines_between_type_declarations = 1;
-		this.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.compact_else_if = true;
-		this.compact_if_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.conditional_expression_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_NEXT_PER_LINE_SPLIT);
-		this.continuation_indentation = 2;
-		this.explicit_constructor_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.filling_space = ' ';
-		this.format_guardian_clause_on_one_line = true;
+		this.blank_lines_at_beginning_of_method_body = 0;
 		this.indent_block_statements = true;
 		this.indent_body_declarations_compare_to_type_header = true;
 		this.indent_breaks_compare_to_cases = true;
@@ -1302,46 +1289,61 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_in_empty_block = true;
 		this.insert_new_line_in_empty_method_body = true;
 		this.insert_new_line_in_empty_type_declaration = true;
-		this.insert_space_after_assignment_operators = true;
+		this.insert_space_after_assignment_operator = true;
 		this.insert_space_after_binary_operator = true;
-		this.insert_space_after_block_close_brace = true;
 		this.insert_space_after_closing_paren_in_cast = true;
+		this.insert_space_after_closing_brace_in_block = true;
 		this.insert_space_after_colon_in_assert = true;
 		this.insert_space_after_colon_in_conditional = true;
 		this.insert_space_after_colon_in_labeled_statement = true;
 		this.insert_space_after_comma_in_allocation_expression = true;
 		this.insert_space_after_comma_in_array_initializer = true;
-		this.insert_space_after_comma_in_constructor_arguments = true;
-		this.insert_space_after_comma_in_constructor_throws = true;
-		this.insert_space_after_comma_in_explicitconstructorcall_arguments = true;
+		this.insert_space_after_comma_in_constructor_declaration_parameters = true;
+		this.insert_space_after_comma_in_constructor_declaration_throws = true;
+		this.insert_space_after_comma_in_explicit_constructor_call_arguments = true;
 		this.insert_space_after_comma_in_for_increments = true;
 		this.insert_space_after_comma_in_for_inits = true;
-		this.insert_space_after_comma_in_messagesend_arguments = true;
-		this.insert_space_after_comma_in_method_arguments = true;
-		this.insert_space_after_comma_in_method_throws = true;
+		this.insert_space_after_comma_in_method_invocation_arguments = true;
+		this.insert_space_after_comma_in_method_declaration_parameters = true;
+		this.insert_space_after_comma_in_method_declaration_throws = true;
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
+		this.insert_space_after_opening_bracket_in_array_allocation_expression = true;
+		this.insert_space_after_opening_bracket_in_array_reference = true;
+		this.insert_space_after_opening_brace_in_array_initializer = true;
 		this.insert_space_after_opening_paren_in_cast = false;
-		this.insert_space_after_opening_paren_in_message_send = false;
+		this.insert_space_after_opening_paren_in_catch = false;
+		this.insert_space_after_opening_paren_in_constructor_declaration = false;
+		this.insert_space_after_opening_paren_in_for = false;
+		this.insert_space_after_opening_paren_in_if = false;
+		this.insert_space_after_opening_paren_in_method_declaration = false;
+		this.insert_space_after_opening_paren_in_method_invocation = false;
 		this.insert_space_after_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_after_opening_paren_in_switch = false;
+		this.insert_space_after_opening_paren_in_synchronized = false;
+		this.insert_space_after_opening_paren_in_while = false;
 		this.insert_space_after_postfix_operator = false;
 		this.insert_space_after_prefix_operator = false;
 		this.insert_space_after_question_in_conditional = true;
 		this.insert_space_after_semicolon_in_for = true;
 		this.insert_space_after_unary_operator = false;
-		this.insert_space_before_anonymous_type_open_brace = true;
-		this.insert_space_before_assignment_operators = true;
+		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_binary_operator = true;
-		this.insert_space_before_block_open_brace = true;
-		this.insert_space_before_bracket_in_array_reference = false;
-		this.insert_space_before_bracket_in_array_type_reference = false;
-		this.insert_space_before_catch_expression = true;
 		this.insert_space_before_closing_brace_in_array_initializer = false;
-		this.insert_space_before_closing_paren = false;
+		this.insert_space_before_closing_bracket_in_array_allocation_expression = false;
+		this.insert_space_before_closing_bracket_in_array_reference = false;
 		this.insert_space_before_closing_paren_in_cast = false;
-		this.insert_space_before_closing_paren_in_message_send = false;
+		this.insert_space_before_closing_paren_in_catch = false;
+		this.insert_space_before_closing_paren_in_constructor_declaration = false;
+		this.insert_space_before_closing_paren_in_for = false;
+		this.insert_space_before_closing_paren_in_if = false;
+		this.insert_space_before_closing_paren_in_method_declaration = false;
+		this.insert_space_before_closing_paren_in_method_invocation = false;
 		this.insert_space_before_closing_paren_in_parenthesized_expression = false;
+		this.insert_space_before_closing_paren_in_switch = false;
+		this.insert_space_before_closing_paren_in_synchronized = false;
+		this.insert_space_before_closing_paren_in_while = false;
 		this.insert_space_before_colon_in_assert = true;
 		this.insert_space_before_colon_in_case = false;
 		this.insert_space_before_colon_in_conditional = true;
@@ -1349,71 +1351,61 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_colon_in_labeled_statement = false;
 		this.insert_space_before_comma_in_allocation_expression = false;
 		this.insert_space_before_comma_in_array_initializer = false;
-		this.insert_space_before_comma_in_constructor_arguments = false;
-		this.insert_space_before_comma_in_constructor_throws = false;
-		this.insert_space_before_comma_in_explicitconstructorcall_arguments = false;
+		this.insert_space_before_comma_in_constructor_declaration_parameters = false;
+		this.insert_space_before_comma_in_constructor_declaration_throws = false;
+		this.insert_space_before_comma_in_explicit_constructor_call_arguments = false;
 		this.insert_space_before_comma_in_for_increments = false;
 		this.insert_space_before_comma_in_for_inits = false;
-		this.insert_space_before_comma_in_messagesend_arguments = false;
-		this.insert_space_before_comma_in_method_arguments = false;
-		this.insert_space_before_comma_in_method_throws = false;
+		this.insert_space_before_comma_in_method_invocation_arguments = false;
+		this.insert_space_before_comma_in_method_declaration_parameters = false;
+		this.insert_space_before_comma_in_method_declaration_throws = false;
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
-		this.insert_space_before_constructor_declaration_open_paren = false;
-		this.insert_space_before_first_argument = false;
-		this.insert_space_before_first_initializer = false;
-		this.insert_space_before_for_paren = true;
-		this.insert_space_before_if_condition = true;
-		this.insert_space_before_message_send = false;
-		this.insert_space_before_method_declaration_open_paren = false;
-		this.insert_space_before_method_open_brace = true;
-		this.insert_space_before_open_paren_in_parenthesized_expression = false;
-		this.insert_space_before_opening_brace_in_array_initializer = false;
+		this.insert_space_before_opening_brace_in_anonymous_type_declaration = true;
+		this.insert_space_before_opening_brace_in_array_initializer = true;
+		this.insert_space_before_opening_brace_in_block = true;
+		this.insert_space_before_opening_brace_in_constructor_declaration = true;
+		this.insert_space_before_opening_brace_in_method_declaration = true;
+		this.insert_space_before_opening_brace_in_switch = true;
+		this.insert_space_before_opening_brace_in_type_declaration = true;
+		this.insert_space_before_opening_bracket_in_array_allocation_expression = false;
+		this.insert_space_before_opening_bracket_in_array_reference = false;
+		this.insert_space_before_opening_bracket_in_array_type_reference = false;
+		this.insert_space_before_opening_paren_in_catch = true;
+		this.insert_space_before_opening_paren_in_constructor_declaration = false;
+		this.insert_space_before_opening_paren_in_for = true;
+		this.insert_space_before_opening_paren_in_if = true;
+		this.insert_space_before_opening_paren_in_method_invocation = false;
+		this.insert_space_before_opening_paren_in_method_declaration = false;
+		this.insert_space_before_opening_paren_in_switch = true;
+		this.insert_space_before_opening_paren_in_synchronized = true;
+		this.insert_space_before_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_before_opening_paren_in_while = true;
 		this.insert_space_before_postfix_operator = false;
 		this.insert_space_before_prefix_operator = false;
 		this.insert_space_before_question_in_conditional = true;
 		this.insert_space_before_semicolon = false;
 		this.insert_space_before_semicolon_in_for = false;
-		this.insert_space_before_switch_condition = true;
-		this.insert_space_before_switch_open_brace = true;
-		this.insert_space_before_synchronized_condition = true;
-		this.insert_space_before_type_open_brace = true;
 		this.insert_space_before_unary_operator = false;
-		this.insert_space_before_while_condition = true;
-		this.insert_space_between_brackets_in_array_reference = false;
 		this.insert_space_between_brackets_in_array_type_reference = false;
-		this.insert_space_between_empty_arguments = false;
-		this.insert_space_between_empty_messagesend_arguments = false;
-		this.insert_space_between_empty_array_initializer = false;
-		this.insert_space_in_catch_expression = false;
-		this.insert_space_in_for_parens = false;
-		this.insert_space_in_if_condition = false;
-		this.insert_space_in_switch_condition = false;
-		this.insert_space_in_synchronized_condition = false;
-		this.insert_space_in_while_condition = false;
+		this.insert_space_between_empty_braces_in_array_initializer = false;
+		this.insert_space_between_empty_brackets_in_array_allocation_expression = false;
+		this.insert_space_between_empty_parens_in_constructor_declaration = false;
+		this.insert_space_between_empty_parens_in_method_declaration = false;
+		this.insert_space_between_empty_parens_in_method_invocation = false;
+		this.compact_else_if = true;
+		this.keep_guardian_clause_on_one_line = true;
 		this.keep_else_statement_on_same_line = false;
 		this.keep_simple_if_on_one_line = true;
 		this.keep_then_statement_on_same_line = false;
-		this.message_send_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.message_send_selector_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.method_declaration_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.method_throws_clause_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.multiple_fields_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.number_of_blank_lines_to_insert_at_beginning_of_method_body = 0;
 		this.number_of_empty_lines_to_preserve = 1;
-		this.page_width = 80;
 		this.preserve_user_linebreaks = false;
 		this.put_empty_statement_on_new_line = true;
-		this.qualified_allocation_expression_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.remove_unnecessary_semicolon = false;
-		this.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.tab_size = 4;
-		this.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.type_declaration_superclass_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.type_declaration_superinterfaces_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
-		this.type_member_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_NO_ALIGNMENT);
+		this.filling_space = ' ';
+		this.page_width = 80;
 		this.use_tab = false;
 	}
 }

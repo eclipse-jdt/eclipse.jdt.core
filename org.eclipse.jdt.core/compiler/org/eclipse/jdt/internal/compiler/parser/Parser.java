@@ -5686,6 +5686,66 @@ public CompilationUnitDeclaration parse(
 	}
 	return unit;
 }
+public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
+	/* automaton initialization */
+	initialize();
+	goForClassBodyDeclarations();
+	/* scanner initialization */
+	scanner.setSource(source);
+	scanner.resetTo(offset, offset + length - 1);
+
+	/* type declaration should be parsed as member type declaration */	
+	nestedType = 1;
+
+	/* unit creation */
+	referenceContext = unit;
+	compilationUnit = unit;
+
+	/* run automaton */
+	try {
+		parse();
+	} catch (AbortCompilation ex) {
+		lastAct = ERROR_ACTION;
+	}
+
+	if (lastAct == ERROR_ACTION) {
+		return null;
+	}
+	int astLength;
+	if ((astLength = astLengthStack[astLengthPtr--]) != 0) {
+		ASTNode[] result = new ASTNode[astLength];
+		astPtr -= astLength;
+		System.arraycopy(astStack, astPtr + 1, result, 0, astLength);
+		return result;
+	} else {
+		return null;
+	}
+}
+public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
+
+	initialize();
+	goForExpression();
+	nestedMethod[nestedType]++;
+
+	referenceContext = unit;
+	compilationUnit = unit;
+
+	scanner.setSource(source);
+	scanner.resetTo(offset, offset + length - 1);
+	try {
+		parse();
+	} catch (AbortCompilation ex) {
+		lastAct = ERROR_ACTION;
+	} finally {
+		nestedMethod[nestedType]--;
+	}
+
+	if (lastAct == ERROR_ACTION) {
+		return null;
+	}
+
+	return expressionStack[expressionPtr];
+}
 /**
  * Returns this parser's problem reporter initialized with its reference context.
  * Also it is assumed that a problem is going to be reported, so initializes
