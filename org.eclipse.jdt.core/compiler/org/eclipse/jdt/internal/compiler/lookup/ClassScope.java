@@ -303,6 +303,10 @@ public class ClassScope extends Scope {
 	    sourceType.typeVariables = NoTypeVariables;
 		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
 		if (referenceContext.typeParameters != null) {
+			if (isJavaLangObject(sourceType)) { // handle the case of redefining java.lang.Object up front
+				problemReporter().objectCannotBeGeneric(referenceContext);
+				return; 
+			}		    
 			int length = referenceContext.typeParameters.length;
 			typeVariableBindings = new TypeVariableBinding[length];
 			HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);

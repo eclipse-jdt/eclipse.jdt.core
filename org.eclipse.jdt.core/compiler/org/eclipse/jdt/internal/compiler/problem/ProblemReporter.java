@@ -2771,6 +2771,14 @@ public void notCompatibleTypesError(InstanceOfExpression expression, TypeBinding
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
+	this.handle(
+		IProblem.ObjectCannotBeGeneric,
+		NoArgument,
+		NoArgument,
+		typeDecl.typeParameters[0].sourceStart,
+		typeDecl.typeParameters[0].sourceEnd);
+}
 public void objectCannotHaveSuperTypes(SourceTypeBinding type) {
 	this.handle(
 		IProblem.ObjectCannotHaveSuperTypes,

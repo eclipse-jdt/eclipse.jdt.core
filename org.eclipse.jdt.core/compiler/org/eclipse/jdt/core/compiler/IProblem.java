@@ -791,4 +791,6 @@ public interface IProblem {
 	int InterfaceIllegalTypeVariable = Internal + 522;
 	/** @since 3.0 */
 	int TypeVariableReferenceFromStaticContext = Internal + 523;
+	/** @since 3.0 */
+	int ObjectCannotBeGeneric = Internal + 524;
 }

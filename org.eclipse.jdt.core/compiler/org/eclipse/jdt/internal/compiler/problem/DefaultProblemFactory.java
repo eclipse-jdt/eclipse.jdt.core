@@ -90,10 +90,6 @@ public IProblem createProblem(
 private final static int keyFromID(int id) {
     return id + 1; // keys are offsetted by one in table, since it cannot handle 0 key
 }
-private final static int keyToID(int key) {
-    return key - 1; // keys are offsetted by one in table, since it cannot handle 0 key
-}
-
 /**
  * Answer the locale used to retrieve the error messages
  * @return java.util.Locale
