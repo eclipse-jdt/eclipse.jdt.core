@@ -127,7 +127,8 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
+	
 	return computeChildren(info, underlyingResource);
 }
 /**

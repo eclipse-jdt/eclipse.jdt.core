@@ -99,6 +99,14 @@ public void destroy() {
 public boolean equals(Object o) {
 	return this == o;
 }
+
+/**
+ * Determine whether method bodies are parsed and investigated for errors.
+ */
+protected boolean diagnoseProblemInsideMethodBodies(){
+	return true;
+}
+
 /**
  * @see IWorkingCopy
  */
@@ -337,6 +345,35 @@ public IMarker[] reconcile() throws JavaModelException {
 	}
 */
 }
+
+/**
+ * @see IWorkingCopy
+ */
+public void reconcile(IProblemRequestor problemRequestor) throws JavaModelException {
+	// create the delta builder (this remembers the current content of the cu)
+	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
+
+	// update the element infos with the content of the working copy
+	this.makeConsistent(problemRequestor, null);
+
+	// build the deltas
+	deltaBuilder.buildDeltas();
+	
+	// fire the deltas
+	boolean shouldFire = false;
+	JavaModelManager manager = null;
+	if (deltaBuilder.delta != null) {
+		manager = (JavaModelManager)JavaModelManager.getJavaModelManager();
+		if (deltaBuilder.delta.getAffectedChildren().length > 0) {
+			manager.registerJavaModelDelta(deltaBuilder.delta);
+			shouldFire = true;
+		}
+	}
+	if (shouldFire)
+		manager.fire();
+
+}
+
 /**
  * @see IWorkingCopy
  */

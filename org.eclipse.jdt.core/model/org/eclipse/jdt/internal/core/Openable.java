@@ -54,12 +54,12 @@ protected Openable(int type, IJavaElement parent, String name) {
  * removing the current infos, generating new infos, and then placing
  * the new infos into the Java Model cache tables.
  */
-protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
 
 	// remove existing (old) infos
 	removeInfo();
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
+	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), problemRequestor));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
@@ -164,7 +164,7 @@ protected OpenableElementInfo createElementInfo() {
  * if successful, or false if an error is encountered while determining
  * the structure of this element.
  */
-protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException;
+protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException;
 /**
  * Note: a buffer with no unsaved changes can be closed by the Java Model
  * since it has a finite number of buffers allowed open at one time. If this
@@ -323,8 +323,12 @@ protected boolean isSourceElement() {
  * @see IOpenable
  */
 public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
+	this.makeConsistent(null, pm);
+}
+
+public void makeConsistent(IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
-		buildStructure((OpenableElementInfo)getElementInfo(), pm);
+		buildStructure((OpenableElementInfo)getElementInfo(), problemRequestor, pm);
 	}
 }
 /**
@@ -402,7 +406,7 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 		}
 
 		// 3) build the structure of the openable
-		buildStructure(info, pm);
+		buildStructure(info, null, pm);
 
 		// 4) anything special
 		opening(info);

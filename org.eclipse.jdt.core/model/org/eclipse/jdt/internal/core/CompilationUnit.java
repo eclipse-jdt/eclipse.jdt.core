@@ -153,6 +153,14 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void destroy() {
 }
+
+/**
+ * Determine whether method bodies are parsed and investigated for errors.
+ */
+protected boolean diagnoseProblemInsideMethodBodies(){
+	return false;
+}
+
 /**
  * Returns true if this handle represents the same Java element
  * as the given handle.
@@ -196,7 +204,7 @@ public IJavaElement findSharedWorkingCopy() {
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -207,17 +215,11 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 		// generate structure
-		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
+		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements, problemRequestor);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
-		parser.parseCompilationUnit(this, false);
+		parser.parseCompilationUnit(this, this.diagnoseProblemInsideMethodBodies());
 		if (isWorkingCopy()) {
-			// remember problems
-			ArrayList problems = requestor.fProblems;
-			if (problems != null) {
-				problems.toArray(((WorkingCopyElementInfo)unitInfo).problems = new IProblem[problems.size()]);
-			}
-			
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
 			unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
 			if(unitInfo.fTimestamp == IResource.NULL_STAMP){
@@ -508,11 +510,11 @@ public boolean isWorkingCopy() {
 /**
  * @see IOpenable
  */
-public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
+public void makeConsistent(IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, pm);
+		buildStructure(info, problemRequestor, pm);
 	}
 }
 /**
@@ -531,6 +533,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, null, renamings, force, monitor);
 }
+
 /**
  * Changes the source end index of this element and all children (following
  * <code>child</code>). 
@@ -600,6 +603,7 @@ protected boolean parentExists(){
 	
 	return true; // tolerate units outside classpath
 }
+
 /**
  * @see IWorkingCopy
  */
@@ -607,6 +611,14 @@ public IMarker[] reconcile() throws JavaModelException {
 	// Reconciling is not supported on non working copies
 	return null;
 }
+
+/**
+ * @see IWorkingCopy
+ */
+public void reconcile(IProblemRequestor problemRequestor) throws JavaModelException {
+	// Reconciling is not supported on non working copies
+}
+
 /**
  * @see ISourceManipulation
  */

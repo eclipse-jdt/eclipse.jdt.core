@@ -106,6 +106,7 @@ public interface IProblem {
 	final int ConstructorRelated = 0x08000000;
 	final int ImportRelated = 0x10000000;
 	final int Internal = 0x20000000;
+	final int Syntax =  0x40000000;
 	
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
@@ -268,32 +269,32 @@ public interface IProblem {
 	final int StaticMethodRequested = Internal + MethodRelated + 201;
 	final int IllegalDimension = Internal + 202;
 	final int InvalidTypeExpression = Internal + 203;
-	final int ParsingError = Internal + 204;
-	final int ParsingErrorNoSuggestion = Internal + 205;
-	final int InvalidUnaryExpression = Internal + 206;
+	final int ParsingError = Syntax + Internal + 204;
+	final int ParsingErrorNoSuggestion = Syntax + Internal + 205;
+	final int InvalidUnaryExpression = Syntax + Internal + 206;
 
 	// syntax errors
-	final int InterfaceCannotHaveConstructors = Internal + 207;
-	final int ArrayConstantsOnlyInArrayInitializers = Internal + 208;
-	final int ParsingErrorOnKeyword = Internal + 209;	
-	final int ParsingErrorOnKeywordNoSuggestion = Internal + 210;
+	final int InterfaceCannotHaveConstructors = Syntax + Internal + 207;
+	final int ArrayConstantsOnlyInArrayInitializers = Syntax + Internal + 208;
+	final int ParsingErrorOnKeyword = Syntax + Internal + 209;	
+	final int ParsingErrorOnKeywordNoSuggestion = Syntax + Internal + 210;
 
-	final int UnmatchedBracket = Internal + 220;
+	final int UnmatchedBracket = Syntax + Internal + 220;
 	final int NoFieldOnBaseType = FieldRelated + 221;
-	final int InvalidExpressionAsStatement = Internal + 222;
+	final int InvalidExpressionAsStatement = Syntax + Internal + 222;
     
 	// scanner errors
-	final int EndOfSource = Internal + 250;
-	final int InvalidHexa = Internal + 251;
-	final int InvalidOctal = Internal + 252;
-	final int InvalidCharacterConstant = Internal + 253;
-	final int InvalidEscape = Internal + 254;
-	final int InvalidInput = Internal + 255;
-	final int InvalidUnicodeEscape = Internal + 256;
-	final int InvalidFloat = Internal + 257;
-	final int NullSourceString = Internal + 258;
-	final int UnterminatedString = Internal + 259;
-	final int UnterminatedComment = Internal + 260;
+	final int EndOfSource = Syntax + Internal + 250;
+	final int InvalidHexa = Syntax + Internal + 251;
+	final int InvalidOctal = Syntax + Internal + 252;
+	final int InvalidCharacterConstant = Syntax + Internal + 253;
+	final int InvalidEscape = Syntax + Internal + 254;
+	final int InvalidInput = Syntax + Internal + 255;
+	final int InvalidUnicodeEscape = Syntax + Internal + 256;
+	final int InvalidFloat = Syntax + Internal + 257;
+	final int NullSourceString = Syntax + Internal + 258;
+	final int UnterminatedString = Syntax + Internal + 259;
+	final int UnterminatedComment = Syntax + Internal + 260;
 
 	// type related problems
 	final int InterfaceCannotHaveInitializers = TypeRelated + 300;

@@ -85,12 +85,11 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected static int fgReferenceAllocation= 50;
 
 	/**
-	 * Collection of problems reported during the parse.
-	 * If any errors appear (i.e. not warnings), the structure
-	 * of the compilation unit is considered unknown.
-	 */	
-	protected ArrayList fProblems;
-
+	 * Problem requestor which will get notified of discovered problems
+	 */
+	protected IProblemRequestor clientProblemRequestor;
+	protected boolean hasSyntaxErrors = false;
+	
 	/**
 	 * Empty collections used for efficient initialization
 	 */
@@ -104,11 +103,13 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected HashtableOfObject messageRefCache;
 	protected HashtableOfObject typeRefCache;
 	protected HashtableOfObject unknownRefCache;
-protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) throws JavaModelException {
-	fUnit = unit;
-	fUnitInfo = unitInfo;
-	fNewElements = newElements;
-	fSourceFileName= unit.getElementName().toCharArray();
+
+protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements, IProblemRequestor clientProblemRequestor) throws JavaModelException {
+	this.fUnit = unit;
+	this.fUnitInfo = unitInfo;
+	this.fNewElements = newElements;
+	this.fSourceFileName= unit.getElementName().toCharArray();
+	this.clientProblemRequestor = clientProblemRequestor;
 }
 /**
  * @see ISourceElementRequestor
@@ -183,10 +184,12 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 
 }
 public void acceptProblem(IProblem problem) {
-	if (fProblems == null) {
-		fProblems= new ArrayList();
+	if ((problem.getID() & IProblem.Syntax) != 0){
+		this.hasSyntaxErrors = true;
 	}
-	fProblems.add(problem);
+	if (this.clientProblemRequestor != null){
+		this.clientProblemRequestor.acceptProblem(problem);
+	}
 }
 /**
  * Convert these type names to signatures.
@@ -480,16 +483,7 @@ public void exitCompilationUnit(int declarationEnd) {
 	fUnitInfo.setSourceLength(declarationEnd + 1);
 
 	// determine if there were any parsing errors
-	fUnitInfo.setIsStructureKnown(true);
-	if (fProblems != null) {
-		for (int i= 0; i < fProblems.size(); i++) {
-			IProblem problem= (IProblem)fProblems.get(i);
-			if (!problem.isWarning()) {
-				fUnitInfo.setIsStructureKnown(false);
-				break;
-			}
-		}
-	}
+	fUnitInfo.setIsStructureKnown(!this.hasSyntaxErrors);
 }
 /**
  * @see ISourceElementRequestor

@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.util.*;
 import java.util.Locale;
 
 public class SourceElementParser extends Parser {
+	
 	ISourceElementRequestor requestor;
 	private int fieldCount;
 	private int localIntPtr;

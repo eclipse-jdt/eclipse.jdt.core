@@ -195,8 +195,37 @@ boolean isWorkingCopy();
  * <ul>
  * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
+ * @deprecated - use <code>IWorkingCopy#reconcile(IProblemRequestor)</code> instead.
  */
 IMarker[] reconcile() throws JavaModelException;
+/**
+ * Reconciles the contents of this working copy.
+ * It performs the reconciliation by locally caching the contents of 
+ * the working copy, updating the contents, then creating a delta 
+ * over the cached contents and the new contents, and finally firing
+ * this delta.
+ * <p>
+ * Returns the syntax problems found in the new contents through the argument problem requestor,
+ * under the form of IProblem.
+ * <p>
+ * Note: It has been assumed that added inner types should
+ * not generate change deltas.  The implementation has been
+ * modified to reflect this assumption.
+ *
+ * @param problemRequestor a requestor which will get notified of problems detected during
+ * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
+ * 	that the client is not interested in problems.
+ * 
+ * @exception JavaModelException if the contents of the original element
+ *		cannot be accessed. Reasons include:
+ * <ul>
+ * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @see IProblem
+ * @since 2.0
+ */
+void reconcile(IProblemRequestor problemRequestor) throws JavaModelException;
+
 /**
  * Restores the contents of this working copy to the current contents of
  * this working copy's original element. Has no effect if this element
