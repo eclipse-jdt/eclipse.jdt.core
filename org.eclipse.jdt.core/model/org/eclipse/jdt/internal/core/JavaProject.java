@@ -1735,15 +1735,16 @@ public IJavaElement rootedAt(IJavaProject project) {
 	}
 	
 	/**
-	 * Save the classpath in a shareable format (VCM-wise) if necessary (i.e. semantically different)
+	 * Saves the classpath in a shareable format (VCM-wise) if necessary (i.e. semantically different)
+	 * Returns whether the .classpath file was modified.
 	 */
-	public void saveClasspath(boolean force) throws JavaModelException {
+	public boolean saveClasspath(boolean force) throws JavaModelException {
 		
 		if (!getProject().exists())
-			return;
+			return false;
 
 		if (!isOpen())
-			return; // no update for closed projects
+			return false; // no update for closed projects
 
 		QualifiedName classpathProp = getClasspathPropertyName();
 
@@ -1754,7 +1755,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 				IClasspathEntry[] fileEntries = readPaths(fileClasspathString);
 				if (!force && isClasspathEqualsTo(fileEntries)) {
 					// no need to save it, it is the same
-					return;
+					return false;
 				}
 			}
 		} catch (IOException e) {
@@ -1767,6 +1768,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 			setSharedProperty(
 				classpathProp,
 				getClasspathAsXMLString(getRawClasspath(), getOutputLocation()));
+			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}

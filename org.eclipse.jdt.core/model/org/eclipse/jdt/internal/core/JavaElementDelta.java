@@ -77,7 +77,8 @@ protected void addAffectedChild(JavaElementDelta child) {
 	switch (fKind) {
 		case ADDED:
 		case REMOVED:
-			break;
+			// no need to add a child if this parent is added or removed
+			return;
 		case CHANGED:
 			fChangeFlags |= F_CHILDREN;
 			break;
@@ -129,7 +130,8 @@ protected void addResourceDelta(IResourceDelta child) {
 	switch (fKind) {
 		case ADDED:
 		case REMOVED:
-			break;
+			// no need to add a child if this parent is added or removed
+			return;
 		case CHANGED:
 			fChangeFlags |= F_CONTENT;
 			break;

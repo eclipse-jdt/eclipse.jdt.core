@@ -97,6 +97,7 @@ protected void executeOperation() throws JavaModelException {
 	// save the cu
 	original.getBuffer().setContents(copy.getBuffer().getCharacters());
 	original.save(fMonitor, fForce);
+	this.hasModifiedResource = true;
 
 	// make sure working copy is in sync
 	copy.restore();

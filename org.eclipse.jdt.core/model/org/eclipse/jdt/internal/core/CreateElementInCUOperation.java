@@ -135,6 +135,7 @@ protected void executeOperation() throws JavaModelException {
 				buffer.replace(fInsertionPosition, fReplacementLength, fCreatedElement.getCharacters(), true);
 		}
 		unit.save(null, false);
+		this.hasModifiedResource = true;
 		worked(1);
 		fResultElements = generateResultHandles();
 		for (int i = 0; i < fResultElements.length; i++) {

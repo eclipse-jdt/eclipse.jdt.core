@@ -1117,23 +1117,9 @@ public void rollback(ISaveContext context){
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-		try {
-			if (operation.isReadOnly() || operation instanceof SetClasspathOperation) {
-				boolean wasFiring = isFiring();
-				try {
-					if (wasFiring) stopDeltas();
-					operation.run(monitor);
-				} finally {
-					if (wasFiring) {
-						startDeltas();
-						fire();
-					}
-				}
-			} else {
-				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
-				this.getJavaModel().getWorkspace().run(operation, monitor);
-				 // NB: deltas are fired while processing the resource delta
-			}
+		boolean hadAwaitingDeltas = !fJavaModelDeltas.isEmpty();		try {
+			// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
+			this.getJavaModel().getWorkspace().run(operation, monitor);
 		} catch (CoreException ce) {
 			if (ce instanceof JavaModelException) {
 				throw (JavaModelException)ce;
@@ -1146,6 +1132,12 @@ public void rollback(ISaveContext context){
 				}
 				throw new JavaModelException(ce);
 			}
+		} finally {
+			// fire only if there were no awaiting deltas (if there were, they would come from a resource modifying operation)
+			// and the operation has not modified any resource
+			if (!hadAwaitingDeltas && !operation.hasModifiedResource()) {
+				fire();
+			} // else deltas are fired while processing the resource delta
 		}
 	}
 	private void saveBuildState() throws CoreException {

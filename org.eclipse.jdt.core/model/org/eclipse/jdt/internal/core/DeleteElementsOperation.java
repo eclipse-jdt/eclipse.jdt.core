@@ -55,6 +55,7 @@ protected void commitChanges(IDOMCompilationUnit cuDOM, ICompilationUnit cu) thr
 	}
 	((Buffer)cu.getBuffer()).setContents(newContents, true);
 	cu.save(getSubProgressMonitor(1), fForce);
+	this.hasModifiedResource = true;
 }
 /**
  * @see MultiOperation

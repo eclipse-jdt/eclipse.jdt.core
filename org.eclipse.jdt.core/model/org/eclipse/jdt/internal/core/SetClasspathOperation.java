@@ -151,7 +151,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				manager,
 				project);
 		} else {
-			project.saveClasspath(this.forceSave);
+			this.hasModifiedResource = project.saveClasspath(this.forceSave);
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
@@ -197,7 +197,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			addDelta(delta);	
 		}
 		worked(1);
-		project.saveClasspath(false);
+		this.hasModifiedResource = project.saveClasspath(false);
 		worked(1);
 	
 		// loose all built state - next build will be a full one
@@ -329,7 +329,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		if (hasDelta) {
 			try {
-				project.saveClasspath(this.forceSave);
+				this.hasModifiedResource = project.saveClasspath(this.forceSave);
 			} catch (JavaModelException e) {
 			}
 			this.addDelta(delta);
