@@ -601,7 +601,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"<1112>");
-		// according to spec this should find count(Object[]) since it should not consider count(Object[]...) as count(Object[][]) until all fixed arity methods are ruled out
+		// according to spec this should find count(Object[]) since it should consider count(Object[]...) as count(Object[][]) until all fixed arity methods are ruled out
 		this.runConformTest(
 			new String[] {
 				"X.java",
