@@ -123,7 +123,10 @@ class ASTConverter {
 		if (resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
 		}
-		typeDecl.setModifiers(typeDeclaration.modifiers & ~0x200); // remove AccInterface: 0x200
+		int modifiers = typeDeclaration.modifiers;
+		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
+		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
+		typeDecl.setModifiers(modifiers);
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -405,7 +408,10 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
 		}
-		typeDecl.setModifiers(typeDeclaration.modifiers);
+		int modifiers = typeDeclaration.modifiers;
+		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
+		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
+		typeDecl.setModifiers(modifiers);
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -517,7 +523,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
 		}
-		methodDecl.setModifiers(methodDeclaration.modifiers);
+		methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
 		SimpleName methodName = this.ast.newSimpleName(new String(methodDeclaration.selector));
@@ -2069,7 +2075,7 @@ class ASTConverter {
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
-		fieldDeclaration.setModifiers(fieldDecl.modifiers);
+		fieldDeclaration.setModifiers(fieldDecl.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		setJavaDocComment(fieldDeclaration);
 		return fieldDeclaration;
 	}

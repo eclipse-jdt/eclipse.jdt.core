@@ -218,7 +218,6 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @exception $precondition-violation:illegal-modifiers$
 	 */ 
 	public void setModifiers(int modifiers) {
-		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
