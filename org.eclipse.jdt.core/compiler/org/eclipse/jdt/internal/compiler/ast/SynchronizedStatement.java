@@ -107,14 +107,16 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			if (!blockExit) {
 				codeStream.load(synchroVariable);
 				codeStream.monitorexit();
+				this.exitAnyExceptionHandler();
 				codeStream.goto_(endLabel);
+				this.enterAnyExceptionHandler(codeStream);
 			}
 			// generate the body of the exception handler
-			this.exitAnyExceptionHandler();
 			this.placeAllAnyExceptionHandlers();
 			codeStream.incrStackSize(1);
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
+			this.exitAnyExceptionHandler();
 			codeStream.athrow();
 			if (!blockExit) {
 				endLabel.place();
