@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * [package <package name>;]
  * [import <import name>;]*
  * public class <code snippet class name> extends <global variable class name> {
+ *   [<declaring type> val$this;]
  *   public void run() {
  *     <code snippet>
  *   }
