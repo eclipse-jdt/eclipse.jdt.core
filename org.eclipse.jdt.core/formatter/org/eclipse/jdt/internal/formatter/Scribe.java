@@ -395,6 +395,7 @@ public class Scribe {
 			line += linesNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		} else if (lastNumberOfNewLines == 1) {
 			for (int i = 0; i < linesNumber; i++) {
 				buffer.append(this.lineSeparator);
@@ -403,6 +404,7 @@ public class Scribe {
 			line += linesNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		} else {
 			if ((lastNumberOfNewLines - 1) >= linesNumber) {
 				// there is no need to add new lines
@@ -416,6 +418,7 @@ public class Scribe {
 			line += realNewLineNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		}
 		return String.valueOf(buffer);
 	}
@@ -465,6 +468,7 @@ public class Scribe {
 		lastNumberOfNewLines = 1;
 		column = 1;
 		needSpace = false;
+		this.pendingSpace = false;
 		return this.lineSeparator;
 	}
 
@@ -1017,6 +1021,7 @@ public class Scribe {
 		line++; 
 		column = 1;
 		needSpace = false;
+		this.pendingSpace = false;
 		lastNumberOfNewLines = 1;
 		// realign to the proper value
 		if (this.currentAlignment != null) {
@@ -1051,6 +1056,7 @@ public class Scribe {
 			line += linesNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		} else if (lastNumberOfNewLines == 1) {
 			for (int i = 0; i < linesNumber; i++) {
 				buffer.append(this.lineSeparator);
@@ -1059,6 +1065,7 @@ public class Scribe {
 			line += linesNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		} else {
 			if ((lastNumberOfNewLines - 1) >= linesNumber) {
 				// there is no need to add new lines
@@ -1072,6 +1079,7 @@ public class Scribe {
 			line += realNewLineNumber;
 			column = 1;
 			needSpace = false;
+			this.pendingSpace = false;
 		}
 		addInsertEdit(insertPosition, buffer.toString());
 	}
@@ -1212,6 +1220,7 @@ public class Scribe {
 		lastNumberOfNewLines = 1;
 		column = 1;
 		needSpace = false;
+		this.pendingSpace = false;
 	}
 
 	public void printNewLine(int insertPosition) {
@@ -1227,6 +1236,7 @@ public class Scribe {
 		lastNumberOfNewLines = 1;
 		column = 1;
 		needSpace = false;
+		this.pendingSpace = false;
 	}
 
 	public void printNextToken(int expectedTokenType){
