@@ -7954,4 +7954,63 @@ public void test0183(){
 			expectedReplacedSource,
 	"diet ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75649
+ */
+public void test0184(){
+	String str =
+		"public class X <T>{\n" + 
+		"  void foo() {\n" + 
+		"    X<? extends String> s;\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"\n";
+
+	String completeBehind = "Strin";
+	int cursorLocation = str.indexOf("Strin") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnType:Strin>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "Strin";
+	expectedReplacedSource = "String";
+	expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    X<? extends <CompleteOnType:Strin>>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

@@ -282,7 +282,8 @@ protected void attachOrphanCompletionNode(){
 					return;
 				}
 			}
-			if(node == this.assistNode){
+			if(node == this.assistNode ||
+					((Wildcard)node).bound == this.assistNode){
 				buildMoreGenericsCompletionContext(node);
 			}
 		}
@@ -2309,7 +2310,9 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BINARY_OPERATOR, INSTANCEOF);
 				break;
 			case TokenNameQUESTION:
-				pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
+				if(previous != TokenNameLESS) {
+					pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
+				}
 				break;
 			case TokenNameCOLON:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONDITIONAL_OPERATOR
