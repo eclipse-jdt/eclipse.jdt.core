@@ -104,6 +104,7 @@ synchronized public File getAnonymousFile() {
 			Thread.sleep(1);
 		} 
 		catch (InterruptedException e) {
+			// ignore
 		}
 		file = fileForName(getAnonymousFileName());
 	}

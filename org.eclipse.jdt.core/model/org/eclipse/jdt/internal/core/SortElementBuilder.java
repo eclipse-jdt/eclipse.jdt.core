@@ -876,6 +876,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			this.id = COMPILATION_UNIT;
 		}
 		void display(StringBuffer buffer, int tab) {
+			// nothing to do
 		}
 		
 		ASTNode convert() {

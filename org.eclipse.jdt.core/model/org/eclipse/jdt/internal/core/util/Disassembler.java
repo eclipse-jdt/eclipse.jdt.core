@@ -785,6 +785,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		try {
 			codeAttribute.traverse(visitor);
 		} catch(ClassFormatException e) {
+			// ignore
 		}
 		int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {

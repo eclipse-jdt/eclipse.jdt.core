@@ -328,6 +328,7 @@ public class SourceMapper
 					}
 				}
 			} catch (CoreException e) {
+				// ignore
 			} finally {
 				manager.closeZipFile(zip); // handle null case
 			}
@@ -347,6 +348,7 @@ public class SourceMapper
 							}
 						}
 					} catch (CoreException e) {
+						// ignore
 					}
 				}
 			} else if (target instanceof File) {
@@ -391,6 +393,7 @@ public class SourceMapper
 					}
 				}
 			} catch (CoreException e) {
+				// ignore
 			} finally {
 				manager.closeZipFile(zip); // handle null case
 			}
@@ -474,6 +477,7 @@ public class SourceMapper
 				}
 			}
 		} catch (CoreException e) {
+			// ignore
 		}
 	}	
 
@@ -705,6 +709,7 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitInitializer(int declarationEnd) {
+		// implements abstract method
 	}
 	
 	/**
@@ -845,6 +850,7 @@ public class SourceMapper
 					return type.getElementName() + SUFFIX_STRING_java;
 				}
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		} else {
 			return  new String(sourceFileName);
@@ -894,6 +900,7 @@ public class SourceMapper
 					try {
 						source = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
 					} catch (JavaModelException e) {
+						// ignore
 					}
 				}
 			} else if (target instanceof File) {
@@ -903,6 +910,7 @@ public class SourceMapper
 					try {
 						source = Util.getFileCharContent(sourceFile, this.encoding);
 					} catch (IOException e) {
+						// ignore
 					}
 				}
 			}
@@ -1079,6 +1087,7 @@ public class SourceMapper
 				isAnonymousClass = binType.isAnonymous();
 				fullName = binType.getName();
 			} catch(JavaModelException e) {
+				// ignore
 			}
 			if (isAnonymousClass) {
 				String eltName = fType.getElementName();
@@ -1086,6 +1095,7 @@ public class SourceMapper
 				try {
 					this.anonymousClassName = Integer.parseInt(eltName);
 				} catch(NumberFormatException e) {
+					// ignore
 				}
 			}
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
@@ -1118,6 +1128,7 @@ public class SourceMapper
 				return Util.bytesToChar(bytes, this.encoding);
 			}
 		} catch (IOException e) {
+			// ignore
 		}
 		return null;
 	}	
