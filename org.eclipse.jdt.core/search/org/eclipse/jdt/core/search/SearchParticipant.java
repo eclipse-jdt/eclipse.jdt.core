@@ -108,7 +108,7 @@ public abstract class SearchParticipant {
 	/**
 	 * Indexes the given document in the given index. A search participant
 	 * asked to index a document should parse it and call 
-	 * {@link #addIndexEntry(char[], char[], SearchDocument)} as many times as
+	 * {@link SearchDocument#addIndexEntry(char[], char[])} as many times as
 	 * needed to add index entries to the index. If delegating to another
 	 * participant, it should use the original index location (and not the
 	 * delegatee's one). In the particular case of delegating to the default

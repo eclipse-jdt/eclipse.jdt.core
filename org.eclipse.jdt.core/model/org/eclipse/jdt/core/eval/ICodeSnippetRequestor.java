@@ -22,8 +22,8 @@ import org.eclipse.jdt.internal.eval.EvaluationConstants;
  * Clients may implement this interface to provide a bridge a running Java VM.
  * </p>
  *
- * @see IEvaluationContext#evaluateCodeSnippet(String, ICodeSnippetRequestor, IProgressMonitor)
- * @see IEvaluationContext#evaluateCodeSnippet(String, String[], String[], int[], IType, boolean, boolean, ICodeSnippetRequestor, IProgressMonitor)
+ * @see IEvaluationContext#evaluateCodeSnippet(String, ICodeSnippetRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ * @see IEvaluationContext#evaluateCodeSnippet(String, String[], String[], int[], org.eclipse.jdt.core.IType, boolean, boolean, ICodeSnippetRequestor, org.eclipse.core.runtime.IProgressMonitor)
  */
 public interface ICodeSnippetRequestor {
 	

@@ -1016,7 +1016,7 @@ public final class AST {
 	/**
 	 * Sets default node flags of new nodes of this AST.
 	 * 
-	 * @param default node flags of new nodes of this AST
+	 * @param flag node flags of new nodes of this AST
 	 * @since 3.0
 	 */
 	void setDefaultNodeFlag(int flag) {

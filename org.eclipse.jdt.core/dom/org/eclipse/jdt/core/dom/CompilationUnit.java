@@ -381,7 +381,7 @@ public class CompilationUnit extends ASTNode {
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * Each call to {@link ASTParser#createAST(IProgressMonitor)} with a request for bindings
+	 * Each call to {@link ASTParser#createAST(org.eclipse.core.runtime.IProgressMonitor)} with a request for bindings
 	 * gives rise to separate universe of binding objects. This method always returns
 	 * <code>null</code> when the binding object comes from a different AST.
 	 * Use <code>findDeclaringNode(binding.getKey())</code> when the binding comes
@@ -837,7 +837,7 @@ public class CompilationUnit extends ASTNode {
 	 * @param options the table of formatter options
 	 * (key type: <code>String</code>; value type: <code>String</code>);
 	 * or <code>null</code> to use the standard global options
-	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
+	 * {@link org.eclipse.jdt.core.JavaCore#getOptions() JavaCore.getOptions()}.
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the recorded AST modifications
 	 * @exception IllegalArgumentException if the document passed is

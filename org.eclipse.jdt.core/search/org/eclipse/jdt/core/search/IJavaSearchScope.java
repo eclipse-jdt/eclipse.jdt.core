@@ -93,7 +93,7 @@ IPath[] enclosingProjectsAndJars();
  * 
  * @return whether this scope contains any <code>.class</code> files
  * @deprecated Use
- * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[])}
  * with the package fragment roots that correspond to the binaries instead.
  */
 boolean includesBinaries();
@@ -103,7 +103,7 @@ boolean includesBinaries();
  * 
  * @return whether this scope includes classpaths
  * @deprecated Use
- * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[])}
  * with a Java project instead.
  */
 boolean includesClasspaths();
@@ -113,7 +113,7 @@ boolean includesClasspaths();
  * 
  * @param includesBinaries whether this scope contains any <code>.class</code> files
  * @deprecated Use
- * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[])}
  * with the package fragment roots that correspond to the binaries instead.
  */
 public void setIncludesBinaries(boolean includesBinaries);
@@ -123,7 +123,7 @@ public void setIncludesBinaries(boolean includesBinaries);
  * 
  * @param includesClasspaths whether this scope includes classpaths
  * @deprecated Use
- * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[])}
  * with a Java project instead.
  */
 public void setIncludesClasspaths(boolean includesClasspaths);

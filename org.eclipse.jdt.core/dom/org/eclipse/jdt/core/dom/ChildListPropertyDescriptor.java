@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.dom;
  * A child list property is one whose value is a list of
  * {@link ASTNode}.
  * 
- * @see ASTNode#getStructuralProperty(SimplePropertyDescriptor)
+ * @see org.eclipse.jdt.core.dom.ASTNode#getStructuralProperty(StructuralPropertyDescriptor)
  * @since 3.0
  */
 public final class ChildListPropertyDescriptor extends StructuralPropertyDescriptor {

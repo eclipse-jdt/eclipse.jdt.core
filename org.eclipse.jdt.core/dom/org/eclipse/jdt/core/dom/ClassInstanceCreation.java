@@ -466,7 +466,7 @@ public class ClassInstanceCreation extends Expression {
 	 * Sets the type instantiated in this class instance creation
 	 * expression (added in JLS3 API).
 	 * 
-	 * @param name the new type
+	 * @param type the new type
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>

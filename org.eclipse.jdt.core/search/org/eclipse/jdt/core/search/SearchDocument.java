@@ -41,7 +41,7 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	/**
 	 * Adds the given index entry (category and key) coming from this
 	 * document to the index. This method must be called from
-	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath)}.
 	 * 
 	 * @param category the category of the index entry
 	 * @param key the key of the index entry
@@ -110,7 +110,7 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	/**
 	 * Removes all index entries from the index for the given document.
 	 * This method must be called from 
-	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath)}.
 	 */
 	public void removeAllIndexEntries() {
 		super.removeAllIndexEntries();

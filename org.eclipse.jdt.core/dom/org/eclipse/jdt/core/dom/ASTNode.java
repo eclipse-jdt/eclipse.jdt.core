@@ -1530,7 +1530,6 @@ public abstract class ASTNode {
 	 * </ul>
 	 * 
 	 * @param property the property
-	 * @return the value, or <code>null</code> if none
 	 * @exception RuntimeException if this node does not have the
 	 * given property, or if the given property cannot be set
 	 * @since 3.0
@@ -2300,8 +2299,8 @@ public abstract class ASTNode {
 	 * method uses object identity (==). Use <code>subtreeMatch</code> to
 	 * compare two subtrees for equality.
 	 * 
-	 * @param obj {@inheritdoc}
-	 * @return {@inheritdoc}
+	 * @param obj {@inheritDoc}
+	 * @return {@inheritDoc}
 	 * @see #subtreeMatch(ASTMatcher matcher, Object other)
 	 */
 	public final boolean equals(Object obj) {

@@ -78,13 +78,13 @@ public interface IClasspathContainer {
 	 * <ul>
 	 * <li>{@link JavaCore#newLibraryEntry(IPath, IPath, IPath, boolean)} and variants</li>
 	 * <li>{@link JavaCore#newProjectEntry(IPath, boolean)} and variants</li>
-	 * <li>{@link JavaCore#create(IWorkspaceRoot)</li>
-	 * <li>{@link JavaCore#create(IProject)</li>
-	 * <li>{@link IJavaModel#getJavaProjects()</li>
-	 * <li>{@link IJavaProject#getRawClasspath()</li>
-	 * <li>{@link IJavaProject#readRawClasspath()</li>
-	 * <li>{@link IJavaProject#getOutputLocation()</li>
-	 * <li>{@link IJavaProject#readOutputLocation()</li>
+	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IWorkspaceRoot)}</li>
+	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IProject)}</li>
+	 * <li>{@link IJavaModel#getJavaProjects()}</li>
+	 * <li>{@link IJavaProject#getRawClasspath()}</li>
+	 * <li>{@link IJavaProject#readRawClasspath()}</li>
+	 * <li>{@link IJavaProject#getOutputLocation()}</li>
+	 * <li>{@link IJavaProject#readOutputLocation()}</li>
 	 * <li>Java element operations marked as "handle-only"</li>
 	 * </ul>
 	 * The effects of using other Java model APIs are unspecified.

@@ -17,8 +17,8 @@ package org.eclipse.jdt.core.dom;
  * or some simple value type (such as <code>String</code> or
  * <code>InfixExpression.Operator</code>).
  * 
- * @see ASTNode#getStructuralProperty(SimplePropertyDescriptor)
- * @see ASTNode#setStructuralProperty(SimplePropertyDescriptor,Object)
+ * @see org.eclipse.jdt.core.dom.ASTNode#getStructuralProperty(StructuralPropertyDescriptor)
+ * @see org.eclipse.jdt.core.dom.ASTNode#setStructuralProperty(StructuralPropertyDescriptor, Object)
  * @since 3.0
  */
 public final class SimplePropertyDescriptor extends StructuralPropertyDescriptor {

@@ -82,7 +82,7 @@ public abstract class StructuralPropertyDescriptor {
 	
 	/**
 	 * Returns whether this property is a simple property
-	 * (instance of {@link SimplePropertyDescriptor).
+	 * (instance of {@link SimplePropertyDescriptor}.
 	 * 
 	 * @return <code>true</code> if this is a simple property, and 
 	 * <code>false</code> otherwise
@@ -93,7 +93,7 @@ public abstract class StructuralPropertyDescriptor {
 	
 	/**
 	 * Returns whether this property is a child property
-	 * (instance of {@link ChildPropertyDescriptor).
+	 * (instance of {@link ChildPropertyDescriptor}.
 	 * 
 	 * @return <code>true</code> if this is a child property, and 
 	 * <code>false</code> otherwise
@@ -104,7 +104,7 @@ public abstract class StructuralPropertyDescriptor {
 	
 	/**
 	 * Returns whether this property is a child list property
-	 * (instance of {@link ChildListPropertyDescriptor).
+	 * (instance of {@link ChildListPropertyDescriptor}.
 	 * 
 	 * @return <code>true</code> if this is a child list property, and 
 	 * <code>false</code> otherwise

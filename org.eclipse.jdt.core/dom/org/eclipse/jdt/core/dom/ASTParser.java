@@ -51,7 +51,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * <li>Source string from {@link #setSource(char[]) char[]},
  * {@link #setSource(ICompilationUnit) ICompilationUnit},
  * or {@link #setSource(IClassFile) IClassFile}, and limited
- * to a specified {@linkplain #setSourceRange(int,int) subrange.</li>
+ * to a specified {@linkplain #setSourceRange(int,int) subrange}.</li>
  * <li>Whether {@linkplain #setResolveBindings(boolean) bindings} will be created.</li>
  * <li>Which {@linkplain #setWorkingCopyOwner(WorkingCopyOwner)
  * working set owner} to use when resolving bindings).</li>
