@@ -1374,6 +1374,16 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				type, 
 				intStack[intPtr + 1] & ~AccDeprecated,
 				isVarArgs); // modifiers
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack, 
+				(this.expressionPtr -= length) + 1, 
+				arg.annotations = new Annotation[length], 
+				0, 
+				length); 
+		}
 				
 		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
 		pushOnAstStack(arg);
@@ -1494,6 +1504,16 @@ protected void consumeMethodHeaderName() {
 				
 				if(scanner.getLineNumber(type.sourceStart) != scanner.getLineNumber((int) (selectorSource >>> 32))) {
 					FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
+					// consume annotations
+					int length;
+					if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+						System.arraycopy(
+							this.expressionStack, 
+							(this.expressionPtr -= length) + 1, 
+							completionFieldDecl.annotations = new Annotation[length], 
+							0, 
+							length); 
+					}
 					completionFieldDecl.modifiers = mod;
 					assistNode = completionFieldDecl;
 					lastCheckPoint = type.sourceEnd + 1;
@@ -1501,6 +1521,16 @@ protected void consumeMethodHeaderName() {
 					lastIgnoredToken = -1;
 				} else {
 					CompletionOnMethodReturnType md = new CompletionOnMethodReturnType(type, this.compilationUnit.compilationResult);
+					// consume annotations
+					int length;
+					if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+						System.arraycopy(
+							this.expressionStack, 
+							(this.expressionPtr -= length) + 1, 
+							md.annotations = new Annotation[length], 
+							0, 
+							length); 
+					}
 					md.selector = selector;
 					md.declarationSourceStart = declarationSourceStart;
 					md.modifiers = mod;
@@ -1529,6 +1559,16 @@ protected void consumeMethodHeaderName() {
 		//modifiers
 		md.declarationSourceStart = intStack[intPtr--];
 		md.modifiers = intStack[intPtr--];
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack, 
+				(this.expressionPtr -= length) + 1, 
+				md.annotations = new Annotation[length], 
+				0, 
+				length); 
+		}
 		// javadoc
 		md.javadoc = this.javadoc;
 		this.javadoc = null;

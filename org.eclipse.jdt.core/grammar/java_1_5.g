@@ -789,12 +789,16 @@ LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators
 -- The modifiers part of this rule makes the grammar more permissive. 
 -- The only modifier here is final. We put Modifiers to allow multiple modifiers
 -- This will require to check the validity of the modifier
-LocalVariableDeclaration ::= Modifiers Type PushModifiers VariableDeclarators
+LocalVariableDeclaration ::= Modifiers Type PushRealModifiers VariableDeclarators
 /.$putCase consumeLocalVariableDeclaration(); $break ./
 /:$readableName LocalVariableDeclaration:/
 
 PushModifiers ::= $empty
 /.$putCase consumePushModifiers(); $break ./
+/:$readableName PushModifiers:/
+
+PushRealModifiers ::= $empty
+/.$putCase consumePushRealModifiers(); $break ./
 /:$readableName PushModifiers:/
 
 Statement -> StatementWithoutTrailingSubstatement
@@ -1437,7 +1441,7 @@ ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
 
 Modifiersopt ::= $empty 
 /. $putCase consumeDefaultModifiers(); $break ./
-Modifiersopt ::= Modifiers 
+Modifiersopt ::= Modifiers
 /.$putCase consumeModifiers(); $break ./ 
 /:$readableName Modifiers:/
 
@@ -1563,7 +1567,7 @@ EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier ':' Expre
 /.$putCase consumeEnhancedForStatementHeader(false); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
-EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')'
+EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushRealModifiers Identifier ':' Expression ')'
 /.$putCase consumeEnhancedForStatementHeader(true); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
@@ -1959,7 +1963,7 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : annotation - Metadata feature jsr175
 -----------------------------------------------
-AnnotationTypeDeclarationHeader ::= Modifiers '@' PushModifiers interface Identifier
+AnnotationTypeDeclarationHeader ::= Modifiers '@' PushRealModifiers interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeDeclarationHeader ::= '@' PushModifiers interface Identifier

@@ -251,6 +251,16 @@ protected void consumeClassHeaderName() {
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
 	}
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			typeDecl.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
 	// javadoc
@@ -370,6 +380,16 @@ protected void consumeConstructorHeaderName() {
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiersSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	cd.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -388,6 +408,7 @@ protected void consumeDefaultModifiers() {
 	pushOnIntStack(
 		declarationSourceStart >= 0 ? declarationSourceStart : scanner.startPosition); 
 	resetModifiers();
+	pushOnExpressionStackLengthStack(0);
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
@@ -428,6 +449,16 @@ protected void consumeEnterVariable() {
 		// create the field declaration
 		declaration = 
 			new FieldDeclaration(varName, (int) (namePosition >>> 32), (int) namePosition); 
+	}
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			declaration.annotations = new Annotation[length], 
+			0, 
+			length); 
 	}
 	identifierLengthPtr--;
 	TypeReference type;
@@ -561,8 +592,18 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			parameterName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1],
-			isVarArgs); // modifiers
+			intStack[intPtr + 1], // modifiers
+			isVarArgs);
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			arg.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	pushOnAstStack(arg);
 	intArrayPtr--;
 }
@@ -658,6 +699,16 @@ protected void consumeInterfaceHeaderName() {
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
+	}
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			typeDecl.annotations = new Annotation[length], 
+			0, 
+			length); 
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
@@ -817,6 +868,16 @@ protected void consumeMethodHeaderName() {
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiersSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	md.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -853,6 +914,21 @@ protected void consumePackageDeclarationName() {
 		importReference.sourceStart);
 }
 protected void consumePushModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
+	pushOnIntStack(modifiers); // modifiers
+	if (modifiersSourceStart < 0) {
+		pushOnIntStack(-1);
+		pushOnIntStack(
+			declarationSourceStart >= 0 ? declarationSourceStart : scanner.startPosition); 
+	} else {
+		pushOnIntStack(modifiersSourceStart);
+		pushOnIntStack(
+			declarationSourceStart >= 0 ? declarationSourceStart : modifiersSourceStart); 
+	}
+	resetModifiers();
+	pushOnExpressionStackLengthStack(0);
+}
+protected void consumePushRealModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	if (modifiersSourceStart < 0) {

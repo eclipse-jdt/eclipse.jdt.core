@@ -28,6 +28,7 @@ public class TypeDeclaration
 
 	public int modifiers = AccDefault;
 	public int modifiersSourceStart;
+	public Annotation[] annotations;
 	public char[] name;
 	public TypeReference superclass;
 	public TypeReference[] superInterfaces;

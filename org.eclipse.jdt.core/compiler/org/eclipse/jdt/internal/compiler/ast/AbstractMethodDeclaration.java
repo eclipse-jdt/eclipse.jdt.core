@@ -32,6 +32,7 @@ public abstract class AbstractMethodDeclaration
 	public int declarationSourceEnd;
 	public int modifiers;
 	public int modifiersSourceStart;
+	public Annotation[] annotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
 	public Statement[] statements;
