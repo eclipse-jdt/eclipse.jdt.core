@@ -602,6 +602,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 	public void deleting(IProject project) {
 		
 		try {
+			// discard indexing jobs that belong to this project so that the project can be 
+			// deleted without interferences from the index manager
+			this.indexManager.discardJobs(project.getName());
+
 			JavaProject javaProject = (JavaProject)JavaCore.create(project);
 			javaProject.close();
 
@@ -1807,8 +1811,8 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					this.indexManager.indexAll(element.getJavaProject().getProject());
 					break;
 				case IResourceDelta.REMOVED :
-					this.indexManager.discardJobs(element.getElementName());
 					this.indexManager.removeIndexFamily(element.getJavaProject().getProject().getFullPath());
+					// NB: Discarding index jobs belonging to this project was done during PRE_DELETE
 					break;
 				// NB: Update of index if project is opened, closed, or its java nature is added or removed
 				//     is done in updateCurrentDeltaAndIndex
