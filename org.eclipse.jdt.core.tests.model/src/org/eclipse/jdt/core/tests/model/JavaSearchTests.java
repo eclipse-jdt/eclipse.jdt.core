@@ -292,7 +292,7 @@ public static Test suite() {
 	
 	if (false) {
 		System.err.println("WARNING: Only subset of test cases are running for "+JavaSearchTests.class.getName());
-		suite.addTest(new JavaSearchTests("testPatternMatchPackageReference2"));
+		suite.addTest(new JavaSearchTests("testPackageReference1"));
 		return suite;
 	}
 	
@@ -468,14 +468,15 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfAccessedFields3"));
 
 	// declarations of referenced types
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes1"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes2"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes3"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes4"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes5"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes6"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes7"));
-	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes8"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes01"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes02"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes03"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes04"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes05"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes06"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes07"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes08"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes09"));
 	
 	// declarations of sent messages
 	suite.addTest(new JavaSearchTests("testSimpleDeclarationsOfSentMessages"));
@@ -791,7 +792,7 @@ public void testDeclarationOfAccessedFields3() throws CoreException {
 /**
  * Declaration of referenced types test.
  */
-public void testDeclarationOfReferencedTypes1() throws CoreException {
+public void testDeclarationOfReferencedTypes01() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a3", "References.java").
 			getType("References").getMethod("foo", new String[] {});
@@ -815,7 +816,7 @@ public void testDeclarationOfReferencedTypes1() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 6779 searchDeclarationsOfReferencedTyped - missing exception types)
  */
-public void testDeclarationOfReferencedTypes2() throws CoreException {
+public void testDeclarationOfReferencedTypes02() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a7", "X.java").
 			getType("X").getMethod("foo", new String[] {});
@@ -832,7 +833,7 @@ public void testDeclarationOfReferencedTypes2() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 12649 Missing import after move  )
  */
-public void testDeclarationOfReferencedTypes3() throws CoreException {
+public void testDeclarationOfReferencedTypes03() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "A.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	searchDeclarationsOfReferencedTypes(
@@ -847,7 +848,7 @@ public void testDeclarationOfReferencedTypes3() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 12649 Missing import after move  )
  */
-public void testDeclarationOfReferencedTypes4() throws CoreException {
+public void testDeclarationOfReferencedTypes04() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "B.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	searchDeclarationsOfReferencedTypes(
@@ -862,7 +863,7 @@ public void testDeclarationOfReferencedTypes4() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 18418 search: searchDeclarationsOfReferencedTypes reports import declarations)
  */
-public void testDeclarationOfReferencedTypes5() throws CoreException {
+public void testDeclarationOfReferencedTypes05() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c2", "A.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	searchDeclarationsOfReferencedTypes(
@@ -877,7 +878,7 @@ public void testDeclarationOfReferencedTypes5() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 24934 Move top level doesn't optimize the imports[refactoring])
  */
-public void testDeclarationOfReferencedTypes6() throws CoreException {
+public void testDeclarationOfReferencedTypes06() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "d1", "X.java");
 	IType innerType = unit.getType("X").getType("Inner");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -894,7 +895,7 @@ public void testDeclarationOfReferencedTypes6() throws CoreException {
  * (Regression test for bug 37438 searchenging NPE in searchDeclarationsOfReferencedTypes 
 )
  */
-public void testDeclarationOfReferencedTypes7() throws CoreException {
+public void testDeclarationOfReferencedTypes07() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	searchDeclarationsOfReferencedTypes(
@@ -910,14 +911,14 @@ public void testDeclarationOfReferencedTypes7() throws CoreException {
  * Declaration of referenced types test.
  * (Regression test for bug 47787 IJavaSearchResultCollector.aboutToStart() and done() not called)
  */
-public void testDeclarationOfReferencedTypes8() throws CoreException {
+public void testDeclarationOfReferencedTypes08() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
 	    public void beginReporting() {
-	        results.append("Starting search...\n");
+	        results.append("Starting search...");
         }
 	    public void endReporting() {
-	        results.append("Done searching.");
+	        results.append("\nDone searching.");
         }
 	};
 	searchDeclarationsOfReferencedTypes(
@@ -927,6 +928,32 @@ public void testDeclarationOfReferencedTypes8() throws CoreException {
 	assertSearchResults(
 		"Starting search...\n"+
 		"Done searching.", 
+		resultCollector);
+}
+
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 68862 [1.5] ClassCastException when moving a a java file 
+)
+ */
+public void testDeclarationOfReferencedTypes09() throws CoreException {
+	ICompilationUnit cu = getCompilationUnit("JavaSearch15/src/p3/X.java");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
+	    public void beginReporting() {
+	        results.append("Starting search...");
+        }
+	    public void endReporting() {
+	        results.append("\nDone searching.");
+        }
+	};
+	searchDeclarationsOfReferencedTypes(
+		cu, 
+		resultCollector
+	);
+	assertSearchResults(
+		"Starting search...\n" + 
+		getExternalJCLPathString() + " java.lang.Object\n" + 
+		"Done searching.",
 		resultCollector);
 }
 
