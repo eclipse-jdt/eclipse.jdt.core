@@ -457,7 +457,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void test022() throws JavaModelException, CoreException {
 
 		// Set project encoding
-		String encoding = "UTF-8";
+		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		this.encodingProject.setDefaultCharset(encoding, null);
 
 		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
@@ -477,7 +477,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void test023() throws JavaModelException, CoreException {
 
 		// Set file encoding
-		String encoding = "UTF-8";
+		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		IFile zipFile = (IFile) this.encodingProject.findMember("testUTF8.zip"); //$NON-NLS-1$
 		assertNotNull("Cannot find class file!", zipFile);
 		zipFile.setCharset(encoding, null);
