@@ -293,7 +293,12 @@ public void deleteFile(File file) {
 }
 protected void deleteProject(String projectName) throws CoreException {
 	IProject project = this.getProject(projectName);
-	project.delete(true, null);
+	CoreException lastException = null;
+	try {
+		project.delete(true, null);
+	} catch (CoreException e) {
+		lastException = e;
+	}
 	
 	if (project.isAccessible()) {
 		int retryCount = 10;
@@ -302,10 +307,17 @@ protected void deleteProject(String projectName) throws CoreException {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
-			project.delete(true, null);
+			try {
+				project.delete(true, null);
+			} catch (CoreException e) {
+				lastException = e;
+			}
 			if (!project.isAccessible()) return;
 		}
-		System.out.println("Failed to delete project " + projectName);
+		System.err.println("Failed to delete project " + projectName);
+	}
+	if (lastException != null) {
+		throw lastException;
 	}
 }
 /**
