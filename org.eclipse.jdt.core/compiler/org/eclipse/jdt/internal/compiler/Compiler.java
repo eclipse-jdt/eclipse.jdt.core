@@ -241,8 +241,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					// cleanup compilation unit result
 					unit.cleanUp();
 					if (options.verbose)
-						System.out.println(Util.bind("compilation.done"
-						/*nonNLS*/,
+						System.out.println(Util.bind("compilation.done"/*nonNLS*/,
 					new String[] {
 						String.valueOf(i + 1),
 						String.valueOf(totalUnits),
