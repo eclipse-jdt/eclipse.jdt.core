@@ -625,7 +625,7 @@ public void searchAllTypeNames(
 }
 /**
  * Searches for all declarations of the fields accessed in the given element.
- * The element can be a compilation unit, a type, or a method.
+ * The element can be a compilation unit, a source type, or a source method.
  * Reports the field declarations using the given collector.
  * <p>
  * Consider the following code:
@@ -683,7 +683,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 }
 /**
  * Searches for all declarations of the types referenced in the given element.
- * The element can be a compilation unit, a type, or a method.
+ * The element can be a compilation unit, a source type, or a source method.
  * Reports the type declarations using the given collector.
  * <p>
  * Consider the following code:
@@ -741,7 +741,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 }
 /**
  * Searches for all declarations of the methods invoked in the given element.
- * The element can be a compilation unit, a type, or a method.
+ * The element can be a compilation unit, a source type, or a source method.
  * Reports the method declarations using the given collector.
  * <p>
  * Consider the following code:
