@@ -20,14 +20,11 @@ import java.util.Set;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-
-
 import org.eclipse.jdt.core.dom.*;
 
 // testing
 
-public class ASTTest extends TestCase { 
+public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 	
 	class CheckPositionsMatcher extends ASTMatcher {
 	

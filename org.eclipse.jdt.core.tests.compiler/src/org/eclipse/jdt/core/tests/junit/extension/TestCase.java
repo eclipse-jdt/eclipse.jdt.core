@@ -27,8 +27,8 @@ public static void assertEquals(String message, String expected, String actual) 
 	} else {
 		formatted = ""; //$NON-NLS-1$
 	}
-	expected = showLineSeparators(expected);
-	actual = showLineSeparators(actual);
+	expected = expected == null ? null : showLineSeparators(expected);
+	actual = actual == null ? null : showLineSeparators(actual);
 	formatted = 
 		formatted
 		+ "----------- Expected -----------\n" //$NON-NLS-1$

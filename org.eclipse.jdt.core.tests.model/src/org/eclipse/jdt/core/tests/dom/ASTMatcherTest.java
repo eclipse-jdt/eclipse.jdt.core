@@ -14,15 +14,13 @@ package org.eclipse.jdt.core.tests.dom;
 import java.lang.reflect.Method;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 /**
  * Test suite for <code>ASTMatcher</code> and <code>ASTNode.subtreeMatch</code>.
  */
-public class ASTMatcherTest extends TestCase { 
+public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTMatcherTest.class.getName());

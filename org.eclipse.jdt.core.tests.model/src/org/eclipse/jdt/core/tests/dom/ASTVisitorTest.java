@@ -13,12 +13,10 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
 import junit.framework.Test;
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 
-public class ASTVisitorTest extends TestCase { 
+public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTVisitorTest.class.getName());
