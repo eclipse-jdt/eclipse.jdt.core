@@ -1324,7 +1324,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"5. ERROR in X.java (at line 9)\n" + 
 				"	* @see foo  ()\n" + 
 				"	       ^^^\n" + 
-				"Javadoc: foo cannot be resolved or is not a type\n" + 
+				"Javadoc: foo cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
@@ -3519,12 +3519,12 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
 				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
 				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
