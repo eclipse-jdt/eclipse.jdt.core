@@ -71,6 +71,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 	class WaitingJob implements IJob {
+		static final int MAX_WAIT = 30000; // wait 30s max
 		boolean isResumed;
 		boolean isRunning;
 		public boolean belongsTo(String jobFamily) {
@@ -95,17 +96,23 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			notifyAll();
 		}
 		public synchronized void suspend() {
-			if (this.isResumed) return;
-			try {
-				wait(60000); // wait 1 minute max
-			} catch (InterruptedException e) {
+			long start = System.currentTimeMillis();
+			while ((start - System.currentTimeMillis()) < MAX_WAIT) {
+				if (this.isResumed) return;
+				try {
+					wait(1000);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 		public synchronized void waitForJobToStart() {
-			if (this.isRunning) return;
-			try {
-				wait(60000); // wait 1 minute max
-			} catch (InterruptedException e) {
+			long start = System.currentTimeMillis();
+			while ((start - System.currentTimeMillis()) < MAX_WAIT) {
+				if (this.isRunning) return;
+				try {
+					wait(1000);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}
