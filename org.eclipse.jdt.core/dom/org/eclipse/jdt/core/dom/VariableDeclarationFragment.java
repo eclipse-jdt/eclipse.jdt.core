@@ -98,11 +98,8 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		visitor.endVisit(this);
 	}
 	
-	/**
-	 * Returns the name of the variable declared in this variable declaration
-	 * fragment.
-	 * 
-	 * @return the variable name node
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public SimpleName getName() {
 		if (variableName == null) {
@@ -112,13 +109,8 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		return variableName;
 	}
 		
-	/**
-	 * Sets the name of the variable declared in this variable declaration fragment
-	 * to the given name.
-	 * 
-	 * @param variableName the new variable name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public void setName(SimpleName variableName) {
 		if (variableName == null) {
@@ -160,25 +152,15 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		this.extraArrayDimensions = dimensions;
 	}
 
-	/**
-	 * Returns the initializer of this variable declaration fragment, or 
-	 * <code>null</code> if there is none.
-	 * 
-	 * @return the initializer expression node, or <code>null</code> if 
-	 *    there is none
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public Expression getInitializer() {
 		return optionalInitializer;
 	}
 	
-	/**
-	 * Sets or clears the initializer of this variable declaration fragment.
-	 * 
-	 * @param initializer the initializer expression node, or <code>null</code>
-	 *    if there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public void setInitializer(Expression initializer) {
 		// a SingleVariableDeclaration may occur inside an Expression 

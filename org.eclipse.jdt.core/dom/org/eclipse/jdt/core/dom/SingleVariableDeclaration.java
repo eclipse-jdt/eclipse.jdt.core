@@ -167,10 +167,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		this.modifiers = modifiers;
 	}
 
-	/**
-	 * Returns the name of the variable declared in this variable declaration.
-	 * 
-	 * @return the variable name node
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public SimpleName getName() {
 		if (variableName == null) {
@@ -180,13 +178,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		return variableName;
 	}
 		
-	/**
-	 * Sets the name of the variable declared in this variable declaration 
-	 * to the given name.
-	 * 
-	 * @param variableName the new variable name
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public void setName(SimpleName variableName) {
 		if (variableName == null) {
@@ -225,25 +218,15 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		this.type = type;
 	}
 
-	/**
-	 * Returns the initializer of this variable declaration, or 
-	 * <code>null</code> if there is none.
-	 * 
-	 * @return the initializer expression node, or <code>null</code> if 
-	 *    there is none
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public Expression getInitializer() {
 		return optionalInitializer;
 	}
 	
-	/**
-	 * Sets or clears the initializer of this variable declaration.
-	 * 
-	 * @param initializer the initializer expression node, or <code>null</code>
-	 *    if there is none
-	 * @exception $precondition-violation:different-ast$
-	 * @exception $precondition-violation:not-unparented$
-	 * @exception $postcondition-violation:ast-cycle$
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 */ 
 	public void setInitializer(Expression initializer) {
 		// a SingleVariableDeclaration may occur inside an Expression 

@@ -41,6 +41,43 @@ public abstract class VariableDeclaration extends ASTNode {
 	}
 	
 	/**
+	 * Returns the name of the variable declared in this variable declaration.
+	 * 
+	 * @return the variable name node
+	 */ 
+	public abstract SimpleName getName();
+		
+	/**
+	 * Sets the name of the variable declared in this variable declaration 
+	 * to the given name.
+	 * 
+	 * @param variableName the new variable name
+	 * @exception $precondition-violation:different-ast$
+	 * @exception $precondition-violation:not-unparented$
+	 */ 
+	public abstract void setName(SimpleName variableName);
+
+	/**
+	 * Returns the initializer of this variable declaration, or 
+	 * <code>null</code> if there is none.
+	 * 
+	 * @return the initializer expression node, or <code>null</code> if 
+	 *    there is none
+	 */ 
+	public abstract Expression getInitializer();
+	
+	/**
+	 * Sets or clears the initializer of this variable declaration.
+	 * 
+	 * @param initializer the initializer expression node, or <code>null</code>
+	 *    if there is none
+	 * @exception $precondition-violation:different-ast$
+	 * @exception $precondition-violation:not-unparented$
+	 * @exception $postcondition-violation:ast-cycle$
+	 */ 
+	public abstract void setInitializer(Expression initializer);
+
+	/**
 	 * Resolves and returns the binding for the variable declared in this
 	 * variable declaration.
 	 * <p>
