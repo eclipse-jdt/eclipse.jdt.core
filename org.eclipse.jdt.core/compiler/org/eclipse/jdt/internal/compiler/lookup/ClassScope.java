@@ -744,12 +744,9 @@ private ReferenceBinding findSupertype(TypeReference typeReference) {
 		superType = (ReferenceBinding) typeOrPackage;
 		compilationUnitScope().addTypeReference(superType);
 		
-		if (checkVisibility && n == size) { // if we're finished and know the final superinterface then check visibility
-			SourceTypeBinding enclosingSourceType = enclosingSourceType();
-			if (enclosingSourceType == null
-				? !superType.canBeSeenBy(sourceType.fPackage)
-				: !superType.canBeSeenBy(sourceType, enclosingSourceType))
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotVisible);
+		if (checkVisibility && n == size) { // if we're finished and know the final supertype then check visibility
+			if (!superType.canBeSeenBy(sourceType.fPackage)) // its a toplevel type so just check package access
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotVisible);
 		}
 	}
 
@@ -775,6 +772,7 @@ private ReferenceBinding findSupertype(TypeReference typeReference) {
 	}
 	return superType;
 }
+
 /* Answer the problem reporter to use for raising new problems.
 *
 * Note that as a side-effect, this updates the current reference context
