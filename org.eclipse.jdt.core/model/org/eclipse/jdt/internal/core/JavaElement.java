@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -91,38 +93,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IOpenable
 	 */
 	public void close() throws JavaModelException {
-		Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-		if (info != null) {
-			boolean wasVerbose = false;
-			try {
-				if (JavaModelManager.VERBOSE) {
-					System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
-					wasVerbose = true;
-					JavaModelManager.VERBOSE = false;
-				}
-				if (this instanceof IParent) {
-					IJavaElement[] children = ((JavaElementInfo) info).getChildren();
-					for (int i = 0, size = children.length; i < size; ++i) {
-						JavaElement child = (JavaElement) children[i];
-						child.close();
-					}
-				}
-				closing(info);
-				JavaModelManager.getJavaModelManager().removeInfo(this);
-				if (wasVerbose) {
-					System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-					System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
-				}
-			} finally {
-				JavaModelManager.VERBOSE = wasVerbose;
-			}
-		}
+		JavaModelManager.getJavaModelManager().removeInfoAndChildren(this);
 	}
 	/**
 	 * This element is being closed.  Do any necessary cleanup.
 	 */
-	protected void closing(Object info) throws JavaModelException {
-	}
+	protected abstract void closing(Object info) throws JavaModelException;
 	/**
 	 * Returns true if this handle represents the same Java element
 	 * as the given handle. By default, two handles represent the same
@@ -291,32 +267,46 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @exception JavaModelException if the element is not present or not accessible
 	 */
 	public Object getElementInfo() throws JavaModelException {
+		return getElementInfo(null);
+	}
+	/**
+	 * Returns the info for this handle.  
+	 * If this element is not already open, it and all of its parents are opened.
+	 * Does not return null.
+	 * NOTE: BinaryType infos are NOT rooted under JavaElementInfo.
+	 * @exception JavaModelException if the element is not present or not accessible
+	 */
+	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 
-		// workaround to ensure parent project resolved classpath is available to avoid triggering initializers
-		// while the JavaModelManager lock is acquired (can cause deadlocks in clients)
-		IJavaProject project = getJavaProject();
-		if (project != null && !project.isOpen()) {
-			// TODO: (jerome) need to revisit, since deadlock could still occur if perProjectInfo is removed concurrent before entering the lock
-			try {
-				project.getResolvedClasspath(true); // trigger all possible container/variable initialization outside the model lock
-			} catch (JavaModelException e) {
-				// project is not accessible or is not a java project
-			}
-		}
-
-		// element info creation is done inside a lock on the JavaModelManager
-		JavaModelManager manager;
-		synchronized(manager = JavaModelManager.getJavaModelManager()){
-			Object info = manager.getInfo(this);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		Object info = manager.getInfo(this);
+		if (info != null) return info;
+		
+		boolean hadTemporaryCache = manager.hasTemporaryCache();
+		try {
+			HashMap newElements = manager.getTemporaryCache();
+			info = openWhenClosed(newElements, monitor);
 			if (info == null) {
-				openHierarchy();
-				info= manager.getInfo(this);
-				if (info == null) {
-					throw newNotPresentException();
+				// close any buffer that was opened for the new elements
+				Iterator iterator = newElements.keySet().iterator();
+				while (iterator.hasNext()) {
+					IJavaElement element = (IJavaElement)iterator.next();
+					if (element instanceof Openable) {
+						((Openable)element).closeBuffer();
+					}
 				}
+				throw newNotPresentException();
 			}
-			return info;
+			if (!hadTemporaryCache) {
+				manager.putInfos(this, newElements);
+			}
+		} finally {
+			if (!hadTemporaryCache) {
+				manager.resetTemporaryCache();
+			}
 		}
+
+		return info;
 	}
 	/**
 	 * @see IAdaptable
@@ -481,46 +471,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	/**
-	 * Opens this element and all parents that are not already open.
-	 *
-	 * @exception JavaModelException this element is not present or accessible
+	 * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
+	 * Returns the created element info.
 	 */
-	protected void openHierarchy() throws JavaModelException {
-		if (this instanceof IOpenable) {
-			((Openable) this).openWhenClosed(null);
-		} else {
-			Openable openableParent = (Openable)getOpenableParent();
-			if (openableParent != null) {
-				JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
-				if (openableParentInfo == null) {
-					openableParent.openWhenClosed(null);
-				} else {
-					throw newNotPresentException();
-				}
-			}
-		}
-	}
+	protected abstract Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException;
 	/**
 	 */
 	public String readableName() {
 		return this.getElementName();
-	}
-	/**
-	 * Removes all cached info from the Java Model, including all children,
-	 * but does not close this element.
-	 */
-	protected void removeInfo() {
-		Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-		if (info != null) {
-			if (this instanceof IParent) {
-				IJavaElement[] children = ((JavaElementInfo)info).getChildren();
-				for (int i = 0, size = children.length; i < size; ++i) {
-					JavaElement child = (JavaElement) children[i];
-					child.removeInfo();
-				}
-			}
-			JavaModelManager.getJavaModelManager().removeInfo(this);
-		}
 	}
 	/**
 	 * Returns a copy of this element rooted at the given project.

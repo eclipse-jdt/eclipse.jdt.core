@@ -148,7 +148,6 @@ protected boolean generateInfos(
 	Map newElements,
 	IResource underlyingResource)	throws JavaModelException {
 
-	JavaModelManager.getJavaModelManager().putInfo(this, info);
 	// determine my children
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	for (int i = 0, max = projects.length; i < max; i++) {
@@ -157,6 +156,9 @@ protected boolean generateInfos(
 			info.addChild(getJavaProject(project));
 		}
 	}
+
+	newElements.put(this, info);
+	
 	return true;
 }
 /**

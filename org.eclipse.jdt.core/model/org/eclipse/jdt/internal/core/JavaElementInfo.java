@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.IJavaElement;
 	/**
 	 * Shared empty collection used for efficiency.
 	 */
-	protected static IJavaElement[] NO_CHILDREN = new IJavaElement[]{};
+	protected static JavaElement[] NO_CHILDREN = new JavaElement[]{};
 	/**
 	 * Is the structure of this element known
 	 * @see IJavaElement#isStructureKnown()

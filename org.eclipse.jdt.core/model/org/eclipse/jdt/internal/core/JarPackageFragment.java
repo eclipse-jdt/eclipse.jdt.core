@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
@@ -143,20 +144,17 @@ public Object[] getNonJavaResources() throws JavaModelException {
 public boolean isReadOnly() {
 	return true;
 }
-/**
- * @see Openable#openWhenClosed()
+/*
+ * @see JavaElement#openWhenClosed
  */
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	// Open my jar
-	getOpenableParent().open(pm);
+	Openable openableParent = (Openable)fParent;
+	if (!openableParent.isOpen()) {
+		openableParent.openWhenClosed(newElements, pm);
+	}
 	
-	return (OpenableElementInfo)JavaModelManager.getJavaModelManager().getInfo(this);
-}
-/**
- * A package fragment in an archive cannot refresh its children.
- */
-public void refreshChildren() {
-	// do nothing
+	return newElements.get(this);
 }
 /*
  * @see JavaElement#rootedAt(IJavaProject)

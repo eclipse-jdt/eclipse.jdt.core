@@ -31,6 +31,7 @@ public class DestroyWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		WorkingCopy workingCopy = getWorkingCopy();
 		workingCopy.close();
+		workingCopy.closeBuffer();
 		
 		// if original element is not on classpath flush it from the cache 
 		IJavaElement originalElement = workingCopy.getOriginalElement();

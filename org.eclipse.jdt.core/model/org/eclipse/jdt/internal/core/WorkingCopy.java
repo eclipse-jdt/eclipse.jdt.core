@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.*;
 import java.io.ByteArrayInputStream;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,6 +80,12 @@ protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory buffe
 			this.getBufferManager().getDefaultBufferFactory() :
 			bufferFactory;
 	this.problemRequestor = problemRequestor;
+}
+/**
+ * This element is being closed.  Do any necessary cleanup.
+ */
+protected void closing(Object info) throws JavaModelException {
+	// the buffer of a working copy must remain open for the lifetime of the working copy
 }
 /**
  * @see IWorkingCopy
@@ -150,8 +157,14 @@ protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor
 		// ignore .java files in jar
 		throw newNotPresentException();
 	} else {
-		// put the info now, because getting the contents requires it
 		WorkingCopyElementInfo unitInfo = (WorkingCopyElementInfo) info;
+
+		// get buffer contents
+		IBuffer buffer = getBufferManager().getBuffer(WorkingCopy.this);
+		if (buffer == null) {
+			buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
+		}
+		final char[] contents = buffer == null ? null : buffer.getCharacters();
 
 		// generate structure and compute syntax problems if needed
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
@@ -163,15 +176,7 @@ protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor
 		}
 		CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 				public char[] getContents() {
-					try {
-						IBuffer buffer = getBufferManager().getBuffer(WorkingCopy.this);
-						if (buffer == null) {
-								buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
-						}
-						return buffer == null ? null : buffer.getCharacters();
-					} catch (JavaModelException e) {
-						return CharOperation.NO_CHAR;
-					}
+					return contents;
 				}
 				public char[] getMainTypeName() {
 					return WorkingCopy.this.getMainTypeName();
@@ -196,17 +201,14 @@ protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor
 		return unitInfo.isStructureKnown();
 	}
 }
-
-
-/**
+/*
  * Answers custom buffer factory
  */
 public IBufferFactory getBufferFactory(){
 
 	return this.bufferFactory;
 }
-
-/**
+/*
  * Working copies must be identical to be equal.
  *
  * @see Object#equals
@@ -214,42 +216,37 @@ public IBufferFactory getBufferFactory(){
 public boolean equals(Object o) {
 	return this == o; 
 }
+/*
+ * @see JavaElement#getElementInfo(IProgressMonitor)
+ */
+public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 
-	/**
-	 * Returns the info for this handle.  
-	 * If this element is not already open, it and all of its parents are opened.
-	 * Does not return null.
-	 * NOTE: BinaryType infos are NJOT rooted under JavaElementInfo.
-	 * @exception JavaModelException if the element is not present or not accessible
-	 */
-	public Object getElementInfo() throws JavaModelException {
-
-		this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
-
-		WorkingCopyElementInfo info = null;
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		synchronized(manager){
-			info = (WorkingCopyElementInfo)super.getElementInfo(); // will populate if necessary
-		}
-
-		// report problems outside the JavaModelManager lock
-		reportProblemsIfNeeded(info);
-		
-		return info;
+	if (this.useCount == 0) { // was destroyed
+		throw newNotPresentException();
 	}
-	private void reportProblemsIfNeeded(WorkingCopyElementInfo info) {
-		ArrayList problems = info.problems;
-		if (problems != null) {
-			this.problemRequestor.beginReporting();
-			Iterator iterator = problems.iterator();
-			while (iterator.hasNext()) {
-				this.problemRequestor.acceptProblem((IProblem)iterator.next());
-			} 
-			this.problemRequestor.endReporting();
-			info.problems = null;
-			this.computeProblems = false;
-		}		
-	}
+
+	this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
+
+	WorkingCopyElementInfo info = (WorkingCopyElementInfo)super.getElementInfo(monitor); // will populate if necessary
+
+	// report problems outside the JavaModelManager lock
+	reportProblemsIfNeeded(info);
+	
+	return info;
+}
+private void reportProblemsIfNeeded(WorkingCopyElementInfo info) {
+	ArrayList problems = info.problems;
+	if (problems != null) {
+		this.problemRequestor.beginReporting();
+		Iterator iterator = problems.iterator();
+		while (iterator.hasNext()) {
+			this.problemRequestor.acceptProblem((IProblem)iterator.next());
+		} 
+		this.problemRequestor.endReporting();
+		info.problems = null;
+		this.computeProblems = false;
+	}		
+}
 /**
  * @see IWorkingCopy
  */
@@ -410,56 +407,6 @@ public boolean isWorkingCopy() {
 }
 
 /**
- * @see IOpenable#makeConsistent(IProgressMonitor)
- */
-public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-
-	this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
-
-	WorkingCopyElementInfo info = null;
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	synchronized(manager){
-		if (isConsistent()) return;
-
-		// create a new info and make it the current info
-		info = (WorkingCopyElementInfo)createElementInfo();
-		buildStructure(info, monitor);
-	}
-	
-	// report problems outside the JavaModelManager lock
-	if (monitor != null && monitor.isCanceled()) return;
-	reportProblemsIfNeeded(info);
-}
-
-/**
- * @see IOpenable
- * @see IWorkingCopy
- *
- * @exception JavaModelException attempting to open a read only element for something other than navigation
- * 	or if this is a working copy being opened after it has been destroyed.
- */
-public void open(IProgressMonitor monitor) throws JavaModelException {
-	if (this.useCount == 0) { // was destroyed
-		throw newNotPresentException();
-	} else {
-		this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
-
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		Object info = null;
-		synchronized(manager) {
-			if (!isOpen()) {
-				info = openWhenClosed(monitor);
-			} else {
-				info = manager.getInfo(this);
-			}
-		}		
-
-		// report problems outside the JavaModelManager lock
-		if (monitor != null && monitor.isCanceled()) return;
-		reportProblemsIfNeeded((WorkingCopyElementInfo)info);
-	}
-}
-/**
  * @see Openable
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
@@ -497,9 +444,9 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 /*
  * @see Openable#openParent(IProgressMonitor)
  */
-protected void openParent(IProgressMonitor pm) throws JavaModelException {
+protected void openParent(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	try {
-		super.openParent(pm);
+		super.openParent(newElements, pm);
 	} catch(JavaModelException e){
 		// allow parent to not exist for working copies defined outside classpath
 		if (!e.isDoesNotExist()){ 

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +30,11 @@ import org.eclipse.jdt.core.JavaModelException;
 /* package */ abstract class SourceRefElement extends JavaElement implements ISourceReference {
 protected SourceRefElement(int type, IJavaElement parent, String name) {
 	super(type, parent, name);
+}
+/**
+ * This element is being closed.  Do any necessary cleanup.
+ */
+protected void closing(Object info) throws JavaModelException {
 }
 /**
  * @see ISourceManipulation
@@ -146,6 +153,22 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 		renamings= new String[] {rename};
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
+}
+/*
+ * @see JavaElement#openWhenClosed
+ */
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	Openable openableParent = (Openable)getOpenableParent();
+	if (openableParent != null) {
+		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+		if (openableParentInfo == null) {
+			openableParent.openWhenClosed(newElements, null);
+			return newElements.get(this);
+		} else {
+			throw newNotPresentException();
+		}
+	}
+	return null;
 }
 /**
  * @see ISourceManipulation

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -41,55 +42,11 @@ protected BinaryType(IJavaElement parent, String name) {
 	Assert.isTrue(name.indexOf('.') == -1);
 }
 /**
- * @see IOpenable#close()
- */
-public void close() throws JavaModelException {
-	
-	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-	if (info != null) {
-		boolean wasVerbose = false;
-		try {
-			if (JavaModelManager.VERBOSE) {
-				System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
-				wasVerbose = true;
-				JavaModelManager.VERBOSE = false;
-			}
-			ClassFileInfo cfi = getClassFileInfo();
-			if (cfi.hasReadBinaryChildren()) {
-				try {
-					IJavaElement[] children = getChildren();
-					for (int i = 0, size = children.length; i < size; ++i) {
-						JavaElement child = (JavaElement) children[i];
-						if (child instanceof BinaryType) {
-							((IOpenable)child.getParent()).close();
-						} else {
-							child.close();
-						}
-					}
-				} catch (JavaModelException e) {
-				}
-			}
-			closing(info);
-			JavaModelManager.getJavaModelManager().removeInfo(this);
-			if (JavaModelManager.VERBOSE){
-				System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-				System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
-			}
-		} finally {
-			JavaModelManager.VERBOSE = wasVerbose;
-		}
-	}
-}
-/**
  * Remove my cached children from the Java Model
  */
 protected void closing(Object info) throws JavaModelException {
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
-	if (JavaModelManager.VERBOSE){
-		System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-		System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
-	}
 }
 /**
  * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor)
@@ -169,7 +126,23 @@ public IJavaElement[] getChildren() throws JavaModelException {
 	}
 	// get children
 	ClassFileInfo cfi = getClassFileInfo();
-	return cfi.getBinaryChildren();
+	if (cfi.binaryChildren == null) {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		boolean hadTemporaryCache = manager.hasTemporaryCache();
+		try {
+			Object info = manager.getInfo(this);
+			HashMap newElements = manager.getTemporaryCache();
+			cfi.readBinaryChildren(newElements, (IBinaryType)info);
+			if (!hadTemporaryCache) {
+				manager.putInfos(this, newElements);
+			}
+		} finally {
+			if (!hadTemporaryCache) {
+				manager.resetTemporaryCache();
+			}
+		}
+	}
+	return cfi.binaryChildren;
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	ClassFile cf = (ClassFile) fParent;
@@ -492,29 +465,6 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 		true);
 	runOperation(op, monitor);
 	return op.getResult();
-}
-/**
- * Removes all cached info from the Java Model, including all children,
- * but does not close this element.
- */
-protected void removeInfo() {
-	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-	if (info != null) {
-		try {
-			IJavaElement[] children = getChildren();
-			for (int i = 0, size = children.length; i < size; ++i) {
-				JavaElement child = (JavaElement) children[i];
-				child.removeInfo();
-			}
-		} catch (JavaModelException e) {
-		}
-		JavaModelManager.getJavaModelManager().removeInfo(this);
-		try {
-			ClassFileInfo cfi = getClassFileInfo();
-			cfi.removeBinaryChildren();
-		} catch (JavaModelException npe) {
-		}
-	}
 }
 public String[][] resolveType(String typeName) throws JavaModelException {
 	// not implemented for binary types

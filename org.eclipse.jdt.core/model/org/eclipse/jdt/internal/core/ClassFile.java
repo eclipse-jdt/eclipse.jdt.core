@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -480,11 +481,14 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	}
 	return null;
 }
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+/*
+ * @see JavaElement#openWhenClosed
+ */
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	if (!isValidClassFile()) throw newNotPresentException();
 	IResource resource = this.getResource();
 	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
-	return super.openWhenClosed(pm);
+	return super.openWhenClosed(newElements, pm);
 }
 private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
 	char[] contents = mapper.findSource(getType());

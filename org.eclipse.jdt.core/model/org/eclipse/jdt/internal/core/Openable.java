@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.resources.*;
@@ -62,33 +61,23 @@ protected Openable(int type, IJavaElement parent, String name) {
  * removing the current infos, generating new infos, and then placing
  * the new infos into the Java Model cache tables.
  */
-protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 
 	if (monitor != null && monitor.isCanceled()) return;
 	
-	// remove existing (old) infos
-	removeInfo();
-	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getResource()));
+	newElements.put(this, info);
+	
+	boolean isStructureKnown = generateInfos(info, monitor, newElements, getResource());
+	info.setIsStructureKnown(isStructureKnown);
+	
 	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
-	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
-		IJavaElement key = (IJavaElement) iter.next();
-		Object value = newElements.get(key);
-		JavaModelManager.getJavaModelManager().putInfo(key, value);
-	}
-		
-	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
-	// to be flushed. Might lead to performance issues.
-	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	JavaModelManager.getJavaModelManager().putInfo(this, info);	
 }
 /**
  * Close the buffer associated with this element, if any.
  */
-protected void closeBuffer(OpenableElementInfo info) {
+protected void closeBuffer() {
 	if (!hasBuffer()) return; // nothing to do
-	IBuffer buffer = null;
-	buffer = getBufferManager().getBuffer(this);
+	IBuffer buffer = getBufferManager().getBuffer(this);
 	if (buffer != null) {
 		buffer.close();
 		buffer.removeBufferChangedListener(this);
@@ -98,9 +87,7 @@ protected void closeBuffer(OpenableElementInfo info) {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
-	OpenableElementInfo openableInfo = (OpenableElementInfo) info;
-	closeBuffer(openableInfo);
-	super.closing(info);
+	closeBuffer();
 }
 /**
  * @see ICodeAssist
@@ -197,7 +184,6 @@ public IBuffer getBuffer() throws JavaModelException {
 		return null;
 	}
 }
-
 /**
  * Answers the buffer factory to use for creating new buffers
  */
@@ -319,9 +305,7 @@ public boolean isConsistent() throws JavaModelException {
  * @see IOpenable
  */
 public boolean isOpen() {
-	synchronized(JavaModelManager.getJavaModelManager()){
-		return JavaModelManager.getJavaModelManager().getInfo(this) != null;
-	}
+	return JavaModelManager.getJavaModelManager().getInfo(this) != null;
 }
 /**
  * Returns true if this represents a source element.
@@ -335,20 +319,20 @@ protected boolean isSourceElement() {
  * @see IOpenable
  */
 public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
-	if (!isConsistent()) {
-		buildStructure((OpenableElementInfo)getElementInfo(), pm);
-	}
+	if (isConsistent()) return;
+	
+	// close
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.removeInfoAndChildren(this);
+	
+	// create a new info and make it the current info
+	getElementInfo(pm);
 }
 /**
  * @see IOpenable
  */
 public void open(IProgressMonitor pm) throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	synchronized(manager) {
-		if (!isOpen()) {
-			this.openWhenClosed(pm);
-		}
-	}
+	getElementInfo(pm);
 }
 
 /**
@@ -365,52 +349,38 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
  * 	Open the parent element if necessary
  * 
  */
-protected void openParent(IProgressMonitor pm) throws JavaModelException {
+protected void openParent(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 
 	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent != null) {
-		if (!openableParent.isOpen()){
-			openableParent.openWhenClosed(pm);
-		}
+	if (openableParent != null && !openableParent.isOpen()){
+		openableParent.openWhenClosed(newElements, pm);
 	}
 }
 
-/**
- * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
- * Returns the created element info.
+/*
+ * @see JavaElement#openWhenClosed
  */
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
-	try {
-		
-		if (JavaModelManager.VERBOSE){
-			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
-		}
-		
-		// 1) Parent must be open - open the parent if necessary
-		openParent(pm);
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 
-		// 2) create the new element info and open a buffer if needed
-		OpenableElementInfo info = createElementInfo();
-		if (isSourceElement()) {
-			this.openBuffer(pm);
-		} 
-
-		// 3) build the structure of the openable
-		buildStructure(info, pm);
-
-		if (JavaModelManager.VERBOSE) {
-			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
-		}
-		
-		return info;
-	} catch (JavaModelException e) {
-		// if any problems occuring openning the element, ensure that it's info
-		// does not remain in the cache	(some elements, pre-cache their info
-		// as they are being opened).
-		JavaModelManager.getJavaModelManager().removeInfo(this);
-		throw e;
+	if (JavaModelManager.VERBOSE){
+		System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
 	}
+	
+	// 1) Parent must be open - open the parent if necessary
+	openParent(newElements, pm);
+
+	// 2) create the new element info
+	OpenableElementInfo info = createElementInfo();
+
+	// 3) build the structure of the openable (this will open the buffer if needed)
+	buildStructure(info, newElements, pm);
+
+	if (JavaModelManager.VERBOSE) {
+		System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+		System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+	}
+	
+	return info;
 }
 
 /**

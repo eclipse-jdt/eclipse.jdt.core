@@ -64,27 +64,6 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 	CompilationUnitVisitor.visit(this, visitor);
 } 
 
-protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor) throws JavaModelException {
-
-	if (monitor != null && monitor.isCanceled()) return;
-
-	// remove existing (old) infos
-	removeInfo();
-
-	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getResource()));
-	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
-	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
-		IJavaElement key = (IJavaElement) iter.next();
-		Object value = newElements.get(key);
-		JavaModelManager.getJavaModelManager().putInfo(key, value);
-	}
-	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
-	// to be flushed. Might lead to performance issues.
-	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	JavaModelManager.getJavaModelManager().putInfo(this, info);	
-}
-
 /**
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
@@ -303,25 +282,24 @@ protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor
 		// ignore .java files in jar
 		throw newNotPresentException();
 	} else {
-		// put the info now, because getting the contents requires it
 		CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
+
+		// get buffer contents
+		IBuffer buffer = getBufferManager().getBuffer(CompilationUnit.this);
+		if (buffer == null) {
+			buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
+		}
+		final char[] contents = buffer == null ? null : buffer.getCharacters();
 
 		// generate structure
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
 		requestor.parser = parser;
+		
 		parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 				public char[] getContents() {
-					try {
-						IBuffer buffer = getBufferManager().getBuffer(CompilationUnit.this);
-						if (buffer == null) {
-								buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
-						}
-						return buffer == null ? null : buffer.getCharacters();
-					} catch (JavaModelException e) {
-						return CharOperation.NO_CHAR;
-					}
+					return contents;
 				}
 				public char[] getMainTypeName() {
 					return CompilationUnit.this.getMainTypeName();
@@ -652,20 +630,6 @@ public boolean isWorkingCopy() {
 	return false;
 }
 /**
- * @see IOpenable#makeConsistent(IProgressMonitor)
- */
-public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	synchronized(manager){
-		if (isConsistent()) return;
-		
-		// create a new info and make it the current info
-		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, monitor);
-	}
-}
-
-/**
  * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
@@ -707,9 +671,12 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	
 	return buffer;
 }
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+/*
+ * @see JavaElement#openWhenClosed
+ */
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	if (!isValidCompilationUnit()) throw newNotPresentException();
-	return super.openWhenClosed(pm);
+	return super.openWhenClosed(newElements, pm);
 }
 
 /**

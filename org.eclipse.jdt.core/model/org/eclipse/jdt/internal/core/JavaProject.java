@@ -204,14 +204,41 @@ public class JavaProject
 	protected void closing(Object info) throws JavaModelException {
 		
 		// forget source attachment recommendations
-		IPackageFragmentRoot[] roots = this.getPackageFragmentRoots();
-		for (int i = 0; i < roots.length; i++) {
-			if (roots[i] instanceof JarPackageFragmentRoot){
-				((JarPackageFragmentRoot) roots[i]).setSourceAttachmentProperty(null); 
+		Object[] children = ((JavaElementInfo)info).fChildren;
+		for (int i = 0, length = children.length; i < length; i++) {
+			Object child = children[i];
+			if (child instanceof JarPackageFragmentRoot){
+				((JarPackageFragmentRoot)child).setSourceAttachmentProperty(null); 
 			}
 		}
 		
 		super.closing(info);
+	}
+	/**
+	 * Computes the collection of package fragment roots (local ones) and set it on the given info.
+	 * Need to check *all* package fragment roots in order to reset NameLookup
+	 */
+	public void computeChildren(JavaProjectElementInfo info) throws JavaModelException {
+		IClasspathEntry[] classpath = getResolvedClasspath(true);
+		NameLookup lookup = info.getNameLookup();
+		if (lookup != null){
+			IPackageFragmentRoot[] oldRoots = lookup.fPackageFragmentRoots;
+			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
+			checkIdentical: { // compare all pkg fragment root lists
+				if (oldRoots.length == newRoots.length){
+					for (int i = 0, length = oldRoots.length; i < length; i++){
+						if (!oldRoots[i].equals(newRoots[i])){
+							break checkIdentical;
+						}
+					}
+					return; // no need to update
+				}	
+			}
+			info.setNameLookup(null); // discard name lookup (hold onto roots)
+		}				
+		info.setNonJavaResources(null);
+		info.setChildren(
+			computePackageFragmentRoots(classpath, false));		
 	}
 	
 
@@ -1041,9 +1068,7 @@ public class JavaProject
 				}
 			}
 		}
-	}
-	
-	/**
+	}	/**
 	 * @see Openable
 	 */
 	protected boolean generateInfos(
@@ -1051,45 +1076,36 @@ public class JavaProject
 		IProgressMonitor pm,
 		Map newElements,
 		IResource underlyingResource) throws JavaModelException {
-
-		boolean validInfo = false;
-		try {
-			if (getProject().isOpen()) {
-				// put the info now, because computing the roots requires it
-				JavaModelManager.getJavaModelManager().putInfo(this, info);
-
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				IWorkspaceRoot wRoot = workspace.getRoot();
-				// request marker refresh on project opening (so as to diagnose unbound variables on startup)
-				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, false /*37274:!workspace.isTreeLocked()*/  /*refresh CP markers*/);
-
-				// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
-				updatePackageFragmentRoots();				
 	
-				// remember the timestamps of external libraries the first time they are looked up
-				for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-					IClasspathEntry entry = resolvedClasspath[i];
-					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-						IPath path = entry.getPath();
-						Object target = JavaModel.getTarget(wRoot, path, true);
-						if (target instanceof java.io.File) {
-							Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
-							if (externalTimeStamps.get(path) == null) {
-								long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-								externalTimeStamps.put(path, new Long(timestamp));							
-							}
+		if (getProject().isOpen()) {
+			// put the info now, because computing the roots requires it
+			//JavaModelManager.getJavaModelManager().putInfo(this, info);
+	
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IWorkspaceRoot wRoot = workspace.getRoot();
+			IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, false  /*don't refresh CP markers (see bug 37274)*/);
+	
+			// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
+			computeChildren((JavaProjectElementInfo)info);				
+	
+			// remember the timestamps of external libraries the first time they are looked up
+			for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+				IClasspathEntry entry = resolvedClasspath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					Object target = JavaModel.getTarget(wRoot, path, true);
+					if (target instanceof java.io.File) {
+						Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
+						if (externalTimeStamps.get(path) == null) {
+							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+							externalTimeStamps.put(path, new Long(timestamp));							
 						}
 					}
-				}			
-
-				// only valid if reaches here				
-				validInfo = true;
-			}
-		} finally {
-			if (!validInfo)
-				JavaModelManager.getJavaModelManager().removeInfo(this);
+				}
+			}			
+	
 		}
-		return validInfo;
+		return true;
 	}
 
 	/**
@@ -1943,15 +1959,15 @@ public class JavaProject
 		return op.getResult();
 	}
 
-	/**
-	 * Open project if resource isn't closed
+	/*
+	 * @see JavaElement#openWhenClosed
 	 */
-	protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 
 		if (!this.fProject.isOpen()) {
 			throw newNotPresentException();
 		} else {
-			return super.openWhenClosed(pm);
+			return super.openWhenClosed(newElements, pm);
 		}
 	}
 
@@ -2446,35 +2462,13 @@ public class JavaProject
 		
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.
-	 * Need to check *all* package fragment roots in order to reset NameLookup
 	 */
 	public void updatePackageFragmentRoots(){
 		
 			if (this.isOpen()) {
 				try {
 					JavaProjectElementInfo info = getJavaProjectElementInfo();
-
-					IClasspathEntry[] classpath = getResolvedClasspath(true);
-					NameLookup lookup = info.getNameLookup();
-					if (lookup != null){
-						IPackageFragmentRoot[] oldRoots = lookup.fPackageFragmentRoots;
-						IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
-						checkIdentical: { // compare all pkg fragment root lists
-							if (oldRoots.length == newRoots.length){
-								for (int i = 0, length = oldRoots.length; i < length; i++){
-									if (!oldRoots[i].equals(newRoots[i])){
-										break checkIdentical;
-									}
-								}
-								return; // no need to update
-							}	
-						}
-						info.setNameLookup(null); // discard name lookup (hold onto roots)
-					}				
-					info.setNonJavaResources(null);
-					info.setChildren(
-						computePackageFragmentRoots(classpath, false));		
-
+					computeChildren(info);
 				} catch(JavaModelException e){
 					try {
 						close(); // could not do better

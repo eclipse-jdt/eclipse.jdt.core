@@ -453,6 +453,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Infos cache.
 	 */
 	protected JavaModelCache cache = new JavaModelCache();
+	
+	/*
+	 * Temporary cache of newly opened elements
+	 */
+	private PerThreadObject temporaryCache = new PerThreadObject();
 
 	/**
 	 * Set of elements which are out of sync with their buffers.
@@ -720,7 +725,14 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 *  Returns the info for the element.
 	 */
-	public Object getInfo(IJavaElement element) {
+	public synchronized Object getInfo(IJavaElement element) {
+		HashMap tempCache = (HashMap)this.temporaryCache.getCurrent();
+		if (tempCache != null) {
+			Object result = tempCache.get(element);
+			if (result != null) {
+				return result;
+			}
+		}
 		return this.cache.getInfo(element);
 	}
 
@@ -789,6 +801,19 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return info;
 	}
+	
+	/*
+	 * Returns the temporary cache for newly opened elements for the current thread.
+	 * Creates it if not already created.
+	 */
+	public HashMap getTemporaryCache() {
+		HashMap result = (HashMap)this.temporaryCache.getCurrent();
+		if (result == null) {
+			result = new HashMap();
+			this.temporaryCache.setCurrent(result);
+		}
+		return result;
+	}
 
 	/**
  	 * Returns the name of the variables for which an CP variable initializer is registered through an extension point
@@ -849,7 +874,7 @@ public class JavaModelManager implements ISaveParticipant {
 		IPath workingLocation= project.getPluginWorkingLocation(descr);
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
 	}
-
+	
 	/**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -893,6 +918,13 @@ public class JavaModelManager implements ISaveParticipant {
 		} catch (IOException e) {
 			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}
+	}
+	
+	/*
+	 * Returns whether there is a temporary cache for the current thread.
+	 */
+	public boolean hasTemporaryCache() {
+		return this.temporaryCache.getCurrent() != null;
 	}
 
 	public void loadVariablesAndContainers() throws CoreException {
@@ -994,6 +1026,13 @@ public class JavaModelManager implements ISaveParticipant {
 	 *  disturbing the cache ordering.
 	 */
 	protected synchronized Object peekAtInfo(IJavaElement element) {
+		HashMap tempCache = (HashMap)this.temporaryCache.getCurrent();
+		if (tempCache != null) {
+			Object result = tempCache.get(element);
+			if (result != null) {
+				return result;
+			}
+		}
 		return this.cache.peekAtInfo(element);
 	}
 
@@ -1002,8 +1041,30 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void prepareToSave(ISaveContext context) throws CoreException {
 	}
-	protected void putInfo(IJavaElement element, Object info) {
-		this.cache.putInfo(element, info);
+	/*
+	 * Puts the infos in the given map (keys are IJavaElements and values are JavaElementInfos)
+	 * in the Java model cache in an atomic way.
+	 * First checks that the info for the opened element (or one of its ancestors) has not been 
+	 * added to the cache. If it is the case, another thread has opened the element (or one of
+	 * its ancestors). So returns without updating the cache.
+	 */
+	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) throws JavaModelException {
+		while (openedElement != null) {
+			if (!newElements.containsKey(openedElement)) {
+				break;
+			}
+			if (this.cache.peekAtInfo(openedElement) != null) {
+				return;
+			}
+			openedElement = openedElement.getParent();
+		}
+		
+		Iterator iterator = newElements.keySet().iterator();
+		while (iterator.hasNext()) {
+			IJavaElement element = (IJavaElement)iterator.next();
+			Object info = newElements.get(element);
+			this.cache.putInfo(element, info);
+		}
 	}
 
 	/**
@@ -1121,9 +1182,38 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
-	protected void removeInfo(IJavaElement element) {
-		this.cache.removeInfo(element);
-	}
+	/*
+	 * Removes all cached info for the given element (including all children)
+	 * from the cache
+	 */
+	public synchronized void removeInfoAndChildren(JavaElement element) throws JavaModelException {
+		Object info = peekAtInfo(element);
+		if (info != null) {
+			boolean wasVerbose = false;
+			try {
+				if (VERBOSE) {
+					System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
+					wasVerbose = true;
+					VERBOSE = false;
+				}
+				element.closing(info);
+				if (element instanceof IParent && info instanceof JavaElementInfo) {
+					IJavaElement[] children = ((JavaElementInfo)info).getChildren();
+					for (int i = 0, size = children.length; i < size; ++i) {
+						JavaElement child = (JavaElement) children[i];
+						removeInfoAndChildren(child);
+					}
+				}
+				this.cache.removeInfo(element);
+				if (wasVerbose) {
+					System.out.println("-> Package cache size = " + this.cache.pkgSize()); //$NON-NLS-1$
+					System.out.println("-> Openable cache filling ratio = " + this.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			} finally {
+				JavaModelManager.VERBOSE = wasVerbose;
+			}
+		}
+	}	
 
 	public void removePerProjectInfo(JavaProject javaProject) {
 		synchronized(perProjectInfo) { // use the perProjectInfo collection as its own lock
@@ -1133,6 +1223,13 @@ public class JavaModelManager implements ISaveParticipant {
 				perProjectInfo.remove(project);
 			}
 		}
+	}
+	
+	/*
+	 * Resets the temporary cache for newly created elements to null.
+	 */
+	public void resetTemporaryCache() {
+		this.temporaryCache.setCurrent(null);
 	}
 
 	/**

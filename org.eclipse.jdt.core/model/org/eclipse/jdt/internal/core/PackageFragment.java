@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -49,53 +50,6 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
  */
 protected PackageFragment(IPackageFragmentRoot root, String name) {
 	super(PACKAGE_FRAGMENT, root, name);
-}
-/**
- * Compute the children of this package fragment.
- *
- * <p>Package fragments which are folders recognize files based on the
- * type of the fragment
- * <p>Package fragments which are in a jar only recognize .class files (
- * @see JarPackageFragment).
- */
-protected boolean computeChildren(OpenableElementInfo info, IResource resource) throws JavaModelException {
-	ArrayList vChildren = new ArrayList();
-	int kind = getKind();
-	String extType;
-	if (kind == IPackageFragmentRoot.K_SOURCE) {
-		extType = EXTENSION_java;
-	} else {
-		extType = EXTENSION_class;
-	}
-	try {
-		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
-		IResource[] members = ((IContainer) resource).members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource child = members[i];
-			if (child.getType() != IResource.FOLDER
-					&& !Util.isExcluded(child, exclusionPatterns)) {
-				String extension = child.getProjectRelativePath().getFileExtension();
-				if (extension != null) {
-					if (extension.equalsIgnoreCase(extType)) {
-						IJavaElement childElement;
-						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
-							childElement = getCompilationUnit(child.getName());
-							vChildren.add(childElement);
-						} else if (Util.isValidClassFileName(child.getName())) {
-							childElement = getClassFile(child.getName());
-							vChildren.add(childElement);
-						}
-					}
-				}
-			}
-		}
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
-	}
-	IJavaElement[] children = new IJavaElement[vChildren.size()];
-	vChildren.toArray(children);
-	info.setChildren(children);
-	return true;
 }
 /**
  * Returns true if this fragment contains at least one java resource.
@@ -148,8 +102,45 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  * @see Openable
  */
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	
-	return computeChildren(info, underlyingResource);
+
+	int kind = getKind();
+	String extType;
+	if (kind == IPackageFragmentRoot.K_SOURCE) {
+		extType = EXTENSION_java;
+	} else {
+		extType = EXTENSION_class;
+	}
+
+	ArrayList vChildren = new ArrayList();
+	try {
+		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
+		IResource[] members = ((IContainer) underlyingResource).members();
+		for (int i = 0, max = members.length; i < max; i++) {
+			IResource child = members[i];
+			if (child.getType() != IResource.FOLDER
+					&& !Util.isExcluded(child, exclusionPatterns)) {
+				String extension = child.getProjectRelativePath().getFileExtension();
+				if (extension != null) {
+					if (extension.equalsIgnoreCase(extType)) {
+						IJavaElement childElement;
+						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
+							childElement = getCompilationUnit(child.getName());
+							vChildren.add(childElement);
+						} else if (Util.isValidClassFileName(child.getName())) {
+							childElement = getClassFile(child.getName());
+							vChildren.add(childElement);
+						}
+					}
+				}
+			}
+		}
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	IJavaElement[] children = new IJavaElement[vChildren.size()];
+	vChildren.toArray(children);
+	info.setChildren(children);
+	return true;
 }
 /**
  * @see IPackageFragment#getClassFile(String)
@@ -310,21 +301,12 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
 }
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
-	if (!this.resourceExists()) throw newNotPresentException();
-	return super.openWhenClosed(pm);
-}
-/**
- * Recomputes the children of this element, based on the current state
- * of the workbench.
+/*
+ * @see JavaElement#openWhenClosed
  */
-public void refreshChildren() {
-	try {
-		OpenableElementInfo info= (OpenableElementInfo)getElementInfo();
-		computeChildren(info, getResource());
-	} catch (JavaModelException e) {
-		// do nothing.
-	}
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	if (!this.resourceExists()) throw newNotPresentException();
+	return super.openWhenClosed(newElements, pm);
 }
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)

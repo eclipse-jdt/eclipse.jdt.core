@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
@@ -182,7 +183,7 @@ public void delete(
  * 
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
-protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
+protected boolean computeChildren(OpenableElementInfo info, Map newElements) throws JavaModelException {
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
@@ -434,7 +435,7 @@ char[][] fullExclusionPatternChars() {
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
-	return computeChildren(info);
+	return computeChildren(info, newElements);
 }
 
 /**
@@ -752,26 +753,15 @@ public void move(
 	runOperation(op, monitor);
 }
 
-
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+/*
+ * @see JavaElement#openWhenClosed
+ */
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	if (!this.resourceExists() 
 			|| !this.isOnClasspath()) {
 		throw newNotPresentException();
 	}
-	return super.openWhenClosed(pm);
-}
-
-/**
- * Recomputes the children of this element, based on the current state
- * of the workbench.
- */
-public void refreshChildren() {
-	try {
-		OpenableElementInfo info= (OpenableElementInfo)getElementInfo();
-		computeChildren(info);
-	} catch (JavaModelException e) {
-		// do nothing.
-	}
+	return super.openWhenClosed(newElements, pm);
 }
 
 /*

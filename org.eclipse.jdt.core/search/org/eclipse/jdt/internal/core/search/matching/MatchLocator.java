@@ -230,9 +230,7 @@ public class MatchLocator implements ITypeRequestor {
 		IClassFile classFile = type.getClassFile(); 
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (((IOpenable)classFile).isOpen()) {
-			synchronized(manager){
-				return (ClassFileReader)manager.getInfo(type);
-			}
+			return (ClassFileReader)manager.getInfo(type);
 		} else {
 			IPackageFragment pkg = type.getPackageFragment();
 			IPackageFragmentRoot root = (IPackageFragmentRoot)pkg.getParent();

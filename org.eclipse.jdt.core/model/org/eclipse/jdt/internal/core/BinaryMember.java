@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -78,22 +80,20 @@ public boolean isStructureKnown() throws JavaModelException {
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
-/**
- * Opens this element and all parents that are not already open.
- *
- * @exception NotPresentException this element is not present or accessable
+/*
+ * @see JavaElement#openWhenClosed
  */
-protected void openHierarchy() throws JavaModelException {
+protected Object openWhenClosed(HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent != null) {
-		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+		ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
 		if (openableParentInfo == null) {
-			openableParent.openWhenClosed(null);
-			openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+			openableParentInfo = (ClassFileInfo)openableParent.openWhenClosed(newElements, null);
 		}
-		ClassFileInfo cfi = (ClassFileInfo) openableParentInfo;
-		cfi.getBinaryChildren(); // forces the initialization
+		openableParentInfo.getBinaryChildren(newElements); // forces the initialization
+		return newElements.get(this);
 	}
+	return null;
 }
 /**
  * @see ISourceManipulation

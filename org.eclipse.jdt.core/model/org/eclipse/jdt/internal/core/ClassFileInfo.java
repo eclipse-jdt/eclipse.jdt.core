@@ -12,9 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
@@ -43,16 +40,16 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	 * <code>getBinaryChildren()</code>, which in turn is called by
 	 * <code>BinaryType.getChildren()</code>. 
 	 */
-	protected IJavaElement[] fBinaryChildren = null;
+	protected JavaElement[] binaryChildren = null;
 	/**
 	 * Back-pointer to the IClassFile to allow lazy initialization.
 	 */
-	protected IClassFile fClassFile = null;
+	protected IClassFile classFile = null;
 /**
  * Creates a new <code>ClassFileInfo</code> for <code>classFile</code>.
  */
 ClassFileInfo(IClassFile classFile) {
-	fClassFile = classFile;
+	this.classFile = classFile;
 }
 /**
  * Creates the handles and infos for the fields of the given binary type.
@@ -84,8 +81,8 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap n
 	if (innerTypes != null) {
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
-			IClassFile classFile= ((IPackageFragment)fClassFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			IType innerType = new BinaryType(classFile, new String(ClassFile.simpleName(binaryType.getName())));
+			IClassFile parentClassFile= ((IPackageFragment)this.classFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
+			IType innerType = new BinaryType(parentClassFile, new String(ClassFile.simpleName(binaryType.getName())));
 			children.add(innerType);
 		}
 	}
@@ -123,33 +120,32 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
  * Returns the list of children (<code>BinaryMember</code>s) of the
  * <code>BinaryType</code> of our <code>ClassFile</code>.
  */
-IJavaElement[] getBinaryChildren() throws JavaModelException {
-	if (fBinaryChildren == null) {
-		readBinaryChildren();
+IJavaElement[] getBinaryChildren(HashMap newElements) throws JavaModelException {
+	if (this.binaryChildren == null) {
+		readBinaryChildren(newElements, null/*type info not known here*/);
 	}
-	return fBinaryChildren;
+	return this.binaryChildren;
 }
 /**
  * Returns true iff the <code>readBinaryChildren</code> has already
  * been called.
  */
 boolean hasReadBinaryChildren() {
-	return fBinaryChildren != null;
+	return this.binaryChildren != null;
 }
 /**
  * Creates the handles for <code>BinaryMember</code>s defined in this
  * <code>ClassFile</code> and adds them to the
  * <code>JavaModelManager</code>'s cache.
  */
-private void readBinaryChildren() {
+protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 	ArrayList children = new ArrayList();
-	HashMap newElements = new HashMap();
 	BinaryType type = null;
-	IBinaryType typeInfo = null;
-	JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
 	try {
-		type = (BinaryType) fClassFile.getType();
-		typeInfo = (IBinaryType) manager.getInfo(type);
+		type = (BinaryType) this.classFile.getType();
+		if (typeInfo == null) {
+			typeInfo = (IBinaryType) newElements.get(type);
+		}
 	} catch (JavaModelException npe) {
 		return;
 	}
@@ -159,26 +155,25 @@ private void readBinaryChildren() {
 		generateInnerClassInfos(type, typeInfo, newElements, children);
 	}
 	
-	for (Iterator iter = newElements.entrySet().iterator(); iter.hasNext();) {
-		Map.Entry entry = (Map.Entry) iter.next();
-		manager.putInfo(
-			(IJavaElement) entry.getKey(), 
-			entry.getValue());
-	}
-	fBinaryChildren = new IJavaElement[children.size()];
-	children.toArray(fBinaryChildren);
+	this.binaryChildren = new JavaElement[children.size()];
+	children.toArray(this.binaryChildren);
 }
 /**
  * Removes the binary children handles and remove their infos from
  * the <code>JavaModelManager</code>'s cache.
  */
-void removeBinaryChildren() {
-	if (fBinaryChildren != null) {
+void removeBinaryChildren() throws JavaModelException {
+	if (this.binaryChildren != null) {
 		JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
-		for (int i = 0; i <fBinaryChildren.length; i++) {
-			manager.removeInfo(fBinaryChildren[i]);
+		for (int i = 0; i <this.binaryChildren.length; i++) {
+			JavaElement child = this.binaryChildren[i];
+			if (child instanceof BinaryType) {
+				manager.removeInfoAndChildren((JavaElement)child.getParent());
+			} else {
+				manager.removeInfoAndChildren(child);
+			}
 		}
-		fBinaryChildren = NO_CHILDREN;
+		this.binaryChildren = NO_CHILDREN;
 	}
 }
 }
