@@ -69,6 +69,14 @@ underlying files not yet reflected when the resource tree is out of sync).
 options can be specified on a per project basis, each individual project can be toggled for cleaning
 the output folder or not (default is to clean). Also, "scrubbing" output folder got renamed into 
 "cleaning" output folder. 
+<pre>
+* BUILDER / Cleaning Output Folder(s)
+*    Indicate whether the JavaBuilder is allowed to clean the output folders
+*    when performing full build operations.
+*     - option id:       "org.eclipse.jdt.core.builder.cleanOutputFolder"
+*     - possible values: { "clean", "ignore" }
+*     - default:         "clean"
+</pre>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
