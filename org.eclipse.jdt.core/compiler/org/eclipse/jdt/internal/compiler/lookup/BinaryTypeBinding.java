@@ -173,7 +173,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 	} else {
 		// ClassSignature = ParameterPart(optional) super_TypeSignature interface_signature
-		SignatureWrapper wrapper = new SignatureWrapper(typeSignature, 0);
+		SignatureWrapper wrapper = new SignatureWrapper(typeSignature);
 		if (wrapper.signature[wrapper.start] == '<') {
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
@@ -237,7 +237,7 @@ private void createFields(IBinaryField[] iFields, boolean checkGenericSignatures
 				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1, false)
-					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), NoTypeVariables, this);
+					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
 				this.fields[i] =
 					new FieldBinding(
 						field.getName(),
@@ -301,7 +301,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false);   // index is currently pointing at the ')'
 	} else {
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
-		SignatureWrapper wrapper = new SignatureWrapper(methodSignature, 0);
+		SignatureWrapper wrapper = new SignatureWrapper(methodSignature);
 		TypeVariableBinding[] staticVariables = NoTypeVariables;
 		if (wrapper.signature[wrapper.start] == '<') {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;

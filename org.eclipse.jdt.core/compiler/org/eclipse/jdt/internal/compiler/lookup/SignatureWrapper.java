@@ -18,10 +18,9 @@ public class SignatureWrapper {
 	public int end;
 	public int bracket;
 
-	// TODO (kent) why passing in 'start' since it is always 0 ?
-	public SignatureWrapper(char[] signature, int start) {
+	public SignatureWrapper(char[] signature) {
 		this.signature = signature;
-		this.start = start;
+		this.start = 0;
 		this.end = this.bracket = -1;
 	}
 	public boolean atEnd() {
