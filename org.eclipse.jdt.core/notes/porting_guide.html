@@ -10,12 +10,13 @@
 <p>Last modified 13:40 CET November 18, 2003</p>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
 <ul>
-  <li>Historically, IWorkingCopy gathered all working copy concerns, and ICompilationUnit implement this interface, 
-        though only the factory method makes sense for them; thus their implementation of the working copy features 
-        do nothing relevant to clients. IWorkingCopy also implements the spec'ed factory method, but it doesn't work for these.</li>
-   <li>Interface IWorkingCopy is removed and all its functionality is moved to ICompilationUnit.</li>
-   <li>Clients using IWorkingCopy and ICompilationUnit can adapt to this change by referencing ICompilationUnit instead of 
-         IWorkingCopy when a working copy is needed. For example:
+  <li>Prior to 3.0, <code>IWorkingCopy</code> gathered all working copy concerns, and <code>ICompilationUnit</code> 
+  		implemented this interface. However, though only the factory method made sense for compilation units, they still had to implement
+  		the entire working copy contract., which was not relevant to clients (implementation detail).
+        <code>IWorkingCopy</code> also implemented the spec'ed factory method, but it didn't work for these.</li>
+   <li>Interface <code>IWorkingCopy</code> is removed and all its functionality is moved to <code>ICompilationUnit</code>.</li>
+   <li>Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can adapt to this change by referencing <code>ICompilationUnit</code> instead of 
+         <code>IWorkingCopy</code> when a working copy is needed. For example:
          <pre>
          ICompilationUnit compilationUnit = ...;
          IWorkingCopy workingCopy = (IWorkingCopy)compilationUnit.getWorkingCopy();
