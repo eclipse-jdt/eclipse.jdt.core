@@ -790,7 +790,7 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 			return true;
 
 		// meta-annotations
-		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated))
+		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK))
 			return true;
 		
 		// superclass
