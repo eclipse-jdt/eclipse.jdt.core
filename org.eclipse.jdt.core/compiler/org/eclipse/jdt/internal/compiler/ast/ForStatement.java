@@ -147,7 +147,7 @@ public class ForStatement extends Statement {
 			int i = 0, count = increments.length;
 			while (i < count)
 				actionInfo = increments[i++].analyseCode(scope, loopContext, actionInfo);
-			loopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
+			loopContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
 		}
 
 		// infinite loop
