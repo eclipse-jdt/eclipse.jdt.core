@@ -100,7 +100,9 @@ public char[][] getPackageName() {
 	int lastIndex = CharOperation.lastIndexOf('/', typeName);
 	return CharOperation.splitOn('/', typeName, 0, lastIndex);
 }
-
+public int hashCode() {
+	return this.initialTypeName.hashCode();
+}
 String typeLocator() {
 	return this.resource.getProjectRelativePath().toString();
 }

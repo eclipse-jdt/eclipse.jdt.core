@@ -14,12 +14,12 @@ import java.util.*;
 
 public class WorkQueue {
 
-ArrayList needsCompileList;
-ArrayList compiledList;
+private HashSet needsCompileList;
+private HashSet compiledList;
 
 public WorkQueue() {
-	this.needsCompileList = new ArrayList(11);
-	this.compiledList = new ArrayList(11);
+	this.needsCompileList = new HashSet(11);
+	this.compiledList = new HashSet(11);
 }
 
 public void add(SourceFile element) {
