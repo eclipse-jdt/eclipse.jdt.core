@@ -979,9 +979,9 @@ public void checkAnnotation() {
 					&& (comment[i + 8] == 't')
 					&& (comment[i + 9] == 'e')
 					&& (comment[i + 10] == 'd')) {
-					// ensure the tag is properly ended: either followed by a space, line end or asterisk.
+					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
 					int nextPos = i+11;
-					deprecated = (comment[nextPos] == ' ') || (comment[nextPos] == '\n') || (comment[nextPos] == '\r') || (comment[nextPos] == '*');
+					deprecated = (comment[nextPos] == ' ') || (comment[nextPos] == '\t') || (comment[nextPos] == '\n') || (comment[nextPos] == '\r') || (comment[nextPos] == '*');
 					break found;
 				}
 			}
