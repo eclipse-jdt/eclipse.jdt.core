@@ -15,9 +15,13 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 public class CompletionNodeFound extends RuntimeException {
+	
 	public ASTNode astNode;
 	public Binding qualifiedBinding;
 	public Scope scope;
+
+	private static final long serialVersionUID = 6981437684184091462L; // backward compatible
+	
 public CompletionNodeFound() {
 	this(null, null, null); // we found a problem in the completion node
 }

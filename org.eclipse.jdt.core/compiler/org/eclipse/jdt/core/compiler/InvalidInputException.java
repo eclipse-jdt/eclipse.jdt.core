@@ -16,6 +16,8 @@ package org.eclipse.jdt.core.compiler;
  */
 public class InvalidInputException extends Exception {
 
+	private static final long serialVersionUID = 2909732853499731592L; // backward compatible
+	
 	/**
 	 * Creates a new exception with no detail message.
 	 */
