@@ -231,8 +231,13 @@ public class SourceTypeConverter implements CompilerModifiers {
 			if (neededCount != 0) { // add default constructor in first position
 				type.methods[0] = type.createsInternalConstructor(false, false);
 			}
+			boolean isInterface = type.isInterface();
 			for (int i = 0; i < sourceMethodCount; i++) {
-				type.methods[neededCount + i] = convert(sourceMethods[i]);
+				AbstractMethodDeclaration method =convert(sourceMethods[i]);
+				if (isInterface || method.isAbstract()) { // fix-up flag 
+					method.modifiers |= AccSemicolonBody;
+				}
+				type.methods[neededCount + i] = method;
 			}
 		}
 		return type;

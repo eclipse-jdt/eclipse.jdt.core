@@ -733,7 +733,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	}
 	requestor.enterMethod(
 		methodDeclaration.declarationSourceStart, 
-		methodDeclaration.modifiers, 
+		methodDeclaration.modifiers & AccJustFlag, 
 		returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
 		methodDeclaration.selector, 
 		methodDeclaration.sourceStart, 
@@ -761,7 +761,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 		}
 		requestor.enterField(
 			fieldDeclaration.declarationSourceStart, 
-			fieldDeclaration.modifiers, 
+			fieldDeclaration.modifiers & AccJustFlag, 
 			returnTypeName(fieldDeclaration.type), 
 			fieldDeclaration.name, 
 			fieldDeclaration.sourceStart, 
@@ -832,7 +832,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		if (isInterface) {
 			requestor.enterInterface(
 				typeDeclaration.declarationSourceStart, 
-				typeDeclaration.modifiers, 
+				typeDeclaration.modifiers & AccJustFlag, 
 				typeDeclaration.name, 
 				typeDeclaration.sourceStart, 
 				typeDeclaration.sourceEnd, 
