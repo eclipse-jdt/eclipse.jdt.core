@@ -116,7 +116,7 @@ public static IStatus validateCompilationUnitName(String name) {
 	String extension;
 	String identifier;
 	int index;
-	index = name.indexOf('.');
+	index = name.lastIndexOf('.');
 	if (index == -1) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
