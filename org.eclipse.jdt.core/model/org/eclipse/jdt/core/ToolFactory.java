@@ -102,7 +102,7 @@ public class ToolFactory {
 	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
 	 * 
 	 * @return a classfile bytecode disassembler
-	 * @see IClassFileDisassembler
+	 * @see org.eclipse.jdt.core.util.IClassFileDisassembler
 	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead 
 	 */
 	public static org.eclipse.jdt.core.util.IClassFileDisassembler createDefaultClassFileDisassembler(){
