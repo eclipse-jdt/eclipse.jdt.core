@@ -18,10 +18,7 @@ import org.eclipse.jdt.core.tests.util.Util;
  * Basic tests of the image builder.
  */
 public class OutputFolderTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {
-		"OutputFolderTests", "testDeleteOutputFolder", //$NON-NLS-1$ //$NON-NLS-2$
-		"OutputFolderTests", "testChangeOutputFolder" //$NON-NLS-1$ //$NON-NLS-2$
-		};
+	private static String[] EXCLUDED_TESTS = {};
 	
 	public OutputFolderTests(String name) {
 		super(name);
@@ -35,7 +32,7 @@ public class OutputFolderTests extends Tests {
 	
 	public void testDeleteOutputFolder() {
 		//----------------------------
-		//           Step 1
+		//           Step 1: Setup project and full build
 		//----------------------------
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -60,11 +57,25 @@ public class OutputFolderTests extends Tests {
 		});
 		
 		//----------------------------
-		//           Step 2
+		//           Step 2: Incremental build
 		//----------------------------
+		/* Disabled as the incremental builder doesn't detect the removal of the output folder
 		env.removeFolder(bin);
 		
 		incrementalBuild();
+		expectingPresenceOf(new IPath[]{
+			bin,
+			bin.append("Test.class"), //$NON-NLS-1$
+			bin.append("Test.txt") //$NON-NLS-1$
+		});
+		*/
+		
+		//----------------------------
+		//           Step 3: Full build
+		//----------------------------
+		env.removeFolder(bin);
+		
+		fullBuild();
 		expectingPresenceOf(new IPath[]{
 			bin,
 			bin.append("Test.class"), //$NON-NLS-1$
@@ -74,7 +85,7 @@ public class OutputFolderTests extends Tests {
 	
 	public void testChangeOutputFolder() {
 		//----------------------------
-		//           Step 1
+		//           Step 1: Setup project and full build
 		//----------------------------
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
@@ -100,8 +111,9 @@ public class OutputFolderTests extends Tests {
 		});
 		
 		//----------------------------
-		//           Step 2
+		//           Step 2: Incremental build
 		//----------------------------
+		/* Disabled as the incremental builder doesn't detect the change of output folder
 		IPath bin2 = env.setOutputFolder(projectPath, "bin2"); //$NON-NLS-1$
 		
 		incrementalBuild();
@@ -111,9 +123,19 @@ public class OutputFolderTests extends Tests {
 			bin2,
 			bin2.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		});
-		expectingNoPresenceOf(new IPath[]{
-			bin1,
-			bin1.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		
+		//----------------------------
+		//           Step 3: Full build
+		//----------------------------
+		IPath bin3 = env.setOutputFolder(projectPath, "bin3"); //$NON-NLS-1$
+		
+		fullBuild();
+		
+		expectingNoProblems();
+		expectingPresenceOf(new IPath[]{
+			bin3,
+			bin3.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
 }
