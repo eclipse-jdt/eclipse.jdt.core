@@ -1007,4 +1007,29 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"true");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87318
+	public void test026() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	static void foo(int[] intarray) {\n" + 
+				"		List<int[]> l = Arrays.asList(intarray);\n" + 
+				"		System.out.print(l.get(0).length);\n" + 
+				"	}\n" + 
+				"	static void foo(String[] strarray) {\n" + 
+				"		List l = Arrays.asList(strarray);\n" + 
+				"		System.out.print(l);\n" + 
+				"	}	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo(new int[]{0, 1});\n" + 
+				"		foo(new String[]{\"a\",\"b\"});\n" + 
+				"		System.out.println(\"done\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"2[a, b]done");
+	}	
 }
