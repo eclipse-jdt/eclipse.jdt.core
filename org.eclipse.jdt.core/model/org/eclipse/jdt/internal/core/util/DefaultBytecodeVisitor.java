@@ -1624,6 +1624,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				break;
 			case IConstantPoolConstant.CONSTANT_String :
 				appendOutputForConstantString(constantPoolEntry);
+				break;
 			case IConstantPoolConstant.CONSTANT_Class :
 				appendOutputForConstantClass(constantPoolEntry);
 		}
