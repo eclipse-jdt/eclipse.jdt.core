@@ -152,7 +152,7 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
 public IDOMField createField(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
 	getParser().parseField(sourceCode);
-	if (fAbort) {
+	if (fAbort || fNode == null) {
 		return null;
 	}
 
@@ -174,7 +174,6 @@ public IDOMField[] createFields(char[] sourceCode) {
 	if (fAbort) {
 		return null;
 	}
-
 	IDOMField[] fields= new IDOMField[fFields.size()];
 	fFields.toArray(fields);
 	for (int i= 0; i < fields.length; i++) {
@@ -226,7 +225,7 @@ public IDOMInitializer createInitializer(char[] sourceCode) {
 public IDOMMethod createMethod(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
 	getParser().parseMethod(sourceCode);
-	if (fAbort) {
+	if (fAbort || fNode == null) {
 		return null;
 	}
 	fNode.normalize(this);
@@ -259,7 +258,7 @@ public IDOMType createType(char[] sourceCode) {
 	if (fAbort) {
 		return null;
 	}
-	fNode.normalize(this);
+	if (fNode != null) fNode.normalize(this);
 	return (IDOMType)fNode;
 }
 /**

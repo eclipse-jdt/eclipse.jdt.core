@@ -396,6 +396,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					
 					// retrieve value (if initialization was successful)
 					container = (IClasspathContainer)projectContainers.get(containerPath);
+					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 					ok = true;
 				} catch(CoreException e){
 					throw new JavaModelException(e);
@@ -452,6 +453,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				JavaModelManager.Variables.put(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
 				initializer.initialize(variableName);
 				variablePath = (IPath) JavaModelManager.Variables.get(variableName); // retry
+				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
 				}
