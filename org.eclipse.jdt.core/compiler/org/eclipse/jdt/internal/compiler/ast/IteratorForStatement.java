@@ -78,8 +78,10 @@ public class IteratorForStatement extends Statement {
 		breakLabel = new Label();
 		continueLabel = new Label();
 
-		this.localDeclaration.analyseCode(scope, flowContext, flowInfo);
-		this.collection.analyseCode(scope, flowContext, flowInfo);
+		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
+		flowInfo = this.localDeclaration.analyseCode(scope, flowContext, flowInfo);
+		
+		flowInfo = this.action.analyseCode(scope, flowContext, flowInfo);
 		return flowInfo;
 	}
 
