@@ -1016,7 +1016,7 @@ public SearchMatch newFieldReferenceMatch(
 	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
 	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
 	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
-	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	return new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
@@ -1028,9 +1028,14 @@ public SearchMatch newLocalVariableReferenceMatch(
 		int offset,  
 		int length,
 		ASTNode reference) {
+	int bits = reference.bits;
+	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
+	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
+	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new LocalVariableReferenceMatch(enclosingElement, accuracy, offset, length, participant, resource);
+	return new LocalVariableReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
 public SearchMatch newMethodReferenceMatch(
