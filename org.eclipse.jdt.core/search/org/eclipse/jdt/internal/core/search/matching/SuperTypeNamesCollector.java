@@ -186,11 +186,11 @@ protected char[][][] collect() throws JavaModelException {
 		this.result = new char[1][][];
 		this.resultIndex = 0;
 		this.createParser((JavaProject)this.type.getJavaProject());
-		if (this.type.isBinary()) {
-			BinaryTypeBinding binding = this.cacheBinaryType(this.type);
-			this.collectSuperTypeNames(binding);
-		} else {
-			try {
+		try {
+			if (this.type.isBinary()) {
+				BinaryTypeBinding binding = this.cacheBinaryType(this.type);
+				this.collectSuperTypeNames(binding);
+			} else {
 				ICompilationUnit unit = this.type.getCompilationUnit();
 				if (unit.isWorkingCopy()) {
 					unit = (ICompilationUnit)unit.getOriginalElement();
@@ -199,10 +199,10 @@ protected char[][][] collect() throws JavaModelException {
 				if (parsedUnit != null) {
 					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
 				}
-			} catch (AbortCompilation e) {
-				// report inacurrate matches
-				return null;
 			}
+		} catch (AbortCompilation e) {
+			// problem with classpath: report inacurrate matches
+			return null;
 		}
 		return this.result;
 	} else {	
