@@ -572,7 +572,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (mode == DETAILED) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
@@ -618,7 +618,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			CharOperation.replace(exceptionName, '/', '.');
 			buffer.append(exceptionName);
 		}
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (mode == DETAILED) {
 			if (annotationDefaultAttribute != null) {
 				buffer.append(" default "); //$NON-NLS-1$
 				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
@@ -627,6 +627,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
 		
 		if (mode == DETAILED || mode == SYSTEM) {
+			if (codeAttribute != null) {
+				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
+			}
+		}
+		if (mode == SYSTEM) {
 			IClassFileAttribute[] attributes = methodInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
@@ -646,9 +651,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						writeNewLine(buffer, lineSeparator, tabNumber);
 					}
 				}
-			}
-			if (codeAttribute != null) {
-				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
 			}
 			if (annotationDefaultAttribute != null) {
 				disassemble((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
@@ -744,7 +746,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
 		
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (mode == DETAILED) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 1);
@@ -755,6 +757,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 		}
+		boolean decoded = false;
 		if (innerClassesAttribute != null) {
 			// search the right entry
 			IInnerClassesAttributeEntry[] entries = innerClassesAttribute.getInnerClassAttributesEntries();
@@ -764,10 +767,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				if (innerClassName != null) {
 					if (CharOperation.equals(classFileReader.getClassName(), innerClassName)) {
 						decodeModifiersForInnerClasses(buffer, entry.getAccessFlags());
+						decoded = true;
 					}
 				}
 			}
-		} else {
+		}
+		if (!decoded) {
 			decodeModifiersForType(buffer, accessFlags);
 			if (isSynthetic(classFileReader)) {
 				buffer.append("synthetic"); //$NON-NLS-1$
@@ -841,27 +846,29 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (enclosingMethodAttribute != null) {
 				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
 			}
-			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0);
-			}
-			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0);
-			}
-			if (length != 0) {
-				for (int i = 0; i < length; i++) {
-					IClassFileAttribute attribute = attributes[i];
-					if (attribute != innerClassesAttribute
-						&& attribute != sourceAttribute
-						&& attribute != signatureAttribute
-						&& attribute != enclosingMethodAttribute
-						&& attribute != runtimeInvisibleAnnotationsAttribute
-						&& attribute != runtimeVisibleAnnotationsAttribute
-						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
-						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
-						disassemble(attribute, buffer, lineSeparator, 0);
+			if (mode == SYSTEM) {
+				if (runtimeVisibleAnnotationsAttribute != null) {
+					disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0);
+				}
+				if (runtimeInvisibleAnnotationsAttribute != null) {
+					disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0);
+				}
+				if (length != 0) {
+					for (int i = 0; i < length; i++) {
+						IClassFileAttribute attribute = attributes[i];
+						if (attribute != innerClassesAttribute
+							&& attribute != sourceAttribute
+							&& attribute != signatureAttribute
+							&& attribute != enclosingMethodAttribute
+							&& attribute != runtimeInvisibleAnnotationsAttribute
+							&& attribute != runtimeVisibleAnnotationsAttribute
+							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
+							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
+							disassemble(attribute, buffer, lineSeparator, 0);
+						}
 					}
 				}
-			}		
+			}
 		}
 		writeNewLine(buffer, lineSeparator, 0);
 		buffer.append(Util.bind("disassembler.closetypedeclaration")); //$NON-NLS-1$
@@ -1193,7 +1200,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (mode == DETAILED) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
@@ -1249,7 +1256,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (mode == SYSTEM) {
 			IClassFileAttribute[] attributes = fieldInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
