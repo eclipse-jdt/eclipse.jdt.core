@@ -125,18 +125,11 @@ protected int matchField(FieldBinding field, boolean matchName) {
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchLevelAndReportImportRef(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.Binding, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+ * Accept to report match of static field on static import
  */
 protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
 	if (importRef.isStatic() && binding instanceof FieldBinding) {
-		// we accept to report match of static field on static import
-		int level = resolveLevel(binding);
-		if (level >= INACCURATE_MATCH) {
-			int accuracy = level == ACCURATE_MATCH
-				? SearchMatch.A_ACCURATE
-				: SearchMatch.A_INACCURATE;
-			SearchMatch match = locator.newFieldReferenceMatch(locator.createImportHandle(importRef), accuracy, importRef.sourceStart, importRef.sourceEnd-importRef.sourceStart+1, importRef);
-			locator.report(match);
-		}
+		super.matchLevelAndReportImportRef(importRef, binding, locator);
 	}
 }
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
@@ -171,6 +164,14 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 				reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
 			}
 		}
+	} else if (reference instanceof ImportReference) {
+		ImportReference importRef = (ImportReference) reference;
+		long[] positions = importRef.sourcePositions;
+		int lastIndex = importRef.tokens.length - 1;
+		int start = (int) ((positions[lastIndex]) >>> 32);
+		int end = (int) positions[lastIndex];
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, start, end-start+1, importRef);
+		locator.report(match);
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;

@@ -317,16 +317,12 @@ public static Test suite() {
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
-static {
-	// Prefix for tests names to be run
+//static {
 //	TESTS_PREFIX =  "testVarargs";
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "testPackageReference9" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	TESTS_NAMES = new String[] { "testFieldReferenceBug78082" };
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //	TESTS_RANGE = new int[] { 16, -1 };
-	}
+//	}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 }
@@ -393,7 +389,7 @@ public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("JavaSearch");
 		setUpJavaProject("JavaSearch15", "1.5");
-		setUpJavaProject("JavaSearchBugs");
+		setUpJavaProject("JavaSearchBugs", "1.5");
 	}
 }
 public void tearDownSuite() throws Exception {
@@ -1374,9 +1370,9 @@ public void testFieldReference21() throws CoreException {
 	IField field = type.getField("in");
 	search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [s1.j.l.S.in]\n" + 
+		"src/s1/A.java [in]\n" + 
 		"src/s1/B.java void s1.B.foo() [in]\n" + 
-		"src/s1/D.java [s1.j.l.S.in]\n" + 
+		"src/s1/D.java [in]\n" + 
 		"src/s1/D.java void s1.D.foo() [in]",
 		this.resultCollector);
 }
@@ -1402,7 +1398,6 @@ public void testFieldReferenceBug73112a() throws CoreException {
 		this.resultCollector);
 }
 public void testFieldReferenceBug73112b() throws CoreException {
-//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	search(
 		"fieldB73112*",
 		FIELD,
@@ -1419,6 +1414,24 @@ public void testFieldReferenceBug73112b() throws CoreException {
 		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112c]\n" + 
 		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112a]\n" + 
 		"src/b73112/B.java b73112.B.fieldB73112e [fieldB73112e]",
+		this.resultCollector);
+}
+/**
+ * Field reference test.
+ * (regression test for bug 78082: [1.5][search] FieldReferenceMatch in static import should not include qualifier
+ */
+public void testFieldReferenceBug78082() throws CoreException {
+	IField field = getCompilationUnit("JavaSearchBugs", "src", "b78082", "M.java").getType("M").getField("VAL");
+	search(
+		field,
+		ALL_OCCURRENCES,
+		getJavaSearchScopeBugs(), 
+		this.resultCollector);
+	assertSearchResults(
+		"src/b78082/M.java b78082.M.VAL [VAL]\n" + 
+		"src/b78082/XY.java [VAL]\n" + 
+		"src/b78082/XY.java b78082.XY.val [VAL]\n" + 
+		"src/b78082/XY.java b78082.XY.val2 [VAL]",
 		this.resultCollector);
 }
 /**
