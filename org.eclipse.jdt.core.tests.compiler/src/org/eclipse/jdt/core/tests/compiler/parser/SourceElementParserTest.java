@@ -176,9 +176,7 @@ public void enterClass(
 	int nameSourceStart, 
 	int nameSourceEnd, 
 	char[] superclass, 
-	char[][] superinterfaces,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] superinterfaces) {
 
 	if (currentType == null) {
 		// top level type
@@ -229,9 +227,7 @@ public void enterConstructor(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] exceptionTypes) {
 
 	currentType.addMethod(
 		currentMethod = 
@@ -244,9 +240,7 @@ public void enterConstructor(
 				nameSourceEnd, 
 				parameterTypes, 
 				parameterNames, 
-				exceptionTypes, 
-				typeParameterNames,
-				typeParameterBounds,
+				exceptionTypes,
 				source)); 
 }
 /**
@@ -298,9 +292,7 @@ public void enterInterface(
 	char[] name, 
 	int nameSourceStart, 
 	int nameSourceEnd, 
-	char[][] superinterfaces,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] superinterfaces) {
 
 	if (currentType == null) {
 		// top level type
@@ -348,9 +340,7 @@ public void enterMethod(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] exceptionTypes) {
 
 	currentType.addMethod(
 		currentMethod = 
@@ -363,10 +353,21 @@ public void enterMethod(
 				nameSourceEnd, 
 				parameterTypes, 
 				parameterNames, 
-				exceptionTypes, 
-				typeParameterNames,
-				typeParameterBounds,
+				exceptionTypes,
 				source)); 
+}
+public void enterTypeParameter(int declarationStart, char[] name,
+		int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+	if (currentMethod.typeParameterNames == null) {
+		currentMethod.typeParameterNames = new char[][] {name};
+		currentMethod.typeParameterBounds = new char[][][] {typeParameterBounds};
+	} else {
+		int length = currentMethod.typeParameterNames.length;
+		System.arraycopy(currentMethod.typeParameterNames, 0, currentMethod.typeParameterNames = new char[length+1][],0, length);
+		currentMethod.typeParameterNames[length] = name;
+		System.arraycopy(currentMethod.typeParameterBounds, 0, currentMethod.typeParameterBounds = new char[length+1][][],0, length);
+		currentMethod.typeParameterBounds[length] = typeParameterBounds;
+	}
 }
 /**
  * exitClass method comment.
@@ -408,6 +409,8 @@ public void exitInterface(int declarationEnd) {
  */
 public void exitMethod(int declarationEnd) {
 	currentMethod.setDeclarationSourceEnd(declarationEnd);
+}
+public void exitTypeParameter(int declarationEnd) {
 }
 public void fullParse(String s, String testName) {
 

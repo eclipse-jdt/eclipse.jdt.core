@@ -67,7 +67,7 @@ public void acceptUnknownReference(char[] name, int sourcePosition) {}
 /**
  * enterClass method comment.
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {}
 /**
  * enterCompilationUnit method comment.
  */
@@ -75,7 +75,7 @@ public void enterCompilationUnit() {}
 /**
  * enterConstructor method comment.
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
+public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
 /**
  * enterField method comment.
  */
@@ -83,11 +83,12 @@ public void enterField(int declarationStart, int modifiers, char[] type, char[] 
 /**
  * enterInterface method comment.
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {}
 /**
  * enterMethod method comment.
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
+public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
+public void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {}
 /**
  * exitClass method comment.
  */
@@ -124,5 +125,7 @@ public void enterInitializer(int sourceStart, int sourceEnd) {
  */
 public void exitInitializer(int sourceEnd) {
 }
+
+public void exitTypeParameter(int declarationEnd) {}
 
 }

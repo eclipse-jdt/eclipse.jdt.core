@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
@@ -68,14 +68,6 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 */
 	protected IType handle = null;
 
-	/**
-	 * Signatures of type parameters (for generic types)
-	 * 
-	 */
-	protected char[][] typeParameterNames;
-	protected char[][][] typeParameterBounds;
-	protected char[][] typeParameterSignatures;
-	
 /**
  * Returns the ISourceType that is the enclosing type for this
  * type, or <code>null</code> if this type is a top level type.
@@ -247,35 +239,37 @@ public char[] getSuperclassName() {
 	} 
 	return this.superclassName;
 }
-public char[][] getTypeParameterNames() {
-	return this.typeParameterNames;
-}
 public char[][][] getTypeParameterBounds() {
-	return this.typeParameterBounds;
-}
-public char[][] getTypeParameterSignatures() {
-	if (this.typeParameterSignatures == null) {
-		if (this.typeParameterNames != null) {
-			int length = this.typeParameterNames.length;
-			this.typeParameterSignatures = new char[length][];
-			for (int i = 0; i < length; i++) {
-				char[][] bounds = this.typeParameterBounds[i];
-				if (bounds == null) {
-					this.typeParameterSignatures[i] = Signature.createTypeParameterSignature(this.typeParameterNames[i], CharOperation.NO_CHAR_CHAR);
-				} else {
-					int boundsLength = bounds.length;
-					char[][] boundSignatures = new char[boundsLength][];
-					for (int j = 0; j < boundsLength; j++) {
-						boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j], false);
-					}
-					this.typeParameterSignatures[i] = Signature.createTypeParameterSignature(this.typeParameterNames[i], boundSignatures);
-				}
+	ArrayList typeParameterBounds = new ArrayList();
+	for (int i = 0, length = this.children.length; i < length; i++) {
+		IJavaElement child = this.children[i];
+		if (child instanceof TypeParameter) {
+			try {
+				TypeParameterElementInfo info = (TypeParameterElementInfo) ((JavaElement)child).getElementInfo();
+				typeParameterBounds.add(info.bounds);
+			} catch (JavaModelException e) {
+				// child does not exist: ignore
 			}
 		}
 	}
-	return this.typeParameterSignatures;
+	int size = typeParameterBounds.size();
+	char[][][] result = new char[size][][];
+	typeParameterBounds.toArray(result);
+	return result;
 }
-
+public char[][] getTypeParameterNames() {
+	ArrayList typeParameterNames = new ArrayList();
+	for (int i = 0, length = this.children.length; i < length; i++) {
+		IJavaElement child = this.children[i];
+		if (child instanceof TypeParameter) {
+			typeParameterNames.add(child.getElementName().toCharArray());
+		}
+	}
+	int size = typeParameterNames.size();
+	char[][] result = new char[size][];
+	typeParameterNames.toArray(result);
+	return result;
+}
 /**
  * @see ISourceType
  */
@@ -323,18 +317,6 @@ protected void setSuperclassName(char[] superclassName) {
  */
 protected void setSuperInterfaceNames(char[][] superInterfaceNames) {
 	this.superInterfaceNames = superInterfaceNames;
-}
-/**
- * Sets the names of the type parameters this type declares
- */
-protected void setTypeParameterNames(char[][] typeParameterNames) {
-	this.typeParameterNames = typeParameterNames;
-}
-/**
- * Sets the names of the type parameter bounds this type declares
- */
-protected void setTypeParameterBounds(char[][][] typeParameterBounds) {
-	this.typeParameterBounds = typeParameterBounds;
 }
 public String toString() {
 	return "Info for " + this.handle.toString(); //$NON-NLS-1$

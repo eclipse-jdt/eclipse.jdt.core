@@ -80,23 +80,23 @@ public interface ISourceElementRequestor {
 
 	void acceptUnknownReference(char[] name, int sourcePosition);
 
-	void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces,
-			char[][] typeParameterNames, char[][][] typeParameterBounds);
+	void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces);
 
 	void enterCompilationUnit();
 
 	void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds);
+			char[][] parameterNames, char[][] exceptionTypes);
 
 	void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd);
 	
 	void enterInitializer(int declarationStart, int modifiers);
 	
-	void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces,
-			char[][] typeParameterNames, char[][][] typeParameterBounds);
+	void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces);
 	
 	void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds);
+			char[][] parameterNames, char[][] exceptionTypes);
+	
+	void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds);
 	
 	void exitClass(int declarationEnd);
 	
@@ -115,4 +115,6 @@ public interface ISourceElementRequestor {
 	void exitInterface(int declarationEnd);
 	
 	void exitMethod(int declarationEnd);
+	
+	void exitTypeParameter(int declarationEnd);
 }

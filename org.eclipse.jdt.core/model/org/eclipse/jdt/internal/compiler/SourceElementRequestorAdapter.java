@@ -111,9 +111,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
-	/**
-	 * @see ISourceElementRequestor#enterClass(int, int, char[], int, int, char[], char[][])
-	 */
+	public void enterClass(int declarationStart, int modifiers, char[] name,
+			int nameSourceStart, int nameSourceEnd, char[] superclass,
+			char[][] superinterfaces) {
+		enterClass(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces, null, null);
+	}
+	
+	// TODO remove once JavaParseTreeBuilder subclasses are removed
 	public void enterClass(
 		int declarationStart,
 		int modifiers,
@@ -124,6 +128,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] superinterfaces,
 		char[][] typeParameterNames,
 		char[][][] typeParameterBounds) {
+		
 		// default implementation: do nothing
 	}
 
@@ -134,9 +139,15 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
-	/**
-	 * @see ISourceElementRequestor#enterConstructor(int, int, char[], int, int, char[][], char[][], char[][])
-	 */
+	public void enterConstructor(int declarationStart, int modifiers,
+			char[] name, int nameSourceStart, int nameSourceEnd,
+			char[][] parameterTypes, char[][] parameterNames,
+			char[][] exceptionTypes) {
+		enterConstructor(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, parameterNames, parameterNames, exceptionTypes, null, null);
+
+	}
+	
+	// TODO remove once JavaParseTreeBuilder subclasses are removed
 	public void enterConstructor(
 		int declarationStart,
 		int modifiers,
@@ -148,6 +159,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] exceptionTypes,
 		char[][] typeParameterNames, 
 		char[][][] typeParameterBounds) {
+		
 		// default implementation: do nothing
 	}
 
@@ -171,9 +183,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
-	/**
-	 * @see ISourceElementRequestor#enterInterface(int, int, char[], int, int, char[][])
-	 */
+	public void enterInterface(int declarationStart, int modifiers,
+			char[] name, int nameSourceStart, int nameSourceEnd,
+			char[][] superinterfaces) {
+		enterInterface(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superinterfaces, null, null);
+	}
+	
+	// TODO remove once JavaParseTreeBuilder subclasses are removed
 	public void enterInterface(
 		int declarationStart,
 		int modifiers,
@@ -183,12 +199,19 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] superinterfaces,
 		char[][] typeParameterNames,
 		char[][][] typeParameterBounds) {
+		
 		// default implementation: do nothing
 	}
 
-	/**
-	 * @see ISourceElementRequestor#enterMethod(int, int, char[], char[], int, int, char[][], char[][], char[][])
-	 */
+	public void enterMethod(int declarationStart, int modifiers,
+			char[] returnType, char[] name, int nameSourceStart,
+			int nameSourceEnd, char[][] parameterTypes,
+			char[][] parameterNames, char[][] exceptionTypes) {
+		enterMethod(declarationStart, modifiers, returnType, name, nameSourceStart, nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, null, null);
+		
+	}
+	
+	// TODO remove once JavaParseTreeBuilder subclasses are removed
 	public void enterMethod(
 		int declarationStart,
 		int modifiers,
@@ -201,9 +224,15 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] exceptionTypes,
 		char[][] typeParameterNames, 
 		char[][][] typeParameterBounds) {
+		
 		// default implementation: do nothing
 	}
 
+	public void enterTypeParameter(int declarationStart, char[] name,
+			int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+		// default implementation: do nothing
+	}
+	
 	/**
 	 * @see ISourceElementRequestor#exitClass(int)
 	 */
@@ -250,6 +279,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#exitMethod(int)
 	 */
 	public void exitMethod(int declarationEnd) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @see ISourceElementRequestor#exitTypeParameter(int)
+	 */
+	public void exitTypeParameter(int declarationEnd) {
 		// default implementation: do nothing
 	}
 }

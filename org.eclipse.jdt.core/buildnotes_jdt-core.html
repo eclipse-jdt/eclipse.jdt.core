@@ -50,7 +50,10 @@ Eclipse SDK 3.1 - ?th August 2004 - J2SE 1.5 Preview
 <h2>
 What's new in this drop</h2>
 <ul>
-<li></li>
+<li>Added new Java element <code>ITypeParameter</code> that represents a formal type parameter in a generic type or method.
+     Note types and methods should have type parameters as children, but this is currently disabled as JDT UI doesn't support
+     this kind of element yet.
+     To enable set <code>org.eclipse.jdt.internal.core.TypeParameter#ENABLED</code> to <code>true</code>.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

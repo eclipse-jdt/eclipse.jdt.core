@@ -117,6 +117,13 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 3.0
 	 */
 	int LOCAL_VARIABLE = 14;
+	
+	/**
+	 * Constant representing a type parameter declaration.
+	 * A Java element with this type can be safely cast to <code>ITypeParameter</code>.
+	 * @since 3.1
+	 */
+	int TYPE_PARAMETER = 15;
 
 	/**
 	 * Returns whether this Java element exists in the model.

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -38,9 +41,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions, 
-				char[][] typeParameterNames, 
-				char[][][] typeParameterBounds) {
+				char[][] exceptions) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];
@@ -58,9 +59,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions, 
-				char[][] typeParameterNames, 
-				char[][][] typeParameterBounds) {
+				char[][] exceptions) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];
@@ -228,6 +227,18 @@ public String[] getParameterTypes() {
 	return this.parameterTypes;
 }
 
+public ITypeParameter getTypeParameter(String typeParameterName) {
+	return new TypeParameter(this, typeParameterName);
+}
+
+public ITypeParameter[] getTypeParameters() throws JavaModelException {
+	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
+	int size =typeParameters.size();
+	ITypeParameter[] result = new ITypeParameter[size];
+	typeParameters.toArray(result);
+	return result;
+}
+
 /**
  * @see IMethod#getTypeParameterSignatures()
  * @since 3.0
@@ -236,17 +247,10 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature == null) 
-		return EmptyStringList;
+		return CharOperation.NO_STRINGS;
 	char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 	char[][] typeParams = Signature.getTypeParameters(dotBasedSignature);
-	int length = typeParams.length;
-	if (length == 0)
-		return EmptyStringList;
-	String[] stringSignatures = new String[length];
-	for (int i = 0; i < length; i++) {
-		stringSignatures[i] = new String(typeParams[i]);
-	}
-	return stringSignatures;
+	return CharOperation.toStrings(typeParams);
 }
 
 /*

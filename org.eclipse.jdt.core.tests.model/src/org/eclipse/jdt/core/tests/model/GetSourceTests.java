@@ -205,14 +205,96 @@ public class GetSourceTests extends ModifyingResourceTests {
 		}
 	}
 	
-	private String getNameSource(String cuSource, IMember member) throws JavaModelException {
-		ISourceRange nameRange = member.getNameRange();
+	private String getNameSource(String cuSource, IJavaElement element) throws JavaModelException {
+		ISourceRange nameRange = element instanceof ITypeParameter ? ((ITypeParameter) element).getNameRange() : ((IMember) element).getNameRange();
 		int start = nameRange.getOffset();
 		int end = start+nameRange.getLength();
 		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
 		return actualSource;
 	}
 
+	/*
+	 * Ensures the name range for a type parameter is correct.
+	 */
+	public void testNameRangeTypeParameter1() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y<T extends String> {\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getTypeParameter("T");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"T", 
+				getNameSource(cuSource, typeParameter));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
+	/*
+	 * Ensures the name range for a type parameter is correct.
+	 */
+	public void testNameRangeTypeParameter2() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  <T extends String, U extends StringBuffer & Runnable> void foo() {} \n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getTypeParameter("U");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"U", 
+				getNameSource(cuSource, typeParameter));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
+	/*
+	 * Ensures the source for a type parameter is correct.
+	 */
+	public void testTypeParameter1() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y<T extends String> {\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getTypeParameter("T");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"T extends String", 
+				typeParameter.getSource());
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
+	/*
+	 * Ensures the source for a type parameter is correct.
+	 */
+	public void testTypeParameter2() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  <T extends String, U extends StringBuffer & Runnable> void foo() {} \n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getTypeParameter("U");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"U extends StringBuffer & Runnable", 
+				typeParameter.getSource());
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
 	/**
 	 * Ensure the source for a field contains the modifiers, field
 	 * type, name, and terminator, and unicode characters.

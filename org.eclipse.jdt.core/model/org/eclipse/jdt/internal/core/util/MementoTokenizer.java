@@ -27,6 +27,7 @@ public class MementoTokenizer {
 	private static final String PACKAGEDECLARATION = Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
 	private static final String IMPORTDECLARATION = Character.toString(JavaElement.JEM_IMPORTDECLARATION);
 	private static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
+	private static final String TYPE_PARAMETER = Character.toString(JavaElement.JEM_TYPE_PARAMETER);
 
 	private final char[] memento;
 	private final int length;
@@ -76,6 +77,8 @@ public class MementoTokenizer {
 				return IMPORTDECLARATION;
 			case JavaElement.JEM_LOCALVARIABLE:
 				return LOCALVARIABLE;
+			case JavaElement.JEM_TYPE_PARAMETER:
+				return TYPE_PARAMETER;
 		}
 		loop: while (this.index < this.length) {
 			switch (this.memento[this.index]) {
@@ -97,6 +100,7 @@ public class MementoTokenizer {
 				case JavaElement.JEM_PACKAGEDECLARATION:
 				case JavaElement.JEM_IMPORTDECLARATION:
 				case JavaElement.JEM_LOCALVARIABLE:
+				case JavaElement.JEM_TYPE_PARAMETER:
 					break loop;
 			}
 			this.index++;

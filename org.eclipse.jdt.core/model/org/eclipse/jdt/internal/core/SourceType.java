@@ -224,6 +224,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				token = memento.nextToken();
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
+					case JEM_TYPE_PARAMETER:
 						break nextParam;
 					case JEM_METHOD:
 						String param = memento.nextToken();
@@ -244,6 +245,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			if (token != null) {
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
+					case JEM_TYPE_PARAMETER:
 					case JEM_LOCALVARIABLE:
 						return method.getHandleFromMemento(token, memento, workingCopyOwner);
 					default:
@@ -273,6 +275,11 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			} else {
 				return type.getHandleFromMemento(token, memento, workingCopyOwner);
 			}
+		case JEM_TYPE_PARAMETER:
+			String typeParameterName = memento.nextToken();
+			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
+			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
+			
 	}
 	return null;
 }
@@ -374,14 +381,7 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 public String[] getSuperInterfaceNames() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
-	if (names == null) {
-		return EmptyStringList;
-	}
-	String[] strings= new String[names.length];
-	for (int i= 0; i < names.length; i++) {
-		strings[i]= new String(names[i]);
-	}
-	return strings;
+	return CharOperation.toStrings(names);
 }
 
 /**
@@ -391,14 +391,15 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
-	if (names == null) {
-		return EmptyStringList;
-	}
-	String[] strings= new String[names.length];
-	for (int i= 0; i < names.length; i++) {
-		strings[i]= new String(Signature.createTypeSignature(names[i], false));
-	}
-	return strings;
+	return CharOperation.toStrings(names);
+}
+
+public ITypeParameter[] getTypeParameters() throws JavaModelException {
+	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
+	int size =typeParameters.size();
+	ITypeParameter[] result = new ITypeParameter[size];
+	typeParameters.toArray(result);
+	return result;
 }
 
 /**
@@ -406,16 +407,25 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	char[][] signatures = info.getTypeParameterSignatures();
-	if (signatures == null) 
-		return EmptyStringList;
-	int length = signatures.length;
-	String[] stringSignatures = new String[length];
+	ArrayList typeParameters = getChildrenOfType(TYPE_PARAMETER);
+	int length = typeParameters.size();
+	String[] typeParameterSignatures = new String[length];
 	for (int i = 0; i < length; i++) {
-		stringSignatures[i] = new String(signatures[i]);
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(i);
+		TypeParameterElementInfo info = (TypeParameterElementInfo) typeParameter.getElementInfo();
+		char[][] bounds = info.bounds;
+		if (bounds == null) {
+			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameter.getElementName(), CharOperation.NO_STRINGS);
+		} else {
+			int boundsLength = bounds.length;
+			char[][] boundSignatures = new char[boundsLength][];
+			for (int j = 0; j < boundsLength; j++) {
+				boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j], false);
+			}
+			typeParameterSignatures[i] = new String(Signature.createTypeParameterSignature(typeParameter.getElementName().toCharArray(), boundSignatures));
+		}
 	}
-	return stringSignatures;
+	return typeParameterSignatures;
 }
 
 /**
@@ -423,6 +433,9 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
  */
 public IType getType(String typeName) {
 	return new SourceType(this, typeName);
+}
+public ITypeParameter getTypeParameter(String typeParameterName) {
+	return new TypeParameter(this, typeParameterName);
 }
 /**
  * @see IType#getTypeQualifiedName()

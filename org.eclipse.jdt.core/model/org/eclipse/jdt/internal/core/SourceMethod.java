@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -32,15 +35,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 	 */
 	protected String[] fParameterTypes;
 
-	/**
-	 * An empty list of Strings
-	 */
-	protected static final String[] fgEmptyList= new String[] {};
 protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
-		fParameterTypes= fgEmptyList;
+		fParameterTypes= CharOperation.NO_STRINGS;
 	} else {
 		fParameterTypes= parameterTypes;
 	}
@@ -122,14 +121,7 @@ public int getNumberOfParameters() {
 public String[] getParameterNames() throws JavaModelException {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
 	char[][] names= info.getArgumentNames();
-	if (names == null || names.length == 0) {
-		return fgEmptyList;
-	}
-	String[] strings= new String[names.length];
-	for (int i= 0; i < names.length; i++) {
-		strings[i]= new String(names[i]);
-	}
-	return strings;
+	return CharOperation.toStrings(names);
 }
 /**
  * @see IMethod
@@ -138,21 +130,42 @@ public String[] getParameterTypes() {
 	return fParameterTypes;
 }
 
+public ITypeParameter getTypeParameter(String typeParameterName) {
+	return new TypeParameter(this, typeParameterName);
+}
+
+public ITypeParameter[] getTypeParameters() throws JavaModelException {
+	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
+	int size =typeParameters.size();
+	ITypeParameter[] result = new ITypeParameter[size];
+	typeParameters.toArray(result);
+	return result;
+}
+
 /**
  * @see IMethod#getTypeParameterSignatures()
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
-	char[][] signatures = info.getTypeParameterSignatures();
-	if (signatures == null) 
-		return EmptyStringList;
-	int length = signatures.length;
-	String[] stringSignatures = new String[length];
+	ArrayList typeParameters = getChildrenOfType(TYPE_PARAMETER);
+	int length = typeParameters.size();
+	String[] typeParameterSignatures = new String[length];
 	for (int i = 0; i < length; i++) {
-		stringSignatures[i] = new String(signatures[i]);
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(i);
+		TypeParameterElementInfo info = (TypeParameterElementInfo) typeParameter.getElementInfo();
+		char[][] bounds = info.bounds;
+		if (bounds == null) {
+			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameter.getElementName(), CharOperation.NO_STRINGS);
+		} else {
+			int boundsLength = bounds.length;
+			char[][] boundSignatures = new char[boundsLength][];
+			for (int j = 0; j < boundsLength; j++) {
+				boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j], false);
+			}
+			typeParameterSignatures[i] = new String(Signature.createTypeParameterSignature(typeParameter.getElementName().toCharArray(), boundSignatures));
+		}
 	}
-	return stringSignatures;
+	return typeParameterSignatures;
 }
 
 /*

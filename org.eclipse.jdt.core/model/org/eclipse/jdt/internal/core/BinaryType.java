@@ -158,6 +158,8 @@ public IJavaElement[] getChildren() throws JavaModelException {
 			}
 		}
 	}
+	if (!TypeParameter.ENABLED)
+		return TypeParameter.nonTypeParameters(cfi.binaryChildren);
 	return cfi.binaryChildren;
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
@@ -286,6 +288,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				token = memento.nextToken();
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
+					case JEM_TYPE_PARAMETER:
 						break nextParam;
 					case JEM_METHOD:
 						String param = memento.nextToken();
@@ -306,6 +309,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			if (token != null) {
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
+					case JEM_TYPE_PARAMETER:
 					case JEM_LOCALVARIABLE:
 						return method.getHandleFromMemento(token, memento, workingCopyOwner);
 					default:
@@ -335,6 +339,10 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			} else {
 				return type.getHandleFromMemento(token, memento, workingCopyOwner);
 			}
+		case JEM_TYPE_PARAMETER:
+			String typeParameterName = memento.nextToken();
+			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
+			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
 }
@@ -448,6 +456,13 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	return strings;
 }
 
+public ITypeParameter[] getTypeParameters() throws JavaModelException {
+	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
+	int size =typeParameters.size();
+	ITypeParameter[] result = new ITypeParameter[size];
+	typeParameters.toArray(result);
+	return result;
+}
 
 /**
  * @see IType#getTypeParameterSignatures()
@@ -457,18 +472,11 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature == null) 
-		return EmptyStringList;
+		return CharOperation.NO_STRINGS;
 	
 	char[] dotBaseSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 	char[][] typeParams = Signature.getTypeParameters(dotBaseSignature);
-	int length = typeParams.length;
-	if (length == 0)
-		return EmptyStringList;
-	String[] stringSignatures = new String[length];
-	for (int i = 0; i < length; i++) {
-		stringSignatures[i] = new String(typeParams[i]);
-	}
-	return stringSignatures;
+	return CharOperation.toStrings(typeParams);
 }
 
 /*
@@ -477,6 +485,9 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 public IType getType(String typeName) {
 	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + typeName + SUFFIX_STRING_class); //$NON-NLS-1$
 	return new BinaryType((JavaElement)classFile, typeName);
+}
+public ITypeParameter getTypeParameter(String typeParameterName) {
+	return new TypeParameter(this, typeParameterName);
 }
 /*
  * @see IType#getTypeQualifiedName()

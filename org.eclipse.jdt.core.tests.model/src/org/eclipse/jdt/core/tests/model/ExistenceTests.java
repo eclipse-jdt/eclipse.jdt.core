@@ -221,6 +221,73 @@ public void testPkgFragmentRootNotInClasspath() throws CoreException {
 	}
 }
 /*
+ * Ensure that an ITypeParameter exists if it exists in source.
+ */
+public void testTypeParameter1() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"P/X.java", 
+			"public class X<T> {}"
+		);
+		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
+		assertTrue("Type parameter should exist", typeParameter.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an ITypeParameter exists if it exists in source.
+ */
+public void testTypeParameter2() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"P/X.java", 
+			"public class X {\n" +
+			"  <T extends String> void foo() {}\n" +
+			"}"
+		);
+		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("T");
+		assertTrue("Type parameter should exist", typeParameter.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an ITypeParameter doesn't exist if it doesn't exist in source.
+ */
+public void testTypeParameter3() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"P/X.java", 
+			"public class X<T> {}"
+		);
+		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("U");
+		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that an ITypeParameter doesn't exist if it doesn't exist in source.
+ */
+public void testTypeParameter4() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"P/X.java", 
+			"public class X {\n" +
+			"  <T extends String> void foo() {}\n" +
+			"}"
+		);
+		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("String");
+		assertTrue("Type parameter should exist", !typeParameter.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}/*
  * Ensures that one cannot get the corresponding resource of a non-existing class file.
  */
 public void testCorrespondingResourceNonExistingClassFile() throws CoreException {

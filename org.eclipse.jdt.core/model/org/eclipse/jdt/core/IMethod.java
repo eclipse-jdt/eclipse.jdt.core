@@ -65,9 +65,20 @@ String[] getExceptionTypes() throws JavaModelException;
  * in the order declared in the source, an empty array if none
  * @see Signature
  * @since 3.0
+ * @deprecated Use #getTypeParameters() instead
  */
 String[] getTypeParameterSignatures() throws JavaModelException;
-
+/**
+ * Returns the formal type parameters for this method.
+ * Returns an empty array if this method has no formal type parameters.
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return the formal type parameters of this method,
+ * in the order declared in the source, an empty array if none
+ * @since 3.1
+ */
+ITypeParameter[] getTypeParameters() throws JavaModelException;
 /**
  * Returns the number of parameters of this method.
  * This is a handle-only method.
@@ -148,6 +159,15 @@ String getReturnType() throws JavaModelException;
  * @see Signature
  */
 String getSignature() throws JavaModelException;
+/**
+ * Returns the type parameter declared in this method with the given name.
+ * This is a handle-only method. The type parameter may or may not exist.
+ * 
+ * @param name the given simple name
+ * @return the type parameter declared in this methid with the given name
+ * @since 3.1
+ */
+ITypeParameter getTypeParameter(String name);
 /**
  * Returns whether this method is a constructor.
  *

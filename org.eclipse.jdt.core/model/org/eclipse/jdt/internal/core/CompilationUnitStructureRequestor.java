@@ -221,11 +221,9 @@ public void enterClass(
 	int nameSourceStart,
 	int nameSourceEnd,
 	char[] superclass,
-	char[][] superinterfaces,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] superinterfaces) {
 
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces, typeParameterNames, typeParameterBounds);
+	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces);
 
 }
 /**
@@ -248,12 +246,10 @@ public void enterConstructor(
 	int nameSourceEnd,
 	char[][] parameterTypes,
 	char[][] parameterNames,
-	char[][] exceptionTypes,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] exceptionTypes) {
 
 		enterMethod(declarationStart, modifiers, null, name, nameSourceStart,
-			nameSourceEnd,	parameterTypes, parameterNames, exceptionTypes, true, typeParameterNames, typeParameterBounds);
+			nameSourceEnd,	parameterTypes, parameterNames, exceptionTypes, true);
 }
 /**
  * @see ISourceElementRequestor
@@ -329,11 +325,9 @@ public void enterInterface(
 	char[] name,
 	int nameSourceStart,
 	int nameSourceEnd,
-	char[][] superinterfaces,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] superinterfaces) {
 
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces, typeParameterNames, typeParameterBounds);
+	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces);
 
 }
 /**
@@ -348,12 +342,10 @@ public void enterMethod(
 	int nameSourceEnd,
 	char[][] parameterTypes,
 	char[][] parameterNames,
-	char[][] exceptionTypes,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] exceptionTypes) {
 
 		enterMethod(declarationStart, modifiers, returnType, name, nameSourceStart,
-			nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, false, typeParameterNames, typeParameterBounds);
+			nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, false);
 }
 /**
  * @see ISourceElementRequestor
@@ -368,9 +360,7 @@ protected void enterMethod(
 	char[][] parameterTypes,
 	char[][] parameterNames,
 	char[][] exceptionTypes,
-	boolean isConstructor,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	boolean isConstructor) {
 
 		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
@@ -408,9 +398,6 @@ protected void enterMethod(
 		info.setArgumentTypeNames(parameterTypes);
 		info.setReturnType(returnType == null ? new char[]{'v', 'o','i', 'd'} : returnType);
 		info.setExceptionTypeNames(exceptionTypes);
-		info.setTypeParameterNames(typeParameterNames);
-		info.setTypeParameterBounds(typeParameterBounds);
-		
 		parentInfo.addChild(handle);
 		this.newElements.put(handle, info);
 		this.infoStack.push(info);
@@ -426,9 +413,7 @@ protected void enterType(
 	int nameSourceStart,
 	int nameSourceEnd,
 	char[] superclass,
-	char[][] superinterfaces,
-	char[][] typeParameterNames,
-	char[][][] typeParameterBounds) {
+	char[][] superinterfaces) {
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
@@ -447,14 +432,27 @@ protected void enterType(
 	info.setSuperInterfaceNames(superinterfaces);
 	info.setSourceFileName(this.sourceFileName);
 	info.setPackageName(this.packageName);
-	info.setTypeParameterNames(typeParameterNames);
-	info.setTypeParameterBounds(typeParameterBounds);
 	parentInfo.addChild(handle);
 	this.newElements.put(handle, info);
-
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
-
+}
+public void enterTypeParameter(int declarationStart, char[] name, int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
+	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
+	String nameString = new String(name);
+	TypeParameter handle = handle = new TypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	resolveDuplicates(handle);
+	
+	TypeParameterElementInfo info = new TypeParameterElementInfo();
+	info.setSourceRangeStart(declarationStart);
+	info.nameStart = nameSourceStart;
+	info.nameEnd = nameSourceEnd;
+	info.bounds = typeParameterBounds;
+	parentInfo.addChild(handle);
+	this.newElements.put(handle, info);
+	this.infoStack.push(info);
+	this.handleStack.push(handle);
 }
 /**
  * @see ISourceElementRequestor
@@ -526,6 +524,12 @@ protected void exitMember(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitMethod(int declarationEnd) {
+	exitMember(declarationEnd);
+}
+/**
+ * @see ISourceElementRequestor
+ */
+public void exitTypeParameter(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

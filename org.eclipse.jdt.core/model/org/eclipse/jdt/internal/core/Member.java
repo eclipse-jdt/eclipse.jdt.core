@@ -32,10 +32,6 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
  */
 
 public abstract class Member extends SourceRefElement implements IMember {
-	/**
-	 * An empty list of Strings
-	 */
-	protected static final String[] EmptyStringList = new String[0];
 
 protected Member(JavaElement parent) {
 	super(parent);
@@ -200,6 +196,10 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			memento.nextToken(); // JEM_COUNT
 			String typeSignature = memento.nextToken();
 			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature);
+		case JEM_TYPE_PARAMETER:
+			String typeParameterName = memento.nextToken();
+			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
+			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
 }

@@ -129,7 +129,7 @@ public char[][] enclosingTypeNames(){
 /**
  * @see ISourceElementRequestor#enterClass(int, int, char[], int, int, char[], char[][])
  */
-public void enterClass(	int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {
 
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (superclass != null){
@@ -161,7 +161,7 @@ public void enterCompilationUnit() {
 /**
  * @see ISourceElementRequestor#enterConstructor(int, int, char[], int, int, char[][], char[][], char[][])
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addConstructorDeclaration(name, parameterTypes, exceptionTypes);
 	this.methodDepth++;
 }
@@ -181,7 +181,7 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 /**
  * @see ISourceElementRequestor#enterInterface(int, int, char[], int, int, char[][])
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (superinterfaces != null){
 		for (int i = 0, length = superinterfaces.length; i < length; i++){
@@ -200,9 +200,13 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
 /**
  * @see ISourceElementRequestor#enterMethod(int, int, char[], char[], int, int, char[][], char[][], char[][])
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addMethodDeclaration(name, parameterTypes, returnType, exceptionTypes);
 	this.methodDepth++;
+}
+public void enterTypeParameter(int declarationStart, char[] name,
+		int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+	// TODO (jerome) should type parameters be indexed ?
 }
 /**
  * @see ISourceElementRequestor#exitClass(int)
@@ -245,6 +249,9 @@ public void exitInterface(int declarationEnd) {
  */
 public void exitMethod(int declarationEnd) {
 	this.methodDepth--;
+}
+public void exitTypeParameter(int declarationEnd) {
+	// TODO (jerome) should type parameters be indexed ?
 }
 public void popTypeName() {
 	if (depth > 0) {

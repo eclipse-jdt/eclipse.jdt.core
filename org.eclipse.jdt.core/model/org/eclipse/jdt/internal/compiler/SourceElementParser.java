@@ -975,27 +975,6 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
 		}
 		if (isInRange){
-			TypeParameter[] typeParameters = methodDeclaration.typeParameters();
-			char[][] typeParameterNames = null;
-			char[][][] typeParameterBounds = null;
-			if (typeParameters != null) {
-				int typeParametersLength = typeParameters.length;
-				typeParameterNames = new char[typeParametersLength][];
-				typeParameterBounds = new char[typeParametersLength][][];
-				for (int i = 0; i < typeParametersLength; i++) {
-					typeParameterNames[i] = typeParameters[i].name;
-					TypeReference[] bounds = typeParameters[i].bounds;
-					if (bounds != null) {
-						int boundLength = bounds.length;
-						char[][] boundNames = new char[boundLength][];
-						for (int j = 0; j < boundLength; j++) {
-							boundNames[j] = 
-								CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
-						}
-						typeParameterBounds[i] = boundNames;
-					}
-				}
-			}			
 			requestor.enterConstructor(
 				methodDeclaration.declarationSourceStart, 
 				methodDeclaration.modifiers, 
@@ -1004,9 +983,8 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes,
-				typeParameterNames,
-				typeParameterBounds);
+				thrownExceptionTypes);
+			notifySourceElementRequestor(methodDeclaration.typeParameters());			
 		}
 		if (reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -1040,27 +1018,6 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
 	}
 	if (isInRange) {
-		TypeParameter[] typeParameters = methodDeclaration.typeParameters();
-		char[][] typeParameterNames = null;
-		char[][][] typeParameterBounds = null;
-		if (typeParameters != null) {
-			int typeParametersLength = typeParameters.length;
-			typeParameterNames = new char[typeParametersLength][];
-			typeParameterBounds = new char[typeParametersLength][][];
-			for (int i = 0; i < typeParametersLength; i++) {
-				typeParameterNames[i] = typeParameters[i].name;
-				TypeReference[] bounds = typeParameters[i].bounds;
-				if (bounds != null) {
-					int boundLength = bounds.length;
-					char[][] boundNames = new char[boundLength][];
-					for (int j = 0; j < boundLength; j++) {
-						boundNames[j] = 
-							CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
-					}
-					typeParameterBounds[i] = boundNames;
-				}
-			}
-		}
 		int currentModifiers = methodDeclaration.modifiers;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		if (methodDeclaration instanceof MethodDeclaration) {
@@ -1074,9 +1031,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes,
-				typeParameterNames,
-				typeParameterBounds);
+				thrownExceptionTypes);
 		} else {
 			TypeReference returnType = ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
 			requestor.enterMethod(
@@ -1088,10 +1043,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes,
-				typeParameterNames,
-				typeParameterBounds);
+				thrownExceptionTypes);
 		}
+		notifySourceElementRequestor(methodDeclaration.typeParameters());			
 	}		
 		
 	this.visitIfNeeded(methodDeclaration);
@@ -1100,6 +1054,33 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		requestor.exitMethod(methodDeclaration.declarationSourceEnd);
 	}
 }
+private void notifySourceElementRequestor(TypeParameter[] typeParameters) {
+	if (typeParameters != null) {
+		int typeParametersLength = typeParameters.length;
+		for (int i = 0; i < typeParametersLength; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeReference[] bounds = typeParameter.bounds;
+			char[][] typeParameterBounds = null;
+			if (bounds != null) {
+				int boundLength = bounds.length;
+				char[][] boundNames = new char[boundLength][];
+				for (int j = 0; j < boundLength; j++) {
+					boundNames[j] = 
+						CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
+				}
+				typeParameterBounds = boundNames;
+			}
+			requestor.enterTypeParameter(
+				typeParameter.declarationSourceStart, 
+				typeParameter.name, 
+				typeParameter.sourceStart, 
+				typeParameter.sourceEnd,
+				typeParameterBounds);
+			requestor.exitTypeParameter(typeParameter.declarationSourceEnd);
+		}
+	}
+}
+
 /*
 * Update the bodyStart of the corresponding parse node
 */
@@ -1220,27 +1201,6 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
 			}
 		}
-		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
-		char[][] typeParameterNames = null;
-		char[][][] typeParameterBounds = null;
-		if (typeParameters != null) {
-			int typeParametersLength = typeParameters.length;
-			typeParameterNames = new char[typeParametersLength][];
-			typeParameterBounds = new char[typeParametersLength][][];
-			for (int i = 0; i < typeParametersLength; i++) {
-				typeParameterNames[i] = typeParameters[i].name;
-				TypeReference[] bounds = typeParameters[i].bounds;
-				if (bounds != null) {
-					int boundLength = bounds.length;
-					char[][] boundNames = new char[boundLength][];
-					for (int j = 0; j < boundLength; j++) {
-						boundNames[j] = 
-							CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
-					}
-					typeParameterBounds[i] = boundNames;
-				}
-			}
-		}
 		if (isInterface) {
 			if (isInRange){
 				int currentModifiers = typeDeclaration.modifiers;
@@ -1251,9 +1211,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
 					sourceEnd(typeDeclaration), 
-					interfaceNames,
-					typeParameterNames,
-					typeParameterBounds);
+					interfaceNames);
 			}
 			if (nestedTypeIndex == typeNames.length) {
 				// need a resize
@@ -1273,9 +1231,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
 						null, 
-						interfaceNames,
-						typeParameterNames,
-						typeParameterBounds);
+						interfaceNames);
 				}
 			} else {
 				if (isInRange){
@@ -1286,11 +1242,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
 						CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
-						interfaceNames,
-						typeParameterNames,
-						typeParameterBounds);
+						interfaceNames);
 				}
 			}
+			notifySourceElementRequestor(typeDeclaration.typeParameters);			
 			if (nestedTypeIndex == typeNames.length) {
 				// need a resize
 				System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);

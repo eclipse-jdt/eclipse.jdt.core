@@ -503,9 +503,7 @@ public class SourceMapper
 		int nameSourceStart,
 		int nameSourceEnd,
 		char[] superclass,
-		char[][] superinterfaces,
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
+		char[][] superinterfaces) {
 
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
@@ -591,9 +589,7 @@ public class SourceMapper
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes, 
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
+		char[][] exceptionTypes) {
 		enterMethod(
 			declarationStart,
 			modifiers,
@@ -603,9 +599,7 @@ public class SourceMapper
 			nameSourceEnd,
 			parameterTypes,
 			parameterNames,
-			exceptionTypes,
-			typeParameterNames,
-			typeParameterBounds);
+			exceptionTypes);
 	}
 	
 	/**
@@ -644,9 +638,7 @@ public class SourceMapper
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd,
-		char[][] superinterfaces,
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
+		char[][] superinterfaces) {
 		enterClass(
 			declarationStart,
 			modifiers,
@@ -654,9 +646,7 @@ public class SourceMapper
 			nameSourceStart,
 			nameSourceEnd,
 			null,
-			superinterfaces,
-			typeParameterNames,
-			typeParameterBounds);
+			superinterfaces);
 	}
 	
 	/**
@@ -671,9 +661,8 @@ public class SourceMapper
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes, 
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
+		char[][] exceptionTypes) {
+		
 		if (typeDepth >= 0) {
 			fMemberName[typeDepth] = new String(name);
 			fMemberNameRange[typeDepth] =
@@ -682,6 +671,11 @@ public class SourceMapper
 			fMethodParameterTypes[typeDepth] = parameterTypes;
 			fMethodParameterNames[typeDepth] = parameterNames;
 		}
+	}
+	
+	public void enterTypeParameter(int declarationStart, char[] name,
+			int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+		// TODO (jerome) should the type parameters be mapped as well ?
 	}
 	
 	/**
@@ -764,6 +758,10 @@ public class SourceMapper
 				method,
 				fMethodParameterNames[typeDepth]);
 		}
+	}
+	
+	public void exitTypeParameter(int declarationEnd) {
+		// TODO (jerome) should the type parameters be mapped as well ?
 	}
 	
 	/**

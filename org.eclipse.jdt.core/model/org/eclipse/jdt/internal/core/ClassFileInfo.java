@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
@@ -133,6 +134,38 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 			method.occurrenceCount++;
 		
 		newElements.put(method, methodInfo);
+		
+		generateTypeParameterInfos(method, signature, newElements, childrenHandles);
+	}
+}
+/**
+ * Creates the handles and infos for the type parameter of the given binary member.
+ * Adds new handles to the given vector.
+ */
+private void generateTypeParameterInfos(BinaryMember parent, char[] signature, HashMap newElements, ArrayList childrenHandles) {
+	if (signature == null) return;
+	char[][] typeParameterSignatures = Signature.getTypeParameters(signature);
+	for (int i = 0, typeParameterCount = typeParameterSignatures.length; i < typeParameterCount; i++) {
+		char[] typeParameterSignature = typeParameterSignatures[i];
+		char[] typeParameterName = Signature.getTypeVariable(typeParameterSignature);
+		char[][] typeParameterBoundSignatures = Signature.getTypeParameterBounds(typeParameterSignature);
+		int boundLength = typeParameterBoundSignatures.length;
+		char[][] typeParameterBounds = new char[boundLength][];
+		for (int j = 0; j < boundLength; j++) {
+			typeParameterBounds[j] = Signature.toCharArray(typeParameterBoundSignatures[j]);
+			CharOperation.replace(typeParameterBounds[j], '/', '.');
+		}
+		TypeParameter typeParameter = new TypeParameter(parent, new String(typeParameterName));
+		TypeParameterElementInfo info = new TypeParameterElementInfo();
+		info.bounds = typeParameterBounds;
+		childrenHandles.add(typeParameter);
+		
+		// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
+		// (case of bridge methods in 1.5)
+		while (newElements.containsKey(typeParameter))
+			typeParameter.occurrenceCount++;
+		
+		newElements.put(typeParameter, info);	
 	}
 }
 /**
@@ -173,6 +206,7 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 		return;
 	}
 	if (typeInfo != null) { //may not be a valid class file
+		generateTypeParameterInfos(type, typeInfo.getGenericSignature(), newElements, childrenHandles);
 		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements

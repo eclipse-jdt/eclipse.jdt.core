@@ -37,8 +37,9 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
-import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.INamingRequestor;
+import org.eclipse.jdt.internal.core.InternalNamingConventions;
 import org.eclipse.jdt.internal.core.TypeConverter;
 
 /**

@@ -95,13 +95,13 @@ protected void enterAbstractMethod(int declarationStart, int modifiers,
 }
 /**
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, superclass,
 		superinterfaces, true);
 }
 /**
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	/* see 1FVIIQZ */
 	String nameString = new String(fDocument, nameStart, nameEnd - nameStart);
 	int openParenPosition = nameString.indexOf('(');
@@ -138,13 +138,13 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 /**
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces, 	char[][] typeParameterNames, 	char[][][] typeParameterBounds) {
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null,
 		superinterfaces, false);
 }
 /**
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
+public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	enterAbstractMethod(declarationStart, modifiers, 
 		returnType, name, nameStart, nameEnd, parameterTypes,
 		parameterNames, exceptionTypes,false);
@@ -161,6 +161,10 @@ protected void enterType(int declarationStart, int modifiers, char[] name,
 		addChild(fNode);
 		fStack.push(fNode);
 	}
+}
+public void enterTypeParameter(int declarationStart, char[] name,
+		int nameSourceStart, int nameSourceEnd, char[][] typeParameterBounds) {
+	// type parameters not supported by JDOM
 }
 /**
  * Finishes the configuration of the class DOM object which
@@ -219,6 +223,9 @@ public void exitMethod(int declarationEnd) {
  */
 protected void exitType(int declarationEnd) {
 	exitType(declarationEnd, declarationEnd);
+}
+public void exitTypeParameter(int declarationEnd) {
+	// type parameters not supported by JDOM
 }
 /**
  * Creates a new parser.
