@@ -497,14 +497,14 @@ protected void enterType(int declarationStart, int[] javaDocPositions,
 				}
 				implementsKeywordRange[1] = superinterfaceStarts[0] - 1;
 				interfacesRange[0] = superinterfaceStarts[0];
-				interfacesRange[1] = bodyStart - 1;
+				interfacesRange[1] = superinterfaceEnds[superinterfaces.length - 1];
 			}
 		} else {
 			if (superinterfaces != null && superinterfaces.length > 0) {
 				extendsKeywordRange[0] = nameEnd + 1;
 				extendsKeywordRange[1] = superinterfaceStarts[0] - 1;
 				interfacesRange[0] = superinterfaceStarts[0];
-				interfacesRange[1] = bodyStart - 1;
+				interfacesRange[1] = superinterfaceEnds[superinterfaces.length - 1];
 			}
 		}
 		int[] openBodyRange = {bodyStart, -1}; // fixed by setTypeRanges(DOMNode)
