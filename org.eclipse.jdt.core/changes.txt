@@ -109,6 +109,20 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
+  
+  PRs Fixed in this Release
+  ================================================================================
+
+  PRs Closed in this Release
+  ===============================================================================
+
+
+**********************************************************************************
+*** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************
+**********************************************************************************
+  
+  What's new in this drop
+  ================================================================================
   * Classpath entries (except for source folders) can be tagged as exported upon
     creation. When exported, an entry is contributed to dependent projects along 
     with its output location.
@@ -164,6 +178,10 @@ STREAM: 2.0
     - WRITE_REFERENCES: the search results contain *only* write access to a field.
     Note that if REFERENCES is used, then search results contain both read and write
     accesss to a field.
+
+  * OpenOnSelection can now locate selected declarations which have a corresponding
+    Java element (i.e. no local declaration is found), and is more tolerant of
+    incorrect code.
   
   PRs Fixed in this Release
   ================================================================================
@@ -180,26 +198,6 @@ STREAM: 2.0
   1FZWGMG: ITPCOM:WIN98 - DCR - CodeAssist - code assist should provide method signature completions
   1GHVOQE: ITPJCORE:WINNT - Ambiguous completion in CodeAssist
   1G8DEAB: ITPJUI:WINNT - DCR: code assist super methods when defining method
-
-  PRs Closed in this Release
-  ===============================================================================
-  1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
-  1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
-  1G98XR7: ITPJCORE:WIN2000 - Feature Request for JavaDoc CodeAssist
-
-
-**********************************************************************************
-*** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************
-**********************************************************************************
-  
-  What's new in this drop
-  ================================================================================
-  * OpenOnSelection can now locate selected declarations which have a corresponding
-    Java element (i.e. no local declaration is found), and is more tolerant of
-    incorrect code.
-  
-  PRs Fixed in this Release
-  ================================================================================
   1GGNNDZ: ITPJCORE:WINNT - OpenOnSelection - non visible target is equivalent to no target
   1GE14NN: ITPJUI:WINNT - Unable to find/search for .class files
   1GJYFUO: ITPDUI:ALL - Evaluation hangs, evaluation thread is suspended
@@ -233,6 +231,9 @@ STREAM: 2.0
   1GJYG33: ITPJUI:WIN2000 - Core dump in run time workbench in Search
   1GK9S59: ITPJUI:WIN2000 - Internal error when synchronizing
   1GL2TZY: ITPJUI:WIN2000 - Code Completion should only show visible items
+  1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
+  1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
+  1G98XR7: ITPJCORE:WIN2000 - Feature Request for JavaDoc CodeAssist
 
   
 **********************************************************************************
