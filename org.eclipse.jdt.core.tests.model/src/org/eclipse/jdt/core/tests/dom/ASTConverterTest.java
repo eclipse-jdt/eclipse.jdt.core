@@ -7689,7 +7689,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0316() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Hello.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No result", result);
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit);
@@ -7703,7 +7702,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0317() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0317", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -7742,7 +7740,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0318() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0318", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -7759,7 +7756,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0319() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0319", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -7851,7 +7847,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0322() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0322", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8081,7 +8076,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0330() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0330", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8142,7 +8136,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0332() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0332", "LocalSelectionTransfer.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8153,7 +8146,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0333() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0333", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8244,7 +8236,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0335() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0335", "ExceptionTestCaseTest.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8276,7 +8267,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0336() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0336", "SorterTest.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8328,7 +8318,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0338() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0338", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8388,7 +8377,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0340() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "p3", "B.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8585,7 +8573,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		String compiler_compliance = null;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0344", "Test.java");
-			char[] source = sourceUnit.getSource().toCharArray();
 			preferences = JavaCore.getPlugin().getPluginPreferences();
 			pb_assert = preferences.getString(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
 			compiler_source = preferences.getString(JavaCore.COMPILER_SOURCE);
@@ -8614,7 +8601,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0345() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0345", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8909,7 +8895,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0354() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0354", "Test.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8922,7 +8907,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0355() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0355", "Foo.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -8947,7 +8931,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0356() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0356", "X.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9024,7 +9007,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0360() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0360", "X.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9043,7 +9025,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0361() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0361", "X.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9164,7 +9145,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0365() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0365", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9389,7 +9369,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0375() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0375", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9432,7 +9411,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0377() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0377", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9489,7 +9467,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0380() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0380", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9518,7 +9495,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0381() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0381", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9537,7 +9513,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0382() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0382", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9556,7 +9531,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0383() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0383", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9575,7 +9549,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0384() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0384", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9594,7 +9567,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0385() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0385", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9656,7 +9628,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0388() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0388", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9676,7 +9647,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0389() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0389", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9696,7 +9666,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0390() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0390", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9717,7 +9686,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0391() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0391", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9738,7 +9706,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0392() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0392", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
@@ -9931,7 +9898,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0399() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0399", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
@@ -9968,7 +9934,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0401() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0401", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
@@ -10008,7 +9973,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0403() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0403", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length);
@@ -10040,7 +10004,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0404() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0404", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length);
@@ -10072,7 +10035,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0405() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0405", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 1);
 		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length);
@@ -10104,7 +10066,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void test0406() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0406", "A.java");
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of errors", 1, ((CompilationUnit) result).getProblems().length);
