@@ -1,10 +1,35 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.core;
 
 public abstract class CodeFormatter {
 
+	/**
+	 * Kind used to format an expression
+	 */
 	public static final int K_EXPRESSION = 0x01;
+	
+	/**
+	 * Kind used to format a set of statements
+	 */
 	public static final int K_STATEMENTS = 0x02;
+	
+	/**
+	 * Kind used to format a set of class body declarations
+	 */
 	public static final int K_CLASS_BODY_DECLARATIONS = 0x04;
+	
+	/**
+	 * Kind used to format a compilation unit
+	 */
 	public static final int K_COMPILATION_UNIT = 0x08;
 
 	/** 
@@ -25,8 +50,7 @@ public abstract class CodeFormatter {
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT
-	 * TODO Fix this with @see
-	 * @return the formatted output string.
+	 * @return the formatted output string
 	 */
 	public abstract String format(String string, int indentationLevel, int[] positions, String lineSeparator, int kind);
 }
