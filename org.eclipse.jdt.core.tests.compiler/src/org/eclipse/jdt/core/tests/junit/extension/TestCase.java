@@ -198,4 +198,12 @@ public void stopMeasuring() {
 	// make it public to avoid compiler warning about synthetic access
 	super.stopMeasuring();
 }
+public void assertPerformance() {
+	// make it public to avoid compiler warning about synthetic access
+	super.assertPerformance();
+}
+public void commitMeasurements() {
+	// make it public to avoid compiler warning about synthetic access
+	super.commitMeasurements();
+}
 }
