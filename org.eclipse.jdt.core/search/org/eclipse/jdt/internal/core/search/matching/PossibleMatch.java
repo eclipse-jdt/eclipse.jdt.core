@@ -77,8 +77,8 @@ public char[] getFileName() {
 	return this.openable.getPath().toString().toCharArray();
 }
 public char[] getMainTypeName() {
-	return null; // cannot know the main type name without opening .java or .class file
-	                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182
+	// The file is no longer opened to get its name => remove fix for bug 32182
+	return this.compoundName[this.compoundName.length-1];
 }
 public char[][] getPackageName() {
 	int length = this.compoundName.length;

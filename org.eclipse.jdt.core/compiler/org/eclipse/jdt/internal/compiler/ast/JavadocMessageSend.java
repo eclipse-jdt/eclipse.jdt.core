@@ -37,26 +37,13 @@ public class JavadocMessageSend extends MessageSend {
 	private TypeBinding internalResolveType(Scope scope) {
 		// Answer the signature return type
 		// Base type promotion
-
 		constant = NotAConstant;
 		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-		SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
-		if (this.receiver == null) {
-			this.receiverType = sourceTypeBinding;
-			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
+		if (scope.kind == Scope.CLASS_SCOPE) {
+			this.receiverType = receiver.resolveType((ClassScope)scope);
+		} else {
+			this.receiverType = receiver.resolveType((BlockScope)scope);
 		}
-		else {
-			if (scope.kind == Scope.CLASS_SCOPE) {
-				this.receiverType = receiver.resolveType((ClassScope)scope);
-			} else {
-				this.receiverType = receiver.resolveType((BlockScope)scope);
-			}
-			if (this.receiverType == null) {
-				return null;
-			}
-			this.superAccess = sourceTypeBinding.isCompatibleWith(this.receiverType);
-		}
-		this.qualifyingType = this.receiverType;
 
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = NoParameters;
@@ -83,6 +70,13 @@ public class JavadocMessageSend extends MessageSend {
 				return null;
 			}
 		}
+
+		// check receiver type
+		if (this.receiverType == null) {
+			return null;
+		}
+		this.qualifyingType = this.receiverType;
+		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.receiverType);
 
 		// base type cannot receive any message
 		if (this.receiverType.isBaseType()) {

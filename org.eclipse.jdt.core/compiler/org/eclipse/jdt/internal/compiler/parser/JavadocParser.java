@@ -187,18 +187,6 @@ public class JavadocParser {
 		}
 	}
 
-	private TypeDeclaration getParserStackLastTypeDeclaration() {
-		ASTNode[] stack = this.sourceParser.astStack;
-		int ptr = this.sourceParser.astPtr;
-		while (ptr >=0) {
-			if (stack[ptr] instanceof TypeDeclaration) {
-				return (TypeDeclaration) stack[ptr];
-			}
-			ptr--;
-		}
-		return null;
-	}
-
 	/*
 	 * Parse argument in @see tag method reference
 	 */
@@ -403,16 +391,11 @@ public class JavadocParser {
 		// Get type ref
 		TypeReference typeRef = receiver;
 		if (typeRef == null) {
-			TypeDeclaration typeDecl = getParserStackLastTypeDeclaration();
-			char[] name = null;
-			if (typeDecl == null) {
-				name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
-			} else {
-				name = typeDecl.name;
+			char[] name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
+			if (name == null) {
+				throw new InvalidInputException();
 			}
-			if (name != null) {
-				typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
-			}
+			typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
 		}
 		
 		// Get member identifier
