@@ -75,7 +75,7 @@ public class AnnotationParser {
 		boolean foundDeprecated = false;
 		try {
 			this.source = this.sourceParser.scanner.source;
-			if (this.checkAnnotation) {
+			if (this.checkAnnotation && this.scanner.source != null) {
 				this.annotation = new Annotation(annotationStart, annotationEnd);
 				this.astLengthPtr = -1;
 				this.astPtr = -1;
