@@ -345,8 +345,10 @@ public class ClasspathEntry implements IClasspathEntry {
 				int excludeLength = this.exclusionPatterns.length;
 				if (otherExcludes.length != excludeLength) 
 					return false;
-				for (int i = 0; i < excludeLength; i++){
-					if (!this.exclusionPatterns[i].equals(otherExcludes[i]))
+				for (int i = 0; i < excludeLength; i++) {
+					// compare toStrings instead of IPaths 
+					// since IPath.equals is specified to ignore trailing separators
+					if (!this.exclusionPatterns[i].toString().equals(otherExcludes[i].toString()))
 						return false;
 				}
 			}

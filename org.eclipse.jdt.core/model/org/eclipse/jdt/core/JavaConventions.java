@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.Util;
@@ -42,7 +43,6 @@ import org.eclipse.jdt.internal.core.Util;
 public final class JavaConventions {
 
 	private final static char fgDot= '.';
-	private final static String fgJAVA= "JAVA"; //$NON-NLS-1$
 	private final static Scanner SCANNER = new Scanner();
 
 	/**
@@ -60,6 +60,7 @@ public final class JavaConventions {
 	 * @param rootPath1 the first root path
 	 * @param rootPath2 the second root path
 	 * @return true if the given package fragment root paths are considered to overlap, false otherwise
+	 * @deprecated Overlapping roots are allowed in 2.1
 	 */
 	public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
 		if (rootPath1 == null || rootPath2 == null) {
@@ -153,7 +154,7 @@ public final class JavaConventions {
 		if (!status.isOK()) {
 			return status;
 		}
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+		return JavaModelStatus.VERIFIED_OK;
 	}
 
 	/**
@@ -195,7 +196,7 @@ public final class JavaConventions {
 		if (!status.isOK()) {
 			return status;
 		}
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+		return JavaModelStatus.VERIFIED_OK;
 	}
 
 	/**
@@ -227,7 +228,7 @@ public final class JavaConventions {
 	 */
 	public static IStatus validateIdentifier(String id) {
 		if (scannedIdentifier(id) != null) {
-			return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+			return JavaModelStatus.VERIFIED_OK;
 		} else {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier", id), null); //$NON-NLS-1$
 		}
@@ -307,7 +308,7 @@ public final class JavaConventions {
 			if ((scannedID.length > 0 && Character.isLowerCase(scannedID[0]))) {
 				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.lowercaseName"), null); //$NON-NLS-1$
 			}
-			return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+			return JavaModelStatus.VERIFIED_OK;
 		} else {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.invalidName", name), null); //$NON-NLS-1$
 		}
@@ -386,7 +387,7 @@ public final class JavaConventions {
 			}
 			firstToken = false;
 		}
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
+		return JavaModelStatus.VERIFIED_OK;
 	}
 	
 	/**
@@ -414,8 +415,6 @@ public final class JavaConventions {
 	 */
 	public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClasspathEntry[] classpath, IPath outputLocation) {
 	
-		// TODO: allow nesting source folders (as long as nested one is excluded from the enclosing one)
-		
 		IProject project = javaProject.getProject();
 		IPath projectPath= project.getFullPath();
 	
@@ -512,7 +511,7 @@ public final class JavaConventions {
 				continue;
 			}
 	
-			// prevent nesting source entries in each other
+			// allow nesting source entries in each other as long as the outer entry excludes the inner one
 			if (kind == IClasspathEntry.CPE_SOURCE 
 					|| (kind == IClasspathEntry.CPE_LIBRARY && !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))){
 				for (int j = 0; j < classpath.length; j++){
@@ -524,12 +523,15 @@ public final class JavaConventions {
 						&& (otherKind == IClasspathEntry.CPE_SOURCE 
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY 
 										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherPath.lastSegment())))){
-						if (otherPath.isPrefixOf(entryPath) && !otherPath.equals(entryPath)) {
+						if (otherPath.isPrefixOf(entryPath) 
+								&& !otherPath.equals(entryPath)
+								&& !Util.isExcluded(entryPath, ((ClasspathEntry)otherEntry).fullExclusionPatternChars())) {
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
 						}
 					}
 				}
 			}
+			
 			// prevent nesting output location inside entry
 			if (!entryPath.equals(outputLocation) && entryPath.isPrefixOf(outputLocation)) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$

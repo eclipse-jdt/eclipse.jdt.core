@@ -51,7 +51,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	/**
 	 * Singleton OK object
 	 */
-	public static final IJavaModelStatus VERIFIED_OK = new JavaModelStatus(OK);
+	public static final IJavaModelStatus VERIFIED_OK = new JavaModelStatus(OK, OK, Util.bind("status.OK")); //$NON-NLS-1$
 
 	/**
 	 * Constructs an Java model status with no corresponding elements.
@@ -80,11 +80,17 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 * Constructs an Java model status with no corresponding elements.
 	 */
 	public JavaModelStatus(int code, String string) {
-		super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
+		this(ERROR, code, string);
+	}
+	/**
+	 * Constructs an Java model status with no corresponding elements.
+	 */
+	public JavaModelStatus(int severity, int code, String string) {
+		super(severity, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
 		fElements= JavaElementInfo.fgEmptyChildren;
 		fPath= null;
 		fString = string;
-	}
+	}	
 	/**
 	 * Constructs an Java model status with no corresponding elements.
 	 */

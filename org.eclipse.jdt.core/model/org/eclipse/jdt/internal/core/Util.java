@@ -684,6 +684,20 @@ public class Util {
 				return cu != null && isExcluded(cu);
 		}
 	}
+	/*
+	 * Returns whether the given resource path matches one of the exclusion
+	 * patterns.
+	 * 
+	 * @see IClasspathEntry#getExclusionPatterns
+	 */
+	public final static boolean isExcluded(IPath resourcePath, char[][] exclusionPatterns) {
+		if (exclusionPatterns == null) return false;
+		char[] path = resourcePath.toString().toCharArray();
+		for (int i = 0, length = exclusionPatterns.length; i < length; i++)
+			if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/'))
+				return true;
+		return false;
+	}	
 	
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.
@@ -691,12 +705,7 @@ public class Util {
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
 	public final static boolean isExcluded(IResource resource, char[][] exclusionPatterns) {
-		if (exclusionPatterns == null) return false;
-		char[] path = resource.getFullPath().toString().toCharArray();
-		for (int i = 0, length = exclusionPatterns.length; i < length; i++)
-			if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/'))
-				return true;
-		return false;
+		return isExcluded(resource.getFullPath(), exclusionPatterns);
 	}
 
 	/**

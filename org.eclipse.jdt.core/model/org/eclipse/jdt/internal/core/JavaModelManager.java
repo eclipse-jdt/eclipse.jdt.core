@@ -333,7 +333,7 @@ public class JavaModelManager implements ISaveParticipant {
 				IPath rootPath = entry.getPath();
 				if (rootPath.equals(resourcePath)) {
 					return project.getPackageFragmentRoot(resource);
-				} else if (rootPath.isPrefixOf(resourcePath)) {
+				} else if (rootPath.isPrefixOf(resourcePath) && !Util.isExcluded(resource, ((ClasspathEntry)entry).fullExclusionPatternChars())) {
 					IPackageFragmentRoot root = ((JavaProject) project).getPackageFragmentRoot(rootPath);
 					if (root == null) return null;
 					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());

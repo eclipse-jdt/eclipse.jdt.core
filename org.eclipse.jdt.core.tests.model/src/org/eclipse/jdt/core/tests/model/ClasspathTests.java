@@ -104,7 +104,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testDenseCycleDetection"));
+		suite.addTest(new ClasspathTests("testClasspathValidation7"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -705,6 +705,52 @@ public void testClasspathValidation6() throws CoreException {
 				this.deleteProject(p[i].getElementName());
 			}
 		}
+	}
+}
+/**
+ * Should allow nested source folders on the classpath as long as the outer
+ * folder excludes the inner one.
+ */ 
+public void testClasspathValidation7() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("src")});
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should have allowed nested source folders with exclusion on the classpath", 
+			"OK",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should allow a nested binary folder in a source folder on the classpath as
+ * long as the outer folder excludes the inner one.
+ */ 
+public void testClasspathValidation8() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, new String[] {"lib"}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("lib")});
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should have allowed nested lib folders with exclusion on the classpath", 
+			"OK",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
 	}
 }
 /**

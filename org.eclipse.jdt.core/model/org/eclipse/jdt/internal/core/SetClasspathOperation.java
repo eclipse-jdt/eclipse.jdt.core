@@ -129,7 +129,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 						if (otherExcludes.length != excludeLength)
 							continue;
 						for (int j = 0; j < excludeLength; j++) {
-							if (!exclusionPatterns[j].equals(otherExcludes[j]))
+							// compare toStrings instead of IPaths 
+							// since IPath.equals is specified to ignore trailing separators
+							if (!exclusionPatterns[j].toString().equals(otherExcludes[j].toString()))
 								continue nextEntry;
 						}
 					}

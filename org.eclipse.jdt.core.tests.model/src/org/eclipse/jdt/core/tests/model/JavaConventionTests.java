@@ -72,6 +72,7 @@ public void testInvalidImportDeclaration3() {
 }
 /**
  * Test for package fragment root overlap
+ * @deprecated isOverlappingRoots is deprecated
  */
 public void testPackageFragmentRootOverlap() throws Exception {
 	try {
