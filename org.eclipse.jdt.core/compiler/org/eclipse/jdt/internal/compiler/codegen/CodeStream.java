@@ -67,11 +67,11 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public boolean wideMode = false;
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
 	
-	// target level to manage different code generation between different source levels
+	// target level to manage different code generation between different target levels
 	private long targetLevel;
 	
-public CodeStream(ClassFile classFile, long sourceLevel) {
-	this.targetLevel = sourceLevel;
+public CodeStream(ClassFile classFile, long targetLevel) {
+	this.targetLevel = targetLevel;
 	this.generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
 	this.generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
 	if (this.generateLineNumberAttributes) {

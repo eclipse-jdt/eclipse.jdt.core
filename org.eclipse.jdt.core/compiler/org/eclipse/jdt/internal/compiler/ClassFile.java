@@ -164,7 +164,7 @@ public class ClassFile
 		produceDebugAttributes = options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = creatingProblemType;
-		codeStream = new CodeStream(this, options.sourceLevel);
+		codeStream = new CodeStream(this, this.targetJDK);
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
