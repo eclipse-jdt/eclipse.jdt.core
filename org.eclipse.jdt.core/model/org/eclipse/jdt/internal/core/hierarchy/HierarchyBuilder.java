@@ -89,28 +89,23 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			return;
 		}
 
-		NameLookup nameLookup = null;
+		//NB: no need to set focus type on hierarchy resolver since no other type is injected
+		//    in the hierarchy resolver, thus there is no need to check that a type is 
+		//    a sub or super type of the focus type.
 		ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-		if (unitToLookInside != null) {
-			try {
-				nameLookup = ((JavaProject)focusType.getJavaProject()).getNameLookup();
-				nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-			} catch (JavaModelException e) {
-				// cannot set the working copies
+		if (nameLookup != null && unitToLookInside != null) {
+			synchronized(nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+				try {
+					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+					// resolve
+					this.hierarchyResolver.resolve(type);
+				} finally {
+					nameLookup.setUnitsToLookInside(null);
+				}
 			}
-		}
-		
-		try {
-			//NB: no need to set focus type on hierarchy resolver since no other type is injected
-			//    in the hierarchy resolver, thus there is no need to check that a type is 
-			//    a sub or super type of the focus type.
-	
+		} else {
 			// resolve
 			this.hierarchyResolver.resolve(type);
-		} finally {
-			if (nameLookup != null) {
-				nameLookup.setUnitsToLookInside(null);
-			}
 		}
 
 		// Add focus if not already in (case of a type with no explicit super type)

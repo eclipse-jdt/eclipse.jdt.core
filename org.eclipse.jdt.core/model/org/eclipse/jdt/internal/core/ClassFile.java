@@ -159,7 +159,7 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 				}
 				info = ClassFileReader.read(zip, entryName);
 			} finally {
-				if (zip != null) {
+				if (zip != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
 					try {
 						zip.close();
 					} catch (IOException e) {

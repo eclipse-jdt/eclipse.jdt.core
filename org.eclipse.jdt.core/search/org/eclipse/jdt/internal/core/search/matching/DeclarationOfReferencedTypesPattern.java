@@ -99,7 +99,7 @@ private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocato
 			}
 			this.knownTypes.add(type);
 		}
-		if (isBinary) {
+		if (typeBinding instanceof BinaryTypeBinding) {
 			typeBinding = ((BinaryTypeBinding)typeBinding).enclosingType();
 		} else {
 			typeBinding = ((SourceTypeBinding)typeBinding).enclosingType();

@@ -52,60 +52,68 @@ public void buildTypeBindings() {
 	// if a parsed unit exits, its bindings have already been built
 	if (this.parsedUnit != null) return;
 	
-	if (openable instanceof CompilationUnit) {
-		this.buildTypeBindings(this.getSource());
-	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		char[] source = this.locator.findSource((org.eclipse.jdt.internal.core.ClassFile)openable); 
-		if (source != null) {
-			this.buildTypeBindings(source);
+	char[] source = this.getSource();
+	if (source == null) return;
+	this.buildTypeBindings(source);
 			
-			// try to use the main type's class file as the openable
-			TypeDeclaration[] types = this.parsedUnit.types;
-			if (types != null && types.length > 0) {
-				String simpleTypeName = new String(types[0].name);
-				IPackageFragment parent = (IPackageFragment)openable.getParent();
-				org.eclipse.jdt.core.IClassFile mainTypeClassFile = 
-					parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
-				if (mainTypeClassFile.exists()) {
-					this.openable = (Openable)mainTypeClassFile;
-				} 
-			}
+	if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+		// try to use the main type's class file as the openable
+		TypeDeclaration[] types = this.parsedUnit.types;
+		if (types != null) {
+			String classFileName = openable.getElementName();
+			for (int i = 0, length = types.length; i < length; i++) {
+				TypeDeclaration typeDeclaration = types[i];
+				String simpleTypeName = new String(typeDeclaration.name);
+				if (classFileName.startsWith(simpleTypeName)) {
+					IPackageFragment parent = (IPackageFragment)openable.getParent();
+					this.openable = (Openable)parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
+					break;
+				}
+			} 
 		}
 	}
 }
 private void buildTypeBindings(final char[] source) {
 	// get qualified name
-	char[] qualifiedName;
+	char[] qualifiedName = this.getQualifiedName();
+	if (qualifiedName == null) return;
+
+	// create match set	
+	this.matchSet = new MatchSet(this.locator);
+	
+	try {
+		this.locator.parser.matchSet = this.matchSet;
+
+		this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName);
+		if (this.parsedUnit == null) {
+			// diet parse
+			this.parsedUnit = this.locator.dietParse(source);
+			
+			// initial type binding creation
+			this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
+		} else {
+			// free memory
+			this.locator.parsedUnits.put(qualifiedName, null);
+		}
+	} finally {
+		this.locator.parser.matchSet = null;
+	}
+}
+private char[] getQualifiedName() {
 	if (this.openable instanceof CompilationUnit) {
 		// get file name
 		String fileName = this.resource.getFullPath().lastSegment();
 		// get main type name
 		char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
 		CompilationUnit cu = (CompilationUnit)this.openable;
-		qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+		return cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 	} else {
 		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
 		try {
-			qualifiedName = classFile.getType().getFullyQualifiedName().toCharArray();
+			return classFile.getType().getFullyQualifiedName().toCharArray();
 		} catch (JavaModelException e) {
-			return; // nothing we can do here
+			return null; // nothing we can do here
 		}
-	}
-
-	// create match set	
-	this.matchSet = new MatchSet(this.locator);
-	this.locator.parser.matchSet = this.matchSet;
-
-	this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName);
-	if (this.parsedUnit == null) {
-		// diet parse
-		this.parsedUnit = this.locator.dietParse(source);
-		
-		// initial type binding creation
-		this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
-	} else {
-		// free memory
-		this.locator.parsedUnits.put(qualifiedName, null);
 	}
 }
 public char[] getSource() {
@@ -116,7 +124,7 @@ public char[] getSource() {
 			return Util.getResourceContentsAsCharArray((IFile)this.resource);
 		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
 			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-			return classFile.getSource().toCharArray();
+			return this.locator.findSource(classFile);
 		} else {
 			return null;
 		}
@@ -138,16 +146,13 @@ public boolean hasAlreadyDefinedType() {
 }
 
 public void locateMatches() throws CoreException {
-	if (this.openable instanceof CompilationUnit) {
-		this.locateMatchesInCompilationUnit(this.getSource());
-	} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-		String source = classFile.getSource();
-		if (source != null) {
-			this.locateMatchesInCompilationUnit(source.toCharArray());
-		} else {
+	char[] source = this.getSource();
+	if (source == null) {
+		if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
 			this.locateMatchesInClassFile();
 		}
+	} else {
+		this.locateMatchesInCompilationUnit(source);
 	}
 }
 /**
@@ -268,41 +273,45 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 }
 private void locateMatchesInCompilationUnit(char[] source) throws CoreException {
 	if (this.parsedUnit != null) {
-		this.locator.parser.matchSet = this.matchSet;
-		this.locator.parser.scanner.setSourceBuffer(source);
-		this.locator.parser.parseBodies(this.parsedUnit);
-		// report matches that don't need resolve
-		this.matchSet.cuHasBeenResolved = false;
-		this.matchSet.reportMatching(parsedUnit);
-		
-		// resolve if needed
-		if (this.matchSet.needsResolve()) {
-			if (this.parsedUnit.types != null) {
-				if (this.shouldResolve) {
-					try {
-						if (this.parsedUnit.scope != null) {
-							this.parsedUnit.scope.faultInTypes();
-							this.parsedUnit.resolve();
+		try {
+			this.locator.parser.matchSet = this.matchSet;
+			this.locator.parser.scanner.setSourceBuffer(source);
+			this.locator.parser.parseBodies(this.parsedUnit);
+			// report matches that don't need resolve
+			this.matchSet.cuHasBeenResolved = false;
+			this.matchSet.reportMatching(parsedUnit);
+			
+			// resolve if needed
+			if (this.matchSet.needsResolve()) {
+				if (this.parsedUnit.types != null) {
+					if (this.shouldResolve) {
+						try {
+							if (this.parsedUnit.scope != null) {
+								this.parsedUnit.scope.faultInTypes();
+								this.parsedUnit.resolve();
+							}
+							// report matches that needed resolve
+							this.matchSet.cuHasBeenResolved = true;
+							this.matchSet.reportMatching(this.parsedUnit);
+						} catch (AbortCompilation e) {
+							// could not resolve: report innacurate matches
+							this.matchSet.cuHasBeenResolved = true;
+							this.matchSet.reportMatching(this.parsedUnit);
+							if (!(e instanceof AbortCompilationUnit)) {
+								// problem with class path
+								throw e;
+							}
 						}
-						// report matches that needed resolve
+					} else {
+						// problem ocured while completing the bindings for the base classes
+						// -> report innacurate matches
 						this.matchSet.cuHasBeenResolved = true;
 						this.matchSet.reportMatching(this.parsedUnit);
-					} catch (AbortCompilation e) {
-						// could not resolve: report innacurate matches
-						this.matchSet.cuHasBeenResolved = true;
-						this.matchSet.reportMatching(this.parsedUnit);
-						if (!(e instanceof AbortCompilationUnit)) {
-							// problem with class path
-							throw e;
-						}
 					}
-				} else {
-					// problem ocured while completing the bindings for the base classes
-					// -> report innacurate matches
-					this.matchSet.cuHasBeenResolved = true;
-					this.matchSet.reportMatching(this.parsedUnit);
 				}
 			}
+		} finally {
+			this.locator.parser.matchSet = null;
 		}
 	}
 }
@@ -310,6 +319,7 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
  * Free memory.
  */
 public void reset() {
+	this.locator.parsedUnits.removeKey(this.getQualifiedName());
 	this.parsedUnit = null;
 	this.matchSet = null;
 }

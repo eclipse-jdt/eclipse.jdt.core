@@ -306,7 +306,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	} finally {
-		if (jar != null) {
+		if (jar != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
 			try {
 				jar.close();
 			} catch (IOException e) {
@@ -521,7 +521,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 			throw new JavaModelException(e);
 		} finally {
 			try {
-				if (jarFile != null) {
+				if (jarFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
 					jarFile.close();
 				}
 			} catch(IOException e) {

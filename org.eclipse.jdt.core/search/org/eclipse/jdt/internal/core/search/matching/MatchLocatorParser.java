@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -12,6 +13,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 
 import java.util.*;
 
@@ -154,6 +156,35 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 		 }
 	}
 	return result;
+}
+protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, MatchLocator locator, IFile file, CompilationUnit compilationUnit) {
+	MatchSet originalMatchSet = this.matchSet;
+	CompilationUnitDeclaration unit = null;
+	try {
+		this.matchSet = new MatchSet(locator);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+		unit = this.dietParse(sourceUnit, compilationResult);
+	} finally {
+		if (originalMatchSet == null) {
+			if (!this.matchSet.isEmpty() 
+					&& unit != null && file != null) {
+				// potential matches were found while initializing the search pattern
+				// from the lookup environment: add the corresponding openable in the list
+				MatchingOpenable matchingOpenable = 
+					new MatchingOpenable(
+						locator,
+						file, 
+						compilationUnit, 
+						unit,
+						this.matchSet);
+				locator.matchingOpenables.add(matchingOpenable);
+			}
+			this.matchSet = null;
+		} else {
+			this.matchSet = originalMatchSet;
+		}
+	}
+	return unit;
 }
 protected TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = super.getTypeReference(dim);

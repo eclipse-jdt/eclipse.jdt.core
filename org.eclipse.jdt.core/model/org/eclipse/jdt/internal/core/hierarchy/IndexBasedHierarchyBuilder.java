@@ -187,28 +187,30 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 		IType focusType = this.getType();
 		this.nameLookup = project.getNameLookup();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
-		if (inProjectOfFocusType) {
-			org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-			if (unitToLookInside != null) {
-				this.nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-			}
-		}
-		try {
-			this.hierarchyResolver = 
-				new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
-			if (focusType != null) {
-				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-				ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-				if (focusTypeBinding == null 
-					|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
-					// focus type is not visible in this project: no need to go further
-					return;
+		synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+			if (inProjectOfFocusType) {
+				org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
+				if (unitToLookInside != null) {
+					this.nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
 				}
 			}
-			this.hierarchyResolver.resolve(genericTypes, compilationUnits);
-		} finally {
-			if (inProjectOfFocusType) {
-				this.nameLookup.setUnitsToLookInside(null);
+			try {
+				this.hierarchyResolver = 
+					new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
+				if (focusType != null) {
+					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+					ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+					if (focusTypeBinding == null 
+						|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+						// focus type is not visible in this project: no need to go further
+						return;
+					}
+				}
+				this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+			} finally {
+				if (inProjectOfFocusType) {
+					this.nameLookup.setUnitsToLookInside(null);
+				}
 			}
 		}
 	}
@@ -415,7 +417,7 @@ private void createInfoFromClassFileInJar(Openable classFile, ArrayList infos) t
 		e.printStackTrace();
 		return;
 	} finally {
-		if (zipFile != null) {
+		if (zipFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
 			try {
 				zipFile.close();
 			} catch (java.io.IOException e) {

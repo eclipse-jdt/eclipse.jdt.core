@@ -343,6 +343,12 @@ public static IJavaElement determineIfOnClasspath(
 	public static boolean VERBOSE = false;
 	public static boolean VARIABLE_VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
+	
+	/**
+	 * A cache of opened zip files
+	 * (map from IPath to java.io.ZipFile
+	 */
+	public HashMap zipFiles;
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
@@ -360,6 +366,13 @@ public static IJavaElement determineIfOnClasspath(
 		if (fElementChangedListeners.indexOf(listener) < 0) {
 			fElementChangedListeners.add(listener);
 		}
+	}
+	/**
+	 * Start caching ZipFiles
+	 */
+	public void cacheZipFiles() {
+		if (this.zipFiles != null) return;
+		this.zipFiles = new HashMap();
 	}
 /*
  * Checks that the delta contains an added project. In this case,
@@ -458,6 +471,20 @@ public void doneSaving(ISaveContext context){
 	protected void flush() {
 		fJavaModelDeltas= new ArrayList();
 	}
+	/**
+	 * Flush ZipFiles cache.
+	 */
+	public void flushZipFiles() {
+		if (this.zipFiles == null) return;
+		Iterator iterator = this.zipFiles.values().iterator();
+		while (iterator.hasNext()) {
+			try {
+				((ZipFile)iterator.next()).close();
+			} catch (IOException e) {
+			}
+		}
+		this.zipFiles = null;
+	}
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
@@ -544,7 +571,7 @@ public void doneSaving(ISaveContext context){
 	/**
 	 *  Returns the info for the element.
 	 */
-	protected Object getInfo(IJavaElement element) {
+	public Object getInfo(IJavaElement element) {
 		if (fModelInfo == null) {
 			return null;
 		}
@@ -687,7 +714,11 @@ public void doneSaving(ISaveContext context){
 		if (fModelInfo == null) {
 			return null;
 		}
-
+
+		ZipFile zipFile;
+		if (this.zipFiles != null && (zipFile = (ZipFile)this.zipFiles.get(path)) != null) {
+			return zipFile;
+		}
 		String fileSystemPath= null;
 		IWorkspaceRoot root = getJavaModel().getWorkspace().getRoot();
 		IResource file = root.findMember(path);
@@ -713,7 +744,11 @@ public void doneSaving(ISaveContext context){
 			if (ZIP_ACCESS_VERBOSE) {
 				System.out.println("[JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$
 			}
-			return new ZipFile(fileSystemPath);
+			zipFile = new ZipFile(fileSystemPath);
+			if (this.zipFiles != null) {
+				this.zipFiles.put(path, zipFile);
+			}
+			return zipFile;
 		} catch (IOException e) {
 			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}

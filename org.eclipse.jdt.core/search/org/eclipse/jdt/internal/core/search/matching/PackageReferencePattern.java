@@ -346,7 +346,7 @@ private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 		}
 	} else {
 		TypeBinding typeBinding = typeRef.binding;
-		if (typeBinding == null) {
+		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding) {
 			return INACCURATE_MATCH;
 		} else {
 			if (typeBinding instanceof ArrayBinding) {

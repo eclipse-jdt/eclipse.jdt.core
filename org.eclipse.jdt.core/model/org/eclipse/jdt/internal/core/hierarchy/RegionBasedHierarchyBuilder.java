@@ -61,24 +61,21 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 			IGenericType[] genericTypes = new IGenericType[size];
 			temp.toArray(genericTypes);
 			IType focusType = this.getType();
-			NameLookup nameLookup = null;
-			try {
-				if (focusType != null) {
-					CompilationUnit unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
-					if (unitToLookInside != null) {
-						try {
-							nameLookup = ((JavaProject)unitToLookInside.getJavaProject()).getNameLookup();
-							nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-						} catch (JavaModelException e) {
-							// cannot set the working copies
-						}
+			CompilationUnit unitToLookInside = null;
+			if (focusType != null) {
+				unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
+			}
+			if (this.nameLookup != null && unitToLookInside != null) {
+				synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+					try {
+						nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+						this.hierarchyResolver.resolve(genericTypes);
+					} finally {
+						nameLookup.setUnitsToLookInside(null);
 					}
 				}
+			} else {
 				this.hierarchyResolver.resolve(genericTypes);
-			} finally {
-				if (nameLookup != null) {
-					nameLookup.setUnitsToLookInside(null);
-				}
 			}
 		}
 	}
