@@ -549,7 +549,11 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocMissingParamTag:
 		case IProblem.JavadocMissingReturnTag:
 		case IProblem.JavadocMissingThrowsTag:
-			return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
+			if (this.options.docCommentSupport) {
+				return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		/*
 		 * Missing Javadoc errors
