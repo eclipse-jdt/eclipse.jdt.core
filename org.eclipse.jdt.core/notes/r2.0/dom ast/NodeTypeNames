@@ -25,6 +25,7 @@
 &start;ImportDeclaration&end;
 &start;InfixExpression&end;
 &start;Initializer&end;
+&start;Javadoc&end;
 &start;LabeledStatement&end;
 &start;MethodDeclaration&end;
 &start;MethodInvocation&end;
@@ -39,6 +40,7 @@
 &start;ReturnStatement&end;
 &start;SimpleName&end;
 &start;SimpleType&end;
+&start;SingleVariableDeclaration&end;
 &start;StringLiteral&end;
 &start;SuperConstructorInvocation&end;
 &start;SuperFieldAccess&end;
@@ -54,5 +56,6 @@
 &start;TypeLiteral&end;
 &start;VariableDeclaration&end;
 &start;VariableDeclarationExpression&end;
+&start;VariableDeclarationFragment&end;
 &start;VariableDeclarationStatement&end;
 &start;WhileStatement&end;
