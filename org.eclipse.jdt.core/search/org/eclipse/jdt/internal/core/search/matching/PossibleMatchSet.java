@@ -35,7 +35,7 @@ public void add(PossibleMatch possibleMatch) {
 	possibleMatches.add(possibleMatch);
 	this.elementCount++;
 }
-public PossibleMatch[] getPossiblelMatches(IPackageFragmentRoot[] roots) {
+public PossibleMatch[] getPossibleMatches(IPackageFragmentRoot[] roots) {
 	PossibleMatch[] result = new PossibleMatch[this.elementCount];
 	int index = 0;
 	for (int i = 0, length = roots.length; i < length; i++) {

@@ -25,6 +25,12 @@ MatchingNodeSet nodeSet;
 PatternLocator patternLocator;
 private AbstractSyntaxTreeVisitorAdapter localDeclarationVisitor;
 
+public static MatchLocatorParser createParser(ProblemReporter problemReporter, MatchLocator locator) {
+	if ((locator.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0)
+		return new ImportMatchLocatorParser(problemReporter, locator);
+	return new MatchLocatorParser(problemReporter, locator);
+}
+
 /**
  * An ast visitor that visits local type declarations.
  */
@@ -85,10 +91,10 @@ public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclaratio
 	}
 }
 
-public MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
+protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
 	super(problemReporter, true);
 
-	this.patternLocator = locator.patternLocator; 
+	this.patternLocator = locator.patternLocator;
 	if ((locator.matchContainer & PatternLocator.CLASS_CONTAINER) != 0) {
 		this.localDeclarationVisitor = (locator.matchContainer & PatternLocator.METHOD_CONTAINER) != 0
 			? new ClassAndMethodDeclarationVisitor()
@@ -140,14 +146,6 @@ protected void consumePrimaryNoNewArray() {
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
 	intPtr--;
 	intPtr--;
-}
-protected void consumeSingleTypeImportDeclarationName() {
-	super.consumeSingleTypeImportDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
-}
-protected void consumeTypeImportOnDemandDeclarationName() {
-	super.consumeTypeImportOnDemandDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 }
 protected void consumeUnaryExpression(int op, boolean post) {
 	super.consumeUnaryExpression(op, post);
@@ -231,5 +229,20 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 			memberType.traverse(localDeclarationVisitor, (ClassScope) null);
 		}
 	}
+}
+}
+
+class ImportMatchLocatorParser extends MatchLocatorParser {
+
+protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
+	super(problemReporter, locator);
+}
+protected void consumeSingleTypeImportDeclarationName() {
+	super.consumeSingleTypeImportDeclarationName();
+	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+}
+protected void consumeTypeImportOnDemandDeclarationName() {
+	super.consumeTypeImportOnDemandDeclarationName();
+	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 }
 }
