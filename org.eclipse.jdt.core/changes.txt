@@ -23,6 +23,10 @@ STREAM: 2.0
 
   PM
     -> JCK1.4 compliance flow analysis
+      1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
+      1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
+      1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true     
+      1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
 
   -----
   JCK1.4 remaining defects:
@@ -115,6 +119,7 @@ STREAM: 2.0
   ===============================================================================
   1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
   1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
+  1GK7E6S: ITPJCORE:WIN2000 - search: StringIndexOufOfBound
 
 **********************************************************************************
 *** BUILD 200 (2.0 STREAM, v_200) ************************************************
