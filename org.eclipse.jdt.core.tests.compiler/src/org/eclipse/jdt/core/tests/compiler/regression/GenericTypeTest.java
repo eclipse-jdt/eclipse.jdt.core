@@ -15772,5 +15772,39 @@ public void test500(){
 			"	       ^^^^\n" + 
 			"Bound mismatch: Cannot assign expression of type ? extends U to wildcard type ? extends Number. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
 			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87273
+	public void test556() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Foo {\n" + 
+				"	Object get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface MyList<F> extends Foo {\n" + 
+				"	public F get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"class MyListImpl<G> implements MyList<G> {\n" + 
+				"	public G get() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface StringList extends MyList<String> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class StringListImpl extends MyListImpl<String> implements StringList {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Foo f = new StringListImpl();\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
 	}					
 }
