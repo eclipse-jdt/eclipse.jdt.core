@@ -180,7 +180,7 @@ public class OutputFolderTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "src1"); //$NON-NLS-1$ //$NON-NLS-2$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "src2"); //$NON-NLS-1$ //$NON-NLS-2$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		/*IPath bin =*/ env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$

@@ -154,8 +154,8 @@ public class CopyResourceTests extends Tests {
 	public void testProjectWith2SrcAsBin() throws JavaModelException {
 		IPath projectPath = env.addProject("P5"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "src1"); //$NON-NLS-1$
-		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "src2"); //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "src1"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "src2"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
