@@ -12,6 +12,7 @@
 	<property name="binaryname" value="eclipsejc" />
 	<property name="dest" value="../../bingcj/" />
 	<property name="work" value="${dest}tmp/" />
+
     <target name="build">
 
 		<echo message="target: ${dest}" />
@@ -26,39 +27,20 @@
 		    <fileset dir="compiler/"/>
 		</copy>
 	
-        <echo message='compiling resources   -> .o'/>
-        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
-            <arg value='--resource'/>
-            <srcfile/>
-            <arg value='-c'/>
-            <arg value='-o'/>
-            <targetfile/>
-            <fileset dir='${work}'>
-                <exclude name='**/*.java'/>
-                <exclude name='**/*.html'/>
-            </fileset>
-            <mapper type='glob' from='*.*' to='*.o'/>
-<!--			<mapper type='regexp' from='^(.*)\.([^.]*)$$' to='\1.o'/>
--->
-        </apply>
-
         <echo message='compiling sources      -> .o'/>
-        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
-            <arg value='-fCLASSPATH=bin/'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='true'>
+            <arg value='--classpath=${work}'/>
+            <arg value='--verbose'/>
             <arg value='-O2'/>
             <arg value='-g'/>
             <arg value='-c'/>
             <srcfile/>
-            <arg value='-o'/>
-            <targetfile/>
-            <fileset dir='${work}'>
-                <include name='**/*.java'/>
-            </fileset>
+            <fileset dir='${work}' includes='**/*.java'/>
             <mapper type='glob' from='*.java' to='*.o'/>
         </apply>
-        
         <echo message='linking .o -> ${binaryname}'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' parallel='true'>
+            <arg value='--verbose'/>
             <arg value='-fCLASSPATH=${gcc-path}/share/libgcj.jar'/>
             <arg value='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
             <arg line='-o ${dest}${binaryname}.exe'/>
@@ -66,4 +48,17 @@
             <fileset dir='${work}' includes='**/*.o'/>
        </apply>
     </target>
+
+<target name="ignore">
+        <echo message='compiling resources   -> .o'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
+            <arg value='--verbose'/>
+            <arg value='-c'/>
+            <srcfile/>
+            <arg value='--resource'/>
+            <targetfile/>
+            <fileset dir='${work}' excludes='**/*.java,**/*html' />
+			<mapper type='regexp' from='^(.*)\.(.*)$$' to='\1.\2 -o \1.o'/>
+        </apply>
+</target>    	
 </project>
