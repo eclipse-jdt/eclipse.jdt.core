@@ -331,10 +331,20 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 		}
 	}	
 }
-/*
- *
- * INTERNAL USE-ONLY
- */
+protected void consumeEnumConstantWithClassBody() {
+	super.consumeEnumConstantWithClassBody();
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
+}
+protected void consumeEnumConstantNoClassBody() {
+	super.consumeEnumConstantNoClassBody();
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
+}
 protected void consumeExitVariableWithInitialization() {
 	// ExitVariableWithInitialization ::= $empty
 	// the scanner is located after the comma or the semi-colon.
