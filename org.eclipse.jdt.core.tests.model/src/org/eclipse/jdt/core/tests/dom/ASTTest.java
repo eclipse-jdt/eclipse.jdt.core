@@ -2982,6 +2982,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testBreakStatement() {
 		long previousCount = ast.modificationCount();
 		final BreakStatement x = ast.newBreakStatement();
@@ -3014,6 +3017,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testContinueStatement() {
 		long previousCount = ast.modificationCount();
 		final ContinueStatement x = ast.newContinueStatement();
@@ -3046,6 +3052,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testIfStatement() {
 		long previousCount = ast.modificationCount();
 		final IfStatement x = ast.newIfStatement();
@@ -3152,6 +3161,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testWhileStatement() {
 		long previousCount = ast.modificationCount();
 		final WhileStatement x = ast.newWhileStatement();
@@ -3230,6 +3242,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testDoStatement() {
 		long previousCount = ast.modificationCount();
 		final DoStatement x = ast.newDoStatement();
@@ -3308,6 +3323,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testTryStatement() {
 		long previousCount = ast.modificationCount();
 		final TryStatement x = ast.newTryStatement();
@@ -3486,6 +3504,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testEmptyStatement() {
 		long previousCount = ast.modificationCount();
 		final EmptyStatement x = ast.newEmptyStatement();
@@ -3505,6 +3526,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * Exercise the leadingComment property.
 	 * 
 	 * @param x the statement to test
+	 * @deprecated (Uses get/setLeadingComment() which is deprecated)
 	 */
 	void tLeadingComment(Statement x) {
 		
@@ -3701,6 +3723,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testThrowStatement() {
 		long previousCount = ast.modificationCount();
 		final ThrowStatement x = ast.newThrowStatement();
@@ -3749,6 +3774,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testAssertStatement() {
 		long previousCount = ast.modificationCount();
 		final AssertStatement x = ast.newAssertStatement();
@@ -3830,6 +3858,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testSwitchStatement() {
 		long previousCount = ast.modificationCount();
 		final SwitchStatement x = ast.newSwitchStatement();
@@ -3901,6 +3932,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testSwitchCase() {
 		long previousCount = ast.modificationCount();
 		final SwitchCase x = ast.newSwitchCase();
@@ -3950,6 +3984,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testSynchronizedStatement() {
 		long previousCount = ast.modificationCount();
 		final SynchronizedStatement x = ast.newSynchronizedStatement();
@@ -4026,6 +4063,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 	
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testLabeledStatement() {
 		long previousCount = ast.modificationCount();
 		final LabeledStatement x = ast.newLabeledStatement();
@@ -4425,6 +4465,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.accept(v);
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testForStatement() {
 		long previousCount = ast.modificationCount();
 		final ForStatement x = ast.newForStatement();
