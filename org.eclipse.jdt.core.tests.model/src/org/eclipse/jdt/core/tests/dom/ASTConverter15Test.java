@@ -89,7 +89,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0101"));
+		suite.addTest(new ASTConverter15Test("test0102"));
 		return suite;
 	}
 		
@@ -2236,7 +2236,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedOutput = "The type Map is not generic; it cannot be parameterized with arguments <String, Double>";
+		String expectedOutput = "Type mismatch: cannot convert from Map[] to Map<String,Double>[][]";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -2263,7 +2263,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedOutput = "The type Map is not generic; it cannot be parameterized with arguments <String, Double>";
+		String expectedOutput = "Type mismatch: cannot convert from Map[] to Map<String,Double>[][]";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -3181,6 +3181,38 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			checkSourceRange(assertStatement.getExpression(), "(true)", source);
 			checkSourceRange(assertStatement.getMessage(), "(\"hello\")", source);
 			checkSourceRange(assertStatement, "assert (true): (\"hello\");", source);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82670
+	 */
+	public void test0102() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.util.HashMap;\n" +
+				"\n" +
+				"public class X {\n" +
+				"    Object o= new HashMap<?, ?>[0];\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			List fragments = fieldDeclaration.fragments();
+			assertEquals("wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			checkSourceRange(fragment, "o= new HashMap<?, ?>[0]", contents.toCharArray());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

@@ -2702,15 +2702,18 @@ class ASTConverter {
 		SimpleName name = this.ast.newSimpleName(new String(fieldDeclaration.name));
 		name.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.sourceEnd - fieldDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
-		int end = retrievePositionBeforeNextCommaOrSemiColon(fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
+		int start = fieldDeclaration.sourceEnd;
+		if (fieldDeclaration.initialization != null) {
+			final Expression expression = convert(fieldDeclaration.initialization);
+			variableDeclarationFragment.setInitializer(expression);
+			start = expression.getStartPosition() + expression.getLength();
+		}
+		int end = retrievePositionBeforeNextCommaOrSemiColon(start, fieldDeclaration.declarationSourceEnd);
 		if (end == -1) {
 			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.declarationSourceEnd - fieldDeclaration.sourceStart + 1);
 			variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
 		} else {
 			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, end - fieldDeclaration.sourceStart + 1);
-		}
-		if (fieldDeclaration.initialization != null) {
-			variableDeclarationFragment.setInitializer(convert(fieldDeclaration.initialization));
 		}
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd ));
 		if (this.resolveBindings) {
