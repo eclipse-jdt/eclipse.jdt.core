@@ -67,7 +67,7 @@ public class CompletionParser extends AssistParser {
 	/* public fields */
 
 	public int cursorLocation;
-	public AstNode assistNodeParent; // the parent node of assist node
+	public ASTNode assistNodeParent; // the parent node of assist node
 	/* the following fields are internal flags */
 	
 	// block kind
@@ -125,7 +125,7 @@ protected void attachOrphanCompletionNode(){
 	if(assistNode == null) return;
 	
 	if (this.isOrphanCompletionNode) {
-		AstNode orphan = this.assistNode;
+		ASTNode orphan = this.assistNode;
 		this.isOrphanCompletionNode = false;
 		
 		if (currentElement instanceof RecoveredUnit){

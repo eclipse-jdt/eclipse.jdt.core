@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
@@ -102,13 +101,12 @@ public class ElementInfoConverter implements CompilerModifiers {
 				JavaElement type = (JavaElement)children[i];
 				try {
 					TypeDeclaration localType = convert((SourceTypeElementInfo)type.getElementInfo(), compilationResult);
-					if (localType instanceof AnonymousLocalTypeDeclaration) {
-						AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)localType;
-						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
-						expression.type = anonymousLocalTypeDeclaration.superclass;
-						anonymousLocalTypeDeclaration.superclass = null;
-						anonymousLocalTypeDeclaration.superInterfaces = null;
-						anonymousLocalTypeDeclaration.allocation = expression;
+					if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
+						expression.type = localType.superclass;
+						localType.superclass = null;
+						localType.superInterfaces = null;
+						localType.allocation = expression;
 						statements[i] = expression;
 					} else {
 						statements[i] = localType;
@@ -153,7 +151,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 				for (int i = 0; i < typesLength; i++) {
 					IJavaElement localType = children[i];
 					try {
-						AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(),compilationResult);
+						TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(),compilationResult);
 						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
 						expression.type = anonymousLocalTypeDeclaration.superclass;
 						anonymousLocalTypeDeclaration.superclass = null;
@@ -234,14 +232,12 @@ public class ElementInfoConverter implements CompilerModifiers {
 					JavaElement type = (JavaElement)children[i];
 					try {
 						TypeDeclaration localType = convert((SourceTypeElementInfo)type.getElementInfo(), compilationResult);
-						((LocalTypeDeclaration)localType).enclosingMethod = method;
-						if (localType instanceof AnonymousLocalTypeDeclaration) {
-							AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)localType;
-							QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
-							expression.type = anonymousLocalTypeDeclaration.superclass;
-							anonymousLocalTypeDeclaration.superclass = null;
-							anonymousLocalTypeDeclaration.superInterfaces = null;
-							anonymousLocalTypeDeclaration.allocation = expression;
+						if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+							QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
+							expression.type = localType.superclass;
+							localType.superclass = null;
+							localType.superInterfaces = null;
+							localType.allocation = expression;
 							statements[i] = expression;
 						} else {
 							statements[i] = localType;
@@ -263,29 +259,26 @@ public class ElementInfoConverter implements CompilerModifiers {
 	private TypeDeclaration convert(SourceTypeElementInfo sourceType, CompilationResult compilationResult) {
 		
 		/* create type declaration - can be member type, local type or anonymous type */
-		TypeDeclaration type;
-		boolean isAnonymous = false;
+		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if (sourceType.getEnclosingType() == null) {
 			IType typeHandle = sourceType.getHandle();
 			try {
 				if (typeHandle.isAnonymous()) {
-					type = new AnonymousLocalTypeDeclaration(compilationResult);
-					isAnonymous = true;
-				} else if (typeHandle.isLocal()) {
-					type = new LocalTypeDeclaration(compilationResult);
+					type.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+					type.bits |= ASTNode.AnonymousAndLocalMask;
 				} else {
-					type = new TypeDeclaration(compilationResult);
+					if (typeHandle.isLocal()) {
+						type.bits |= ASTNode.IsLocalTypeMASK;
+					}
 				}
 			} catch (JavaModelException e) {
-				type = new TypeDeclaration(compilationResult);
+				// could not figure, assume toplevel
 			}
 		}  else {
-			type = new MemberTypeDeclaration(compilationResult);
+			type.bits |= ASTNode.IsMemberTypeMASK;
 		}
-		if (!isAnonymous) {
+		if ((type.bits & ASTNode.IsAnonymousTypeMASK) == 0) {
 			type.name = sourceType.getName();
-		} else {
-			type.name = AnonymousLocalTypeDeclaration.ANONYMOUS_EMPTY_NAME;
 		}
 		int start, end; // only positions available
 		type.sourceStart = start = sourceType.getNameSourceStart();
@@ -310,10 +303,9 @@ public class ElementInfoConverter implements CompilerModifiers {
 		ISourceType[] sourceMemberTypes = sourceType.getMemberTypes();
 		int sourceMemberTypeCount =
 			sourceMemberTypes == null ? 0 : sourceMemberTypes.length;
-		type.memberTypes = new MemberTypeDeclaration[sourceMemberTypeCount];
+		type.memberTypes = new TypeDeclaration[sourceMemberTypeCount];
 		for (int i = 0; i < sourceMemberTypeCount; i++) {
-			type.memberTypes[i] =
-				(MemberTypeDeclaration) convert((SourceTypeElementInfo)sourceMemberTypes[i], compilationResult);
+			type.memberTypes[i] = convert((SourceTypeElementInfo)sourceMemberTypes[i], compilationResult);
 		}
 		
 		/* convert fields and initializers */

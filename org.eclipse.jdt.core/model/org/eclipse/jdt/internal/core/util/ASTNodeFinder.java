@@ -15,9 +15,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -26,12 +25,12 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.SourceType;
 
 /**
- * Finds an AstNode given an IJavaElement in a CompilationUnitDeclaration
+ * Finds an ASTNode given an IJavaElement in a CompilationUnitDeclaration
  */
-public class AstNodeFinder {
+public class ASTNodeFinder {
 	private CompilationUnitDeclaration unit;
 
-	public AstNodeFinder(CompilationUnitDeclaration unit) {
+	public ASTNodeFinder(CompilationUnitDeclaration unit) {
 		this.unit = unit;
 	}
 
@@ -116,21 +115,20 @@ public class AstNodeFinder {
 		IJavaElement parent = typeHandle.getParent();
 		final char[] typeName = typeHandle.getElementName().toCharArray();
 		final int occurenceCount = ((SourceType)typeHandle).occurrenceCount;
-		final boolean isAnonymous = typeName.length == 0;
-		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+		final boolean findAnonymous = typeName.length == 0;
+		class Visitor extends ASTVisitor {
 			TypeDeclaration result;
 			int count = 0;
-			public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
+			public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
 				if (result != null) return false;
-				if (isAnonymous && ++count == occurenceCount) {
-					result = anonymousTypeDeclaration;
-				}
-				return false; // visit only one level
-			}
-			public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
-				if (result != null) return false;
-				if (!isAnonymous && CharOperation.equals(typeName, typeDeclaration.name)) {
-					result = typeDeclaration;
+				if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+					if (findAnonymous && ++count == occurenceCount) {
+						result = typeDeclaration;
+					}
+				} else {
+					if (!findAnonymous && CharOperation.equals(typeName, typeDeclaration.name)) {
+						result = typeDeclaration;
+					}
 				}
 				return false; // visit only one level
 			}

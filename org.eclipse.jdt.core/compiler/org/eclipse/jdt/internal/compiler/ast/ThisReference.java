@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -112,7 +112,7 @@ public class ThisReference extends Reference {
 		return this.resolvedType = scope.enclosingSourceType();
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);

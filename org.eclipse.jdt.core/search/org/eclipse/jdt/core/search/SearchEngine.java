@@ -15,13 +15,11 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -787,12 +785,9 @@ public void searchAllTypeNames(
 					CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
 					if (parsedUnit != null) {
 						final char[] packageDeclaration = parsedUnit.currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(parsedUnit.currentPackage.getImportName(), '.');
-						class AllTypeDeclarationsVisitor extends AbstractSyntaxTreeVisitorAdapter {
-							public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope blockScope) {
-								return false; // no local type
-							}
-							public boolean visit(AnonymousLocalTypeDeclaration typeDeclaration, BlockScope blockScope) {
-								return false; // no anonymous type
+						class AllTypeDeclarationsVisitor extends ASTVisitor {
+							public boolean visit(TypeDeclaration typeDeclaration, BlockScope blockScope) {
+								return false; // no local/anonymous type
 							}
 							public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 								if (match(classOrInterface, packageName, typeName, matchMode, isCaseSensitive, !typeDeclaration.isInterface(), packageDeclaration, typeDeclaration.name)) {
@@ -804,15 +799,15 @@ public void searchAllTypeNames(
 								}
 								return true;
 							}
-							public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope classScope) {
+							public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
 								if (match(classOrInterface, packageName, typeName, matchMode, isCaseSensitive, !memberTypeDeclaration.isInterface(), packageDeclaration, memberTypeDeclaration.name)) {
 									// compute encloising type names
 									TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 									char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 									while (enclosing != null) {
 										enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
-										if (enclosing instanceof MemberTypeDeclaration) {
-											enclosing = ((MemberTypeDeclaration)enclosing).enclosingType;
+										if ((enclosing.bits & ASTNode.IsMemberTypeMASK) != 0) {
+											enclosing = enclosing.enclosingType;
 										} else {
 											enclosing = null;
 										}

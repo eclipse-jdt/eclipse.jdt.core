@@ -56,7 +56,7 @@ public class JavadocParser {
 	// Ast stack
 	protected static int AstStackIncrement = 10;
 	protected int astPtr;
-	protected AstNode[] astStack;
+	protected ASTNode[] astStack;
 	protected int astLengthPtr;
 	protected int[] astLengthStack;
 
@@ -67,7 +67,7 @@ public class JavadocParser {
 		this.identifierStack = new char[10][];
 		this.identifierPositionStack = new long[10];
 		this.identifierLengthStack = new int[20];
-		this.astStack = new AstNode[20];
+		this.astStack = new ASTNode[20];
 		this.astLengthStack = new int[30];
 	}
 
@@ -188,7 +188,7 @@ public class JavadocParser {
 	}
 
 	private TypeDeclaration getParserStackLastTypeDeclaration() {
-		AstNode[] stack = this.sourceParser.astStack;
+		ASTNode[] stack = this.sourceParser.astStack;
 		int ptr = this.sourceParser.astPtr;
 		while (ptr >=0) {
 			if (stack[ptr] instanceof TypeDeclaration) {
@@ -712,7 +712,7 @@ public class JavadocParser {
 	 * Add a new obj on top of the ast stack.
 	 * If new length is required, then add also a new length in length stack.
 	 */
-	private void pushOnAstStack(AstNode node, boolean newLength) {
+	private void pushOnAstStack(ASTNode node, boolean newLength) {
 
 		if (node == null) {
 			this.astLengthStack[++this.astLengthPtr] = 0;
@@ -723,8 +723,8 @@ public class JavadocParser {
 			this.astStack[++this.astPtr] = node;
 		} catch (IndexOutOfBoundsException e) {
 			int oldStackLength = this.astStack.length;
-			AstNode[] oldStack = this.astStack;
-			this.astStack = new AstNode[oldStackLength + AstStackIncrement];
+			ASTNode[] oldStack = this.astStack;
+			this.astStack = new ASTNode[oldStackLength + AstStackIncrement];
 			System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
 			this.astPtr = oldStackLength;
 			this.astStack[this.astPtr] = node;

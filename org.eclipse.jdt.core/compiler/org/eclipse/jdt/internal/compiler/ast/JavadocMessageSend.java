@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
@@ -149,9 +149,9 @@ public class JavadocMessageSend extends MessageSend {
 
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
-	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
 			if (receiver != null) {
 				receiver.traverse(visitor, blockScope);

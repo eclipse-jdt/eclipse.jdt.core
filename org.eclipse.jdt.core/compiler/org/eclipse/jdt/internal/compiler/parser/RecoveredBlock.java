@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -190,7 +190,7 @@ void attach(RecoveredStatement recoveredStatement) {
 /* 
  * Answer the associated parsed structure
  */
-public AstNode parseTree(){
+public ASTNode parseTree(){
 	return this.blockDeclaration;
 }
 public String toString(int tab) {

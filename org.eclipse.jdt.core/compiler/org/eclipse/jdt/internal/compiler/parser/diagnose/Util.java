@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.parser.diagnose;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
@@ -130,7 +129,7 @@ public class Util {
 	private static void computeDietRange0(TypeDeclaration[] types, RangeResult result) {
 		for (int j = 0; j < types.length; j++) {
 			//members
-			MemberTypeDeclaration[] memberTypeDeclarations = types[j].memberTypes;
+			TypeDeclaration[] memberTypeDeclarations = types[j].memberTypes;
 			if(memberTypeDeclarations != null && memberTypeDeclarations.length > 0) {
 				computeDietRange0(types[j].memberTypes, result);
 			}

@@ -25,6 +25,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
@@ -33,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
@@ -221,11 +221,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 	 */
 	private TypeDeclaration convert(ISourceType sourceType, CompilationResult compilationResult) {
 		/* create type declaration - can be member type */
-		TypeDeclaration type;
-		if (sourceType.getEnclosingType() == null) {
-			type = new TypeDeclaration(compilationResult);
-		} else {
-			type = new MemberTypeDeclaration(compilationResult);
+		TypeDeclaration type = type = new TypeDeclaration(compilationResult);
+		if (sourceType.getEnclosingType() != null) {
+			type.bits |= ASTNode.IsMemberTypeMASK;
 		}
 		type.name = sourceType.getName();
 		int start, end; // only positions available
@@ -251,10 +249,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 			ISourceType[] sourceMemberTypes = sourceType.getMemberTypes();
 			int sourceMemberTypeCount =
 				sourceMemberTypes == null ? 0 : sourceMemberTypes.length;
-			type.memberTypes = new MemberTypeDeclaration[sourceMemberTypeCount];
+			type.memberTypes = new TypeDeclaration[sourceMemberTypeCount];
 			for (int i = 0; i < sourceMemberTypeCount; i++) {
-				type.memberTypes[i] =
-					(MemberTypeDeclaration) convert(sourceMemberTypes[i], compilationResult);
+				type.memberTypes[i] = convert(sourceMemberTypes[i], compilationResult);
 			}
 		}
 

@@ -17,12 +17,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
@@ -31,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.BreakStatement;
@@ -63,9 +61,7 @@ import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
@@ -124,7 +120,7 @@ import org.eclipse.text.edits.TextEdit;
       </codeFormatter>
    </extension>
 */
-public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
+public class CodeFormatterVisitor extends ASTVisitor {
 
 	public static class MultiFieldDeclaration extends FieldDeclaration {
 		
@@ -185,7 +181,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#acceptProblem(org.eclipse.jdt.core.compiler.IProblem)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#acceptProblem(org.eclipse.jdt.core.compiler.IProblem)
 	 */
 	public void acceptProblem(IProblem problem) {
 		super.acceptProblem(problem);
@@ -194,7 +190,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
 
-		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+		switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 			case OperatorIds.PLUS :
 				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
@@ -244,7 +240,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;
 	}
 	
-	private AstNode[] computeMergedMemberDeclarations(TypeDeclaration typeDeclaration){
+	private ASTNode[] computeMergedMemberDeclarations(TypeDeclaration typeDeclaration){
 		
 		int fieldIndex = 0, fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
 		FieldDeclaration field = fieldCount == 0 ? null : typeDeclaration.fields[fieldIndex];
@@ -255,11 +251,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int methodStart = method == null ? Integer.MAX_VALUE : method.declarationSourceStart;
 
 		int typeIndex = 0, typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
-		MemberTypeDeclaration type = typeCount == 0 ? null : typeDeclaration.memberTypes[typeIndex];
+		TypeDeclaration type = typeCount == 0 ? null : typeDeclaration.memberTypes[typeIndex];
 		int typeStart = type == null ? Integer.MAX_VALUE : type.declarationSourceStart;
 	
 		final int memberLength = fieldCount+methodCount+typeCount;
-		AstNode[] members = new AstNode[memberLength];
+		ASTNode[] members = new ASTNode[memberLength];
 		if (memberLength != 0) {
 			int index = 0;
 			int previousFieldStart = -1;
@@ -267,7 +263,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				if (fieldStart < methodStart && fieldStart < typeStart) {
 					// next member is a field
 					if (fieldStart == previousFieldStart){ 
-						AstNode previousMember = members[index - 1];
+						ASTNode previousMember = members[index - 1];
 						if (previousMember instanceof MultiFieldDeclaration) {
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) previousMember;
 							int length = multiField.declarations.length;
@@ -307,16 +303,16 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			} while ((fieldIndex < fieldCount) || (typeIndex < typeCount) || (methodIndex < methodCount));
 			
 			if (members.length != index) {
-				System.arraycopy(members, 0, members=new AstNode[index], 0, index);
+				System.arraycopy(members, 0, members=new ASTNode[index], 0, index);
 			}
 		}
 		return members;
 	}
 
-	private AstNode[] computeMergedMemberDeclarations(AstNode[] nodes){
+	private ASTNode[] computeMergedMemberDeclarations(ASTNode[] nodes){
 		ArrayList mergedNodes = new ArrayList();
 		for (int i = 0, max = nodes.length; i < max; i++) {
-			AstNode currentNode = nodes[i];
+			ASTNode currentNode = nodes[i];
 			if (currentNode instanceof FieldDeclaration) {
 				FieldDeclaration currentField = (FieldDeclaration) currentNode;
 				if (mergedNodes.size() == 0) {
@@ -324,7 +320,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					mergedNodes.add(currentNode);
 				} else {
 					// we need to check if the previous merged node is a field declaration
-					AstNode previousMergedNode = (AstNode) mergedNodes.get(mergedNodes.size() - 1);
+					ASTNode previousMergedNode = (ASTNode) mergedNodes.get(mergedNodes.size() - 1);
 					if (previousMergedNode instanceof MultiFieldDeclaration) {
 						// we merge the current node
 						MultiFieldDeclaration multiFieldDeclaration = (MultiFieldDeclaration) previousMergedNode;
@@ -346,7 +342,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		}
 		if (mergedNodes.size() != nodes.length) {
-			AstNode[] result = new AstNode[mergedNodes.size()];
+			ASTNode[] result = new ASTNode[mergedNodes.size()];
 			mergedNodes.toArray(result);
 			return result;
 		} else {
@@ -359,7 +355,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int operator,
 		BlockScope scope) {
 
-		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (binaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(binaryExpression, numberOfParens);
@@ -372,12 +368,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
 			boolean ok = false;
-			AstNode[] fragments = builder.fragments();
+			ASTNode[] fragments = builder.fragments();
 			int[] operators = builder.operators();
 			do {
 				try {
 					for (int i = 0; i < fragmentsSize - 1; i++) {
-						AstNode fragment = fragments[i];
+						ASTNode fragment = fragments[i];
 						fragment.traverse(this, scope);
 						this.scribe.alignFragment(binaryExpressionAlignment, i);
 						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
@@ -419,7 +415,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int operator,
 		BlockScope scope) {
 	
-		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (binaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 	
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(binaryExpression, numberOfParens);
@@ -463,7 +459,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		methodDeclaration.traverse(this, scope);
 	}
 	
-	private void format(FieldDeclaration fieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
+	private void format(FieldDeclaration fieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart) {
 		
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
@@ -524,7 +520,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	private void format(
-		MemberTypeDeclaration memberTypeDeclaration,
+		TypeDeclaration memberTypeDeclaration,
 		ClassScope scope,
 		boolean isChunkStart) {
 
@@ -539,7 +535,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		memberTypeDeclaration.traverse(this, scope);
 	}
 	
-	private void format(MultiFieldDeclaration multiFieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
+	private void format(MultiFieldDeclaration multiFieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart) {
 	
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
@@ -630,7 +626,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
-	public TextEdit format(String string, AstNode[] nodes) {
+	public TextEdit format(String string, ASTNode[] nodes) {
 		// reset the scribe
 		this.scribe.reset();
 		
@@ -761,6 +757,28 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 	private void format(TypeDeclaration typeDeclaration){
 
+		if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+			/*
+			 * Type body
+			 */
+			String anonymous_type_declaration_brace_position = this.preferences.anonymous_type_declaration_brace_position;
+			formatTypeOpeningBrace(anonymous_type_declaration_brace_position, this.preferences.insert_space_before_anonymous_type_open_brace, typeDeclaration);
+			
+			this.scribe.indent();
+	
+			formatTypeMembers(typeDeclaration);
+			
+			this.scribe.printComment();
+			this.scribe.unIndent();
+			if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
+				this.scribe.printNewLine();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
+			if (anonymous_type_declaration_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+				this.scribe.unIndent();
+			}
+			return;
+		}
 		this.scribe.printModifiers();
 		/*
 		 * Type name
@@ -884,11 +902,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			fragment.traverse(this, scope);
 		} else {
 			MessageSend currentMessageSend = fragments[1];
-			final int numberOfParens = (currentMessageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (currentMessageSend.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
 			}
-			AstNode[] arguments = currentMessageSend.arguments;
+			ASTNode[] arguments = currentMessageSend.arguments;
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 			if (arguments != null) {
@@ -937,11 +955,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 				for (int i = startingPositionInCascade; i < size; i++) {
 					MessageSend currentMessageSend = fragments[i];
-					final int numberOfParens = (currentMessageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+					final int numberOfParens = (currentMessageSend.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 					if (numberOfParens > 0) {
 						manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
 					}
-					AstNode[] arguments = currentMessageSend.arguments;
+					ASTNode[] arguments = currentMessageSend.arguments;
 					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 					this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 					if (arguments != null) {
@@ -995,10 +1013,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	/*
 	 * Merged traversal of member (types, fields, methods)
 	 */
-	private void formatClassBodyDeclarations(AstNode[] nodes) {
+	private void formatClassBodyDeclarations(ASTNode[] nodes) {
 		final int FIELD = 1, METHOD = 2, TYPE = 3;
 		
-		AstNode[] mergedNodes = computeMergedMemberDeclarations(nodes);
+		ASTNode[] mergedNodes = computeMergedMemberDeclarations(nodes);
 		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
 		boolean isChunkStart = false;
@@ -1007,7 +1025,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		do {
 			try {
 				for (int i = startIndex, max = mergedNodes.length; i < max; i++) {
-					AstNode member = mergedNodes[i];
+					ASTNode member = mergedNodes[i];
 					if (member instanceof FieldDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
 						if (member instanceof MultiFieldDeclaration){
@@ -1025,7 +1043,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						format((AbstractMethodDeclaration) member, null, isChunkStart);
 					} else {
 						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
-						format((MemberTypeDeclaration)member, null, isChunkStart);
+						format((TypeDeclaration)member, null, isChunkStart);
 					}
 					if (isSemiColon()) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -1286,14 +1304,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private void formatTypeMembers(TypeDeclaration typeDeclaration) {
 		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
-		AstNode[] members = computeMergedMemberDeclarations(typeDeclaration);
+		ASTNode[] members = computeMergedMemberDeclarations(typeDeclaration);
 		boolean isChunkStart = false;
 		boolean ok = false;
 		int startIndex = 0;
 		do {
 			try {
 				for (int i = startIndex, max = members.length; i < max; i++) {
-					AstNode member = members[i];
+					ASTNode member = members[i];
 					if (member instanceof FieldDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
 						if (member instanceof MultiFieldDeclaration){
@@ -1328,7 +1346,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart);
 					} else {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
-						format((MemberTypeDeclaration)member, typeDeclaration.scope, isChunkStart);
+						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart);
 					}
 					if (isSemiColon()) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -1363,7 +1381,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		boolean insertNewLine = memberLength > 0;
 		
 		if (!insertNewLine) {
-			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
 			} else {
 				insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;
@@ -1541,14 +1559,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 			
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		AllocationExpression allocationExpression,
 		BlockScope scope) {
 		// 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
-		final int numberOfParens = (allocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (allocationExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(allocationExpression, numberOfParens);
 		}
@@ -1601,7 +1619,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		AND_AND_Expression and_and_Expression,
@@ -1611,36 +1629,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope) {
-			
-		/*
-		 * Type body
-		 */
-		String anonymous_type_declaration_brace_position = this.preferences.anonymous_type_declaration_brace_position;
-		formatTypeOpeningBrace(anonymous_type_declaration_brace_position, this.preferences.insert_space_before_anonymous_type_open_brace, anonymousTypeDeclaration);
-		
-		this.scribe.indent();
-
-		formatTypeMembers(anonymousTypeDeclaration);
-		
-		this.scribe.printComment();
-		this.scribe.unIndent();
-		if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		if (anonymous_type_declaration_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-			this.scribe.unIndent();
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(Argument argument, BlockScope scope) {
 
@@ -1677,13 +1666,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		ArrayAllocationExpression arrayAllocationExpression,
 		BlockScope scope) {
 
-			final int numberOfParens = (arrayAllocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (arrayAllocationExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayAllocationExpression, numberOfParens);
 			}
@@ -1712,11 +1701,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayInitializer, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayInitializer, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
 	
-		final int numberOfParens = (arrayInitializer.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (arrayInitializer.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
 		}
@@ -1804,13 +1793,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
 		BlockScope scope) {
 
-			final int numberOfParens = (arrayQualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (arrayQualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
@@ -1829,13 +1818,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
 		ClassScope scope) {
 
-			final int numberOfParens = (arrayQualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (arrayQualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
@@ -1855,11 +1844,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
 
-		final int numberOfParens = (arrayReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (arrayReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayReference, numberOfParens);
 		}
@@ -1878,13 +1867,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		ArrayTypeReference arrayTypeReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (arrayTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (arrayTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
 		}
@@ -1910,13 +1899,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		ArrayTypeReference arrayTypeReference,
 		ClassScope scope) {
 
-		final int numberOfParens = (arrayTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (arrayTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) { 
 			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
 		}
@@ -1941,7 +1930,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AssertStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AssertStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(AssertStatement assertStatement, BlockScope scope) {
 		
@@ -1962,11 +1951,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Assignment, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Assignment, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(Assignment assignment, BlockScope scope) {
 
-		final int numberOfParens = (assignment.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (assignment.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(assignment, numberOfParens);
 		}
@@ -1984,11 +1973,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.BinaryExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.BinaryExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
 
-		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+		switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 			case OperatorIds.AND :
 				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameAND, scope);
 			case OperatorIds.DIVIDE :
@@ -2025,7 +2014,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Block, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Block, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(Block block, BlockScope scope) {
 	
@@ -2073,7 +2062,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Break, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Break, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(BreakStatement breakStatement, BlockScope scope) {
 		
@@ -2087,7 +2076,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Case, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Case, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(CaseStatement caseStatement, BlockScope scope) {		
 		if (caseStatement.constantExpression == null) {
@@ -2105,11 +2094,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CastExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CastExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
 
-		final int numberOfParens = (castExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (castExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(castExpression, numberOfParens);
 		}
@@ -2132,11 +2121,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CharLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CharLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(CharLiteral charLiteral, BlockScope scope) {
 
-		final int numberOfParens = (charLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (charLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(charLiteral, numberOfParens);
 		}
@@ -2150,11 +2139,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ClassLiteralAccess classLiteral, BlockScope scope) {
 
-		final int numberOfParens = (classLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (classLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(classLiteral, numberOfParens);
 		}
@@ -2169,7 +2158,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Clinit, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Clinit, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(Clinit clinit, ClassScope scope) {
 
@@ -2177,7 +2166,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
 	 */
 	public boolean visit(
 		CompilationUnitDeclaration compilationUnitDeclaration,
@@ -2244,13 +2233,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CompoundAssignment, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CompoundAssignment, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		CompoundAssignment compoundAssignment,
 		BlockScope scope) {
 			
-		final int numberOfParens = (compoundAssignment.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (compoundAssignment.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(compoundAssignment, numberOfParens);
 		}
@@ -2308,13 +2297,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConditionalExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConditionalExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		ConditionalExpression conditionalExpression,
 		BlockScope scope) {
 
-		final int numberOfParens = (conditionalExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (conditionalExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(conditionalExpression, numberOfParens);
 		}
@@ -2361,7 +2350,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		ConstructorDeclaration constructorDeclaration,
@@ -2449,7 +2438,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Continue, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Continue, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
 
@@ -2464,7 +2453,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.DoStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.DoStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(DoStatement doStatement, BlockScope scope) {
 
@@ -2514,11 +2503,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.DoubleLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.DoubleLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
 
-		final int numberOfParens = (doubleLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (doubleLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(doubleLiteral, numberOfParens);
 		}
@@ -2535,7 +2524,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EmptyStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EmptyStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(EmptyStatement statement, BlockScope scope) {
 
@@ -2544,11 +2533,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EqualExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EqualExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
 
-		if ((equalExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT == OperatorIds.EQUAL_EQUAL) {
+		if ((equalExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT == OperatorIds.EQUAL_EQUAL) {
 			return dumpEqualityExpression(equalExpression, TerminalTokens.TokenNameEQUAL_EQUAL, scope);
 		} else {
 			return dumpEqualityExpression(equalExpression, TerminalTokens.TokenNameNOT_EQUAL, scope);
@@ -2556,7 +2545,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		ExplicitConstructorCall explicitConstructor,
@@ -2619,11 +2608,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FalseLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FalseLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
 
-		final int numberOfParens = (falseLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (falseLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
 		}
@@ -2636,11 +2625,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FieldReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FieldReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(FieldReference fieldReference, BlockScope scope) {
 
-		final int numberOfParens = (fieldReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (fieldReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
 		}
@@ -2655,11 +2644,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FloatLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FloatLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
 
-		final int numberOfParens = (floatLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (floatLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(floatLiteral, numberOfParens);
 		}
@@ -2676,7 +2665,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ForStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ForStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ForStatement forStatement, BlockScope scope) {
 	
@@ -2754,7 +2743,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.IfStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.IfStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {
 
@@ -2875,7 +2864,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
 	 */
 	public boolean visit(
 		ImportReference importRef,
@@ -2898,7 +2887,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Initializer, org.eclipse.jdt.internal.compiler.lookup.MethodScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Initializer, org.eclipse.jdt.internal.compiler.lookup.MethodScope)
 	 */
 	public boolean visit(Initializer initializer, MethodScope scope) {
 
@@ -2910,13 +2899,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		InstanceOfExpression instanceOfExpression,
 		BlockScope scope) {
 
-		final int numberOfParens = (instanceOfExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (instanceOfExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(instanceOfExpression, numberOfParens);
 		}
@@ -2936,7 +2925,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
 
-		final int numberOfParens = (intLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (intLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(intLiteral, numberOfParens);
 		}
@@ -2954,7 +2943,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LabeledStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LabeledStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(LabeledStatement labeledStatement, BlockScope scope) {
 
@@ -2968,7 +2957,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
 		if (!isMultipleLocalDeclaration(localDeclaration)) {
@@ -3025,22 +3014,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(
-		LocalTypeDeclaration localTypeDeclaration,
-		BlockScope scope) {
-
-			format(localTypeDeclaration);
-			return false;
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LongLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LongLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 
-		final int numberOfParens = (longLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (longLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(longLiteral, numberOfParens);
 		}
@@ -3057,19 +3035,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
-	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
+	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 		format(memberTypeDeclaration);	
 		return false;
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
 
-		final int numberOfParens = (messageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (messageSend.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(messageSend, numberOfParens);
 		}
@@ -3108,7 +3086,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MethodDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MethodDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		MethodDeclaration methodDeclaration,
@@ -3207,11 +3185,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.NullLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.NullLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
 
-		final int numberOfParens = (nullLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (nullLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(nullLiteral, numberOfParens);
 		}
@@ -3225,7 +3203,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 
@@ -3233,13 +3211,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.PostfixExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.PostfixExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		PostfixExpression postfixExpression,
 		BlockScope scope) {
 
-		final int numberOfParens = (postfixExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (postfixExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(postfixExpression, numberOfParens);
 		}
@@ -3257,11 +3235,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.PrefixExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.PrefixExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(PrefixExpression prefixExpression, BlockScope scope) {
 
-		final int numberOfParens = (prefixExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (prefixExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(prefixExpression, numberOfParens);
 		}
@@ -3279,13 +3257,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		QualifiedAllocationExpression qualifiedAllocationExpression,
 		BlockScope scope) {
 			
-		final int numberOfParens = (qualifiedAllocationExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (qualifiedAllocationExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedAllocationExpression, numberOfParens);
 		}
@@ -3335,7 +3313,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
-		final AnonymousLocalTypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
+		final TypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
 		if (anonymousType != null) {
 			anonymousType.traverse(this, scope);
 		}
@@ -3346,13 +3324,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		QualifiedNameReference qualifiedNameReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (qualifiedNameReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (qualifiedNameReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedNameReference, numberOfParens);
 		}
@@ -3365,13 +3343,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		QualifiedSuperReference qualifiedSuperReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (qualifiedSuperReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (qualifiedSuperReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedSuperReference, numberOfParens);
 		}
@@ -3386,13 +3364,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		QualifiedThisReference qualifiedThisReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (qualifiedThisReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (qualifiedThisReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedThisReference, numberOfParens);
 		}
@@ -3407,13 +3385,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		QualifiedTypeReference qualifiedTypeReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (qualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (qualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 		}
@@ -3426,13 +3404,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		QualifiedTypeReference qualifiedTypeReference,
 		ClassScope scope) {
 
-			final int numberOfParens = (qualifiedTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (qualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 			}
@@ -3445,7 +3423,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ReturnStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ReturnStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ReturnStatement returnStatement, BlockScope scope) {
 		
@@ -3468,7 +3446,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(SingleNameReference singleNameReference, BlockScope scope) {
 
-		final int numberOfParens = (singleNameReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (singleNameReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(singleNameReference, numberOfParens);
 		}
@@ -3481,13 +3459,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		SingleTypeReference singleTypeReference,
 		BlockScope scope) {
 
-		final int numberOfParens = (singleTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (singleTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
 		}
@@ -3500,13 +3478,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(
 		SingleTypeReference singleTypeReference,
 		ClassScope scope) {
 
-		final int numberOfParens = (singleTypeReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (singleTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
 		}
@@ -3519,11 +3497,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.StringLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.StringLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 
-		final int numberOfParens = (stringLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (stringLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
 		}
@@ -3536,11 +3514,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SuperReference superReference, BlockScope scope) {
 
-		final int numberOfParens = (superReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (superReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(superReference, numberOfParens);
 		}
@@ -3553,7 +3531,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SwitchStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SwitchStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SwitchStatement switchStatement, BlockScope scope) {
 		this.scribe.printNextToken(TerminalTokens.TokenNameswitch);
@@ -3675,7 +3653,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 		SynchronizedStatement synchronizedStatement,
@@ -3695,12 +3673,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;
 	}
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ThisReference thisReference, BlockScope scope) {
 		
 		if (!thisReference.isImplicitThis()) {
-			final int numberOfParens = (thisReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+			final int numberOfParens = (thisReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(thisReference, numberOfParens);
 			}
@@ -3714,7 +3692,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ThrowStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ThrowStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ThrowStatement throwStatement, BlockScope scope) {
 
@@ -3730,11 +3708,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TrueLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TrueLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
 
-		final int numberOfParens = (trueLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (trueLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
 		}
@@ -3747,7 +3725,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TryStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TryStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 
@@ -3783,7 +3761,18 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(
+		TypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+
+			format(localTypeDeclaration);
+			return false;
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
 	 */
 	public boolean visit(
 		TypeDeclaration typeDeclaration,
@@ -3794,11 +3783,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.UnaryExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.UnaryExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 
-		final int numberOfParens = (unaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (unaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(unaryExpression, numberOfParens);
 		}
@@ -3807,7 +3796,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 * Print the operator
 		 */
 		int operator;
-		switch((unaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+		switch((unaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 			case OperatorIds.PLUS:
 				operator = TerminalTokens.TokenNamePLUS;
 				break;
@@ -3834,7 +3823,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.WhileStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.WhileStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 

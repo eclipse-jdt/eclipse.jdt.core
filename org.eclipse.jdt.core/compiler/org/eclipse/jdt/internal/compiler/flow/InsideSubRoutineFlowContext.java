@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 
 /**
@@ -23,7 +23,7 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 	
 	public InsideSubRoutineFlowContext(
 		FlowContext parent,
-		AstNode associatedNode) {
+		ASTNode associatedNode) {
 		super(parent, associatedNode);
 		this.initsOnReturn = FlowInfo.DEAD_END;				
 	}

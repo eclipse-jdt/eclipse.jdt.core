@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -81,7 +81,7 @@ public long resultCollectorTime = 0;
 /**
  * An ast visitor that visits local type declarations.
  */
-public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+public class LocalDeclarationVisitor extends ASTVisitor {
 	IJavaElement enclosingElement;
 	MatchingNodeSet nodeSet;
 	// TODO (jerome) Use an HashtableOfIntValues instead
@@ -90,32 +90,27 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.enclosingElement = enclosingElement;
 		this.nodeSet = nodeSet;
 	}
-	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope unused) {
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 		try {
-			String simpleName = ""; //$NON-NLS-1$
+			String simpleName;
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+				simpleName = ""; //$NON-NLS-1$
+			} else {
+				simpleName = new String(typeDeclaration.name);
+			}
 			Integer occurrenceCount = (Integer)occurrencesCounts.get(simpleName);
-			if (occurrenceCount == null)
+			if (occurrenceCount == null) {
 				occurrenceCount = new Integer(1);
-			else
+			} else {
 				occurrenceCount = new Integer(occurrenceCount.intValue()+1);
+			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
-			reportMatching(anonymousTypeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount.intValue());
-			return false; // don't visit members as this was done during reportMatching(...)
-		} catch (CoreException e) {
-			throw new WrappedCoreException(e);
-		}
-	}
-	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope unused) {
-		try {
-			String simpleName = new String(typeDeclaration.name);
-			Integer occurrenceCount = (Integer)occurrencesCounts.get(simpleName);
-			if (occurrenceCount == null)
-				occurrenceCount = new Integer(1);
-			else
-				occurrenceCount = new Integer(occurrenceCount.intValue()+1);
-			occurrencesCounts.put(simpleName, occurrenceCount);
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-			reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount.intValue());
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+				reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount.intValue());
+			} else {
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
+				reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount.intValue());
+			}
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
 			throw new WrappedCoreException(e);
@@ -933,7 +928,7 @@ protected void purgeMethodStatements(TypeDeclaration type, boolean checkEachMeth
 		}
 	}
 
-	MemberTypeDeclaration[] memberTypes = type.memberTypes;
+	TypeDeclaration[] memberTypes = type.memberTypes;
 	if (memberTypes != null)
 		for (int i = 0, l = memberTypes.length; i < l; i++)
 			purgeMethodStatements(memberTypes[i], checkEachMethod);
@@ -1113,7 +1108,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	}
 
 	// handle nodes for the local type first
-	if ((method.bits & AstNode.HasLocalTypeMASK) != 0) {
+	if ((method.bits & ASTNode.HasLocalTypeMASK) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(method, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, nodeSet);
@@ -1126,14 +1121,14 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 
 	// references in this method
 	if (typeInHierarchy) {
-		AstNode[] nodes = nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
+		ASTNode[] nodes = nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0) {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(method, parent);
 				if (enclosingElement != null) { // skip if unable to find method
 					for (int i = 0, l = nodes.length; i < l; i++) {
-						AstNode node = nodes[i];
+						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
 					}
@@ -1154,7 +1149,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
-			AstNode node = (AstNode) nodes[i];
+			ASTNode node = (ASTNode) nodes[i];
 			if (node == null) continue;
 			if (node instanceof ImportReference) {
 				// special case for import refs: they don't know their binding
@@ -1216,7 +1211,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	}
 
 	// handle the nodes for the local type first
-	if ((field.bits & AstNode.HasLocalTypeMASK) != 0) {
+	if ((field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(field, type, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, nodeSet);
@@ -1228,7 +1223,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	}
 
 	if (typeInHierarchy) {
-		AstNode[] nodes = nodeSet.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
+		ASTNode[] nodes = nodeSet.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) == 0) {
 				for (int i = 0, l = nodes.length; i < l; i++)
@@ -1237,7 +1232,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 				if (enclosingElement == null)
 					enclosingElement = createHandle(field, type, parent);
 				for (int i = 0, l = nodes.length; i < l; i++) {
-					AstNode node = nodes[i];
+					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
 				}
@@ -1267,8 +1262,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 
 	// super types
 	boolean matchedClassContainer = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
-	if (type instanceof AnonymousLocalTypeDeclaration) {
-		TypeReference superType = ((AnonymousLocalTypeDeclaration) type).allocation.type;
+	if ((type.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+		TypeReference superType =type.allocation.type;
 		if (superType != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);
 			if (level != null && matchedClassContainer)
@@ -1318,11 +1313,11 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		}
 	}
 
-	MemberTypeDeclaration[] memberTypes = type.memberTypes;
+	TypeDeclaration[] memberTypes = type.memberTypes;
 	if (memberTypes != null) {
 		for (int i = 0, l = memberTypes.length; i < l; i++) {
 			if (nodeSet.matchingNodes.elementSize == 0) return; // reported all the matching nodes
-			MemberTypeDeclaration memberType = memberTypes[i];
+			TypeDeclaration memberType = memberTypes[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(memberType);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 			reportMatching(memberType, enclosingElement, value, nodeSet, 1);

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -55,7 +55,7 @@ public class CodeFormatterParser extends Parser {
 		return expressionStack[expressionPtr];
 	}
 	
-	public AstNode[] parseClassBodyDeclarations(char[] source, CompilationUnitDeclaration unit) {
+	public ASTNode[] parseClassBodyDeclarations(char[] source, CompilationUnitDeclaration unit) {
 		/* automaton initialization */
 		initialize();
 		goForClassBodyDeclarations();
@@ -82,7 +82,7 @@ public class CodeFormatterParser extends Parser {
 		}
 		int length;
 		if ((length = astLengthStack[astLengthPtr--]) != 0) {
-			AstNode[] result = new AstNode[length];
+			ASTNode[] result = new ASTNode[length];
 			astPtr -= length;
 			System.arraycopy(astStack, astPtr + 1, result, 0, length);
 			return result;

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 
 public abstract class AbstractMethodDeclaration
-	extends AstNode
+	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
 		
 	public MethodScope scope;
@@ -388,7 +388,7 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		ClassScope classScope) {
 		// default implementation: subclass will define it
 	}

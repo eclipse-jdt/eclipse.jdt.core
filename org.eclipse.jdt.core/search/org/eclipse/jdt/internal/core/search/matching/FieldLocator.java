@@ -29,7 +29,7 @@ public FieldLocator(FieldPattern pattern) {
 
 	this.isDeclarationOfAccessedFieldsPattern = this.pattern instanceof DeclarationOfAccessedFieldsPattern;
 }
-//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = IMPOSSIBLE_MATCH;
@@ -95,7 +95,7 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 	}
 	return super.matchReference(node, nodeSet, writeOnlyAccess);
 }
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
 		// need exact match to be able to open on type ref
 		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
@@ -216,7 +216,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		}
 	}
 }
-public int resolveLevel(AstNode possiblelMatchingNode) {
+public int resolveLevel(ASTNode possiblelMatchingNode) {
 	if (this.pattern.findReferences) {
 		if (possiblelMatchingNode instanceof FieldReference)
 			return matchField(((FieldReference) possiblelMatchingNode).binding, true);

@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  * Internal local variable structure for parsing recovery 
  */
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -46,7 +46,7 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
 /* 
  * Answer the associated parsed structure
  */
-public AstNode parseTree(){
+public ASTNode parseTree(){
 	return localDeclaration;
 }
 /*

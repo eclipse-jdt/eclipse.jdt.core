@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
@@ -30,12 +30,12 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  */
 public class FlowContext implements TypeConstants {
 	
-	public AstNode associatedNode;
+	public ASTNode associatedNode;
 	public FlowContext parent;
 
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
 		
-	public FlowContext(FlowContext parent, AstNode associatedNode) {
+	public FlowContext(FlowContext parent, ASTNode associatedNode) {
 
 		this.parent = parent;
 		this.associatedNode = associatedNode;
@@ -48,7 +48,7 @@ public class FlowContext implements TypeConstants {
 	
 	public void checkExceptionHandlers(
 		TypeBinding[] raisedExceptions,
-		AstNode location,
+		ASTNode location,
 		FlowInfo flowInfo,
 		BlockScope scope) {
 
@@ -183,7 +183,7 @@ public class FlowContext implements TypeConstants {
 
 	public void checkExceptionHandlers(
 		TypeBinding raisedException,
-		AstNode location,
+		ASTNode location,
 		FlowInfo flowInfo,
 		BlockScope scope) {
 

@@ -100,7 +100,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
  * If it does, add it to the match set.
  * Returns the match level.
  */
-public int match(AstNode node, MatchingNodeSet nodeSet) { // needed for some generic nodes
+public int match(ASTNode node, MatchingNodeSet nodeSet) { // needed for some generic nodes
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
@@ -194,7 +194,7 @@ protected boolean matchesTypeReference(char[] pattern, TypeReference type) {
  * Returns the match level for the given importRef.
  */
 protected int matchLevel(ImportReference importRef) {
-	// override if interested in import references which are caught by the generic version of match(AstNode, MatchingNodeSet)
+	// override if interested in import references which are caught by the generic version of match(ASTNode, MatchingNodeSet)
 	return IMPOSSIBLE_MATCH;
 }
 /**
@@ -223,7 +223,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 /**
  * Reports the match of the given reference.
  */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	// default is to report a match on the whole node.
 	locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
 }
@@ -235,9 +235,9 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
  * Returns ACCURATE_MATCH if it matches exactly this search pattern (ie. 
  * it doesn't need to be resolved or it has already been resolved.)
  */
-public int resolveLevel(AstNode possibleMatchingNode) {
+public int resolveLevel(ASTNode possibleMatchingNode) {
 	// only called with nodes which were possible matches to the call to matchLevel
-	// need to do instance of checks to find out exact type of AstNode
+	// need to do instance of checks to find out exact type of ASTNode
 	return IMPOSSIBLE_MATCH;
 }
 /**

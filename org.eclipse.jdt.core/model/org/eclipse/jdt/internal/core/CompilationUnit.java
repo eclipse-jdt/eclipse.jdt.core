@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.IDOMNode;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -61,7 +61,7 @@ protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner 
  * <li> The visitor failed with this exception.</li>
  * </ul>
  */
-public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException {
+public void accept(ASTVisitor visitor) throws JavaModelException {
 	CompilationUnitVisitor.visit(this, visitor);
 }
 /*
@@ -512,7 +512,6 @@ public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
 		}
 	}
 }
-
 /**
  * @see ICompilationUnit#getAllTypes()
  */

@@ -82,7 +82,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	IBinding resolveName(Name name) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(name);
 		int index = name.index;
 		if (node instanceof QualifiedNameReference) {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
@@ -286,7 +286,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	ITypeBinding resolveType(Type type) {
 		// retrieve the old ast node
-		AstNode node = (AstNode) this.newAstToOldAst.get(type);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = null;
 		if (node != null) {
 			if (node instanceof TypeReference) {
@@ -491,7 +491,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	ITypeBinding resolveExpressionType(Expression expression) {
 		if (expression instanceof ClassInstanceCreation) {
-			AstNode astNode = (AstNode) this.newAstToOldAst.get(expression);
+			org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
 			if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) astNode;
 				if (typeDeclaration != null) {
@@ -654,7 +654,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(importDeclaration);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
 		if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			if (importReference.onDemand) {
@@ -690,7 +690,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolvePackage(PackageDeclaration)
 	 */
 	IPackageBinding resolvePackage(PackageDeclaration pkg) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(pkg);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
 		if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
@@ -730,7 +730,7 @@ class DefaultBindingResolver extends BindingResolver {
 	/*
 	 * Method declared on BindingResolver.
 	 */
-	void store(ASTNode node, AstNode oldASTNode) {
+	void store(ASTNode node, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
 		this.newAstToOldAst.put(node, oldASTNode);
 	}
 	
@@ -881,9 +881,9 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(ClassInstanceCreation)
 	 */
 	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
-		if (node instanceof AnonymousLocalTypeDeclaration) {
-			AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration) node;
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousTypeMASK) != 0) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			return this.getMethodBinding(anonymousLocalTypeDeclaration.allocation.binding);
 		} else if (node instanceof AllocationExpression) {
 			return this.getMethodBinding(((AllocationExpression)node).binding);
@@ -895,7 +895,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(ConstructorInvocation)
 	 */
 	IMethodBinding resolveConstructor(ConstructorInvocation expression) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
 		if (node instanceof ExplicitConstructorCall) {
 			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
 			return this.getMethodBinding(explicitConstructorCall.binding);
@@ -907,7 +907,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(SuperConstructorInvocation)
 	 */
 	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
 		if (node instanceof ExplicitConstructorCall) {
 			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
 			return this.getMethodBinding(explicitConstructorCall.binding);
@@ -918,9 +918,9 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveType(AnonymousClassDeclaration)
 	 */
 	ITypeBinding resolveType(AnonymousClassDeclaration type) {
-		final Object node = this.newAstToOldAst.get(type);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration) node;
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
+		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousTypeMASK) != 0) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			if (anonymousLocalTypeDeclaration != null) {
 				ITypeBinding typeBinding = this.getTypeBinding(anonymousLocalTypeDeclaration.binding);
 				if (typeBinding == null) {
@@ -937,8 +937,8 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
-	AstNode getCorrespondingNode(ASTNode currentNode) {
-		return (AstNode) this.newAstToOldAst.get(currentNode);
+	org.eclipse.jdt.internal.compiler.ast.ASTNode getCorrespondingNode(ASTNode currentNode) {
+		return (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(currentNode);
 	} 
 	/**
 	 * @see org.eclipse.jdt.core.dom.BindingResolver#recordScope(ASTNode, BlockScope)

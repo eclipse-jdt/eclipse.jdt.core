@@ -41,7 +41,7 @@ public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 private LocalVariable getLocalVariable() {
 	return ((LocalVariablePattern) this.pattern).localVariable;
 }
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (reference instanceof SingleNameReference) {
 		locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
 	} else if (reference instanceof QualifiedNameReference) {
@@ -65,7 +65,7 @@ protected int matchLocalVariable(LocalVariableBinding variable, boolean matchNam
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;
 }
-public int resolveLevel(AstNode possiblelMatchingNode) {
+public int resolveLevel(ASTNode possiblelMatchingNode) {
 	if (this.pattern.findReferences)
 		if (possiblelMatchingNode instanceof NameReference)
 			return resolveLevel((NameReference) possiblelMatchingNode);

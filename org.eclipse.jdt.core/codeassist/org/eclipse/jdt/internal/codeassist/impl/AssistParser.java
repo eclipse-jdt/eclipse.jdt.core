@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.codeassist.impl;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public abstract class AssistParser extends Parser {
-	public AstNode assistNode;
+	public ASTNode assistNode;
 	public boolean isOrphanCompletionNode;
 		
 	/* recovery */
@@ -137,7 +137,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	int blockIndex = 1;	// ignore first block start, since manually rebuilt here
 
 	for(int i = 0; i <= astPtr; i++){
-		AstNode node = astStack[i];
+		ASTNode node = astStack[i];
 
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
@@ -637,7 +637,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		/* completion inside subsequent identifier */
 		reference = this.createQualifiedAssistNameReference(subset, assistIdentifier(), positions);
 	}
-	reference.bits &= ~AstNode.RestrictiveFlagMASK;
+	reference.bits &= ~ASTNode.RestrictiveFlagMASK;
 	reference.bits |= LOCAL | FIELD;
 	
 	assistNode = reference;
@@ -853,7 +853,7 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 	} else {
 		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
 		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}		
 	}
 
@@ -901,13 +901,13 @@ public void parseBlockStatements(
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
-			initializer.block.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			initializer.block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 	
 	// mark initializer with local type if one was found during parsing
-	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
-		initializer.bits |= AstNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		initializer.bits |= ASTNode.HasLocalTypeMASK;
 	}	
 }
 /**
@@ -961,7 +961,7 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 			length); 
 	} else {
 		if (!containsComment(md.bodyStart, md.bodyEnd)) {
-			md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 
@@ -1187,7 +1187,7 @@ protected int topKnownElementKind(int owner, int offSet) {
  * then wrap it with a fake constructor call.
  * Returns the wrapped completion node or the completion node itself.
  */
-protected AstNode wrapWithExplicitConstructorCallIfNeeded(AstNode ast) {
+protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
 	int selector;
 	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
 			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||

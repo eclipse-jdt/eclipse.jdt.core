@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
-import org.eclipse.jdt.internal.core.util.AstNodeFinder;
+import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -501,7 +501,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							selectDeclaration(parsedUnit);
-							AstNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
+							ASTNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
@@ -674,13 +674,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	/*
 	 * Checks if a local declaration got selected in this method/initializer/field.
 	 */
-	private void selectLocalDeclaration(AstNode node) {
+	private void selectLocalDeclaration(ASTNode node) {
 		// the selected identifier is not identical to the parser one (equals but not identical),
 		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
 		final char[] assistIdentifier = this.getParser().assistIdentifier();
 		if (assistIdentifier == null) return;
 		
-		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+		class Visitor extends ASTVisitor {
 			public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 				if (constructorDeclaration.selector == assistIdentifier){
 					if (constructorDeclaration.binding != null) {
@@ -699,13 +699,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				return true;
 			}
-			public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
+			public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
 				if (localTypeDeclaration.name == assistIdentifier) {
 					throw new SelectionNodeFound(localTypeDeclaration.binding);
 				}
 				return true;
 			}
-			public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
+			public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 				if (memberTypeDeclaration.name == assistIdentifier) {
 					throw new SelectionNodeFound(memberTypeDeclaration.binding);
 				}
@@ -785,7 +785,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				// find the type declaration that corresponds to the original source type
 				if (!(sourceType instanceof SourceTypeElementInfo)) return;
 				IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
-				TypeDeclaration typeDecl = new AstNodeFinder(parsedUnit).findType(typeHandle);
+				TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(typeHandle);
 
 				if (typeDecl != null) {
 

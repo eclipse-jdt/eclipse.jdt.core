@@ -225,7 +225,7 @@ public class BlockScope extends Scope {
 				// do not report fake used variable
 				if (local.useFlag == LocalVariableBinding.UNUSED
 					&& (local.declaration != null) // unused (and non secret) local
-					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
 						
 					if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
 						this.problemReporter().unusedLocalVariable(local.declaration);
@@ -256,7 +256,7 @@ public class BlockScope extends Scope {
 					if (this.offset > 0xFFFF) { // no more than 65535 words of locals
 						this.problemReporter().noMoreAvailableSpaceForLocal(
 							local, 
-							local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
+							local.declaration == null ? (ASTNode)this.methodScope().referenceContext : local.declaration);
 					}
 				} else {
 					local.resolvedPosition = -1; // not generated
@@ -902,6 +902,8 @@ public class BlockScope extends Scope {
 			return foundMethod;
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
+	
+
 	
 	/* Answer true if the variable name already exists within the receiver's scope.
 	 */

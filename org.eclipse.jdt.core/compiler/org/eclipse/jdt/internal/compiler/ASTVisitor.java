@@ -11,14 +11,13 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.*; 
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-/**
- * An adapter class for interating through the parse tree.
+/** 
+ * A visitor for iterating through the parse tree.
  */
-
-public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisitor {
+public abstract class ASTVisitor {
 
 	public void acceptProblem(IProblem problem) {
 		// do nothing by default
@@ -29,11 +28,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(JavadocArrayQualifiedTypeReference typeRef, BlockScope scope) {
@@ -210,11 +204,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(LongLiteral longLiteral, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(
-		MemberTypeDeclaration memberTypeDeclaration,
-		ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(MessageSend messageSend, BlockScope scope) {
 		// do nothing by default
 	}
@@ -308,10 +297,20 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(
+		TypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+		// do nothing by default
+	}	
+	public void endVisit(
+		TypeDeclaration memberTypeDeclaration,
+		ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
 		TypeDeclaration typeDeclaration,
 		CompilationUnitScope scope) {
 		// do nothing by default
-	}
+	}	
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -325,11 +324,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(JavadocArrayQualifiedTypeReference typeRef, BlockScope scope) {
@@ -506,11 +500,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(
-		MemberTypeDeclaration memberTypeDeclaration,
-		ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -604,6 +593,16 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
+		TypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+		TypeDeclaration memberTypeDeclaration,
+		ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}	
+	public boolean visit(
 		TypeDeclaration typeDeclaration,
 		CompilationUnitScope scope) {
 		return true; // do nothing by default, keep traversing
@@ -613,15 +612,5 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-		LocalTypeDeclaration localTypeDeclaration,
-		BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public void endVisit(
-		LocalTypeDeclaration localTypeDeclaration,
-		BlockScope scope) {
-		// do nothing by default
 	}
 }

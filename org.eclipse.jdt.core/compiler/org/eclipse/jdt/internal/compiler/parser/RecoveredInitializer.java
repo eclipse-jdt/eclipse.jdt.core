@@ -14,12 +14,11 @@ package org.eclipse.jdt.internal.compiler.parser;
  * Internal initializer structure for parsing recovery 
  */
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
@@ -155,7 +154,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			return this.parent.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
-	if (typeDeclaration instanceof LocalTypeDeclaration){
+	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
 		/* method body should have been created */
 		Block block = new Block(0);
 		block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
@@ -202,7 +201,7 @@ public FieldDeclaration updatedFieldDeclaration(){
 		if (block != null){
 			((Initializer)fieldDeclaration).block = block;
 		}
-		if (this.localTypeCount > 0) fieldDeclaration.bits |= AstNode.HasLocalTypeMASK;
+		if (this.localTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
 
 	}	
 	if (fieldDeclaration.sourceEnd == 0){

@@ -1800,7 +1800,7 @@ public void generateInlinedValue(boolean inlinedValue) {
 	else
 		this.iconst_0();
 }
-public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite, Binding target, Scope scope) {
+public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite, Binding target, Scope scope) {
 	if (mappingSequence == null) {
 		if (target instanceof LocalVariableBinding) {
 			scope.problemReporter().needImplementation(); //TODO (philippe) should improve local emulation failure reporting
@@ -1874,7 +1874,7 @@ public void generateSyntheticEnclosingInstanceValues(
 		BlockScope currentScope, 
 		ReferenceBinding targetType, 
 		Expression enclosingInstance, 
-		AstNode invocationSite) {
+		ASTNode invocationSite) {
 
 	// supplying enclosing instance for the anonymous type's superclass
 	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? targetType.superclass() : targetType;
@@ -1924,7 +1924,7 @@ public void generateSyntheticEnclosingInstanceValues(
  * variable arguments of a constructor invocation of a nested type.
  * (bug 26122) - synthetic values for outer locals must be passed after user arguments, e.g. new X(i = 1){}
  */
-public void generateSyntheticOuterArgumentValues(BlockScope currentScope, ReferenceBinding targetType, AstNode invocationSite) {
+public void generateSyntheticOuterArgumentValues(BlockScope currentScope, ReferenceBinding targetType, ASTNode invocationSite) {
 
 	// generate the synthetic outer arguments then
 	SyntheticArgumentBinding syntheticArguments[];

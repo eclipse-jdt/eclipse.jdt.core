@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -304,7 +304,7 @@ public void setFieldIndex(int depth) {
 	// ignore for here
 }
 
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		receiver.traverse(visitor, blockScope);
 		if (arguments != null) {

@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Argument extends LocalDeclaration {
@@ -109,7 +109,7 @@ public class Argument extends LocalDeclaration {
 		return tb;
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		
 		if (visitor.visit(this, scope)) {
 			if (type != null)

@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -48,14 +48,8 @@ int resultIndex;
  * An ast visitor that visits type declarations and member type declarations
  * collecting their super type names.
  */
-public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
-	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
-		ReferenceBinding binding = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(binding))
-			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
-		return true;
-	}
-	public boolean visit(AnonymousLocalTypeDeclaration typeDeclaration, BlockScope scope) {
+public class TypeDeclarationVisitor extends ASTVisitor {
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
 		ReferenceBinding binding = typeDeclaration.binding;
 		if (SuperTypeNamesCollector.this.matches(binding))
 			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
@@ -67,7 +61,7 @@ public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
 		return true;
 	}
-	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
+	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 		ReferenceBinding binding = memberTypeDeclaration.binding;
 		if (SuperTypeNamesCollector.this.matches(binding))
 			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);

@@ -48,7 +48,7 @@ public char[] assistIdentifier(){
 }
 protected void attachOrphanCompletionNode(){
 	if (isOrphanCompletionNode){
-		AstNode orphan = this.assistNode;
+		ASTNode orphan = this.assistNode;
 		isOrphanCompletionNode = false;
 		
 		
@@ -182,10 +182,10 @@ protected void consumeEnterAnonymousClassBody() {
 		return;
 	}
 	QualifiedAllocationExpression alloc;
-	AnonymousLocalTypeDeclaration anonymousType = 
-		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
-	alloc = 
-		anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
+	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
+		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+		alloc = anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 

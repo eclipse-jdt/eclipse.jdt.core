@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -44,7 +44,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	
 	public ExceptionHandlingFlowContext(
 		FlowContext parent,
-		AstNode associatedNode,
+		ASTNode associatedNode,
 		ReferenceBinding[] handledExceptions,
 		BlockScope scope,
 		UnconditionalFlowInfo flowInfo) {
@@ -150,7 +150,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
 		TypeBinding raisedException,
-		AstNode invocationSite,
+		ASTNode invocationSite,
 		boolean wasAlreadyDefinitelyCaught) {
 			
 		int index = indexes.get(exceptionType);

@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -24,7 +24,7 @@ public TypeDeclarationLocator(TypeDeclarationPattern pattern) {
 
 	this.pattern = pattern;
 }
-//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -39,7 +39,7 @@ public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 }
 //public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	if (!(node instanceof TypeDeclaration)) return IMPOSSIBLE_MATCH;
 
 	return resolveLevel(((TypeDeclaration) node).binding);

@@ -22,7 +22,7 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 
 	this.pattern = pattern;
 }
-//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -50,7 +50,7 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 protected int matchContainer() {
 	return CLASS_CONTAINER;
 }
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	if (!(node instanceof TypeReference)) return IMPOSSIBLE_MATCH;
 
 	TypeReference typeRef = (TypeReference) node;

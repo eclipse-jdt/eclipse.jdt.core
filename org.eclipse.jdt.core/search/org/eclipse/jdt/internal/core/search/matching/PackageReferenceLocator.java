@@ -26,7 +26,7 @@ public PackageReferenceLocator(PackageReferencePattern pattern) {
 
 	this.pattern = pattern;
 }
-public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
+public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 
 	return nodeSet.addMatch(node, matchLevel((ImportReference) node));
@@ -91,7 +91,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		locator.report(positions[0], positions[last - 1], element, accuracy);
 	}
 }
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	long[] positions = null;
 	int last = -1;
 	if (reference instanceof ImportReference) {
@@ -103,7 +103,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		if (reference instanceof QualifiedNameReference) {
 			QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 			positions = qNameRef.sourcePositions;
-			switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+			switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
 				case BindingIds.FIELD : // reading a field
 					typeBinding = qNameRef.actualReceiverType;
 					break;
@@ -147,7 +147,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	}
 	locator.report(positions[0], positions[last - 1], element, accuracy);
 }
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	if (node instanceof QualifiedTypeReference)
 		return resolveLevel(((QualifiedTypeReference) node).resolvedType);
 	if (node instanceof QualifiedNameReference)
@@ -179,7 +179,7 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(QualifiedNameReference qNameRef) {
 	TypeBinding typeBinding = null;
-	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
 			if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 3 : qNameRef.otherBindings.length + 3))
 				return IMPOSSIBLE_MATCH; // must be at least p1.A.x

@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 /**
@@ -54,7 +53,7 @@ class BindingResolver {
 	 * @param newNode the new AST node
 	 * @param oldNode the old AST node
 	 */
-	void store(ASTNode newNode, AstNode oldASTNode) {
+	void store(ASTNode newNode, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
 		// default implementation: do nothing
 	}
 
@@ -576,9 +575,9 @@ class BindingResolver {
 	 * </p>
 	 *
 	 * @param currentNode the new node
-	 * @return AstNode
+	 * @return org.eclipse.jdt.internal.compiler.ast.ASTNode
 	 */
-	AstNode getCorrespondingNode(ASTNode currentNode) {
+	org.eclipse.jdt.internal.compiler.ast.ASTNode getCorrespondingNode(ASTNode currentNode) {
 		return null;
 	} 
 

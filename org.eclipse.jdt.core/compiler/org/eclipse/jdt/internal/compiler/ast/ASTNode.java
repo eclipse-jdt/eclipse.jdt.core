@@ -12,9 +12,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
-public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConstants, TypeIds {
+public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
 
@@ -30,14 +30,14 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit6 = 0x20; 					// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 					// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)
 	public final static int Bit8 = 0x80; 					// depth (name ref, msg) | operator (operator) 
-	public final static int Bit9 = 0x100; 				// depth (name ref, msg) | operator (operator)
-	public final static int Bit10= 0x200; 				// depth (name ref, msg) | operator (operator)
-	public final static int Bit11 = 0x400; 				// depth (name ref, msg) | operator (operator)
+	public final static int Bit9 = 0x100; 					// depth (name ref, msg) | operator (operator) | is local type (type decl)
+	public final static int Bit10= 0x200; 					// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
+	public final static int Bit11 = 0x400; 				// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800; 				// depth (name ref, msg) | operator (operator)
-	public final static int Bit13 = 0x1000; 			// depth (name ref, msg) 
-	public final static int Bit14 = 0x2000; 			// assigned (reference lhs)
-	public final static int Bit15 = 0x4000; 			// is unnecessary cast (expression)
-	public final static int Bit16 = 0x8000; 			// in javadoc comment (name ref, type ref, msg)
+	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) 
+	public final static int Bit14 = 0x2000; 				// assigned (reference lhs)
+	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression)
+	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 
 	public final static int Bit18 = 0x20000; 
 	public final static int Bit19 = 0x40000; 
@@ -88,7 +88,11 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for type declaration
 	public static final int AddAssertionMASK = Bit1;
-
+	public static final int IsLocalTypeMASK = Bit9;
+	public static final int IsAnonymousTypeMASK = Bit10; // used to test for anonymous 
+	public static final int AnonymousAndLocalMask = IsAnonymousTypeMASK | IsLocalTypeMASK; // used to set anonymous marker
+	public static final int IsMemberTypeMASK = Bit11; // local member do not know it is local at parse time (need to look at binding)
+	
 	// for type, method and field declarations 
 	public static final int HasLocalTypeMASK = Bit2; // cannot conflict with AddAssertionMASK
 
@@ -114,12 +118,12 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
 	
-	public AstNode() {
+	public ASTNode() {
 
 		super();
 	}
 
-	public AstNode concreteStatement() {
+	public ASTNode concreteStatement() {
 		return this;
 	}
 
@@ -243,7 +247,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 		return print(0, new StringBuffer(30)).toString();
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		// do nothing by default
 	}
 }

@@ -12,7 +12,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -208,7 +208,7 @@ public class CastExpression extends Expression {
 				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
 					for (int j = 0; j < exprMethodsLength; j++) {
 						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
-								&& CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector)
+								&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
 								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
 							scope.problemReporter().typeCastError(this, castType, expressionType);
 						}
@@ -475,7 +475,7 @@ public class CastExpression extends Expression {
 		implicitConversion = T_undefined;
 
 		if ((type instanceof TypeReference) || (type instanceof NameReference)
-				&& ((type.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
+				&& ((type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 
 			this.resolvedType = type.resolveType(scope);
 			TypeBinding expressionType = expression.resolveType(scope);
@@ -498,7 +498,7 @@ public class CastExpression extends Expression {
 	}
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {

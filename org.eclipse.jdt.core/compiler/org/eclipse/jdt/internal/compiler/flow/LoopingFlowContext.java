@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -34,7 +34,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	
 	public LoopingFlowContext(
 		FlowContext parent,
-		AstNode associatedNode,
+		ASTNode associatedNode,
 		Label breakLabel,
 		Label continueLabel,
 		Scope associatedScope) {

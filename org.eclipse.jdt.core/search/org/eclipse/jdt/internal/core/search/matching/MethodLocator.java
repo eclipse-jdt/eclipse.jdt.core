@@ -55,7 +55,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
 	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess();
 }
-//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -65,7 +65,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
-		AstNode[] args = node.arguments;
+		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 
@@ -82,7 +82,7 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
-		AstNode[] args = node.arguments;
+		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
@@ -132,7 +132,7 @@ protected int matchMethod(MethodBinding method) {
 /**
  * @see SearchPattern#matchReportReference
  */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedMethodsPattern) {
 		// need exact match to be able to open on type ref
 		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
@@ -194,7 +194,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		}
 	}
 }
-public int resolveLevel(AstNode possibleMatchingNode) {
+public int resolveLevel(ASTNode possibleMatchingNode) {
 	if (this.pattern.findReferences && possibleMatchingNode instanceof MessageSend)
 		return resolveLevel((MessageSend) possibleMatchingNode);
 	if (this.pattern.findDeclarations && possibleMatchingNode instanceof MethodDeclaration)

@@ -32,17 +32,14 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -152,25 +149,16 @@ public class HandleFactory {
 	}
 	
 	/*
-	 * Returns an element handle corresponding to the given AstNode in the given parsed unit.
-	 * Returns null if the given AstNode could not be found.
+	 * Returns an element handle corresponding to the given ASTNode in the given parsed unit.
+	 * Returns null if the given ASTNode could not be found.
 	 */
-	public IJavaElement createElement(final AstNode toBeFound, CompilationUnitDeclaration parsedUnit, final Openable openable) {
+	public IJavaElement createElement(final ASTNode toBeFound, CompilationUnitDeclaration parsedUnit, final Openable openable) {
 		class EndVisit extends RuntimeException {
 			// marker to stop traversing ast
 		}
-		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+		class Visitor extends ASTVisitor {
 			IJavaElement currentElement = openable;
 			HashSet knownElements = new HashSet();
-			
-			public boolean visit(AnonymousLocalTypeDeclaration node, BlockScope scope) {
-				currentElement = updateOccurenceCount(((IMember)currentElement).getType("", 1)); //$NON-NLS-1$
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(AnonymousLocalTypeDeclaration node, BlockScope scope) {
-				currentElement = currentElement.getParent();
-			}
 			
 			public boolean visit(Argument node, BlockScope scope) {
 				if (node == toBeFound) {
@@ -236,22 +224,30 @@ public class HandleFactory {
 				return true;
 			}
 
-			public boolean visit(LocalTypeDeclaration node, BlockScope scope) {
-				currentElement = updateOccurenceCount(((IMember)currentElement).getType(new String(node.name), 1));
+			public boolean visit(TypeDeclaration node, BlockScope scope) {
+				if ((node.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+					currentElement = updateOccurenceCount(((IMember)currentElement).getType("", 1)); //$NON-NLS-1$
+				} else {
+					currentElement = updateOccurenceCount(((IMember)currentElement).getType(new String(node.name), 1));
+				}
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
-			public void endVisit(LocalTypeDeclaration node, BlockScope scope) {
-				currentElement = currentElement.getParent();
+			public void endVisit(TypeDeclaration node, BlockScope scope) {
+				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
+					currentElement = ((IType)currentElement).getDeclaringType();
+				} else {
+					currentElement = currentElement.getParent();
+				}
 			}
 
-			public boolean visit(MemberTypeDeclaration node, ClassScope scope) {
+			public boolean visit(TypeDeclaration node, ClassScope scope) {
 				currentElement = ((IType)currentElement).getType(new String(node.name));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
-			public void endVisit(MemberTypeDeclaration node, ClassScope scope) {
-				currentElement = ((IType)currentElement).getDeclaringType();
+			public void endVisit(TypeDeclaration node, ClassScope scope) {
+				currentElement = currentElement.getParent();
 			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {

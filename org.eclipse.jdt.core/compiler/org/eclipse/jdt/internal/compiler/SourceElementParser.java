@@ -54,18 +54,12 @@ public class SourceElementParser extends Parser {
 /**
  * An ast visitor that visits local type declarations.
  */
-public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
-	public boolean visit(
-			AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-			BlockScope scope) {
-		notifySourceElementRequestor(anonymousTypeDeclaration, sourceType == null);
-		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
-	}
-	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
+public class LocalDeclarationVisitor extends ASTVisitor {
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
 		notifySourceElementRequestor(typeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
-	public boolean visit(MemberTypeDeclaration typeDeclaration, ClassScope scope) {
+	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
 		notifySourceElementRequestor(typeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
@@ -508,7 +502,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 			new SingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
-		ref.bits &= ~AstNode.RestrictiveFlagMASK;
+		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
@@ -534,7 +528,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
 	// sourceStart
 	 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	ref.bits &= ~AstNode.RestrictiveFlagMASK;
+	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	if (reportReferenceInfo) {
 		this.addUnknownRef(ref);
@@ -578,7 +572,7 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 	}
 	// collect the top level ast nodes
 	int length = 0;
-	AstNode[] nodes = null;
+	ASTNode[] nodes = null;
 	if (sourceType == null){
 		if (isInRange) {
 			requestor.enterCompilationUnit();
@@ -590,7 +584,7 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 			(currentPackage == null ? 0 : 1) 
 			+ (imports == null ? 0 : imports.length)
 			+ (types == null ? 0 : types.length);
-		nodes = new AstNode[length];
+		nodes = new ASTNode[length];
 		int index = 0;
 		if (currentPackage != null) {
 			nodes[index++] = currentPackage;
@@ -609,7 +603,7 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 		TypeDeclaration[] types = parsedUnit.types;
 		if (types != null) {
 			length = types.length;
-			nodes = new AstNode[length];
+			nodes = new ASTNode[length];
 			for (int i = 0, max = types.length; i < max; i++) {
 				nodes[i] = types[i];
 			}
@@ -620,7 +614,7 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 	if (nodes != null && length > 0) {
 		quickSort(nodes, 0, length-1);
 		for (int i=0;i<length;i++) {
-			AstNode node = nodes[i];
+			ASTNode node = nodes[i];
 			if (node instanceof ImportReference) {
 				ImportReference importRef = (ImportReference)node;
 				if (node == parsedUnit.currentPackage) {
@@ -896,7 +890,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 	
 	FieldDeclaration[] fields = typeDeclaration.fields;
 	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-	MemberTypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
+	TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
 	int fieldCounter = fields == null ? 0 : fields.length;
 	int methodCounter = methods == null ? 0 : methods.length;
 	int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
@@ -913,11 +907,11 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			superInterfacesLength = superInterfaces.length;
 			interfaceNames = new char[superInterfacesLength][];
 		} else {
-			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 				// see PR 3442
-				QualifiedAllocationExpression alloc = ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation;
+				QualifiedAllocationExpression alloc = typeDeclaration.allocation;
 				if (alloc != null && alloc.type != null) {
-					superInterfaces = new TypeReference[] { ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type};
+					superInterfaces = new TypeReference[] { typeDeclaration.allocation.type};
 					superInterfacesLength = 1;
 					interfaceNames = new char[1][];
 				}
@@ -1038,8 +1032,8 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 	}
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {
-	if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
-		return ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type.sourceEnd;
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+		return typeDeclaration.allocation.type.sourceEnd;
 	} else {
 		return typeDeclaration.sourceEnd;
 	}
@@ -1206,10 +1200,10 @@ public void parseTypeMemberDeclarations(
 /*
  * Sort the given ast nodes by their positions.
  */
-private static void quickSort(AstNode[] sortedCollection, int left, int right) {
+private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 	int original_left = left;
 	int original_right = right;
-	AstNode mid = sortedCollection[ (left + right) / 2];
+	ASTNode mid = sortedCollection[ (left + right) / 2];
 	do {
 		while (sortedCollection[left].sourceStart < mid.sourceStart) {
 			left++;
@@ -1218,7 +1212,7 @@ private static void quickSort(AstNode[] sortedCollection, int left, int right) {
 			right--;
 		}
 		if (left <= right) {
-			AstNode tmp = sortedCollection[left];
+			ASTNode tmp = sortedCollection[left];
 			sortedCollection[left] = sortedCollection[right];
 			sortedCollection[right] = tmp;
 			left++;
@@ -1271,7 +1265,7 @@ public void addUnknownRef(NameReference nameRef) {
 
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null 
-		&& (method.bits & AstNode.HasLocalTypeMASK) != 0) {
+		&& (method.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (method.statements != null) {
 				int statementsLength = method.statements.length;
 				for (int i = 0; i < statementsLength; i++)
@@ -1282,7 +1276,7 @@ private void visitIfNeeded(AbstractMethodDeclaration method) {
 
 private void visitIfNeeded(FieldDeclaration field) {
 	if (this.localDeclarationVisitor != null 
-		&& (field.bits & AstNode.HasLocalTypeMASK) != 0) {
+		&& (field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (field.initialization != null) {
 				field.initialization.traverse(this.localDeclarationVisitor, null);
 			}
@@ -1291,7 +1285,7 @@ private void visitIfNeeded(FieldDeclaration field) {
 
 private void visitIfNeeded(Initializer initializer) {
 	if (this.localDeclarationVisitor != null 
-		&& (initializer.bits & AstNode.HasLocalTypeMASK) != 0) {
+		&& (initializer.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (initializer.block != null) {
 				initializer.block.traverse(this.localDeclarationVisitor, null);
 			}

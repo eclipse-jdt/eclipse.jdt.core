@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
@@ -25,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
@@ -55,7 +55,7 @@ public class TypeConverter {
 		IType parent = type.getDeclaringType();
 		TypeDeclaration previousDeclaration = typeDeclaration;
 		while(parent != null) {
-			TypeDeclaration declaration = convert(parent, alreadyComputedMember, (MemberTypeDeclaration)previousDeclaration, compilationResult);
+			TypeDeclaration declaration = convert(parent, alreadyComputedMember, previousDeclaration, compilationResult);
 			
 			alreadyComputedMember = parent;
 			previousDeclaration = declaration;
@@ -122,13 +122,12 @@ public class TypeConverter {
 		return methodDeclaration;
 	}
 	
-	private static TypeDeclaration convert(IType type, IType alreadyComputedMember,MemberTypeDeclaration alreadyComputedMemberDeclaration, CompilationResult compilationResult) throws JavaModelException {
+	private static TypeDeclaration convert(IType type, IType alreadyComputedMember,TypeDeclaration alreadyComputedMemberDeclaration, CompilationResult compilationResult) throws JavaModelException {
 		/* create type declaration - can be member type */
-		TypeDeclaration typeDeclaration;
-		if (type.getDeclaringType() == null) {
-			typeDeclaration = new TypeDeclaration(compilationResult);
-		} else {
-			typeDeclaration = new MemberTypeDeclaration(compilationResult);
+		TypeDeclaration typeDeclaration = new TypeDeclaration(compilationResult);
+
+		if (type.getDeclaringType() != null) {
+			typeDeclaration.bits |= ASTNode.IsMemberTypeMASK;
 		}
 		typeDeclaration.name = type.getElementName().toCharArray();
 		typeDeclaration.modifiers = type.getFlags();
@@ -148,13 +147,12 @@ public class TypeConverter {
 		/* convert member types */
 		IType[] memberTypes = type.getTypes();
 		int memberTypeCount =	memberTypes == null ? 0 : memberTypes.length;
-		typeDeclaration.memberTypes = new MemberTypeDeclaration[memberTypeCount];
+		typeDeclaration.memberTypes = new TypeDeclaration[memberTypeCount];
 		for (int i = 0; i < memberTypeCount; i++) {
 			if(alreadyComputedMember != null && alreadyComputedMember.getFullyQualifiedName().equals(memberTypes[i].getFullyQualifiedName())) {
 				typeDeclaration.memberTypes[i] = alreadyComputedMemberDeclaration;
 			} else {
-				typeDeclaration.memberTypes[i] =
-					(MemberTypeDeclaration) convert(memberTypes[i], null, null, compilationResult);
+				typeDeclaration.memberTypes[i] = convert(memberTypes[i], null, null, compilationResult);
 			}
 		}
 

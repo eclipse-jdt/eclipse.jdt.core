@@ -31,9 +31,9 @@ package org.eclipse.jdt.internal.codeassist.select;
  *
  */
 
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -44,7 +44,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 		// constructor without argument
 	}
 	
-	public SelectionOnQualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymous) {
+	public SelectionOnQualifiedAllocationExpression(TypeDeclaration anonymous) {
 		anonymousType = anonymous ;
 	}
 	

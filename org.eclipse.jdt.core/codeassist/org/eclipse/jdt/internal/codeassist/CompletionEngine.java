@@ -406,7 +406,7 @@ public final class CompletionEngine
 			relevance);
 	}
 
-	private void complete(AstNode astNode, AstNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+	private void complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
 		
@@ -830,7 +830,7 @@ public final class CompletionEngine
 		}
 		prefix.append("{\n"); //$NON-NLS-1$
 		for (int i = 0; i < localVariableTypeNames.length; i++) {
-			AstNode.printModifiers(localVariableModifiers[i], prefix);
+			ASTNode.printModifiers(localVariableModifiers[i], prefix);
 			prefix.append(' ');
 			prefix.append(localVariableTypeNames[i]);
 			prefix.append(' ');
@@ -2240,7 +2240,7 @@ public final class CompletionEngine
 		}
 		return R_INTERESTING;
 	}
-	private void computeUninterestingBindings(AstNode parent, Scope scope){
+	private void computeUninterestingBindings(ASTNode parent, Scope scope){
 		if(parent instanceof LocalDeclaration) {
 			addUninterestingBindings(((LocalDeclaration)parent).binding);
 		} else if (parent instanceof FieldDeclaration) {
@@ -2326,7 +2326,7 @@ public final class CompletionEngine
 
 			if (!exactMatch) {
 				if(insertedModifiers != CompilerModifiers.AccDefault){
-					AstNode.printModifiers(insertedModifiers, completion);
+					ASTNode.printModifiers(insertedModifiers, completion);
 				}
 				char[] returnPackageName = method.returnType.qualifiedPackageName();
 				char[] returnTypeName = method.returnType.qualifiedSourceName();
@@ -3161,7 +3161,7 @@ public final class CompletionEngine
 	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
-	private void computeExpectedTypes(AstNode parent, Scope scope){
+	private void computeExpectedTypes(ASTNode parent, Scope scope){
 		
 		// default filter
 		expectedTypesFilter = SUBTYPE;
@@ -3235,7 +3235,7 @@ public final class CompletionEngine
 					allocationExpression);
 			}
 		} else if(parent instanceof OperatorExpression) {
-			int operator = (parent.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT;
+			int operator = (parent.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
 			if(parent instanceof ConditionalExpression) {
 				// for future use
 			} else if(parent instanceof InstanceOfExpression) {

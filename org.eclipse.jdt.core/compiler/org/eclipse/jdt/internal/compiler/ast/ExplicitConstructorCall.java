@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -71,8 +71,8 @@ public class ExplicitConstructorCall
 				flowContext.checkExceptionHandlers(
 					thrownExceptions,
 					(accessMode == ImplicitSuper)
-						? (AstNode) currentScope.methodScope().referenceContext
-						: (AstNode) this,
+						? (ASTNode) currentScope.methodScope().referenceContext
+						: (ASTNode) this,
 					flowInfo,
 					currentScope);
 			}
@@ -324,7 +324,7 @@ public class ExplicitConstructorCall
 		// ignore for here
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
 			if (this.qualification != null) {

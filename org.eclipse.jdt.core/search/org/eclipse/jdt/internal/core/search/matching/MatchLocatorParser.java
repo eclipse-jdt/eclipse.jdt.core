@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -23,7 +23,7 @@ public class MatchLocatorParser extends Parser {
 
 MatchingNodeSet nodeSet;
 PatternLocator patternLocator;
-private AbstractSyntaxTreeVisitorAdapter localDeclarationVisitor;
+private ASTVisitor localDeclarationVisitor;
 
 public static MatchLocatorParser createParser(ProblemReporter problemReporter, MatchLocator locator) {
 	if ((locator.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0)
@@ -34,58 +34,50 @@ public static MatchLocatorParser createParser(ProblemReporter problemReporter, M
 /**
  * An ast visitor that visits local type declarations.
  */
-public class NoClassNoMethodDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+public class NoClassNoMethodDeclarationVisitor extends ASTVisitor {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		return (constructorDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (constructorDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		return (fieldDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
+		return (fieldDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
-		return (initializer.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (initializer.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 }
 public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarationVisitor {
-	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
-		patternLocator.match(anonymousTypeDeclaration, nodeSet);
-		return true; 
-	}
-	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
+	public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
 		patternLocator.match(localTypeDeclaration, nodeSet);
 		return true;
 	}
 }
-public class ClassButNoMethodDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		patternLocator.match(constructorDeclaration, nodeSet);
-		return (constructorDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (constructorDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		patternLocator.match(fieldDeclaration, nodeSet);
-		return (fieldDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
+		return (fieldDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
 		patternLocator.match(initializer, nodeSet);
-		return (initializer.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (initializer.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
-	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
+	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 		patternLocator.match(memberTypeDeclaration, nodeSet);
 		return true;
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		patternLocator.match(methodDeclaration, nodeSet);
-		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 }
 public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclarationVisitor {
-	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
-		patternLocator.match(anonymousTypeDeclaration, nodeSet);
-		return true; 
-	}
-	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
+	public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
 		patternLocator.match(localTypeDeclaration, nodeSet);
 		return true;
 	}
@@ -262,10 +254,10 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 		}
 	}
 
-	MemberTypeDeclaration[] memberTypes = type.memberTypes;
+	TypeDeclaration[] memberTypes = type.memberTypes;
 	if (memberTypes != null) {
 		for (int i = 0; i < memberTypes.length; i++) {
-			MemberTypeDeclaration memberType = memberTypes[i];
+			TypeDeclaration memberType = memberTypes[i];
 			this.parseBodies(memberType, unit);
 			memberType.traverse(localDeclarationVisitor, (ClassScope) null);
 		}
