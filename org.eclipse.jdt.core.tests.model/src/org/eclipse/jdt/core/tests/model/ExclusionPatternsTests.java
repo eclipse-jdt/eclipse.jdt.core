@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
@@ -37,6 +39,11 @@ protected void setUp() throws Exception {
 }
 
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(ExclusionPatternsTests.class.getName());
+		suite.addTest(new ExclusionPatternsTests("testSearchPotentialMatchInOutput"));
+		return suite;
+	}
 	return new Suite(ExclusionPatternsTests.class);
 }
 
@@ -659,25 +666,34 @@ public void testRenameResourceExcludedPackage() throws CoreException {
 /*
  * Ensure that a potential match in the output folder is not indexed.
  * (regression test for bug 32041 Multiple output folders fooling Java Model)
- * TODO: (jerome) re-enable once no more inconsistent failure
  */
-public void _testSearchPotentialMatchInOutput() throws JavaModelException, CoreException {
-	this.setClasspath(new String[] {"/P", "src/", "/P/src", ""});
-	this.createFile(
-		"/P/bin/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getJavaProject("P")});
-	new SearchEngine().search(
-		getWorkspace(), 
-		"X",
-		IJavaSearchConstants.TYPE,
-		IJavaSearchConstants.DECLARATIONS, 
-		scope, 
-		resultCollector);
-	assertEquals("", resultCollector.toString());
+public void testSearchPotentialMatchInOutput() throws CoreException {
+	try {
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				IJavaProject project = createJavaProject("P2", new String[] {}, "bin");
+				project.setRawClasspath(createClasspath(new String[] {"/P2", "src/", "/P2/src", ""}), null);
+				createFile(
+					"/P2/bin/X.java",
+					"public class X {\n" +
+					"}"
+				);
+			}
+		}, null);
+		
+		JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getJavaProject("P")});
+		new SearchEngine().search(
+			getWorkspace(), 
+			"X",
+			IJavaSearchConstants.TYPE,
+			IJavaSearchConstants.DECLARATIONS, 
+			scope, 
+			resultCollector);
+		assertEquals("", resultCollector.toString());
+	} finally {
+		this.deleteProject("P2");
+	}
 }
 /*
  * Ensure that removing the exclusion on a compilation unit
