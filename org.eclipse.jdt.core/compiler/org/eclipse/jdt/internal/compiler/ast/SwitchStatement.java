@@ -27,7 +27,8 @@ public class SwitchStatement extends Statement {
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
 	public int caseCount = 0;
-
+	public int blockStart;
+	
 	// for local variables table attributes
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
@@ -285,6 +286,10 @@ public class SwitchStatement extends Statement {
 						casesValues[counter++] = key;
 					}
 				}
+			}
+		} else {
+			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+				upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 			}
 		}
 	}

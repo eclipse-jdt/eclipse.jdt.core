@@ -4025,23 +4025,26 @@ protected void consumeStatementSwitch() {
 	//if some declaration occurs.
 
 	int length;
-	SwitchStatement s = new SwitchStatement();
+	SwitchStatement switchStatement = new SwitchStatement();
 	expressionLengthPtr--;
-	s.testExpression = expressionStack[expressionPtr--];
+	switchStatement.testExpression = expressionStack[expressionPtr--];
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
 		astPtr -= length;
 		System.arraycopy(
 			astStack, 
 			astPtr + 1, 
-			s.statements = new Statement[length], 
+			switchStatement.statements = new Statement[length], 
 			0, 
 			length); 
 	}
-	s.explicitDeclarations = realBlockStack[realBlockPtr--];
-	pushOnAstStack(s);
-	intPtr--; // because of OpenBlock
-	s.sourceStart = intStack[intPtr--];
-	s.sourceEnd = endStatementPosition;
+	switchStatement.explicitDeclarations = realBlockStack[realBlockPtr--];
+	pushOnAstStack(switchStatement);
+	switchStatement.blockStart = intStack[intPtr--]; //  TODO (david) should rather provide blockStart
+	switchStatement.sourceStart = intStack[intPtr--];
+	switchStatement.sourceEnd = endStatementPosition;
+	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
+		switchStatement.bits |= AstNode.UndocumentedEmptyBlockMASK;
+	}
 }
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
