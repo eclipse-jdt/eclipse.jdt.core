@@ -313,7 +313,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Prefix for tests names to be run
-	testsPrefix =  "testEnum";
+//	testsPrefix =  "testEnum";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	testsNames = new String[] { "testPackageReference9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
