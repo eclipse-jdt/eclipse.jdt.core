@@ -100,7 +100,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0567"));
+		suite.addTest(new ASTConverterTest2("test0572"));
 		return suite;
 	}
 	/**
@@ -3408,7 +3408,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 		assertNotNull("No comments", compilationUnit.getCommentList());
 		assertEquals("Wrong size", 3, compilationUnit.getCommentList().size());
-	}	
+	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
 	 */
@@ -5224,5 +5224,33 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		assertEquals("Wrong character", '}', source[node.getStartPosition() + node.getLength() - 1]);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74369
+	 */
+	public void _test0572() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0572", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 1);
+		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		assertEquals("wrong name", "Local", typeDeclaration.getName().getIdentifier());
+		assertNull("Got a javadoc", typeDeclaration.getJavadoc());
+		node = getASTNode(unit, 0);
+		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		typeDeclaration = (TypeDeclaration) node;
+		assertEquals("wrong name", "A", typeDeclaration.getName().getIdentifier());
+		assertNotNull("No javadoc", typeDeclaration.getJavadoc());
+		node = getASTNode(unit, 0, 0);
+		assertEquals("not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "method", methodDeclaration.getName().getIdentifier());
+		assertNotNull("No javadoc", methodDeclaration.getJavadoc());
 	}
 }
