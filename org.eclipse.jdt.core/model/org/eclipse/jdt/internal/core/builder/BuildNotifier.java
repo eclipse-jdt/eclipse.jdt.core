@@ -39,10 +39,7 @@ public BuildNotifier(IProgressMonitor monitor, IProject project) {
 			location = project.getParent().getLocation(); // default workspace location
 		else if (location.lastSegment().equalsIgnoreCase(project.getName()))
 			location = location.removeLastSegments(1); // want to show project name if possible
-		String printedLocation = location.toString();
-		this.rootPathLength = printedLocation.length() + 1;
-		if (printedLocation.endsWith("/")) //$NON-NLS-1$
-			this.rootPathLength--;
+		this.rootPathLength = location.toString().length() + (location.hasTrailingSeparator() ? 0 : 1);
 	} catch(CoreException e) {
 		this.rootPathLength = 0;
 	}
