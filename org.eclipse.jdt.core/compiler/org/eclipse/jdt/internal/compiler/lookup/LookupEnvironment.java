@@ -38,6 +38,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private ArrayBinding[][] uniqueArrayBindings;
 	private SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
+	private SimpleLookupTable uniqueWildcardBindings;
 	
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private int lastUnitIndex = -1;
@@ -350,7 +351,7 @@ PackageBinding createPackage(char[][] compoundName) {
 
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments) {
 
-	// cached info is array of already created parameterized types for this raw type
+	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
 	int argLength = typeArguments.length;
 	boolean needToGrow = false;
@@ -387,13 +388,28 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 
 public RawTypeBinding createRawType(ReferenceBinding genericType) {
 
-	// cached info is array of already created parameterized types for this raw type
+	// cached info is array of already created raw types for this type
 	RawTypeBinding cachedInfo = (RawTypeBinding)this.uniqueRawTypeBindings.get(genericType);
 	if (cachedInfo == null) {
 	    cachedInfo = new RawTypeBinding(genericType, this);
 		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
 	}
 	return cachedInfo;
+}
+
+public WildcardBinding createWildcard(ReferenceBinding bound, boolean isSuper) {
+	// cached info is array of already created wildcard types for this type bound
+	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(bound);
+	if (cachedInfo == null) {
+	    cachedInfo = new WildcardBinding[2]; // 0:extends, 1: super
+	    this.uniqueWildcardBindings.put(bound, cachedInfo);
+	}
+	int index = isSuper ? 1 : 0;
+	WildcardBinding wildcard;
+	if ((wildcard = cachedInfo[index]) == null) {
+	    cachedInfo[index] = wildcard = new WildcardBinding(bound, isSuper);
+	}
+	return wildcard;
 }
 
 /* Answer the type for the compoundName if it exists in the cache.

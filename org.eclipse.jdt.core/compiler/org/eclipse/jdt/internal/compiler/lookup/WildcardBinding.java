@@ -22,7 +22,9 @@ public class WildcardBinding extends ReferenceBinding {
 	
     public final static char[] WILDCARD_NAME = { '?' };
     
-	public WildcardBinding() {
+	public WildcardBinding(ReferenceBinding bound, boolean isSuper) {
+	    this.bound = bound;
+	    this.isSuper = isSuper;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
 	}
 	
