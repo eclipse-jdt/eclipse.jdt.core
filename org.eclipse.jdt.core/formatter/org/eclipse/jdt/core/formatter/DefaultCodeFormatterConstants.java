@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public interface DefaultCodeFormatterConstants {
 
+	public static final String TRUE = "true"; 											//$NON-NLS-1$
+	public static final String FALSE = "false"; 										//$NON-NLS-1$
 	public static final String FORMATTER_LINE_SPLIT = JavaCore.PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
 	public static final String FORMATTER_TAB_CHAR = JavaCore.PLUGIN_ID + ".formatter.tabulation.char"; //$NON-NLS-1$
 	public static final String FORMATTER_TAB_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
