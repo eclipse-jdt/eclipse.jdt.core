@@ -32,13 +32,10 @@ public class FinallyFlowContext extends FlowContext {
 		BlockScope scope) {
 		for (int i = 0; i < assignCount; i++) {
 			Reference ref;
-			if (((ref = finalAssignments[i]).bits & BindingIds.FIELD) != 0) {
+			if ((ref = finalAssignments[i]).isFieldReference()) {
 				// final field
-				if (flowInfo
-					.isPotentiallyAssigned((FieldBinding) ((NameReference) ref).binding)) {
-					scope.problemReporter().duplicateInitializationOfBlankFinalField(
-						(FieldBinding) ((NameReference) ref).binding,
-						(NameReference) ref);
+				if (flowInfo.isPotentiallyAssigned(ref.fieldBinding())) {
+					scope.problemReporter().duplicateInitializationOfBlankFinalField(ref.fieldBinding(), ref);
 				}
 			} else {
 				// final local variable
