@@ -270,8 +270,6 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			return IntBinding;
 		case TypeIds.T_JavaLangLong :
 			return LongBinding;
-		case TypeIds.T_JavaLangVoid :
-			return VoidBinding;
 
 		case TypeIds.T_int :
 			boxedType = getType(JAVA_LANG_INTEGER);
@@ -305,10 +303,6 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			boxedType = getType(JAVA_LANG_BOOLEAN);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
-		case TypeIds.T_void :
-			boxedType = getType(JAVA_LANG_VOID);
-			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
 	}
 	return type;
 }	

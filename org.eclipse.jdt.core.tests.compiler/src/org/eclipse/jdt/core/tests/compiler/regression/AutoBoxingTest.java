@@ -1893,4 +1893,26 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"SUCCESS");
 	}		
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81971
+	public void test072() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        doFoo(getVoid());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private static void doFoo(Object o) { }\n" + 
+				"\n" + 
+				"    private static void getVoid() { }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	doFoo(getVoid());\n" + 
+			"	^^^^^\n" + 
+			"The method doFoo(Object) in the type X is not applicable for the arguments (void)\n" + 
+			"----------\n");
+	}		
 }
