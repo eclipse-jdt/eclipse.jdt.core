@@ -510,10 +510,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 			argumentList.add(argument);
 			if (this.namePos >= length) break argumentsLoop;
 			if (typeName[this.namePos] == '>') {
-				this.namePos++;
 				break argumentsLoop;
 			}
-			this.namePos++;
+			this.namePos++; // skip ','
 		}
 		TypeReference[] typeArguments = new TypeReference[count];
 		argumentList.toArray(typeArguments);
