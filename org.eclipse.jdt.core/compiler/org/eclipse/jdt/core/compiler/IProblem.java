@@ -414,6 +414,33 @@ public interface IProblem {
 	int MissingSemiColon = Syntax + Internal + 224;
 	/** @since 2.1 */
 	int InvalidParenthesizedExpression = Syntax + Internal + 225;
+	
+	/** @since 3.0 */
+	int ParsingErrorInsertTokenBefore = Syntax + Internal + 230;
+	/** @since 3.0 */
+	int ParsingErrorInsertTokenAfter = Syntax + Internal + 231;
+	/** @since 3.0 */
+    int ParsingErrorDeleteToken = Syntax + Internal + 232;
+    /** @since 3.0 */
+    int ParsingErrorDeleteTokens = Syntax + Internal + 233;
+    /** @since 3.0 */
+    int ParsingErrorMergeTokens = Syntax + Internal + 234;
+    /** @since 3.0 */
+    int ParsingErrorInvalidToken = Syntax + Internal + 235;
+    /** @since 3.0 */
+    int ParsingErrorMisplacedConstruct = Syntax + Internal + 236;
+    /** @since 3.0 */
+    int ParsingErrorReplaceTokens = Syntax + Internal + 237;
+    /** @since 3.0 */
+    int ParsingErrorNoSuggestionForTokens = Syntax + Internal + 238;
+    /** @since 3.0 */
+    int ParsingErrorUnexpectedEOF = Syntax + Internal + 239;
+    /** @since 3.0 */
+    int ParsingErrorInsertToComplete = Syntax + Internal + 240;
+    /** @since 3.0 */
+    int ParsingErrorInsertToCompleteScope = Syntax + Internal + 241;
+    /** @since 3.0 */
+    int ParsingErrorInsertToCompletePhrase = Syntax + Internal + 242;
     
 	// scanner errors
 	int EndOfSource = Syntax + Internal + 250;

@@ -107,13 +107,8 @@ public void test01() {
 		"----------\n" +
 		"1. ERROR in <parenthesis mismatch> (at line 9)\n" + 
 		"	if (this.equals(result.documentName){		\n" + 
-		"	   ^\n" + 
-		"Unmatched bracket\n" + 
-		"----------\n" + 
-		"2. ERROR in <parenthesis mismatch> (at line 9)\n" + 
-		"	if (this.equals(result.documentName){		\n" + 
-		"	                                    ^\n" + 
-		"Syntax error on token \"{\", \")\" expected\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, insert \") Statement\" to complete BlockStatements\n" + 
 		"----------\n";
 
 	String testName = "<parenthesis mismatch>";
@@ -136,15 +131,10 @@ public void test02() {
 
 	String expectedSyntaxErrorDiagnosis =
 		"----------\n" +
-		"1. ERROR in <brace mismatch> (at line 3)\n" + 
-		"	this(fred().x{);\n" + 
-		"	    ^\n" + 
-		"Unmatched bracket\n" + 
-		"----------\n" + 
-		"2. ERROR in <brace mismatch> (at line 3)\n" + 
-		"	this(fred().x{);\n" + 
-		"	             ^\n" + 
-		"Syntax error on token \"{\", \")\" expected\n" + 
+		"1. ERROR in <brace mismatch> (at line 3)\n" +
+		"	this(fred().x{);\n" +
+		"	             ^\n" +
+		"Syntax error on token \"{\", delete this token\n" + 
 		"----------\n";
 
 	String testName = "<brace mismatch>";
@@ -169,16 +159,26 @@ public void test03() {
 		"}										\n"; 	
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" + 
-		"1. ERROR in <parenthesis mismatch> (at line 2)\n" + 
-		"	int foo(							\n" + 
-		"	       ^\n" + 
-		"Unmatched bracket\n" + 
-		"----------\n" + 
-		"2. ERROR in <parenthesis mismatch> (at line 3)\n" + 
-		"	[ arg1, 						\n" + 
-		"	^\n" + 
-		"Syntax error on token \"[\", \"float\", \"double\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"boolean\", \"void\", \"Identifier\" expected\n" + 
+		"----------\n" +
+		"1. ERROR in <parenthesis mismatch> (at line 3)\n" +
+		"	[ arg1, 						\n" +
+		"	^\n" +
+		"Syntax error on token \"[\", invalid Type\n" +
+		"----------\n" +
+		"2. ERROR in <parenthesis mismatch> (at line 4)\n" +
+		"	{ arg2, ]						\n" +
+		"	^\n" +
+		"Syntax error on token \"{\", invalid Type\n" +
+		"----------\n" +
+		"3. ERROR in <parenthesis mismatch> (at line 4)\n" +
+		"	{ arg2, ]						\n" +
+		"	        ^\n" +
+		"Syntax error on token \"]\", invalid Type\n" +
+		"----------\n" +
+		"4. ERROR in <parenthesis mismatch> (at line 5)\n" +
+		"	arg3, 						\n" +
+		"	    ^\n" +
+		"Syntax error on token \",\", FormalParameter expected after this token\n" +
 		"----------\n";
 
 	String testName = "<parenthesis mismatch>";
@@ -203,11 +203,21 @@ public void test04() {
 		"}											\n"; 	
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" + 
-		"1. ERROR in <no parenthesis mismatch> (at line 3)\n" + 
-		"	{ arg1, 							\n" + 
-		"	^\n" + 
-		"Syntax error on token \"{\", \"float\", \"double\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"boolean\", \"void\", \"Identifier\" expected\n" + 
+		"----------\n" +
+		"1. ERROR in <no parenthesis mismatch> (at line 2)\n" +
+		"	int foo(								\n" +
+		"	       ^\n" +
+		"Syntax error on token \"(\", = expected\n" +
+		"----------\n" +
+		"2. ERROR in <no parenthesis mismatch> (at line 5)\n" +
+		"	arg3, }							\n" +
+		"	^^^^\n" +
+		"Syntax error on token \"arg3\", delete this token\n" +
+		"----------\n" +
+		"3. ERROR in <no parenthesis mismatch> (at line 6)\n" +
+		"	){										\n" +
+		"	^\n" +
+		"Syntax error on token \")\", ; expected\n" +
 		"----------\n";
 
 	String testName = "<no parenthesis mismatch>";

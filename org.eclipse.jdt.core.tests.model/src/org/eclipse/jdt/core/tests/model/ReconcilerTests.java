@@ -434,7 +434,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	public.void foo() {\n" + 
 		"	      ^\n" + 
-		"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
+		"Syntax error on token \".\", delete this token\n" + 
 		"----------\n"
 	);
 
@@ -486,7 +486,7 @@ public void testMethodWithError2() throws JavaModelException, CoreException {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	public.void foo() {\n" + 
 		"	      ^\n" + 
-		"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
+		"Syntax error on token \".\", delete this token\n" + 
 		"----------\n"
 	);
 }
@@ -672,7 +672,7 @@ public void testMethodWithError6() throws JavaModelException, CoreException {
 			"1. ERROR in Y.java (at line 3)\n" + 
 			"	public.void foo() {\n" + 
 			"	      ^\n" + 
-			"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
+			"Syntax error on token \".\", delete this token\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -709,10 +709,10 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
 			"Unexpected problems",
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 3)\n" + 
-			"	public.void foo() {\n" + 
-			"	      ^\n" + 
-			"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
-			"----------\n"
+		"	public.void foo() {\n" + 
+		"	      ^\n" + 
+		"Syntax error on token \".\", delete this token\n" + 
+		"----------\n"
 		);
 	} finally {
 		this.deleteFile("/Reconciler/src/p1/Y.java");
@@ -833,12 +833,8 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	public void bar( {\n" + 
-		"	                 ^\n" + 
-		"Syntax error on token \"{\", \"float\", \"double\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"boolean\", \"void\", \"Identifier\" expected\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	public void bar( {\n" + 
 		"	               ^\n" + 
-		"Unmatched bracket\n" + 
+		"Syntax error on token \"(\", ) expected after this token\n" + 
 		"----------\n"
 	);
 }

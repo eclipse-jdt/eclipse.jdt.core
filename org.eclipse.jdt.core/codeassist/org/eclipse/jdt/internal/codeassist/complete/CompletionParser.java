@@ -116,6 +116,7 @@ public class CompletionParser extends AssistParser {
 	
 public CompletionParser(ProblemReporter problemReporter, long sourceLevel) {
 	super(problemReporter, sourceLevel);
+	this.reportSyntaxErrorIsRequired = false;
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;

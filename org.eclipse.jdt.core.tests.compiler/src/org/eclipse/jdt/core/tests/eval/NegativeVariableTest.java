@@ -83,7 +83,7 @@ public void testInvalidName() {
 		var = context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
 		evaluateWithExpectedProblem(
 			var, 
-			newProblem(IProblem.ParsingError, Error, 0, 0, 0)); // Syntax error on token "!", "Identifier" expected
+			newProblem(IProblem.ParsingErrorDeleteTokens, Error, 0, 9, 0)); // Syntax error, delete these tokens
 	} finally {
 		if (var != null) {
 			context.deleteVariable(var);
@@ -98,7 +98,7 @@ public void testInvalidName() {
 		var2 = context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
 		evaluateWithExpectedProblem(
 			var2, 
-			newProblem(IProblem.ParsingError, Error, 0, 0, 0)); // Syntax error on token "!", "Identifier" expected
+			newProblem(IProblem.ParsingErrorDeleteTokens, Error, 0, 9, 0)); // Syntax error, delete these tokens
 	} finally {
 		if (var1 != null) {
 			context.deleteVariable(var1);

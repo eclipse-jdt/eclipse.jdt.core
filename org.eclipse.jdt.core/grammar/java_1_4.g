@@ -1,7 +1,7 @@
 --main options
 %options ACTION, AN=JavaAction.java, GP=java, 
 %options FILE-PREFIX=java, ESCAPE=$, PREFIX=TokenName, OUTPUT-SIZE=125 ,
-%options NOGOTO-DEFAULT, SINGLE-PRODUCTIONS, LALR=1 , TABLE=TIME , 
+%options NOGOTO-DEFAULT, SINGLE-PRODUCTIONS, LALR=1 , TABLE, 
 
 --error recovering options.....
 %options ERROR_MAPS 
@@ -10,6 +10,11 @@
 %options first follow
 %options TRACE=FULL ,
 %options VERBOSE
+
+%options DEFERRED
+%options NAMES=MAX
+%options SCOPES
+%options jikes
 
 --Usefull macros helping reading/writing semantic actions
 $Define 

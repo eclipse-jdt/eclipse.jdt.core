@@ -79,7 +79,7 @@ public class ExecutionTests extends Tests {
 		expectingOnlyProblemsFor(helloPath);
 		executeClass(projectPath, "p1.Hello", "", //$NON-NLS-1$ //$NON-NLS-2$
 			"java.lang.Error: Unresolved compilation problem: \n" +  //$NON-NLS-1$
-			"	Missing semicolon\n" //$NON-NLS-1$
+			"	Syntax error, insert \";\" to complete BlockStatementsopt\n" //$NON-NLS-1$
 		);
 	}
 }

@@ -451,7 +451,12 @@ public void test13() {
 		"2. ERROR in p1\\A.java (at line 11)\n" + 
 		"	public void anotherMethod(int A) {};	\n" + 
 		"	                         ^\n" + 
-		"Syntax error on token \"(\", \";\" expected\n" + 
+		"Syntax error on token \"(\", ; expected\n" + 
+		"----------\n" +
+		"3. ERROR in p1\\A.java (at line 11)\n" +
+		"	public void anotherMethod(int A) {};	\n" +
+		"	                               ^\n" +
+		"Syntax error on token \")\", ; expected\n" +
 		"----------\n"
 	);
 }

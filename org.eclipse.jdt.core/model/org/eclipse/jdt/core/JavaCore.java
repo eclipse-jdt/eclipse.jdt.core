@@ -38,6 +38,7 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 
@@ -2084,6 +2085,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		final String NEW_CODE_FORMATTER_ACTIVATION = PLUGIN_ID + ".newformatter.activation";	//$NON-NLS-1$
 		preferences.setDefault(NEW_CODE_FORMATTER_ACTIVATION, DISABLED); //$NON-NLS-1$
 		optionNames.add(NEW_CODE_FORMATTER_ACTIVATION);
+		
+		// TODO can be removed when the new syntax error diagnose is officially released.
+		final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
+		preferences.setDefault(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION, ENABLED); //$NON-NLS-1$
+		optionNames.add(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
 	}
 	
 	/**
@@ -3155,6 +3161,17 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			startIndexing();
 			workspace.addSaveParticipant(this, manager);
+			
+			// TODO can be removed when the new syntax error diagnose is officially released.
+			{
+				final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
+				Object newDiagnoseParserActivation = JavaCore.getOption(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
+				if (JavaCore.ENABLED.equals(newDiagnoseParserActivation)) {
+					Parser.fineErrorDiagnose = true;
+				} else {
+					Parser.fineErrorDiagnose = false;
+				}
+			}
 			
 		} catch (CoreException e) {
 		} catch (RuntimeException e) {

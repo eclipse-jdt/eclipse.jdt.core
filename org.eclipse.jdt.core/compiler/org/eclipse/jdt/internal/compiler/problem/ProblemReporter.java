@@ -2518,13 +2518,8 @@ public void parseError(
 		return;
 	}
 	//extract the literal when it's a literal  
-	if ((errorTokenName.equals("IntegerLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("LongLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("FloatingPointLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("DoubleLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("StringLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("CharacterLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("Identifier"))) { //$NON-NLS-1$
+	if (isLiteral(currentToken) ||
+		isIdentifier(currentToken)) { //$NON-NLS-1$
 			errorTokenName = new String(currentTokenSource);
 	}
 
@@ -3249,60 +3244,306 @@ public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) 
 }
 
 private boolean isKeyword(int token) {
-		switch(token) {
-			case Scanner.TokenNameabstract:
-			case Scanner.TokenNameassert:
-			case Scanner.TokenNamebyte:
-			case Scanner.TokenNamebreak:
-			case Scanner.TokenNameboolean:
-			case Scanner.TokenNamecase:
-			case Scanner.TokenNamechar:
-			case Scanner.TokenNamecatch:
-			case Scanner.TokenNameclass:
-			case Scanner.TokenNamecontinue:
-			case Scanner.TokenNamedo:
-			case Scanner.TokenNamedouble:
-			case Scanner.TokenNamedefault:
-			case Scanner.TokenNameelse:
-			case Scanner.TokenNameextends:
-			case Scanner.TokenNamefor:
-			case Scanner.TokenNamefinal:
-			case Scanner.TokenNamefloat:
-			case Scanner.TokenNamefalse:
-			case Scanner.TokenNamefinally:
-			case Scanner.TokenNameif:
-			case Scanner.TokenNameint:
-			case Scanner.TokenNameimport:
-			case Scanner.TokenNameinterface:
-			case Scanner.TokenNameimplements:
-			case Scanner.TokenNameinstanceof:
-			case Scanner.TokenNamelong:
-			case Scanner.TokenNamenew:
-			case Scanner.TokenNamenull:
-			case Scanner.TokenNamenative:
-			case Scanner.TokenNamepublic:
-			case Scanner.TokenNamepackage:
-			case Scanner.TokenNameprivate:
-			case Scanner.TokenNameprotected:
-			case Scanner.TokenNamereturn:
-			case Scanner.TokenNameshort:
-			case Scanner.TokenNamesuper:
-			case Scanner.TokenNamestatic:
-			case Scanner.TokenNameswitch:
-			case Scanner.TokenNamestrictfp:
-			case Scanner.TokenNamesynchronized:
-			case Scanner.TokenNametry:
-			case Scanner.TokenNamethis:
-			case Scanner.TokenNametrue:
-			case Scanner.TokenNamethrow:
-			case Scanner.TokenNamethrows:
-			case Scanner.TokenNametransient:
-			case Scanner.TokenNamevoid:
-			case Scanner.TokenNamevolatile:
-			case Scanner.TokenNamewhile:
-				return true;
-			default: 
-				return false;
-		}
+	switch(token) {
+		case Scanner.TokenNameabstract:
+		case Scanner.TokenNameassert:
+		case Scanner.TokenNamebyte:
+		case Scanner.TokenNamebreak:
+		case Scanner.TokenNameboolean:
+		case Scanner.TokenNamecase:
+		case Scanner.TokenNamechar:
+		case Scanner.TokenNamecatch:
+		case Scanner.TokenNameclass:
+		case Scanner.TokenNamecontinue:
+		case Scanner.TokenNamedo:
+		case Scanner.TokenNamedouble:
+		case Scanner.TokenNamedefault:
+		case Scanner.TokenNameelse:
+		case Scanner.TokenNameextends:
+		case Scanner.TokenNamefor:
+		case Scanner.TokenNamefinal:
+		case Scanner.TokenNamefloat:
+		case Scanner.TokenNamefalse:
+		case Scanner.TokenNamefinally:
+		case Scanner.TokenNameif:
+		case Scanner.TokenNameint:
+		case Scanner.TokenNameimport:
+		case Scanner.TokenNameinterface:
+		case Scanner.TokenNameimplements:
+		case Scanner.TokenNameinstanceof:
+		case Scanner.TokenNamelong:
+		case Scanner.TokenNamenew:
+		case Scanner.TokenNamenull:
+		case Scanner.TokenNamenative:
+		case Scanner.TokenNamepublic:
+		case Scanner.TokenNamepackage:
+		case Scanner.TokenNameprivate:
+		case Scanner.TokenNameprotected:
+		case Scanner.TokenNamereturn:
+		case Scanner.TokenNameshort:
+		case Scanner.TokenNamesuper:
+		case Scanner.TokenNamestatic:
+		case Scanner.TokenNameswitch:
+		case Scanner.TokenNamestrictfp:
+		case Scanner.TokenNamesynchronized:
+		case Scanner.TokenNametry:
+		case Scanner.TokenNamethis:
+		case Scanner.TokenNametrue:
+		case Scanner.TokenNamethrow:
+		case Scanner.TokenNamethrows:
+		case Scanner.TokenNametransient:
+		case Scanner.TokenNamevoid:
+		case Scanner.TokenNamevolatile:
+		case Scanner.TokenNamewhile:
+			return true;
+		default: 
+			return false;
 	}
+}
+
+private boolean isLiteral(int token) {
+	switch(token) {
+		case Scanner.TokenNameIntegerLiteral:
+		case Scanner.TokenNameLongLiteral:
+		case Scanner.TokenNameFloatingPointLiteral:
+		case Scanner.TokenNameDoubleLiteral:
+		case Scanner.TokenNameStringLiteral:
+		case Scanner.TokenNameCharacterLiteral:
+			return true;
+		default: 
+			return false;
+	}
+}
+
+private boolean isIdentifier(int token) {
+	return token == Scanner.TokenNameIdentifier;
+}
+
+private void syntaxError(
+	int id,
+	int startPosition, 
+	int endPosition, 
+	int currentKind,
+	char[] currentTokenSource, 
+	String errorTokenName, 
+	String expectedToken) {
+
+	String eTokenName;
+	if (isKeyword(currentKind) ||
+		isLiteral(currentKind) ||
+		isIdentifier(currentKind)) { //$NON-NLS-1$
+			eTokenName = new String(currentTokenSource);
+	} else {
+		eTokenName = errorTokenName;
+	}
+
+	String[] arguments;
+	if(expectedToken != null) {
+		arguments = new String[] {eTokenName, expectedToken};
+	} else {
+		arguments = new String[] {eTokenName};
+	}
+	this.handle(
+		id,
+		arguments,
+		arguments,
+		startPosition,
+		endPosition);
+}
+
+public void parseErrorInsertBeforeToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInsertTokenBefore,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorInsertAfterToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInsertTokenAfter,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorDeleteToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName){
+	this.syntaxError(
+		IProblem.ParsingErrorDeleteToken,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName,
+		null); 
+}
+public void parseErrorReplaceToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingError,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorInvalidToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInvalidToken,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorUnexpectedEOF(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorUnexpectedEOF,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorMergeTokens(
+	int start,
+	int end,
+	String expectedToken){
+	String[] arguments = new String[] {expectedToken};
+	this.handle(
+		IProblem.ParsingErrorMergeTokens,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorMisplacedConstruct(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorMisplacedConstruct,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorNoSuggestion(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName){
+	this.syntaxError(
+		IProblem.ParsingErrorNoSuggestion,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName,
+		null); 
+}
+public void parseErrorDeleteTokens(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorDeleteTokens,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorNoSuggestionForTokens(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorNoSuggestionForTokens,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorReplaceTokens(
+	int start,
+	int end,
+	String expectedToken){
+	String[] arguments = new String[] {expectedToken};
+	this.handle(
+		IProblem.ParsingErrorReplaceTokens,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInsertToComplete(
+	int start,
+	int end,
+	String inserted,
+	String completed){
+	String[] arguments = new String[] {inserted, completed};
+	this.handle(
+		IProblem.ParsingErrorInsertToComplete,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInsertToCompleteScope(
+	int start,
+	int end,
+	String inserted){
+	String[] arguments = new String[] {inserted};
+	this.handle(
+		IProblem.ParsingErrorInsertToCompleteScope,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInsertToCompletePhrase(
+	int start,
+	int end,
+	String inserted){
+	String[] arguments = new String[] {inserted};
+	this.handle(
+		IProblem.ParsingErrorInsertToCompletePhrase,
+		arguments,
+		arguments,
+		start,
+		end);
+}
 }

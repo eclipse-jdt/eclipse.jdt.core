@@ -3315,10 +3315,10 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertTrue("The compilation unit is malformed", !isMalformed(unit)); //$NON-NLS-1$
-		assertTrue("The package declaration is malformed", !isMalformed(unit.getPackage())); //$NON-NLS-1$
+		assertTrue("The package declaration is not malformed", isMalformed(unit.getPackage())); //$NON-NLS-1$
 		List imports = unit.imports();
 		assertTrue("The imports list size is not one", imports.size() == 1); //$NON-NLS-1$
-		assertTrue("The first import is not malformed", isMalformed((ASTNode) imports.get(0))); //$NON-NLS-1$
+		assertTrue("The first import is malformed", !isMalformed((ASTNode) imports.get(0))); //$NON-NLS-1$
 	}
 
 	/**
@@ -3344,7 +3344,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The type is malformed", !isMalformed(node)); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The field is malformed", !isMalformed(node)); //$NON-NLS-1$
+		assertTrue("The field is not malformed", isMalformed(node)); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 1);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
 		assertTrue("The method is not malformed", isMalformed(node)); //$NON-NLS-1$
@@ -7514,8 +7514,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No result", result); //$NON-NLS-1$
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 3, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 3, compilationUnit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**
@@ -8169,7 +8169,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("No errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("No errors found", 3, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull("not null", node); //$NON-NLS-1$
 		assertTrue("not a Type declaration", node instanceof TypeDeclaration); //$NON-NLS-1$
@@ -8723,7 +8723,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
 	}
 	
 	/**

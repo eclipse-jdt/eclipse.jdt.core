@@ -36,6 +36,7 @@ public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext eval
 	this.codeSnippetStart = codeSnippetStart;
 	this.codeSnippetEnd = codeSnippetEnd;
 	this.evaluationContext = evaluationContext;
+	this.reportOnlyOneSyntaxError = true;
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -650,6 +651,16 @@ protected void reportSyntaxError(int act, int currentKind, int state) {
 	}
 	super.reportSyntaxError(act, currentKind, state);
 }
+
+protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
+	if (!isDietParse) {
+		this.scanner.initialPosition = this.lastStatement;
+		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression 
+		oldFirstToken = TokenNameTWIDDLE;//TokenNameREMAINDER; // first token of th expression parse
+	}
+	super.reportSyntaxErrors(isDietParse, oldFirstToken);
+}
+
 /*
  * A syntax error was detected. If a method is being parsed, records the number of errors and
  * attempts to restart from the last statement by going for an expression.
@@ -682,6 +693,7 @@ protected boolean resumeOnSyntaxError() {
 	goForExpression();
 	this.hasRecoveredOnExpression = true;
 	this.hasReportedError = false;
+	this.hasError = false;
 	return true;
 }
 }

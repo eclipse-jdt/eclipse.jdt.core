@@ -77,6 +77,7 @@ public static Class testClass() {
  * in one of its methods.
  */
 public void testExpressionInInnerClass() {
+	//TODO: Syntax error diagnose should be improve in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"class X {",
 		"	int foo() {",
@@ -84,22 +85,23 @@ public void testExpressionInInnerClass() {
 		"	}",
 		"}",
 		"return new X().foo();"}), 
-		newProblem(IProblem.InvalidExpressionAsStatement, Error, 25, 25, 3)); // Syntax error on token "+"
+		newProblem(IProblem.ParsingError, Error, 21, 21, 2)); // Syntax error on token "+"
 }
 /**
  * Test extra closing curly bracket.
  */
 public void testExtraClosingCurlyBracket() {
+	//TODO: Syntax error diagnose should be improve in this case.
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"1 + 2}".toCharArray(), 
-		newProblem(IProblem.UnmatchedBracket, Error, 5, 5, 1)); // Unmatched bracket
+		newProblem(IProblem.ParsingError, Error, 0, 0, 1)); // Unmatched bracket
 
 	// a statement followed by an unreachable expression with an extra curly bracket
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"return 1 + 1;",
 		" 2 + 2}"}), 
-		newProblem(IProblem.UnmatchedBracket, Error, 20, 20, 2)); // Unmatched bracket
+		newProblem(IProblem.ParsingError, Error, 15, 15, 2)); // Unmatched bracket
 }
 /**
  * Test extra open round bracket.
@@ -107,7 +109,7 @@ public void testExtraClosingCurlyBracket() {
 public void testExtraOpenRoundBracket() {
 	evaluateWithExpectedProblem(
 		"foo((a);".toCharArray(), 
-		newProblem(IProblem.UnmatchedBracket, Error, 3, 3, 1)); // Unmatched bracket
+		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 0, 6, 1)); // Unmatched bracket
 }
 /**
  * Test a code snippet that contains an expression followed by a semi-colon.
@@ -115,7 +117,7 @@ public void testExtraOpenRoundBracket() {
 public void testExtraSemiColonInExpression() {
 	evaluateWithExpectedProblem(
 		"1;".toCharArray(), 
-		newProblem(IProblem.ParsingError, Error, 1, 1, 1)); // Syntax error on token EOF
+		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 0, 0, 1)); // Syntax error on token EOF
 }
 /**
  * Test access to a non existing field.
@@ -176,7 +178,7 @@ public void testInvalidUseOfThisInSnippet2() {
 public void testMissingClosingRoundBracket() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"System.out.println(\"3 + 3\";"}), 
-		newProblem(IProblem.UnmatchedBracket, Error, 18, 18, 1)); // Unmatched bracket
+		newProblem(IProblem.ParsingErrorInsertToComplete, Error, 0, 25, 1)); // Unmatched bracket
 }
 /**
  * Test a code snippet that contains a string that misses the closing double quote .
@@ -194,7 +196,7 @@ public void testNonLastExpressionStatement() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"1 == '1';",
 		"true"}), 
-		newProblem(IProblem.ParsingError, Error, 8, 8, 1)); // Syntax error on token ";"
+		newProblem(IProblem.ParsingErrorInvalidToken, Error, 2, 3, 1)); // Syntax error on token "=="
 }
 /**
  * Test a problem in the returned expression.
@@ -202,7 +204,7 @@ public void testNonLastExpressionStatement() {
 public void testProblemInExpression() {
 	evaluateWithExpectedProblem(
 		"new Object(); 3 + ".toCharArray(), 
-		newProblem(IProblem.ParsingError, Error, 17, 17, 1)); // Syntax error on token EOF
+		newProblem(IProblem.ParsingErrorDeleteToken, Error, 16, 16, 1)); // Syntax error on token '+'
 }
 /**
  * Test a problem in the returned expression.
@@ -239,10 +241,11 @@ public void testProblemInInnerClass() {
  * Test a problem in the statement before the returned expression.
  */
 public void testProblemInPreviousStatement() {
+	//TODO: Syntax error diagnose should be improve in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"return foo(a a);",
 		"1 + 3"}), 
-		newProblem(IProblem.ParsingError, Error, 13, 13, 1)); //  Syntax error on token "a"
+		newProblem(IProblem.ParsingErrorDeleteToken, Error, 13, 13, 1)); //  Syntax error on token "a"
 }
 /**
  * Test a code snippet that has a problem in a return statement.

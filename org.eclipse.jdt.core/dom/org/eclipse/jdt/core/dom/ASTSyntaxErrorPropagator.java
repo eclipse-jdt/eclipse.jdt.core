@@ -34,6 +34,20 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 				case IProblem.ParsingError :
 				case IProblem.ParsingErrorNoSuggestion :
 					break;
+				case IProblem.ParsingErrorInsertTokenBefore :
+				case IProblem.ParsingErrorInsertTokenAfter :
+				case IProblem.ParsingErrorDeleteToken :
+				case IProblem.ParsingErrorDeleteTokens :
+				case IProblem.ParsingErrorMergeTokens :
+				case IProblem.ParsingErrorInvalidToken :
+				case IProblem.ParsingErrorMisplacedConstruct :
+				case IProblem.ParsingErrorReplaceTokens :
+				case IProblem.ParsingErrorNoSuggestionForTokens :
+				case IProblem.ParsingErrorUnexpectedEOF :
+				case IProblem.ParsingErrorInsertToComplete :
+				case IProblem.ParsingErrorInsertToCompleteScope :
+				case IProblem.ParsingErrorInsertToCompletePhrase :
+					break;
 				default:
 					continue search;
 			}
