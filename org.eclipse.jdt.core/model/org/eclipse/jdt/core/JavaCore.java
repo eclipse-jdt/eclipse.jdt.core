@@ -3371,7 +3371,7 @@ public final class JavaCore extends Plugin {
 			specificOutputLocation, // custom output location
 			false,
 			null,
-			false, // no access restrictions to combine
+			false, // no access rules to combine
 			extraAttributes); 
 	}
 
