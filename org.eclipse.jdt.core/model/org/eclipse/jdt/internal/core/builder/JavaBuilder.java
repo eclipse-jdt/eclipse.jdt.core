@@ -310,7 +310,7 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 				IProject p = null;
 				switch (entry.getEntryKind()) {
 					case IClasspathEntry.CPE_PROJECT :
-						p = workspaceRoot.getProject(path.lastSegment());
+						p = workspaceRoot.getProject(path.lastSegment()); // missing projects are considered too
 						break;
 					case IClasspathEntry.CPE_LIBRARY :
 						if (includeBinaryPrerequisites && path.segmentCount() > 1) {

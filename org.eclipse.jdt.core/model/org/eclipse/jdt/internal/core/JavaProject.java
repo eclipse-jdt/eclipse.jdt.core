@@ -391,15 +391,18 @@ public class JavaProject
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == ClasspathEntry.CPE_PROJECT) {
-					IProject projRsc = (IProject) workspaceRoot.findMember(entry.getPath());
-					if (projRsc != null && projRsc.isOpen()) {				
-						JavaProject project = (JavaProject) JavaCore.create(projRsc);
-						project.computeExpandedClasspath(
-							initialProject, 
-							ignoreUnresolvedVariable, 
-							generateMarkerOnError,
-							visitedProjects, 
-							accumulatedEntries);
+					IResource member = workspaceRoot.findMember(entry.getPath()); 
+					if (member != null && member.getType() == IResource.PROJECT){ // double check if bound to project (23977)
+						IProject projRsc = (IProject) member;
+						if (projRsc.isOpen()) {				
+							JavaProject project = (JavaProject) JavaCore.create(projRsc);
+							project.computeExpandedClasspath(
+								initialProject, 
+								ignoreUnresolvedVariable, 
+								generateMarkerOnError,
+								visitedProjects, 
+								accumulatedEntries);
+						}
 					}
 				}
 			}			
@@ -503,20 +506,23 @@ public class JavaProject
 				if (!retrieveExportedRoots) return;
 				if (!insideOriginalProject && !entry.isExported()) return;
 
-				JavaProject requiredProject = (JavaProject)getJavaModel().getJavaProject(entryPath.segment(0));
-				IProject requiredProjectRsc = requiredProject.getProject();
-				if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
-					rootIDs.add(rootID);
-					requiredProject.computePackageFragmentRoots(
-						requiredProject.getResolvedClasspath(true), 
-						accumulatedRoots, 
-						rootIDs, 
-						false, 
-						checkExistency, 
-						retrieveExportedRoots);
-				}
+				IResource member = workspaceRoot.findMember(entryPath);
+				if (member != null && member.getType() == IResource.PROJECT){// double check if bound to project (23977)
+					IProject requiredProjectRsc = (IProject) member;
+					if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
+						rootIDs.add(rootID);
+						JavaProject requiredProject = (JavaProject)JavaCore.create(requiredProjectRsc);
+						requiredProject.computePackageFragmentRoots(
+							requiredProject.getResolvedClasspath(true), 
+							accumulatedRoots, 
+							rootIDs, 
+							false, 
+							checkExistency, 
+							retrieveExportedRoots);
+					}
 				break;
 			}
+		}
 	}
 
 	/**
@@ -1638,11 +1644,15 @@ public class JavaProject
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry;
 				if ((entry = classpath[i]).getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					String projectName = entry.getPath().lastSegment();
-					if (!visited.add(projectName)) return true;
-					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
-					if (project.hasClasspathCycle(null, visited, workspaceRoot)) return true;
-					visited.remove(projectName);
+					IPath entryPath = entry.getPath();
+					IResource member = workspaceRoot.findMember(entryPath);
+					if (member != null && member.getType() == IResource.PROJECT){
+						String projectName = entryPath.lastSegment();
+						if (!visited.add(projectName)) return true;
+						JavaProject project = (JavaProject)JavaCore.create((IProject)member);
+						if (project.hasClasspathCycle(null, visited, workspaceRoot)) return true;
+						visited.remove(projectName);
+					}
 				}
 			}
 		} catch(JavaModelException e){
@@ -2366,16 +2376,19 @@ public class JavaProject
 				IClasspathEntry entry = classpath[i];
 				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					String projectName = entry.getPath().lastSegment();
-					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
-					int index = visited.indexOf(project);
-					if (index == -1 && cycleParticipants.contains(project))
-						index = visited.indexOf(this); // another loop in the cycle exists
-					if (index >= 0) { // only consider direct participants inside the cycle
-						for (int size = visited.size(); index < size; index++)
-							cycleParticipants.add(visited.get(index)); 
-					} else {
-						project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+					IPath entryPath = entry.getPath();
+					IResource member = workspaceRoot.findMember(entryPath);
+					if (member != null && member.getType() == IResource.PROJECT){
+						JavaProject project = (JavaProject)JavaCore.create((IProject)member);
+						int index = visited.indexOf(project);
+						if (index == -1 && cycleParticipants.contains(project))
+							index = visited.indexOf(this); // another loop in the cycle exists
+						if (index >= 0) { // only consider direct participants inside the cycle
+							for (int size = visited.size(); index < size; index++)
+								cycleParticipants.add(visited.get(index)); 
+						} else {
+							project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+						}
 					}
 				}
 			}

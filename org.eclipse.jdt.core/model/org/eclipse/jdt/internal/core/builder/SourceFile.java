@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
