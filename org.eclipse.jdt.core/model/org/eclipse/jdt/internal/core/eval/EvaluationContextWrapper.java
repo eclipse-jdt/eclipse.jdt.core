@@ -14,8 +14,8 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.newbuilder.NameEnvironment;
-import org.eclipse.jdt.internal.core.newbuilder.ProblemFactory;
+import org.eclipse.jdt.internal.core.builder.NameEnvironment;
+import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 

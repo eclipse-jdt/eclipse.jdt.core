@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.newbuilder.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 /**

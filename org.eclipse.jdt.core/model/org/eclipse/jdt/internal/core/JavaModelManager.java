@@ -13,7 +13,7 @@ import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.newbuilder.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;

@@ -44,7 +44,7 @@
 	id="javabuilder"
 	name="%javaBuilderName">
 	<builder>
-		<run class="org.eclipse.jdt.internal.core.newbuilder.JavaBuilder">
+		<run class="org.eclipse.jdt.internal.core.builder.JavaBuilder">
 		</run>
 	</builder>
 </extension>

@@ -1,6 +1,7 @@
-package org.eclipse.jdt.internal.core.newbuilder;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
+package org.eclipse.jdt.internal.core.builder;
+
+/*
+ * (c) Copyright IBM Corp. 2000, 2002.
  * All Rights Reserved.
  */
 
