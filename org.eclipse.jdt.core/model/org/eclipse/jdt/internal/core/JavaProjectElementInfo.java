@@ -51,10 +51,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	private Object[] fNonJavaResources;
 
-	/**
-	 * Recently computed classpath
-	 */
-	public IClasspathEntry[] lastExpandedClasspath = null;
 	public IClasspathEntry[] lastResolvedClasspath = null;
 
 	/**
@@ -226,8 +222,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	protected void setRawClasspath(IClasspathEntry[] newClasspath) {
 
 		this.fClasspath = newClasspath;
-		this.lastExpandedClasspath = null;
-		this.lastResolvedClasspath = null;
 	}
 	
 	protected void setSearchableEnvironment(SearchableEnvironment newSearchableEnvironment) {
