@@ -285,9 +285,6 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 			fChangeFlags = delta.fChangeFlags;
 			fMovedToHandle = delta.fMovedToHandle;
 			fMovedFromHandle = delta.fMovedFromHandle;
-		} else {
-			// the given delta is not the root or a child - illegal
-			Assert.isTrue(false);
 		}
 	} else {
 		for (int i = 0, size = ancestors.size(); i < size; i++) {
