@@ -900,13 +900,14 @@ public abstract class Scope
 	/* Internal use only 
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask) {
+		
 		Scope scope = this;
+		ReferenceBinding foundType = null;
 		if ((mask & TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
 				scope = next;
 		} else {
-			ReferenceBinding foundType = null;
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
@@ -959,7 +960,7 @@ public abstract class Scope
 				}
 				scope = scope.parent;
 			}
-			if (foundType != null)
+			if (foundType != null && foundType.problemId() != NotVisible)
 				return foundType;
 		}
 
@@ -1012,6 +1013,9 @@ public abstract class Scope
 
 		compilationUnitScope().recordSimpleReference(name);
 		// Answer error binding -- could not find name
+		if (foundType != null){
+			return foundType;
+		}
 		return new ProblemReferenceBinding(name, NotFound);
 	}
 
