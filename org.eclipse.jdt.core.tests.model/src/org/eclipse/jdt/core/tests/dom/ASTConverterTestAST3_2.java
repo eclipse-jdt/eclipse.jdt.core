@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0570"));
+		suite.addTest(new ASTConverterTestAST3_2("test0572"));
 		return suite;
 	}
 	/**
@@ -5220,4 +5220,39 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		final IProblem[] problems = unit.getProblems();
 		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
 	}
+	
+	/**
+	 * No binding when there is no unit name set
+	 */
+	public void test0571() throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		String source = "public class A {public boolean foo() {}}";
+		parser.setSource(source.toCharArray());
+		parser.setProject(getJavaProject("Converter"));
+		// no unit name parser.setUnitName("A");
+		parser.setResolveBindings(true);
+		ASTNode node = parser.createAST(null);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+	}
+	
+	/**
+	 * No binding when there is no unit name set
+	 */
+	public void test0572() throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		String source = "public class A {public boolean foo() {}}";
+		parser.setSource(source.toCharArray());
+		parser.setProject(getJavaProject("Converter"));
+		parser.setUnitName("A");
+		parser.setResolveBindings(true);
+		ASTNode node = parser.createAST(null);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 1, problems.length); //$NON-NLS-1$
+	}
+
 }
