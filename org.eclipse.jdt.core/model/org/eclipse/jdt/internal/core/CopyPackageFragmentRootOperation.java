@@ -211,13 +211,6 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
 
-		IResource resource = root.getResource();
-		if (resource instanceof IFolder) {
-			if (resource.isLinked()) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE, root);
-			}
-		}
-
 		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
 			String destProjectName = this.destination.segment(0);
 			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(destProjectName);
