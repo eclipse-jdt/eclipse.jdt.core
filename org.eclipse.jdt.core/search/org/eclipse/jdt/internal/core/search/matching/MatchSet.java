@@ -27,7 +27,6 @@ public class MatchSet {
 	private MatchLocator locator;
 	int matchContainer;
 	boolean cuHasBeenResolved = false;
-	int accuracy = IJavaSearchResultCollector.POTENTIAL_MATCH;
 
 	/**
 	 * Set of matching ast nodes that don't need to be resolved.

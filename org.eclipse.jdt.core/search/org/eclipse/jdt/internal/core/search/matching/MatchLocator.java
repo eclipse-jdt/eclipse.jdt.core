@@ -843,13 +843,13 @@ public class MatchLocator implements ITypeRequestor {
 	 */
 	private void locateMatches() throws JavaModelException {
 		// binding resolution
+		boolean shouldResolve = true;
 		try {
 			this.lookupEnvironment.completeTypeBindings();
 		} catch (AbortCompilation e) {
 			// problem with class path: it could not find base classes
-			throw new JavaModelException(
-				e,
-				IJavaModelStatusConstants.BUILDER_INITIALIZATION_ERROR);
+			// continue reporting innacurate matches (since bindings will be null)
+			shouldResolve = false;
 		}
 
 		// potential match resolution
@@ -859,13 +859,12 @@ public class MatchLocator implements ITypeRequestor {
 			try {
 				PotentialMatch potentialMatch =
 					this.potentialMatches[this.potentialMatchesIndex];
+				potentialMatch.shouldResolve = shouldResolve;
 				potentialMatch.locateMatches();
 				potentialMatch.reset();
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
-				throw new JavaModelException(
-					e,
-					IJavaModelStatusConstants.BUILDER_INITIALIZATION_ERROR);
+				// continue and try next potential match
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException) e;

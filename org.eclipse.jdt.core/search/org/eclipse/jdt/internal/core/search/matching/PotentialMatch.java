@@ -28,6 +28,7 @@ public class PotentialMatch {
 	public Openable openable;
 	private CompilationUnitDeclaration parsedUnit;
 	private MatchSet matchSet;
+	public boolean shouldResolve = true;
 public PotentialMatch(MatchLocator locator, IResource resource, Openable openable) {
 	this.locator = locator;
 	this.resource = resource;
@@ -296,25 +297,30 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 		this.locator.parser.parseBodies(this.parsedUnit);
 		// report matches that don't need resolve
 		this.matchSet.cuHasBeenResolved = false;
-		this.matchSet.accuracy = IJavaSearchResultCollector.EXACT_MATCH;
 		this.matchSet.reportMatching(parsedUnit);
 		
 		// resolve if needed
 		if (this.matchSet.needsResolve()) {
 			if (this.parsedUnit.types != null) {
-				try {
-					if (this.parsedUnit.scope != null) {
-						this.parsedUnit.scope.faultInTypes();
-						this.parsedUnit.resolve();
+				if (this.shouldResolve) {
+					try {
+						if (this.parsedUnit.scope != null) {
+							this.parsedUnit.scope.faultInTypes();
+							this.parsedUnit.resolve();
+						}
+						// report matches that needed resolve
+						this.matchSet.cuHasBeenResolved = true;
+						this.matchSet.reportMatching(this.parsedUnit);
+					} catch (AbortCompilation e) {
+						// could not resolve (reasons include "could not find library class") 
+						// -> ignore and report innacurate matches
+						this.matchSet.cuHasBeenResolved = true;
+						this.matchSet.reportMatching(this.parsedUnit);
 					}
-					// report matches that needed resolve
+				} else {
+					// problem ocured while completing the bindings for the base classes
+					// -> report innacurate matches
 					this.matchSet.cuHasBeenResolved = true;
-					this.matchSet.accuracy = IJavaSearchResultCollector.EXACT_MATCH;
-					this.matchSet.reportMatching(this.parsedUnit);
-				} catch (AbortCompilation e) {
-					// could not resolve (reasons include "could not find library class") -> ignore and report the unresolved nodes
-					this.matchSet.cuHasBeenResolved = false;
-					this.matchSet.accuracy = IJavaSearchResultCollector.POTENTIAL_MATCH;
 					this.matchSet.reportMatching(this.parsedUnit);
 				}
 			}
