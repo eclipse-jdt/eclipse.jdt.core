@@ -89,7 +89,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean systemExitWhenFinished = true;
 	public long startTime;
 	public boolean timing = false;
-	public boolean inlineJsrBytecode = false;
 	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
@@ -626,7 +625,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
 			    mode = Default;
-			    this.inlineJsrBytecode = true;
+				this.options.put(
+						CompilerOptions.OPTION_InlineJsr,
+						CompilerOptions.ENABLED);
 			    continue;
 			}
 			if (currentArg.startsWith("-g")) { //$NON-NLS-1$
@@ -1532,7 +1533,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// set the non-externally configurable options.
 		this.compilerOptions.verbose = this.verbose;
 		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
-		this.compilerOptions.inlineJsrBytecode = this.inlineJsrBytecode;
 		batchCompiler.compile(getCompilationUnits());
 
 		printStats();
