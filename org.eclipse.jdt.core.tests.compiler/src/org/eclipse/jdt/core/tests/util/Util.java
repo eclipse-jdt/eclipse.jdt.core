@@ -113,9 +113,11 @@ public static String displayString(String inputString, int indent) {
 		}	
 		if (newLine) {
 			newLine = false;
-			buffer.append("\\n\" + \n");
-			for (int i = 0; i < indent; i++) buffer.append("\t");
-			buffer.append("\"");
+			if (tokenizer.hasMoreTokens()) {
+				buffer.append("\\n\" + \n");
+				for (int i = 0; i < indent; i++) buffer.append("\t");
+				buffer.append("\"");
+			}
 			continue;
 		}
 		wasACr = false;
