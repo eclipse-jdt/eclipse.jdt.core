@@ -61,8 +61,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			return this.resolvedType;
 		} 
 	    this.didResolve = true;
-		ReferenceBinding currentType = null;
+		ReferenceBinding qualifiedType = null;
 		for (int i = 0, max = this.tokens.length; i < max; i++) {
+		    ReferenceBinding currentType;
 		    if (i == 0) {
 		        // isolate first fragment
 				while (this.typeArguments[i] == null) i++;
@@ -73,7 +74,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 				currentType = (ReferenceBinding) this.resolvedType;
 		    } else {
-			    this.resolvedType = currentType = scope.getMemberType(this.tokens[i], currentType);
+			    this.resolvedType = currentType = scope.getMemberType(this.tokens[i], (ReferenceBinding)qualifiedType.erasure());
 				if (!(this.resolvedType.isValidBinding())) {
 					reportInvalidType(scope);
 					return null;
@@ -117,12 +118,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				    }
 				}
 				if (argHasError) return null;
-				currentType = scope.createParameterizedType(currentType, argTypes);
+				qualifiedType = scope.createParameterizedType(currentType, argTypes, qualifiedType);
 		    } else if (currentType.isGenericType()) { // check raw type
-			        currentType = scope.createRawType(currentType); // raw type
-				}				    
+			        qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
+			} else if (qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isRawType())) {
+				    qualifiedType = scope.createParameterizedType(currentType, null, qualifiedType);
+			}
 		}
-		this.resolvedType = currentType;
+		this.resolvedType = qualifiedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
 			reportDeprecatedType(scope);
 		}		
@@ -131,10 +134,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (dimensions > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			if (currentType.isParameterizedType()) {
-			    scope.problemReporter().illegalArrayOfParameterizedType(currentType, this);
+			if (qualifiedType.isParameterizedType()) {
+			    scope.problemReporter().illegalArrayOfParameterizedType(qualifiedType, this);
 			}
-			this.resolvedType = scope.createArray(currentType, dimensions);
+			this.resolvedType = scope.createArray(qualifiedType, dimensions);
 		}
 		return this.resolvedType;
 	}

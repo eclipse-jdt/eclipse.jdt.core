@@ -100,7 +100,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		    }
 		}
 		if (argHasError) return null;
-		currentType = scope.createParameterizedType(currentType, argTypes);
+		currentType = scope.createParameterizedType(currentType, argTypes, null);
 		this.resolvedType = currentType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
 			reportDeprecatedType(scope);

@@ -225,7 +225,7 @@ public class WildcardBinding extends ReferenceBinding {
 
 	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 		if (this.bound == unresolvedType) {
-			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType) : resolvedType;
+			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
 			initialize(this.bound);
 		}
 	}

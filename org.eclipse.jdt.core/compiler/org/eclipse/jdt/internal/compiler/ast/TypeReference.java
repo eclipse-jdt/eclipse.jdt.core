@@ -121,10 +121,10 @@ public TypeBinding resolveType(BlockScope blockScope) {
 		if (type.isArrayType()) {
 		    TypeBinding leafComponentType = type.leafComponentType();
 		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = blockScope.createArray(blockScope.createRawType((ReferenceBinding)leafComponentType), type.dimensions());
+		        return this.resolvedType = blockScope.createArray(blockScope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
 		    }
 		} else if (type.isGenericType()) {
-	        return this.resolvedType = blockScope.createRawType((ReferenceBinding)type); // raw type
+	        return this.resolvedType = blockScope.environment().createRawType((ReferenceBinding)type, null); // raw type
 		}		
 	}
 	return this.resolvedType;
@@ -151,10 +151,10 @@ public TypeBinding resolveType(ClassScope classScope) {
 		if (type.isArrayType()) {
 		    TypeBinding leafComponentType = type.leafComponentType();
 		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = classScope.createArray(classScope.createRawType((ReferenceBinding)leafComponentType), type.dimensions());
+		        return this.resolvedType = classScope.createArray(classScope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
 		    }
 		} else if (type.isGenericType()) {
-	        return this.resolvedType = classScope.createRawType((ReferenceBinding)type); // raw type
+	        return this.resolvedType = classScope.environment().createRawType((ReferenceBinding)type, null); // raw type
 		}		
 
 	}

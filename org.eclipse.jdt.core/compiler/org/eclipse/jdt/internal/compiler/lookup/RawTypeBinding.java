@@ -24,8 +24,8 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
      * these bounds yet if creating raw types while supertype hierarchies are being connected.
      * Therefore, use 'null' instead, and access these in a lazy way later on (when substituting).
      */
-	public RawTypeBinding(ReferenceBinding type, LookupEnvironment environment){
-		super(type, null, environment);
+	public RawTypeBinding(ReferenceBinding type, ReferenceBinding enclosingType, LookupEnvironment environment){
+		super(type, null, enclosingType, environment);
 		this.modifiers ^= AccGenericSignature;
 	}    
 	/**
@@ -98,25 +98,34 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    
 	    if (originalType.isTypeVariable()) {
 	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-	        TypeVariableBinding[] typeVariables = this.type.typeVariables();
-	        int length = typeVariables.length;
-	        // check this variable can be substituted given parameterized type
-	        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-			    // lazy init, since cannot do so during binding creation if during supertype connection
-			    if (this.arguments == null)  initializeArguments();
-	            return this.arguments[originalVariable.rank];
-	        }		        
+		    ParameterizedTypeBinding currentType = this;
+	        while (true) {
+		        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
+		        int length = typeVariables.length;
+		        // check this variable can be substituted given parameterized type
+		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+				    // lazy init, since cannot do so during binding creation if during supertype connection
+				    if (this.arguments == null)  initializeArguments();
+		           return currentType.arguments[originalVariable.rank];
+		        }
+			    // recurse on enclosing type, as it may hold more substitutions to perform
+			    ReferenceBinding enclosing = currentType.enclosingType();
+			    if (!(enclosing instanceof ParameterizedTypeBinding))
+			        break;
+			    currentType = (ParameterizedTypeBinding) enclosing;
+	        }
 	    } else if (originalType.isParameterizedType()) {
 //			// lazy init, since cannot do so during binding creation if during supertype connection
 //			if (this.arguments == null)  initializeArguments();
-//			parameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+//			ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 //		    TypeBinding[] originalArguments = originalParameterizedType.arguments;
 //		    TypeBinding[] substitutedArguments = substitute(originalArguments);
 //		    if (substitutedArguments != originalArguments) {
-			return this.environment.createRawType(((ParameterizedTypeBinding)originalType).type);
+	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+			return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType);
 //		    }
 	    } else  if (originalType.isGenericType()) { 
-            return this.environment.createRawType((ReferenceBinding)originalType);
+            return this.environment.createRawType((ReferenceBinding)originalType, null);
 	    }
 	    return originalType;
 	}	

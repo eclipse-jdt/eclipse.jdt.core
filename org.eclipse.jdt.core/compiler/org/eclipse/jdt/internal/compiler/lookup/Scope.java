@@ -93,21 +93,17 @@ public abstract class Scope
 			return new ArrayBinding(type, dimension);
 	}
 	
-	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments) {
+	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments, ReferenceBinding enclosingType) {
 		valid: {
 			if (!genericType.isValidBinding()) break valid;
 			for (int i = 0, max = arguments.length; i < max; i++){
 				if (!arguments[i].isValidBinding()) break valid;
 			}
-			return environment().createParameterizedType(genericType, arguments);
+			return environment().createParameterizedType(genericType, arguments, enclosingType);
 		}
-		return new ParameterizedTypeBinding(genericType, arguments, environment());
+		return new ParameterizedTypeBinding(genericType, arguments, enclosingType, environment());
 	}
 
-	public ParameterizedTypeBinding createRawType(ReferenceBinding genericType) {
-		return environment().createRawType(genericType);
-	}
-		
 	public boolean detectCycle(ReferenceBinding superType) {
 		return false;
 	}

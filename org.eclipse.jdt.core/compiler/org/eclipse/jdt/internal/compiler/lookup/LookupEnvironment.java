@@ -349,11 +349,11 @@ PackageBinding createPackage(char[][] compoundName) {
 	return packageBinding;
 }
 
-public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments) {
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 
 	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
-	int argLength = typeArguments.length;
+	int argLength = typeArguments == null ? 0: typeArguments.length;
 	boolean needToGrow = false;
 	if (cachedInfo != null){
 		nextCachedType : 
@@ -361,8 +361,9 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 			for (int i = 0, max = cachedInfo.length; i < max; i++){
 			    ParameterizedTypeBinding cachedType = cachedInfo[i];
 			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
 				TypeBinding[] cachedArguments = cachedType.arguments;
-				int cachedArgLength = cachedArguments.length;
+				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedType; // would be an error situation (from unresolved binaries)
 				for (int j = 0; j < cachedArgLength; j++){
 					if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
@@ -382,20 +383,42 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, this);
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, enclosingType, this);
 	cachedInfo[cachedInfo.length-1] = parameterizedType;
 	return parameterizedType;
 }
 
-public RawTypeBinding createRawType(ReferenceBinding genericType) {
+public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
 
 	// cached info is array of already created raw types for this type
-	RawTypeBinding cachedInfo = (RawTypeBinding)this.uniqueRawTypeBindings.get(genericType);
-	if (cachedInfo == null) {
-	    cachedInfo = new RawTypeBinding(genericType, this);
+	RawTypeBinding[] cachedInfo = (RawTypeBinding[])this.uniqueRawTypeBindings.get(genericType);
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing parameterized for reusing one with same type arguments if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+			    RawTypeBinding cachedType = cachedInfo[i];
+			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
+				// all enclosing type match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new RawTypeBinding[1];
 		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
 	}
-	return cachedInfo;
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new RawTypeBinding[length+1], 0, length);
+		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
+	}
+	// add new binding
+	RawTypeBinding rawType = new RawTypeBinding(genericType, enclosingType, this);
+	cachedInfo[cachedInfo.length-1] = rawType;
+	return rawType;
+	
 }
 
 public WildcardBinding createWildcard(TypeBinding bound, int kind) {
@@ -542,7 +565,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 		return null; // will not get here since the above error aborts the compilation
 	} else if (!isParameterized && binding.isGenericType()) {
 	    // check raw type, only for resolved types
-        binding = createRawType(binding);
+        binding = createRawType(binding, null);
 	}
 	return binding;
 }
@@ -652,7 +675,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	wrapper.start += 2; // skip '>' and ';'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
 	args.toArray(typeArguments);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
 TypeBinding getTypeFromVariantTypeSignature(
@@ -741,7 +764,7 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 		Object[] keys = uniqueWildcardBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
 			if (keys[i] == unresolvedType) {
-				keys[i] = resolvedType.isGenericType() ? createRawType(resolvedType) : resolvedType; // hashCode is based on compoundName so this works
+				keys[i] = resolvedType.isGenericType() ? createRawType(resolvedType, null) : resolvedType; // hashCode is based on compoundName so this works
 				break;
 			}
 		}

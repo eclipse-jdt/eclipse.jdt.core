@@ -156,7 +156,7 @@ public char[] sourceName() {
 }
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
 	if (this.leafComponentType == unresolvedType) {
-		this.leafComponentType = resolvedType.isGenericType() ? environment.createRawType(resolvedType) : resolvedType;
+		this.leafComponentType = resolvedType.isGenericType() ? environment.createRawType(resolvedType, null) : resolvedType;
 	}
 }
 public String toString() {

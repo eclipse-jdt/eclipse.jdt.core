@@ -25,11 +25,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;	
 	public FieldBinding[] fields;	
+	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
+	public ReferenceBinding enclosingType;
 	
-	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments, LookupEnvironment environment){
+	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;
 		initialize(type, arguments);
+		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
 
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this);
@@ -73,7 +76,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
 	 */
 	public ReferenceBinding enclosingType() {
-		return this.type.enclosingType();
+	    if (this.enclosingType == null) { // if not positionned, use default
+			this.enclosingType = this.type.enclosingType();
+	    }
+	    return this.enclosingType;
 	}
 
 	/**
@@ -217,8 +223,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
 		fields(); // ensure fields have been initialized... must create all at once unlike methods
 		int fieldLength = fieldName.length;
-		for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		for (int i = fields.length; --i >= 0;) {
+			FieldBinding field = fields[i];
 			if (field.name.length == fieldLength && CharOperation.equals(field.name, fieldName))
 				return field;
 		}
@@ -229,7 +235,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
 	 */
 	public ReferenceBinding getMemberType(char[] typeName) {
-		return this.type.getMemberType(typeName);
+		memberTypes(); // ensure memberTypes have been initialized... must create all at once unlike methods
+		int typeLength = typeName.length;
+		for (int i = this.memberTypes.length; --i >= 0;) {
+			ReferenceBinding memberType = this.memberTypes[i];
+			if (memberType.sourceName.length == typeLength && CharOperation.equals(memberType.sourceName, typeName))
+				return memberType;
+		}
+		return null;
 	}
 
 	/**
@@ -290,6 +303,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	void initialize(ReferenceBinding someType, TypeBinding[] someArguments) {
 		this.type = someType;
+		this.sourceName = someType.sourceName;
 		this.compoundName = someType.compoundName;
 		this.fPackage = someType.fPackage;
 		this.fileName = someType.fileName;
@@ -339,7 +353,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
 	public ReferenceBinding[] memberTypes() {
-		return this.type.memberTypes();
+		if (this.memberTypes == null) {
+			try {
+				ReferenceBinding[] originalMemberTypes = this.type.memberTypes();
+				int length = originalMemberTypes.length;
+				ReferenceBinding[] parameterizedMemberTypes = new ReferenceBinding[length];
+				for (int i = 0; i < length; i++)
+					// substitute all member types, so as to get updated enclosing types
+					parameterizedMemberTypes[i] = this.environment.createParameterizedType(originalMemberTypes[i], null, this);
+				this.memberTypes = parameterizedMemberTypes;	    
+			} finally {
+				// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields
+				if (this.memberTypes == null) 
+					this.memberTypes = NoMemberTypes;
+			}
+		}
+		return this.memberTypes;
 	}
 
 	/**
@@ -453,31 +482,40 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * Returns a type, where original type was substituted using the receiver
-	 * parameterized type.
-	 */
-	public TypeBinding substitute(TypeBinding originalType) {
-	    
-	    if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
-		    if (originalType.isTypeVariable()) {
-		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-		        TypeVariableBinding[] typeVariables = this.type.typeVariables();
-		        int length = typeVariables.length;
-		        // check this variable can be substituted given parameterized type
-		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-		            return this.arguments[originalVariable.rank];
-		        }		        
-		    } else if (originalType.isParameterizedType()) {
-		        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-		        TypeBinding[] originalArguments = originalParameterizedType.arguments;
-		        TypeBinding[] substitutedArguments = substitute(originalArguments);
-		        if (substitutedArguments != originalArguments) {
-		            return this.environment.createParameterizedType(originalParameterizedType.type, substitutedArguments);
-		        }
-		    }
-	    }
-	    return originalType;
-	}
+     * Returns a type, where original type was substituted using the receiver
+     * parameterized type.
+     */
+    public TypeBinding substitute(TypeBinding originalType) {
+        
+        if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+    	    if (originalType.isTypeVariable()) {
+    	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+    		    ParameterizedTypeBinding currentType = this;
+    	        while (true) {
+    		        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
+    		        int length = typeVariables.length;
+    		        // check this variable can be substituted given parameterized type
+    		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+    		           return currentType.arguments[originalVariable.rank];
+    		        }
+    			    // recurse on enclosing type, as it may hold more substitutions to perform
+    			    ReferenceBinding enclosing = currentType.enclosingType();
+    			    if (!(enclosing instanceof ParameterizedTypeBinding))
+    			        break;
+    			    currentType = (ParameterizedTypeBinding) enclosing;
+    	        }
+    	    } else if (originalType.isParameterizedType()) {
+    	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+    	        TypeBinding[] originalArguments = originalParameterizedType.arguments;
+    	        TypeBinding[] substitutedArguments = substitute(originalArguments);
+    	        if (substitutedArguments != originalArguments) {
+    	            return this.environment.createParameterizedType(
+    	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
+    	        }
+    	    }
+        }
+        return originalType;
+    }
 	
 	/**
 	 * Returns an array of types, where original types got substituted using the receiver
@@ -551,7 +589,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		if (this.arguments != null) {
 			for (int i = 0, l = this.arguments.length; i < l; i++) {
 				if (this.arguments[i] == unresolvedType) {
-					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType) : resolvedType;
+					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
 					update = true;
 				}
 			}

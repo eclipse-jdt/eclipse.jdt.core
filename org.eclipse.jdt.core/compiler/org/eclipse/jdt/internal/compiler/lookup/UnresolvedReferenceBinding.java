@@ -55,7 +55,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		}
 	}
 	if (convertGenericToRawType && targetType.isGenericType()) // raw reference to generic ?
-	    return environment.createRawType(targetType);
+	    return environment.createRawType(targetType, null);
 	return targetType;
 }
 public String toString() {
