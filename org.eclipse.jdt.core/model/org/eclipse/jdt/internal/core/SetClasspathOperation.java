@@ -270,9 +270,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void generateClasspathChangeDeltas(
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newResolvedPath,
-		JavaModelManager manager,
 		final JavaProject project) {
 
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;
@@ -575,7 +575,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 			generateClasspathChangeDeltas(
 				this.oldResolvedPath,
 				this.newResolvedPath,
-				project.getJavaModelManager(),
 				project);
 		} else {
 			this.needCycleCheck = true;

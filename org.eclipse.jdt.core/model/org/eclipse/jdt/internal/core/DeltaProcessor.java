@@ -247,7 +247,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		Openable parent = (Openable) child.getParent();
 		if (parent != null && parent.isOpen()) {
 			try {
-				JavaElementInfo info = parent.getElementInfo();
+				JavaElementInfo info = (JavaElementInfo)parent.getElementInfo();
 				info.addChild(child);
 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open
@@ -1185,7 +1185,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 
 		// reset non-java resources if element was open
 		if (element.isOpen()) {
-			JavaElementInfo info = element.getElementInfo();
+			JavaElementInfo info = (JavaElementInfo)element.getElementInfo();
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_MODEL :
 					((JavaModelInfo) info).nonJavaResources = null;
@@ -1444,7 +1444,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
 				try {
-					JavaModelManager.PerProjectInfo info = project.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+					JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
 					if (info.classpath != null) { // if there is an in-memory classpath
 						project.saveClasspath(info.classpath, info.outputLocation);
 					}
@@ -1467,7 +1467,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					IClasspathEntry[] fileEntries = project.readClasspathFile(true/*create markers*/, false/*don't log problems*/);
 					if (fileEntries == null)
 						break; // could not read, ignore 
-					JavaModelManager.PerProjectInfo info = project.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+					JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
 					if (info.classpath != null) { // if there is an in-memory classpath
 						if (project.isClasspathEqualsTo(info.classpath, info.outputLocation, fileEntries)) {
 							wasSuccessful = true;
@@ -1604,7 +1604,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		Openable parent = (Openable) child.getParent();
 		if (parent != null && parent.isOpen()) {
 			try {
-				JavaElementInfo info = parent.getElementInfo();
+				JavaElementInfo info = (JavaElementInfo)parent.getElementInfo();
 				info.removeChild(child);
 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open

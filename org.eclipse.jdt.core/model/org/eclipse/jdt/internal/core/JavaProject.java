@@ -1096,14 +1096,6 @@ public class JavaProject
 	}
 
 	/**
-	 * @see IJavaElement
-	 */
-	public IJavaProject getJavaProject() {
-
-		return this;
-	}
-
-	/**
 	 * Convenience method that returns the specific type of info for a Java project.
 	 */
 	protected JavaProjectElementInfo getJavaProjectElementInfo()
@@ -1189,7 +1181,7 @@ public class JavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		IPath outputLocation = perProjectInfo.outputLocation;
 		if (outputLocation != null) return outputLocation;
 
@@ -1397,7 +1389,7 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		IClasspathEntry[] classpath = perProjectInfo.classpath;
 		if (classpath != null) return classpath;
 		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
@@ -1456,7 +1448,7 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaModelManager manager = getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		JavaModelManager.PerProjectInfo perProjectInfo = manager.getPerProjectInfoCheckExistence(fProject);
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
@@ -2204,7 +2196,7 @@ public class JavaProject
 	protected void setRawClasspath0(IClasspathEntry[] rawEntries)
 		throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 	
 		synchronized (info) {
 			if (rawEntries != null) {

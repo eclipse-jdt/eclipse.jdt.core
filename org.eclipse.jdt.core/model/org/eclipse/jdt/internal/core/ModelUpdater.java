@@ -32,7 +32,7 @@ public class ModelUpdater {
 		Openable parent = (Openable) child.getParent();
 		if (parent != null && parent.isOpen()) {
 			try {
-				JavaElementInfo info = parent.getElementInfo();
+				JavaElementInfo info = (JavaElementInfo)parent.getElementInfo();
 				info.addChild(child);
 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open
@@ -128,7 +128,7 @@ public class ModelUpdater {
 
 		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
-				element.getJavaModelManager().getIndexManager().reset();
+				JavaModelManager.getJavaModelManager().getIndexManager().reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
@@ -183,7 +183,7 @@ public class ModelUpdater {
 		Openable parent = (Openable) child.getParent();
 		if (parent != null && parent.isOpen()) {
 			try {
-				JavaElementInfo info = parent.getElementInfo();
+				JavaElementInfo info = (JavaElementInfo)parent.getElementInfo();
 				info.removeChild(child);
 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open

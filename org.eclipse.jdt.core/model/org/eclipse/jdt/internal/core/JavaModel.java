@@ -349,18 +349,6 @@ protected char getHandleMementoDelimiter(){
 	return 0;
 }
 /**
- * @see IJavaElement
- */
-public IJavaModel getJavaModel() {
-	return this;
-}
-/**
- * @see IJavaElement
- */
-public IJavaProject getJavaProject() {
-	return null;
-}
-/**
  * @see IJavaModel
  */
 public IJavaProject getJavaProject(String name) {
@@ -409,7 +397,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
  * has started.
  */
 public IJavaProject[] getOldJavaProjectsList() throws JavaModelException {
-	JavaModelManager manager = this.getJavaModelManager();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	return 
 		manager.javaProjectsCache == null ? 
 			this.getJavaProjects() : 
@@ -458,7 +446,7 @@ public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonit
 	if (elementsScope == null){
 		elementsScope = new IJavaElement[] { this };
 	}
-	getJavaModelManager().deltaProcessor.checkExternalArchiveChanges(elementsScope, monitor);
+	JavaModelManager.getJavaModelManager().deltaProcessor.checkExternalArchiveChanges(elementsScope, monitor);
 }
 
 /**

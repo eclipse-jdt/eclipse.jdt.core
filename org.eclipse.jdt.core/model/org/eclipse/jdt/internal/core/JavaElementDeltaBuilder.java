@@ -162,7 +162,7 @@ private void findAdditions(IJavaElement newElement, int depth) {
 
 	JavaElementInfo newInfo = null;
 	try { 
-		newInfo = ((JavaElement)newElement).getElementInfo();
+		newInfo = (JavaElementInfo)((JavaElement)newElement).getElementInfo();
 	} catch (JavaModelException npe) {
 		return;
 	}
@@ -194,7 +194,7 @@ private void findChangesInPositioning(IJavaElement element, int depth) {
 	if (element instanceof IParent) {
 		JavaElementInfo info = null;
 		try { 
-			info = ((JavaElement)element).getElementInfo();
+			info = (JavaElementInfo)((JavaElement)element).getElementInfo();
 		} catch (JavaModelException npe) {
 			return;
 		}
@@ -348,7 +348,7 @@ private void recordNewPositions(IJavaElement newElement, int depth) {
 	if (depth < this.maxDepth && newElement instanceof IParent) {
 		JavaElementInfo info = null;
 		try { 
-			info = ((JavaElement)newElement).getElementInfo();
+			info = (JavaElementInfo)((JavaElement)newElement).getElementInfo();
 		} catch (JavaModelException npe) {
 			return;
 		}

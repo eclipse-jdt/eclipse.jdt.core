@@ -221,17 +221,6 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 		return JavaModelManager.getJavaModelManager().getZipFile(getPath());
 	}
 	/**
-	 * @see IJavaElement
-	 */
-	public IJavaProject getJavaProject() {
-		IJavaElement parent= getParent();
-		if (parent == null) {
-			return null;
-		} else {
-			return parent.getJavaProject();
-		}
-	}
-	/**
 	 * @see IPackageFragmentRoot
 	 */
 	public int getKind() {
