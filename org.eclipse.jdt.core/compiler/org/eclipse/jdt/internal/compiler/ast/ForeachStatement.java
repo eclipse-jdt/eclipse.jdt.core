@@ -186,7 +186,7 @@ public class ForeachStatement extends Statement {
 		
 		// label management
 		Label conditionLabel = new Label(codeStream);
-		breakLabel.codeStream = codeStream;
+		this.breakLabel.codeStream = codeStream;
 		if (this.continueLabel != null) {
 			this.continueLabel.codeStream = codeStream;
 		}
@@ -196,13 +196,13 @@ public class ForeachStatement extends Statement {
 		if (this.postCollectionInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				postCollectionInitStateIndex);
+				this.postCollectionInitStateIndex);
 		}
 		switch(this.kind) {
 			case ARRAY :
 				codeStream.load(this.indexVariable);
 				codeStream.load(this.maxVariable);
-				codeStream.if_icmpge(breakLabel);
+				codeStream.if_icmpge(this.breakLabel);
 				break;
 			case RAW_ITERABLE :
 				// TODO to be completed
@@ -227,7 +227,7 @@ public class ForeachStatement extends Statement {
 					if (this.postCollectionInitStateIndex != -1) {
 						codeStream.addDefinitelyAssignedVariables(
 							currentScope,
-							postCollectionInitStateIndex);
+							this.postCollectionInitStateIndex);
 					}
 				}
 				break;
@@ -238,7 +238,7 @@ public class ForeachStatement extends Statement {
 				// TODO to be completed
 				break;
 		}
-		action.generateCode(scope, codeStream);
+		this.action.generateCode(scope, codeStream);
 			
 		// continuation point
 		if (this.continueLabel != null) {
@@ -257,12 +257,12 @@ public class ForeachStatement extends Statement {
 			}
 			codeStream.goto_(conditionLabel);
 		}
-		breakLabel.place();
+		this.breakLabel.place();
 		codeStream.exitUserScope(scope);
-		if (mergedInitStateIndex != -1) {
+		if (this.mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				mergedInitStateIndex);
+				this.mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
@@ -274,11 +274,11 @@ public class ForeachStatement extends Statement {
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
-		if (action == null) {
+		if (this.action == null) {
 			output.append(';');
 		} else {
 			output.append('\n');
-			action.printStatement(tab + 1, output); //$NON-NLS-1$
+			this.action.printStatement(tab + 1, output); //$NON-NLS-1$
 		}
 		return output;
 	}
