@@ -304,7 +304,7 @@ public abstract class JobManager implements Runnable {
 		long idlingStart = -1;
 		activateProcessing();
 		try {
-			while (true) {
+			while (this.thread != null) {
 				try {
 					IJob job;
 					if ((job = currentJob()) == null) {
@@ -338,14 +338,16 @@ public abstract class JobManager implements Runnable {
 				}
 			}
 		} catch (RuntimeException e) {
-			// log exception
-			org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
-			
-			// keep job manager alive
-			this.discardJobs(null);
-			this.thread = null;
-			this.reset(); // this will fork a new thread
-			throw e;
+			if (this.thread != null) { // if not shutting down
+				// log exception
+				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
+				
+				// keep job manager alive
+				this.discardJobs(null);
+				this.thread = null;
+				this.reset(); // this will fork a new thread
+				throw e;
+			}
 		}
 	}
 	/**
@@ -355,5 +357,11 @@ public abstract class JobManager implements Runnable {
 
 		disable();
 		discardJobs(null); // will wait until current executing job has completed
+		Thread thread = this.thread;
+		this.thread = null; // mark the job manager as shutting down so that the thread will stop by itself
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+		}
 	}
 }
