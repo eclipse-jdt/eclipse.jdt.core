@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import java.io.File;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.*;
@@ -113,7 +114,7 @@ public class NameLookup {
 		workspace= project.getJavaModel().getWorkspace();
 		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
 		fPackageFragments= new HashMap();
-		IPackageFragment[] frags= ((JavaProject) project).getPackageFragmentsInRoots(fPackageFragmentRoots);
+		IPackageFragment[] frags = this.getPackageFragmentsInRoots(fPackageFragmentRoots, project);
 		for (int i= 0; i < frags.length; i++) {
 			IPackageFragment fragment= frags[i];
 			IPackageFragment[] entry= (IPackageFragment[]) fPackageFragments.get(fragment.getElementName());
@@ -307,8 +308,7 @@ public class NameLookup {
 				for (int j= 0; j < elementCount; j++) {
 					IPackageFragment packageFragment= (IPackageFragment) list[j];
 					if (nameMatches(name, packageFragment, true)) {
-						if (packageFragment.exists())
-							result[resultLength++] = packageFragment;
+						result[resultLength++] = packageFragment;
 					}
 				}
 				if (resultLength > 0) {
@@ -319,15 +319,13 @@ public class NameLookup {
 				}
 			}
 		} else {
-			// Return only fragments that exists
 			IPackageFragment[] fragments= (IPackageFragment[]) fPackageFragments.get(name);
 			if (fragments != null) {
 				IPackageFragment[] result = new IPackageFragment[fragments.length];
 				int resultLength = 0; 
 				for (int i= 0; i < fragments.length; i++) {
 					IPackageFragment packageFragment= fragments[i];
-					if (packageFragment.exists())
-						result[resultLength++] = packageFragment;
+					result[resultLength++] = packageFragment;
 				}
 				if (resultLength > 0) {
 					System.arraycopy(result, 0, result = new IPackageFragment[resultLength], 0, resultLength);
@@ -356,6 +354,49 @@ public class NameLookup {
 				return type;
 		}
 		return null;
+	}
+	/**
+	 * Returns all the package fragments found in the specified
+	 * package fragment roots. Make sure the returned fragments have the given
+	 * project as great parent. This ensures the name lookup will not refer to another
+	 * project (through jar package fragment roots)
+	 */
+	private IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots, IJavaProject project) {
+
+		// The following code assumes that all the roots have the given project as their parent
+		ArrayList frags = new ArrayList();
+		for (int i = 0; i < roots.length; i++) {
+			IPackageFragmentRoot root = roots[i];
+			try {
+				IJavaElement[] children = root.getChildren();
+
+				/* 2 jar package fragment roots can be equals but not belonging 
+				   to the same project. As a result, they share the same element info.
+				   So this jar package fragment root could get the children of
+				   another jar package fragment root.
+				   The following code ensures that the children of this jar package
+				   fragment root have the given project as a great parent.
+				 */
+				int length = children.length;
+				if (length == 0) continue;
+				if (children[0].getParent().getParent().equals(project)) {
+					// the children have the right parent, simply add them to the list
+					for (int j = 0; j < length; j++) {
+						frags.add(children[j]);
+					}
+				} else {
+					// create a new handle with the root as the parent
+					for (int j = 0; j < length; j++) {
+						frags.add(root.getPackageFragment(children[j].getElementName()));
+					}
+				}
+			} catch (JavaModelException e) {
+				// do nothing
+			}
+		}
+		IPackageFragment[] fragments = new IPackageFragment[frags.size()];
+		frags.toArray(fragments);
+		return fragments;
 	}
 
 	/**
