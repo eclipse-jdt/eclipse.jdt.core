@@ -34,6 +34,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecationInsideDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
@@ -67,6 +68,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
+	public static final String ENABLED = "enabled"; //$NON-NLS-1$
+	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 	
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
@@ -86,7 +89,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int UnusedImport = 0x400000;
 	public static final int StaticAccessReceiver = 0x800000;
 	public static final int ToDo = 0x1000000;
-		
+	
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
 	public int warningThreshold = 
@@ -143,6 +146,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public char[] toDoTag = DEFAULT_TODO_TAG;
 	public static final char[] DEFAULT_TODO_TAG = "TODO:".toCharArray(); //$NON-NLS-1$
 
+	// deprecation report
+	public boolean reportDeprecationInsideDeprecatedCode = false;
+	
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -307,6 +313,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				} else if (optionValue.equals(IGNORE)) {
 					this.errorThreshold &= ~UsingDeprecatedAPI;
 					this.warningThreshold &= ~UsingDeprecatedAPI;
+				}
+				continue;
+			} 
+			// Report deprecation inside deprecated code 
+			if(optionID.equals(OPTION_ReportDeprecationInsideDeprecatedCode)){
+				if (optionValue.equals(ENABLED)) {
+					this.reportDeprecationInsideDeprecatedCode = true;
+				} else if (optionValue.equals(DISABLED)) {
+					this.reportDeprecationInsideDeprecatedCode = false;
 				}
 				continue;
 			} 
@@ -623,6 +638,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-static access receiver: IGNORE"); //$NON-NLS-1$
 			}
 		}
+		if ((errorThreshold & ToDo) != 0){
+			buf.append("\n-TODO task: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & ToDo) != 0){
+				buf.append("\n-TODO task: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-TODO task: IGNORE"); //$NON-NLS-1$
+			}
+		}
 		switch(targetJDK){
 			case JDK1_1 :
 				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
@@ -661,6 +685,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n-TODO tag : " + (this.toDoTag == null ? "<null>" : new String(this.toDoTag))); //$NON-NLS-1$
+		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 }

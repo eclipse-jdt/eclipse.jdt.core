@@ -22,6 +22,7 @@ public final class MethodVerifier implements TagBits, TypeConstants {
 	HashtableOfObject currentMethods;
 	ReferenceBinding runtimeException;
 	ReferenceBinding errorException;
+	LookupEnvironment environment;
 /*
 Binding creation is responsible for reporting all problems with types:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations - abstract/final)
@@ -240,6 +241,7 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.currentMethods = null;
 	this.runtimeException = null;
 	this.errorException = null;
+	this.environment = environment;
 }
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	for (int i = length; --i >= 0;) {
@@ -255,9 +257,10 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 				this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 			if (!this.isAsVisible(currentMethod, inheritedMethod))
 				this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (inheritedMethod.isViewedAsDeprecated())
-				if (!currentMethod.isViewedAsDeprecated())
+			if (inheritedMethod.isViewedAsDeprecated()) {
+				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode)
 					this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
+			}
 		}
 	}
 }

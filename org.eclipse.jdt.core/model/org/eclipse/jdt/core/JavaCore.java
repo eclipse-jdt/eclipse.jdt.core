@@ -159,6 +159,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE = PLUGIN_ID + ".compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 */
 	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	/**
@@ -1480,6 +1486,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_DEPRECATION, WARNING);
 		optionNames.add(COMPILER_PB_DEPRECATION);
+
+		preferences.setDefault(COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, DISABLED);
+		optionNames.add(COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE);
 
 		preferences.setDefault(COMPILER_PB_HIDDEN_CATCH_BLOCK, WARNING); 
 		optionNames.add(COMPILER_PB_HIDDEN_CATCH_BLOCK);

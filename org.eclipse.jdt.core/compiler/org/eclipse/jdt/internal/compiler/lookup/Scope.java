@@ -1191,7 +1191,7 @@ public abstract class Scope
 				}
 				break;
 			case Scope.CLASS_SCOPE :
-				ReferenceBinding context = ((BlockScope)this).referenceType().binding;
+				ReferenceBinding context = ((ClassScope)this).referenceType().binding;
 				if (context != null && context.isViewedAsDeprecated()) {
 					return true;
 				}
