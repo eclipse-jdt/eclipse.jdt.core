@@ -516,7 +516,7 @@ class ASTConverter {
 					variableDecl.setFlags(ASTNode.MALFORMED);
 					break;
 				case AST.LEVEL_3_0 :
-					variableDecl.setVariableArity(true);
+					variableDecl.setVarargs(true);
 			}
 		}
 		if (this.resolveBindings) {

@@ -406,7 +406,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		modifier = (ASTNode) modifiers.get(1);
 		checkSourceRange(modifier, "final", source);
 		assertEquals("Wrong name", "args", parameter.getName().getIdentifier());
-		assertTrue("Not a variable argument", parameter.isVariableArity());
+		assertTrue("Not a variable argument", parameter.isVarargs());
 	}
 
 	public void test0013() throws JavaModelException {
