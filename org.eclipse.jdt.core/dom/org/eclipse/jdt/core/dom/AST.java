@@ -851,14 +851,16 @@ public final class AST {
 	 * <li><code>"float"</code></li>
 	 * <li><code>"double"</code></li>
 	 * <li><code>"void"</code></li>
+	 * <li><code>"java.lang.Class"</code></li>
+	 * <li><code>"java.lang.Cloneable"</code></li>
+	 * <li><code>"java.lang.Error"</code></li>
+	 * <li><code>"java.lang.Exception"</code></li>
 	 * <li><code>"java.lang.Object"</code></li>
+	 * <li><code>"java.lang.RuntimeException"</code></li>
 	 * <li><code>"java.lang.String"</code></li>
 	 * <li><code>"java.lang.StringBuffer"</code></li>
 	 * <li><code>"java.lang.Throwable"</code></li>
-	 * <li><code>"java.lang.Exception"</code></li>
-	 * <li><code>"java.lang.RuntimeException"</code></li>
-	 * <li><code>"java.lang.Error"</code></li>
-	 * <li><code>"java.lang.Class"</code></li>
+	 * <li><code>"java.io.Serializable"</code></li>
 	 * </ul>
 	 * </p>
 	 * 
