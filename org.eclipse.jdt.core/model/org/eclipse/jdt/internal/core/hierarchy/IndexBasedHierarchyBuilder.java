@@ -177,7 +177,15 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 					}
 				} else {
 					// local or anonymous type
-					this.hierarchyResolver.resolveLocalType(focusType, declaringMember);
+					Openable openable;
+					if (declaringMember.isBinary()) {
+						openable = (Openable)declaringMember.getClassFile();
+					} else {
+						openable = (Openable)declaringMember.getCompilationUnit();
+					}
+					localTypes = new HashSet();
+					localTypes.add(openable.getPath().toString());
+					this.hierarchyResolver.resolve(new Openable[] {openable}, localTypes, monitor);
 					return;
 				}
 			}

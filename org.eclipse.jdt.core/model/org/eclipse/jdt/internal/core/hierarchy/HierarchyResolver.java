@@ -408,16 +408,29 @@ private void rememberWithMemberTypes(TypeDeclaration typeDecl, IType typeHandle)
 		}
 	}
 }
-private void reportHierarchy() {
+private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit, BinaryTypeBinding binaryTypeBinding) {
 	
 	// set focus type binding
-	IType focus = this.requestor.getType();
 	if (focus != null) {
-		Member declaringMember = ((Member)focus).getOuterMostLocalContext();
-		if (declaringMember == null) {
-			// top level or member type
-			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
-			setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+		if (binaryTypeBinding != null) {
+			// binary type
+			this.focusType = binaryTypeBinding;
+		} else {
+			// source type
+			Member declaringMember = ((Member)focus).getOuterMostLocalContext();
+			if (declaringMember == null) {
+				// top level or member type
+				char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
+				setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			} else {
+				// anonymous or local type
+				if (parsedUnit != null) {
+					TypeDeclaration typeDecl = new AstNodeFinder(parsedUnit).findType(focus);
+					if (typeDecl != null) {
+						this.focusType = typeDecl.binding;
+					}
+				} 
+			}
 		}
 	}
 	
@@ -468,7 +481,9 @@ private void reset(){
 public void resolve(IGenericType suppliedType) {
 	try {
 		if (suppliedType.isBinaryType()) {
-			remember(suppliedType, this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType));
+			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
+			remember(suppliedType, binaryTypeBinding);
+			reportHierarchy(this.requestor.getType(), null, binaryTypeBinding);
 		} else {
 			// must start with the top level type
 			ISourceType topLevelType = (ISourceType) suppliedType;
@@ -491,9 +506,10 @@ public void resolve(IGenericType suppliedType) {
 				rememberAllTypes(unit, cu, false);
 
 				this.lookupEnvironment.completeTypeBindings(unit, false);
+
+				reportHierarchy(this.requestor.getType(), unit, null);
 			}
 		}
-		reportHierarchy();
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 	} finally {
 		reset();
@@ -517,6 +533,18 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		boolean[] hasLocalType = new boolean[openablesLength];
 		org.eclipse.jdt.core.ICompilationUnit[] cus = new org.eclipse.jdt.core.ICompilationUnit[openablesLength];
 		int unitsIndex = 0;
+		
+		CompilationUnitDeclaration focusUnit = null;
+		BinaryTypeBinding focusBinaryBinding = null;
+		IType focus = this.requestor.getType();
+		Openable focusOpenable = null;
+		if (focus != null) {
+			if (focus.isBinary()) {
+				focusOpenable = (Openable)focus.getClassFile();
+			} else {
+				focusOpenable = (Openable)focus.getCompilationUnit();
+			}
+		}
 		
 		// build type bindings
 		Parser parser = new Parser(this.lookupEnvironment.problemReporter, true);
@@ -585,6 +613,9 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					parsedUnits[unitsIndex++] = parsedUnit;
 					try {
 						this.lookupEnvironment.buildTypeBindings(parsedUnit);
+						if (openable.equals(focusOpenable)) {
+							focusUnit = parsedUnit;
+						}
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
 					}
@@ -615,6 +646,9 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					try {
 						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, false);
 						remember(binaryType, binaryTypeBinding);
+						if (openable.equals(focusOpenable)) {
+							focusBinaryBinding = binaryTypeBinding;
+						}
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
 					}
@@ -655,59 +689,13 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 			}
 		}
 
-		reportHierarchy();
+		reportHierarchy(focus, focusUnit, focusBinaryBinding);
 		
 	} catch (ClassCastException e){ // work-around for 1GF5W1S - can happen in case duplicates are fed to the hierarchy with binaries hiding sources
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 	} finally {
 		reset();
 	}
-}
-public void resolveLocalType(IType type, Member declaringMember) throws JavaModelException {
-
-	if (!(type instanceof SourceType)) {
-		// TODO (jerome) handle binary type
-		return;
-	}
-
-	// get top-level source types
-	// NB: need all top-level source types as a local type can refer to a secondary type in the same unit
-	org.eclipse.jdt.core.ICompilationUnit cu = type.getCompilationUnit();
-	IType[] topLevelTypes = cu.getTypes();
-	int length = topLevelTypes.length;
-	SourceTypeElementInfo[] sourceTypes = new SourceTypeElementInfo[length];
-	for (int i = 0; i < length; i++) {
-		sourceTypes[i] = (SourceTypeElementInfo)((SourceType)topLevelTypes[i]).getElementInfo();
-	}
-	
-	// build compilation unit declaration
-	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
-	CompilationUnitDeclaration unit =
-		ElementInfoConverter.buildCompilationUnit(
-			sourceTypes,
-			true, // need local and anonymous types
-			this.lookupEnvironment.problemReporter, 
-			result);
-			
-	// build bindings
-	if (unit != null) {
-		TypeDeclaration typeDecl = new AstNodeFinder(unit).findType(type);
-		if (typeDecl == null) return;
-		try {
-			this.lookupEnvironment.buildTypeBindings(unit);
-			// TODO (jerome) optimize to resolve method that contains local type only
-			this.lookupEnvironment.completeTypeBindings(unit, true/*build fields and methods*/);
-			unit.scope.faultInTypes();
-			unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
-			unit.resolve();
-			this.focusType = typeDecl.binding;
-			rememberAllTypes(unit, declaringMember.getCompilationUnit(), true);
-			reportHierarchy();
-		} catch (AbortCompilation e) {
-			// missing 'java.lang' package: ignore
-		}
-	}
-
 }
 private void setEnvironment(LookupEnvironment lookupEnvironment, HierarchyBuilder requestor) {
 	this.lookupEnvironment = lookupEnvironment;
