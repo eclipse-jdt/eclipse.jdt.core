@@ -30,6 +30,7 @@ import org.eclipse.core.resources.*;
 public final class JavaConventions {
 	private final static char fgDot= '.';
 	private final static String fgJAVA= "JAVA"; //$NON-NLS-1$
+	private final static Scanner SCANNER = new Scanner();
 /**
  * Not instantiable.
  */
@@ -72,19 +73,18 @@ private static char[] scannedIdentifier(String id) {
 		return null;
 	}
 	try {
-		Scanner scanner = new Scanner();
-		scanner.setSourceBuffer(id.toCharArray());
-		int token = scanner.getNextToken();
+		SCANNER.setSourceBuffer(id.toCharArray());
+		int token = SCANNER.getNextToken();
 		char[] currentIdentifier;
 		try {
-			currentIdentifier = scanner.getCurrentIdentifierSource();
+			currentIdentifier = SCANNER.getCurrentIdentifierSource();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return null;
 		}
-		int nextToken= scanner.getNextToken();
+		int nextToken= SCANNER.getNextToken();
 		if (token == TerminalSymbols.TokenNameIdentifier 
 			&& nextToken == TerminalSymbols.TokenNameEOF
-			&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
+			&& SCANNER.startPosition == SCANNER.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 															     // while reading the last token
 			return currentIdentifier;
 		} else {
