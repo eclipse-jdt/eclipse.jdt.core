@@ -52,7 +52,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  * ListRewriter lrw = rewriter.getListRewrite(cu,
  *                       CompilationUnit.IMPORTS_PROPERTY);
  * lrw.insertLast(id, null);
- * TextEdit edits = rewriter.rewrite(document, null);
+ * TextEdit edits = rewriter.rewriteAST(document, null);
  * UndoEdit undo = edits.apply(document);
  * assert "import java.util.List;\nimport java.util.Set;\nclass X {}"
  *   .equals(doc.get().toCharArray());
@@ -106,12 +106,33 @@ public class ASTRewrite {
 	}
 	
 	/**
-	 * Performs the rewrite: The rewrite events are translated to the corresponding in text changes.
-	 * @param document Document which describes the code of the AST that is passed in in the
-	 * constructor. This document is accessed read-only.
-	 * @return Returns the edit describing the text changes.
+	 * Converts all modifications recorded by this rewriter
+	 * into an object representing the corresponding text
+	 * edits to the given document containing the original source
+	 * code. The document itself is not modified.
+	 * <p>
+	 * Calling this methods does not discard the modifications
+	 * on record. Subsequence modifications are added to the ones
+	 * already on record. If this method is called again later,
+	 * the resulting text edit object will accurately reflect
+	 * the net cumulative affect of all those changes.
+	 * </p>
+	 * 
+	 * @param document original document containing source code
+	 * @param options the table of formatter options
+	 * (key type: <code>String</code>; value type: <code>String</code>);
+	 * or <code>null</code> to use the standard global options
+	 * {@link JavaCore#getOptions() JavaCore.getOptions()}
+	 * @return text edit object describing the changes to the
+	 * document corresponding to the chnages recorded by this rewriter
+	 * @throws RewriteException 
+	 * TODO (david) - eliminate RewriteException in favor of an unchecked exception
 	 */
 	public TextEdit rewriteAST(IDocument document, Map options) throws RewriteException {
+		// TODO (david) - check arguments on entry to API methods
+//		if (document == null) {
+//			throw new IllegalArgumentException();
+//		}
 		TextEdit result= new MultiTextEdit();
 		
 		ASTNode rootNode= getRootNode();
@@ -194,7 +215,7 @@ public class ASTRewrite {
 	/**
 	 * Replaces the given node in this rewriter. The replacement node
 	 * must either be brand new (not part of the original AST) or a placeholder
-	 * node (for example, one created by {@link #createTargetNode(ASTNode, boolean)}
+	 * node (for example, one created by {@link #createCopyNode(ASTNode)}
 	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been replaced.
@@ -224,7 +245,7 @@ public class ASTRewrite {
 	 * Sets the given property of the given node. If the given property is a child
      * property, the value must be a replacement node that is either be brand new
      * (not part of the original AST) or a placeholder node (for example, one
-     * created by {@link #createTargetNode(ASTNode, boolean)}
+     * created by {@link #createCopyTarget(ASTNode)}
 	 * or {@link #createStringPlaceholder(String, int)}); or it must be
 	 * </code>null</code>, indicating that the child should be deleted.
 	 * If the given property is a simple property, the value must be the new
