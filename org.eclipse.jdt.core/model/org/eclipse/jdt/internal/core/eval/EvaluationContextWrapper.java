@@ -1,12 +1,12 @@
 package org.eclipse.jdt.internal.core.eval;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
@@ -19,9 +19,9 @@ import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
-
+
 import java.util.Locale;
-
+
 /**
  * A wrapper around the infrastructure evaluation context. 
  */
@@ -65,7 +65,7 @@ public void codeComplete(String codeSnippet, int position, ICodeCompletionReques
 		position,
 		this.project.getSearchableNameEnvironment(),
 		new CompletionRequestorWrapper(requestor),
-		JavaModelManager.getOptions()
+		JavaCore.getOptions()
 	);
 }
 /**
@@ -79,7 +79,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 		offset + length - 1,
 		this.project.getSearchableNameEnvironment(),
 		requestor,
-		JavaModelManager.getOptions()
+		JavaCore.getOptions()
 	);
 	return requestor.getElements();
 }
@@ -115,13 +115,13 @@ public void evaluateCodeSnippet(
 	for (int i = 0; i < length; i++){
 		varTypeNames[i] = localVariableTypeNames[i].toCharArray();
 	}
-
+
 	length = localVariableNames.length;
 	char[][] varNames = new char[length][];
 	for (int i = 0; i < length; i++){
 		varNames[i] = localVariableNames[i].toCharArray();
 	}
-
+
 	// transfer the imports of the IType to the evaluation context
 	if (declaringType != null) {
 		// retrieves the package statement 
@@ -159,7 +159,7 @@ public void evaluateCodeSnippet(
 			isStatic,
 			isConstructorCall,
 			getBuildNameEnvironment(), 
-			getCompilerOptions(), 
+			JavaCore.getOptions(), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -172,7 +172,7 @@ public void evaluateCodeSnippet(
 public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor) throws JavaModelException {
 	checkBuilderState();
 	try {
-		this.context.evaluate(codeSnippet.toCharArray(), getBuildNameEnvironment(), getCompilerOptions(), getInfrastructureEvaluationRequestor(requestor), getProblemFactory());
+		this.context.evaluate(codeSnippet.toCharArray(), getBuildNameEnvironment(), JavaCore.getOptions(), getInfrastructureEvaluationRequestor(requestor), getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
 	}
@@ -186,7 +186,7 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
 		this.context.evaluateVariable(
 			((GlobalVariableWrapper)variable).variable, 
 			getBuildNameEnvironment(), 
-			getCompilerOptions(), 
+			JavaCore.getOptions(), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -198,12 +198,6 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
  */
 protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
 	return JavaModelManager.getJavaModelManager().getNameEnvironment(getProject().getProject());
-}
-/**
- * Returns the compiler's configurable options.
- */
-protected ConfigurableOption[] getCompilerOptions() throws JavaModelException {
-	return JavaModelManager.getOptions();
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports

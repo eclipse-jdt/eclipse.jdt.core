@@ -56,7 +56,7 @@ public class CompilationUnitVisitor extends Compiler {
 	public CompilationUnitVisitor(
 		INameEnvironment environment,
 		IErrorHandlingPolicy policy,
-		ConfigurableOption[] settings,
+		Map settings,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
 
@@ -107,13 +107,6 @@ public class CompilationUnitVisitor extends Compiler {
 	}
 
 	/*
-	 *  Low-level API performing the actual compilation
-	 */
-	protected static ConfigurableOption[] getOptions() {
-		return JavaModelManager.getOptions();
-	}
-
-	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
 	protected static ICompilerRequestor getRequestor() {
@@ -132,7 +125,7 @@ public class CompilationUnitVisitor extends Compiler {
 			new CompilationUnitVisitor(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
-				getOptions(),
+				JavaCore.getOptions(),
 				getRequestor(),
 				getProblemFactory(visitor));
 

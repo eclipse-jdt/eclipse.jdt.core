@@ -71,7 +71,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Compiler(
 		INameEnvironment environment,
 		IErrorHandlingPolicy policy,
-		ConfigurableOption[] settings,
+		Map settings,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
 
@@ -491,22 +491,5 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// environment.
 			// this.reset();
 		}
-	}
-	
-	/**
-	 * Returns all the options of the compiler to be shown by the UI
-	 *
-	 * @param locale java.util.Locale
-	 * @return org.eclipse.jdt.internal.compiler.ConfigurableOption[]
-	 */
-	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
-		String[] ids = ConfigurableOption.getIDs(Compiler.class.getName(),locale);
-	
-		ConfigurableOption[] result = new ConfigurableOption[ids.length];
-		for(int i = 0 ; i < ids.length ; i++){
-			result[i] = new ConfigurableOption(ids[i],locale);
-		}
-		
-		return result;
 	}
 }

@@ -24,7 +24,7 @@ public abstract class AbstractImageBuilder implements IImageBuilder, ICompilerRe
 	protected BuilderEnvironment fBuilderEnvironment;
 	protected BuildNotifier fNotifier;
 	protected org.eclipse.jdt.internal.compiler.Compiler fCompiler;
-	protected ConfigurableOption[] fCompilerOptions;
+	protected Map fCompilerOptions;
 	protected Vector fCompilationResults;
 	public int MAX_AT_ONCE = 1000;
 /**

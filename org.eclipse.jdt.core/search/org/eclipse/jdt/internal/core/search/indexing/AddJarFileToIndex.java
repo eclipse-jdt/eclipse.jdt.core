@@ -130,7 +130,7 @@ public boolean execute() {
 					// Add the name of the file to the index
 					index.add(
 						new JarFileEntryDocument(ze, classFileBytes, zipFilePath), 
-						new BinaryIndexer()); 
+						new BinaryIndexer(true)); 
 				}
 			}
 			if (JobManager.VERBOSE)
