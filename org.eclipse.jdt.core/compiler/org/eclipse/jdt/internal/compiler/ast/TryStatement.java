@@ -359,12 +359,19 @@ public class TryStatement extends Statement {
 					int position = codeStream.position;
 					codeStream.ret(returnAddressVariable.resolvedPosition);
 					codeStream.updateLastRecordedEndPC(position);
+					codeStream.recordPositionsFrom(
+						position,
+						finallyBlock.sourceEnd);
 					// the ret bytecode is part of the subroutine
 				}
 				// will naturally fall into subsequent code after subroutine invocation
 				endLabel.place();
 				if (requiresNaturalJsr) {
+					int position = codeStream.position;
 					codeStream.jsr(subRoutineStartLabel);
+					codeStream.recordPositionsFrom(
+						position,
+						finallyBlock.sourceStart);
 				}
 			} else {
 				// no subroutine, simply position end label

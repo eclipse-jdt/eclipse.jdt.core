@@ -5495,6 +5495,7 @@ public void updateLastRecordedEndPC(int pos) {
 
 	if (!generateLineNumberAttributes)
 		return;
+	this.lastEntryPC = pos;
 	// need to update the initialization endPC in case of generation of local variable attributes.
 	updateLocalVariablesAttribute(pos);
 }
