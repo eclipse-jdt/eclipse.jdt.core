@@ -446,29 +446,25 @@ private void initializeBuilder() throws CoreException {
 	}
 }
 
+private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throws CoreException {
+	if (classpath == JavaProject.INVALID_CLASSPATH) // the .classpath file could not be read
+		return true;
+
+	IMarker[] markers = p.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+	for (int i = 0, l = markers.length; i < l; i++)
+		if (((Integer) markers[i].getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR)
+			return true;
+	return false;
+}
+
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds =
 		JavaCore.ABORT.equals(javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
 	if (!abortBuilds) return true;
 
 	// Abort build only if there are classpath errors
-	IMarker[] markers =
-		currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-	boolean buildPathHasError = false;
-	IClasspathEntry[] classpath = null;
-	if (javaProject != null && (classpath = javaProject.getRawClasspath()) == JavaProject.INVALID_CLASSPATH) {
-		// the .classpath file could not be read
-		buildPathHasError = true;
-	} else {
-		for (int i = 0, l = markers.length; i < l; i++) {
-			IMarker marker = markers[i];
-			if (((Integer)marker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR) {
-				buildPathHasError = true;
-				break;
-			}
-		}
-	}
-	if (buildPathHasError) {
+	IClasspathEntry[] classpath = javaProject.getRawClasspath();
+	if (isClasspathBroken(classpath, currentProject)) {
 		if (DEBUG)
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
@@ -500,12 +496,16 @@ private boolean isWorthBuilding() throws CoreException {
 					+ " was not built"); //$NON-NLS-1$
 
 			// remove all existing class files... causes all dependent projects to do the same only if the .classpath file could be read
-			if (prereq.getRawClasspath() != JavaProject.INVALID_CLASSPATH)
+			IClasspathEntry[] prereqClasspath = prereq.getRawClasspath();
+			if (prereqClasspath != JavaProject.INVALID_CLASSPATH)
 				new BatchImageBuilder(this).cleanOutputFolders();
 
 			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
+			marker.setAttribute(IMarker.MESSAGE,
+				isClasspathBroken(prereqClasspath, p)
+					? Util.bind("build.prereqProjectHasClasspathProblems", p.getName())
+					: Util.bind("build.prereqProjectMustBeRebuilt", p.getName())); //$NON-NLS-1$
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			return false;
 		}
