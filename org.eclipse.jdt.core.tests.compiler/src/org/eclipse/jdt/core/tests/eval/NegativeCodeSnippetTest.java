@@ -118,6 +118,15 @@ public void testExtraSemiColonInExpression() {
 		newProblem(IProblem.ParsingError, Error, 1, 1, 1)); // Syntax error on token EOF
 }
 /**
+ * Test access to a non existing field.
+ * (regression test for bug 25250 Scrapbook shows wrong error message)
+ */
+public void testInvalidField() {
+	evaluateWithExpectedProblem(
+		("String s = \"\";\n" +		"s.length").toCharArray(), 
+		"s.length cannot be resolved or is not a field\n"); 
+}
+/**
  * Test a code snippet which is valid but the evaluation context imports have problems.
  */
 public void testInvalidImport() {
@@ -144,24 +153,21 @@ public void testInvalidImport() {
 	}
 }
 /**
- * Test extra closing curly bracket.
+ * Test use of this.
  */
 public void testInvalidUseOfThisInSnippet() {
-	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"this".toCharArray(), 
 		"Cannot use this in a static context \n"); 
-
 }
 /**
- * Test extra closing curly bracket.
+ * Test use of this.
  */
 public void testInvalidUseOfThisInSnippet2() {
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"return this;".toCharArray(), 
 		"Cannot use this in a static context \n"); 
-
 }
 /**
  * Test a code snippet that misses a closing round bracket.

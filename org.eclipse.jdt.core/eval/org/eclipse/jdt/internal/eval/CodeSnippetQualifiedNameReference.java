@@ -428,7 +428,9 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 						return super.reportError(scope);
 					}
 				} else {
-					return super.reportError(scope);
+					constant = NotAConstant; //don't fill other constants slots...
+					scope.problemReporter().invalidField(this, field, index, type);
+					return null;
 				}
 			}
 			field = localScope.getFieldForCodeSnippet(delegateThis.type, token, this);
