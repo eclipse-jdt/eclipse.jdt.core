@@ -14,15 +14,17 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 
-public class AnnotationArraySingleTypeReference extends ArrayTypeReference {
 
-	public AnnotationArraySingleTypeReference(char[] name, int dim, long pos) {
-		super(name, dim, pos);
-		this.bits |= InsideAnnotation;
+public class JavadocArrayQualifiedTypeReference extends ArrayQualifiedTypeReference {
+
+	public int tagSourceStart, tagSourceEnd;
+
+	public JavadocArrayQualifiedTypeReference(JavadocQualifiedTypeReference typeRef, int dim) {
+		super(typeRef.tokens, dim, typeRef.sourcePositions);
 	}
 	
 	/* (non-Javadoc)
-	 * Redefine to capture annotation specific signatures
+	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -14,13 +14,13 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
-public class AnnotationReturnStatement extends ReturnStatement {
+public class JavadocReturnStatement extends ReturnStatement {
 	public char[] description;
 
-	public AnnotationReturnStatement(int s, int e, char[] descr) {
+	public JavadocReturnStatement(int s, int e, char[] descr) {
 		super(null, s, e);
 		this.description = descr;
-		this.bits |= InsideAnnotation;
+		this.bits |= InsideJavadoc;
 	}
 
 	public void resolve(BlockScope scope) {
@@ -34,18 +34,18 @@ public class AnnotationReturnStatement extends ReturnStatement {
 				: VoidBinding;
 		if (methodType == VoidBinding) {
 			if (this.description != null) {
-				scope.problemReporter().annotationUnexpectedTag(this.sourceStart, this.sourceEnd);
+				scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
 			}
 		}
 		else{
 			if (this.description == null) {
-				scope.problemReporter().annotationInvalidReturnTag(this.sourceStart, this.sourceEnd, true);
+				scope.problemReporter().javadocInvalidReturnTag(this.sourceStart, this.sourceEnd, true);
 			}
 		}
 	}
 
 	/* (non-Javadoc)
-	 * Redefine to capture annotation specific signatures
+	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

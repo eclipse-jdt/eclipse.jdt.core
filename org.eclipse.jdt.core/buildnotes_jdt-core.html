@@ -43,10 +43,34 @@ Eclipse SDK 3.0M5 Build - ?th November 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>To avoid confusion with Annotation introduce in JDK 1.5 grammar, all annotation references which were done before for Javadoc comments will be renamed.
+One consequence of this is that ids for optional compiler problem to signal problems with javadoc have been changed as follow:
+<pre>
+	 * COMPILER / Reporting Invalid Javadoc Comment
+	 *    When enabled, the compiler will issue an error or a warning when a javadoc comment is inconsistent,
+	 *    misses a tag entry or contains invalid references.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * COMPILER / Reporting Missing Javadoc Comment
+	 *    When enabled, the compiler will signal cases where public class, interface, method, constructor or field
+	 *    (considered as part of the API) has no javadoc comment.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadoc"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+</pre>
+Note that backward compatibility with previous options ids: <code>"org.eclipse.jdt.core.compiler.problem.invalidAnnotation"</code> and <code>"org.eclipse.jdt.core.compiler.problem.missingAnnotation"</code>
+will be assumed until 3.0M6 build and removed after.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46052">46052</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45958">45958</a>
+Compiler wrongly complains against valid @see constructor reference
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45112">45112</a>
+Use Javadoc instead of Annotation for comment compiler parsing
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46052">46052</a>
 result of ITypeHierarchy.getAllSuperTypes() does not include Object 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46192">46192</a>
 ILocalVariable.exists() always returns false 

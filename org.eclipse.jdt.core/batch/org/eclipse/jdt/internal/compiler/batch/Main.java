@@ -802,14 +802,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
 						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidAnnotation,
+							CompilerOptions.OPTION_ReportInvalidJavadoc,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
 						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidAnnotation,
+							CompilerOptions.OPTION_ReportInvalidJavadoc,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 						this.options.put(
-							CompilerOptions.OPTION_ReportMissingAnnotation,
+							CompilerOptions.OPTION_ReportMissingJavadoc,
 							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$

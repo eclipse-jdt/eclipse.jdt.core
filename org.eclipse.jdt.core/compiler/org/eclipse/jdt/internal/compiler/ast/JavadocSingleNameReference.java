@@ -11,20 +11,29 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
-
-
-public class AnnotationArrayQualifiedTypeReference extends ArrayQualifiedTypeReference {
+public class JavadocSingleNameReference extends SingleNameReference {
 
 	public int tagSourceStart, tagSourceEnd;
 
-	public AnnotationArrayQualifiedTypeReference(AnnotationQualifiedTypeReference typeRef, int dim) {
-		super(typeRef.tokens, dim, typeRef.sourcePositions);
+	public JavadocSingleNameReference(char[] name, int startPosition, int endPosition) {
+		super(name, (((long) startPosition) << 32) + endPosition);
+		this.bits |= InsideJavadoc;
 	}
-	
+
+	public void resolve(BlockScope scope) {
+		
+		LocalVariableBinding variableBinding = scope.findVariable(token);
+		if (variableBinding != null && variableBinding.isValidBinding() && variableBinding.isArgument) {
+			this.binding = variableBinding;
+			return;
+		}
+		scope.problemReporter().javadocInvalidParamName(this, false);
+	}
+
 	/* (non-Javadoc)
-	 * Redefine to capture annotation specific signatures
+	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

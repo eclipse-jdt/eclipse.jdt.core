@@ -46,7 +46,7 @@
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
  *                                 COMPILER_PB_UNNECESSARY_CAST
  *     IBM Corporation - added the following constants:
- *                                 COMPILER_PB_INVALID_ANNOTATION
+ *                                 COMPILER_PB_INVALID_JAVADOC
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -324,13 +324,28 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
-	public static final String COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
+	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC = PLUGIN_ID + ".compiler.problem.missingJavadoc"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #COMPILER_PB_INVALID_JAVADOC
+	 * @deprecated
+	 */
+	public static final String COMPILER_PB_INVALID_ANNOTATION = COMPILER_PB_INVALID_JAVADOC;
+	public static final String OLD_COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #COMPILER_PB_MISSING_JAVADOC
+	 * @deprecated
+	 * TODO (frederic) replace the value with COMPILER_PB_MISSING_JAVADOC when bug 45112 will be fixed
+	 */
 	public static final String COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	public static final String OLD_COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1600,18 +1615,18 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
-	 * COMPILER / Reporting Invalid Javadoc Annotation
-	 *    When enabled, the compiler will issue an error or a warning when a javadoc annotation is inconsistent,
+	 * COMPILER / Reporting Invalid Javadoc Comment
+	 *    When enabled, the compiler will issue an error or a warning when a javadoc comment is inconsistent,
 	 *    misses a tag entry or contains invalid references.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
-	 *
-	 * COMPILER / Reporting Missing Javadoc Annotation
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comment
 	 *    When enabled, the compiler will signal cases where public class, interface, method, constructor or field
-	 *    (considered as part of the API) has no javadoc annotation.
-	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidAnnotation".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingAnnotation"
+	 *    (considered as part of the API) has no javadoc comment.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadoc"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
@@ -1941,9 +1956,18 @@ public final class JavaCore extends Plugin {
 				|| COMPILER_PB_UNREACHABLE_CODE.equals(optionName)) {
 			return ERROR;
 		}
-		if (JavaModelManager.OptionNames.contains(optionName)){
+		String propertyName = optionName;
+		// bug 45112 backward compatibility.  TODO (frederic) remove after 3.0-M6
+		if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(optionName)) {
+			propertyName = COMPILER_PB_INVALID_JAVADOC;
+		}
+		else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(optionName)) {
+			propertyName = COMPILER_PB_MISSING_JAVADOC;
+		}
+		// end bug 45112
+		if (JavaModelManager.OptionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
-			return preferences.getString(optionName).trim();
+			return preferences.getString(propertyName).trim();
 		}
 		return null;
 	}
@@ -1981,15 +2005,37 @@ public final class JavaCore extends Plugin {
 			String[] propertyNames = preferences.propertyNames();
 			for (int i = 0; i < propertyNames.length; i++){
 				String propertyName = propertyNames[i];
+				String value = preferences.getString(propertyName).trim();
 				if (optionNames.contains(propertyName)){
-					options.put(propertyName, preferences.getString(propertyName).trim());
+					options.put(propertyName, value);
+					// TODO (frederic) remove when bug 45110 will be fixed
+					if (COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+						options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+					}
+					// end bug 45110
+				}		
+				// bug 45112 backward compatibility.  TODO (frederic) remove after 3.0-M6
+				else if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+					options.put(COMPILER_PB_INVALID_JAVADOC, value);
 				}
-			}		
+				else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+					options.put(COMPILER_PB_MISSING_JAVADOC, value);
+					// TODO (frederic) remove when bug 45110 will be fixed
+					options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+				}
+				// end bug 45112
+			}
 			// get encoding through resource plugin
 			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
 			// backward compatibility
 			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
+
+			// TODO (frederic) remove when bug 45110 will be fixed
+			if (!options.containsKey(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
+				options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, DISABLED);
+			}
+			// end bug 45110
 		}
 		return options;
 	}
@@ -3300,10 +3346,15 @@ public final class JavaCore extends Plugin {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
-			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
-			String value = (String)newOptions.get(key);
-			preferences.setValue(key, value);
+			// TODO (frederic) remove when bug 45110 will be fixed
+			String newKey = key;
+			if (key.equals(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
+				newKey = COMPILER_PB_MISSING_JAVADOC;
+			}
+			// end bug 45110
+			if (!JavaModelManager.OptionNames.contains(newKey)) continue; // unrecognized option
+			if (newKey.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+			preferences.setValue(newKey, (String)newOptions.get(key));
 		}
 		
 		// persist options

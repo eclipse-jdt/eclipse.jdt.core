@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class FieldDeclaration extends AbstractVariableDeclaration {
 	public FieldBinding binding;
 	boolean hasBeenResolved = false;
-	public Annotation annotation;
+	public Javadoc javadoc;
 
 	//allows to retrieve both the "type" part of the declaration (part1)
 	//and also the part that decribe the name and the init and optionally
@@ -218,13 +218,13 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 			}
 			
-			// Resolve annotation if one is present
-			if (this.annotation != null) {
+			// Resolve Javadoc comment if one is present
+			if (this.javadoc != null) {
 				if (classScope != null) {
-					this.annotation.resolve(classScope);
+					this.javadoc.resolve(classScope);
 				}
 			} else if ((this.binding != null) && this.binding.isPublic()) {
-				initializationScope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
+				initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
 			}
 		}
 	}

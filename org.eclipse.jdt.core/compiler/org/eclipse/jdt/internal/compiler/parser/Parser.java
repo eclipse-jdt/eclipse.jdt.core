@@ -106,9 +106,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
 	protected int[] variablesCounter;
 
-	// annotation
-	public AnnotationParser annotationParser;
-	public Annotation annotation;
+	// javadoc
+	public JavadocParser javadocParser;
+	public Javadoc javadoc;
 	
 	public static byte rhs[] = null;
 	public static char asb[] = null;
@@ -179,8 +179,8 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	identifierPositionStack = new long[30];
 	variablesCounter = new int[30];
 	
-	// annotation support
-	this.annotationParser = new AnnotationParser(this);	
+	// javadoc support
+	this.javadocParser = new JavadocParser(this);	
 }
 /**
  *
@@ -604,10 +604,10 @@ public final void checkAndSetModifiers(int flag){
 			
 	if (modifiersSourceStart < 0) modifiersSourceStart = scanner.startPosition;
 }
-public void checkAnnotation() {
+public void checkComment() {
 
 	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments during recovery
+		flushCommentsDefinedPriorTo(endStatementPosition); // discard obsolete comments during recovery
 	}
 	
 	int lastComment = this.scanner.commentPtr;
@@ -623,12 +623,12 @@ public void checkAnnotation() {
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
 		if (lastComment >= 0) {
-			if (this.annotationParser.checkDeprecation(
+			if (this.javadocParser.checkDeprecation(
 					this.scanner.commentStarts[lastComment],
 					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
 				checkAndSetModifiers(AccDeprecated);
 			}
-			this.annotation = this.annotationParser.annotation;	// null if check annotation is not activated 
+			this.javadoc = this.javadocParser.javadoc;	// null if check javadoc is not activated 
 		}
 	}
 }
@@ -1079,7 +1079,7 @@ protected void consumeClassBodyDeclaration() {
 	astStack[astPtr] = initializer;
 	initializer.bodyEnd = endPosition;
 	initializer.sourceEnd = endStatementPosition;
-	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
+	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
 }
 protected void consumeClassBodyDeclarations() {
 	// ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
@@ -1136,7 +1136,7 @@ protected void consumeClassDeclaration() {
 		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
 	}
 
-	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
+	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeClassHeader() {
 	// ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
@@ -1228,9 +1228,9 @@ protected void consumeClassHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;
 	}
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -1370,7 +1370,7 @@ protected void consumeConstructorDeclaration() {
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
 	cd.bodyEnd = endPosition;
-	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
+	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
 }
 
 protected void consumeInvalidConstructorDeclaration() {
@@ -1379,7 +1379,7 @@ protected void consumeInvalidConstructorDeclaration() {
 	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
 
 	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
-	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
+	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	
 	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
@@ -1427,9 +1427,9 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
-	// annotation
-	cd.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	cd.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSource >>> 32);
@@ -1453,7 +1453,7 @@ protected void consumeDefaultLabel() {
 	pushOnAstStack(new CaseStatement(null, intStack[intPtr--], intStack[intPtr--]));
 }
 protected void consumeDefaultModifiers() {
-	checkAnnotation(); // might update modifiers with AccDeprecated
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(
 		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition); 
@@ -1461,7 +1461,7 @@ protected void consumeDefaultModifiers() {
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
-	checkAnnotation();
+	checkComment();
 	pushOnIntStack(modifiersSourceStart); // push the start position of a javadoc comment if there is one
 	resetModifiers();
 	jumpOverMethodBody();
@@ -1650,10 +1650,10 @@ protected void consumeEnterVariable() {
 			declaration.declarationSourceStart = intStack[intPtr--];
 			declaration.modifiers = intStack[intPtr--];
 			
-			// Store annotation only on first declaration as it is the same for all ones
+			// Store javadoc only on first declaration as it is the same for all ones
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
-			fieldDeclaration.annotation = this.annotation;
-			this.annotation = null;
+			fieldDeclaration.javadoc = this.javadoc;
+			this.javadoc = null;
 		}
 	} else {
 		type = (TypeReference) astStack[astPtr - variableIndex];
@@ -1831,7 +1831,7 @@ protected void consumeFieldDeclaration() {
 	}
 	
 	updateSourceDeclarationParts(variableDeclaratorsCounter);
-	int endPos = flushAnnotationsDefinedPriorTo(endStatementPosition);
+	int endPos = flushCommentsDefinedPriorTo(endStatementPosition);
 	if (endPos != endStatementPosition) {
 		for (int i = 0; i < variableDeclaratorsCounter; i++) {
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) astStack[astPtr - i];
@@ -1977,7 +1977,7 @@ protected void consumeInterfaceDeclaration() {
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
 	}
-	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
+	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeInterfaceHeader() {
 	// InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
@@ -2054,9 +2054,9 @@ protected void consumeInterfaceHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;		
 	}
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeInterfaceMemberDeclarations() {
 	// InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
@@ -2184,7 +2184,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
 	md.bodyEnd = endPosition;
-	md.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
+	md.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
 }
 protected void consumeMethodHeader() {
 	// MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims ThrowsClauseopt
@@ -2250,9 +2250,9 @@ protected void consumeMethodHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
-	// annotation
-	md.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	md.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSource >>> 32);
@@ -2376,7 +2376,7 @@ protected void consumeMethodInvocationSuper() {
 }
 protected void consumeModifiers() {
 	int savedModifiersSourceStart = modifiersSourceStart;	
-	checkAnnotation(); // might update modifiers with AccDeprecated
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	if (modifiersSourceStart >= savedModifiersSourceStart) {
 		modifiersSourceStart = savedModifiersSourceStart;
@@ -2436,9 +2436,9 @@ protected void consumePackageDeclaration() {
 	stored in the identifier stack. */
 
 	ImportReference impt = compilationUnit.currentPackage;
-	// flush annotations defined prior to import statements
+	// flush comments defined prior to import statements
 	impt.declarationEnd = endStatementPosition;
-	impt.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd);
+	impt.declarationSourceEnd = this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd);
 }
 protected void consumePackageDeclarationName() {
 	// PackageDeclarationName ::= 'package' Name
@@ -3461,10 +3461,10 @@ protected void consumeSingleTypeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
 
 	ImportReference impt = (ImportReference) astStack[astPtr];
-	// flush annotations defined prior to import statements
+	// flush comments defined prior to import statements
 	impt.declarationEnd = endStatementPosition;
 	impt.declarationSourceEnd = 
-		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
+		this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd); 
 
 	// recovery
 	if (currentElement != null) {
@@ -3813,7 +3813,7 @@ protected void consumeStaticInitializer() {
 	Initializer initializer = new Initializer(block, AccStatic);
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;	
-	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
+	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
 	nestedMethod[nestedType] --;
 	initializer.declarationSourceStart = intStack[intPtr--];
 	initializer.bodyStart = intStack[intPtr--];
@@ -3829,7 +3829,7 @@ protected void consumeStaticInitializer() {
 protected void consumeStaticOnly() {
 	// StaticOnly ::= 'static'
 	int savedModifiersSourceStart = modifiersSourceStart;
-	checkAnnotation(); // might update declaration source start
+	checkComment(); // might update declaration source start
 	if (modifiersSourceStart >= savedModifiersSourceStart) {
 		modifiersSourceStart = savedModifiersSourceStart;
 	}
@@ -4176,10 +4176,10 @@ protected void consumeTypeImportOnDemandDeclaration() {
 	// TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName ';'
 
 	ImportReference impt = (ImportReference) astStack[astPtr];
-	// flush annotations defined prior to import statements
+	// flush comments defined prior to import statements
 	impt.declarationEnd = endStatementPosition;
 	impt.declarationSourceEnd = 
-		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
+		this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd); 
 
 	// recovery
 	if (currentElement != null) {
@@ -4477,9 +4477,9 @@ protected CompilationUnitDeclaration endParse(int act) {
 	return compilationUnit;
 }
 /*
- * Flush annotations defined prior to a given positions.
+ * Flush comments defined prior to a given positions.
  *
- * Note: annotations are stacked in syntactical order
+ * Note: comments are stacked in syntactical order
  *
  * Either answer given <position>, or the end position of a comment line 
  * immediately following the <position> (same line)
@@ -4489,13 +4489,13 @@ protected CompilationUnitDeclaration endParse(int act) {
  * } // end of method foo
  */
  
-public int flushAnnotationsDefinedPriorTo(int position) {
+public int flushCommentsDefinedPriorTo(int position) {
 
-	int lastAnnotationIndex = scanner.commentPtr;
-	if (lastAnnotationIndex < 0) return position; // no comment
+	int lastCommentIndex = scanner.commentPtr;
+	if (lastCommentIndex < 0) return position; // no comment
 
 	// compute the index of the first obsolete comment
-	int index = lastAnnotationIndex;
+	int index = lastCommentIndex;
 	int validCount = 0;
 	while (index >= 0){
 		int commentEnd = scanner.commentStops[index];
@@ -4607,8 +4607,8 @@ public int[] getJavaDocPositions() {
 		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.scanner.setSource(contents);
 		this.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
-		if (this.annotationParser.checkAnnotation) {
-			this.annotationParser.scanner.setSource(contents);
+		if (this.javadocParser.checkJavadoc) {
+			this.javadocParser.scanner.setSource(contents);
 		}
 		if (unit.types != null) {
 			for (int i = unit.types.length; --i >= 0;)
@@ -4845,7 +4845,7 @@ protected void ignoreInterfaceDeclaration() {
 		dispatchDeclarationInto(length);
 	}
 	
-	flushAnnotationsDefinedPriorTo(endStatementPosition);
+	flushCommentsDefinedPriorTo(endStatementPosition);
 
 	// report the problem and continue parsing
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
@@ -4919,7 +4919,7 @@ protected void ignoreMethodBody() {
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
 	md.bodyEnd = endPosition;
-	md.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
+	md.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	problemReporter().abstractMethodNeedingNoBody(md);
@@ -5621,10 +5621,10 @@ public CompilationUnitDeclaration parse(
 		char[] contents = sourceUnit.getContents();
 		scanner.setSource(contents);
 		if (end != -1) scanner.resetTo(start, end);
-		if (this.annotationParser.checkAnnotation) {
-			this.annotationParser.scanner.setSource(contents);
+		if (this.javadocParser.checkJavadoc) {
+			this.javadocParser.scanner.setSource(contents);
 			if (end != -1) {
-				this.annotationParser.scanner.resetTo(start, end);
+				this.javadocParser.scanner.resetTo(start, end);
 			}
 		}
 		/* unit creation */
@@ -5942,7 +5942,7 @@ public void recoveryTokenCheck() {
 		case TokenNameRBRACE : 
 			this.rBraceStart = scanner.startPosition - 1;
 			this.rBraceEnd = scanner.currentPosition - 1;
-			endPosition = this.flushAnnotationsDefinedPriorTo(this.rBraceEnd);
+			endPosition = this.flushCommentsDefinedPriorTo(this.rBraceEnd);
 			newElement =
 				currentElement.updateOnClosingBrace(scanner.startPosition, this.rBraceEnd);
 				lastCheckPoint = scanner.currentPosition;

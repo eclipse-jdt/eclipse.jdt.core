@@ -8,21 +8,21 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public abstract class AnnotationTest extends AbstractRegressionTest {
+public abstract class JavadocTest extends AbstractRegressionTest {
 	
 boolean useLibrary = false;
-static String zipFile = "/TestAnnotationVisibility.zip";
+static String zipFile = "/TestJavadocVisibility.zip";
 static final String LINE_SEPARATOR = System.getProperty("line.separator");
 public static ArrayList allTestClasses = null;
 
 static {
 	allTestClasses = new ArrayList(6);
-	allTestClasses.add(AnnotationTestForClass.class);
-	allTestClasses.add(AnnotationTestForConstructor.class);
-	allTestClasses.add(AnnotationTestForField.class);
-	allTestClasses.add(AnnotationTestForInterface.class);
-	allTestClasses.add(AnnotationTestForMethod.class);
-	allTestClasses.add(AnnotationTestMixed.class);
+	allTestClasses.add(JavadocTestForClass.class);
+	allTestClasses.add(JavadocTestForConstructor.class);
+	allTestClasses.add(JavadocTestForField.class);
+	allTestClasses.add(JavadocTestForInterface.class);
+	allTestClasses.add(JavadocTestForMethod.class);
+	allTestClasses.add(JavadocTestMixed.class);
 }
 
 
@@ -31,14 +31,14 @@ public static void addTest(TestSuite suite, Class testClass) {
 	suite.addTest(innerSuite);
 }
 public static Test suite() {
-	TestSuite suite = new TestSuite(AnnotationTest.class.getName());
+	TestSuite suite = new TestSuite(JavadocTest.class.getName());
 	for (int i=0; i<allTestClasses.size(); i++) {
 		addTest(suite, (Class) allTestClasses.get(i));
 	}
 	return new RegressionTestSetup(suite, COMPLIANCE_1_4);
 }
 
-public AnnotationTest(String name) {
+public JavadocTest(String name) {
 	super(name);
 }
 
@@ -54,8 +54,8 @@ public static boolean equals(String c, String s) {
 
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.ERROR);
-	//options.put(CompilerOptions.OPTION_ReportMissingAnnotation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	//options.put(CompilerOptions.OPTION_ReportMissingJavadoc, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	return options;

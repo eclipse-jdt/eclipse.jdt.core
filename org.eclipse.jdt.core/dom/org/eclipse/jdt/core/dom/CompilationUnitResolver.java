@@ -102,40 +102,40 @@ class CompilationUnitResolver extends Compiler {
 		return new Parser(problemReporter, false) {
 			// old annotation style check which doesn't include all leading comments into declaration
 			// for backward compatibility with 2.1 DOM 
-			public void checkAnnotation() {
+			public void checkComment() {
 
 				if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-					flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
+					flushCommentsDefinedPriorTo(endStatementPosition); // discard obsolete comments
 				}
 				boolean deprecated = false;
 				boolean checkDeprecated = false;
-				int lastAnnotationIndex = -1;
+				int lastCommentIndex = -1;
 			
 				//since jdk1.2 look only in the last java doc comment...
-				nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
+				nextComment : for (lastCommentIndex = scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
 					//look for @deprecated into the first javadoc comment preceeding the declaration
-					int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
+					int commentSourceStart = scanner.commentStarts[lastCommentIndex];
 					// javadoc only (non javadoc comment have negative end positions.)
 					if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
 						continue nextComment;
 					}
-					if (scanner.commentStops[lastAnnotationIndex] < 0) {
+					if (scanner.commentStops[lastCommentIndex] < 0) {
 						continue nextComment;
 					}
 					checkDeprecated = true;
-					int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
+					int commentSourceEnd = scanner.commentStops[lastCommentIndex] - 1; //stop is one over
 			
 					deprecated =
-						this.annotationParser.checkDeprecation(commentSourceStart, commentSourceEnd);
-					this.annotation = this.annotationParser.annotation;
+						this.javadocParser.checkDeprecation(commentSourceStart, commentSourceEnd);
+					this.javadoc = this.javadocParser.javadoc;
 					break nextComment;
 				}
 				if (deprecated) {
 					checkAndSetModifiers(AccDeprecated);
 				}
 				// modify the modifier source start to point at the first comment
-				if (lastAnnotationIndex >= 0 && checkDeprecated) {
-					modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
+				if (lastCommentIndex >= 0 && checkDeprecated) {
+					modifiersSourceStart = scanner.commentStarts[lastCommentIndex]; 
 				}
 
 			}

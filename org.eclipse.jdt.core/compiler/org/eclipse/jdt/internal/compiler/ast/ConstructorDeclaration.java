@@ -391,12 +391,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		return output;
 	}
 	
-	public void resolveAnnotation() {
+	public void resolveJavadoc() {
 		
-		if (this.binding == null || this.annotation != null) {
-			super.resolveAnnotation();
+		if (this.binding == null || this.javadoc != null) {
+			super.resolveJavadoc();
 		} else if (!isDefaultConstructor && this.binding.isPublic()) {
-			this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
+			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
 		}
 	}
 

@@ -17,17 +17,17 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class AnnotationTestMixed extends AnnotationTest {
+public class JavadocTestMixed extends JavadocTest {
 
-	String reportInvalidAnnotation = CompilerOptions.ERROR;
-	String reportMissingAnnotation = CompilerOptions.ENABLED;
+	String reportInvalidJavadoc = CompilerOptions.ERROR;
+	String reportMissingJavadoc = CompilerOptions.ENABLED;
 
-	public AnnotationTestMixed(String name) {
+	public JavadocTestMixed(String name) {
 		super(name);
 	}
 
 	public static Class testClass() {
-		return AnnotationTestMixed.class;
+		return JavadocTestMixed.class;
 	}
 
 	public static Test suite() {
@@ -44,13 +44,16 @@ public class AnnotationTestMixed extends AnnotationTest {
 					meth += "0";
 				}
 				meth += i;
-				ts.addTest(new AnnotationTestMixed(meth));
+				ts.addTest(new JavadocTestMixed(meth));
 			}
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new AnnotationTestMixed("testBug45669"));
+			ts.addTest(new JavadocTestMixed("testBug45958"));
+			ts.addTest(new JavadocTestMixed("testBug45958a"));
+			ts.addTest(new JavadocTestMixed("testBug45958b"));
+			ts.addTest(new JavadocTestMixed("testBug45958c"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -58,8 +61,8 @@ public class AnnotationTestMixed extends AnnotationTest {
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportInvalidAnnotation, reportInvalidAnnotation);
-		options.put(CompilerOptions.OPTION_ReportMissingAnnotation, reportMissingAnnotation);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadoc, reportMissingJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		return options;
@@ -69,12 +72,12 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		reportInvalidAnnotation = CompilerOptions.ERROR;
-		reportMissingAnnotation = CompilerOptions.ENABLED;
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportMissingJavadoc = CompilerOptions.ENABLED;
 	}
 	
 	/*
-	 * Test missing annotation
+	 * Test missing javadoc
 	 */
 	public void test001() {
 		this.runConformTest(
@@ -138,7 +141,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	}
 	
 	public void test005() {
-		reportInvalidAnnotation = CompilerOptions.IGNORE;
+		reportInvalidJavadoc = CompilerOptions.IGNORE;
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -172,7 +175,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 2)\n"
 				+ "	public class X {\n"
 				+ "	             ^\n"
-				+ "Annotation: Missing javadoc comment for public declaration\n"
+				+ "Javadoc: Missing comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -196,7 +199,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 4)\n"
 				+ "	public int x;\n"
 				+ "	           ^\n"
-				+ "Annotation: Missing javadoc comment for public declaration\n"
+				+ "Javadoc: Missing comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -220,7 +223,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 7)\n"
 				+ "	public X() {\n"
 				+ "	       ^^^\n"
-				+ "Annotation: Missing javadoc comment for public declaration\n"
+				+ "Javadoc: Missing comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -244,7 +247,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 10)\n"
 				+ "	public void foo(int a) {\n"
 				+ "	            ^^^^^^^^^^\n"
-				+ "Annotation: Missing javadoc comment for public declaration\n"
+				+ "Javadoc: Missing comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -338,7 +341,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @param x\n"
 				+ "	   ^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 	
@@ -387,7 +390,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @throws InvalidException\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 	
@@ -435,12 +438,12 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 19)\n"
 				+ "	* @param str Valid param tag\n"
 				+ "	   ^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 22)\n"
 				+ "	public X(String str) {\n"
 				+ "	                ^^^\n"
-				+ "Annotation: Missing javadoc entry for parameter str\n"
+				+ "Javadoc: Missing tag for parameter str\n"
 				+ "----------\n");
 	}
 	
@@ -488,12 +491,12 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 26)\n"
 				+ "	* @param vector Invalid param tag\n"
 				+ "	         ^^^^^^\n"
-				+ "Annotation: Parameter vector is not declared\n"
+				+ "Javadoc: Parameter vector is not declared\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 33)\n"
 				+ "	public String foo(java.util.Vector list) {\n"
 				+ "	                                   ^^^^\n"
-				+ "Annotation: Missing javadoc entry for parameter list\n"
+				+ "Javadoc: Missing tag for parameter list\n"
 				+ "----------\n");
 	}
 	
@@ -540,22 +543,22 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 5)\n"
 				+ "	* @see \"Test class X\n"
 				+ "	      ^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid reference\n"
+				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see <a href=\"http://www.ibm.com\">Valid URL</a>unexpected text\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid reference\n"
+				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 22)\n"
 				+ "	public X(String str) throws java.io.IOException {\n"
 				+ "	                            ^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Missing javadoc entry for declared exception IOException\n"
+				+ "Javadoc: Missing tag for declared exception IOException\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 32)\n"
 				+ "	public String foo(java.util.Vector list) {\n"
 				+ "	       ^^^^^^\n"
-				+ "Annotation: Missing javadoc entry for return type\n"
+				+ "Javadoc: Missing tag for return type\n"
 				+ "----------\n");
 	}
 	
@@ -755,7 +758,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "2. ERROR in test\\X.java (at line 26)\n"
 				+ "	* @param list Valid param tag\n"
 				+ "	         ^^^^\n"
-				+ "Annotation: Parameter list is not declared\n"
+				+ "Javadoc: Parameter list is not declared\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 33)\n"
 				+ "	public String foo(java.util.Vector ) {\n"
@@ -776,7 +779,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
 	 */
 	public void testBug45596() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -799,7 +802,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * Verify correct complain about missing parameter javadoc entries in anonymous class.
 	 */
 	public void testBug45596a() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runNegativeTest(
 			new String[] {
 		"X.java",
@@ -839,19 +842,19 @@ public class AnnotationTestMixed extends AnnotationTest {
 		"1. ERROR in Y1.java (at line 5)\n" + 
 		"	void foo(String str) {}\n" + 
 		"	                ^^^\n" + 
-		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"Javadoc: Missing tag for parameter str\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. ERROR in Y2.java (at line 6)\n" + 
 		"	void foo(String str) {}\n" + 
 		"	                ^^^\n" + 
-		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"Javadoc: Missing tag for parameter str\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. ERROR in Y3.java (at line 6)\n" + 
 		"	void foo(String str) {}\n" + 
 		"	                ^^^\n" + 
-		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"Javadoc: Missing tag for parameter str\n" + 
 		"----------\n"
 			);
 	}
@@ -861,7 +864,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * Verify no complain about missing parameter javadoc entries.
 	 */
 	public void testBug45596b() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runConformTest(
 			new String[] {
 		"X.java",
@@ -924,7 +927,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
 	 */
 	public void testBug45592() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runConformTest(
 			new String[] {
 		"a/Y.java",
@@ -1005,7 +1008,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45669">45669</a>
 	 */
 	public void testBug45669() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1034,7 +1037,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * Verify that compiler complains when @throws tag is between @param tags.
 	 */
 	public void testBug45669a() {
-		reportMissingAnnotation = CompilerOptions.DISABLED;
+		reportMissingJavadoc = CompilerOptions.DISABLED;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1060,13 +1063,118 @@ public class AnnotationTestMixed extends AnnotationTest {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	* @param dbl second param\n" + 
 		"	   ^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
+		"Javadoc: Unexpected tag\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	int foo(String str, Double dbl) throws InterruptedException {\n" + 
 		"	                           ^^^\n" + 
-		"Annotation: Missing javadoc entry for parameter dbl\n" + 
+		"Javadoc: Missing tag for parameter dbl\n" + 
 		"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 45958.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45958">45958</a>
+	 */
+	public void testBug45958() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int x;\n" + 
+				"	public X(int i) {\n" + 
+				"		x = i;\n" + 
+				"	}\n" + 
+				"	/**\n" + 
+				"	 * @see #X(int)\n" + 
+				"	 */\n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug45958a() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+			   "X.java",
+		   		"public class X {\n" + 
+		   		"	int x;\n" + 
+		   		"	public X(int i) {\n" + 
+		   		"		x = i;\n" + 
+		   		"	}\n" + 
+		   		"	/**\n" + 
+		   		"	 * @see #X(String)\n" + 
+		   		"	 */\n" + 
+		   		"	void foo() {\n" + 
+		   		"	}\n" + 
+		   		"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	* @see #X(String)\n" + 
+				"	        ^\n" + 
+				"Javadoc: The constructor X(String) is undefined\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug45958b() {
+	reportMissingJavadoc = CompilerOptions.DISABLED;
+	this.runNegativeTest(
+		new String[] {
+		   "X.java",
+	   		"public class X {\n" + 
+	   		"	int x;\n" + 
+	   		"	public X(int i) {\n" + 
+	   		"		x = i;\n" + 
+	   		"	}\n" + 
+	   		"	/**\n" + 
+	   		"	 * @see #X(int)\n" + 
+	   		"	 */\n" + 
+	   		"	void foo() {\n" + 
+	   		"	}\n" + 
+	   		"}\n",
+	   		"XX.java",
+	   		"public class XX extends X {\n" + 
+	   		"	/**\n" + 
+	   		"	 * @param i\n" + 
+	   		"	 * @see #X(int)\n" + 
+	   		"	 */\n" + 
+	   		"	XX(int i) {\n" + 
+	   		"		super(i);\n" + 
+	   		"		x++;\n" + 
+	   		"	}\n" + 
+	   		"}\n"
+		},
+		"----------\n" + 
+			"1. ERROR in XX.java (at line 4)\n" + 
+			"	* @see #X(int)\n" + 
+			"	        ^\n" + 
+			"Javadoc: The method X(int) is undefined for the type XX\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug45958c() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int x;\n" + 
+				"	public X(int i) {\n" + 
+				"		x = i;\n" + 
+				"	}\n" + 
+				"	/**\n" + 
+				"	 * @see #X(String)\n" + 
+				"	 */\n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"	void X(String str) {}\n" + 
+				"}\n"
+			}
 		);
 	}
 }

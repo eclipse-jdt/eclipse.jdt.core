@@ -106,39 +106,39 @@ public SourceElementParser(
 		}
 }
 
-public void checkAnnotation() {
-	super.checkAnnotation();
-	if (reportReferenceInfo && this.annotation != null) {
-		// Report reference info in annotation @throws/@exception tags
-		TypeReference[] thrownExceptions = this.annotation.thrownExceptions;
+public void checkComment() {
+	super.checkComment();
+	if (reportReferenceInfo && this.javadoc != null) {
+		// Report reference info in javadoc comment @throws/@exception tags
+		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
 		for (int i = 0; i < throwsTagsNbre; i++) {
 			TypeReference typeRef = thrownExceptions[i];
-			if (typeRef instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
+			if (typeRef instanceof JavadocSingleTypeReference) {
+				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
+			} else if (typeRef instanceof JavadocQualifiedTypeReference) {
+				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) typeRef;
 				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
 			}
 		}
 
-		// Report reference info in annotation @see tags
-		Expression[] references = this.annotation.references;
+		// Report reference info in javadoc comment @see tags
+		Expression[] references = this.javadoc.references;
 		int seeTagsNbre = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			Expression reference = references[i];
-			if (reference instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) reference;
+			if (reference instanceof JavadocSingleTypeReference) {
+				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) reference;
 				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (reference instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) reference;
+			} else if (reference instanceof JavadocQualifiedTypeReference) {
+				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) reference;
 				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
-			} else if (reference instanceof AnnotationFieldReference) {
-				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+			} else if (reference instanceof JavadocFieldReference) {
+				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
-			} else if (reference instanceof AnnotationMessageSend) {
-				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+			} else if (reference instanceof JavadocMessageSend) {
+				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
 			}
@@ -183,9 +183,9 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
-	// annotation
-	cd.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	cd.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
@@ -253,9 +253,9 @@ protected void consumeMethodHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
-	// annotation
-	md.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	md.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);

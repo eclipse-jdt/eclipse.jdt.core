@@ -14,19 +14,19 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 
-public class AnnotationSingleTypeReference extends SingleTypeReference {
+public class JavadocSingleTypeReference extends SingleTypeReference {
 	
 	public int tagSourceStart, tagSourceEnd;
 
-	public AnnotationSingleTypeReference(char[] source, long pos, int tagStart, int tagEnd) {
+	public JavadocSingleTypeReference(char[] source, long pos, int tagStart, int tagEnd) {
 		super(source, pos);
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
-		this.bits |= InsideAnnotation;
+		this.bits |= InsideJavadoc;
 	}
 
 	/* (non-Javadoc)
-	 * Redefine to capture annotation specific signatures
+	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

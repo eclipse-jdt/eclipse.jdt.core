@@ -45,7 +45,7 @@ public class TypeDeclaration
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
 	private MethodDeclaration[] missingAbstractMethods;
-	public Annotation annotation;
+	public Javadoc javadoc;
 
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -839,13 +839,13 @@ public class TypeDeclaration
 					methods[i].resolve(scope);
 				}
 			}
-			// Resolve annotation
-			if (this.annotation != null) {
+			// Resolve javadoc
+			if (this.javadoc != null) {
 				if (this.scope != null) {
-					this.annotation.resolve(this.scope);
+					this.javadoc.resolve(this.scope);
 				}
 			} else if ((this.binding != null) && this.binding.isPublic()) {
-				this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
+				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
 			}
 			
 		} catch (AbortType e) {

@@ -15,19 +15,19 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 
 
-public class AnnotationQualifiedTypeReference extends QualifiedTypeReference {
+public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 
 	public int tagSourceStart, tagSourceEnd;
 
-	public AnnotationQualifiedTypeReference(char[][] sources, long[] pos, int tagStart, int tagEnd) {
+	public JavadocQualifiedTypeReference(char[][] sources, long[] pos, int tagStart, int tagEnd) {
 		super(sources, pos);
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
-		this.bits |= InsideAnnotation;
+		this.bits |= InsideJavadoc;
 	}
 	
 	/* (non-Javadoc)
-	 * Redefine to capture annotation specific signatures
+	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -66,7 +66,7 @@ public DocumentElementParser(
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
 	this.options = options;
-	this.annotationParser.checkAnnotation = false;
+	this.javadocParser.checkJavadoc = false;
 }
 
 /*
@@ -83,28 +83,28 @@ protected void adjustInterfaceModifiers() {
  * Additionally, before investigating for @deprecated, retrieve the positions
  * of the JavaDoc comments so as to notify requestor with them.
  */
-public void checkAnnotation() {
+public void checkComment() {
 
 	/* persisting javadoc positions */
 	pushOnIntArrayStack(this.getJavaDocPositions());
 	boolean deprecated = false;
-	int lastAnnotationIndex = -1;
+	int lastCommentIndex = -1;
 	int commentPtr = scanner.commentPtr;
 
 	//since jdk1.2 look only in the last java doc comment...
-	nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
+	nextComment : for (lastCommentIndex = scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
 		//look for @deprecated into the first javadoc comment preceeding the declaration
-		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
+		int commentSourceStart = scanner.commentStarts[lastCommentIndex];
 		// javadoc only (non javadoc comment have negative end positions.)
 		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
 			continue nextComment;
 		}
-		if (scanner.commentStops[lastAnnotationIndex] < 0) {
+		if (scanner.commentStops[lastCommentIndex] < 0) {
 			continue nextComment;
 		}
-		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
+		int commentSourceEnd = scanner.commentStops[lastCommentIndex] - 1; //stop is one over
 		deprecated =
-			this.annotationParser.checkDeprecation(
+			this.javadocParser.checkDeprecation(
 				commentSourceStart,
 				commentSourceEnd);
 		break nextComment;
@@ -255,9 +255,9 @@ protected void consumeClassHeaderName() {
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 /*
  *
@@ -372,9 +372,9 @@ protected void consumeConstructorHeaderName() {
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiersSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
-	// annotation
-	cd.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	cd.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
@@ -384,7 +384,7 @@ protected void consumeConstructorHeaderName() {
 	cd.bodyStart = lParenPos + 1;
 }
 protected void consumeDefaultModifiers() {
-	checkAnnotation(); // might update modifiers with AccDeprecated
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(-1);
 	pushOnIntStack(
@@ -664,9 +664,9 @@ protected void consumeInterfaceHeaderName() {
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 /*
  *
@@ -820,9 +820,9 @@ protected void consumeMethodHeaderName() {
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiersSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
-	// annotation
-	md.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	md.javadoc = this.javadoc;
+	this.javadoc = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);
@@ -830,7 +830,7 @@ protected void consumeMethodHeaderName() {
 	md.bodyStart = scanner.currentPosition-1;
 }
 protected void consumeModifiers() {
-	checkAnnotation(); // might update modifiers with AccDeprecated
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(modifiersSourceStart);
 	pushOnIntStack(
@@ -856,7 +856,7 @@ protected void consumePackageDeclarationName() {
 		importReference.sourceStart);
 }
 protected void consumePushModifiers() {
-	checkAnnotation(); // might update modifiers with AccDeprecated
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	if (modifiersSourceStart < 0) {
 		pushOnIntStack(-1);
@@ -910,7 +910,7 @@ protected void consumeStaticInitializer() {
 }
 protected void consumeStaticOnly() {
 	// StaticOnly ::= 'static'
-	checkAnnotation(); // might update declaration source start
+	checkComment(); // might update declaration source start
 	pushOnIntStack(modifiersSourceStart);
 	pushOnIntStack(scanner.currentPosition);
 	pushOnIntStack(
@@ -946,9 +946,9 @@ public CompilationUnitDeclaration endParse(int act) {
 	return super.endParse(act);
 }
 /*
- * Flush annotations defined prior to a given positions.
+ * Flush javadocs defined prior to a given positions.
  *
- * Note: annotations are stacked in syntactical order
+ * Note: javadocs are stacked in syntactical order
  *
  * Either answer given <position>, or the end position of a comment line 
  * immediately following the <position> (same line)
@@ -958,9 +958,9 @@ public CompilationUnitDeclaration endParse(int act) {
  * } // end of method foo
  */
  
-public int flushAnnotationsDefinedPriorTo(int position) {
+public int flushCommentsDefinedPriorTo(int position) {
 
-	return lastFieldEndPosition = super.flushAnnotationsDefinedPriorTo(position);
+	return lastFieldEndPosition = super.flushCommentsDefinedPriorTo(position);
 }
 protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
 This variable is a type reference and dim will be its dimensions*/

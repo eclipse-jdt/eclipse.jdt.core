@@ -1409,13 +1409,21 @@ public class JavaProject
 	 */	
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
 		
-		if (JavaModelManager.OptionNames.contains(optionName)){
-			
+		String propertyName = optionName;
+		// bug 45112 backward compatibility.  TODO (frederic) remove after 3.0-M6
+		if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(optionName)) {
+			propertyName = JavaCore.COMPILER_PB_INVALID_JAVADOC;
+		}
+		else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(optionName)) {
+			propertyName = JavaCore.COMPILER_PB_MISSING_JAVADOC;
+		}
+		// end bug 45112
+		if (JavaModelManager.OptionNames.contains(propertyName)){
 			Preferences preferences = getPreferences();
-			if (preferences == null || preferences.isDefault(optionName)) {
-				return inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
+			if (preferences == null || preferences.isDefault(propertyName)) {
+				return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
 			}
-			return preferences.getString(optionName).trim();
+			return preferences.getString(propertyName).trim();
 		}
 		return null;
 	}
@@ -1446,10 +1454,33 @@ public class JavaProject
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
+			String value = preferences.getString(propertyName).trim();
 			if (optionNames.contains(propertyName)){
-				options.put(propertyName, preferences.getString(propertyName).trim());
+				options.put(propertyName, value);
+				// TODO (frederic) remove when bug 45110 will be fixed
+				if (JavaCore.COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+					options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+				}
+				// end bug 45110
+			}		
+			// bug 45112 backward compatibility.  TODO (frederic) remove after 3.0-M6
+			else if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+				options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
 			}
+			else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC, value);
+				// TODO (frederic) remove when bug 45110 will be fixed
+				options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+			}
+			// end bug 45112
 		}		
+
+		// TODO (frederic) remove when bug 45110 will be fixed
+		if (!options.containsKey(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
+			options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, JavaCore.DISABLED);
+		}
+		// end bug 45110
+		
 		return options;
 	}
 	
@@ -2418,11 +2449,17 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
 	 */
 	public void setOption(String optionName, String optionValue) {
-			if (!JavaModelManager.OptionNames.contains(optionName)) return; // unrecognized option
-			Preferences preferences = getPreferences();
-			preferences.setDefault(optionName, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-			preferences.setValue(optionName, optionValue);
-			savePreferences(preferences);
+		// TODO (frederic) remove when bug 45110 will be fixed
+		String key = optionName;
+		if (optionName.equals(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
+			key = JavaCore.COMPILER_PB_MISSING_JAVADOC;
+		}
+		// end bug 45110
+		if (!JavaModelManager.OptionNames.contains(key)) return; // unrecognized option
+		Preferences preferences = getPreferences();
+		preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
+		preferences.setValue(key, optionValue);
+		savePreferences(preferences);
 	}
 
 	/**
@@ -2436,11 +2473,17 @@ public class JavaProject
 			Iterator keys = newOptions.keySet().iterator();
 			while (keys.hasNext()){
 				String key = (String)keys.next();
-				if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+				// TODO (frederic) remove when bug 45110 will be fixed
+				String newKey = key;
+				if (key.equals(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
+					newKey = JavaCore.COMPILER_PB_MISSING_JAVADOC;
+				}
+				// end bug 45110
+				if (!JavaModelManager.OptionNames.contains(newKey)) continue; // unrecognized option
 				// no filtering for encoding (custom encoding for project is allowed)
 				String value = (String)newOptions.get(key);
-				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-				preferences.setValue(key, value);
+				preferences.setDefault(newKey, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
+				preferences.setValue(newKey, value);
 			}
 		}
 		

@@ -37,7 +37,7 @@ public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext eval
 	this.codeSnippetEnd = codeSnippetEnd;
 	this.evaluationContext = evaluationContext;
 	this.reportOnlyOneSyntaxError = true;
-	this.annotationParser.checkAnnotation = false;
+	this.javadocParser.checkJavadoc = false;
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -133,9 +133,9 @@ protected void consumeClassHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;
 	}
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeEmptyStatement() {
 	super.consumeEmptyStatement();
@@ -213,9 +213,9 @@ protected void consumeInterfaceHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;		
 	}
-	// annotation
-	typeDecl.annotation = this.annotation;
-	this.annotation = null;
+	// javadoc
+	typeDecl.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeLocalVariableDeclarationStatement() {
 	super.consumeLocalVariableDeclarationStatement();

@@ -79,7 +79,7 @@ public abstract class AssistParser extends Parser {
 
 public AssistParser(ProblemReporter problemReporter) {
 	super(problemReporter, true);
-	this.annotationParser.checkAnnotation = false;
+	this.javadocParser.checkJavadoc = false;
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){
@@ -369,8 +369,8 @@ protected void consumePackageDeclarationName() {
 	}
 	//endPosition is just before the ;
 	reference.declarationSourceStart = intStack[intPtr--];
-	// flush annotations defined prior to import statements
-	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
 
 	// recovery
 	if (currentElement != null){
@@ -426,8 +426,8 @@ protected void consumeSingleTypeImportDeclarationName() {
 	}
 	//endPosition is just before the ;
 	reference.declarationSourceStart = intStack[intPtr--];
-	// flush annotations defined prior to import statements
-	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
 
 	// recovery
 	if (currentElement != null){
@@ -525,8 +525,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	}
 	//endPosition is just before the ;
 	reference.declarationSourceStart = intStack[intPtr--];
-	// flush annotations defined prior to import statements
-	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
 
 	// recovery
 	if (currentElement != null){

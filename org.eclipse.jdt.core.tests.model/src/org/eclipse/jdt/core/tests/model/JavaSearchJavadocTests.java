@@ -24,14 +24,14 @@ import org.eclipse.jdt.core.search.SearchEngine;
  *
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">bug 45518</a>
  */
-public class JavaSearchAnnotationTests extends JavaSearchTests {
+public class JavaSearchJavadocTests extends JavaSearchTests {
 
 	Map originalOptions;
 
 	/**
 	 * @param name
 	 */
-	public JavaSearchAnnotationTests(String name) {
+	public JavaSearchJavadocTests(String name) {
 		super(name);
 	}
 	private void resetProjectOptions() {
@@ -39,58 +39,58 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 	private void setJavadocOptions() {
 		this.originalOptions = this.javaProject.getOptions(true);
-		this.javaProject.setOption(JavaCore.COMPILER_PB_INVALID_ANNOTATION, JavaCore.WARNING);
-		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_ANNOTATION, JavaCore.ENABLED);
+		this.javaProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC, JavaCore.ENABLED);
 	}
 	public static Test suite() {
-		// NOTE: cannot use 'new Suite(JavaSearchAnnotationTests.class)' as this would include tests from super class
-		TestSuite suite = new Suite(JavaSearchAnnotationTests.class.getName());
+		// NOTE: cannot use 'new Suite(JavaSearchJavadocTests.class)' as this would include tests from super class
+		TestSuite suite = new Suite(JavaSearchJavadocTests.class.getName());
 		
 		// Tests on type declarations
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeDeclaration"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeStringDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclarationWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringDeclaration"));
 		
 		// Tests on field declarations
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldDeclaration"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldStringDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclarationWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringDeclaration"));
 		
 		// Tests on method declarations
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodDeclaration"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodArgDeclaration"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodArgDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodStringDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclaration"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclarationWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclarationWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringDeclaration"));
 		
 		// Tests on type references
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeStringReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationTypeStringReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReferenceWithJavadoc"));
 		
 		// Tests on field references
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldStringReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationFieldStringReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReferenceWithJavadoc"));
 		
 		// Tests on method references
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodArgReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodArgReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodStringReference"));
-		suite.addTest(new JavaSearchAnnotationTests("testAnnotationMethodStringReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReferenceWithJavadoc"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReference"));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReferenceWithJavadoc"));
 		
 		return suite;
 	}
 
 	/*
-	 * Test search of type declaration in annotations
-	 * ==============================================
+	 * Test search of type declaration in javadoc comments
+	 * ===================================================
 	 */
-	public void testAnnotationTypeDeclaration() throws CoreException {
+	public void testJavadocTypeDeclaration() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
@@ -105,7 +105,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java j1.AnnSearched [AnnSearched] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationTypeStringDeclaration() throws CoreException {
+	public void testJavadocTypeStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -120,7 +120,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java j1.AnnSearched [AnnSearched] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationTypeDeclarationWithJavadoc() throws CoreException {
+	public void testJavadocTypeDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -142,10 +142,10 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 
 	/*
-	 * Test search of field declaration in annotations
-	 * ===============================================
+	 * Test search of field declaration in javadoc comments
+	 * ====================================================
 	 */
-	public void testAnnotationFieldDeclaration() throws CoreException {
+	public void testJavadocFieldDeclaration() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IField field = type.getField("annSearchedVar");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -161,7 +161,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java j1.AnnSearched.annSearchedVar [annSearchedVar] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationFieldStringDeclaration() throws CoreException {
+	public void testJavadocFieldStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -176,7 +176,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java j1.AnnSearched.annSearchedVar [annSearchedVar] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationFieldDeclarationWithJavadoc() throws CoreException {
+	public void testJavadocFieldDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IField field = type.getField("annSearchedVar");
 		try {
@@ -199,10 +199,10 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 
 	/*
-	 * Test search of method declarations in annotations
-	 * =================================================
+	 * Test search of method declarations in javadoc comments
+	 * ======================================================
 	 */
-	public void testAnnotationMethodDeclaration() throws CoreException {
+	public void testJavadocMethodDeclaration() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IMethod method = type.getMethod("annSearchedMethod", null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -218,7 +218,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java void j1.AnnSearched.annSearchedMethod() [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodArgDeclaration() throws CoreException {
+	public void testJavadocMethodArgDeclaration() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IMethod method = type.getMethod("annSearchedMethod", new String[] { "QString;" });
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -234,7 +234,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java void j1.AnnSearched.annSearchedMethod(String) [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodStringDeclaration() throws CoreException {
+	public void testJavadocMethodStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -250,7 +250,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnSearched.java void j1.AnnSearched.annSearchedMethod(String) [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodDeclarationWithJavadoc() throws CoreException {
+	public void testJavadocMethodDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -271,7 +271,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	public void testAnnotationMethodArgDeclarationWithJavadoc() throws CoreException {
+	public void testJavadocMethodArgDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -294,10 +294,10 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 
 	/*
-	 * Test search of type references in annotations
-	 * =============================================
+	 * Test search of type references in javadoc comments
+	 * ==================================================
 	 */
-	public void testAnnotationTypeReference() throws CoreException {
+	public void testJavadocTypeReference() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
@@ -312,7 +312,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [AnnSearched] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationTypeStringReference() throws CoreException {
+	public void testJavadocTypeStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -327,7 +327,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [AnnSearched] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationTypeReferenceWithJavadoc() throws CoreException {
+	public void testJavadocTypeReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -347,7 +347,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	public void testAnnotationTypeStringReferenceWithJavadoc() throws CoreException {
+	public void testJavadocTypeStringReferenceWithJavadoc() throws CoreException {
 		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -369,10 +369,10 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 
 	/*
-	 * Test search of field references in annotations
-	 * ==============================================
+	 * Test search of field references in javadoc comments
+	 * ===================================================
 	 */
-	public void testAnnotationFieldReference() throws CoreException {
+	public void testJavadocFieldReference() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IField field = type.getField("annSearchedVar");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -389,7 +389,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [annSearchedVar] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationFieldStringReference() throws CoreException {
+	public void testJavadocFieldStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -406,7 +406,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [annSearchedVar] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationFieldReferenceWithJavadoc() throws CoreException {
+	public void testJavadocFieldReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IField field = type.getField("annSearchedVar");
 		try {
@@ -428,7 +428,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	public void testAnnotationFieldStringReferenceWithJavadoc() throws CoreException {
+	public void testJavadocFieldStringReferenceWithJavadoc() throws CoreException {
 		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -452,10 +452,10 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 	}
 
 	/*
-	 * Test search of method references in annotations
-	 * ===============================================
+	 * Test search of method references in javadoc comments
+	 * ====================================================
 	 */
-	public void testAnnotationMethodReference() throws CoreException {
+	public void testJavadocMethodReference() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IMethod method = type.getMethod("annSearchedMethod", null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -472,7 +472,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodArgReference() throws CoreException {
+	public void testJavadocMethodArgReference() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		IMethod method = type.getMethod("annSearchedMethod", new String[] { "QString;" });
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -488,7 +488,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodStringReference() throws CoreException {
+	public void testJavadocMethodStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
 		new SearchEngine().search(
@@ -506,7 +506,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 				"src/j1/AnnValidRef.java void j1.AnnValidRef.valid() [annSearchedMethod] EXACT_MATCH",
 				result);
 	}
-	public void testAnnotationMethodReferenceWithJavadoc() throws CoreException {
+	public void testJavadocMethodReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -528,7 +528,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	public void testAnnotationMethodArgReferenceWithJavadoc() throws CoreException {
+	public void testJavadocMethodArgReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "AnnSearched.java").getType("AnnSearched");
 		try {
 			setJavadocOptions();
@@ -549,7 +549,7 @@ public class JavaSearchAnnotationTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	public void testAnnotationMethodStringReferenceWithJavadoc() throws CoreException {
+	public void testJavadocMethodStringReferenceWithJavadoc() throws CoreException {
 		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();

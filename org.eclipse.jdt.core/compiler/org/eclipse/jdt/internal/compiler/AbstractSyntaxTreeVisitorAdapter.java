@@ -36,31 +36,31 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
+	public void endVisit(JavadocArrayQualifiedTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
+	public void endVisit(JavadocArraySingleTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationArgumentExpression expression, BlockScope scope) {
+	public void endVisit(JavadocArgumentExpression expression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationFieldReference fieldRef, BlockScope scope) {
+	public void endVisit(JavadocFieldReference fieldRef, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationMessageSend messageSend, BlockScope scope) {
+	public void endVisit(JavadocMessageSend messageSend, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationQualifiedTypeReference typeRef, BlockScope scope) {
+	public void endVisit(JavadocQualifiedTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationReturnStatement statement, BlockScope scope) {
+	public void endVisit(JavadocReturnStatement statement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationSingleNameReference argument, BlockScope scope) {
+	public void endVisit(JavadocSingleNameReference argument, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
+	public void endVisit(JavadocSingleTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Argument argument, BlockScope scope) {
@@ -332,31 +332,31 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
+	public boolean visit(JavadocArrayQualifiedTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
+	public boolean visit(JavadocArraySingleTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationArgumentExpression expression, BlockScope scope) {
+	public boolean visit(JavadocArgumentExpression expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationFieldReference fieldRef, BlockScope scope) {
+	public boolean visit(JavadocFieldReference fieldRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationMessageSend messageSend, BlockScope scope) {
+	public boolean visit(JavadocMessageSend messageSend, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationQualifiedTypeReference typeRef, BlockScope scope) {
+	public boolean visit(JavadocQualifiedTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationReturnStatement statement, BlockScope scope) {
+	public boolean visit(JavadocReturnStatement statement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationSingleNameReference argument, BlockScope scope) {
+	public boolean visit(JavadocSingleNameReference argument, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
+	public boolean visit(JavadocSingleTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Argument argument, BlockScope scope) {

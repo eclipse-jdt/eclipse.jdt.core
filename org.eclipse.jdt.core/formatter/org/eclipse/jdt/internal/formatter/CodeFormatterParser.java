@@ -26,7 +26,7 @@ public class CodeFormatterParser extends Parser {
 			ProblemReporter problemReporter,
 			boolean optimizeStringLiterals) {
 		super(problemReporter, optimizeStringLiterals);
-		this.annotationParser.checkAnnotation = false;
+		this.javadocParser.checkJavadoc = false;
 	}
 
 	public Expression parseExpression(char[] source, CompilationUnitDeclaration unit) {

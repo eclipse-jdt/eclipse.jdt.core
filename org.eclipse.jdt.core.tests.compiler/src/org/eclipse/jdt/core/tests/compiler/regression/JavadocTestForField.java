@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class AnnotationTestForField extends AnnotationTest {
+public class JavadocTestForField extends JavadocTest {
 	public static Test suite() {
 		if (false) {
 			TestSuite ts;
@@ -28,17 +28,17 @@ public class AnnotationTestForField extends AnnotationTest {
 					meth += "0";
 				}
 				meth += i;
-				ts.addTest(new AnnotationTestForField(meth));
+				ts.addTest(new JavadocTestForField(meth));
 			}
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
 	}
-	public AnnotationTestForField(String name) {
+	public JavadocTestForField(String name) {
 		super(name);
 	}
 	public static Class testClass() {
-		return AnnotationTestForField.class;
+		return JavadocTestForField.class;
 	}
 
 	/*
@@ -72,7 +72,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 4)\n"
 				+ "	* @param x Invalid tag\n"
 				+ "	   ^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 
@@ -91,7 +91,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 4)\n"
 				+ "	* @throws NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 
@@ -110,7 +110,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 4)\n"
 				+ "	* @exception NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 
@@ -129,7 +129,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 4)\n"
 				+ "	* @return Invalid tag\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 
@@ -151,22 +151,22 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 4)\n"
 				+ "	* @exception NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 5)\n"
 				+ "	* @throws NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 6)\n"
 				+ "	* @return Invalid tag\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 7)\n"
 				+ "	* @param x Invalid tag\n"
 				+ "	   ^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 	/*
@@ -234,22 +234,22 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in Z.java (at line 5)\n"
 				+ "	* @param x\n"
 				+ "	   ^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "2. ERROR in Z.java (at line 6)\n"
 				+ "	* @return\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "3. ERROR in Z.java (at line 7)\n"
 				+ "	* @throws NullPointerException\n"
 				+ "	   ^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n"
 				+ "4. ERROR in Z.java (at line 8)\n"
 				+ "	* @exception IllegalArgumentException\n"
 				+ "	   ^^^^^^^^^\n"
-				+ "Annotation: Unexpected javadoc entry\n"
+				+ "Javadoc: Unexpected tag\n"
 				+ "----------\n");
 	}
 
@@ -275,12 +275,12 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see \"unterminated string\n"
 				+ "	      ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid reference\n"
+				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 6)\n"
 				+ "	* @see \"invalid\" no text allowed after the string\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid reference\n"
+				+ "Javadoc: Invalid reference\n"
 				+ "----------\n");
 	}
 
@@ -317,12 +317,12 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see <a href=\"invalid\">invalid</\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid URL link format\n"
+				+ "Javadoc: Invalid URL link format\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 6)\n"
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Invalid reference\n"
+				+ "Javadoc: Invalid reference\n"
 				+ "----------\n");
 	}
 
@@ -382,27 +382,27 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type Visibility.VcPrivate is not visible\n"
+				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type Visibility.AvcPrivate is not visible\n"
+				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see test.Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type test.Visibility.VcPrivate is not visible\n"
+				+ "Javadoc: The type test.Visibility.VcPrivate is not visible\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see test.Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type test.Visibility.AvcPrivate is not visible\n"
+				+ "Javadoc: The type test.Visibility.AvcPrivate is not visible\n"
 				+ "----------\n"
 				+ "5. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see Unknown Invalid ref: unknown class \n"
 				+ "	       ^^^^^^^\n"
-				+ "Annotation: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
 				+ "----------\n");
 	}
 
@@ -442,12 +442,12 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see VisibilityPackage Invalid ref: non visible class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type VisibilityPackage is not visible\n"
+				+ "Javadoc: The type VisibilityPackage is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class \n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type VisibilityPublic.VpPrivate is not visible\n"
+				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
 				+ "----------\n");
 	}
 
@@ -508,32 +508,32 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see #str Invalid ref: non existent field\n"
 				+ "	        ^^^\n"
-				+ "Annotation: str cannot be resolved or is not a field\n"
+				+ "Javadoc: str cannot be resolved or is not a field\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility#unknown Invalid ref: non existent field\n"
 				+ "	                  ^^^^^^^\n"
-				+ "Annotation: unknown cannot be resolved or is not a field\n"
+				+ "Javadoc: unknown cannot be resolved or is not a field\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Visibility#vf_private Invalid ref: non visible field\n"
 				+ "	                  ^^^^^^^^^^\n"
-				+ "Annotation: The field vf_private is not visible\n"
+				+ "Javadoc: The field vf_private is not visible\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see Visibility.VcPrivate#unknown Invalid ref: non visible inner class (non existent field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type Visibility.VcPrivate is not visible\n"
+				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
 				+ "----------\n"
 				+ "5. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see Visibility.VcPublic#unknown Invalid ref: non existent field in visible inner class\n"
 				+ "	                           ^^^^^^^\n"
-				+ "Annotation: unknown cannot be resolved or is not a field\n"
+				+ "Javadoc: unknown cannot be resolved or is not a field\n"
 				+ "----------\n"
 				+ "6. ERROR in test\\X.java (at line 11)\n"
 				+ "	* @see Visibility.VcPublic#vf_private Invalid ref: non visible field in visible inner class\n"
 				+ "	                           ^^^^^^^^^^\n"
-				+ "Annotation: The field vf_private is not visible\n"
+				+ "Javadoc: The field vf_private is not visible\n"
 				+ "----------\n");
 	}
 
@@ -577,32 +577,32 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type VisibilityPackage is not visible\n"
+				+ "Javadoc: The type VisibilityPackage is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
 				+ "	                        ^^^^^^^\n"
-				+ "Annotation: unknown cannot be resolved or is not a field\n"
+				+ "Javadoc: unknown cannot be resolved or is not a field\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
 				+ "	                        ^^^^^^^^^^\n"
-				+ "Annotation: The field vf_private is not visible\n"
+				+ "Javadoc: The field vf_private is not visible\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type VisibilityPublic.VpPrivate is not visible\n"
+				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
 				+ "----------\n"
 				+ "5. ERROR in test\\X.java (at line 11)\n"
 				+ "	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
 				+ "	                                 ^^^^^^^\n"
-				+ "Annotation: unknown cannot be resolved or is not a field\n"
+				+ "Javadoc: unknown cannot be resolved or is not a field\n"
 				+ "----------\n"
 				+ "6. ERROR in test\\X.java (at line 12)\n"
 				+ "	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
 				+ "	                                 ^^^^^^^^^^\n"
-				+ "Annotation: The field vf_private is not visible\n"
+				+ "Javadoc: The field vf_private is not visible\n"
 				+ "----------\n");
 	}
 
@@ -649,7 +649,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 6)\n"
 				+ "	* @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
 				+ "	        ^^^^^^^\n"
-				+ "Annotation: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char, int[][], String[][][], Vector[][][][])\n"
+				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char, int[][], String[][][], Vector[][][][])\n"
 				+ "----------\n");
 	}
 
@@ -701,7 +701,7 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see #unknown() Invalid ref: undefined local method reference\n"
 				+ "	        ^^^^^^^\n"
-				+ "Annotation: The method unknown() is undefined for the type X\n"
+				+ "Javadoc: The method unknown() is undefined for the type X\n"
 				+ "----------\n");
 	}
 
@@ -732,27 +732,27 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see #smr_foo(float, long, char, short, byte, int, boolean) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
-				+ "Annotation: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (float, long, char, short, byte, int, boolean)\n"
+				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (float, long, char, short, byte, int, boolean)\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 6)\n"
 				+ "	* @see #smr_foo(String, String, int, String) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
-				+ "Annotation: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, String, int, String)\n"
+				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, String, int, String)\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 7)\n"
 				+ "	* @see #smr_foo(boolean) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
-				+ "Annotation: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean)\n"
+				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean)\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Annotation: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
-				+ "Annotation: Vector cannot be resolved or is not a type\n"
+				+ "Javadoc: Vector cannot be resolved or is not a type\n"
 				+ "----------\n");
 	}
 
@@ -851,22 +851,22 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility#unknown() Invalid ref: non-existent method\n"
 				+ "	                  ^^^^^^^\n"
-				+ "Annotation: The method unknown() is undefined for the type Visibility\n"
+				+ "Javadoc: The method unknown() is undefined for the type Visibility\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility.VcPublic#unknown() Invalid ref: non existent method in visible inner class\n"
 				+ "	                           ^^^^^^^\n"
-				+ "Annotation: The method unknown() is undefined for the type Visibility.VcPublic\n"
+				+ "Javadoc: The method unknown() is undefined for the type Visibility.VcPublic\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
 				+ "	       ^^^^^^^\n"
-				+ "Annotation: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: Visibility.Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Visibility.Unknown cannot be resolved or is not a type\n"
 				+ "----------\n");
 	}
 
@@ -889,17 +889,17 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility#vm_private() Invalid ref: non-visible method\n"
 				+ "	                  ^^^^^^^^^^\n"
-				+ "Annotation: The method vm_private() from the type Visibility is not visible\n"
+				+ "Javadoc: The method vm_private() from the type Visibility is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility.VcPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type Visibility.VcPrivate is not visible\n"
+				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Visibility.VcPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
 				+ "	                           ^^^^^^^^^^\n"
-				+ "Annotation: The method vm_private() from the type Visibility.VcPublic is not visible\n"
+				+ "Javadoc: The method vm_private() from the type Visibility.VcPublic is not visible\n"
 				+ "----------\n");
 	}
 
@@ -923,22 +923,22 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility#vm_private(int) Invalid ref: non-applicable method\n"
 				+ "	                  ^^^^^^^^^^\n"
-				+ "Annotation: The method vm_private() in the type Visibility is not applicable for the arguments (int)\n"
+				+ "Javadoc: The method vm_private() in the type Visibility is not applicable for the arguments (int)\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility#vm_public(String) Invalid ref: non-applicable method\n"
 				+ "	                  ^^^^^^^^^\n"
-				+ "Annotation: The method vm_public() in the type Visibility is not applicable for the arguments (String)\n"
+				+ "Javadoc: The method vm_public() in the type Visibility is not applicable for the arguments (String)\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Visibility.VcPublic#vm_private(Integer, byte) Invalid ref: non applicable method in visible inner class\n"
 				+ "	                           ^^^^^^^^^^\n"
-				+ "Annotation: The method vm_private() in the type Visibility.VcPublic is not applicable for the arguments (Integer, byte)\n"
+				+ "Javadoc: The method vm_private() in the type Visibility.VcPublic is not applicable for the arguments (Integer, byte)\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see Visibility.VcPublic#vm_public(Double z, Boolean x) Invalid ref: non applicable method in visible inner class\n"
 				+ "	                           ^^^^^^^^^\n"
-				+ "Annotation: The method vm_public() in the type Visibility.VcPublic is not applicable for the arguments (Double, Boolean)\n"
+				+ "Javadoc: The method vm_public() in the type Visibility.VcPublic is not applicable for the arguments (Double, Boolean)\n"
 				+ "----------\n");
 	}
 
@@ -966,12 +966,12 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type VisibilityPackage is not visible\n"
+				+ "Javadoc: The type VisibilityPackage is not visible\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Annotation: The type test.copy.VisibilityPackage is not visible\n"
+				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
 				+ "----------\n");
 	}
 

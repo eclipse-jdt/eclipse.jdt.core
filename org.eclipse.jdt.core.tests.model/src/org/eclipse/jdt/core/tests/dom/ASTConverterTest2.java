@@ -2789,12 +2789,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IJavaProject project = sourceUnit.getJavaProject();
 		Map originalOptions = project.getOptions(true);
 		try {
-			project.setOption(JavaCore.COMPILER_PB_INVALID_ANNOTATION, JavaCore.ERROR);
-			project.setOption(JavaCore.COMPILER_PB_MISSING_ANNOTATION, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
+			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC, JavaCore.ENABLED);
 			CompilationUnit result = (CompilationUnit)runConversion(sourceUnit, true);
 			IProblem[] problems= result.getProblems();
 			assertTrue(problems.length == 1);
-			assertEquals("Invalid warning", "Annotation: Missing javadoc entry for parameter a", problems[0].getMessage());
+			assertEquals("Invalid warning", "Javadoc: Missing tag for parameter a", problems[0].getMessage());
 		} finally {
 			project.setOptions(originalOptions);
 		}

@@ -13,15 +13,15 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
- * Node representing a structured Javadoc annotation comment
+ * Node representing a structured Javadoc comment
  */
-public class Annotation extends AstNode {
+public class Javadoc extends AstNode {
 
-	public AnnotationSingleNameReference[] parameters; // @param
+	public JavadocSingleNameReference[] parameters; // @param
 	public TypeReference[] thrownExceptions; // @throws, @exception
-	public AnnotationReturnStatement returnStatement; // @return
+	public JavadocReturnStatement returnStatement; // @return
 	public Expression[] references; // @see
-	public Annotation(int sourceStart, int sourceEnd) {
+	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
@@ -57,20 +57,20 @@ public class Annotation extends AstNode {
 	}
 
 	/*
-	 * Resolve type annotation while a class scope
+	 * Resolve type javadoc while a class scope
 	 */
 	public void resolve(ClassScope classScope) {
 
 		// @param tags
 		int paramTagsSize = parameters == null ? 0 : parameters.length;
 		for (int i = 0; i < paramTagsSize; i++) {
-			AnnotationSingleNameReference param = parameters[i];
-			classScope.problemReporter().annotationUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
+			JavadocSingleNameReference param = parameters[i];
+			classScope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 		}
 
 		// @return tags
 		if (this.returnStatement != null) {
-			classScope.problemReporter().annotationUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
+			classScope.problemReporter().javadocUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
 		}
 
 		// @throws/@exception tags
@@ -78,19 +78,19 @@ public class Annotation extends AstNode {
 		for (int i = 0; i < throwsTagsNbre; i++) {
 			TypeReference typeRef = thrownExceptions[i];
 			int start, end;
-			if (typeRef instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
+			if (typeRef instanceof JavadocSingleTypeReference) {
+				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 				start = singleRef.tagSourceStart;
 				end = singleRef.tagSourceEnd;
-			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
+			} else if (typeRef instanceof JavadocQualifiedTypeReference) {
+				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) typeRef;
 				start = qualifiedRef.tagSourceStart;
 				end = qualifiedRef.tagSourceEnd;
 			} else {
 				start = typeRef.sourceStart;
 				end = typeRef.sourceEnd;
 			}
-			classScope.problemReporter().annotationUnexpectedTag(start, end);
+			classScope.problemReporter().javadocUnexpectedTag(start, end);
 		}
 
 		// @see tags
@@ -101,7 +101,7 @@ public class Annotation extends AstNode {
 	}
 	
 	/*
-	 * Resolve method annotation while a method scope
+	 * Resolve method javadoc while a method scope
 	 */
 	public void resolve(MethodScope methScope) {
 
@@ -116,7 +116,7 @@ public class Annotation extends AstNode {
 				if (meth.binding.returnType != VoidBinding) {
 					// method with return should have @return tag
 					//int end = md.sourceStart + md.selector.length - 1;
-					methScope.problemReporter().annotationInvalidReturnTag(meth.returnType.sourceStart, meth.returnType.sourceEnd, true);
+					methScope.problemReporter().javadocInvalidReturnTag(meth.returnType.sourceStart, meth.returnType.sourceEnd, true);
 				}
 			}
 		} else {
@@ -145,7 +145,7 @@ public class Annotation extends AstNode {
 		if (paramTagsSize == 0) {
 			for (int i = 0; i < argumentsSize; i++) {
 				Argument arg = md.arguments[i];
-				methScope.problemReporter().annotationMissingParamTag(arg);
+				methScope.problemReporter().javadocMissingParamTag(arg);
 			}
 		} else {
 			LocalVariableBinding[] bindings = new LocalVariableBinding[paramTagsSize];
@@ -153,14 +153,14 @@ public class Annotation extends AstNode {
 
 			// Scan all @param tags
 			for (int i = 0; i < paramTagsSize; i++) {
-				AnnotationSingleNameReference param = parameters[i];
+				JavadocSingleNameReference param = parameters[i];
 				param.resolve(methScope);
 				if (param.binding != null) {
 					// Verify duplicated tags
 					boolean found = false;
 					for (int j = 0; j < maxBindings && !found; j++) {
 						if (bindings[j] == param.binding) {
-							methScope.problemReporter().annotationInvalidParamName(param, true);
+							methScope.problemReporter().javadocInvalidParamName(param, true);
 							found = true;
 						}
 					}
@@ -181,7 +181,7 @@ public class Annotation extends AstNode {
 					}
 				}
 				if (!found) {
-					methScope.problemReporter().annotationMissingParamTag(arg);
+					methScope.problemReporter().javadocMissingParamTag(arg);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ public class Annotation extends AstNode {
 			for (int i = 0; i < thrownExceptionSize; i++) {
 				TypeReference typeRef = md.thrownExceptions[i];
 				if (typeRef.resolvedType != null) { // flag only valid class name
-					methScope.problemReporter().annotationMissingThrowsTag(typeRef);
+					methScope.problemReporter().javadocMissingThrowsTag(typeRef);
 				}
 			}
 		} else {
@@ -218,7 +218,7 @@ public class Annotation extends AstNode {
 					boolean found = false;
 					for (int j = 0; j < maxRef && !found; j++) {
 						if (typeReferences[j].resolvedType == typeBinding) {
-							methScope.problemReporter().annotationInvalidThrowsClassName(typeRef, true);
+							methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, true);
 							found = true;
 						}
 					}
@@ -243,7 +243,7 @@ public class Annotation extends AstNode {
 				}
 				if (!found) {
 					if (exception.resolvedType != null) { // flag only valid class name
-						methScope.problemReporter().annotationMissingThrowsTag(exception);
+						methScope.problemReporter().javadocMissingThrowsTag(exception);
 					}
 				}
 			}
@@ -254,7 +254,7 @@ public class Annotation extends AstNode {
 				if (typeRef != null) {
 					if (!typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangRuntimeException())
 							&& !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangError())) {
-						methScope.problemReporter().annotationInvalidThrowsClassName(typeRef, false);
+						methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, false);
 					}
 				}
 			}

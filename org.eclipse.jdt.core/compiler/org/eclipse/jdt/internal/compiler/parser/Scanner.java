@@ -1341,7 +1341,7 @@ public int getNextToken() throws InvalidInputException {
 							}
 							break;
 						}
-						if (test > 0) { //traditional and annotation comment
+						if (test > 0) { //traditional and javadoc comment
 							try { //get the next char
 								boolean isJavadoc = false, star = false;
 								boolean isUnicode = false;
@@ -1685,7 +1685,7 @@ public final void jumpOverMethodBody() {
 							}
 							break;
 						}
-						if (test > 0) { //traditional and annotation comment
+						if (test > 0) { //traditional and javadoc comment
 							isUnicode = false;
 							boolean star = false;
 							try { // consume next character
@@ -2219,7 +2219,7 @@ public final void pushUnicodeLineSeparator() {
 }
 public final void recordComment(boolean isJavadoc) {
 
-	// a new annotation comment is recorded
+	// a new comment is recorded
 	try {
 		this.commentStops[++this.commentPtr] = isJavadoc ? this.currentPosition : -this.currentPosition;
 	} catch (IndexOutOfBoundsException e) {
