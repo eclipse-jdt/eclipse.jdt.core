@@ -21,6 +21,9 @@ package org.eclipse.jdt.core.tests.builder;
  */
 /* package */
 class AssertionFailedException extends RuntimeException {
+	
+	private static final long serialVersionUID = 1L;
+	
 /** Constructs a new exception.
  */
 public AssertionFailedException() {

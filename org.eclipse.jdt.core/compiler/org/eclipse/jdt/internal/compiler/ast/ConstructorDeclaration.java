@@ -322,13 +322,10 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		return true;
 	}
 
-	/**
+	/*
 	 * Returns true if the constructor is directly involved in a cycle.
 	 * Given most constructors aren't, we only allocate the visited list
 	 * lazily.
-	 * 
-	 * @param visited
-	 * @return
 	 */
 	public boolean isRecursive(ArrayList visited) {
 

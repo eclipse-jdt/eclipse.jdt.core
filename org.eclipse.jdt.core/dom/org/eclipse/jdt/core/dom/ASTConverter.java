@@ -4302,10 +4302,6 @@ class ASTConverter {
 		}
 	}
 	
-	/**
-	 * @param variableDecl
-	 * @param argument
-	 */
 	protected void setModifiers(SingleVariableDeclaration variableDecl, LocalDeclaration localDeclaration) {
 		this.scanner.resetTo(localDeclaration.declarationSourceStart, localDeclaration.sourceStart);
 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
@@ -4625,10 +4621,6 @@ class ASTConverter {
 		return name;
 	}
 	
-	/**
-	 * @param annotation
-	 * @param singleMemberAnnotation
-	 */
 	protected void setTypeNameForAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation compilerAnnotation, Annotation annotation) {
 		char[][] typeName = compilerAnnotation.tokens;
 		int length = typeName.length;

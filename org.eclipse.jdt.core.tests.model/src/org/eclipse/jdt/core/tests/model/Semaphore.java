@@ -19,6 +19,7 @@ public class Semaphore {
 	private int permissions = 0;
 	
 	public class TimeOutException extends Exception {
+		private static final long serialVersionUID = 1L;
 	}
 	public Semaphore() {
 		this(null, 0);

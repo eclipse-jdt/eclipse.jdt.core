@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.runtime;
  * for any reason.
  */
 public class TargetException extends Exception {
+private static final long serialVersionUID = 1L;
 /**
  * Constructs a <code>TargetException</code> with no detail  message.
  */

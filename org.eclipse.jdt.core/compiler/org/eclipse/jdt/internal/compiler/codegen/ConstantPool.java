@@ -2283,11 +2283,8 @@ public int literalIndexForJavaUtilIterator() {
 	}
 	return index;
 }
-/**
+/*
  * This method returns the index into the constantPool corresponding to the type descriptor.
- *
- * @param TypeBinding aTypeBinding
- * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangStringBuffer() {
 	int index;
@@ -2305,11 +2302,8 @@ public int literalIndexForJavaLangStringBuffer() {
 	}
 	return index;
 }
-/**
+/*
  * This method returns the index into the constantPool corresponding to the type descriptor.
- *
- * @param TypeBinding aTypeBinding
- * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangStringBuilder() {
 	int index;
