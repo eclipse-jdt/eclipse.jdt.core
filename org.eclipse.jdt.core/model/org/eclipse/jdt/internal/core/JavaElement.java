@@ -298,6 +298,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			project.getResolvedClasspath(true); // trigger all possible container/variable initialization outside the model lock
 		}
 
+		// element info creation is done inside a lock on the JavaModelManager
 		JavaModelManager manager;
 		synchronized(manager = JavaModelManager.getJavaModelManager()){
 			Object info = manager.getInfo(this);
