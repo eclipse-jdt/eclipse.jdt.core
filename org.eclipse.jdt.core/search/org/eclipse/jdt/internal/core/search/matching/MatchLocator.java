@@ -331,6 +331,9 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 					IPath zipPath = root.isExternal() ? root.getPath() : root.getUnderlyingResource().getLocation();
 					ZipFile zipFile = null;
 					try {
+						if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+							System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
+						}
 						zipFile = new ZipFile(zipPath.toOSString());
 						char[] pkgPath = pkg.getElementName().toCharArray();
 						CharOperation.replace(pkgPath, '.', '/');

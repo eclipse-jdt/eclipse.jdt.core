@@ -190,6 +190,9 @@ public class ToolFactory {
 	 */
 	public static IClassFileReader createDefaultClassFileReader(String zipFileName, String zipEntryName, int decodingFlag){
 		try {
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [ToolFactory.createDefaultClassFileReader()] Creating ZipFile on " + zipFileName); //$NON-NLS-1$	//$NON-NLS-2$
+			}
 			ZipFile zipFile = new ZipFile(zipFileName);
 			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
 			if (zipEntry == null) {

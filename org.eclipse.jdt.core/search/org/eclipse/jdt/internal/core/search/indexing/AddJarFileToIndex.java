@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
@@ -102,10 +103,16 @@ public int hashCode() {
 					IPath location = this.resource.getLocation();
 					if (location == null)
 						return FAILED;
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location); //$NON-NLS-1$	//$NON-NLS-2$
+					}
 					zip = new ZipFile(location.toFile());
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.path); //$NON-NLS-1$	//$NON-NLS-2$
+					}
 					zip = new ZipFile(this.path.toFile());
 					zipFilePath = (Path) this.path;
 					// path is already canonical since coming from a library classpath entry
