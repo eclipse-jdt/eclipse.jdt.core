@@ -445,6 +445,31 @@ public final class CharOperation {
 		return result;
 	}
 
+	public static final int compareWith(char[] array, char[] prefix, boolean isCaseSensitive) {
+		int arrayLength = array.length;
+		int prefixLength = prefix.length;
+		int min = Math.min(arrayLength, prefixLength);
+		int i = 0;
+		if (isCaseSensitive) {
+			while (min-- != 0) {
+				char c1 = array[i];
+				char c2 = prefix[i++];
+				if (c1 != c2)
+					return c1 - c2;
+			}
+		} else {
+			while (min-- != 0) {
+				char c1 = Character.toLowerCase(array[i]);
+				char c2 = Character.toLowerCase(prefix[i++]);
+				if (c1 != c2)
+					return c1 - c2;
+			}
+		}
+		if (prefixLength == i)
+			return 0;
+		return 1;	
+	}
+
 	/**
 	 * Answers a new array with prepending the prefix character and appending the suffix 
 	 * character at the end of the array. If array is null, it answers a new array containing the 
@@ -2317,6 +2342,18 @@ public final class CharOperation {
 			return false;
 		while (--i >= 0)
 			if (toBeFound[i] != array[i])
+				return false;
+		return true;
+	}
+
+	public static final boolean startsWith(char[] array, char[] toBeFound, boolean isCaseSensitive) {
+		if (isCaseSensitive)
+			return startsWith(array, toBeFound);
+		int i = toBeFound.length;
+		if (i > array.length)
+			return false;
+		while (--i >= 0)
+			if (Character.toLowerCase(toBeFound[i]) != Character.toLowerCase(array[i]))
 				return false;
 		return true;
 	}

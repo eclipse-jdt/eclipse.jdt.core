@@ -303,10 +303,10 @@ public class BlocksIndexInput extends IndexInput {
 	}
 	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix, boolean isCaseSensitive) throws IOException {
 		open();
-		
-		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
+
+		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix, isCaseSensitive);
 		if (blockLoc < 0) return null;
-			
+
 		IEntryResult[] entries = new IEntryResult[5];
 		int count = 0;
 		while(blockLoc >= 0){

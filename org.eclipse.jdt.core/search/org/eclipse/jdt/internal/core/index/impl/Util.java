@@ -291,23 +291,6 @@ public class Util {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}
-	public static int startsWith(char[] str, char[] prefix) {
-		int len1= str.length;
-		int len2= prefix.length;
-		int n= Math.min(len1, len2);
-		int i= 0;
-		while (n-- != 0) {
-			char c1= str[i];
-			char c2= prefix[i++];
-			if (c1 != c2) {
-				return c1 - c2;
-			}
-		}
-		if (len2 == i)
-			return 0;
-			
-		return 1;	
-	}
 	/**
 	 * Writes a string to the given output stream using UTF-8 
 	 * encoding in a machine-independent manner. 

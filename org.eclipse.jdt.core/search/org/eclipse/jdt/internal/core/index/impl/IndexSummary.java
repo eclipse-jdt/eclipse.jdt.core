@@ -147,7 +147,7 @@ public int getBlockNum(int blockLocation) {
 		while (min <= max && match < 0) {
 			int mid= (min + max) / 2;
 			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(mid);
-			int compare= Util.startsWith(entry.word, prefix);
+			int compare= CharOperation.compareWith(entry.word, prefix, true);
 			if (compare == 0) {
 				match= mid;
 				break;
@@ -191,6 +191,9 @@ public int getBlockNum(int blockLocation) {
 		return result;
 	}
 public int getFirstBlockLocationForPrefix(char[] prefix) {
+	return getFirstBlockLocationForPrefix(prefix, true);
+}
+public int getFirstBlockLocationForPrefix(char[] prefix, boolean isCaseSensitive) {
 	int min = 0;
 	int size = firstWordsInBlocks.size();
 	int max = size - 1;
@@ -198,7 +201,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix) {
 	while (min <= max) {
 		int mid = (min + max) / 2;
 		FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.get(mid);
-		int compare = Util.startsWith(entry.word, prefix);
+		int compare = CharOperation.compareWith(entry.word, prefix, isCaseSensitive);
 		if (compare == 0) {
 			match = mid;
 			break;
