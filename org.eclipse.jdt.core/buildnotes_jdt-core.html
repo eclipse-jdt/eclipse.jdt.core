@@ -16,6 +16,13 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li>Added org.eclipse.jdt.core.dom.Message#Message(String, int, int). This new constructor allows to set the length field. The constructor
+	org.eclipse.jdt.core.dom.Message#Message(String, int) still exists and set the length to 0. There is no need to use the new constructor if the length
+	is never used.</li>
+	<li>Renamed org.eclipse.jdt.core.dom.Message#getSourcePosition() to org.eclipse.jdt.core.dom.Message#getStartPosition(). This
+	is more consistent with the DOM/AST API. The old method has been deprecated and will be removed in a close future.</li>
+	<li>Added org.eclipse.jdt.core.dom.Message#getLength() allowing to retrieve the length of the node on which
+	the message has been reported.</li>
 	<li> Added <code>JavaCore#getSharedWorkingCopies(IBufferFactory)</code> allowing to retrieve all registered working
 		copies for a given buffer factory. </li>
 	<li> JavaBuilder no longer build projects for which prerequisite projects aborted the build process. This considerably
@@ -23,7 +30,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15364">15364</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15334">15334</a>
+ast: Message should have length 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15364">15364</a>
 search for references of DebugUIPlugin.setAttributes(...) fails  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15175">15175</a>
 Need API to retrieve all shared working copies for a buffer factory
