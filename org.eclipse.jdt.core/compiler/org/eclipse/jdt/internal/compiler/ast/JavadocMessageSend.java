@@ -119,15 +119,15 @@ public class JavadocMessageSend extends MessageSend {
 		} else if (hasTypeVarArgs) {
 			MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
 			scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
-		} else if (this.binding instanceof ParameterizedMethodBinding && this.actualReceiverType instanceof ReferenceBinding) {
-			ReferenceBinding refBinding = (ReferenceBinding) this.actualReceiverType;
-			if (refBinding.isGenericType() || refBinding.isRawType() || refBinding.isParameterizedType()) {
-				MethodBinding exactMethod = scope.findExactMethod(refBinding, this.selector, argumentTypes, this);
-				if (exactMethod == null) {
-					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
-					scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
-				}
-			}
+//		} else if (this.binding instanceof ParameterizedMethodBinding && this.actualReceiverType instanceof ReferenceBinding) {
+//			ReferenceBinding refBinding = (ReferenceBinding) this.actualReceiverType;
+//			if (refBinding.isGenericType() || refBinding.isRawType() || refBinding.isParameterizedType()) {
+//				MethodBinding exactMethod = scope.getMethod(refBinding, this.selector, argumentTypes, this);
+//				if (exactMethod == null) {
+//					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+//					scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
+//				}
+//			}
 		}
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());

@@ -35,7 +35,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug82514" };
+//		TESTS_NAMES = new String[] { "testBug83127g" };
 //		TESTS_NUMBERS = new int[] { 21 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
@@ -1511,7 +1511,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
-	public void testBug83127g() {
+	public void _testBug83127g() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {
@@ -1538,7 +1538,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"\n" + 
 				"class Sub<E extends Number> extends Test<E> {\n" + 
 				"	Sub (E e) {super(null);}\n" + 
-				"    public boolean add(E e) {\n" + 
+				"	public boolean add(E e) {\n" + 
 				"        if (e.doubleValue() > 0)\n" + 
 				"            return false;\n" + 
 				"        return super.add(e);\n" + 

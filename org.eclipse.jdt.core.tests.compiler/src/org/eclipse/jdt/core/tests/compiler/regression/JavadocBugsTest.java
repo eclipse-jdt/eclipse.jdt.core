@@ -35,8 +35,8 @@ public class JavadocBugsTest extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug48064a" };
-//		TESTS_NUMBERS = new int[] { 31, 32, 33 };
+//		TESTS_NAMES = new String[] { "testBug47339" };
+//		TESTS_NUMBERS = new int[] { 47339 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
