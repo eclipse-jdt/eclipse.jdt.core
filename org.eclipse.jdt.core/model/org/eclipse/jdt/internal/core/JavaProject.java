@@ -525,6 +525,14 @@ public class JavaProject
 	}
 
 	/**
+	 * Returns a new element info for this element.
+	 */
+	protected OpenableElementInfo createElementInfo() {
+
+		return new JavaProjectElementInfo();
+	}
+
+	/**
 	/**
 	 * Removes the Java nature from the project.
 	 */
