@@ -43,13 +43,13 @@ public char[] getTypeName() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(this.typeName);
-	buffer.append(" ");
+	buffer.append(" "/*nonNLS*/);
 	buffer.append(this.name);
 	if (this.initializer != null) {
-		buffer.append("= ");
+		buffer.append("= "/*nonNLS*/);
 		buffer.append(this.initializer);
 	}
-	buffer.append(";");
+	buffer.append(";"/*nonNLS*/);
 	return buffer.toString();
 }
 }
