@@ -102,7 +102,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		if (initsOnContinue == FlowInfo.DEAD_END) {
 			initsOnContinue = flowInfo.copy().unconditionalInits();
 		} else {
-			initsOnContinue.mergedWith(flowInfo.unconditionalInits());
+			initsOnContinue = initsOnContinue.mergedWith(flowInfo.unconditionalInits());
 		};
 	}
 
