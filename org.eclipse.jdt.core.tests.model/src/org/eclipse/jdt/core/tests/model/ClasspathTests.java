@@ -165,7 +165,7 @@ public void testClasspathChangeExternalResources() throws CoreException {
 public void testClasspathCorruption() throws CoreException {
 	try {
 		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[]{""}, new String[]{}, new String[]{}, "");
-		JavaProject p2 = (JavaProject)this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{}, "");
+		this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{}, "");
 		this.createFile("P2/foo.txt", "not a project");
 		String newCPContent = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
