@@ -251,7 +251,7 @@ public class HandleFactory {
 				return true;
 			}
 			public void endVisit(MemberTypeDeclaration node, ClassScope scope) {
-				currentElement = currentElement.getParent();
+				currentElement = ((IType)currentElement).getDeclaringType();
 			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
