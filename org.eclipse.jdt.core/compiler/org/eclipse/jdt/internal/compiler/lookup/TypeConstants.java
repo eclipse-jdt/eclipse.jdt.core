@@ -11,44 +11,51 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public interface TypeConstants {
-	final char[] JAVA = new char[] {'j', 'a', 'v', 'a'};
-	final char[] LANG = new char[] {'l', 'a', 'n', 'g'};
-	final char[] IO = new char[] {'i', 'o'};
-	final char[] REFLECT = new char[] {'r', 'e', 'f', 'l', 'e', 'c', 't'};
-	final char[] CharArray_JAVA_LANG_OBJECT = new char[] {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'};
-	final char[] LENGTH = new char[] {'l', 'e', 'n', 'g', 't', 'h'};
-	final char[] CLONE = new char[] {'c', 'l', 'o', 'n', 'e'};
-	final char[] OBJECT = new char[] {'O', 'b', 'j', 'e', 'c', 't' };
-	final char[] MAIN = new char[]{'m', 'a', 'i', 'n'};
+	final char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
+	final char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
+	final char[] IO = "io".toCharArray(); //$NON-NLS-1$
+	final char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
+	final char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
+	final char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
+	final char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
+	final char[] MAIN = "main".toCharArray(); //$NON-NLS-1$
+	final char[] SERIALVERSIONUID = "serialVersionUID".toCharArray(); //$NON-NLS-1$
+	final char[] READRESOLVE = "readResolve".toCharArray(); //$NON-NLS-1$
+	final char[] WRITEREPLACE = "writeReplace".toCharArray(); //$NON-NLS-1$
+	final char[] READOBJECT = "readObject".toCharArray(); //$NON-NLS-1$
+	final char[] WRITEOBJECT = "writeObject".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
 	
 	// Constant compound names
-	final char[][] JAVA_LANG = new char[][] {JAVA, LANG};
-	final char[][] JAVA_IO = new char[][] {JAVA, IO};
-	final char[][] JAVA_LANG_ASSERTIONERROR = new char[][] {JAVA, LANG, "AssertionError".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_CLASS = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's'}};
-	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's', 'N', 'o', 't', 'F', 'o', 'u', 'n', 'd', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
-	final char[][] JAVA_LANG_CLONEABLE = new char[][] {JAVA, LANG, {'C', 'l', 'o', 'n', 'e', 'a', 'b', 'l', 'e'}};
-	final char[][] JAVA_LANG_EXCEPTION = new char[][] {JAVA, LANG, {'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
-	final char[][] JAVA_LANG_ERROR = new char[][] {JAVA, LANG, {'E', 'r', 'r', 'o', 'r'}};
-	final char[][] JAVA_LANG_NOCLASSDEFERROR = new char[][] {JAVA, LANG, {'N', 'o', 'C', 'l', 'a', 's', 's', 'D', 'e', 'f', 'E', 'r', 'r', 'o', 'r'}};
-	final char[][] JAVA_LANG_OBJECT = new char[][] {JAVA, LANG, OBJECT};
-	final char[][] JAVA_LANG_STRING = new char[][] {JAVA, LANG, {'S', 't', 'r', 'i', 'n', 'g'}};
-	final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {JAVA, LANG, {'S', 't', 'r', 'i', 'n', 'g', 'B', 'u', 'f', 'f', 'e', 'r'}};
-	final char[][] JAVA_LANG_SYSTEM = new char[][] {JAVA, LANG, {'S', 'y', 's', 't', 'e', 'm'}};
-	final char[][] JAVA_LANG_RUNTIMEEXCEPTION = new char[][] {JAVA, LANG, {'R', 'u', 'n', 't', 'i', 'm', 'e', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
-	final char[][] JAVA_LANG_THROWABLE = new char[][] {JAVA, LANG, {'T', 'h', 'r', 'o', 'w', 'a', 'b', 'l', 'e'}};
-	final char[][] JAVA_LANG_REFLECT_CONSTRUCTOR = new char[][] {JAVA, LANG, REFLECT, {'C', 'o', 'n', 's', 't', 'r', 'u', 'c', 't', 'o', 'r'}};
-	final char[][] JAVA_IO_PRINTSTREAM = new char[][] {JAVA, IO, {'P', 'r', 'i', 'n', 't', 'S', 't', 'r', 'e', 'a', 'm'}};
-	final char[][] JAVA_IO_SERIALIZABLE = new char[][] {JAVA, IO, {'S', 'e', 'r', 'i', 'a', 'l', 'i', 'z', 'a', 'b', 'l', 'e'}};
-	final char[][] JAVA_LANG_BYTE = new char[][] {JAVA, LANG, "Byte".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_SHORT = new char[][] {JAVA, LANG, "Short".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_CHARACTER = new char[][] {JAVA, LANG, "Character".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_INTEGER = new char[][] {JAVA, LANG, "Integer".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_LONG = new char[][] {JAVA, LANG, "Long".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_FLOAT = new char[][] {JAVA, LANG, "Float".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_DOUBLE = new char[][] {JAVA, LANG, "Double".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_BOOLEAN = new char[][] {JAVA, LANG, "Boolean".toCharArray()}; //$NON-NLS-1$
-	final char[][] JAVA_LANG_VOID = new char[][] {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG = {JAVA, LANG};
+	final char[][] JAVA_IO = {JAVA, IO};
+	final char[][] JAVA_LANG_ASSERTIONERROR = {JAVA, LANG, "AssertionError".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_CLASS = {JAVA, LANG, "Class".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = {JAVA, LANG, "ClassNotFoundException".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_CLONEABLE = {JAVA, LANG, "Cloneable".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_EXCEPTION = {JAVA, LANG, "Exception".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ERROR = {JAVA, LANG, "Error".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_NOCLASSDEFERROR = {JAVA, LANG, "NoClassDefError".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_OBJECT = {JAVA, LANG, OBJECT};
+	final char[][] JAVA_LANG_STRING = {JAVA, LANG, "String".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_STRINGBUFFER = {JAVA, LANG, "StringBuffer".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_SYSTEM = {JAVA, LANG, "System".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_RUNTIMEEXCEPTION = {JAVA, LANG, "RuntimeException".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_THROWABLE = {JAVA, LANG, "Throwable".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_REFLECT_CONSTRUCTOR = {JAVA, LANG, REFLECT, "Constructor".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_IO_PRINTSTREAM = {JAVA, IO, "PrintStream".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_IO_SERIALIZABLE = {JAVA, IO, "Serializable".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_BYTE = {JAVA, LANG, "Byte".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_SHORT = {JAVA, LANG, "Short".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_CHARACTER = {JAVA, LANG, "Character".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_INTEGER = {JAVA, LANG, "Integer".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_LONG = {JAVA, LANG, "Long".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_FLOAT = {JAVA, LANG, "Float".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_DOUBLE = {JAVA, LANG, "Double".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_BOOLEAN = {JAVA, LANG, "Boolean".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_VOID = {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
 
 	// Constants used by the flow analysis
 	final int EqualOrMoreSpecific = -1;

@@ -2975,6 +2975,11 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 }
 public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 	
+	if (computeSeverity(IProblem.UnusedPrivateConstructor) == Ignore) return;
+
+	// no complaint for no-arg constructors (or default ones) - known pattern to block instantiation
+	if (constructorDecl.arguments == null || constructorDecl.arguments.length == 0) return;
+					
 	MethodBinding constructor = constructorDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateConstructor,
@@ -2991,7 +2996,16 @@ public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 }
 public void unusedPrivateField(FieldDeclaration fieldDecl) {
 	
+	if (computeSeverity(IProblem.UnusedPrivateField) == Ignore) return;
+
 	FieldBinding field = fieldDecl.binding;
+	
+	if (CharOperation.equals(TypeConstants.SERIALVERSIONUID, field.name)
+			&& field.isStatic()
+			&& field.isFinal()
+			&& TypeBinding.LongBinding == field.type) {
+				return; // do not report unused serialVersionUID field
+		}
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
@@ -3006,8 +3020,43 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceEnd);
 }
 public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
+
+	if (computeSeverity(IProblem.UnusedPrivateMethod) == Ignore) return;
 	
 	MethodBinding method = methodDecl.binding;
+	
+	// no report for serialization support 'void readObject(ObjectInputStream)'
+	if (!method.isStatic()
+			&& TypeBinding.VoidBinding == method.returnType
+			&& method.parameters.length == 1
+			&& method.parameters[0].dimensions() == 0
+			&& CharOperation.equals(method.selector, TypeConstants.READOBJECT)
+			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTINPUTSTREAM, method.parameters[0].readableName())) {
+		return;
+	}
+	// no report for serialization support 'void writeObject(ObjectOutputStream)'
+	if (!method.isStatic()
+			&& TypeBinding.VoidBinding == method.returnType
+			&& method.parameters.length == 1
+			&& method.parameters[0].dimensions() == 0
+			&& CharOperation.equals(method.selector, TypeConstants.WRITEOBJECT)
+			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTOUTPUTSTREAM, method.parameters[0].readableName())) {
+		return;
+	}
+	// no report for serialization support 'Object readResolve()'
+	if (!method.isStatic()
+			&& TypeBinding.T_Object == method.returnType.id
+			&& method.parameters.length == 0
+			&& CharOperation.equals(method.selector, TypeConstants.READRESOLVE)) {
+		return;
+	}
+	// no report for serialization support 'Object writeReplace()'
+	if (!method.isStatic()
+			&& TypeBinding.T_Object == method.returnType.id
+			&& method.parameters.length == 0
+			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
+		return;
+	}
 	this.handle(
 			IProblem.UnusedPrivateMethod,
 		new String[] {
@@ -3025,6 +3074,8 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 }
 public void unusedPrivateType(TypeDeclaration typeDecl) {
 	
+	if (computeSeverity(IProblem.UnusedPrivateType) == Ignore) return;
+
 	ReferenceBinding type = typeDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateType,
