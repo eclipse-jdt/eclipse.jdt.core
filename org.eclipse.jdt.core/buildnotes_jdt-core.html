@@ -40,6 +40,40 @@ What's new in this drop</h2>
 <ul>
 <li>By default, the compiler will produce warnings for unused imports and non-static references to static members.
 </li>
+<li>Code completion enhancement:
+   <ul>
+   <li>Relevance of a proposal is higher if the proposal is in return statement and his type is compatible with return type.
+   <br>In the following exemple <code>var2</code> is more relevant than <code>var1</code>.<pre>
+   public class X {
+      Object var1;
+      int var2;
+      int foo() {
+         return var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
+   <li>Relevance of a proposal is higher if the proposal is in cast statement and his type is in hierachy of cast type.
+   <br>In the following exemple <code>var2</code> is more relevant than <code>var1</code>.<pre>
+   public class X {
+      Object var1;
+      int var2;
+      long foo() {
+         return (int)var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
+   <li>Relevance of a proposal is higher if the proposal is an argument of sended message and his type is compatible with parameter type.
+   <br>In the following exemple <code>var2</code> is more relevant than <code>var1</code>.<pre>
+   public class X {
+      Object var1;
+      int var2;
+      void foo(int i) {
+         foo(var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
+   </ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
