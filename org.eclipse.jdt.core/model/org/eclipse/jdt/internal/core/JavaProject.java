@@ -106,9 +106,16 @@ public class JavaProject
 		if (externalPath == null)
 			return null;
 
+		if (JavaModelManager.VERBOSE) {
+			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString());
+		}
+
 		// if not external path, return original path
 		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath)
 			!= null) {
+			if (JavaModelManager.VERBOSE) {
+				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)");
+			}
 			return externalPath;
 		}
 
@@ -118,6 +125,9 @@ public class JavaProject
 				new Path(new File(externalPath.toOSString()).getCanonicalPath());
 		} catch (IOException e) {
 			// default to original path
+			if (JavaModelManager.VERBOSE) {
+				System.out.println("JAVA MODEL - Canonical path is original path (IOException)");
+			}
 			return externalPath;
 		}
 		
@@ -125,6 +135,9 @@ public class JavaProject
 		int canonicalLength = canonicalPath.segmentCount();
 		if (canonicalLength == 0) {
 			// the java.io.File canonicalization failed
+			if (JavaModelManager.VERBOSE) {
+				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)");
+			}
 			return externalPath;
 		} else if (externalPath.isAbsolute()) {
 			result = canonicalPath;
@@ -135,16 +148,21 @@ public class JavaProject
 			if (canonicalLength >= externalLength) {
 				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
 			} else {
+				if (JavaModelManager.VERBOSE) {
+					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")");
+				}
 				return externalPath;
 			}
 		}
 		
 		// keep device only if it was specified (this is because File.getCanonicalPath() converts '/lib/classed.zip' to 'd:/lib/classes/zip')
 		if (externalPath.getDevice() == null) {
-			return result.setDevice(null);
-		} else {
-			return result;
+			result = result.setDevice(null);
+		} 
+		if (JavaModelManager.VERBOSE) {
+			System.out.println("JAVA MODEL - Canonical path is " + result.toString());
 		}
+		return result;
 	}
 	
 	protected void closing(Object info) throws JavaModelException {
