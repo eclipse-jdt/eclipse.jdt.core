@@ -554,17 +554,24 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		try {
 			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
 			
-			// copy X.class in lib folder
-			String sourceWorkspacePath = getSourceWorkspacePath();
-			String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
-			copyDirectory(new File(new File(sourceWorkspacePath, "AttachSourceTests"), "lib"), new File(new File(targetWorkspacePath, "P1"), "lib"));
-			getProject("P1").refreshLocal(IResource.DEPTH_INFINITE, null);
-			
+			// create X.class in lib folder
+			/* Evaluate the following in a scrapbook:
+				org.eclipse.jdt.core.tests.model.ModifyingResourceTests.generateClassFile(
+					"X",
+					"public class X {\n" +
+					"}")
+			*/
+			byte[] bytes = new byte[] {
+				-54, -2, -70, -66, 0, 3, 0, 45, 0, 13, 1, 0, 1, 88, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 1, 0, 15, 76, 105, 110, 101, 78, 117, 
+				109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 6, 88, 46, 106, 97, 118, 97, 0, 33, 0, 2, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 1, 0, 10, 0, 0, 0, 6, 
+				0, 1, 0, 0, 0, 1, 0, 1, 0, 11, 0, 0, 0, 2, 0, 12, 
+			};
+			this.createFile("P1/lib/X.class", new String(bytes));
+						
 			// create libsrc and attach source
-			createFolder("P1/libsrc/p");
+			createFolder("P1/libsrc");
 			createFile(
-				"P1/libsrc/p/X.java",
-				"package p;\n" +
+				"P1/libsrc/X.java",
 				"public class X extends Y {\n" +
 				"}"
 			);
@@ -572,21 +579,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			lib.attachSource(new Path("/P1/libsrc"), null, null);
 			
 			// create Y.java in src folder
-			createFolder("P1/src/p");
-			createFile("P1/src/p/Y.java", "");
+			createFile("P1/src/Y.java", "");
 			
 			// create working copy on Y.java
 			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
-			workingCopy = getCompilationUnit("P1/src/p/Y.java").getWorkingCopy(owner, null, null);
+			workingCopy = getCompilationUnit("P1/src/Y.java").getWorkingCopy(owner, null, null);
 			workingCopy.getBuffer().setContents(
-				"package p;\n" +
 				"public class Y {\n" +
 				"}"
 			);
 			workingCopy.makeConsistent(null);
 
 			// parse and resolve class file
-			IClassFile classFile = getClassFile("P1/lib/p/X.class");
+			IClassFile classFile = getClassFile("P1/lib/X.class");
 			CompilationUnit cu = AST.parseCompilationUnit(
 				classFile,
 				true,
@@ -598,7 +603,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			ITypeBinding superType = typeBinding.getSuperclass();
 			assertEquals(
 				"Unexpected super type", 
-				"p.Y",
+				"Y",
 				superType == null ? "<null>" : superType.getQualifiedName());
 		} finally {
 			if (workingCopy != null) {
