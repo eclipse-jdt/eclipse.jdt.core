@@ -1771,6 +1771,11 @@ protected void consumeToken(int token) {
 			case TokenNameLBRACKET:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_ARRAY_CREATION) {
 					pushOnElementStack(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
+				} else {
+					if(previous == TokenNameIdentifier) {
+						invocationType = NO_RECEIVER;
+						qualifier = -1;
+					}
 				}
 				this.bracketDepth++;
 				break; 
