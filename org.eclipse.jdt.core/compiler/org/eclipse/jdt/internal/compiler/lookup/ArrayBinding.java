@@ -134,6 +134,18 @@ public boolean isCompatibleWith(TypeBinding right) {
 	return false;
 }
 
+/**
+ * Returns true if a type is identical to another one,
+ * or for generic types, true if compared to its raw type.
+ */
+public boolean isEquivalentTo(TypeBinding otherType) {
+    if (this == otherType) return true;
+    if (otherType == null) return false;
+    if (otherType.isWildcard()) // wildcard
+		return ((WildcardBinding) otherType).boundCheck(this);
+	return false;
+
+}
 public TypeBinding leafComponentType(){
 	return leafComponentType;
 }
