@@ -37,6 +37,8 @@ import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -1398,6 +1400,24 @@ public class Util implements SuffixConstants {
 		return args;
 	}
 	
+	/*
+	 * Returns the unresolved type parameter signatures of the given method
+	 * e.g. {"QString;", "[int", "[[Qjava.util.Vector;"}
+	 */
+	public static String[] typeParameterSignatures(AbstractMethodDeclaration method) {
+		Argument[] args = method.arguments;
+		if (args != null) {
+			int length = args.length;
+			String[] signatures = new String[length];
+			for (int i = 0; i < args.length; i++) {
+				Argument arg = args[i];
+				signatures[i] = typeSignature(arg.type);
+			}
+			return signatures;
+		}
+		return new String[0];
+	}
+
 	/*
 	 * Returns the unresolved type signature of the given type reference, 
 	 * e.g. "QString;", "[int", "[[Qjava.util.Vector;"
