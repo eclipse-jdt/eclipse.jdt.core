@@ -31,6 +31,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	static int[] REFERENCES = new int[4];
 	private static int COUNT = 0;
 	private static IJavaSearchScope SEARCH_SCOPE;
+	static int ALL_TYPES_NAMES = 0;
+	static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
 
 	/**
 	 * @param name
@@ -45,6 +47,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public static Test suite() {
 		Test suite = buildSuite(FullSourceWorkspaceSearchTests.class);
 		COUNT = suite.countTestCases();
+		INDEX_MANAGER.disable();
 		return suite;
 	}
 	protected void setUp() throws Exception {
@@ -52,7 +55,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		this.resultCollector = new JavaSearchResultCollector();
 		if (SEARCH_SCOPE == null) {
 			SEARCH_SCOPE = SearchEngine.createJavaSearchScope(ALL_PROJECTS);
-			waitUntilReadyToSearch();
 		}
 	}
 	/* (non-Javadoc)
@@ -70,6 +72,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			System.out.println("  - "+intFormat.format(REFERENCES[1])+" field references found.");
 			System.out.println("  - "+intFormat.format(REFERENCES[2])+" method references found.");
 			System.out.println("  - "+intFormat.format(REFERENCES[3])+" constructor references found.");
+			System.out.println("  - "+intFormat.format(ALL_TYPES_NAMES)+" all types names.");
 			System.out.println("-------------------------------------\n");
 		}
 	}
@@ -80,6 +83,49 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		int count = 0;
 		public void acceptSearchMatch(SearchMatch match) throws CoreException {
 			this.count++;
+		}
+	}
+	/**
+	 * Simple type name requestor: only count classes and interfaces.
+	 */
+	class TypeNameRequestor implements ITypeNameRequestor {
+		int count = 0;
+		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+			this.count++;
+		}
+		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+			this.count++;
+		}
+	}
+	/**
+	 * Simple Job which does nothing
+	 */
+	class	 DoNothing implements IJob {
+		/**
+		 * Answer true if the job belongs to a given family (tag)
+		 */
+		public boolean belongsTo(String jobFamily) {
+			return true;
+		}
+		/**
+		 * Asks this job to cancel its execution. The cancellation
+		 * can take an undertermined amount of time.
+		 */
+		public void cancel() {
+			// nothing to cancel
+		}
+		/**
+		 * Ensures that this job is ready to run.
+		 */
+		public void ensureReadyToRun() {
+			// always ready to do nothing
+		}
+		/**
+		 * Execute the current job, answer whether it was successful.
+		 */
+		public boolean execute(IProgressMonitor progress) {
+			// always succeed to do nothing
+			return true;
 		}
 	}
 	
@@ -102,50 +148,37 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			null);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.performance.FullSourceWorkspaceTests#setFullSourceWorkspace()
-	 */
-	private void waitUntilReadyToSearch() throws IOException, CoreException {
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-		IJob doNothing = new IJob() {
-			/**
-			 * Answer true if the job belongs to a given family (tag)
-			 */
-			public boolean belongsTo(String jobFamily) {
-				return true;
-			}
-			/**
-			 * Asks this job to cancel its execution. The cancellation
-			 * can take an undertermined amount of time.
-			 */
-			public void cancel() {
-				// nothing to cancel
-			}
-			/**
-			 * Ensures that this job is ready to run.
-			 */
-			public void ensureReadyToRun() {
-				// always ready to do nothing
-			}
-			/**
-			 * Execute the current job, answer whether it was successful.
-			 */
-			public boolean execute(IProgressMonitor progress) {
-				// always succeed to do nothing
-				return true;
-			}
-		};
-		if (DEBUG) System.out.print("Wait until ready to search..."); //$NON-NLS-1$
-		indexManager.performConcurrentJob(doNothing, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		if (DEBUG) {
-			if (indexManager.awaitingJobsCount() == 0)
-				System.out.println("done"); //$NON-NLS-1$
-			else
-				System.err.println(" KO: remaining jobs="+indexManager.awaitingJobsCount()); //$NON-NLS-1$
-		}
-	}
-
 	// Do NOT forget that tests must start with "testPerf"
+
+	public void testPerfIndexing() throws IOException, CoreException {
+		tagAsSummary("Indexing", Dimension.CPU_TIME);
+		startMeasuring();
+		INDEX_MANAGER.enable();
+		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+		stopMeasuring();
+		commitMeasurements();
+		assertPerformance();
+	}
+	public void testPerfSearchAllTypeNames() throws CoreException {
+		tagAsSummary("Search All Type Names", Dimension.CPU_TIME);
+		TypeNameRequestor requestor = new TypeNameRequestor();
+		startMeasuring();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			SEARCH_SCOPE, 
+			requestor,
+			WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		stopMeasuring();
+		commitMeasurements();
+		assertPerformance();
+		// store counter
+		ALL_TYPES_NAMES = requestor.count;
+	}
 	public void testPerfSearchType() throws CoreException {
 		tagAsSummary("Search Type all occurences", Dimension.CPU_TIME);
 		startMeasuring();
