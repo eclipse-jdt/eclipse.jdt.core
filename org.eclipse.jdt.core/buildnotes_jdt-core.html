@@ -19,10 +19,20 @@ What's new in this drop</h2>
 	<li>JavaCore now persists its options (<code>JavaCore#getOptions</code>) using its plugin property store. Clients no longer need to save them. </li>
 	<li>JavaCore now provides constants for all supported option IDs and values.</li>
 	<li>Leveraged new encoding support from Platform/Core. The JavaCore option "org.eclipse.jdt.core.encoding" is now equivalent to <code>ResourcesPlugin.getEncoding()</code>.
+	<li> JavaCore option added, to allow build to abort in presence of invalid classpath. 
+	<pre>
+	 * BUILDER / Abort if Invalid Classpath
+	 *    Allow to toggle the builder to abort if the classpath is invalid
+	 *     - option id:        "org.eclipse.jdt.core.builder.invalidClasspath"
+	 *     - possible values:  { "abort", "ignore" }
+	 *     - default:          "ignore"
+	</pre>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12977">12977</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13957">13957</a>
+LaunchingPlugin specification of resourceCopyExclusionFilter
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12977">12977</a>
 Adding Java nature to a project does not bring it to like in package view  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15107">15107</a>
 Internal Error organizing imports 
