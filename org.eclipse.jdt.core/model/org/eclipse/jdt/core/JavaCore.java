@@ -1626,7 +1626,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			}
 			if (!found){
 				affectedProjects[i] = null; // filter out this project - does not reference the container path
-				continue;
 			}
 			
 			Map perProjectContainers = (Map)JavaModelManager.Containers.get(affectedProject);
@@ -1640,8 +1639,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					continue;
 				}
 			}
-			remaining++;
-			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
+			if (found){
+				remaining++;
+				oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
+			}
 			perProjectContainers.put(containerPath, newContainer);
 		}
 		
