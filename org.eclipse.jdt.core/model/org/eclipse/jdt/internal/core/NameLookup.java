@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.PerThreadObject;
+
 /**
  * A <code>NameLookup</code> provides name resolution within a Java project.
  * The name lookup facility uses the project's classpath to prioritize the 
@@ -675,13 +677,50 @@ public class NameLookup implements SuffixConstants {
 	 * Performs type search in a source package.
 	 */
 	protected void seekTypesInSourcePackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
+		
 		ICompilationUnit[] compilationUnits = null;
 		try {
 			compilationUnits = pkg.getCompilationUnits();
 		} catch (JavaModelException npe) {
 			return; // the package is not present
 		}
+
+		// replace with working copies to look inside
 		int length= compilationUnits.length;
+		Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
+		int workingCopiesSize;
+		if (workingCopies != null && (workingCopiesSize = workingCopies.size()) > 0) {
+			Map temp = new HashMap(workingCopiesSize);
+			temp.putAll(workingCopies);
+			for (int i = 0; i < length; i++) {
+				ICompilationUnit unit = compilationUnits[i];
+				ICompilationUnit workingCopy = (ICompilationUnit)temp.remove(unit);
+				if (workingCopy != null) {
+					compilationUnits[i] = workingCopy;
+				}
+			}
+			// add remaining working copies that belong to this package
+			int index = 0;
+			Collection values = temp.values();
+			Iterator iterator = values.iterator();
+			while (iterator.hasNext()) {
+				ICompilationUnit workingCopy = (ICompilationUnit)iterator.next();
+				if (pkg.equals(workingCopy.getParent())) {
+					if (index == 0) {
+						int valuesLength = values.size();
+						index = length;
+						length += valuesLength;
+						System.arraycopy(compilationUnits, 0, compilationUnits = new ICompilationUnit[length], 0, index);
+					}
+					compilationUnits[index++] = workingCopy;
+				}
+			}
+			if (index > 0 && index < length) {
+				System.arraycopy(compilationUnits, 0, compilationUnits = new ICompilationUnit[index], 0, index);
+				length = index;
+			}
+		}
+			
 		String matchName = name;
 		int index= name.indexOf('$');
 		boolean potentialMemberType = false;
@@ -708,14 +747,7 @@ public class NameLookup implements SuffixConstants {
 				return;
 			ICompilationUnit compilationUnit= compilationUnits[i];
 			
-			// unit to look inside
-			ICompilationUnit unitToLookInside = null;
-			Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
-			if (workingCopies != null 
-					&& (unitToLookInside = (ICompilationUnit)workingCopies.get(compilationUnit)) != null){
-					compilationUnit = unitToLookInside;
-				}
-			if ((unitToLookInside != null && !potentialMemberType) || nameMatches(unitName, compilationUnit, partialMatch)) {
+			if (!potentialMemberType || nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
 					types= compilationUnit.getTypes();

@@ -14,6 +14,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 
@@ -40,6 +44,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		
 		createJavaProject("P");
 		createFile(
 			"P/X.java",
@@ -50,6 +56,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
+		
+		super.tearDownSuite();
 	}
 
 	/*
@@ -420,6 +428,44 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy2 = cu.getWorkingCopy(owner2, null, null);
 
 			assertTrue("working copies should be different", !workingCopy1.equals(workingCopy2));
+		} finally {
+			if (workingCopy1 != null) {
+				workingCopy1.discardWorkingCopy();
+			}
+			if (workingCopy2 != null) {
+				workingCopy2.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * Ensures that computing binding for an AST tales the owner's working copies into account.
+	 */
+	public void testParseCompilationUnit1() throws CoreException {
+		ICompilationUnit workingCopy1 = null;
+		ICompilationUnit workingCopy2 = null;
+		try {
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy1 = getCompilationUnit("P/X.java").getWorkingCopy(owner, null, null);
+			workingCopy1.getBuffer().setContents(
+				"public class X implements I {\n" +
+				"}"
+			);
+			workingCopy1.makeConsistent(null);
+			
+			workingCopy2 = getCompilationUnit("P/I.java").getWorkingCopy(owner, null, null);
+			workingCopy2.getBuffer().setContents(
+				"public interface I {\n" +
+				"}"
+			);
+			workingCopy2.makeConsistent(null);
+
+			CompilationUnit cu = AST.parseCompilationUnit(workingCopy1, true, owner);
+			TypeDeclaration type = (TypeDeclaration)cu.types().get(0);
+			ITypeBinding typeBinding = type.resolveBinding();
+			ITypeBinding[] interfaces = typeBinding.getInterfaces();
+			assertEquals("Should implement one interface", 1, interfaces.length);
+			assertEquals("Unexpected interface name", "I", interfaces[0].getName());
 		} finally {
 			if (workingCopy1 != null) {
 				workingCopy1.discardWorkingCopy();
