@@ -161,8 +161,23 @@ public IDOMPackage createPackage(String sourceCode);
  * a public class named <code>"AClass"</code>, with no members or comment.
  *
  * @return the new type
+ * @deprecated Use createClass instead.
  */
 public IDOMType createType();
+/**
+ * Creates a default type document fragment. Initially the type will be
+ * a public class named <code>"AClass"</code>, with no members or comment.
+ *
+ * @return the new class
+ */
+public IDOMType createClass();
+/**
+ * Creates a default type document fragment. Initially the type will be
+ * a public interface named <code>"AnInterface"</code>, with no members or comment.
+ *
+ * @return the new interface
+ */
+public IDOMType createInterface();
 /**
  * Creates a type document fragment on the given source code. The syntax for the
  * given source string corresponds to ClassDeclaration (JLS2 8.1) and 

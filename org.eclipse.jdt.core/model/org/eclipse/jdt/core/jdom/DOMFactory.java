@@ -128,6 +128,18 @@ public IDOMType createType() {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+public IDOMType createClass() {
+	return createType("public class AClass {"+ Util.LINE_SEPARATOR +"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+}
+/* (non-Javadoc)
+ * Method declared on IDOMFactory.
+ */
+public IDOMType createInterface() {
+	return createType("public interface AnInterface {"+ Util.LINE_SEPARATOR +"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+}
+/* (non-Javadoc)
+ * Method declared on IDOMFactory.
+ */
 public IDOMType createType(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
