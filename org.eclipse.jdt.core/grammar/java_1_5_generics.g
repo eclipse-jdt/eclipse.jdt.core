@@ -350,8 +350,8 @@ TypeDeclaration ::= ';'
 -- 1.5 feature
 -----------------------------------------------
 TypeDeclaration ::= EnumDeclaration
-/:$readableName TypeDeclaration:/
 TypeDeclaration ::= AnnotationTypeDeclaration
+/:$readableName TypeDeclaration:/
 
 --18.7 Only in the LALR(1) Grammar
 
@@ -392,8 +392,6 @@ ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
 -----------------------------------------------
 ClassHeaderName ::= Modifiersopt 'class' 'Identifier' TypeParameters
 /.$putCase consumeClassHeaderName(); $break ./
-/:$readableName ClassHeaderName:/
-
 ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 /.$putCase consumeClassHeaderName(); $break ./
 /:$readableName ClassHeaderName:/
@@ -430,6 +428,7 @@ ClassBodyDeclaration ::= ConstructorDeclaration
 ClassBodyDeclaration ::= Diet NestedMethod Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
 /:$readableName ClassBodyDeclaration:/
+
 Diet ::= $empty
 /.$putCase consumeDiet(); $break./
 /:$readableName Diet:/
@@ -482,7 +481,6 @@ VariableDeclarators ::= VariableDeclarators ',' VariableDeclarator
 /:$readableName VariableDeclarators:/
 
 VariableDeclarator ::= VariableDeclaratorId EnterVariable ExitVariableWithoutInitialization
-
 VariableDeclarator ::= VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 /:$readableName VariableDeclarator:/
 
@@ -545,30 +543,20 @@ MethodPushModifiersHeader ::= MethodPushModifiersHeaderName MethodHeaderParamete
 
 MethodPushModifiersHeaderName ::= Modifiers TypeParameters Type PushModifiers 'Identifier' '(' 
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-
 MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers 'Identifier' '(' 
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-
 MethodPushModifiersHeaderName ::= TypeParameters Type PushModifiers 'Identifier' '(' 
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
-
 MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '(' 
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
 MethodHeaderName ::= Modifiers TypeParameters Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
-
 MethodHeaderName ::= Modifiers Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
-
 MethodHeaderName ::= TypeParameters Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
-
 MethodHeaderName ::= Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
@@ -606,8 +594,7 @@ FormalParameterList ::= FormalParameterList ',' FormalParameter
 
 --1.1 feature
 FormalParameter ::= Modifiersopt Type VariableDeclaratorId
-/.$putCase // the boolean is used to know if the modifiers should be reset
- 	consumeFormalParameter(); $break ./
+/.$putCase consumeFormalParameter(); $break ./
 /:$readableName FormalParameter:/
 
 ClassTypeList ::= ClassTypeElt
@@ -646,7 +633,6 @@ StaticOnly ::= 'static'
 --
 ConstructorDeclaration ::= ConstructorHeader MethodBody
 /.$putCase consumeConstructorDeclaration() ; $break ./ 
-
 -- These rules are added to be able to parse constructors with no body
 ConstructorDeclaration ::= ConstructorHeader ';'
 /.$putCase consumeInvalidConstructorDeclaration() ; $break ./ 
@@ -698,8 +684,6 @@ InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
 -----------------------------------------------
 InterfaceHeaderName ::= Modifiersopt interface Identifier TypeParameters
 /.$putCase consumeInterfaceHeaderName(); $break ./
-/:$readableName InterfaceHeaderName:/
-
 InterfaceHeaderName ::= Modifiersopt interface Identifier
 /.$putCase consumeInterfaceHeaderName(); $break ./
 /:$readableName InterfaceHeaderName:/
@@ -737,15 +721,12 @@ InterfaceMemberDeclaration ::= InvalidMethodDeclaration
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message
 InvalidConstructorDeclaration ::= ConstructorHeader MethodBody
 /.$putCase ignoreInvalidConstructorDeclaration(true);  $break ./
-
 InvalidConstructorDeclaration ::= ConstructorHeader ';'
 /.$putCase ignoreInvalidConstructorDeclaration(false);  $break ./
 /:$readableName InvalidConstructorDeclaration:/
 
 InterfaceMemberDeclaration ::= AbstractMethodDeclaration
 InterfaceMemberDeclaration ::= InvalidConstructorDeclaration
-/:$readableName InterfaceMemberDeclaration:/
-
 --1.1 feature
 InterfaceMemberDeclaration ::= ClassDeclaration
 --1.1 feature
@@ -795,12 +776,10 @@ LocalVariableDeclarationStatement ::= LocalVariableDeclaration ';'
 
 LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators
 /.$putCase consumeLocalVariableDeclaration(); $break ./
-
 -- 1.1 feature
 -- The modifiers part of this rule makes the grammar more permissive. 
 -- The only modifier here is final. We put Modifiers to allow multiple modifiers
 -- This will require to check the validity of the modifier
-
 LocalVariableDeclaration ::= Modifiers Type PushModifiers VariableDeclarators
 /.$putCase consumeLocalVariableDeclaration(); $break ./
 /:$readableName LocalVariableDeclaration:/
@@ -1279,14 +1258,17 @@ RelationalExpression ::= RelationalExpression '<=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression ::= RelationalExpression '>=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
-RelationalExpression ::= RelationalExpression 'instanceof' ShiftExpression
+/:$readableName Expression:/
+
+InstanceofExpression ::= RelationalExpression
+InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
 /.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 /:$readableName Expression:/
 
-EqualityExpression ::= RelationalExpression
-EqualityExpression ::= EqualityExpression '==' RelationalExpression
+EqualityExpression ::= InstanceofExpression
+EqualityExpression ::= EqualityExpression '==' InstanceofExpression
 /.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
-EqualityExpression ::= EqualityExpression '!=' RelationalExpression
+EqualityExpression ::= EqualityExpression '!=' InstanceofExpression
 /.$putCase consumeEqualityExpression(OperatorIds.NOT_EQUAL); $break ./
 /:$readableName Expression:/
 
@@ -1797,20 +1779,23 @@ RelationalExpression_NotName ::= RelationalExpression_NotName '>=' ShiftExpressi
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName ::= Name '>=' ShiftExpression
 /.$putCase consumeBinaryExpressionWithName(OperatorIds.GREATER_EQUAL); $break ./
-RelationalExpression_NotName  ::= RelationalExpression_NotName 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
-RelationalExpression_NotName  ::= Name 'instanceof' ReferenceType
+/:$readableName Expression:/
+
+InstanceofExpression_NotName ::= RelationalExpression_NotName
+InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
 /.$putCase consumeInstanceOfExpressionWithName(OperatorIds.INSTANCEOF); $break ./
+RelationalExpression_NotName  ::= InstanceofExpression_NotName 'instanceof' ReferenceType
+/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 /:$readableName Expression:/
 
 EqualityExpression_NotName ::= RelationalExpression_NotName
-EqualityExpression_NotName ::= EqualityExpression_NotName '==' RelationalExpression
+EqualityExpression_NotName ::= EqualityExpression_NotName '==' InstanceofExpression
 /.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
-EqualityExpression_NotName ::= Name '==' RelationalExpression
+EqualityExpression_NotName ::= Name '==' InstanceofExpression
 /.$putCase consumeEqualityExpressionWithName(OperatorIds.EQUAL_EQUAL); $break ./
-EqualityExpression_NotName ::= EqualityExpression_NotName '!=' RelationalExpression
+EqualityExpression_NotName ::= EqualityExpression_NotName '!=' InstanceofExpression
 /.$putCase consumeEqualityExpression(OperatorIds.NOT_EQUAL); $break ./
-EqualityExpression_NotName ::= Name '!=' RelationalExpression
+EqualityExpression_NotName ::= Name '!=' InstanceofExpression
 /.$putCase consumeEqualityExpressionWithName(OperatorIds.NOT_EQUAL); $break ./
 /:$readableName Expression:/
 
