@@ -110,6 +110,7 @@ public class PatternSearchJob implements IJob {
 		}
 	}
 	public boolean isReadyToRun() {
+		// TODO: (jerome) Could improve by caching the index paths in the index selector
 		IndexSelector selector = new IndexSelector(this.scope, this.focus, this.isPolymorphicSearch, this.indexManager);
 		selector.getIndexes(); // do not want to cache these indexes since some may be null & need to be rebuilt
 		return true;
