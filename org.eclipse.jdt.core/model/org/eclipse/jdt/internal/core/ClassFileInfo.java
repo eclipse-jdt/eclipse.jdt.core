@@ -68,9 +68,10 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 	if (fields == null) {
 		return;
 	}
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
 		IBinaryField fieldInfo = fields[i];
-		IField field = new BinaryField((JavaElement)type, new String(fieldInfo.getName()));
+		IField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
 		newElements.put(field, fieldInfo);
 		childrenHandles.add(field);
 	}
@@ -123,12 +124,14 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 			paramNames[j]= pNames[j].toCharArray();
 		}
 		char[][] parameterTypes = ClassFile.translatedNames(paramNames);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		String selector = new String(methodInfo.getSelector());
 		if (methodInfo.isConstructor()) {
-			selector = type.getElementName();
+			selector =type.getElementName();
 		}
+		selector =  manager.intern(selector);
 		for (int j= 0; j < pNames.length; j++) {
-			pNames[j]= new String(parameterTypes[j]);
+			pNames[j]= manager.intern(new String(parameterTypes[j]));
 		}
 		BinaryMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
 		childrenHandles.add(method);

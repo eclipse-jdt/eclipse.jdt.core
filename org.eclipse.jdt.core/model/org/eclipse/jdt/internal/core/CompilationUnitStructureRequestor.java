@@ -204,9 +204,10 @@ public void acceptProblem(IProblem problem) {
 	int n = typeNames.length;
 	if (n == 0)
 		return NO_STRINGS;
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	String[] typeSigs = new String[n];
 	for (int i = 0; i < n; ++i) {
-		typeSigs[i] = Signature.createTypeSignature(typeNames[i], false);
+		typeSigs[i] = manager.intern(Signature.createTypeSignature(typeNames[i], false));
 	}
 	return typeSigs;
 }
@@ -233,9 +234,9 @@ public void enterField(FieldInfo fieldInfo) {
 	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	SourceField handle = null;
-	
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = new SourceField(parentHandle, new String(fieldInfo.name));
+		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+		handle = new SourceField(parentHandle, fieldName);
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
@@ -308,7 +309,8 @@ public void enterMethod(MethodInfo methodInfo) {
 	
 	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = new SourceMethod(parentHandle, new String(methodInfo.name), parameterTypeSigs);
+		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+		handle = new SourceMethod(parentHandle, selector, parameterTypeSigs);
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
