@@ -941,7 +941,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public boolean visit(ParameterizedType node) {
-		node.getName().accept(this);
+		node.getType().accept(this);
 		this.buffer.append("<");//$NON-NLS-1$
 		for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
 			Type t = (Type) it.next();

@@ -1955,7 +1955,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			// node type introduced in 3.0 API
 			try {
-				ast.newParameterizedType(ast.newSimpleName("String")); //$NON-NLS-1$
+				ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("String"))); //$NON-NLS-1$
 				assertTrue(false);
 			} catch (UnsupportedOperationException e) {
 				// pass
@@ -1963,11 +1963,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			return;
 		}
 		long previousCount = ast.modificationCount();
-		final ParameterizedType x = ast.newParameterizedType(ast.newSimpleName("String")); //$NON-NLS-1$
+		Type t = ast.newSimpleType(ast.newSimpleName("String")); //$NON-NLS-1$
+		final ParameterizedType x = ast.newParameterizedType(t); 
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
+		assertTrue(x.getType() == t);
+		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(!x.isSimpleType());
 		assertTrue(!x.isArrayType());
@@ -1996,6 +1999,31 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				x.setName((Name) value);
 			}
 		});
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleType result = 
+				targetAst.newSimpleType(
+						targetAst.newSimpleName("a")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				ParameterizedType s1 = ast.newParameterizedType(x); //$NON-NLS-1$
+				return s1;
+			}
+			public void unwrap() {
+				ParameterizedType s1 = (ParameterizedType) x.getParent();
+				s1.setType(ast.newSimpleType(ast.newSimpleName("z"))); //$NON-NLS-1$
+			}
+			public ASTNode get() {
+				return x.getType();
+			}
+			public void set(ASTNode value) {
+				x.setType((Type) value);
+			}
+		});
 		genericPropertyListTest(x, x.typeArguments(),
 		  new Property("Arguments", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -2007,7 +2035,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 			public ASTNode wrap() {
 				// return Type that embeds x
-				ParameterizedType s1 = ast.newParameterizedType(ast.newSimpleName("foo")); //$NON-NLS-1$
+				ParameterizedType s1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("foo"))); //$NON-NLS-1$
 				s1.typeArguments().add(x);
 				return s1;
 			}

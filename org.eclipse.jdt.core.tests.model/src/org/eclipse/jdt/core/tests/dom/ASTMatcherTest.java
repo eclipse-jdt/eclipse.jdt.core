@@ -180,8 +180,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
-			PT1S = "(tM(nSZZnS)tM)"; //$NON-NLS-1$
+			PT1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("Z"))); //$NON-NLS-1$
+			PT1.setName(ast.newSimpleName("W"));
+			PT1S = "[(tM[(nSWWnS)][(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
 			TP1 = ast.newTypeParameter();
 			TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
@@ -641,7 +642,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			return;
 		}
-		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleName("X")); //$NON-NLS-1$
+		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("X"))); //$NON-NLS-1$
 		x1.typeArguments().add(T1);
 		x1.typeArguments().add(T2);
 		basicMatch(x1);

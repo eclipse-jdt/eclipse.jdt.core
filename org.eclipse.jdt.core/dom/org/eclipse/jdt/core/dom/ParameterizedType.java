@@ -17,8 +17,10 @@ import java.util.List;
  * Type node for a parameterized type (added in 3.0 API).
  * <pre>
  * ParameterizedType:
- *    Name <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
+ *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * </pre>
+ * The first type may be a simple type or a qualified type;
+ * other kinds of types are meaningless.
  * <p>
  * Note: Support for generic types is an experimental language feature 
  * under discussion in JSR-014 and under consideration for inclusion
@@ -31,11 +33,19 @@ import java.util.List;
 public class ParameterizedType extends Type {
 	
 	/**
-	 * The "name" structural property of this node type.
 	 * @since 3.0
+	 * @deprecated Replaced by TYPE_PROPERTY
+	 * TODO (jeem) - Remove before M9
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(ParameterizedType.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(ParameterizedType.class, "type", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeArguments" structural property of this node type.
@@ -54,6 +64,7 @@ public class ParameterizedType extends Type {
 	static {
 		createPropertyList(ParameterizedType.class);
 		addProperty(NAME_PROPERTY);
+		addProperty(TYPE_PROPERTY);
 		addProperty(TYPE_ARGUMENTS_PROPERTY);
 		PROPERTY_DESCRIPTORS = reapPropertyList();
 	}
@@ -74,10 +85,17 @@ public class ParameterizedType extends Type {
 	}
 			
 	/** 
-	 * The type name node; lazily initialized; defaults to a type with
-	 * an unspecfied, but legal, name.
+	 * @since 3.0
+	 * @deprecated Replaced by TYPE_PROPERTY
+	 * TODO (jeem) - Remove before M9
 	 */
 	private Name typeName = null;
+	
+	/** 
+	 * The type node; lazily initialized; defaults to an unspecfied, but legal,
+	 * type.
+	 */
+	private Type type = null;
 	
 	/**
 	 * The type arguments (element type: <code>Type</code>). 
@@ -88,7 +106,7 @@ public class ParameterizedType extends Type {
 	
 	/**
 	 * Creates a new unparented node for a parameterized type owned by the
-	 * given AST. By default, an unspecified, but legal, name, and no type
+	 * given AST. By default, an unspecified, but legal, type, and no type
 	 * arguments.
 	 * <p>
 	 * N.B. This constructor is package-private.
@@ -117,6 +135,14 @@ public class ParameterizedType extends Type {
 				return getName();
 			} else {
 				setName((Name) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
 				return null;
 			}
 		}
@@ -149,6 +175,7 @@ public class ParameterizedType extends Type {
 		ParameterizedType result = new ParameterizedType(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((Name) ((ASTNode) getName()).clone(target));
+		result.setType((Type) ((ASTNode) getType()).clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
 		return result;
@@ -170,15 +197,16 @@ public class ParameterizedType extends Type {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getName());
+			acceptChild(visitor, getType());
 			acceptChildren(visitor, this.typeArguments);
 		}
 		visitor.endVisit(this);
 	}
 	
 	/**
-	 * Returns the name of this parameterized type.
-	 * 
-	 * @return the name of this parameterized type
+	 * @since 3.0
+	 * @deprecated Replaced by getType(), which returns a Type
+	 * TODO (jeem) - Remove before M9
 	 */ 
 	public Name getName() {
 		if (this.typeName == null) {
@@ -190,14 +218,9 @@ public class ParameterizedType extends Type {
 	}
 	
 	/**
-	 * Sets the name of this parameterized type to the given name.
-	 * 
-	 * @param typeName the new name of this parameterized type
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 * @since 3.0
+	 * @deprecated Replaced by setType(), which takes a Type
+	 * TODO (jeem) - Remove before M9
 	 */ 
 	public void setName(Name typeName) {
 		if (typeName == null) {
@@ -207,6 +230,40 @@ public class ParameterizedType extends Type {
 		preReplaceChild(oldChild, typeName, NAME_PROPERTY);
 		this.typeName = typeName;
 		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
+	}
+
+	/**
+	 * Returns the type of this parameterized type.
+	 * 
+	 * @return the type of this parameterized type
+	 */ 
+	public Type getType() {
+		if (this.type == null) {
+			preLazyInit();
+			this.type = new SimpleType(this.ast);
+			postLazyInit(this.type, TYPE_PROPERTY);
+		}
+		return this.type;
+	}
+	
+	/**
+	 * Sets the type of this parameterized type.
+	 * 
+	 * @param type the new type of this parameterized type
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 */ 
+	public void setType(Type type) {
+		if (type == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
+		this.type = type;
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -235,7 +292,7 @@ public class ParameterizedType extends Type {
 	int treeSize() {
 		return 
 			memSize()
-			+ (this.typeName == null ? 0 : getName().treeSize())
+			+ (this.type == null ? 0 : getType().treeSize())
 			+ this.typeArguments.listSize();
 	}
 }

@@ -1884,8 +1884,19 @@ public final class AST {
 	}
 
 	/**
+	 * @since 3.0
+	 * @deprecated Replaced by newParameterizedType(Type)
+	 * TODO (jeem) - Remove before M9
+	 */
+	public ParameterizedType newParameterizedType(Name typeName) {
+		ParameterizedType result = new ParameterizedType(this);
+		result.setName(typeName);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented parameterized type node with the
-	 * given type name and an empty list of type arguments.
+	 * given type and an empty list of type arguments.
 	 * <p>
 	 * Note: Support for generic types is an experimental language feature 
 	 * under discussion in JSR-014 and under consideration for inclusion
@@ -1893,7 +1904,7 @@ public final class AST {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @param typeName the name of the class or interface
+	 * @param type the type that is parameterized
 	 * @return a new unparented parameterized type node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
@@ -1904,9 +1915,9 @@ public final class AST {
 	 * a 2.0 AST
 	 * @since 3.0
 	 */
-	public ParameterizedType newParameterizedType(Name typeName) {
+	public ParameterizedType newParameterizedType(Type type) {
 		ParameterizedType result = new ParameterizedType(this);
-		result.setName(typeName);
+		result.setType(type);
 		return result;
 	}
 

@@ -74,7 +74,7 @@ public class SampleASTs {
 			SimpleType st = target.newSimpleType(qn);
 			QualifiedType qt = target.newQualifiedType(st, target.newSimpleName("x")); //$NON-NLS-1$
 			WildcardType wt = target.newWildcardType();
-			ParameterizedType pmt = target.newParameterizedType(target.newSimpleName("y")); //$NON-NLS-1$
+			ParameterizedType pmt = target.newParameterizedType(target.newSimpleType(target.newSimpleName("y"))); //$NON-NLS-1$
 			pmt.typeArguments().add(wt);
 			pmt.typeArguments().add(qt);
 			md.setReturnType2(pmt);
