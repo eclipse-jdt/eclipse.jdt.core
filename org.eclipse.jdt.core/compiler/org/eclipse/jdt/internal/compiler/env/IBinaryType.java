@@ -10,9 +10,11 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
 public interface IBinaryType extends IGenericType {
 
-	char[][] NoInterface = new char[0][];
+	char[][] NoInterface = CharOperation.NO_CHAR_CHAR;
 	IBinaryNestedType[] NoNestedType = new IBinaryNestedType[0];
 	IBinaryField[] NoField = new IBinaryField[0];
 	IBinaryMethod[] NoMethod = new IBinaryMethod[0];

@@ -105,7 +105,7 @@ static final char[][] WellKnownSimpleNames = new char[][] {
 	new char[] {'c', 'o', 'm'}};
 
 static final char[][][] EmptyQualifiedNames = new char[0][][];
-static final char[][] EmptySimpleNames = new char[0][];
+static final char[][] EmptySimpleNames = CharOperation.NO_CHAR_CHAR;
 
 // each array contains qualified char[][], one for size 2, 3, 4, 5, 6, 7 & the rest
 static final int MaxQualifiedNames = 7;

@@ -892,7 +892,7 @@ public static void sortReverseOrder(String[] strings) {
 	public static char[][] toCompoundChars(String s) {
 		int len = s.length();
 		if (len == 0) {
-			return new char[0][];
+			return CharOperation.NO_CHAR_CHAR;
 		}
 		int segCount = 1;
 		for (int off = s.indexOf('.'); off != -1; off = s.indexOf('.', off + 1)) {

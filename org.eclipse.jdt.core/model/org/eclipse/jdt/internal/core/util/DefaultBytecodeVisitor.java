@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  */
 public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private static final char[] INIT	= "<init>".toCharArray(); //$NON-NLS-1$
-	private static final char[] EMPTY_NAME = new char[0];
+	private static final char[] EMPTY_NAME = CharOperation.NO_CHAR;
 	private static final int T_BOOLEAN = 4;
 	private static final int T_CHAR = 5;
 	private static final int T_FLOAT = 6;

@@ -834,7 +834,7 @@ public class SourceMapper
 		IMethod method,
 		char[][] parameterNames) {
 		if (parameterNames == null) {
-			parameterNames = new char[0][];
+			parameterNames = CharOperation.NO_CHAR_CHAR;
 		}
 		fParameterNames.put(method, parameterNames);
 	}

@@ -10,12 +10,14 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
 public class WordEntry {
 	protected char[] fWord;
 	protected int fNumRefs;
 	protected int[] fRefs;
 	public WordEntry() {
-		this(new char[0]);
+		this(CharOperation.NO_CHAR);
 	}
 	public WordEntry(char[] word) {
 		fWord= word;

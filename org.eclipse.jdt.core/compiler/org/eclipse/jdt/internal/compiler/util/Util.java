@@ -242,7 +242,7 @@ public class Util {
 					: new InputStreamReader(stream, encoding);
 		char[] contents;
 		if (length == -1) {
-			contents = new char[0];
+			contents = CharOperation.NO_CHAR;
 			int contentsLength = 0;
 			int charsRead = -1;
 			do {

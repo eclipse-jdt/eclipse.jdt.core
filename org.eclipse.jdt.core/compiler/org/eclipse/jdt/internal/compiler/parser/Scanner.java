@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class Scanner implements IScanner, ITerminalSymbols {
 
@@ -2839,7 +2840,7 @@ public final void setSource(char[] source){
 	//the source-buffer is set to sourceString
 
 	if (source == null) {
-		this.source = new char[0];
+		this.source = CharOperation.NO_CHAR;
 	} else {
 		this.source = source;
 	}
@@ -2870,7 +2871,7 @@ public String toString() {
 			0, 
 			middleLength);
 	} else {
-		middle = new char[0];
+		middle = CharOperation.NO_CHAR;
 	}
 	
 	char end[] = new char[source.length - (currentPosition - 1)];

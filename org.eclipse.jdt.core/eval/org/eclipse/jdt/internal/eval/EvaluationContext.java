@@ -44,8 +44,8 @@ public class EvaluationContext implements EvaluationConstants {
 
 	GlobalVariable[] variables = new GlobalVariable[5];
 	int variableCount = 0;
-	char[][] imports = new char[0][];
-	char[] packageName = new char[0];
+	char[][] imports = CharOperation.NO_CHAR_CHAR;
+	char[] packageName = CharOperation.NO_CHAR;
 	boolean varsChanged = true;
 	VariablesInfo installedVars;
 	IBinaryType codeSnippetBinary;

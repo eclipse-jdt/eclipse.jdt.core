@@ -16,13 +16,14 @@ import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionAttribute;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Default implementation of IExceptionAttribute.
  */
 public class ExceptionAttribute extends ClassFileAttribute implements IExceptionAttribute {
 	private static final int[] NO_EXCEPTION_INDEXES = new int[0];
-	private static final char[][] NO_EXCEPTION_NAMES = new char[0][0];
+	private static final char[][] NO_EXCEPTION_NAMES = CharOperation.NO_CHAR_CHAR;
 	
 	private int exceptionsNumber;
 	private char[][] exceptionNames;

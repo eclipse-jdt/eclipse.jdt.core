@@ -260,7 +260,7 @@ public class CorrectionEngine implements ProblemReasons {
 			
 			scanner.resetTo(correctionStart, correctionEnd);
 			int token = 0;
-			char[] argumentSource = new char[0];
+			char[] argumentSource = CharOperation.NO_CHAR;
 			
 			// search last segment position
 			while(true) {

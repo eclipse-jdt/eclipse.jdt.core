@@ -115,7 +115,7 @@ public class MatchLocator implements ITypeRequestor {
 	public HandleFactory handleFactory;
 	public IWorkingCopy[] workingCopies;
 
-	private static char[] EMPTY_FILE_NAME = new char[0];
+	private static char[] EMPTY_FILE_NAME = CharOperation.NO_CHAR;
 
 	public MatchLocator(
 		SearchPattern pattern,

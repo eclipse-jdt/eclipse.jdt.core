@@ -544,7 +544,7 @@ protected NameReference getUnspecifiedReference() {
 			this.lastIgnoredToken = -1;		
 		}
 		this.isOrphanCompletionNode = true;
-		return new SingleNameReference(new char[0], 0); // dummy reference
+		return new SingleNameReference(CharOperation.NO_CHAR, 0); // dummy reference
 	}
 	NameReference nameReference;
 	/* retrieve identifiers subset and whole positions, the completion node positions

@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * An <code>IFileDocument</code> represents an IFile.
@@ -60,7 +61,7 @@ public class IFileDocument extends PropertyDocument {
 	public char[] getCharContent() throws IOException {
 		if (charContents != null) return charContents;
 		IPath location = file.getLocation();
-		if (location == null) return new char[0];
+		if (location == null) return CharOperation.NO_CHAR;
 		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
 	}
 	/**

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -53,7 +54,7 @@ public char[] getContents() {
 		return Util.getFileCharContent(new File(new String(fileName)), this.encoding);
 	} catch (IOException e) {
 	}
-	return new char[0];
+	return CharOperation.NO_CHAR;
 }
 public char[] getFileName() {
 	return this.fileName;

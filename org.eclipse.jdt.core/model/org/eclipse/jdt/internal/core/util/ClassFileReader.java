@@ -24,12 +24,13 @@ import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISourceAttribute;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
 	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];
 	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
 	private static final int[] NO_INTERFACE_INDEXES = new int[0];
-	private static final char[][] NO_INTERFACES_NAMES = new char[0][0];
+	private static final char[][] NO_INTERFACES_NAMES = CharOperation.NO_CHAR_CHAR;
 
 	private IConstantPool constantPool;
 	private int magicNumber;
