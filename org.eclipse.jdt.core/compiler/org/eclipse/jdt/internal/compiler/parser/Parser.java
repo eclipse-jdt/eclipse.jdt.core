@@ -2747,7 +2747,7 @@ protected void consumePrimaryNoNewArray() {
 	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
 	final Expression parenthesizedExpression = expressionStack[expressionPtr];
 	updateSourcePosition(parenthesizedExpression);
-	parenthesizedExpression.bits |= AstNode.IsParenthesizedMASK;
+	parenthesizedExpression.bits |= ((((parenthesizedExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT) & 0xFF)  + 1) << AstNode.ParenthesizedSHIFT;
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'

@@ -54,10 +54,11 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	// cannot conflict with AddAssertionMASK
 
 	// for expression only
-	public static final int IsParenthesizedMASK = 0x20000000;
+	public static final int ParenthesizedSHIFT = 21;
+	public static final int ParenthesizedMASK = 0xFF << ParenthesizedSHIFT;
 
 	// for assignment only
-	public static final int IsAssignmentWithNoEffectMASK = 0x10000000;	
+	public static final int IsAssignmentWithNoEffectMASK = 0x20000000;	
 	/*
 	public final static int BitMask1= 0x1; // decimal 1
 	public final static int BitMask2= 0x2; // decimal 2
