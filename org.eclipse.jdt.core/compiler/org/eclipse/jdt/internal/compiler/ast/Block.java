@@ -126,7 +126,7 @@ public class Block extends Statement {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < statements.length; i++) {
 			buffer.append(statements[i].toString(tab + 1));
-			if (statements[i] instanceof Block) {
+			if (statements[i] instanceof Block || statements[i] instanceof EmptyStatement) {
 				buffer.append("\n"); //$NON-NLS-1$
 			} else {
 				buffer.append(";\n"); //$NON-NLS-1$
