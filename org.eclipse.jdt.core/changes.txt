@@ -169,6 +169,7 @@ STREAM: 2.0
   1G4PWC7: ITPJCORE:WINNT - Search - No matches with class files
   1G83ZKL: ITPJUI:WINNT - Compiler - unclear error message for a reserved word used as an identifier
   1GF5W1S: ITPJUI:WIN2000 - ClassCastException in LookupEnvironment
+  1GKF01S: ITPJCORE:WINNT - Severe: internal error during search
   
 **********************************************************************************
 *** BUILD 200 (2.0 STREAM, v_200) ************************************************
