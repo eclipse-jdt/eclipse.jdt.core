@@ -125,12 +125,6 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
  * @see ICodeAssist
  */
 protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, ISelectionRequestor requestor) throws JavaModelException {
-
-	// fix for 1FWNMHH, part (1)
-	if (length == 0) {
-		return;
-	}
-	
 	IBuffer buffer = getBuffer();
 	if (buffer == null) {
 		return;
