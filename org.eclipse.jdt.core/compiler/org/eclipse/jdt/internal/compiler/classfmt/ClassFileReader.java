@@ -788,6 +788,11 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		// modifiers
 		if (this.getModifiers() != newClassFile.getModifiers())
 			return true;
+
+		// meta-annotations
+		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated))
+			return true;
+		
 		// superclass
 		if (!CharOperation.equals(this.getSuperclassName(), newClassFile.getSuperclassName()))
 			return true;
@@ -884,6 +889,8 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
 	if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers())
 		return true;
+	if ((currentFieldInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherFieldInfo.getTagBits() & TagBits.AnnotationDeprecated))
+		return true;
 	if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName()))
 		return true;
 	if (!CharOperation.equals(currentFieldInfo.getTypeName(), otherFieldInfo.getTypeName()))
@@ -922,6 +929,8 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 }
 private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodInfo otherMethodInfo) {
 	if (currentMethodInfo.getModifiers() != otherMethodInfo.getModifiers())
+		return true;
+	if ((currentMethodInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherMethodInfo.getTagBits() & TagBits.AnnotationDeprecated))
 		return true;
 	if (!CharOperation.equals(currentMethodInfo.getSelector(), otherMethodInfo.getSelector()))
 		return true;
