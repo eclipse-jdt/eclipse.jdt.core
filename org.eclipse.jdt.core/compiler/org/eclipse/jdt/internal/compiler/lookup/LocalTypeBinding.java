@@ -54,6 +54,7 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
 public char[] computeUniqueKey() {
+	if (this.scope == null) return super.computeUniqueKey();
 	ReferenceBinding enclosing = enclosingType();
 	ReferenceBinding temp;
 	while ((temp = enclosing.enclosingType()) != null)
