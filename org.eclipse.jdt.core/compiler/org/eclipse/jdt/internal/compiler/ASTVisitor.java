@@ -320,22 +320,10 @@ public abstract class ASTVisitor {
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(ParameterizedMessageSend messageSend, BlockScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
@@ -790,22 +778,10 @@ public abstract class ASTVisitor {
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ParameterizedMessageSend messageSend, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {

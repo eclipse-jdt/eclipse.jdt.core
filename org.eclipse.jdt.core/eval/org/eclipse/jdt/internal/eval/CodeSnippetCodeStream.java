@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 public class CodeSnippetCodeStream extends CodeStream {
 	static InvocationSite NO_INVOCATION_SITE = 
 		new InvocationSite(){	
+			public TypeBinding[] genericTypeArguments() { return null; }
 			public boolean isSuperAccess(){ return false; }
 			public boolean isTypeAccess() { return false; }
 			public void setActualReceiverType(ReferenceBinding receiverType) {}

@@ -84,6 +84,12 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	// generate the invoke virtual to "setResult(Object,Class)"
 	codeStream.invokevirtual(this.setResultMethod);
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+ */
+public TypeBinding[] genericTypeArguments() {
+	return null;
+}
 public boolean isSuperAccess() {
 	return false;
 }

@@ -61,6 +61,12 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}	
 	public boolean isSuperAccess(){
 		return false;
 	}

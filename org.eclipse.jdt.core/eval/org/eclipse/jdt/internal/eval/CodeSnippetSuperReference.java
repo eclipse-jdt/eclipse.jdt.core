@@ -30,6 +30,13 @@ public CodeSnippetSuperReference(int pos, int sourceEnd, 	EvaluationContext eval
 	this.evaluationContext = evaluationContext;
 }
 
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+ */
+public TypeBinding[] genericTypeArguments() {
+	return null;
+}
+
 public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotUseSuperInCodeSnippet(this.sourceStart, this.sourceEnd); //$NON-NLS-1$
 		return null;

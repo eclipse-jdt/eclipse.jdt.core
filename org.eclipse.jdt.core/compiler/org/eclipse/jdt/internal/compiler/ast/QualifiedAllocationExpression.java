@@ -16,7 +16,10 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
- * Variation on allocation, where can be specified an enclosing instance and an anonymous type
+ * Variation on allocation, where can optionally be specified any of:
+ * - leading enclosing instance
+ * - trailing anonymous type
+ * - generic type arguments for generic constructor invocation
  */
 public class QualifiedAllocationExpression extends AllocationExpression {
 	
@@ -172,6 +175,16 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		if (enclosingInstance != null)
 			enclosingInstance.printExpression(0, output).append('.'); 
+		if (typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}			
 		super.printExpression(0, output);
 		if (anonymousType != null) {
 			anonymousType.print(indent, output);
@@ -182,7 +195,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// added for code assist...cannot occur with 'normal' code
-		if (anonymousType == null && enclosingInstance == null) {
+		if (this.anonymousType == null && this.enclosingInstance == null) {
 			return super.resolveType(scope);
 		}
 
@@ -227,7 +240,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
 			hasError = true;
 		}
-
+		// resolve type arguments (for generic constructor call)
+		if (this.typeArguments != null) {
+			int length = this.typeArguments.length;
+			this.genericTypeArguments = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				TypeBinding argType = this.typeArguments[i].resolveType(scope);
+				if (argType == null) return null; // error already reported
+				this.genericTypeArguments[i] = argType;
+			}
+		}
+		
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = NoParameters;
 		if (arguments != null) {
@@ -316,6 +339,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (visitor.visit(this, scope)) {
 			if (enclosingInstance != null)
 				enclosingInstance.traverse(visitor, scope);
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}					
+			}
 			type.traverse(visitor, scope);
 			if (arguments != null) {
 				int argumentsLength = arguments.length;

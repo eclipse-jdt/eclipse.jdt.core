@@ -1954,12 +1954,12 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 
-	ParameterizedQualifiedAllocationExpression alloc;
+	QualifiedAllocationExpression alloc;
 	int length;
 	if (((length = this.astLengthStack[this.astLengthPtr--]) == 1) && (this.astStack[this.astPtr] == null)) {
 		//NO ClassBody
 		this.astPtr--;
-		alloc = new ParameterizedQualifiedAllocationExpression();
+		alloc = new QualifiedAllocationExpression();
 		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
 
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -1976,7 +1976,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
-		
+
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
 		alloc.sourceStart = this.intStack[this.intPtr--];
@@ -1996,10 +1996,9 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		if (anonymousTypeDeclarationAllocationExpression != null) {
 			anonymousTypeDeclarationAllocationExpression.sourceEnd = this.endStatementPosition;
 			// handle type arguments
-			anonymousTypeDeclarationAllocationExpression = ParameterizedQualifiedAllocationExpression.copyInto(anonymousTypeDeclarationAllocationExpression);
 			length = this.genericsLengthStack[this.genericsLengthPtr--];
 			this.genericsPtr -= length;
-			System.arraycopy(this.genericsStack, this.genericsPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
+			System.arraycopy(this.genericsStack, this.genericsPtr + 1, anonymousTypeDeclarationAllocationExpression.typeArguments = new TypeReference[length], 0, length);
 		}
 		
 		// mark initializers with local type mark if needed
@@ -2015,13 +2014,13 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 }
 protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
-	ParameterizedAllocationExpression alloc;
+	AllocationExpression alloc;
 	int length;
 	if (((length = this.astLengthStack[this.astLengthPtr--]) == 1)
 		&& (this.astStack[this.astPtr] == null)) {
 		//NO ClassBody
 		this.astPtr--;
-		alloc = new ParameterizedAllocationExpression();
+		alloc = new AllocationExpression();
 		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
 
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -2058,10 +2057,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		if (anonymousTypeDeclarationAllocationExpression != null) {
 			anonymousTypeDeclarationAllocationExpression.sourceEnd = this.endStatementPosition;
 			// handle type arguments
-			anonymousTypeDeclarationAllocationExpression = ParameterizedQualifiedAllocationExpression.copyInto(anonymousTypeDeclarationAllocationExpression);
 			length = this.genericsLengthStack[this.genericsLengthPtr--];
 			this.genericsPtr -= length;
-			System.arraycopy(this.genericsStack, this.genericsPtr + 1, ((ParameterizedQualifiedAllocationExpression) anonymousTypeDeclarationAllocationExpression).typeArguments = new TypeReference[length], 0, length);
+			System.arraycopy(this.genericsStack, this.genericsPtr + 1, anonymousTypeDeclarationAllocationExpression.typeArguments = new TypeReference[length], 0, length);
 		}
 		
 		// mark initializers with local type mark if needed
@@ -3028,7 +3026,7 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
 	*/
 	int startPosition = this.intStack[this.intPtr--];
-	ParameterizedExplicitConstructorCall ecc = new ParameterizedExplicitConstructorCall(recFlag);
+	ExplicitConstructorCall ecc = new ExplicitConstructorCall(recFlag);
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		this.expressionPtr -= length;
@@ -3836,7 +3834,7 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 
 	// when the name is only an identifier...we have a message send to "this" (implicit)
 
-	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
+	MessageSend m = newMessageSendWithTypeArguments();
 	m.sourceEnd = this.rParenPos;
 	m.sourceStart = 
 		(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32); 
@@ -3870,7 +3868,7 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	//optimize the push/pop
 	//MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
-	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
+	MessageSend m = newMessageSendWithTypeArguments();
 	m.sourceStart = 
 		(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32); 
 	m.selector = this.identifierStack[this.identifierPtr--];
@@ -3901,7 +3899,7 @@ protected void consumeMethodInvocationSuper() {
 protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
-	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
+	MessageSend m = newMessageSendWithTypeArguments();
 	m.sourceStart = this.intStack[this.intPtr--];
 	m.sourceEnd = this.rParenPos;
 	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
@@ -8071,8 +8069,8 @@ protected MessageSend newMessageSend() {
 	}
 	return m;
 }
-protected ParameterizedMessageSend newMessageSendWithTypeArguments() {
-	ParameterizedMessageSend m = new ParameterizedMessageSend();
+protected MessageSend newMessageSendWithTypeArguments() {
+	MessageSend m = new MessageSend();
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		this.expressionPtr -= length;

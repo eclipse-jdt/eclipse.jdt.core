@@ -303,7 +303,12 @@ public class FieldReference extends Reference implements InvocationSite {
 			postIncrement.assignmentImplicitConversion);
 		fieldStore(codeStream, this.codegenBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
 	public static final Constant getConstantFor(
 		FieldBinding binding,
 		Reference reference,

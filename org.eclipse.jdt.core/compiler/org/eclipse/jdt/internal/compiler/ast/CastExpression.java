@@ -400,6 +400,7 @@ public class CastExpression extends Expression {
 	private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
 
 			InvocationSite fakeInvocationSite = new InvocationSite(){	
+				public TypeBinding[] genericTypeArguments() { return null; }
 				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
 				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
 				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}

@@ -5285,7 +5285,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	System.out.println(new X().<String>foo(\"SUCCESS\", null));\n" + 
 			"	                                   ^^^\n" + 
-			"Incorrect number of arguments for generic method <T, U>foo(T, U) of type X; it cannot be parameterized with arguments <String>\n" + 
+			"Incorrect number of type arguments for generic method <T, U>foo(T, U) of type X; it cannot be parameterized with arguments <String>\n" + 
 			"----------\n");
 	}				
 	// parameterized invocation of non generic method with incorrect argument count

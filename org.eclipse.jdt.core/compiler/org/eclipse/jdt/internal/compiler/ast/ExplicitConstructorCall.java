@@ -15,18 +15,17 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class ExplicitConstructorCall
-	extends Statement
-	implements InvocationSite {
+public class ExplicitConstructorCall extends Statement implements InvocationSite {
 		
 	public Expression[] arguments;
 	public Expression qualification;
 	public MethodBinding binding;							// exact binding resulting from lookup
 	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
-
 	public int accessMode;
-
+	public TypeReference[] typeArguments;
+	public TypeBinding[] genericTypeArguments;
+	
 	public final static int ImplicitSuper = 1;
 	public final static int Super = 2;
 	public final static int This = 3;
@@ -141,7 +140,12 @@ public class ExplicitConstructorCall
 			((MethodScope) currentScope).isConstructorCall = false;
 		}
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return this.genericTypeArguments;
+	}
 	public boolean isImplicitSuper() {
 		//return true if I'm of these compiler added statement super();
 
@@ -206,6 +210,16 @@ public class ExplicitConstructorCall
 
 		printIndent(indent, output);
 		if (qualification != null) qualification.printExpression(0, output).append('.');
+		if (typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}		
 		if (accessMode == This) {
 			output.append("this("); //$NON-NLS-1$
 		} else {
@@ -262,7 +276,21 @@ public class ExplicitConstructorCall
 					qualification.computeConversion(scope, qTb, qTb);
 				}
 			}
-
+			// resolve type arguments (for generic constructor call)
+			if (this.typeArguments != null) {
+				int length = this.typeArguments.length;
+				boolean argHasError = false; // typeChecks all arguments
+				this.genericTypeArguments = new TypeBinding[length];
+				for (int i = 0; i < length; i++) {
+					if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope)) == null) {
+						argHasError = true;
+					}
+				}
+				if (argHasError) {
+					return;
+				}
+			}			
+	
 			// arguments buffering for the method lookup
 			TypeBinding[] argumentTypes = NoParameters;
 			boolean argsContainCast = false;
@@ -319,6 +347,11 @@ public class ExplicitConstructorCall
 		if (visitor.visit(this, scope)) {
 			if (this.qualification != null) {
 				this.qualification.traverse(visitor, scope);
+			}
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}			
 			}
 			if (this.arguments != null) {
 				for (int i = 0, argumentLength = this.arguments.length; i < argumentLength; i++)

@@ -20,11 +20,8 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -319,18 +316,14 @@ class ASTConverter2 extends ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
 		}
-		if (expression instanceof ParameterizedAllocationExpression) {
+		if (expression.typeArguments != null) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2 :
 					classInstanceCreation.setFlags(ASTNode.MALFORMED);
 					break;
 				case AST.JLS3 :
-					ParameterizedAllocationExpression parameterizedAllocationExpression = (ParameterizedAllocationExpression) expression;
-					TypeReference[] typeArguments = parameterizedAllocationExpression.typeArguments;
-					if (typeArguments != null) {
-						for (int i = 0, max = typeArguments.length; i < max; i++) {
-							classInstanceCreation.typeArguments().add(convertType(typeArguments[i]));
-						}
+					for (int i = 0, max = expression.typeArguments.length; i < max; i++) {
+						classInstanceCreation.typeArguments().add(convertType(expression.typeArguments[i]));
 					}
 			}
 		}
@@ -457,18 +450,14 @@ class ASTConverter2 extends ASTConverter {
 					superConstructorInvocation.arguments().add(convert(arguments[i]));
 				}
 			}
-			if (statement instanceof ParameterizedExplicitConstructorCall) {
+			if (statement.typeArguments != null) {
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						superConstructorInvocation.setFlags(ASTNode.MALFORMED);
 						break;
 					case AST.JLS3 :
-						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
-						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
-						if (typeArguments != null) {
-							for (int i = 0, max = typeArguments.length; i < max; i++) {
-								superConstructorInvocation.typeArguments().add(convertType(typeArguments[i]));
-							}
+						for (int i = 0, max = statement.typeArguments.length; i < max; i++) {
+							superConstructorInvocation.typeArguments().add(convertType(statement.typeArguments[i]));
 						}
 				}
 			}
@@ -482,18 +471,14 @@ class ASTConverter2 extends ASTConverter {
 					constructorInvocation.arguments().add(convert(arguments[i]));
 				}
 			}
-			if (statement instanceof ParameterizedExplicitConstructorCall) {
+			if (statement.typeArguments != null) {
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						constructorInvocation.setFlags(ASTNode.MALFORMED);
 						break;
 					case AST.JLS3 :
-						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
-						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
-						if (typeArguments != null) {
-							for (int i = 0, max = typeArguments.length; i < max; i++) {
-								constructorInvocation.typeArguments().add(convertType(typeArguments[i]));
-							}
+						for (int i = 0, max = statement.typeArguments.length; i < max; i++) {
+							constructorInvocation.typeArguments().add(convertType(statement.typeArguments[i]));
 						}
 				}
 			}
@@ -573,18 +558,14 @@ class ASTConverter2 extends ASTConverter {
 				classInstanceCreation.arguments().add(argument);
 			}
 		}
-		if (allocation instanceof ParameterizedQualifiedAllocationExpression) {
+		if (allocation.typeArguments != null) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2 :
 					classInstanceCreation.setFlags(ASTNode.MALFORMED);
 					break;
 				case AST.JLS3 :
-					ParameterizedQualifiedAllocationExpression parameterizedQualifiedAllocationExpression = (ParameterizedQualifiedAllocationExpression) allocation;
-					TypeReference[] typeArguments = parameterizedQualifiedAllocationExpression.typeArguments;
-					if (typeArguments != null) {
-						for (int i = 0, max = typeArguments.length; i < max; i++) {
-							classInstanceCreation.typeArguments().add(convert(typeArguments[i]));
-						}
+					for (int i = 0, max = allocation.typeArguments.length; i < max; i++) {
+						classInstanceCreation.typeArguments().add(convert(allocation.typeArguments[i]));
 					}
 			}			
 		}

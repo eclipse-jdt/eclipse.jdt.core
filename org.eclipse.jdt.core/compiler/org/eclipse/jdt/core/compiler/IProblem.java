@@ -895,6 +895,10 @@ public interface IProblem {
 	int NonGenericMethod = TypeRelated + 550;
 	/** @since 3.1 */
 	int IncorrectArityForParameterizedMethod = TypeRelated + 551;
+	/** @since 3.1 */
+	int NonGenericConstructor = TypeRelated + 552;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedConstructor = TypeRelated + 553;
 	
 	/**
 	 * Foreach

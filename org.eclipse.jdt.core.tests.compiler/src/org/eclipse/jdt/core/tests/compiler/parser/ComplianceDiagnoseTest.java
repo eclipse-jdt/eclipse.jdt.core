@@ -45,15 +45,15 @@ public static Class testClass() {
 }
 public void runComplianceParserTest(
 	String[] testFiles,
-	String expected13ProblemeLog,
-	String expected14ProblemeLog,
-	String expected15ProblemeLog){
+	String expected13ProblemLog,
+	String expected14ProblemLog,
+	String expected15ProblemLog){
 	if(COMPLIANCE_1_3.equals(this.complianceLevel)) {
-		this.runNegativeTest(testFiles, expected13ProblemeLog);
+		this.runNegativeTest(testFiles, expected13ProblemLog);
 	} else if(COMPLIANCE_1_4.equals(this.complianceLevel)) {
-		this.runNegativeTest(testFiles, expected14ProblemeLog);
+		this.runNegativeTest(testFiles, expected14ProblemLog);
 	} else if(COMPLIANCE_1_5.equals(this.complianceLevel)) {
-		this.runNegativeTest(testFiles, expected15ProblemeLog);
+		this.runNegativeTest(testFiles, expected15ProblemLog);
 	}
 }
 public void test0001() {
@@ -64,7 +64,7 @@ public void test0001() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.BBB.*;\n" + 
@@ -76,10 +76,10 @@ public void test0001() {
 		"	              ^^^\n" + 
 		"The import aaa cannot be resolved\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.BBB.*;\n" + 
@@ -89,9 +89,9 @@ public void test0001() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0002() {
@@ -102,7 +102,7 @@ public void test0002() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.BBB.CCC;\n" + 
@@ -114,10 +114,10 @@ public void test0002() {
 		"	              ^^^\n" + 
 		"The import aaa cannot be resolved\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.BBB.CCC;\n" + 
@@ -127,9 +127,9 @@ public void test0002() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0003() {
@@ -139,24 +139,24 @@ public void test0003() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public enum X {\n" + 
 		"	       ^^^^\n" + 
 		"Syntax error on token \"enum\", interface expected\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"";
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0004() {
@@ -170,7 +170,7 @@ public void test0004() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(String o: c) {\n" + 
@@ -182,10 +182,10 @@ public void test0004() {
 		"	              ^\n" + 
 		"c cannot be resolved\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(String o: c) {\n" + 
@@ -195,9 +195,9 @@ public void test0004() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0005() {
@@ -209,7 +209,7 @@ public void test0005() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
@@ -221,10 +221,10 @@ public void test0005() {
 		"	         ^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
@@ -234,9 +234,9 @@ public void test0005() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0006() {
@@ -246,7 +246,7 @@ public void test0006() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
@@ -258,10 +258,10 @@ public void test0006() {
 		"	                                               ^\n" + 
 		"Y cannot be resolved to a type\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
@@ -271,9 +271,9 @@ public void test0006() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0007() {
@@ -283,7 +283,7 @@ public void test0007() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public interface X <T1 extends String, T2> extends Y {\n" + 
@@ -295,10 +295,10 @@ public void test0007() {
 		"	                                                   ^\n" + 
 		"Y cannot be resolved to a type\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public interface X <T1 extends String, T2> extends Y {\n" + 
@@ -308,9 +308,9 @@ public void test0007() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0008() {
@@ -322,17 +322,17 @@ public void test0008() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> int foo(){\n" + 
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type parameters are only available if source level is 1.5\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> int foo(){\n" + 
@@ -342,9 +342,9 @@ public void test0008() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0009() {
@@ -356,24 +356,24 @@ public void test0009() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> X(){\n" + 
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type parameters are only available if source level is 1.5\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"";
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0010() {
@@ -384,7 +384,7 @@ public void test0010() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z<Y1, Y2> var;\n" + 
@@ -396,10 +396,10 @@ public void test0010() {
 		"	  ^^^^^^\n" + 
 		"Syntax error, parameterized types are only available if source level is 1.5\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z<Y1, Y2> var;\n" + 
@@ -409,9 +409,9 @@ public void test0010() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0011() {
@@ -424,7 +424,7 @@ public void test0011() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	<Y1, Y2>this(null);\n" + 
@@ -433,25 +433,35 @@ public void test0011() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	<Y1, Y2>this(null);\n" + 
-		"	        ^^^^^^^^^^\n" + 
-		"The constructor X(null) is undefined\n" + 
+		"	 ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	<Y1, Y2>this(null);\n" + 
+		"	     ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	<Y1, Y2>this(null);\n" + 
-		"	        ^^^^^^^^^^\n" + 
-		"The constructor X(null) is undefined\n" + 
+		"	 ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	<Y1, Y2>this(null);\n" + 
+		"	     ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0012() {
@@ -465,7 +475,7 @@ public void test0012() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	assert true;\n" + 
@@ -477,17 +487,17 @@ public void test0012() {
 		"	^^^^^^\n" + 
 		"Syntax error on token \"assert\", AssignmentOperator expected after this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
+	String expected14ProblemLog =
 		"";
 	
-	String expected15ProblemeLog = 
-		expected14ProblemeLog;
+	String expected15ProblemLog = 
+		expected14ProblemLog;
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0013() {
@@ -499,7 +509,7 @@ public void test0013() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.*\n" + 
@@ -516,10 +526,10 @@ public void test0013() {
 		"	                  ^\n" + 
 		"Syntax error on token \"*\", ; expected after this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.*\n" + 
@@ -534,9 +544,9 @@ public void test0013() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0014() {
@@ -546,7 +556,7 @@ public void test0014() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public enum X \n" + 
@@ -554,10 +564,10 @@ public void test0014() {
 		"	       ^^^^^^^^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public enum X \n" + 
@@ -567,9 +577,9 @@ public void test0014() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0015() {
@@ -584,7 +594,7 @@ public void test0015() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(String o: c) {\n" + 
@@ -596,10 +606,10 @@ public void test0015() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
@@ -609,9 +619,9 @@ public void test0015() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0016() {
@@ -624,7 +634,7 @@ public void test0016() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
@@ -641,10 +651,10 @@ public void test0016() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
@@ -659,9 +669,9 @@ public void test0016() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0017() {
@@ -672,7 +682,7 @@ public void test0017() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
@@ -689,10 +699,10 @@ public void test0017() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
@@ -707,9 +717,9 @@ public void test0017() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0018() {
@@ -722,7 +732,7 @@ public void test0018() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> int foo(){\n" + 
@@ -734,10 +744,10 @@ public void test0018() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
@@ -747,9 +757,9 @@ public void test0018() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0019() {
@@ -761,7 +771,7 @@ public void test0019() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z<Y1, Y2> var;\n" + 
@@ -778,10 +788,10 @@ public void test0019() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z<Y1, Y2> var;\n" + 
@@ -796,9 +806,9 @@ public void test0019() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0020() {
@@ -813,7 +823,7 @@ public void test0020() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	assert true;\n" + 
@@ -830,7 +840,7 @@ public void test0020() {
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
+	String expected14ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
@@ -838,14 +848,14 @@ public void test0020() {
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
 		"----------\n";
 	
-	String expected15ProblemeLog = 
-		expected14ProblemeLog;
+	String expected15ProblemLog = 
+		expected14ProblemLog;
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 //TODO (david) suspicious behavior
@@ -858,7 +868,7 @@ public void test0021() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import staic aaa.*;\n" + 
@@ -870,10 +880,10 @@ public void test0021() {
 		"	             ^^^\n" + 
 		"Syntax error on token \"aaa\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import staic aaa.*;\n" + 
@@ -888,9 +898,9 @@ public void test0021() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 //TODO (david) suspicious behavior
@@ -903,7 +913,7 @@ public void test0022() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.*.*;\n" + 
@@ -920,10 +930,10 @@ public void test0022() {
 		"	                   ^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static aaa.*.*;\n" + 
@@ -938,9 +948,9 @@ public void test0022() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0023() {
@@ -952,17 +962,17 @@ public void test0023() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static for;\n" + 
 		"	       ^^^^^^^^^^\n" + 
 		"Syntax error on tokens, Name expected instead\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static for;\n" + 
@@ -972,9 +982,9 @@ public void test0023() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 
@@ -988,17 +998,17 @@ public void _test0024() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static {aaa};\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"Syntax error on tokens, Name expected instead\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	import static {aaa};\n" + 
@@ -1008,9 +1018,9 @@ public void _test0024() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0025() {
@@ -1022,17 +1032,17 @@ public void test0025() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	static aaa.*;\n" + 
 		"	^^^^^^\n" + 
 		"Syntax error on token \"static\", import expected\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	static aaa.*;\n" + 
@@ -1042,9 +1052,9 @@ public void test0025() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0026() {
@@ -1059,7 +1069,7 @@ public void test0026() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o ? c){\n" + 
@@ -1081,10 +1091,10 @@ public void test0026() {
 		"	                ^\n" + 
 		"Syntax error, insert \"; ; ) Statement\" to complete BlockStatements\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o ? c){\n" + 
@@ -1094,9 +1104,9 @@ public void test0026() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0027() {
@@ -1111,17 +1121,17 @@ public void test0027() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o : switch){\n" + 
 		"	           ^\n" + 
 		"Syntax error, insert \"; ; ) Statement\" to complete BlockStatements\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o : switch){\n" + 
@@ -1131,9 +1141,9 @@ public void test0027() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0028() {
@@ -1146,7 +1156,7 @@ public void test0028() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1163,10 +1173,10 @@ public void test0028() {
 		"	^\n" + 
 		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1186,9 +1196,9 @@ public void test0028() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0029() {
@@ -1201,7 +1211,7 @@ public void test0029() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1218,10 +1228,10 @@ public void test0029() {
 		"	^\n" + 
 		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1241,9 +1251,9 @@ public void test0029() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0030() {
@@ -1256,7 +1266,7 @@ public void test0030() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1273,10 +1283,10 @@ public void test0030() {
 		"	^\n" + 
 		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1296,9 +1306,9 @@ public void test0030() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0031() {
@@ -1311,7 +1321,7 @@ public void test0031() {
 		"\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1333,10 +1343,10 @@ public void test0031() {
 		"	^\n" + 
 		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X {\n" + 
@@ -1356,9 +1366,9 @@ public void test0031() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0032() {
@@ -1369,17 +1379,17 @@ public void test0032() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on token(s), misplaced construct(s)\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
@@ -1394,9 +1404,9 @@ public void test0032() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0033() {
@@ -1407,7 +1417,7 @@ public void test0033() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X T1 extends String, T2> extends Y {\n" + 
@@ -1419,10 +1429,10 @@ public void test0033() {
 		"	                          ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X T1 extends String, T2> extends Y {\n" + 
@@ -1432,9 +1442,9 @@ public void test0033() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0034() {
@@ -1445,7 +1455,7 @@ public void test0034() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extnds String, T2> extends Y {\n" + 
@@ -1472,10 +1482,10 @@ public void test0034() {
 		"	^\n" + 
 		"Syntax error, insert \"}\" to complete ClassBody\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extnds String, T2> extends Y {\n" + 
@@ -1490,9 +1500,9 @@ public void test0034() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0035() {
@@ -1503,17 +1513,17 @@ public void test0035() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends for, T2> extends Y {\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends for, T2> extends Y {\n" + 
@@ -1523,9 +1533,9 @@ public void test0035() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0036() {
@@ -1537,7 +1547,7 @@ public void test0036() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> foo(){\n" + 
@@ -1549,10 +1559,10 @@ public void test0036() {
 		"	                               ^^^^^\n" + 
 		"Return type for the method is missing\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> foo(){\n" + 
@@ -1562,9 +1572,9 @@ public void test0036() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0037() {
@@ -1576,7 +1586,7 @@ public void test0037() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extnds String, T2> int foo(){\n" + 
@@ -1593,10 +1603,10 @@ public void test0037() {
 		"	                            ^\n" + 
 		"Syntax error on token \">\", ; expected\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extnds String, T2> int foo(){\n" + 
@@ -1611,9 +1621,9 @@ public void test0037() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0038() {
@@ -1625,7 +1635,7 @@ public void test0038() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String T2> int foo(){\n" + 
@@ -1637,10 +1647,10 @@ public void test0038() {
 		"	                            ^\n" + 
 		"Syntax error on token \">\", ; expected\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String T2> int foo(){\n" + 
@@ -1650,9 +1660,9 @@ public void test0038() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0039() {
@@ -1663,7 +1673,7 @@ public void test0039() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z Y1, Y2> var;\n" + 
@@ -1675,10 +1685,10 @@ public void test0039() {
 		"	        ^\n" + 
 		"Syntax error on token \">\", , expected\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z Y1, Y2> var;\n" + 
@@ -1693,9 +1703,9 @@ public void test0039() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0040() {
@@ -1706,7 +1716,7 @@ public void test0040() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
@@ -1723,10 +1733,10 @@ public void test0040() {
 		"	       ^^\n" + 
 		"Y2 cannot be resolved to a type\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
@@ -1741,9 +1751,9 @@ public void test0040() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0041() {
@@ -1754,17 +1764,17 @@ public void test0041() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, for Y2> var;\n" + 
 		"	  ^^^^^^^^^^^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, for Y2> var;\n" + 
@@ -1774,9 +1784,9 @@ public void test0041() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 public void test0042() {
@@ -1807,7 +1817,7 @@ public void test0042() {
 		"}\n"
 	};
 	
-	String expected13ProblemeLog =
+	String expected13ProblemLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	public void run() {\n" + 
@@ -1817,10 +1827,10 @@ public void test0042() {
 		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n";
-	String expected14ProblemeLog =
-		expected13ProblemeLog;
+	String expected14ProblemLog =
+		expected13ProblemLog;
 	
-	String expected15ProblemeLog = 
+	String expected15ProblemLog = 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
@@ -1865,9 +1875,9 @@ public void test0042() {
 	
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemeLog,
-		expected14ProblemeLog,
-		expected15ProblemeLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
 	);
 }
 }

@@ -528,6 +528,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		
 		codeStream.aload_0();
 	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
 	
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	

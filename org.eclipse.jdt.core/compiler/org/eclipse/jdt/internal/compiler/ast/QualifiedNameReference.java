@@ -517,6 +517,13 @@ public class QualifiedNameReference extends NameReference {
 	public void generateReceiver(CodeStream codeStream) {
 		codeStream.aload_0();
 	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
 	
 	// get the matching codegenBinding
 	protected FieldBinding getCodegenBinding(FieldBinding fieldBinding, int index) {

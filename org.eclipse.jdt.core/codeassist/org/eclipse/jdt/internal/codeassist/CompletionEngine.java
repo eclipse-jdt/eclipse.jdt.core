@@ -135,6 +135,7 @@ public final class CompletionEngine
 	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
 	
 	static InvocationSite FakeInvocationSite = new InvocationSite(){
+		public TypeBinding[] genericTypeArguments() { return null; }
 		public boolean isSuperAccess(){ return false; }
 		public boolean isTypeAccess(){ return false; }
 		public void setActualReceiverType(ReferenceBinding receiverType) {}

@@ -31,6 +31,8 @@ public class MessageSend extends Expression implements InvocationSite {
 
 	public TypeBinding receiverType, qualifyingType;
 	public TypeBinding genericCast;
+	public TypeReference[] typeArguments;
+	public TypeBinding[] genericTypeArguments;
 	
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -116,6 +118,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+ */
+public TypeBinding[] genericTypeArguments() {
+	return this.genericTypeArguments;
+}
 public boolean isSuperAccess() {	
 	return receiver.isSuper();
 }
@@ -188,6 +196,16 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 public StringBuffer printExpression(int indent, StringBuffer output){
 	
 	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
+	if (this.typeArguments != null) {
+		output.append('<');//$NON-NLS-1$
+		int max = typeArguments.length - 1;
+		for (int j = 0; j < max; j++) {
+			typeArguments[j].print(0, output);
+			output.append(", ");//$NON-NLS-1$
+		}
+		typeArguments[max].print(0, output);
+		output.append('>');
+	}
 	output.append(selector).append('(') ; //$NON-NLS-1$
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length ; i ++) {	
@@ -215,6 +233,20 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
 		}
 	}
+	// resolve type arguments (for generic constructor call)
+	if (this.typeArguments != null) {
+		int length = this.typeArguments.length;
+		boolean argHasError = false; // typeChecks all arguments
+		this.genericTypeArguments = new TypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope)) == null) {
+				argHasError = true;
+			}
+		}
+		if (argHasError) {
+			return null;
+		}
+	}	
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
@@ -331,6 +363,11 @@ public void setFieldIndex(int depth) {
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		receiver.traverse(visitor, blockScope);
+		if (this.typeArguments != null) {
+			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+				this.typeArguments[i].traverse(visitor, blockScope);
+			}		
+		}
 		if (arguments != null) {
 			int argumentsLength = arguments.length;
 			for (int i = 0; i < argumentsLength; i++)

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -51,11 +50,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		
 		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
-		TypeBinding[] substitutes;
+		TypeBinding[] substitutes = invocationSite.genericTypeArguments();
 		
-		if (invocationSite instanceof ParameterizedMessageSend) {
-			ParameterizedMessageSend parameterizedMsg = (ParameterizedMessageSend) invocationSite;
-			substitutes = parameterizedMsg.typeArgumentTypes;
+		if (substitutes != null) {
 			if (substitutes.length != typeVariables.length) {
 		        // incompatible due to wrong arity
 		        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, TypeParameterArityMismatch);
