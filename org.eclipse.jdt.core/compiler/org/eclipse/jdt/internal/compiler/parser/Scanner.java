@@ -3032,7 +3032,7 @@ private void parseTags(NLSLine line) throws InvalidInputException {
 		currentLine = null;
 		return;
 	} 
-	wasNonExternalizedStringLiteral = true;
+	this.wasNonExternalizedStringLiteral = true;
 	if (nonNLSCounter != lineLength) {
 		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
 	}

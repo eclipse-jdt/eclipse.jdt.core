@@ -4186,8 +4186,12 @@ protected void consumeToken(int type) {
 	/* try to minimize the number of build values */
 	if (scanner.wasNonExternalizedStringLiteral) {
 		StringLiteral[] literals = this.scanner.nonNLSStrings;
-		for (int i = 0, max = literals.length; i < max; i++) {
-			problemReporter().nonExternalizedStringLiteral(literals[i]);
+		// could not reproduce, but this is the only NPE
+		// added preventive null check see PR 9035
+		if (literals != null) {
+			for (int i = 0, max = literals.length; i < max; i++) {
+				problemReporter().nonExternalizedStringLiteral(literals[i]);
+			}
 		}
 		scanner.currentLine = null;
 		scanner.wasNonExternalizedStringLiteral = false;
