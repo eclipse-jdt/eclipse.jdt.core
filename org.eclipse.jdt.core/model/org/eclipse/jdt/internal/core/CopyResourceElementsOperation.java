@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
@@ -637,17 +638,19 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			for (int i = 0, max = types.length; i < max; i++) {
 				IType currentType = types[i];
 				if (currentType.getElementName().equals(oldTypeName)) {
-					TypeDeclaration typeNode = (TypeDeclaration) ((JavaElement) currentType).findNode(astCU);
+					AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) ((JavaElement) currentType).findNode(astCU);
 					if (typeNode != null) {
 						// rename type
 						rewriter.replace(typeNode.getName(), ast.newSimpleName(newTypeName), null);
-						MethodDeclaration[] methods = typeNode.getMethods();
-						for (int j = 0, length = methods.length; j < length; j++) {
-							MethodDeclaration methodDeclaration = methods[j];
-							SimpleName methodName = methodDeclaration.getName();
-							if (methodName.getIdentifier().equals(oldTypeName)) {
-								// rename constructor
-								rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+						if (typeNode instanceof TypeDeclaration) {
+							// rename constructors
+							MethodDeclaration[] methods = ((TypeDeclaration) typeNode).getMethods();
+							for (int j = 0, length = methods.length; j < length; j++) {
+								MethodDeclaration methodDeclaration = methods[j];
+								SimpleName methodName = methodDeclaration.getName();
+								if (methodName.getIdentifier().equals(oldTypeName)) {
+									rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+								}
 							}
 						}
 					}
