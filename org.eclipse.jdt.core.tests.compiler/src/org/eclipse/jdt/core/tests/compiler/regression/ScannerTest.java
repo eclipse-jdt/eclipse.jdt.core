@@ -104,9 +104,12 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43437
 	 */
 	public void test005() {
-		String source =	"\"hello\"";
-		IScanner scanner = ToolFactory.createScanner(true, true, true, true);
-		scanner.setSource(source.toCharArray());
+		StringBuffer buf= new StringBuffer();
+		buf.append("\"Hello\"");
+		String str = buf.toString();
+		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		scanner.setSource(str.toCharArray());
+		scanner.resetTo(0, str.length() - 1);
 		int token = 0;
 		try {
 			token = scanner.getNextToken();
@@ -114,6 +117,18 @@ public class ScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}						
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43485
+	 */
+	public void test006() {
+		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		try {
+			scanner.setSource(null);
+		} catch (NullPointerException e) {
 			assertTrue(false);
 		}
 	}						
