@@ -240,7 +240,7 @@ public interface IJavaElementDelta {
 	
 	/**
 	 * Change flag indicating that a compilation unit has become a primary working copy, or that a 
-	 * primary working copy has become a compilation unit.
+	 * primary working copy has reverted to a compilation unit.
 	 * This flag is only valid if the element is an <code>ICompilationUnit</code>.
 	 * 
 	 * @since 3.0
