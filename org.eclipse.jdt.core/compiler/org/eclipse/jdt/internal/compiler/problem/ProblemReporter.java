@@ -1071,11 +1071,16 @@ public void incorrectSwitchType(Expression expression, TypeBinding testType) {
 		expression.sourceEnd);
 }
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+	StringBuffer concreteSignature = new StringBuffer();
+	concreteSignature
+		.append(concreteMethod.declaringClass.readableName())
+		.append('.')
+		.append(concreteMethod.readableName());
 	this.handle(
-		// The method %1 cannot hide the public abstract method in %2
+		// The inherited method %1 cannot hide the public abstract method in %2
 		InheritedMethodReducesVisibility,
 		new String[] {
-			new String(concreteMethod.readableName()),
+			new String(concreteSignature.toString()),
 			new String(abstractMethods[0].declaringClass.readableName())},
 		type.sourceStart(),
 		type.sourceEnd());

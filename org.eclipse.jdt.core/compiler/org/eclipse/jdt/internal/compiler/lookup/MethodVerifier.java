@@ -283,11 +283,13 @@ private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	}
 
 	MethodBinding concreteMethod = null;
-	for (int i = length; --i >= 0;)		// Remember that only one of the methods can be non-abstract
-		if (!methods[i].isAbstract()) {
-			concreteMethod = methods[i];
-			break;
-		}
+	if (!type.isInterface()){ // ignore concrete methods for interfaces
+		for (int i = length; --i >= 0;)		// Remember that only one of the methods can be non-abstract
+			if (!methods[i].isAbstract()) {
+				concreteMethod = methods[i];
+				break;
+			}
+	}
 	if (concreteMethod == null) {
 		if (this.type.isClass() && !this.type.isAbstract()) {
 			for (int i = length; --i >= 0;)
