@@ -151,7 +151,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				boolean checkLocal = true;
 				if (declaringType.superclass != null) {
 					Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
-					if (existingVariable != null && existingVariable.isValidBinding()){
+					if (existingVariable != null && this.binding != existingVariable && existingVariable.isValidBinding()){
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 						checkLocal = false; // already found a matching field
 					}
@@ -161,7 +161,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					// only corner case is: lookup of outer field through static declaringType, which isn't detected by #getBinding as lookup starts
 					// from outer scope. Subsequent static contexts are detected for free.
 					Binding existingVariable = outerScope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-					if (existingVariable != null && existingVariable.isValidBinding()
+					if (existingVariable != null && this.binding != existingVariable && existingVariable.isValidBinding()
 							&& (!(existingVariable instanceof FieldBinding)
 									|| ((FieldBinding) existingVariable).isStatic() 
 									|| !declaringType.isStatic())) {
