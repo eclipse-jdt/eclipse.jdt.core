@@ -2079,10 +2079,6 @@ class ASTConverter {
 		whileStatement.setExpression(convert(statement.condition));
 		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
 		whileStatement.setBody(convert(action));
-		if (!(action instanceof org.eclipse.jdt.internal.compiler.ast.Block)) {
-			// set the end position of the for statement on the semi-colon
-			retrieveSemiColonPosition(whileStatement);
-		}
 		return whileStatement;
 	}
 	
