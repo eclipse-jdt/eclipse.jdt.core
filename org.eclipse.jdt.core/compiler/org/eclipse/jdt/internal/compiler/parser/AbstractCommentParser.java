@@ -58,6 +58,7 @@ public abstract class AbstractCommentParser {
 	// Kind of comment parser
 	public final static int COMPIL_PARSER = 0x00000001;
 	public final static int DOM_PARSER = 0x00000002;
+	public final static int SELECTION_PARSER = 0x00000003;
 	
 	// Parse infos
 	public Scanner scanner;
@@ -83,7 +84,9 @@ public abstract class AbstractCommentParser {
 	protected int[] lineEnds;
 	
 	// Flags
-	protected boolean lineStarted = false, inlineTagStarted = false;
+	protected boolean lineStarted = false;
+	protected boolean inlineTagStarted = false;
+	protected boolean abort = false;
 	protected int kind;
 	
 	// Line pointers
@@ -95,6 +98,7 @@ public abstract class AbstractCommentParser {
 	protected int identifierLengthPtr;
 	protected int[] identifierLengthStack;
 	protected long[] identifierPositionStack;
+
 	// Ast stack
 	protected static int AstStackIncrement = 10;
 	protected int astPtr;
@@ -151,7 +155,7 @@ public abstract class AbstractCommentParser {
 			int invalidInlineTagLineEnd = -1;
 			
 			// Loop on each comment character
-			while (this.index < this.endComment) {
+			while (!abort && this.index < this.endComment) {
 				previousPosition = this.index;
 				previousChar = nextCharacter;
 				
@@ -394,6 +398,7 @@ public abstract class AbstractCommentParser {
 			Object typeRef;
 			try {
 				typeRef = parseQualifiedName(false);
+				if (this.abort) return null; // May be aborted by specialized parser
 			} catch (InvalidInputException e) {
 				break nextArg;
 			}
@@ -480,6 +485,7 @@ public abstract class AbstractCommentParser {
 			if (token == TerminalTokens.TokenNameCOMMA) {
 				// Create new argument
 				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+				if (this.abort) return null; // May be aborted by specialized parser
 				arguments.add(argument);
 				consumeToken();
 				iToken++;
@@ -493,6 +499,7 @@ public abstract class AbstractCommentParser {
 				}
 				// Create new argument
 				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+				if (this.abort) return null; // May be aborted by specialized parser
 				arguments.add(argument);
 				consumeToken();
 				return createMethodReference(receiver, arguments);
@@ -988,6 +995,7 @@ public abstract class AbstractCommentParser {
 						if (typeRef == null) {
 							typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
 							typeRef = parseQualifiedName(true);
+							if (this.abort) return false; // May be aborted by specialized parser
 							break;
 						}
 					default :
@@ -1066,6 +1074,7 @@ public abstract class AbstractCommentParser {
 		int start = this.scanner.currentPosition;
 		try {
 			Object typeRef = parseQualifiedName(true);
+			if (this.abort) return false; // May be aborted by specialized parser
 			if (typeRef == null) {
 				if (this.reportProblems)
 					this.sourceParser.problemReporter().javadocMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);

@@ -50,6 +50,8 @@ public class SelectionParser extends AssistParser {
 	
 public SelectionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
+	this.javadocParser = new SelectionJavadocParser(this);
+	this.javadocParser.checkDocComment = true;
 }
 public char[] assistIdentifier(){
 	return ((SelectionScanner)scanner).selectionIdentifier;

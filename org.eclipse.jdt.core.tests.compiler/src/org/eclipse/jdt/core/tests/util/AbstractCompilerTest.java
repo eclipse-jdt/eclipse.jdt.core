@@ -13,11 +13,13 @@ package org.eclipse.jdt.core.tests.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -139,6 +141,35 @@ public class AbstractCompilerTest extends TestCase {
 		return null;
 	}
 
+	public static Test setupSuite(Class clazz) {
+		ArrayList testClasses = new ArrayList();
+		testClasses.add(clazz);
+		return suite(clazz.getName(), RegressionTestSetup.class, testClasses);
+	}
+
+	public static Test suite(Class evaluationTestClass) {
+		TestSuite suite = new TestSuite(evaluationTestClass);
+		return suite;
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass) {
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
+			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
+		}
+		return setupSuite(evaluationTestClass);
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String complianceLevel) {
+		TestSuite suite = new TestSuite(complianceLevel);
+		List tests = buildTestsList(evaluationTestClass);
+		for (int index=0, size=tests.size(); index<size; index++) {
+			suite.addTest((Test)tests.get(index));
+		}
+		TestSuite test = new TestSuite(evaluationTestClass.getName());
+		test.addTest(new RegressionTestSetup(suite, complianceLevel));
+		return test;
+	}
+
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}
@@ -164,12 +195,16 @@ public class AbstractCompilerTest extends TestCase {
 	public String getName() {
 		String name = super.getName();
 		if (this.complianceLevel != null) {
-			name = this.complianceLevel + " - " + name;
+			name = name + " - " + this.complianceLevel;
 		}
 		return name;
 	}
 
 	public void initialize(CompilerTestSetup setUp) {
 		this.complianceLevel = setUp.complianceLevel;
+	}
+
+	protected String testName() {
+		return super.getName();
 	}
 }

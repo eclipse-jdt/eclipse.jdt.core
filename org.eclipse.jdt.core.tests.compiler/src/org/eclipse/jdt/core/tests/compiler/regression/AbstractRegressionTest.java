@@ -12,13 +12,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -410,33 +406,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			this.createdVerifier = true;
 		}
 	}
-	public static Test setupSuite(Class clazz) {
-		ArrayList testClasses = new ArrayList();
-		testClasses.add(clazz);
-		return suite(clazz.getName(), RegressionTestSetup.class, testClasses);
-	}
 	public void stop() {
 		this.verifier.shutDown();
-	}
-	public static Test suite(Class evaluationTestClass) {
-		TestSuite suite = new TestSuite(evaluationTestClass);
-		return suite;
-	}
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
-		}
-		return setupSuite(evaluationTestClass);
-	}
-	public static Test buildTestSuite(Class evaluationTestClass, String complianceLevel) {
-		TestSuite suite = new TestSuite(complianceLevel);
-		List tests = buildTestsList(evaluationTestClass);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			suite.addTest((Test)tests.get(index));
-		}
-		TestSuite test = new TestSuite(evaluationTestClass.getName());
-		test.addTest(new RegressionTestSetup(suite, complianceLevel));
-		return test;
 	}
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {

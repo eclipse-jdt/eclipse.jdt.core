@@ -205,7 +205,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 			// Write files in dir
 			IPath dirFilePath = writeFiles(testFiles);
 
-			String testName = shortTestName();
+			String testName = testName();
 			Process compileProcess = null;
 			Process execProcess = null;
 			try {
@@ -332,7 +332,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 			e.printStackTrace();
 		} finally {
 			// Clean up written file(s)
-			IPath testDir =  new Path(Util.getOutputDirectory()).append(shortTestName());
+			IPath testDir =  new Path(Util.getOutputDirectory()).append(testName());
 			cleanupDirectory(testDir.toFile());
 		}
 	}
@@ -357,25 +357,13 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	}
 
 	/*
-	 * Get short test name (without compliance info)
-	 */
-	protected String shortTestName() {
-		String fname = getName();
-		int idx = fname.indexOf(" - "); //$NON-NLS-1$
-		if (idx < 0) {
-			return fname;
-		}
-		return fname.substring(idx+3);
-	}
-
-	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
 	protected IPath writeFiles(String[] testFiles) {
 		// Compute and create specific dir
 		IPath outDir = new Path(Util.getOutputDirectory());
-		this.dirPath =  outDir.append(shortTestName());
+		this.dirPath =  outDir.append(testName());
 		File dir = this.dirPath.toFile();
 		if (!dir.exists()) {
 			dir.mkdirs();

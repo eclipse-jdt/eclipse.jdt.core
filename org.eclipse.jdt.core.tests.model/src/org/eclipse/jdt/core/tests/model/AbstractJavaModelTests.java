@@ -26,6 +26,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -34,10 +36,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * The java.io.File path to the directory that contains the external jars.
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
+
+	// working copies usage
+	protected ICompilationUnit[] workingCopies;
+	protected boolean discard;
 	
 	// infos for invalid results
 	protected int tabs = 2;
 	protected boolean displayName = false;
+	protected String endChar = ",";
 	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
@@ -65,8 +72,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	
-
-
 	/**
 	 * Delta listener
 	 */
@@ -240,7 +245,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		if (!expected.equals(buffer.toString())) {
 			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
-			System.out.println(",");
+			System.out.println(this.endChar);
 		}
 		assertEquals(
 			message,
@@ -251,7 +256,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
 		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + ",");
+			if (this.displayName) System.out.println(getName()+" expected result is:");
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -272,14 +278,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 2) + ",");
+			if (this.displayName) System.out.println(getName()+" expected result is:");
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
 	protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 		String actual = hierarchy.toString();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 2) + ",");
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
 	}
@@ -287,7 +294,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
 		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
 		if (!independantExpectedString.equals(actual)){
-		 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, this.tabs));
 		}
 		assertEquals(
 			message,
@@ -306,8 +313,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 		if (!actual.equals(expected)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
-			System.out.println(",");
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), this.tabs));
+			System.out.println(this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -371,7 +378,7 @@ protected void assertDeltas(String message, String expected) {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 2) + ",");
+			System.out.println(displayString(actual, 2) +  this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -394,7 +401,7 @@ protected void assertDeltas(String message, String expected) {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + ",");
+			System.out.println(displayString(actual, 3) + this.endChar);
 		}
 		assertEquals("Unepexeted type parameters", expected, actual);
 	}
@@ -406,7 +413,7 @@ protected void assertDeltas(String message, String expected) {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + ",");
+			System.out.println(displayString(actual, 3) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -1376,11 +1383,11 @@ protected void assertDeltas(String message, String expected) {
 	public IWorkspaceRoot getWorkspaceRoot() {
 		return getWorkspace().getRoot();
 	}
-	protected void discardWorkingCopies(ICompilationUnit[] workingCopies) throws JavaModelException {
-		if (workingCopies == null) return;
-		for (int i = 0, length = workingCopies.length; i < length; i++)
-			if (workingCopies[i] != null)
-				workingCopies[i].discardWorkingCopy();
+	protected void discardWorkingCopies(ICompilationUnit[] units) throws JavaModelException {
+		if (units == null) return;
+		for (int i = 0, length = units.length; i < length; i++)
+			if (units[i] != null)
+				units[i].discardWorkingCopy();
 	}
 	
 	protected String displayString(String toPrint, int indent) {
@@ -1498,6 +1505,233 @@ protected void assertDeltas(String message, String expected) {
 			requestor,
 			null);
 	}
+
+	/*
+	 * Selection of java elements.
+	 */
+
+	/*
+	 * Search several occurences of a selection in a compilation unit source and returns its start and length.
+	 * If occurence is negative, then perform a backward search from the end of file.
+	 * If selection starts or ends with a comment (to help identification in source), it is removed from returned selection info.
+	 */
+	int[] selectionInfo(ICompilationUnit cu, String selection, int occurences) throws JavaModelException {
+		String source = cu.getSource();
+		int index = occurences < 0 ? source.lastIndexOf(selection) : source.indexOf(selection);
+		int max = Math.abs(occurences)-1;
+		for (int n=0; index >= 0 && n<max; n++) {
+			index = occurences < 0 ? source.lastIndexOf(selection, index) : source.indexOf(selection, index+selection.length());
+		}
+		StringBuffer msg = new StringBuffer("Selection '");
+		msg.append(selection);
+		if (index >= 0) {
+			if (selection.startsWith("/**")) { // comment is before
+				int start = source.indexOf("*/", index);
+				if (start >=0) {
+					return new int[] { start+2, selection.length()-(start+2-index) };
+				} else {
+					msg.append("' starts with an unterminated comment");
+				}
+			} else if (selection.endsWith("*/")) { // comment is after
+				int end = source.lastIndexOf("/**", index+selection.length());
+				if (end >=0) {
+					return new int[] { index, index-end };
+				} else {
+					msg.append("' ends with an unstartted comment");
+				}
+			} else { // no comment => use whole selection
+				return new int[] { index, selection.length() };
+			}
+		} else {
+			msg.append("' was not found in ");
+		}
+		msg.append(cu.getElementName());
+		msg.append(":\n");
+		msg.append(source);
+		assertTrue(msg.toString(), false);
+		return null;
+	}
+
+	/**
+	 * Select a field in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IField
+	 * @throws JavaModelException
+	 */
+	protected IField selectField(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectField(unit, selection, 1);
+	}
+
+	/**
+	 * Select a field in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IField
+	 * @throws JavaModelException
+	 */
+	protected IField selectField(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (IField) selectJavaElement(unit, selection, occurences, IJavaElement.FIELD);
+	}
+
+	/**
+	 * Select a local variable in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectLocalVariable(unit, selection, 1);
+	}
+
+	/**
+	 * Select a local variable in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (ILocalVariable) selectJavaElement(unit, selection, occurences, IJavaElement.LOCAL_VARIABLE);
+	}
+
+	/**
+	 * Select a method in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IMethod
+	 * @throws JavaModelException
+	 */
+	protected IMethod selectMethod(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectMethod(unit, selection, 1);
+	}
+
+	/**
+	 * Select a method in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IMethod
+	 * @throws JavaModelException
+	 */
+	protected IMethod selectMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (IMethod) selectJavaElement(unit, selection, occurences, IJavaElement.METHOD);
+	}
+
+	/**
+	 * Select a parameterized source method in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return ParameterizedSourceMethod
+	 * @throws JavaModelException
+	 */
+	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectParameterizedMethod(unit, selection, 1);
+	}
+	
+	/**
+	 * Select a parameterized source method in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return ParameterizedSourceMethod
+	 * @throws JavaModelException
+	 */
+	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		IMethod type = selectMethod(unit, selection, occurences);
+		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ResolvedSourceMethod);
+		return (ResolvedSourceMethod) type;
+	}
+
+	/**
+	 * Select a parameterized source type in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return ParameterizedSourceType
+	 * @throws JavaModelException
+	 */
+	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectParameterizedType(unit, selection, 1);
+	}
+	
+	/**
+	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return ParameterizedSourceType
+	 * @throws JavaModelException
+	 */
+	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		IType type = selectType(unit, selection, occurences);
+		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ResolvedSourceType);
+		return (ResolvedSourceType) type;
+	}
+
+	/**
+	 * Select a type in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected IType selectType(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectType(unit, selection, 1);
+	}
+
+	/**
+	 * Select a type in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected IType selectType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (IType) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE);
+	}
+
+	/**
+	 * Select a type parameter in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectTypeParameter(unit, selection, 1);
+	}
+
+	/**
+	 * Select a type parameter in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (ITypeParameter) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE_PARAMETER);
+	}
+
+	/**
+	 * Select a java element in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * Do not allow subclasses to call this method as we want to verify IJavaElement kind.
+	 */
+	IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences, int elementType) throws JavaModelException {
+		int[] selectionPositions = selectionInfo(unit, selection, occurences);
+		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
+		assertEquals("Invalid selection number", 1, elements.length);
+		assertEquals("Invalid java element type: "+elements[0].getElementName(), elements[0].getElementType(), elementType);
+		return elements[0];
+	}
+
+	/* ************
+	 * Suite set-ups *
+	 *************/
 	/**
 	 * Sets the class path of the Java project.
 	 */
@@ -1629,6 +1863,11 @@ protected void assertDeltas(String message, String expected) {
 			getWorkspace().setDescription(description);
 		}
 	}
+	protected void setUp () throws Exception {
+		super.setUp();
+		if (discard) workingCopies = null;
+		discard = true;
+	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
 			public int compare(Object a, Object b) {
@@ -1690,6 +1929,12 @@ protected void assertDeltas(String message, String expected) {
 			result[i] = new Path(paths[i]);
 		}
 		return result;
+	}
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		if (discard && workingCopies != null) {
+			discardWorkingCopies(workingCopies);
+		}
 	}
 	/**
 	 * Wait for autobuild notification to occur

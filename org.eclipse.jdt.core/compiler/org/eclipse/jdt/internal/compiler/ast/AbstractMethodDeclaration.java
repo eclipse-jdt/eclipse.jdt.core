@@ -318,6 +318,9 @@ public abstract class AbstractMethodDeclaration
 
 	public StringBuffer print(int tab, StringBuffer output) {
 
+		if (this.javadoc != null) {
+			this.javadoc.print(tab, output);
+		}
 		printIndent(tab, output);
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) printAnnotations(this.annotations, output);

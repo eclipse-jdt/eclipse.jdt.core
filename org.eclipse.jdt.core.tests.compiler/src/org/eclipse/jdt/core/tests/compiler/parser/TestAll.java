@@ -53,6 +53,7 @@ public class TestAll extends TestCase {
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
 		testClasses.add(SelectionTest.class);
 		testClasses.add(SelectionTest2.class);
+		testClasses.add(SelectionJavadocTest.class);
 		testClasses.add(GenericsSelectionTest.class);
 		testClasses.add(AnnotationSelectionTest.class);
 		testClasses.add(EnumSelectionTest.class);

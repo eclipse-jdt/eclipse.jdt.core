@@ -520,6 +520,24 @@ public static int getFreePort() {
 	}
 	return -1;
 }
+public static String indentString(String inputString, int indent) {
+	if (inputString == null)
+		return "";
+	int length = inputString.length();
+	StringBuffer buffer = new StringBuffer(length);
+	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
+	StringBuffer indentStr = new StringBuffer(indent);
+	for (int i = 0; i < indent; i++) indentStr.append("\t");
+	buffer.append(indentStr);
+	while (tokenizer.hasMoreTokens()){
+		String token = tokenizer.nextToken();
+		buffer.append(token);
+		if (token.equals("\r") || token.equals("\n")) {
+			buffer.append(indentStr);
+		}
+	}
+	return buffer.toString();
+}
 /**
  * Makes the given path a path using native path separators as returned by File.getPath()
  * and trimming any extra slash.

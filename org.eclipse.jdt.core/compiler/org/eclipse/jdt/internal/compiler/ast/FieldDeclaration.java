@@ -141,7 +141,14 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			return this.binding.isStatic();
 		return (this.modifiers & AccStatic) != 0;
 	}
-	
+
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		if (this.javadoc != null) {
+			this.javadoc.print(indent, output);
+		}
+		return super.printStatement(indent, output);
+	}
+
 	public void resolve(MethodScope initializationScope) {
 
 		// the two <constant = Constant.NotAConstant> could be regrouped into

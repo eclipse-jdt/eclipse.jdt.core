@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractASTTests extends ModifyingResourceTests {
 
-	ICompilationUnit[] workingCopies;
+//	ICompilationUnit[] workingCopies;
 
 	public AbstractASTTests(String name) {
 		super(name);
@@ -306,9 +306,9 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return requestor.getBindings(bindingKeys);
 	}
 	
-	protected void tearDown() throws Exception {
-		discardWorkingCopies(this.workingCopies);
-		this.workingCopies = null;
-	}
+//	protected void tearDown() throws Exception {
+//		discardWorkingCopies(this.workingCopies);
+//		this.workingCopies = null;
+//	}
 	
 }

@@ -47,6 +47,17 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Code select now works into Javadoc comment wherever a reference can be specified
+(ie. @see, @link, @linkplain, @throws, @exception, @param or @value tags)<br>
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54968">54968</a>).<br>
+For example, hit F3 with cursor located in <code>MyClass</code>, in following Javadoc comment:
+<pre>
+/**
+ * @see MyClass This is my class
+ */
+</pre>
+will open editor on MyClass.java file.
+</li>
 <li>New CodeSelect feature: Code select return an element if the selection is an enum constant inside a switch label.
 <pre>
 Colors c;
@@ -85,8 +96,11 @@ public class CompletionRequestor {
 </pre>
 </li>
 </ul>
+
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85379">85379</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54968">54968</a>
+[javadoc][select] ICodeAssist#codeSelect doesn't work for member references in javadoc
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85379">85379</a>
 [1.5][select][enum] Code resolve on enum in switch
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88429">88429</a>
 Redundant information in SourceMethodElementInfo

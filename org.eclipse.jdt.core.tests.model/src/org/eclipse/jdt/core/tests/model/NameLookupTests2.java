@@ -132,7 +132,8 @@ public void testAddPackageFragment2() throws CoreException {
  * (regression test for bug 63245 findPackageFragment won't return default package)
  */
 public void testDuplicateTypesInWorkingCopies() throws CoreException {
-	ICompilationUnit[] workingCopies = new ICompilationUnit[3];
+//	ICompilationUnit[] workingCopies = new ICompilationUnit[3];
+	this.workingCopies = new ICompilationUnit[3];
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P");
 		workingCopies[0] = getWorkingCopy(
@@ -164,7 +165,7 @@ public void testDuplicateTypesInWorkingCopies() throws CoreException {
 			new IType[] {type}
 		);
 	} finally {
-		discardWorkingCopies(workingCopies);
+//		discardWorkingCopies(workingCopies);
 		deleteProject("P");
 	}
 }

@@ -367,7 +367,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			int nextCharacterPosition = selectionStart;
 			char currentCharacter = ' ';
 			try {
-				while(currentPosition > 0){
+				lineLoop: while(currentPosition > 0){
 					
 					if(source[currentPosition] == '\\' && source[currentPosition+1] == 'u') {
 						int pos = currentPosition + 2;
@@ -393,8 +393,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						nextCharacterPosition = currentPosition+1;
 					}
 					
-					if(currentCharacter == '\r' || currentCharacter == '\n') {
-						break;
+					switch(currentCharacter) {
+						case '\r':
+						case '\n':
+						case '/':
+							break lineLoop;
 					}
 					currentPosition--;
 				}
@@ -410,14 +413,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				} catch (InvalidInputException e) {
 					return false;
 				}
-				if((token == TerminalTokens.TokenNamethis ||
-					token == TerminalTokens.TokenNamesuper ||
-					token == TerminalTokens.TokenNameIdentifier) &&
-					scanner.startPosition <= selectionStart &&
-					selectionStart <= scanner.currentPosition) {
-					lastIdentifierStart = scanner.startPosition;
-					lastIdentifierEnd = scanner.currentPosition - 1;
-					lastIdentifier = scanner.getCurrentTokenSource();
+				switch (token) {
+					case TerminalTokens.TokenNamethis:
+					case TerminalTokens.TokenNamesuper:
+					case TerminalTokens.TokenNameIdentifier:
+						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
+							lastIdentifierStart = scanner.startPosition;
+							lastIdentifierEnd = scanner.currentPosition - 1;
+							lastIdentifier = scanner.getCurrentTokenSource();
+						}
+						break;
 				}
 			} while (token != TerminalTokens.TokenNameEOF);
 		} else {
@@ -642,8 +647,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			System.out.println("SELECTION - Source :"); //$NON-NLS-1$
 			System.out.println(source);
 		}
-		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd))
+		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd)) {
 			return;
+		}
+		if (DEBUG) {
+			System.out.print("SELECTION - Checked : \""); //$NON-NLS-1$
+			System.out.print(new String(source, actualSelectionStart, actualSelectionEnd-actualSelectionStart+1));
+			System.out.println('"');
+		}
 		try {
 			this.acceptedAnswer = false;
 			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);

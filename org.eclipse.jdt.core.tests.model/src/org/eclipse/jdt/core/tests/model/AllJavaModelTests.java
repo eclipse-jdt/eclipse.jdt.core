@@ -44,6 +44,7 @@ static Class[] getAllTestClasses() {
 		ExistenceTests.class,
 		ResolveTests.class,
 		ResolveTests_1_5.class,
+		SelectionJavadocModelTests.class,
 		CompletionTests.class,
 		CompletionTests2.class,
 		CompletionTests_1_5.class,

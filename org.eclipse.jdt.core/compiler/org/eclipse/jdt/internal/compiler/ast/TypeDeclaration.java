@@ -848,6 +848,9 @@ public class TypeDeclaration
 
 	public StringBuffer print(int indent, StringBuffer output) {
 
+		if (this.javadoc != null) {
+			this.javadoc.print(indent, output);
+		}
 		if ((this.bits & IsAnonymousTypeMASK) == 0) {
 			printIndent(indent, output);
 			printHeader(0, output);

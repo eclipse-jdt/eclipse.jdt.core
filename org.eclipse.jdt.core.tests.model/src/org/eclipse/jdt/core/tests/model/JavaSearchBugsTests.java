@@ -90,41 +90,38 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		super.setUp();
 		resultCollector.showAccuracy = true;
 	}
+
 	/**
 	 * Bug 41018: Method reference not found
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018"
 	 */
 	public void testBug41018() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
-		try {
-			workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b41018/A.java",
-				"package b41018;\n" +
-				"public class A {\n" + 
-				"	protected void anotherMethod() {\n" + 
-				"		methodA(null);\n" + 
-				"	}\n" + 
-				"	private Object methodA(ClassB.InnerInterface arg3) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"class ClassB implements InterfaceB {\n" + 
-				"}\n" + 
-				"interface InterfaceB {\n" + 
-				"	interface InnerInterface {\n" + 
-				"	}\n" + 
-				"}\n"
-				);
-			IType type = workingCopies[0].getType("A");
-			IMethod method = type.getMethod("methodA", new String[] { "QClassB.InnerInterface;" });
-			search(method, REFERENCES);
-			assertSearchResults(
-				"src/b41018/A.java void b41018.A.anotherMethod() [methodA(null)] EXACT_MATCH"
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b41018/A.java",
+			"package b41018;\n" +
+			"public class A {\n" + 
+			"	protected void anotherMethod() {\n" + 
+			"		methodA(null);\n" + 
+			"	}\n" + 
+			"	private Object methodA(ClassB.InnerInterface arg3) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class ClassB implements InterfaceB {\n" + 
+			"}\n" + 
+			"interface InterfaceB {\n" + 
+			"	interface InnerInterface {\n" + 
+			"	}\n" + 
+			"}\n"
 			);
-		}
-		finally {
-			discardWorkingCopies(workingCopies);
-		}
+		IType type = workingCopies[0].getType("A");
+		IMethod method = type.getMethod("methodA", new String[] { "QClassB.InnerInterface;" });
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b41018/A.java void b41018.A.anotherMethod() [methodA(null)] EXACT_MATCH"
+		);
 	}
+
 	/**
 	 * Bug 70827: [Search] wrong reference match to private method of supertype
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827"

@@ -250,7 +250,7 @@ public class JavadocParser extends AbstractCommentParser {
 			}
 		}
 		catch (ClassCastException ex) {
-				throw new InvalidInputException();
+			throw new InvalidInputException();
 		}
 	}
 	/* (non-Javadoc)
