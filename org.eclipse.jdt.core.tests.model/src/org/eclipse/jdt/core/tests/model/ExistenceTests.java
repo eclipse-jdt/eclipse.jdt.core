@@ -11,11 +11,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.tests.model.*;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {
@@ -25,13 +27,7 @@ public ExistenceTests(String name) {
 
 
 public static Test suite() {
-	TestSuite suite = new Suite(ExistenceTests.class.getName());
-	
-	suite.addTest(new ExistenceTests("testClassFileInSource"));
-	suite.addTest(new ExistenceTests("testClassFileInLibrary"));
-	suite.addTest(new ExistenceTests("testClassFileInBinary"));
-	
-	return suite;
+	return new Suite(ExistenceTests.class);
 }
 
 public void testClassFileInBinary() throws CoreException {
@@ -61,7 +57,28 @@ public void testClassFileInSource() throws CoreException {
 		IClassFile classFile = this.getClassFile("P/src/X.class");
 		// for now, we don't check the kind (source or library), 
 		// so class file can exist in source folder
-		assertTrue(classFile.exists()); 
+		assertTrue("Class file should exist", classFile.exists()); 
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that a package fragment root that is not on the classpath cannot be opened. */
+public void testPkgFragmentRootNotInClasspath() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		IFolder folder = this.createFolder("/P/otherRoot");
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(folder);
+		assertTrue("Root should not exist", !root.exists());
+		boolean gotException = false;
+		try {
+			root.open(null);
+		} catch (JavaModelException e) {
+			if (e.isDoesNotExist()) {
+				gotException = true;
+			}
+		}
+		assertTrue("Should not be able to open root", gotException);
 	} finally {
 		this.deleteProject("P");
 	}
