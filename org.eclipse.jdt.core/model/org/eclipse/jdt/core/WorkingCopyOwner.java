@@ -43,6 +43,7 @@ public abstract class WorkingCopyOwner {
 	 * @see IBuffer
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
+		// TODO: (jerome) default implementation should always return an internal buffer instance so as to allow subsequent owner to reach them (factory should only be used on primary owner)
 		if (this.factory == null) {
 			return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
 		} else {
