@@ -17,8 +17,8 @@ package org.eclipse.jdt.internal.core;
  */
 public class SelectedBinaryType extends BinaryType {
 	
-	String uniqueKey;
-	boolean partialSelection;
+	public String uniqueKey;
+	public boolean partialSelection;
 	
 	/*
 	 * See class comments.
@@ -27,7 +27,6 @@ public class SelectedBinaryType extends BinaryType {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
 		this.partialSelection = partialSelection;
-	
 	}
 
 }
