@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 
 public final class HashtableOfPackage {

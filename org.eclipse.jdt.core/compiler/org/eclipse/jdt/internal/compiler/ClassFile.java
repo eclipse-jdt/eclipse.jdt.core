@@ -11,15 +11,19 @@
 package org.eclipse.jdt.internal.compiler;
 
 import java.io.*;
-import java.util.*;
+import java.util.StringTokenizer;
 
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Represents a class file wrapper on bytes, it is aware of its actual
