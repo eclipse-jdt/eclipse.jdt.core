@@ -5218,7 +5218,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	// parameterized message send
+	// parameterized message send - variation on 184 with non-static generic method
 	public void test185() {
 		this.runConformTest(
 			new String[] {
@@ -5235,7 +5235,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}			
-	// parameterized message send
+	// message send parameterized with type not matching parameter bounds
 	public void test186() {
 		this.runNegativeTest(
 			new String[] {
