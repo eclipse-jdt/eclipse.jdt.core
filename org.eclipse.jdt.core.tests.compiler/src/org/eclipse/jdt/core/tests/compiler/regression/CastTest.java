@@ -62,19 +62,28 @@ public void test001() {
 	}
 
 	String expectedOutput =
-		"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+		"  /* Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"   * Stack: 2, Locals: 3\n" + 
+		"   */\n" + 
 		"  public static void main(String[] args);\n" + 
-		"    /* Stack: 2, Locals: 3 */\n" + 
-		"    Code attribute:\n" + 
-		"       0  iconst_0\n" + 
-		"       1  newarray #10 int\n" + 
-		"       3  astore_1\n" + 
-		"       4  aload_1\n" + 
-		"       5  astore_2\n" + 
-		"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"       9  ldc #23 <String \"SUCCESS\">\n" + 
-		"      11  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"      14  return\n";
+		"     0  iconst_0\n" + 
+		"     1  newarray #10 int\n" + 
+		"     3  astore_1\n" + 
+		"     4  aload_1\n" + 
+		"     5  astore_2\n" + 
+		"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"     9  ldc #23 <String \"SUCCESS\">\n" + 
+		"    11  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
+		"    14  return\n" + 
+		"  Line numbers:\n" + 
+		"    [pc: 0, line: 3]\n" + 
+		"    [pc: 4, line: 4]\n" + 
+		"    [pc: 6, line: 5]\n" + 
+		"    [pc: 14, line: 6]\n" + 
+		"  Local variable table:\n" + 
+		"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+		"    [pc: 4, pc: 15] local: c1 index: 1 type: java.lang.Cloneable\n" + 
+		"    [pc: 6, pc: 15] local: c2 index: 2 type: java/lang/Cloneable\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
