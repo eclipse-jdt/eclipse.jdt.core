@@ -477,6 +477,10 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	import p2.*;\n" + 
+		"	       ^^\n" + 
+		"The import p2 is never used\n" + 
 		"----------\n"
 	);
 }

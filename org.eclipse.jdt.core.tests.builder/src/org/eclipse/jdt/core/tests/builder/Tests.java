@@ -239,31 +239,37 @@ public class Tests extends TestCase {
 	/** Verifies that the given element has specifics problems and
 	 * only the given problems.
 	 */
-	protected void expectingOnlySpecificProblemsFor(IPath root, Problem[] problems){
-		if(DEBUG)
-			printProblemsFor(root);
+	protected void expectingOnlySpecificProblemsFor(IPath root, Problem[] expectedProblems){
+
+		StringBuffer expectation = new StringBuffer(20);
+		for (int k = 0; k < expectedProblems.length; k++){
+			expectation.append("\tnew Problem(\"");
+			expectation.append(expectedProblems[k].getLocation());
+			expectation.append("\", \"");
+			expectation.append(expectedProblems[k].getMessage());
+			expectation.append("\", new Path(\"");
+			expectation.append(expectedProblems[k].getResourcePath());
+			expectation.append("\"))\n");				
+		}
+		String expectationString = expectation.toString();
 		
+		StringBuffer actual = new StringBuffer(20);
 		Problem[] rootProblems = env.getProblemsFor(root);
-				
-		next : for (int i = 0; i < problems.length; i++) {
-			Problem problem = problems[i];
-			for (int j = 0; j < rootProblems.length; j++) {
-				Problem rootProblem = rootProblems[j];
-				if(rootProblem != null){
-					if(problem.equals(rootProblem)){
-						rootProblems[j] = null;
-						continue next;
-					}
-				}
-			}
-			assertTrue("missing expected problem : "+ problem, false);
+		for (int k = 0; k < rootProblems.length; k++){
+			actual.append("\tnew Problem(\"");
+			actual.append(rootProblems[k].getLocation());
+			actual.append("\", \"");
+			actual.append(rootProblems[k].getMessage());
+			actual.append("\", new Path(\"");
+			actual.append(rootProblems[k].getResourcePath());
+			actual.append("\"))\n");				
 		}
+		String actualString = actual.toString();
 		
-		for (int i = 0; i < rootProblems.length; i++) {
-			if(rootProblems[i] != null) {
-				assertTrue("unexpected problem : "+ rootProblems[i], false);
-			}
-		}
+		if (!actualString.equals(expectationString)) {
+			System.out.println(actualString);
+		}		
+		assertEquals("unexpected problems", expectationString, actualString);
 	}
 	
 	/** Verifies that the given element has problems.

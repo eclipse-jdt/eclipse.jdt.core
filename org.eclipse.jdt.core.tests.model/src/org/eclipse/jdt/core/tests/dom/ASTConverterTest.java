@@ -6130,8 +6130,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong msg size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong pb size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;
@@ -9185,7 +9185,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("problems found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
 		List imports = compilationUnit.imports();
 		assertEquals("wrong size", 1, imports.size()); //$NON-NLS-1$
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
