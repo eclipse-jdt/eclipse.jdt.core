@@ -85,7 +85,7 @@ public static Test suite() {
 	suite.addTest(SnippetCompletionTests.suite());
 	
 	// Prefix and suffix tests
-	suite.addTest(NameComputerTests.suite());
+	suite.addTest(NamingConventionTests.suite());
 	
 	// Options tests
 	suite.addTest(OptionTests.suite());

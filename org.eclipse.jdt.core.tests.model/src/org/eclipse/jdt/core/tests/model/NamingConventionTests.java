@@ -16,22 +16,22 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.NameComputer;
+import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 
-public class NameComputerTests extends AbstractJavaModelTests {
+public class NamingConventionTests extends AbstractJavaModelTests {
 
 IJavaProject project;
 
-public NameComputerTests(String name) {
+public NamingConventionTests(String name) {
 	super(name);
 }
 
 public static Test suite() {
-	return new Suite(NameComputerTests.class);
+	return new Suite(NamingConventionTests.class);
 }
 /**
  * Setup for the next test.
@@ -64,7 +64,7 @@ private String toString(char[][] suggestions) {
 	return buffer.toString();
 }
 public void testSuggestFieldName001() throws CoreException {
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -78,7 +78,7 @@ public void testSuggestFieldName001() throws CoreException {
 		toString(suggestions));
 }
 public void testSuggestFieldName002() throws CoreException {
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneClass".toCharArray(), //$NON-NLS-1$
@@ -96,7 +96,7 @@ public void testSuggestFieldName003() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -117,7 +117,7 @@ public void testSuggestFieldName004() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"_"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -140,7 +140,7 @@ public void testSuggestFieldName005() throws CoreException {
 	options.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES,"fg"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -164,7 +164,7 @@ public void testSuggestFieldName006() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -188,7 +188,7 @@ public void testSuggestFieldName007() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"int".toCharArray(), //$NON-NLS-1$
@@ -204,7 +204,7 @@ public void testSuggestFieldName007() throws CoreException {
 		toString(suggestions));
 }
 public void testSuggestFieldName008() throws CoreException {
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -225,7 +225,7 @@ public void testSuggestFieldName009() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -249,7 +249,7 @@ public void testSuggestFieldName010() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[][] suggestions = NameComputer.suggestFieldNames(
+	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
@@ -273,7 +273,7 @@ public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] name = NameComputer.removePrefixAndSuffixForFieldName(
+	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
 		project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		0);
@@ -293,7 +293,7 @@ public void testRemovePrefixAndSuffixForFieldName002() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] name = NameComputer.removePrefixAndSuffixForFieldName(
+	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
 		project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		Flags.AccStatic);
@@ -313,7 +313,7 @@ public void testRemovePrefixAndSuffixForFieldName003() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] name = NameComputer.removePrefixAndSuffixForFieldName(
+	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
 		project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		0);
@@ -326,7 +326,7 @@ public void testRemovePrefixAndSuffixForFieldName003() throws CoreException {
 		new String(name));
 }
 public void testSuggestGetterName001() throws CoreException {
-	char[] suggestion = NameComputer.suggestGetterName(
+	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"fieldName".toCharArray(), //$NON-NLS-1$
 		0,
@@ -338,7 +338,7 @@ public void testSuggestGetterName001() throws CoreException {
 		new String(suggestion));
 }
 public void testSuggestGetterName002() throws CoreException {
-	char[] suggestion = NameComputer.suggestGetterName(
+	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"FieldName".toCharArray(), //$NON-NLS-1$
 		0,
@@ -357,7 +357,7 @@ public void testSuggestGetterName003() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] suggestion = NameComputer.suggestGetterName(
+	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"preFieldName".toCharArray(), //$NON-NLS-1$
 		0,
@@ -379,7 +379,7 @@ public void testSuggestGetterName004() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] suggestion = NameComputer.suggestGetterName(
+	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"preFieldNamesuf".toCharArray(), //$NON-NLS-1$
 		0,
@@ -401,7 +401,7 @@ public void testSuggestGetterName005() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 	
-	char[] suggestion = NameComputer.suggestGetterName(
+	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"preFieldNamesuf".toCharArray(), //$NON-NLS-1$
 		0,

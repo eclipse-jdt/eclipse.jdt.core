@@ -12,10 +12,12 @@ package org.eclipse.jdt.core;
 
 import java.util.Map;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Provides methods for computing Java-specific names.
@@ -24,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * instantiated or subclassed by clients.
  * </p>
  */
-public final class NameComputer {
+public final class NamingConventions {
 	private static final char[] GETTER_BOOL_NAME = "is".toCharArray(); //$NON-NLS-1$
 	private static final char[] GETTER_NAME = "get".toCharArray(); //$NON-NLS-1$
 	private static final char[] SETTER_NAME = "set".toCharArray(); //$NON-NLS-1$
@@ -32,7 +34,7 @@ public final class NameComputer {
 	/**
 	 * Not instantiable.
 	 */
-	private NameComputer() {}
+	private NamingConventions() {}
 	
 	private static char[] computeBaseNames(char firstName, char[][] prefixes, char[][] excludedNames){
 		char[] name = new char[]{firstName};
@@ -291,14 +293,14 @@ public final class NameComputer {
 		try{
 			nameScanner.setSource(typeName);
 			switch (nameScanner.getNextToken()) {
-				case ITerminalSymbols.TokenNameint :
-				case ITerminalSymbols.TokenNamebyte :
-				case ITerminalSymbols.TokenNameshort :
-				case ITerminalSymbols.TokenNamechar :
-				case ITerminalSymbols.TokenNamelong :
-				case ITerminalSymbols.TokenNamefloat :
-				case ITerminalSymbols.TokenNamedouble :
-				case ITerminalSymbols.TokenNameboolean :	
+				case TerminalTokens.TokenNameint :
+				case TerminalTokens.TokenNamebyte :
+				case TerminalTokens.TokenNameshort :
+				case TerminalTokens.TokenNamechar :
+				case TerminalTokens.TokenNamelong :
+				case TerminalTokens.TokenNamefloat :
+				case TerminalTokens.TokenNamedouble :
+				case TerminalTokens.TokenNameboolean :	
 					char[] name = computeBaseNames(typeName[0], prefixes, excludedNames);
 					if(name != null) {
 						tempNames =  new char[][]{name};

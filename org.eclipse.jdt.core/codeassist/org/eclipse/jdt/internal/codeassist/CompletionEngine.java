@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.NameComputer;
+import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -2625,7 +2625,7 @@ public final class CompletionEngine
 		char[][] names = CharOperation.NO_CHAR_CHAR;
 		switch (kind) {
 			case FIELD :
-				names = NameComputer.suggestFieldNames(
+				names = NamingConventions.suggestFieldNames(
 					javaProject,
 					qualifiedPackageName,
 					qualifiedSourceName,
@@ -2634,7 +2634,7 @@ public final class CompletionEngine
 					excludeNames);
 				break;
 			case LOCAL :
-				names = NameComputer.suggestLocalVariableNames(
+				names = NamingConventions.suggestLocalVariableNames(
 					javaProject,
 					qualifiedPackageName,
 					qualifiedSourceName,
@@ -2642,7 +2642,7 @@ public final class CompletionEngine
 					excludeNames);
 				break;
 			case ARGUMENT :
-				names = NameComputer.suggestArgumentNames(
+				names = NamingConventions.suggestArgumentNames(
 					javaProject,
 					qualifiedPackageName,
 					qualifiedSourceName,
