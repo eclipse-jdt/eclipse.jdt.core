@@ -157,13 +157,17 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
-					if (VERBOSE)
-						JobManager.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-					rebuildIndex(indexName, path);
-					return null;
+					if (currentIndexState != REBUILDING_STATE) { // rebuild index if existing file is corrupt, unless the index is already being rebuilt
+						if (VERBOSE)
+							JobManager.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+						rebuildIndex(indexName, path);
+						return null;
+					} else {
+						index = null; // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
+					}
 				}
 			}
-			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing or corrupt
+			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing
 				rebuildIndex(indexName, path);
 				return null;
 			}
