@@ -11306,7 +11306,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"			}\n" + 
 				"		}\n" + 
 				"		A<Long> a = new A<Long>() {\n" + 
-				"			Long get() {\n" + // TODO (kent) should not issue warning for unchecked conversion
+				"			Long get() {\n" +
 				"				return new Long(5);\n" + 
 				"			}\n" + 
 				"		};\n" + 
@@ -11318,11 +11318,6 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 11)\n" + 
-			"	Long get() {\n" + 
-			"	^^^^\n" + 
-			"Type safety: The return type Long of the method get() of type new A<Long>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
 			"----------\n");
 	}		
 

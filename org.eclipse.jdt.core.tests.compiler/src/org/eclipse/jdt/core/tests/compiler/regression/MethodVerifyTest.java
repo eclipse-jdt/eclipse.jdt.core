@@ -1157,4 +1157,102 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			// name clash: <E>m(E) in C and m(java.lang.Object) in B have the same erasure, yet neither overrides the other
 		);
 	}
+
+	public void test025() { // 81618
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new B().test();\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {\n" + 
+				"	<T extends Number> T test() { return null; }\n" + 
+				"}\n" +
+				"class B extends A {\n" + 
+				"	Integer test() { return 1; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	Integer test() { return 1; }\n" + 
+			"	^^^^^^^\n" + 
+			"Type safety: The return type Integer of the method test() of type B needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"----------\n"
+			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new B().test();\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {\n" + 
+				"	<T extends Number> T[] test() { return null; }\n" + 
+				"}\n" +
+				"class B extends A {\n" + 
+				"	Integer[] test() { return new Integer[] {2}; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	Integer[] test() { return new Integer[] {2}; }\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: The return type Integer[] of the method test() of type B needs unchecked conversion to conform to the return type T[] of inherited method\n" + 
+			"----------\n"
+			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new B().<Integer>test(new Integer(1)));\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {\n" + 
+				"	<T> T test(T t) { return null; }\n" + 
+				"}\n" +
+				"class B extends A {\n" + 
+				"	<T> T test(T t) { return t; }\n" + 
+				"}\n"
+			},
+			"1"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new B().<Number>test(1));\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A<T> {\n" + 
+				"	<U> T test(U u) { return null; }\n" + 
+				"}\n" +
+				"class B extends A<Integer> {\n" + 
+				"	<U> Integer test(U u) { return 1; }\n" + 
+				"}\n"
+			},
+			"1"
+		);
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.util.concurrent.Callable;\n" + 
+				"public class A {\n" + 
+				"	public static void main(String[] args) throws Exception {\n" + 
+				"		Callable<Integer> integerCallable = new Callable<Integer>() {\n" + 
+				"			public Integer call() { return new Integer(1); }\n" + 
+				"		};\n" + 
+				"		System.out.println(integerCallable.call());\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"1"
+		);
+	}
 }
