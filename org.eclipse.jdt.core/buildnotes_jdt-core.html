@@ -63,6 +63,14 @@ Corresponding problem ID is IProblem.MissingSerialVersion.
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "warning"
 </pre>
+<li>Added <code>isConstructor()</code> and <code>isSynthetic()</code> getters to MethodReferenceMatch.
+<br>
+When a search requestor (<code>SearchRequestor</code>) accepts this kind of match,
+it can now distinguish between method and constructor reference matches. It can also know
+if a constructor reference match is a default constructor or use an implicit super call.
+<br>
+Note that synthetic method reference match is not supported yet.
+</li>
 <li>Once 1.5 source compliance is enabled, the typecheck rules for conditional operator (a ? b : c) 
 allows scenario where 'b' and 'c' have a common supertype (i.e. it is no longer required for
 one to be assignable to the other as in the past). This is required by JLS 3rd edition.
