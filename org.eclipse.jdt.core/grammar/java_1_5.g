@@ -1275,7 +1275,7 @@ ShiftExpression ::= ShiftExpression '>>>' AdditiveExpression
 /:$readableName Expression:/
 
 RelationalExpression -> ShiftExpression
-RelationalExpression ::= ShiftExpression '<'  ShiftExpression
+RelationalExpression ::= RelationalExpression '<'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS); $break ./
 RelationalExpression ::= RelationalExpression '>'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER); $break ./

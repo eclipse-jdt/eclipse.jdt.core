@@ -4620,7 +4620,7 @@ protected void consumeRule(int act) {
 		    consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT);  
 			break;
  
-    case 391 : if (DEBUG) { System.out.println("RelationalExpression ::= ShiftExpression LESS..."); }  //$NON-NLS-1$
+    case 391 : if (DEBUG) { System.out.println("RelationalExpression ::= RelationalExpression LESS..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.LESS);  
 			break;
  
