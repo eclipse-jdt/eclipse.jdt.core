@@ -418,7 +418,14 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	SelectionEngine engine = 
 		new SelectionEngine(environment, requestor, this.getJavaProject().getOptions(true));
 		
-	engine.selectType(info, typeName.toCharArray(), false);
+ 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
+ 	int length = topLevelTypes.length;
+ 	ISourceType[] topLevelInfos = new ISourceType[length];
+ 	for (int i = 0; i < length; i++) {
+		topLevelInfos[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
+	}
+		
+	engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
 	return requestor.answers;
 }
 /**

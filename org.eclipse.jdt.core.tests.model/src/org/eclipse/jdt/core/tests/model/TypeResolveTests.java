@@ -75,6 +75,18 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 /**
+ * Resolve the type "B" within one of the secondary types.
+ * (regression test for bug 23829 IType::resolveType incorrectly returns null)
+ */
+public void testResolveInSecondaryType() throws JavaModelException {
+	IType type = this.getCompilationUnit("/TypeResolve/src/p3/B.java").getType("Test");
+	String[][] types = type.resolveType("B");
+	assertEquals(
+		"Unexpected result", 
+		"p3.B",
+		this.resultToString(types));	
+}
+/**
  * Resolve the type "B" within one of its inner classes.
  */
 public void testResolveMemberTypeInInner() throws JavaModelException {

@@ -577,10 +577,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *      a type name which is to be resolved in the context of a compilation unit.
 	 *		NOTE: the type name is supposed to be correctly reduced (no whitespaces, no unicodes left)
 	 * 
+	 * @param topLevelTypes org.eclipse.jdt.internal.compiler.env.ISourceType[]
+	 *      a source form of the top level types of the compilation unit in which code assist is invoked.
+
 	 *  @param searchInEnvironment
 	 * 	if <code>true</code> and no selection could be found in context then search type in environment.
 	 */
-	public void selectType(ISourceType sourceType, char[] typeName, boolean searchInEnvironment) {
+	public void selectType(ISourceType sourceType, char[] typeName, ISourceType[] topLevelTypes, boolean searchInEnvironment) {
 		try {
 			acceptedAnswer = false;
 
@@ -596,7 +599,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			CompilationUnitDeclaration parsedUnit =
 				SourceTypeConverter
 					.buildCompilationUnit(
-						new ISourceType[] { outerType },
+						topLevelTypes,
 						false,
 			// don't need field and methods
 			true, // by default get member types
