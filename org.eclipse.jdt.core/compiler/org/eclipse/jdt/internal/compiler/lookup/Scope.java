@@ -1225,12 +1225,7 @@ public abstract class Scope
 		do {
 			if (scope instanceof MethodScope) {
 				MethodScope methodScope = (MethodScope) scope;
-				ReferenceContext refContext = methodScope.referenceContext;
-				if (refContext instanceof TypeDeclaration
-						&& ((TypeDeclaration)refContext).binding == field.declaringClass
-						&& methodScope.fieldDeclarationIndex == field.id) {
-					return true;
-				}
+				if (methodScope.initializedField == field) return true;
 			}
 			scope = scope.parent;
 		} while (scope != null);
@@ -1283,16 +1278,8 @@ public abstract class Scope
 					SourceTypeBinding type = ((BlockScope)this).referenceType().binding;
 
 					// inside field declaration ? check field modifier to see if deprecated
-					if (methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl) {
-						for (int i = 0; i < type.fields.length; i++){
-							if (type.fields[i].id == methodScope.fieldDeclarationIndex) {
-								// currently inside this field initialization
-								if (type.fields[i].isViewedAsDeprecated()){
-									return true;
-								}
-								break;
-							}
-						}
+					if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated()) {
+						return true;
 					}
 					if (type != null && type.isViewedAsDeprecated()) {
 						return true;

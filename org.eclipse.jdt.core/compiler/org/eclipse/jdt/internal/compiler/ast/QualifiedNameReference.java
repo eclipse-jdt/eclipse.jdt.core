@@ -237,8 +237,8 @@ public class QualifiedNameReference extends NameReference {
 		FieldBinding fieldBinding = (FieldBinding) binding;
 		MethodScope methodScope = scope.methodScope();
 		if (methodScope.enclosingSourceType() == fieldBinding.declaringClass
-			&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
-			&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
+			&& methodScope.lastVisibleFieldID >= 0
+			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
 			if ((!fieldBinding.isStatic() || methodScope.isStatic)
 				&& this.indexOfFirstFieldBinding == 1)
 				scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
@@ -736,8 +736,8 @@ public class QualifiedNameReference extends NameReference {
 						FieldBinding fieldBinding = (FieldBinding) binding;
 						MethodScope methodScope = scope.methodScope();
 						if (methodScope.enclosingSourceType() == fieldBinding.declaringClass
-							&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
-							&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
+							&& methodScope.lastVisibleFieldID >= 0
+							&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
 							if ((!fieldBinding.isStatic() || methodScope.isStatic)
 								&& this.indexOfFirstFieldBinding == 1)
 								scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());

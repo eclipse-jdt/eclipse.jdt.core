@@ -163,8 +163,8 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	MethodScope ms = scope.methodScope();
 	if ((this.bits & IsStrictlyAssignedMASK) == 0
 		&& ms.enclosingSourceType() == fieldBinding.declaringClass
-		&& ms.fieldDeclarationIndex != MethodScope.NotInFieldDecl
-		&& fieldBinding.id >= ms.fieldDeclarationIndex) {
+		&& ms.lastVisibleFieldID >= 0
+		&& fieldBinding.id >= ms.lastVisibleFieldID) {
 		//if the field is static and ms is not .... then it is valid
 		if (!fieldBinding.isStatic() || ms.isStatic)
 			scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
