@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 import junit.framework.Test;
@@ -30,19 +29,11 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new Suite(ASTConverterTest.class.getName());		
-
 		if (true) {
-			Class c = ASTConverterTest.class;
-			Method[] methods = c.getMethods();
-			for (int i = 0, max = methods.length; i < max; i++) {
-				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-					suite.addTest(new ASTConverterTest(methods[i].getName()));
-				}
-			}
-			return suite;
+			return new Suite(ASTConverterTest.class);		
 		}
-		suite.addTest(new ASTConverterTest("test0204"));			
+		TestSuite suite = new Suite(ASTConverterTest.class.getName());
+		suite.addTest(new ASTConverterTest("test0197"));
 		return suite;
 	}
 		
@@ -4578,7 +4569,10 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0197", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		ASTNode node2 = getASTNode((CompilationUnit) result, 1, 0, 1);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("No problem", 2, unit.getProblems().length);
+		ASTNode node2 = getASTNode(unit, 1, 0, 1);
 		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
 		Expression ex = expressionStatement.getExpression();
