@@ -427,12 +427,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 		if (rootPath != null) {
 			IJavaProject projectOfRoot = (IJavaProject)this.roots.get(rootPath);
 			if (projectOfRoot != null) {
-				IPackageFragmentRoot root = projectOfRoot.getPackageFragmentRoot(ResourcesPlugin.getWorkspace().getRoot().getFile(rootPath));
+				IPackageFragmentRoot root = null;
 				try {
 					// close the root so that source attachement cache is flushed
+					root = projectOfRoot.findPackageFragmentRoot(rootPath);
 					root.close();
 				} catch (JavaModelException e) {
 				}
+				if (root == null) return;
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED:
 						fCurrentDelta.sourceAttached(root);
@@ -659,6 +661,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		
 		this.addDependentProjects(project.getFullPath(), this.projectsToUpdate);
 	}
+
 
 	/**
 	 * Processing for an element that has been added:<ul>
@@ -1603,58 +1606,62 @@ private JavaModelException newInvalidElementType() {
 				}
 				
 				// filter out changes in output location
+				boolean outputIsFiltered = false;
 				if (currentOutput != null && currentOutput.isPrefixOf(childPath)) {
 					if (outputTraverseMode != IGNORE) {
 						// case of bin=src
 						if (outputTraverseMode == SOURCE && childType == IJavaElement.CLASS_FILE) {
-							continue;
-						}
-						// case of .class file under project and no source folder
-						// proj=bin
-						if (childType == IJavaElement.JAVA_PROJECT 
-							&& childRes instanceof IFile 
-							&& Util.isValidClassFileName(childRes.getName())) {
-							continue;
+							outputIsFiltered = true;
+						} else {
+							// case of .class file under project and no source folder
+							// proj=bin
+							if (childType == IJavaElement.JAVA_PROJECT 
+									&& childRes instanceof IFile 
+									&& Util.isValidClassFileName(childRes.getName())) {
+								outputIsFiltered = true;
+							}
 						}
 					} else {
-						continue;
+						outputIsFiltered = true;
 					}
 				}
 				
 				// traverse delta for child in the same project
-				if (childType == -1
-					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, outputTraverseMode)) {
-					try {
-						if (currentProject != null) {
-							if (!isValidParent) continue; 
-							if (parent == null) {
-								if (this.currentElement == null || !this.currentElement.getJavaProject().equals(currentProject)) {
-									// force the currentProject to be used
-									this.currentElement = (Openable)currentProject;
-								}
-								if (elementType == IJavaElement.JAVA_PROJECT
-									|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT && res instanceof IProject)) { 
-									// NB: attach non-java resource to project (not to its package fragment root)
-									parent = (Openable)currentProject;
-								} else {
-									parent = this.createElement(res, elementType, currentProject);
-								}
+				if (!outputIsFiltered) {
+					if (childType == -1
+						|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, outputTraverseMode)) {
+						try {
+							if (currentProject != null) {
+								if (!isValidParent) continue; 
 								if (parent == null) {
-									isValidParent = false;
-									continue;
+									if (this.currentElement == null || !this.currentElement.getJavaProject().equals(currentProject)) {
+										// force the currentProject to be used
+										this.currentElement = (Openable)currentProject;
+									}
+									if (elementType == IJavaElement.JAVA_PROJECT
+										|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT && res instanceof IProject)) { 
+										// NB: attach non-java resource to project (not to its package fragment root)
+										parent = (Openable)currentProject;
+									} else {
+										parent = this.createElement(res, elementType, currentProject);
+									}
+									if (parent == null) {
+										isValidParent = false;
+										continue;
+									}
 								}
+								// add child as non java resource
+								nonJavaResourcesChanged(parent, child);
+							} else {
+								orphanChildren[i] = child;
 							}
-							// add child as non java resource
-							nonJavaResourcesChanged(parent, child);
-						} else {
-							orphanChildren[i] = child;
+						} catch (JavaModelException e) {
 						}
-					} catch (JavaModelException e) {
+					} else {
+						oneChildOnClasspath = true;
 					}
-				} else {
-					oneChildOnClasspath = true;
 				}
-				
+								
 				// if child is a package fragment root of another project, traverse delta too
 				if (projectOfRoot != null && !isPkgFragmentRoot) {
 					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, IGNORE); // binary output of projectOfRoot cannot be this root

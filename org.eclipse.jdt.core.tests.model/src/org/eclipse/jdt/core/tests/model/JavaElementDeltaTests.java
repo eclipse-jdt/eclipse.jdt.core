@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -149,9 +150,13 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot1"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot2"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot3"));
+	suite.addTest(new JavaElementDeltaTests("testAddDotClasspathFile"));
 	
 	// batch operations
 	suite.addTest(new JavaElementDeltaTests("testBatchOperation"));
+	
+	// build
+	suite.addTest(new JavaElementDeltaTests("testBuildProjectUsedAsLib"));
 	
 	return suite;
 }
@@ -195,6 +200,38 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 			"	src[*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
 			"			X.java[+]: {}"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Add the .classpath file to a Java project that was missing it.
+ * (regression test for bug 26128 packages don't appear in package explorer view)
+ */
+public void testAddDotClasspathFile() throws CoreException {
+	try {
+		this.createProject("P");
+		this.createFolder("/P/src");
+		
+		// add Java nature
+		this.editFile(
+			"/P/.project",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +			"<projectDescription>\n" +			"	<name>Test</name>\n" +			"	<comment></comment>\n" +			"	<projects>\n" +			"	</projects>\n" +			"	<buildSpec>\n" +			"		<buildCommand>\n" +			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +			"			<arguments>\n" +			"			</arguments>\n" +			"		</buildCommand>\n" +			"	</buildSpec>\n" +			"	<natures>\n" +			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +			"	</natures>\n" +			"</projectDescription>"
+		);
+		
+		this.startDeltas();
+		this.createFile(
+			"P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +			"<classpath>\n" +			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +			"</classpath>"
+		);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[+]"
 		);
 	} finally {
 		this.stopDeltas();
@@ -371,6 +408,55 @@ public void testBatchOperation() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that if a project's output folder is used as a lib folder in another project, building
+ * the first project results in the correct delta in the other project.
+ */
+public void testBuildProjectUsedAsLib() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL_LIB"}, "bin1");
+		this.createJavaProject("P2", new String[] {"src2"}, new String[] {"/P1/bin1"}, "bin2");
+		this.createFile(
+			"/P1/src1/X.java",
+			"public class X {\n" +			"}"
+		);
+		this.startDeltas();
+		
+		// full build
+		p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertDeltas(
+			"Unepected delta",
+			"P2[*]: {CHILDREN}\n" + 
+			"	bin1[*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.class[+]: {}"
+			);
+			
+		this.editFile(
+			"/P1/src1/X.java",
+			"public class X {\n" +
+			"  void foo() {}\n" +
+			"}\n" +
+			"class Y {\n" +			"}"
+		);
+		this.clearDeltas();
+
+		// incremental buid
+		p1.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		assertDeltas(
+			"Unepected delta",
+			"P2[*]: {CHILDREN}\n" + 
+			"	bin1[*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.class[*]: {CONTENT}\n" + 
+			"			Y.class[+]: {}"
+			);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 
