@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest2("test0417"));
+//		suite.addTest(new ASTConverterTest2("test0421"));			
 		return suite;
 	}
 	/**
@@ -576,5 +576,189 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IBinding binding = name.resolveBinding();
 		assertNotNull("No binding", binding);
 	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24449
+	 */
+	public void test0419() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0419", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an assignment", expression.getNodeType(), ASTNode.ASSIGNMENT);
+		Assignment assignment = (Assignment) expression;
+		Expression expression2 = assignment.getLeftHandSide();
+		assertEquals("Not a name", expression2.getNodeType(), ASTNode.SIMPLE_NAME);
+		SimpleName simpleName = (SimpleName) expression2;
+		IBinding binding = simpleName.resolveBinding();
+		assertNull(binding);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0420() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0420", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getRightOperand();
+		assertEquals("Not a parenthesized expression", expression2.getNodeType(), ASTNode.PARENTHESIZED_EXPRESSION);
+		checkSourceRange(expression2, "(2 + 3)", source);
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
+		Expression expression3 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression3, "2 + 3", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0421() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0421", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		checkSourceRange(infixExpression, "(1 + 2) + 3", source);
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Not a parenthesized expression", expression2.getNodeType(), ASTNode.PARENTHESIZED_EXPRESSION);
+		checkSourceRange(expression2, "(1 + 2)", source);
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
+		Expression expression3 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression3, "1 + 2", source);
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0422() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0422", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		checkSourceRange(infixExpression, "( 1 + 2 ) + 3", source);
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Not a parenthesized expression", expression2.getNodeType(), ASTNode.PARENTHESIZED_EXPRESSION);
+		checkSourceRange(expression2, "( 1 + 2 )", source);
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
+		Expression expression3 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression3, "1 + 2", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0423() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0423", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getRightOperand();
+		assertEquals("Not a parenthesized expression", expression2.getNodeType(), ASTNode.PARENTHESIZED_EXPRESSION);
+		checkSourceRange(expression2, "( 2 + 3 )", source);
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
+		Expression expression3 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression3, "2 + 3", source);
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0424() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0424", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		assertEquals("Wrong size", 1, infixExpression.extendedOperands().size());
+		Expression expression2 = (Expression) infixExpression.extendedOperands().get(0);
+		checkSourceRange(expression2, "( 2 + 3 )", source);
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24453
+	 */
+	public void test0425() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0425", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an infix expression", expression.getNodeType(), ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		assertEquals("Wrong size", 0, infixExpression.extendedOperands().size());
+		Expression expression2 = infixExpression.getRightOperand();
+		assertTrue("not an infix expression", expression2.getNodeType() == ASTNode.INFIX_EXPRESSION); //$NON-NLS-1$
+		InfixExpression infixExpression2 = (InfixExpression) expression2;
+		Expression expression3 = infixExpression2.getRightOperand();
+		assertTrue("not a parenthesized expression", expression3.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
+		checkSourceRange(expression3, "( 2 + 3 )", source);
+	}	
 }
 

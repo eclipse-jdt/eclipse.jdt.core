@@ -1368,7 +1368,7 @@ class ASTConverter {
 		return literal;
 	}
 	
-	public InfixExpression convert(BinaryExpression expression) {
+	public Expression convert(BinaryExpression expression) {
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		if (this.resolveBindings) {
 			this.recordNodes(infixExpression, expression);
@@ -1440,7 +1440,10 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Expression leftOperand = expression.left;
 			org.eclipse.jdt.internal.compiler.ast.Expression rightOperand = null;
 			do {
-				if (((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID) {
+				rightOperand = ((BinaryExpression) leftOperand).right;
+				if (((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID
+				 || (rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID)
+				 || checkForParenthesis(leftOperand)) {
 					infixExpression.extendedOperands().clear();
 					Expression leftExpression = convert(expression.left);
 					infixExpression.setLeftOperand(leftExpression);
@@ -1449,27 +1452,15 @@ class ASTConverter {
 					infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
 					return infixExpression;
 				}
-				rightOperand = ((BinaryExpression) leftOperand).right;
 				infixExpression.extendedOperands().add(0, convert(rightOperand));
 				leftOperand = ((BinaryExpression) leftOperand).left;
 			} while (leftOperand instanceof BinaryExpression);
-			// check that the right operand wasn't a BinaryExpression
-			if (rightOperand instanceof BinaryExpression) {
-				infixExpression.extendedOperands().clear();
-				Expression leftExpression = convert(expression.left);
-				infixExpression.setLeftOperand(leftExpression);
-				infixExpression.setRightOperand(convert(expression.right));
-				int startPosition = leftExpression.getStartPosition();
-				infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
-				return infixExpression;
-			} else {
-				Expression leftExpression = convert(leftOperand);
-				infixExpression.setLeftOperand(leftExpression);
-				infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
-				int startPosition = leftExpression.getStartPosition();
-				infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
-				return infixExpression;
-			}
+			Expression leftExpression = convert(leftOperand);
+			infixExpression.setLeftOperand(leftExpression);
+			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
+			int startPosition = leftExpression.getStartPosition();
+			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+			return infixExpression;
 		}		
 		Expression leftExpression = convert(expression.left);
 		infixExpression.setLeftOperand(leftExpression);
