@@ -560,6 +560,12 @@ public class TestingEnvironment {
 			handle(e);
 		}
 	}
+	
+	public boolean isAutoBuilding() {
+		IWorkspace w = getWorkspace();
+		IWorkspaceDescription d = w.getDescription();
+		return d.isAutoBuilding();
+	}
 
 	/** Open an empty workspace.
  	*/
@@ -807,6 +813,12 @@ public class TestingEnvironment {
 //		}
 //	}
 	
+	public void setAutoBuilding(boolean value) {
+		IWorkspace w = getWorkspace();
+		IWorkspaceDescription d = w.getDescription();
+		d.setAutoBuilding(value);
+	}
+
 	public void setBuildOrder(String[] projects) {
 		try {
 			IWorkspace w = getWorkspace();
@@ -860,4 +872,19 @@ public class TestingEnvironment {
 	private void setup() {
 		fIsOpen = true;
 	}
+	
+	/**
+	 * Wait for autobuild notification to occur
+	 */
+	public void waitForAutoBuild() {
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		try {
+			Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+		} catch (OperationCanceledException e) {
+			handle(e);
+		} catch (InterruptedException e) {
+			handle(e);
+		}
+		fWasBuilt = true;
+	}	
 }
