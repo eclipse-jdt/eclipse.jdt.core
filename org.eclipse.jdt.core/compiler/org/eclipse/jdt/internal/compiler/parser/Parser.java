@@ -1175,6 +1175,8 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 
 	int length = this.expressionLengthStack[this.expressionLengthPtr--];
 	if (length == 1) {
+		intPtr--; // we get rid of the position of the default keyword
+		intPtr--; // we get rid of the position of the default keyword
 		annotationTypeMemberDeclaration.memberValue = this.expressionStack[this.expressionPtr--];
 	}
 

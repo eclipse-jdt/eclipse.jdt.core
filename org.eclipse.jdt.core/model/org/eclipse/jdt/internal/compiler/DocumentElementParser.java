@@ -913,6 +913,24 @@ protected void consumePackageDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart);
 }
+/*
+*
+* INTERNAL USE-ONLY
+*/
+protected void consumePackageDeclarationNameWithModifiers() {
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumePackageDeclarationNameWithModifiers();
+	ImportReference importReference = compilationUnit.currentPackage;
+
+	requestor.acceptPackage(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd, 
+		intArrayStack[intArrayPtr--], 
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart);
+}
 protected void consumePushModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers

@@ -383,6 +383,65 @@ protected void consumePackageDeclarationName() {
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}	
 }
+protected void consumePackageDeclarationNameWithModifiers() {
+	// PackageDeclarationName ::= Modifiers 'package' PushRealModifiers Name
+	/* build an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumePackageDeclarationNameWithModifiers();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	int length = identifierLengthStack[identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	this.intPtr--; // we don't need the modifiers start
+	this.intPtr--; // we don't need the package modifiers
+	ImportReference reference = this.createAssistPackageReference(subset, positions);
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			reference.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}	
+	/* build specific assist node on package statement */
+	assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+	compilationUnit.currentPackage = reference; 
+
+	if (currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = intStack[intPtr--];
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = reference.declarationSourceEnd+1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}	
+}
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();
 	// if we are not in a method (ie. we were not in a local variable initializer)
