@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -115,8 +116,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testBug55223a"));
-		suite.addTest(new ASTConverterJavadocTest("testBug55223b"));
+//		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
+		suite.addTest(new ASTConverterJavadocTest("testBug51617"));
 		return suite;
 	}
 
@@ -197,6 +198,18 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		parser.setProject(project);
 		parser.setResolveBindings(this.resolveBinding);
 		return parser.createAST(null);
+	}
+
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
+		if (project == null) {
+			ASTParser parser = ASTParser.newParser(AST.JLS2);
+			parser.setSource(source);
+			parser.setUnitName(unitName);
+			parser.setCompilerOptions(options);
+			parser.setResolveBindings(this.resolveBinding);
+			return parser.createAST(null);
+		}
+		return runConversion(source, unitName, project);
 	}
 
 // NOT USED
@@ -889,50 +902,52 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					while (source[start] == '*' || Character.isWhitespace(source[start])) {
 						start++; // purge non-stored characters
 					}
-					assumeEquals(this.prefix+"Misplaced ( at <"+start+"> for method ref: "+methodRef, '(', source[start]);
-					start++;
-					// Verify parameters
-					Iterator parameters = methodRef.parameters().listIterator();
-					while (parameters.hasNext()) {
-						MethodRefParameter param = (MethodRefParameter) parameters.next();
-						// Verify parameter type positions
-						while (source[start] == '*' || Character.isWhitespace(source[start])) {
-							 start++; // purge non-stored characters
-						}
-						Type type = param.getType();
-						if (type.isSimpleType()) {
-							verifyNamePositions(start, ((SimpleType)type).getName(), source);
-						} else if (type.isPrimitiveType()) {
-							text = new String(source, start, type.getLength());
-							assumeEquals(this.prefix+"Misplaced method ref parameter type at <"+start+"> for method ref: "+methodRef, text, type.toString());
-						} else if (type.isArrayType()) {
-							Type elementType = ((ArrayType) param.getType()).getElementType();
-							if (elementType.isSimpleType()) {
-								verifyNamePositions(start, ((SimpleType)elementType).getName(), source);
-							} else if (elementType.isPrimitiveType()) {
-								text = new String(source, start, elementType.getLength());
-								assumeEquals(this.prefix+"Misplaced method ref parameter type at <"+start+"> for method ref: "+methodRef, text, elementType.toString());
-							}
-						}
-						start += type.getLength();
-						// Verify parameter name positions
-						while (Character.isWhitespace(source[start])) { // do NOT accept '*' in parameter declaration
-							 start++; // purge non-stored characters
-						}
-						name = param.getName();
-						if (name != null) {
-							text = new String(source, start, name.getLength());
-							assumeEquals(this.prefix+"Misplaced method ref parameter name at <"+start+"> for method ref: "+methodRef, text, name.toString());
-							start += name.getLength();
-						}
-						// Verify end parameter declaration
-						while (source[start] == '*' || Character.isWhitespace(source[start])) {
-							start++;
-						}
-						assumeTrue(this.prefix+"Misplaced parameter end at <"+start+"> for method ref: "+methodRef, source[start] == ',' || source[start] == ')');
+//					assumeEquals(this.prefix+"Misplaced ( at <"+start+"> for method ref: "+methodRef, '(', source[start]);
+					if (source[start] == '(') { // now method reference may have no parenthesis...
 						start++;
-						if (source[start] == ')') {
-							break;
+						// Verify parameters
+						Iterator parameters = methodRef.parameters().listIterator();
+						while (parameters.hasNext()) {
+							MethodRefParameter param = (MethodRefParameter) parameters.next();
+							// Verify parameter type positions
+							while (source[start] == '*' || Character.isWhitespace(source[start])) {
+								 start++; // purge non-stored characters
+							}
+							Type type = param.getType();
+							if (type.isSimpleType()) {
+								verifyNamePositions(start, ((SimpleType)type).getName(), source);
+							} else if (type.isPrimitiveType()) {
+								text = new String(source, start, type.getLength());
+								assumeEquals(this.prefix+"Misplaced method ref parameter type at <"+start+"> for method ref: "+methodRef, text, type.toString());
+							} else if (type.isArrayType()) {
+								Type elementType = ((ArrayType) param.getType()).getElementType();
+								if (elementType.isSimpleType()) {
+									verifyNamePositions(start, ((SimpleType)elementType).getName(), source);
+								} else if (elementType.isPrimitiveType()) {
+									text = new String(source, start, elementType.getLength());
+									assumeEquals(this.prefix+"Misplaced method ref parameter type at <"+start+"> for method ref: "+methodRef, text, elementType.toString());
+								}
+							}
+							start += type.getLength();
+							// Verify parameter name positions
+							while (Character.isWhitespace(source[start])) { // do NOT accept '*' in parameter declaration
+								 start++; // purge non-stored characters
+							}
+							name = param.getName();
+							if (name != null) {
+								text = new String(source, start, name.getLength());
+								assumeEquals(this.prefix+"Misplaced method ref parameter name at <"+start+"> for method ref: "+methodRef, text, name.toString());
+								start += name.getLength();
+							}
+							// Verify end parameter declaration
+							while (source[start] == '*' || Character.isWhitespace(source[start])) {
+								start++;
+							}
+							assumeTrue(this.prefix+"Misplaced parameter end at <"+start+"> for method ref: "+methodRef, source[start] == ',' || source[start] == ')');
+							start++;
+							if (source[start] == ')') {
+								break;
+							}
 						}
 					}
 				}
@@ -1086,6 +1101,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void verifyComments(String test) throws JavaModelException {
+		ICompilationUnit[] units = getCompilationUnits("Converter" , "src", "javadoc."+test); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (int i=0; i<units.length; i++) {
+			verifyComments(units[i]);
+		}
+	}
+
 	/*
 	 * Verify the comments of a compilation unit.
 	 */
@@ -1116,8 +1141,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			throw ex;
 		}
 	}
-	
+
 	protected CompilationUnit verifyComments(String fileName, char[] source) {
+		return verifyComments(fileName, source, null);
+	}
+
+	protected CompilationUnit verifyComments(String fileName, char[] source, Map options) {
 
 		// Get comments infos from test file
 		setSourceComment(source);
@@ -1127,32 +1156,21 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		if (unicode) {
 			testedSource = getUnicodeSource(source);
 		}
-//		Map originalOptions = this.currentProject.getOptions(true);
 		List unitComments = null;
-//		try {
-//			this.currentProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
-//			this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
-//			this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
-//			this.currentProject.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
-//			this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
-			CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject);
-//			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, this.resolveBinding); // resolve bindings
-			if (this.compilerOption.equals(JavaCore.ERROR)) {
-				assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
-			} else if (this.compilerOption.equals(JavaCore.WARNING)) {
-				IProblem[] problemsList = compilUnit.getProblems();
-				int length = problemsList.length;
-				if (length > 0) {
-					problems.append("  - "+this.prefix+length+" problems:"); //$NON-NLS-1$
-					for (int i = 0; i < problemsList.length; i++) {
-						problems.append("	+ "+problemsList[i]);
-					}
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
+		if (this.compilerOption.equals(JavaCore.ERROR)) {
+			assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		} else if (this.compilerOption.equals(JavaCore.WARNING)) {
+			IProblem[] problemsList = compilUnit.getProblems();
+			int length = problemsList.length;
+			if (length > 0) {
+				problems.append("  - "+this.prefix+length+" problems:"); //$NON-NLS-1$
+				for (int i = 0; i < problemsList.length; i++) {
+					problems.append("	+ "+problemsList[i]);
 				}
 			}
-			unitComments = compilUnit.getCommentList();
-//		} finally {
-//			this.currentProject.setOptions(originalOptions);
-//		}
+		}
+		unitComments = compilUnit.getCommentList();
 		assumeNotNull(this.prefix+"Unexpected problems", unitComments);
 		
 		// Basic comments verification
@@ -1202,16 +1220,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	private void verifyJavadoc(Javadoc docComment) {
 	}
 	*/
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void verifyComments(String test) throws JavaModelException {
-		ICompilationUnit[] units = getCompilationUnits("Converter" , "src", "javadoc."+test); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		for (int i=0; i<units.length; i++) {
-			verifyComments(units[i]);
-		}
-	}
 
 	/**
 	 * Check javadoc for MethodDeclaration
@@ -1814,5 +1822,24 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug53757() throws JavaModelException {
 		verifyComments("testBug53757");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+	 */
+	public void testBug51600() throws JavaModelException {
+		verifyComments("testBug51600");
+	}
+	public void testBug51617() throws JavaModelException {
+		this.stopOnFailure = false;
+		verifyComments("testBug51617");
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			assertNotNull("We should have a failure!", this.failures);
+			assertEquals("We should have exactly one failure!", 1, this.failures.size());
+			String expected = "Test.java: Reference at <126> in '\n * @exception e' should be bound!";
+			String failure = (String) this.failures.remove(0);
+			assertEquals("We should have an unbound exception here!", expected, failure);
+		}
+		this.stopOnFailure = true;
 	}
 }

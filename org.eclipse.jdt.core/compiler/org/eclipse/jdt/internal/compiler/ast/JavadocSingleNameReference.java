@@ -23,18 +23,27 @@ public class JavadocSingleNameReference extends SingleNameReference {
 	}
 
 	public void resolve(BlockScope scope) {
+		resolve(scope, true);
+	}
+
+	/**
+	 * Resolve without warnings
+	 */
+	public void resolve(BlockScope scope, boolean warn) {
 		
 		LocalVariableBinding variableBinding = scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && variableBinding.isArgument) {
 			this.binding = variableBinding;
 			return;
 		}
-		try {
-			MethodScope methScope = (MethodScope) scope;
-			scope.problemReporter().javadocInvalidParamName(this, methScope.referenceMethod().modifiers);
-		}
-		catch (Exception e) {
-			scope.problemReporter().javadocInvalidParamName(this, -1);
+		if (warn) {
+			try {
+				MethodScope methScope = (MethodScope) scope;
+				scope.problemReporter().javadocInvalidParamName(this, methScope.referenceMethod().modifiers);
+			}
+			catch (Exception e) {
+				scope.problemReporter().javadocInvalidParamName(this, -1);
+			}
 		}
 	}
 

@@ -38,6 +38,10 @@ public class JavadocParser extends AbstractCommentParser {
 
 	// Public fields
 	public Javadoc docComment;
+	
+	// Private fields
+	private int invParamsPtr = -1;
+	private JavadocSingleNameReference[] invParamsStack;
 
 	JavadocParser(Parser sourceParser) {
 		super(sourceParser);
@@ -297,6 +301,18 @@ public class JavadocParser extends AbstractCommentParser {
 			for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
 				if (this.astLengthStack[i] != 0) {
 					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+					if (this.invParamsPtr == -1l) {
+						this.invParamsStack = new JavadocSingleNameReference[10];
+					}
+					try {
+						this.invParamsStack[++this.invParamsPtr] = nameRef;
+					} catch (IndexOutOfBoundsException e) {
+						int oldStackLength = this.invParamsStack.length;
+						JavadocSingleNameReference[] oldStack = this.invParamsStack;
+						this.invParamsStack = new JavadocSingleNameReference[oldStackLength + AstStackIncrement];
+						System.arraycopy(oldStack, 0, this.invParamsStack, 0, oldStackLength);
+						this.invParamsStack[this.invParamsPtr] = nameRef;
+					}
 					return false;
 				}
 			}
@@ -393,6 +409,12 @@ public class JavadocParser extends AbstractCommentParser {
 		// Set return node if present
 		if (this.returnStatement != null) {
 			this.docComment.returnStatement = (JavadocReturnStatement) this.returnStatement;
+		}
+		
+		// Copy unexpected tags array
+		if (this.invParamsPtr >= 0) {
+			this.docComment.invalidParameters = new JavadocSingleNameReference[this.invParamsPtr+1];
+			System.arraycopy(this.invParamsStack, 0, this.docComment.invalidParameters, 0, this.invParamsPtr+1);
 		}
 
 		// If no nodes stored return
