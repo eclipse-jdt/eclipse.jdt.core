@@ -2204,14 +2204,6 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_TAB_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
 
 	/**
-     * @deprecated Renamed getEclipse21Settings().
-     */
-    // TODO (jerome or olivier) - remove this method as soon as Dirk says JDT UI is off of it (sometime Tuesday June 8)
-    public static Map getDefaultSettings() {
-            return getEclipse21Settings();
-    }
-
-	/**
 	 * Returns the formatter settings that most closely approximate
 	 * the default formatter settings of Eclipse version 2.1.
 	 * 
