@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CompoundNameVector;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleNameVector;
@@ -28,6 +29,7 @@ public class CompilationUnitScope extends Scope {
 	public char[][] currentPackageName;
 	public PackageBinding fPackage;
 	public ImportBinding[] imports;
+	public HashtableOfObject resolvedSingeTypeImports;
 	
 	public SourceTypeBinding[] topLevelTypes;
 
@@ -344,6 +346,14 @@ void faultInImports() {
 	if (resolvedImports.length > index)
 		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
 	imports = resolvedImports;
+
+	int length = imports.length;
+	resolvedSingeTypeImports = new HashtableOfObject(length);
+	for (int i = 0; i < length; i++) {
+		ImportBinding binding = imports[i];
+		if (!binding.onDemand)
+			resolvedSingeTypeImports.put(binding.compoundName[binding.compoundName.length - 1], binding);
+	}
 }
 public void faultInTypes() {
 	faultInImports();
