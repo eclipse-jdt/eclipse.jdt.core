@@ -2352,9 +2352,7 @@ public final class JavaCore extends Plugin {
 	 * @return Return an array containing the names of all known user defined.
 	 */
 	public static String[] getUserLibraryNames() {
-		return new String[0];
-	 	// TODO (frederic) to be finalized in coordination with jdt-ui
-		// return UserLibraryManager.getUserLibraryNames();
+		 return UserLibraryManager.getUserLibraryNames();
 	}
 
 	/**
