@@ -70,6 +70,8 @@ protected boolean matchIndexEntry() {
  */
 protected boolean needsResolve() {
 
+	// TODO: (jerome) should need resolve only if declaringSimpleName, declaringQualification, returnQualification or parameterQualifications[i] is not null
+
 	// declaring type
 	if (declaringSimpleName != null || declaringQualification != null) return true;
 
