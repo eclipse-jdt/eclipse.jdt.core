@@ -40,6 +40,25 @@ class AddJarFileToIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
 	}
+public boolean equals(Object o) {
+	if (!(o instanceof AddJarFileToIndex)) return false;
+	if (this.resource != null) {
+		return this.resource.equals(((AddJarFileToIndex)o).resource);
+	}
+	if (this.path != null) {
+		return this.path.equals(((AddJarFileToIndex)o).path);
+	}
+	return false;
+}
+public int hashCode() {
+	if (this.resource != null) {
+		return this.resource.hashCode();
+	}
+	if (this.path != null) {
+		return this.path.hashCode();
+	}
+	return -1;
+}	
 	public boolean execute(IProgressMonitor progressMonitor) {
 		
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;

@@ -1980,23 +1980,6 @@ public IJavaElement rootedAt(IJavaProject project) {
 
 			// compute the new roots
 			updatePackageFragmentRoots();				
-			
-			// only trigger indexing of immediate libraries
-			IndexManager indexManager =
-				((JavaModelManager) JavaModelManager.getJavaModelManager()).getIndexManager();
-			IPackageFragmentRoot[] immediateRoots = getPackageFragmentRoots();						
-			for(int i = 0, length = immediateRoots.length; i < length; i++){
-				PackageFragmentRoot root = (PackageFragmentRoot)immediateRoots[i];
-				if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-					if (root.isArchive()) {
-						indexManager.indexJarFile(root.getPath(), getUnderlyingResource().getName());
-					} else {
-						indexManager.indexBinaryFolder(
-							(IFolder) root.getUnderlyingResource(),
-							(IProject) this.getUnderlyingResource());
-					}
-				}
-			}
 		}
 	}
 

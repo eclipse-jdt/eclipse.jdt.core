@@ -8,9 +8,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * This operation sets an <code>IJavaProject</code>'s classpath.
@@ -310,6 +312,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 					IJavaElementDelta.F_ADDED_TO_CLASSPATH,
 					delta);
 				int changeKind = newResolvedPath[i].getEntryKind();
+				
+				// Request indexing of the library
+				if (changeKind == IClasspathEntry.CPE_LIBRARY) {
+					IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+					if (indexManager != null) {
+						boolean pathHasChanged = true;
+						IPath newPath = newResolvedPath[i].getPath();
+						for (int j = 0; j < oldResolvedPath.length; j++) {
+							IClasspathEntry oldEntry = oldResolvedPath[j];
+							if (oldEntry.getPath().equals(newPath)) {
+								pathHasChanged = false;
+								break;
+							}
+						}
+						if (pathHasChanged) {
+							indexManager.indexLibrary(newPath, project.getProject());
+						}
+					}
+				}
+				
 				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 

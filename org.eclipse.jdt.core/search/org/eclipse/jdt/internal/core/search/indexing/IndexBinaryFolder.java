@@ -29,6 +29,13 @@ public class IndexBinaryFolder implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(this.project.getName());
 	}
+public boolean equals(Object o) {
+	if (!(o instanceof IndexBinaryFolder)) return false;
+	return this.folder.equals(((IndexBinaryFolder)o).folder);
+}
+public int hashCode() {
+	return this.folder.hashCode();
+}
 	/**
 	 * Ensure consistency of a folder index. Need to walk all nested resources,
 	 * and discover resources which have either been changed, added or deleted

@@ -1080,7 +1080,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						JarPackageFragmentRoot root = (JarPackageFragmentRoot)element;
 						// index jar file only once (if the root is in its declaring project)
 						if (root.getJavaProject().getProject().getFullPath().isPrefixOf(root.getPath())) {
-							indexManager.indexJarFile(root.getPath(), root.getJavaProject().getElementName());
+							indexManager.indexLibrary(root.getPath(), root.getJavaProject().getProject());
 						}
 					}
 					break;

@@ -32,6 +32,13 @@ public class IndexAllProject implements IJob, IResourceVisitor {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(project.getName());
 	}
+public boolean equals(Object o) {
+	if (!(o instanceof IndexAllProject)) return false;
+	return this.project.equals(((IndexAllProject)o).project);
+}
+public int hashCode() {
+	return this.project.hashCode();
+}		
 	/**
 	 * Ensure consistency of a project index. Need to walk all nested resources,
 	 * and discover resources which have either been changed, added or deleted
