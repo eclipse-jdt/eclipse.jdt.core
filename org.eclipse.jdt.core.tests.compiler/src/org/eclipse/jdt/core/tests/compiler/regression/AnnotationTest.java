@@ -36,7 +36,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 105 };
+//		TESTS_NUMBERS = new int[] { 122 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -3470,7 +3470,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n",
             },
 			"Classes:-> SubKlass-> Klass, Interfaces:-> []-> [interface Ann]");
-    }            
+    }  
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791 - variation
     public void test111() {
@@ -3879,5 +3879,41 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-    } 	
+    }
+
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88446
+    public void test122() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+                "import java.lang.annotation.Annotation;\n" +
+                "import java.lang.reflect.Method;\n" +
+                "import java.lang.annotation.ElementType;\n" +
+                "import java.lang.annotation.Retention;\n" +
+                "import java.lang.annotation.RetentionPolicy;\n" +
+                "import java.lang.annotation.Target;\n" +
+                "class GenericWithInnerAnnotation<T> {\n" +
+                "    @Retention(RetentionPolicy.RUNTIME)\n" +
+                "    @Target(ElementType.METHOD)\n" +
+                "    public @interface MyAnnotation {\n" +
+                "    }\n" +
+                "}\n" +
+                "public class X extends GenericWithInnerAnnotation<Integer> {\n" +
+                "    @MyAnnotation\n" +
+                "    public void aMethod() {\n" +
+                "    }\n" +
+                "    \n" +
+                "    public static void main(String[] args) {\n" +
+                "       try {\n" +
+                "           Method method = X.class.getDeclaredMethod(\"aMethod\", new Class[]{});\n" +
+                "           System.out.print(method.getName());\n" +
+                "           Annotation[] annotations = method.getAnnotations();\n" +
+                "           System.out.println(annotations.length);\n" +
+                "       } catch(NoSuchMethodException e) {\n" +
+                "       }\n" +
+                "    }\n" +
+                "}",
+            },
+            "aMethod1");
+    }
 }

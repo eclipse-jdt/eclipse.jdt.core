@@ -3612,7 +3612,7 @@ public class ClassFile
 		if (annotationBinding == null) {
 			return false;
 		}
-		long metaTagBits = annotationBinding.tagBits;
+		long metaTagBits = annotationBinding.getAnnotationTagBits();
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
 			
