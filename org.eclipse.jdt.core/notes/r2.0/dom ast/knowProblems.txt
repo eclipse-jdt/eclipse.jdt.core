@@ -1,10 +1,5 @@
-- Comments behind package declarations are considered as part of the package
-declaration.
-- Import references include the trailing comments.
-- No position for the name inside of ContinueStatement or a BreakStatement, LabeledStatement
 - setLeadingComment is a problem. The parser doesn't store the comment
 - Tag node has having an error.
-ExplicitConstructorCall not super and with a qualification
 
 TODO:
 	
@@ -12,6 +7,3 @@ All getId() need to be implemented
 getDeclaredModifiers
 
 Look at MessageSend.
-
-See PR 7386
-

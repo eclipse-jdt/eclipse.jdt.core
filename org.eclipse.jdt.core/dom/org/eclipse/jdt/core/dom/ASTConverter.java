@@ -1473,7 +1473,9 @@ class ASTConverter {
 		BreakStatement breakStatement = this.ast.newBreakStatement();
 		breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
-			breakStatement.setLabel(this.ast.newSimpleName(new String(statement.label)));
+			SimpleName name = this.ast.newSimpleName(new String(statement.label));
+			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
+			breakStatement.setLabel(name);
 		}
 		return breakStatement;
 	}
@@ -1482,7 +1484,9 @@ class ASTConverter {
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
 		continueStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
-			continueStatement.setLabel(this.ast.newSimpleName(new String(statement.label)));
+			SimpleName name = this.ast.newSimpleName(new String(statement.label));
+			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
+			continueStatement.setLabel(name);
 		}
 		return continueStatement;
 	}
@@ -1638,7 +1642,9 @@ class ASTConverter {
 		LabeledStatement labeledStatement = this.ast.newLabeledStatement();
 		labeledStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);	
 		labeledStatement.setBody(convert(statement.statement));
-		labeledStatement.setLabel(this.ast.newSimpleName(new String(statement.label)));
+		SimpleName name = this.ast.newSimpleName(new String(statement.label));
+		retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
+		labeledStatement.setLabel(name);
 		return labeledStatement;
 	}
 	
@@ -2271,5 +2277,20 @@ class ASTConverter {
 		return positions;
 	}
 	
+	private void retrieveIdentifierAndSetPositions(int start, int end, Name name) {
+		scanner.resetTo(start, end);
+		int token;
+		try {
+			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
+				if (token == Scanner.TokenNameIdentifier) {
+					int startName = scanner.startPosition;
+					int endName = scanner.currentPosition - 1;
+					name.setSourceRange(startName, endName - startName + 1);
+					return;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+	}
 }
 
