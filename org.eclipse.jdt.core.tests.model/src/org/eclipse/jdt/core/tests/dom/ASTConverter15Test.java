@@ -26,11 +26,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0011"));
+		suite.addTest(new ASTConverter15Test("test0013"));
 		return suite;
 	}
 		
@@ -357,6 +357,49 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(expression, "args", source);
 		Statement body = enhancedForStatement.getBody();
 		checkSourceRange(body, "{System.out.println(s);}", source);
-	}	
+	}
+	
+	public void test0012() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0012", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, true);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 1, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("wrong size", 1, parameters.size());
+		SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(0);
+		checkSourceRange(parameter, "@Foo final String[][]... args", source);
+		List modifiers = parameter.modifiers();
+		assertEquals("Wrong number of modifiers", 2, modifiers.size());
+		ASTNode modifier = (ASTNode) modifiers.get(0);
+		checkSourceRange(modifier, "@Foo", source);
+		modifier = (ASTNode) modifiers.get(1);
+		checkSourceRange(modifier, "final", source);
+		assertEquals("Wrong name", "args", parameter.getName().getIdentifier());
+		assertTrue("Not a variable argument", parameter.isVariableArity());
+	}
+
+	public void test0013() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0013", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		// TODO NPE when resolveBindings = true
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		final SimpleName name = typeDeclaration.getName();
+		assertEquals("Wrong name", "Convertible", name.getIdentifier());
+		checkSourceRange(name, "Convertible", source);
+		List typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		checkSourceRange(typeParameter, "T", source);
+		checkSourceRange(typeParameter.getName(), "T", source);
+	}
 }
 

@@ -353,6 +353,9 @@ class ASTConverter2 extends ASTConverter {
 				typeParameter2.typeBounds().add(convert(bounds[index]));
 			}
 		}
+		start = typeParameter.declarationSourceStart;
+		end = typeParameter.declarationSourceEnd;
+		typeParameter2.setSourceRange(start, end - start + 1);
 		return typeParameter2;
 	}
 	
