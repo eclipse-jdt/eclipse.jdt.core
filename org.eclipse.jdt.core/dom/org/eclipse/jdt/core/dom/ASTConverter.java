@@ -856,6 +856,7 @@ class ASTConverter {
 		SimpleName name = this.ast.newSimpleName(argument.name());
 		if (this.resolveBindings) {
 			recordNodes(name, argument);
+			recordNodes(variableDecl, argument);
 		}
 		name.setSourceRange(argument.sourceStart, argument.sourceEnd - argument.sourceStart + 1);
 		variableDecl.setName(name);
