@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -334,8 +335,10 @@ private Binding findOnDemandImport(char[][] compoundName) {
 
 	ReferenceBinding type;
 	if (binding == null) {
-		if (environment.defaultPackage == null)
+		if (environment.defaultPackage == null
+				|| environment.options.complianceLevel >= CompilerOptions.JDK1_4){
 			return new ProblemReferenceBinding(compoundName, NotFound);
+		}
 		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
 			return new ProblemReferenceBinding(compoundName, NotFound);
@@ -359,7 +362,8 @@ private Binding findSingleTypeImport(char[][] compoundName) {
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
-		if (environment.defaultPackage == null)
+		if (environment.defaultPackage == null 
+			|| environment.options.complianceLevel >= CompilerOptions.JDK1_4)
 			return new ProblemReferenceBinding(compoundName, NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)
