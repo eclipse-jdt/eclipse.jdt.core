@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.env;
 /**
  * This interface defines constants for use by the builder / compiler
  * interface.
+ * TODO Check the values of the new bits. Subject to changes before final 1.5
  */
 public interface IConstants {
 	int AccDefault = 0;
