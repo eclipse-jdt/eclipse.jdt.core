@@ -41,7 +41,8 @@ public class SelectionOnMessageSend extends MessageSend {
 
 	/*
 	 * Cannot answer default abstract match, iterate in superinterfaces of declaring class
-	 * for a better match (default abstract match came from scope lookups).	 */
+	 * for a better match (default abstract match came from scope lookups).
+	 */
 	private MethodBinding findNonDefaultAbstractMethod(MethodBinding binding) {
 
 		ReferenceBinding[] itsInterfaces = binding.declaringClass.superInterfaces();

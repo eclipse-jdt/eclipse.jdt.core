@@ -843,7 +843,8 @@ class DefaultBindingResolver extends BindingResolver {
 				return binding;
 			} else {
 				/*
-				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597				 */
+				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
+				 */
 				switch(methodBinding.problemId()) {
 					case ProblemReasons.NotVisible : 
 					case ProblemReasons.NonStaticReferenceInStaticContext :

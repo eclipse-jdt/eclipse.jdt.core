@@ -9,12 +9,14 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 
 public class EmptyStatement extends Statement {
-	public EmptyStatement(int startPosition, int endPosition) {
+
+	public EmptyStatement(int startPosition, int endPosition) {
 		this.sourceStart = startPosition;
 		this.sourceEnd = endPosition;
 	}

@@ -1192,7 +1192,8 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								/*
-								 * We need to completely consume the line break								 */
+								 * We need to completely consume the line break
+								 */
 								if (currentCharacter == '\r'
 								   && source.length > currentPosition) {
 								   	if (source[currentPosition] == '\n') {

@@ -9,12 +9,14 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter.impl;
-import java.util.Map;
+
+import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 
 public class FormatterOptions {	
-	/**
+
+	/**
 	 * Option IDs
 	 */
 	public static final String OPTION_InsertNewlineBeforeOpeningBrace = "org.eclipse.jdt.core.formatter.newline.openingBrace"; //$NON-NLS-1$

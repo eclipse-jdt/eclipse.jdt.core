@@ -16,7 +16,8 @@ import java.util.List;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
 public class NLSLine {
-	private List elements;
+
+	private List elements;
 
 	public NLSLine() {
 		this.elements = new ArrayList();

@@ -529,17 +529,22 @@ class BindingResolver {
 	 * The default implementation of this method does nothing.
 	 * Subclasses may reimplement.
 	 * </p>
-	 *	 * @param currentNode the new node	 * @return AstNode	 */
+	 *
+	 * @param currentNode the new node
+	 * @return AstNode
+	 */
 	AstNode getCorrespondingNode(ASTNode currentNode) {
 		return null;
 	} 
 
 	/**
-	 * This method is used to record the scope and its corresponding node.	 * <p>
+	 * This method is used to record the scope and its corresponding node.
+	 * <p>
 	 * The default implementation of this method does nothing.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * @param astNode	 */	
+	 * @param astNode
+	 */	
 	void recordScope(ASTNode astNode, BlockScope blockScope) {
 	}
 }

@@ -107,7 +107,8 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected boolean hasSyntaxErrors = false;
 	
 	/*
-	 * The parser this requestor is using.	 */
+	 * The parser this requestor is using.
+	 */
 	protected Parser parser;
 	
 	/**

@@ -15,7 +15,8 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
- * Detect the presence of a node in expression */
+ * Detect the presence of a node in expression
+ */
 public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
 	private AstNode searchedNode;
 	private AstNode parent;

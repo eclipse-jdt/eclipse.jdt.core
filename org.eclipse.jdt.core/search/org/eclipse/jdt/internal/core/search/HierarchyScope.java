@@ -144,7 +144,8 @@ public class HierarchyScope extends AbstractSearchScope {
 	}
 	/*
 	 * Computes the paths of projects and jars that the hierarchy on the given type could contain.
-	 * This is a super set of the project and jar paths once the hierarchy is computed.	 */
+	 * This is a super set of the project and jar paths once the hierarchy is computed.
+	 */
 	private IPath[] computeProjectsAndJars(IType type) throws JavaModelException {
 		HashSet set = new HashSet();
 		IPackageFragmentRoot root = (IPackageFragmentRoot)type.getPackageFragment().getParent();

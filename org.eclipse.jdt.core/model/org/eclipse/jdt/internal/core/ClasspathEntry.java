@@ -62,7 +62,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath path;
 
 	/**
-	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.	 */
+	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.
+	 */
 	
 	public IPath[] exclusionPatterns;
 	private char[][] fullCharExclusionPatterns;
@@ -98,7 +99,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath sourceAttachmentRootPath;
 
 	/**
-	 * Specific output location (for this source entry)	 */
+	 * Specific output location (for this source entry)
+	 */
 	public IPath specificOutputLocation;
 	
 	/**
@@ -138,7 +140,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 	
 	/*
-	 * Returns a char based representation of the exclusions patterns full path.	 */
+	 * Returns a char based representation of the exclusions patterns full path.
+	 */
 	public char[][] fullExclusionPatternChars() {
 
 		if (this.fullCharExclusionPatterns == UNINIT_PATTERNS) {

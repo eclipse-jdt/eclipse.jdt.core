@@ -109,7 +109,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	JavaModelManager manager;
 	
 	/* A table from IJavaProject to an array of IPackageFragmentRoot.
-	 * This table contains the pkg fragment roots of the project that are being deleted.	 */
+	 * This table contains the pkg fragment roots of the project that are being deleted.
+	 */
 	Map removedRoots;
 	
 	/*
@@ -1430,7 +1431,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 
 	/**
 	 * Update the JavaModel according to a .classpath file change. The file can have changed as a result of a previous
-	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)	 */
+	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)
+	 */
 	void reconcileClasspathFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
 			
 		switch (delta.getKind()) {

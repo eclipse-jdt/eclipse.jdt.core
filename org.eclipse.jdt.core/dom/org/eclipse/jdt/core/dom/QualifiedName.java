@@ -34,7 +34,8 @@ public class QualifiedName extends Name {
 	 * Java identifier.
 	 */
 	private Name qualifier = null;
-		/**
+	
+	/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */

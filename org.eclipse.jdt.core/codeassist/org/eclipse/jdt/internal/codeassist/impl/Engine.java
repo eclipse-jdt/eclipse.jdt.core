@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
-import java.util.Map;
+
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
@@ -22,7 +23,8 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 
 public abstract class Engine implements ITypeRequestor {
-	public LookupEnvironment lookupEnvironment;
+
+	public LookupEnvironment lookupEnvironment;
 	
 	protected CompilationUnitScope unitScope;
 	protected ISearchableNameEnvironment nameEnvironment;
@@ -41,7 +43,8 @@ public abstract class Engine implements ITypeRequestor {
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 	}
-	/**
+
+	/**
 	 * Add an additional compilation unit.
 	 */
 	public void accept(ICompilationUnit sourceUnit) {
@@ -52,7 +55,8 @@ public abstract class Engine implements ITypeRequestor {
 		lookupEnvironment.buildTypeBindings(parsedUnit);
 		lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}
-	/**
+
+	/**
 	 * Add additional source types (the first one is the requested type, the rest is formed by the
 	 * secondary types defined in the same compilation unit).
 	 */
@@ -67,12 +71,14 @@ public abstract class Engine implements ITypeRequestor {
 				false, // no need for field initialization
 				lookupEnvironment.problemReporter,
 				result);
-		if (unit != null) {
+
+		if (unit != null) {
 			lookupEnvironment.buildTypeBindings(unit);
 			lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}
-	public abstract AssistParser getParser();
+
+	public abstract AssistParser getParser();
 	
 	protected boolean mustQualifyType(
 		char[] packageName,
@@ -132,7 +138,8 @@ public abstract class Engine implements ITypeRequestor {
 			}
 		}
 	}
-	private void parseMethod(
+
+	private void parseMethod(
 		TypeDeclaration type,
 		CompilationUnitDeclaration unit,
 		int position) {
@@ -181,7 +188,8 @@ public abstract class Engine implements ITypeRequestor {
 			}
 		}
 	}
-	protected void reset() {
+
+	protected void reset() {
 		lookupEnvironment.reset();
 	}
 }

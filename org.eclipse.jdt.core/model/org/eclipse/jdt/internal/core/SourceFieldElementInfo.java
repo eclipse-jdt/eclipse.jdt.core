@@ -31,7 +31,8 @@ import org.eclipse.jdt.internal.compiler.env.ISourceField;
 
 /*
  * Returns the initialization source for this field.
- * Returns null if the field is not a constant or if it has no initialization. */
+ * Returns null if the field is not a constant or if it has no initialization.
+ */
 public char[] getInitializationSource() {
 	return this.initializationSource;
 }

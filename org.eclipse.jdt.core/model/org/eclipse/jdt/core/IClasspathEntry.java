@@ -256,7 +256,8 @@ public interface IClasspathEntry {
 	 * @return the possibly empty list of resource exclusion patterns 
 	 *   associated with this source entry, and <code>null</code> for other
 	 *   kinds of classpath entries
-	 * @since 2.1	 */
+	 * @since 2.1
+	 */
 	IPath[] getExclusionPatterns();
 	
 	/**
@@ -272,7 +273,8 @@ public interface IClasspathEntry {
 	 * @return the full path to the specific location where the builder writes 
 	 * <code>.class</code> files for this source entry, or <code>null</code>
 	 * if using default output folder
-	 * @since 2.1	 */
+	 * @since 2.1
+	 */
 	IPath getOutputLocation();
 	
 	/**

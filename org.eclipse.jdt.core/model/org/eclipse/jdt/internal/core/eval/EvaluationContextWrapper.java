@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.eval;
-import java.util.Locale;
+
+import java.util.Locale;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;

@@ -53,7 +53,8 @@ public class Case extends Statement {
 	}
 
 	/**
-	 * No-op : should use resolveCase(...) instead.	 */
+	 * No-op : should use resolveCase(...) instead.
+	 */
 	public void resolve(BlockScope scope) {
 	}
 

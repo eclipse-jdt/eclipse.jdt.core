@@ -85,7 +85,8 @@ public class JavaProject
 	public static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
 	
 	/**
-	 * Value of the project's raw classpath if the .classpath file contains invalid entries.	 */
+	 * Value of the project's raw classpath if the .classpath file contains invalid entries.
+	 */
 	public static final IClasspathEntry[] INVALID_CLASSPATH = new IClasspathEntry[0];
 
 	private static final String CUSTOM_DEFAULT_OPTION_VALUE = "#\r\n\r#custom-non-empty-default-value#\r\n\r#"; //$NON-NLS-1$
@@ -288,7 +289,8 @@ public class JavaProject
 
 	/**
 	 * Computes the package fragment roots identified by the given entry.
-	 * Only works with resolved entry	 */
+	 * Only works with resolved entry
+	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry resolvedEntry) {
 		try {
 			return 
@@ -1758,7 +1760,8 @@ public class JavaProject
 		}
 		return null;
 	 }
-	 	/**
+	 
+	/**
 	 * @see IJavaProject#newEvaluationContext
 	 */
 	public IEvaluationContext newEvaluationContext() {
@@ -2044,7 +2047,8 @@ public class JavaProject
 	}
 
 	/*
-	 * Set cached preferences, no preference file is saved, only info is updated	 */
+	 * Set cached preferences, no preference file is saved, only info is updated
+	 */
 	public void setPreferences(Preferences preferences) {
 		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(getProject(), true);
 		perProjectInfo.preferences = preferences;
