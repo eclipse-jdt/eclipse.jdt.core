@@ -89,7 +89,7 @@ public class NameLookup implements SuffixConstants {
 	 */
 	protected HashMap unitsToLookInside;
 
-	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashMap packageFragments, ICompilationUnit[] workingCopies) throws JavaModelException {
+	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashMap packageFragments, ICompilationUnit[] workingCopies) {
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
