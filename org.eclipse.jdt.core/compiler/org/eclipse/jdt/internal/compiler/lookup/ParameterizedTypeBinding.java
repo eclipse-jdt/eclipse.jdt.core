@@ -341,6 +341,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        this.methods = parameterizedMethods = NoMethods;
 		}
 	}
+	public boolean hasMemberTypes() {
+	    return this.type.hasMemberTypes();
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#implementsMethod(MethodBinding)
