@@ -57,7 +57,7 @@ public class CompilationResult {
 	public int unitIndex, totalUnitsKnown;
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
-	public boolean hasInconsistentToplevelHierarchies; // record the fact some toplevel types have inconsistent hierarchies
+	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	
 	public CompilationResult(
 		char[] fileName,
