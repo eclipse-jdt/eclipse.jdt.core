@@ -1,0 +1,927 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="IBM">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>JDT/Core Release Notes</title>
+</head>
+<body>
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build ??? - ???th November 2001
+<br>Project org.eclipse.jdt.core ???
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> Better highlighting of multi-line message sending
+<li> Code assist only qualifies implicit members when necessary
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6094">6094</a>
+   Search - does not find references to JavaProject.setProject(...)  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3320">3320</a>"
+   Search - Match through super type not found if in different project (1GGAOFT)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6158">6158</a>"
+   Search - Prefix and postfix expression not found as write reference  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4974">4974</a>:  
+   Set classpath / output location should be one operation  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6176">6176</a>:  
+   Eclipse tools index out of bounds  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6160">6160</a>:  
+   Index out of bounds in update references  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6151">6151</a>:  
+   ArrayIndexOutOfBoundsException in ObjectSet  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5943">5943</a>:  
+   internal error in setting buildpath (name collsion)  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: 
+    CodeFormatter mapped positions broken for multi-line comments
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5907 ">5907</a>:
+    Indexer errors when disk full  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5884">5884</a>:
+	Code assist should only fully qualify if needed
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5514">5514</a>:
+	Select a declaration does not work in unsaved working copies
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5414">5414</a>:
+	ArrayIndexOutOfBoundsException in Signature
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5384">5384</a>:
+	search engine: behavior different than expected 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6104">6104</a>:
+	Unoptimal debugger highlight for multi-line message expression 
+
+<h3>
+Problem Reports Closed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6127">6127</a>:
+   Reference by local class not found when searching for interface refs  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4990">4990</a>:
+   Error starting Eclipse  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3471">3471</a>:
+   Leading '/' in src page of Java wizard is misleading (1G842TH) 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3619">3619</a>:
+   inconsistent search for method declarations (1GCZZS1)  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5557">5557</a>:
+   Incorrect hierarchy shown (not rooted at Object) 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6100">6100</a>:
+   Bug in ObjectSet.Enumeration.nextElement  
+   
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011120 - 20th November 2001
+<br>Project org.eclipse.jdt.core v_213
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> CodeAssist no longer find synthetic completions.
+<li> Reduced startup time of Java perspective
+<li> CodeAssist option added to force full qualification of implicit field/method references
+(see JavaCore option: "org.eclipse.jdt.core.codeComplete.forceImplicitQualification"). 
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5982">5982</a>:
+  content assist displays accessors  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5955">5955</a>:
+	NPE in LookupEnvironment 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5923">5923</a>:
+   Search for "length" field refs finds [].length
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5916">5916</a>:
+   Search - too many matches for refs to NameLookup.findPackageFragmentRoot  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5957">5957</a>:
+   Internal error in RecoveredMethod.add
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5972">5972</a>:
+   Incremental builder (new) recompiling dependents of Parser for no apparent reason
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5940">5940</a>:
+   Instance initializer in anon inner class generates errors  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5913">5913</a>:
+	Performance - creating tons of classfile elements at startup    
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5862">5862</a>:
+    search : too many matches on search with OrPattern  
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6070">6070</a>: 
+    New Builder: Builder order problem 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5852">5852</a>: 
+    Project references not updated according to buildpath 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: 
+    CodeFormatter mapped positions broken for multi-line comments
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5563">5563</a>:
+    Write reference on declaration not reported
+<h3>
+Problem Reports Closed</h3>
+
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3257">3257</a>:
+	IMethod.getParameterNames for ClassFiles should use names from source (1GDGN3G) 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3245">3245</a>:
+    sub folders with dot not visible in packages view (1GCOH17)  
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011113 - 13th November 2001
+<br>Project org.eclipse.jdt.core v_211b
+<h2>
+What's new in this drop</h2>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5821">5821</a>: Refactor
+    Rename renames local variable instead of member in case of name clash
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5003>5003</a>: 
+    Review JavaBuilder cancelation handling 
+<br><a href=" http://dev.eclipse.org/bugs/show_bug.cgi?id="5790">5790</a>:
+    IJavaProject.hasBuildState() fails with new builder
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5794">5794</a>:
+    Polymorphic search doesn't work in dependent projects
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5781">5781</a>:
+    NPE using new image builder
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5834">5834</a>:
+    Incremental build recompiled unrelated project
+<h3>
+Problem Reports Closed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5215">5215</a>: search:
+missing field reference
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011112 - 12th November 2001
+<br>Project org.eclipse.jdt.core v_210_01
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li>
+Project references are maintained by the JavaCore, in parallel with build
+path.</li>
+
+<li>
+Resurrected deprecated APIs from 0.9 which were discarded previously.</li>
+
+<li>
+ICodeCompletion reverted to 1.0 version, and got deprecated. Use ICompletionRequestor
+instead.</li>
+
+<li>
+Cross-project incremental recompilation in presence of structural changes
+in produced binaries.</li>
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5362">5362</a>: Deeper
+than necessary JavaElementDelta when package added
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5525">5525</a>:
+ICodeCompletionRequestor isn't 1.0 compatible
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5616">5616</a>:
+NPE when compiling invalid code defining a array of strings
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5217">5217</a>:
+java search scope: missing enclosing project
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5527">5527</a>:
+Unexpected inaccurate matches for #close() declarations
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5522">5522</a>:
+Type hierarchy - missing subtypes of JavaElement
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5508">5508</a>:
+JDT cannot support periods in the folders above the package name
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5541">5541</a>:
+No refresh when adding a compilation unit inside a dot named source folder
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5532">5532</a>:
+Incremental compile missed a return type change
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5515">5515</a>:
+AbortCompilation during polymorphic search
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5275">5275</a>:
+Cross-project recompilation Defect 186249 - OTI PR# 1GLEYT1
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5267">5267</a>:
+Dependent Projects not compiled when project is saved
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5425">5425</a>:
+Exception on CodeAssist
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3194">3194</a>:
+DCR - JM - Buffer contents is duplicated (1G03HCP)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5430">5430</a>:
+Must resurrect 0.9 deprecated APIs
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4923">4923</a>:
+IJavaProject.getPackageFragmentRoots returns roots from other projects
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3308">3308</a>:
+Projects not build in correct order after load (1GF60TN)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3435">3435</a>:
+keeping the project references and required project in synch (1GL0L34)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5203">5203</a>:
+Project indexing does not restrain to source files on the classpath
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3293">3293</a>:
+search does not work in inner class (1GEUQHJ)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3249">3249</a>:
+Error message is confusing: using token instead of identifier (1GCTDYM)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5214">5214</a>:
+TVT: Apostrophe shows up multiple times in Java error messages in some
+translations (italian)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5263">5263</a>:
+TVT: Compiler error messages are hard for translators to understand
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3251">3251</a>:
+Types not included in code assist list for import (1GD06W9)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5277">5277</a>:
+Code assist on assert method do an AbortException
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5070">5070</a>:
+search: missing interface method reference
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5069">5069</a>:
+search: method reference in super missing
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5068">5068</a>:
+search: missing method reference
+<h3>
+Problem Reports Closed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5526">5526</a>: NullPointerException
+searching declarations of #close()
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5498">5498</a>:
+Java Compile - code does not compile correctly in JDT, but does with javac
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5493">5493</a>:
+Adding project references doesn't update the classpath
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5426">5426</a>:
+CodeAssist returns empty completion
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=1690">1690</a>:
+Local variables not always displayed when in scope (1GJ8PX4)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4368">4368</a>:
+Wrong match in Java Search
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3238">3238</a>:
+CodeAssist - no completion if cursor at string beginning (1GI3BYO)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3271">3271</a>:
+Unable to delete attached internal source jar (1GDX215)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3209">3209</a>:
+DCR - JM -Invalid references to IPath.getDevice() potentially breaking
+on Linux (1G4U1R7)
+<br>&nbsp;
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011025 - 25th October 2001
+<br>Project org.eclipse.jdt.core v_206
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li>
+JavaModel is no longer performing smart classpath updates when Java package
+fragment roots are either moved or removed.</li>
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3568">3568</a>: no
+hoverhelp over constructor referrences (1GAJ0KP)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5218">5218</a>:
+AccSuper is not set properly
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5200">5200</a>:
+SetClasspathOperation must close root only when root is removed
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3449">3449</a>:
+CodeAssist - two type with same name must be qualified (1GLDN3Z)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4973">4973</a>:
+Rename package removes first letter of import statements
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3279">3279</a>:
+Severe - JM - Source found, even though sourcepath is false (1GELAVB)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3434">3434</a>:
+Deleting a project from the ws removes it from the buildpath! (1GKZNBS)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5021">5021</a>:
+Refactoring trashed my code
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5136">5136</a>:
+ArrayIndexOutOfBoundsException when a field declaration is an anonymous
+class
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3440">3440</a>:
+Classfile comparator should be able to ignore order (1GL2I7E)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3439">3439</a>:
+Classfile comparator should be able to ignore synthetics (1GL2I3N)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3442">3442</a>:
+NPE in SourceElementParser (1GL496I)
+<h3>
+Problem Reports Closed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3369">3369</a>: Classpath
+gets out of sync (1GJU853)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3281">3281</a>:
+change java project binary output create new package (1GEHK07)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3298">3298</a>:
+Incorrect compile error on valid case statement (1GEYWET)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3562">3562</a>:
+Outliner bug for initializers (1G93CS3)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3447">3447</a>:
+search: could automatically narrow down scope (1GLDJVN)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3288">3288</a>:
+CodeAssist - Code assist doesn't work in some methods (1GELEBH)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5073">5073</a>:
+delete does not work on default package
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3443">3443</a>:
+Unused argument/variable warnings shown twice (1GL4OW7)
+<br>&nbsp;
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011018 - 18th October 2001
+<br>Project org.eclipse.jdt.core v_205
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li>
+CodeAssist provides variable name suggestions.</li>
+
+<br>&nbsp;&nbsp;&nbsp; (breaking) API Changes on <tt>ICompletionRequestor</tt>
+<br>&nbsp;&nbsp;&nbsp; <b>+</b> <u>Added</u> API for suggest variable name:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>void acceptVariableName(</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] typePackageName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] typeName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] name,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] completionName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);</tt>
+<br>&nbsp;
+<li>
+Helper method for computing a resolved and expanded path (all exports from
+prerequisites) which was introduced in 204, got <u>removed</u>. This is
+not an API change, it never made it out officially.</li>
+
+<br>&nbsp;&nbsp; <b>-</b> <tt>IJavaProject.getExpandedClasspath(boolean)</tt>
+<p><tt>SearchEngine.createJavaSearchScope(IResource[])</tt> has been deprecated.
+Use <tt>SearchEngine.createJavaSearchScope(IJavaElement[])</tt> instead.
+The rational is that <tt>createJavaSearchScope(IResource[])</tt> was not
+well defined for projects, and it could not define a search scope for java
+elements that didn't have a corresponding resource (e.g. external jars).
+This deprecated API's behavior has also reverted to the 1.0 state for backward
+compatibility. The specification of <tt>createJavaSearchScope(IJavaElement[])</tt>
+is as follows:
+<ul>
+<li>
+If an element is an <tt>IJavaProject</tt>, then the project's source folders,
+its jars (external and internal) and its references projects (with their
+source folders and jars, recursively) will be included.</li>
+
+<li>
+If an element is an <tt>IPackageFragmentRoot</tt>, then only the package
+fragments of this package fragment root will be included.</li>
+
+<li>
+If an element is an <tt>IPackageFragment</tt>, then only the compilation
+unit and class files of this package fragment will be included. Subpackages
+will NOT be included.</li>
+</ul>
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5065">5065</a>: NullPointerException
+in Code Assist
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4921">4921</a>:
+Serach does not find types in internal jar
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4917">4917</a>:
+Latest build fails updating TypeHierarchy
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3296">3296</a>:
+CodeAssist - should filter out duplicates if any (1GEWDL7)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3325">3325</a>:
+Too much codeassist match on interface (1GH0GV1)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3424">3424</a>:
+DCR: code assist support for variable name suggestions (1GKM6OQ)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3282">3282</a>:
+JCK 1.4 - DASG - assigned variable before catch block after return statement
+(1GK2AHX)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3452">3452</a>:
+NPE doing Display from Binary (1GLEG5K)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3374">3374</a>:
+SearchPatter.createPattern(...) doesn't work with unicodes (1GJYBRY)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3309">3309</a>:
+DCR - JM - could ICompilationUnit::getType throw JME? (1GF9AL9)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3310">3310</a>:
+Smoke 124: Compile errors introduced with rename refactoring (1GFBK2G)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3436">3436</a>:
+NPW in TypeHierarchy (1GL0L8D)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4919">4919</a>:
+Cannot duplicate local variable in finally block
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4943">4943</a>:
+Verification error
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4385">4385</a>:
+QualifiedAllocationExpression.sourceEnd incorrect if type is an AnonymousLocalTypeDeclaration
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3230">3230</a>:
+Search - Too many type references for query ending with * (1GAZVGI)
+<h3>
+Problem Reports Closed</h3>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3174">3174</a>: Open-on-selection
+doesn't work on MouseAdapter (1GF69TH)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3337">3337</a>:
+Open on selection failed with double message (1GIFA80)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3207">3207</a>:
+JM - Smart save when empty CU (1G4EVHM)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=1672">1672</a>:
+Cannot evaluate classes in a sealed jar (1GHU6YK)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3220">3220</a>:
+Formatter tests refer to hardcoded path on disk (1G9R5G4)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3258">3258</a>:
+exception doing import assist (1GDIJ9D)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3240">3240</a>:
+need to find method declarations in anonymous inner types (1GCBPRI)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3254">3254</a>:
+Indexer - Should nest index source retrieval in IWorkspaceRunnable (1GD7J6F)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3225">3225</a>:
+IJavaProject.findPackageFragment strange semantic (1GAOLWQ)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3218">3218</a>:
+No interface to polymorphically acess ICompilationUnit (1G8D2ZP)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3205">3205</a>:
+Problems with IJavaModel.findPackageFragment (1G456DO)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3197">3197</a>:
+DCR - OpenOnSelection - Code resolve doesn't work on declarations (1G0UX9V)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3177">3177</a>:
+64kb method should be a configurable problem (1FJHGVF)
+<br>&nbsp;
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011011 - October 11th, 2001
+<br>Project org.eclipse.jdt.core v_204
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li>
+Classpath entries (except for source folders) can be tagged as exported
+upon creation. When exported, an entry is contributed to dependent projects
+along with its output location.</li>
+
+<li>
+Added APIs:</li>
+
+<br>&nbsp;&nbsp;&nbsp; Testing status of a given entry
+<br>&nbsp;&nbsp;&nbsp;&nbsp; + IClasspathEntry.isExported()</ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Creating
+entries with export flag
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ JavaCore.newProjectEntry(IPath, boolean)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ JavaCore.newLibraryEntry(IPath, IPath, IPath, boolean)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ JavaCore.newVariableEntry(IPath, boolean)
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Helper
+method computing a resolved and expanded path (all exports from prerequisites)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ IJavaProject.getExpandedClasspath(boolean)
+<ul>
+<li>
+CodeAssist inserts qualification on field/method references in case of
+ambiguities.</li>
+
+<li>
+CodeAssist provides parameter names on method completions.</li>
+
+<br>&nbsp;&nbsp;&nbsp; API Changes on ICompletionRequestor
+<br>&nbsp;&nbsp; + Added API for answering method declaration completions:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void acceptMethodDeclaration(
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] declaringTypePackageName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] declaringTypeName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] selector,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterPackageNames,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterTypeNames,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterNames,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] returnTypePackageName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] returnTypeName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] completionName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int modifiers,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);
+<br>&nbsp;&nbsp;&nbsp; + Added parameterNames to normal method results
+API:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void acceptMethod(
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] declaringTypePackageName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] declaringTypeName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] selector,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterPackageNames,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterTypeNames,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterNames,&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+ADDED
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] returnTypePackageName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] returnTypeName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] completionName,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int modifiers,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);
+<br>&nbsp;
+<li>
+CodeAssist optionally performs visibility checks (see JavaCore option:
+"org.eclipse.jdt.core.codeComplete.visibilityCheck").</li>
+
+<li>
+Search for field read and field write references. Two new constants have
+been added</li>
+
+<br>&nbsp;&nbsp;&nbsp; on IJavaSearchConstants to be used when creating
+a field reference search pattern:
+<br>&nbsp;&nbsp;&nbsp; - READ_REFERENCES: the search results contain *only*
+read access to a field.
+<br>&nbsp;&nbsp;&nbsp; - WRITE_REFERENCES: the search results contain *only*
+write access to a field.
+<br>&nbsp;&nbsp;&nbsp; Note that if REFERENCES is used, then search results
+contain both read and write
+<br>&nbsp;&nbsp;&nbsp; accesss to a field.
+<li>
+OpenOnSelection can now locate selected declarations which have a corresponding</li>
+
+<br>&nbsp;&nbsp;&nbsp; Java element (i.e. no local declaration is found),
+and is more tolerant of
+<br>&nbsp;&nbsp;&nbsp; incorrect code.</ul>
+
+<h2>
+Problem Reports Fixed</h2>
+&nbsp; 3430&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usability: parameter hints (1GKYXK5)
+<br>&nbsp; 3431&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unreachable code in JCore
+(1GL2V6K)
+<br>&nbsp; 3175&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JCK1.3a - ICLS - Comparing
+current instance against enclosing instance inside of anonymous class.
+(1GLDSBS)
+<br>&nbsp; 1GLBOJZ:&nbsp; ITPJCORE:WIN2000 - UnaryExpression doesn't store
+expression type in bit mask
+<br>&nbsp; 1GDS7IP:&nbsp; ITPJCORE:WIN2000 - VerifyError related to a local
+index computation
+<br>&nbsp; 1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an
+unexpected exception
+<br>&nbsp; 1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open
+<br>&nbsp; 1GL4QKI: ITPJCORE:ALL - VerifyError when running app
+<br>&nbsp; 1GLBP65: ITPJCORE:WIN2000 - search: type refs - incorrect match
+<br>&nbsp; 1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner
+class emulation
+<br>&nbsp; 1GD07GK: ITPJUI:WIN98 - Code assist should qualify methods if
+needed.
+<br>&nbsp; 1GL1HF8: ITPJCORE:WIN2000 - Missing implementation in the compiler
+compiling invalid code
+<br>&nbsp; 1GL13OT: ITPJCORE:ALL - INameLookup should be removed
+<br>&nbsp; 1GL1I9F: ITPJCORE:WIN2000 - Wrong source mapping for binary
+methods with parameters with identical simple names
+<br>&nbsp; 1G4CIP0: ITPJUI:WIN - Source for binaries doesn't work for anonymous
+inner classes
+<br>&nbsp; 1GD79XM: ITPJCORE:WINNT - Search - search for field references
+- not all found
+<br>&nbsp; 1GLA60W: ITPJCORE:WINNT - CodeAssist - should not propose declarations
+of method already locally implemented
+<br>&nbsp; 1GLAEZB: ITPJCORE:WINNT - CodeAssist does not disambiguate method
+references
+<br>&nbsp; 1GL4F3J: ITPJCORE:WINNT - Completion on declaration should also
+provide thrown exceptions
+<br>&nbsp; 1GL11J6: ITPJCORE:WIN2000 - search: missing field references
+(nested types)
+<br>&nbsp; 1GL12XE: ITPJCORE:WIN2000 - search: missing field references
+in inner class
+<br>&nbsp; 1GL0X82: ITPJCORE:ALL - ClassCastException setting args on class
+file
+<br>&nbsp; 1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested
+types
+<br>&nbsp; 1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to
+member constructor
+<br>&nbsp; 1GKYS7Y: ITPJCORE:WINNT - Main not found
+<br>&nbsp; 1GELSDQ: ITPJUI:WINNT - JDOM: IType.createMethod does not insert
+nicely for inner types
+<br>&nbsp; 1GF67VL: ITPJUI:WIN98 - DCR - CodeCompletion - Code-assist for
+listener methods
+<br>&nbsp; 1GFK8YT: ITPJUI:ALL - Rename CU A.B.java to AB.java fails (NPE)
+<br>&nbsp; 1GD06J6: ITPJUI:WIN98 - Code assist should qualify fields if
+needed.
+<br>&nbsp; 1FZWGMG: ITPCOM:WIN98 - DCR - CodeAssist - code assist should
+provide method signature completions
+<br>&nbsp; 1GHVOQE: ITPJCORE:WINNT - Ambiguous completion in CodeAssist
+<br>&nbsp; 1G8DEAB: ITPJUI:WINNT - DCR: code assist super methods when
+defining method
+<br>&nbsp; 1GGNNDZ: ITPJCORE:WINNT - OpenOnSelection - non visible target
+is equivalent to no target
+<br>&nbsp; 1GE14NN: ITPJUI:WINNT - Unable to find/search for .class files
+<br>&nbsp; 1GJYFUO: ITPDUI:ALL - Evaluation hangs, evaluation thread is
+suspended
+<br>&nbsp; 1FWG453: ITPJCORE:WIN98 - OpenOnSelection - fails for default
+constructors
+<br>&nbsp; 1GDQD37: ITPJUI:WIN2000 - OpenOnSelection - Open on selection
+failure
+<br>&nbsp; 1GGZ2R7: ITPJUI:WIN2000 - Search for method refs failed
+<br>&nbsp; 1GKNXX6: ITPJCORE:WINNT - OpenOnSelection - no selection if
+targeting member type in default package
+<br>&nbsp; 1GE34EE: ITPJUI:WIN2000 - OpenOnSelection - initial selection
+wrong
+<br>&nbsp; 1GKEG73: ITPJCORE:WIN2000 - search (136): missing field declaration
+<br>&nbsp; 1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect
+results
+<br>&nbsp; 1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath:
+Compares against variable name
+<br>&nbsp; 1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java
+core plug-in shutdown
+<br>&nbsp; 1GKM4M9: ITPJCORE:WINNT - DCR: code select should work on declarations
+<br>&nbsp; 1G2NZVT: ITPJUI:WIN2000 - DCR - OpenOnSelection - Code resolve
+doesn't work for declarations
+<h3>
+Problem Reports Closed</h3>
+&nbsp; 3223&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search from editor's context
+menu doesn't work (1GAJCD8)
+<br>&nbsp; 3433&nbsp; search: missing field occurrecnces (1GKZ8J6)
+<br>&nbsp; 3176&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JCK1.3a - STMT - Single declaration
+in try block (1GLDSH9)
+<br>&nbsp; 1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for
+nested types
+<br>&nbsp; 1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
+<br>&nbsp; 1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints
+<br>&nbsp; 1GEV78E: ITPJUI:WIN2000 - Code assist: private superclass methods
+show up, but others don't
+<br>&nbsp; 1GDKKTS: ITPJUI:WINNT - CodeCompletion - import assist shows
+invisible types
+<br>&nbsp; 1G7317O: ITPJCORE:WIN2000 - DCR - CodeAssist - code assist shows
+invisible members
+<br>&nbsp; 1GKK930: ITPJCORE:WINNT - No code assist for Inner type
+<br>&nbsp; 1GIIDGX: ITPJUI:WINNT - open on type: does not work on some
+types
+<br>&nbsp; 1GKOFO6: ITPJCORE:WINNT - Internal error searching for class
+references
+<br>&nbsp; 1GK96A0: ITPJCORE:WINNT - NPE during search operation
+<br>&nbsp; 1GK9B5Q: ITPJCORE:WINNT - Class reference search broken
+<br>&nbsp; 1GBOFK5: ITPJUI:ALL - "References to" on methods in jars
+<br>&nbsp; 1GKECWC: ITPJCORE:WINNT - Organize Imports fails: Typerefs not
+complete
+<br>&nbsp; 1GKCH3N: ITPJCORE:WIN2000 - search: method refs - super call
+not found
+<br>&nbsp; 1GKB475: ITPJCORE:WINNT - StringIndexOutOfBoundsException on
+searchfor methods
+<br>&nbsp; 1GJL6V0: ITPJCORE:WINNT - JavaConventions.validateClasspath:
+IStatus usage
+<br>&nbsp; 1GKM1MU: ITPJCORE:WINNT - Classpath validation: Overlapping
+accepted
+<br>&nbsp; 1GJL7RS: ITPJCORE:WINNT - JavaConventions.validateClasspath:
+nested sourcefolders
+<br>&nbsp; 1GK9NB0: ITPJCORE:WIN2000 - Another core dump - sorry
+<br>&nbsp; 1GJYG33: ITPJUI:WIN2000 - Core dump in run time workbench in
+Search
+<br>&nbsp; 1GK9S59: ITPJUI:WIN2000 - Internal error when synchronizing
+<br>&nbsp; 1GL2TZY: ITPJUI:WIN2000 - Code Completion should only show visible
+items
+<br>&nbsp; 1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
+<br>&nbsp; 1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as
+a compilation unit?
+<br>&nbsp; 1G98XR7: ITPJCORE:WIN2000 - Feature Request for JavaDoc CodeAssist
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 0.202 - Spetember 27th, 2001
+<br>Project org.eclipse.jdt.core v_202
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li>
+New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)</li>
+
+<br>&nbsp;&nbsp; i.e. 2 more APIs on the AST visitor. Note: this was not
+an official API
+<li>
+ISourceElementRequestor notifies enter/exit initializers instead of just
+acceptInitializer. Note: this was not an official API</li>
+
+<li>
+Search in inner-classes now works. Indexes are recomputed automatically
+on start-up.</li>
+
+<li>
+&nbsp; Removed CodeAssist option for hungry mode (org.eclipse.jdt.core.codeComplete.entireWordReplacement)</li>
+
+<br>&nbsp;&nbsp; Client code can decide whether using inferred end position
+(hungry behavior) or original cursor location (insert behavior)
+<br>&nbsp;&nbsp; based on the keystroke (enter/insert?).
+<li>
+&nbsp; org.eclipse.jdt.core.search.IJavaSearchResultCollector now clearly
+states that</li>
+
+<br>&nbsp;&nbsp;&nbsp; the order of the search result is unspecified.</ul>
+
+<h2>
+Problem reports fixed</h2>
+&nbsp; 1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable
+after assignment expression when true
+<br>&nbsp; 1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value
+of a final instance variable after a constant boolean expression when false
+<br>&nbsp; 1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to
+class
+<br>&nbsp; 1G4TNX1: ITPJCORE:WINNT - Search - No search anonymous results
+in inner classes
+<br>&nbsp; 1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
+<br>&nbsp; 1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value
+after the boolean operator ? : when true
+<br>&nbsp; 1GKB28A: ITPJCORE:WIN2000 - Compiler accepts incorrect code
+<br>&nbsp; 1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal
+jump
+<br>&nbsp; 1GK2B6D: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value
+before the second operand of the boolean operator &amp;&amp;
+<br>&nbsp; 1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before
+finally block after return statement
+<br>&nbsp; 1GK6WD3: ITPJCORE:WIN2000 - search:no fully qualified references
+are found
+<br>&nbsp; 1GK7231: ITPJCORE:WIN2000 - typos in comments
+<br>&nbsp; 1GK77HA: ITPJCORE:WINNT - Search - missing base type references
+<br>&nbsp; 1GJY2XN: ITPJUI:WIN2000 - rename type: error when with reference
+<br>&nbsp; 1GK1I2J: ITPJCORE:WIN2000 - Broken SourceEnd in ForStatement
+and WhileStatement
+<br>&nbsp; 1GK1HWY: ITPJCORE:WIN2000 - Broken sourceEnd in for Assignment
+and CompoundAssignment
+<br>&nbsp; 1GIIBC3: ITPJCORE:WINNT - search for method references - missing
+matches
+<br>&nbsp; 1GGNOTF: ITPJCORE:WINNT - Search doesn't find method referenced
+in anonymous inner class
+<br>&nbsp; 1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when
+searching references in JAR
+<h3>
+Problem Reports Closed</h3>
+&nbsp;1GJY3KG: ITPJUI:WIN2000 - NPE in jdt.internal.core.ClassFileInfo
+<br>&nbsp; 1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
+<br>&nbsp; 1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
+<br>&nbsp; 1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
+<br>&nbsp; 1GKCJIL: ITPJCORE:WIN2000 - build exception in 135
+<br>&nbsp; 1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
+<br>&nbsp; 1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during
+rebuild
+<br>&nbsp; 1GK7E6S: ITPJCORE:WIN2000 - search: StringIndexOufOfBound
+<br>&nbsp; 1GIT857: ITPJCORE:WIN2000 - Performance - Ctrl+S triggers five
+parser runs
+<br>&nbsp; 1GEHCYL: ITPUI:WINNT - Minor: Colon at wrong place in build
+dialog
+<br>&nbsp; 1FLUBRR: JRIDE:WINNT - Problems: instantiating inner classes
+<br>&nbsp; 1FLUOJI: JRIDE:WINNT - Problems: vague error message with illegal
+constructor invocation
+<br>&nbsp; 1FLZUG5: JRIDE:WINNT - Problems: invalid expression as statement
+is not reported
+<br>&nbsp; 1FLZV4M: JRIDE:WINNT - Problems: invalid hexa literal number
+not reported
+<br>&nbsp; 1FLZYES: JRIDE:WINNT - Problems: the interface cannot define
+an initializer is not reported
+<br>&nbsp; 1FQVTI1: LFCOM:WINNT - Compiler - No implicit conversion should
+not generate aconstnull
+<br>&nbsp; 1FUZYXT: ITPJCORE:WINNT - JM - Source for Binaries issue
+<br>&nbsp; 1FX0LZ0: ITPCOM:ALL - Request for comments preceeding imports
+&amp; package decls
+<br>&nbsp; 1FW8ENP: ITPJUI:WIN98 - JDOM - Deleting import statements from
+Outline obliterates intervening comments
+<br>&nbsp; 1G4PWC7: ITPJCORE:WINNT - Search - No matches with class files
+<br>&nbsp; 1G83ZKL: ITPJUI:WINNT - Compiler - unclear error message for
+a reserved word used as an identifier
+<br>&nbsp; 1GF5W1S: ITPJUI:WIN2000 - ClassCastException in LookupEnvironment
+<br>&nbsp; 1GKF01S: ITPJCORE:WINNT - Severe: internal error during search
+<br>&nbsp; 1GDVFRX: ITPJUI:WIN2000 - CodeCompletion - eats the following
+word
+<br>&nbsp; 1GF67JM: ITPJUI:WIN98 - CodeCompletion - Code-assist consumes
+next token
+<br>&nbsp; 1GCSHAC: ITPJCORE:Inconsistent codeassist behavior
+<br>&nbsp; 1GCNBTL: ITPJCORE:ALL - DCR - JM - Provide a way to read JavaCore
+default options from the plugin.xml file
+<br>&nbsp; 1GAJBOU: ITPJUI:WINNT - Code Assist shows matches after ()
+<br>&nbsp; 1FW8NV6: ITPJCORE:ALL - DCR - JM - Need API for compiler options
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Build 0.200 - September 13th, 2001
+<br>Project org.eclipse.jdt.core v_200
+<h2>
+What is new in this drop</h2>
+
+<ul>
+<li>
+JCK1.3a compliant.</li>
+
+<li>
+Added 2 new APIs on JavaConventions for classpath validation.</li>
+
+<ul>
+<li>
+IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[]
+classpath, IPath outputLocation)</li>
+
+<li>
+IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry
+entry, boolean checkSourceAttachment)</li>
+</ul>
+
+<li>
+Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)</li>
+
+<li>
+Assertions support enabled: by default the compiler is 1.3 compliant, but
+it can optionally be turned into source 1.4 mode cf. JavaCore options.</li>
+
+<li>
+More options are surfaced on JavaCore. See JavaCore.getDefaultOptions()
+for description.</li>
+
+<ul>
+<li>
+...internal...ConfigurableOption has disappeared.</li>
+
+<li>
+Evaluation in binaries is functional</li>
+</ul>
+
+<li>
+Search for references now finds results in binaries. Indexes in old workspaces
+are recomputed when restarted which may result in longer startup times.</li>
+</ul>
+
+<h2>
+Problem Reports Fixed</h2>
+1GEKKUO: ITPJCORE:ALL - JM - Util.readContentsAsBytes(InputStream) doesn't
+allow for size hint
+<br>1GBRPSJ: ITPJCORE:Options - should surface the code formatter options
+on JavaCore
+<br>1GJU3YV: ITPJCORE:ALL - ArrayIndexOutOfBoundsException in scanner
+<br>1GJL1R5: ITPJCORE:ALL - NPE in ClassFile.getSourceRange
+<br>1GH49XR: ITPJUI:WIN2000 - Organize Imports inserts bogus import
+<br>1GJU3O8: ITPJCORE:WINNT - type hierarchy: NPE
+<br>1GJIYKP: ITPJCORE:WINNT - type hierarchy - contains unrelated types
+<br>1GITFQR: IVJIDT:WIN2000 - Wrong byte code generation, Inconsistent
+stack height 1 != 0 error
+<br>1GIHUQP: ITPJCORE:WINNT - search for static field should be more accurate
+<br>1GIT66X: ITPJCORE:WINNT - ClassCastException when calling CodeAssist
+<br>1GJA0WG: ITPJCORE:WINNT - AbortCompilationUnit when doing a Search
+<br>1GH49HW: ITPJUI:WINNT - Search functionality is misleading when viewing
+source from jar
+<br>1GFXPE5: ITPJUI:ALL - Search for method references broken
+<br>1GFM3X3: ITPJUI:WINNT - Wrong code formatter default for keeping else
+on same line
+<br>1GHSM7B: ITPJUI:ALL - formatting of anonymous classes
+<br>1GGPVHN: ITPJUI:WIN2000 - Not getting hover Javadoc for ISelection
+<br>1GE2LO2: ITPJCORE:WIN2000 - SourceStart and SourceEnd of synchronized
+statement
+<br>1GIUTIZ: ITPJCORE:WIN2000 - AST: case statement doesn't cover case
+keyword
+<br>1GITCCY: ITPJCORE:WIN2000 - AST: strange LocalDeclaration.declarationSourceEnd
+<br>1GIRQFW: ITPJCORE:WIN2000 - AST: wrong source end if subnode is of
+type AnnonymousTypeDeclaration
+<br>1GIRHRP: ITPJCORE:WIN2000 - AST: wrong sourceStart and sourceEnd in
+SynchronizedStatement
+<br>1GHUAUO: ITPJCORE:ALL - Renaming an element in a working copy corrupts
+the working copy
+<br>1GHUAM1: ITPJCORE:ALL - NPE when renaming an element in a working copy
+<br>1GHDA2V: ITPJCORE:WINNT - ClassCastException when doing a search
+<br>1GFY02B: ITPJUI:ALL - Delete a method and saving introduces extra lines
+<br>1GFOFMD: ITPJUI:WIN2000 - New class should have space between package
+and class decls
+<br>1GI3R1I: ITPJCORE:WIN2000 - Compilation error evaluating super expression
+in debugger
+<br>1GII07V: ITPJCORE:WIN2000 - CompilationUnitDeclaration.traverse doesn't
+call visitor.endVisit
+<br>1GIR345: ITPJCORE:ALL - Indexer: NegativeArraySizeException
+<br>1GIRC23: ITPJCORE:ALL - CodeFormatter brace on new line problem
+<br>1GIT8SA: ITPJCORE:WIN2000 - AST: wrong sourceEnd if action is Block
+<br>1GIUQVL: ITPJCORE:WINNT - IClassPathEntry: java doc incorrect
+<br>1GIVGMH: ITPJUI:ALL - EC: Javadoc hoverhelp incorrectly uses first
+of multiple comments
+<br>1GIYKSR: ITPJCORE:WIN2000 - Ast: FieldDeclaration.traverse implemeted
+differently
+<br>1GI3ND5: ITPJCORE:WINNT - Potential optimization during IB problem
+generation
+<br>1GFBVZH: ITPUI:WIN2000 - ArrayIndexOutOfBoundsException: Java editor
+<br>1GI509E: ITPJCORE:WINNT - IJavaProject.getNonJavaResources returns
+java and class files
+<br>1GI2WAW: ITPJCORE:WINNT - Too many results for default package
+<br>1GHQZ9H: ITPJUI:ALL - Walkback doing a search
+<br>1GGYT3S: ITPJCORE:WINNT - javaconventions::validatePackageName and
+default package
+<br>1GF9856: ITPJCORE:WINNT - JM - JavaConventions::validateCompilationUnitName
+<br>1GF822P: ITPJCORE:WIN2000 - NegativeArraySizeException in Parser
+<br>1GI6T4Y: ITPJCORE:WINNT - NPE in JavaModeManager retrieving workspace
+options
+<br>1GE4ILR: ITPJCORE:ALL - Eval - Evaluation in Binary Project fails
+<br>1GI3LLC: ITPJCORE:ALL - Incorrect formatting for the new keyword
+<br>1GHU6O5: ITPJCORE:WINNT - RMIC test fail
+<br>1GHH6O7: ITPJCORE:ALL - Need to tune the exception analysis for AssertStatement
+<br>1GHUW7T: ITPJCORE:WIN2000 - Build Problem
+<br>1GI3IG9: ITPJCORE:ALL - internal compiler error involving bogus method/field
+declaration
+<br>1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
+<br>1GHONAX: ITPJCORE:WIN2000 - Compiler uses different name lookup for
+refactoring
+<br>1GEJYAJ: ITPJCORE:WIN2000 - Compiler - Binding of QualifiedNameReference
+is null
+<br>1GHFHWR: ITPJCORE:ALL - Assertions: CodeAssist and Selection need to
+be updated
+<br>1GHFHXG: ITPJCORE:ALL - Assertions: Add optional warning on assert
+identifier
+<br>1GCZ9VM: ITPJCORE:WIN2000 - DCR - Compiler - Batch compiler should
+be API
+<br>1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return
+type is secondary one
+<br>1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
+<br>1GH2R62: ITPJCORE:WIN2000 - Typo in progress message
+<br>1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
+<br>1GDFJK0: IVJIDT:WIN2000 - Using 'synchronized' produces invalid exception
+table values in class, causes "Illegal exception table range" exception,
+VAJ 3.5+
+<br>1GGAK6G: ITPJCORE:ALL - Incorrect javadoc comment in JavaElement
+<br>1GF9L3K: ITPDUI:ALL - Eval - Private array resolution failure
+<br>1GF8KHX: ITPJUI:ALL - Invalid project build path should be warning,
+not error
+<br>1GF7JIH: ITPJCORE:ALL - Exception when removing network drive
+<br>1GEYBL9: ITPJUI:WINNT - Adding source folders on CP is very confusing
+<br>1GEJAOT: ITPJUI:WINNT - JRE Source attachment set to path to does not
+exist
+<br>1GEHZNB: ITPJUI:WINNT - smoke 114: formatter inserts extra tab in first
+line
+<br>1GCZZT4: ITPJCORE:Fault-tolerance - missing constructor invocation
+could still answer the allocated type
+<br>1GAU96P: ITPJCORE:WINNT - DCR - JM - JavaProject should provide a class
+path validation method
+<br>1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified
+<br>1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName()
+<br>&nbsp;
+</body>
+</html>
