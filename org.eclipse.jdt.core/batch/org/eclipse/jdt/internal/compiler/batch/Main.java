@@ -1260,7 +1260,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		for (int i = 0, max = this.classpaths.length; i < max; i++) {
 			File file = new File(this.classpaths[i]);
 			if (!file.exists()) { // signal missing classpath entry file
-				this.out.println(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
+				this.err.println(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
 			}
 		}
 		if (this.destinationPath == null) {
