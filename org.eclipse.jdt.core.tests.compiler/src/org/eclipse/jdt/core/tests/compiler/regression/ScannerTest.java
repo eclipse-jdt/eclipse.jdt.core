@@ -514,4 +514,21 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource("No line breaks here".toCharArray()); // expecting line breaks to reset
 		assertEquals("Wrong size", 0, scanner.getLineEnds().length);
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86611 
+	 */
+	public void test026() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "0x.p-2".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+			}
+			assertTrue(false);
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+		}
+	}	
 }

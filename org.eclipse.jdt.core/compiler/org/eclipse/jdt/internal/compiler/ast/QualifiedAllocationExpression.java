@@ -298,8 +298,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (isMethodUseDeprecated(binding, scope)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				if (this.arguments != null)
-					checkInvocationArguments(scope, null, allocationType, binding, this.arguments, argumentTypes, argsContainCast, this);
+				checkInvocationArguments(scope, null, allocationType, binding, this.arguments, argumentTypes, argsContainCast, this);
 			} else {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocationType;

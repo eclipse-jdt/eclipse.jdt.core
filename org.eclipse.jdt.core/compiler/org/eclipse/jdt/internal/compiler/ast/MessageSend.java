@@ -372,8 +372,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
 		}		
 	}
-	if (this.arguments != null) 
-		checkInvocationArguments(scope, this.receiver, actualReceiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
+	checkInvocationArguments(scope, this.receiver, actualReceiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 
 	//-------message send that are known to fail at compile time-----------
 	if (binding.isAbstract()) {

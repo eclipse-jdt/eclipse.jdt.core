@@ -6104,29 +6104,34 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 7)\n" + 
 			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method iterator() belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 7)\n" + 
+			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<X>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 8)\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
 			"	                                          ^^^^^^^^^^\n" + 
 			"Type safety: The cast from Collection to List<X> is actually checking against the erased type List\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 10)\n" + 
+			"7. ERROR in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                                ^\n" + 
 			"Type mismatch: cannot convert from Collection<X> to List\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 10)\n" + 
+			"8. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from List to Collection<X> is actually checking against the erased type Collection\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 11)\n" + 
+			"9. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                                ^\n" + 
 			"Type mismatch: cannot convert from Collection<?> to List\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 11)\n" + 
+			"10. WARNING in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from List to Collection<?>\n" + 
@@ -7725,13 +7730,28 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method start() belongs to the raw type B. References to generic type B<X> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in C.java (at line 4)\n" + 
+			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method get(B) belongs to the raw type B. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in C.java (at line 4)\n" + 
+			"3. WARNING in C.java (at line 4)\n" + 
+			"	new B().start().get(new B().start()).get(new B().start());\n" + 
+			"	                    ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method start() belongs to the raw type B. References to generic type B<X> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	                                     ^^^\n" + 
 			"The method get(B) is undefined for the type Object\n" + 
+			"----------\n" + 
+			"5. WARNING in C.java (at line 4)\n" + 
+			"	new B().start().get(new B().start()).get(new B().start());\n" + 
+			"	                                         ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method start() belongs to the raw type B. References to generic type B<X> should be parameterized\n" + 
 			"----------\n");
 	}
 	// static method #start() gets its type does not get substituted when accessed through raw type
@@ -8935,7 +8955,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 15)\n" + 
+			"1. WARNING in X.java (at line 15)\n" + 
+			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method myMethod(Object, Class) belongs to the raw type MyClass. References to generic type MyClass<Type> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
@@ -12441,10 +12466,20 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 18)\n" + 
+			"1. WARNING in X.java (at line 17)\n" + 
+			"	Object o= a.getOne();\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"Type safety: The method getOne() belongs to the raw type A. References to generic type A<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
 			"	Number n1= b.getOne(); // fails\n" + 
 			"	       ^^\n" + 
 			"Type mismatch: cannot convert from Object to Number\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 18)\n" + 
+			"	Number n1= b.getOne(); // fails\n" + 
+			"	           ^^^^^^^^^^\n" + 
+			"Type safety: The method getOne() belongs to the raw type A. References to generic type A<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	
@@ -14345,17 +14380,22 @@ public void test500(){
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 17)\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	System.out.println(so.getSomeAttribute());		\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getSomeAttribute() belongs to the raw type MyTigerSimpleObject. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 17)\n" + 
 			"	class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
 			"	      ^^^^^^^^^\n" + 
 			"The serializable class TigerList does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 17)\n" + 
+			"3. WARNING in X.java (at line 17)\n" + 
 			"	class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The type parameter MyTigerSimpleObject is hiding the type MyTigerSimpleObject<E>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 20)\n" + 
+			"4. ERROR in X.java (at line 20)\n" + 
 			"	System.out.println(so.getSomeAttribute());\n" + 
 			"	                      ^^^^^^^^^^^^^^^^\n" + 
 			"The method getSomeAttribute() is undefined for the type MyTigerSimpleObject\n" + 
@@ -14754,7 +14794,12 @@ public void test500(){
 			"	                  ^^^^^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	List<String> ls = m.list(); // rawified even though wasn\'t using T parameter\n" + 
+			"	                  ^^^^^^^^\n" + 
+			"Type safety: The method list() belongs to the raw type X.M. References to generic type X.M<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

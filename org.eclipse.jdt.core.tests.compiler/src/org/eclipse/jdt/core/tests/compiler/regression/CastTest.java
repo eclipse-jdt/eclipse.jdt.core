@@ -791,6 +791,7 @@ public void test021() {
 public void test022() { 
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

@@ -2928,11 +2928,13 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				return TokenNameLongLiteral;
 			} else if (getNextChar('.')) {
 				if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-					// if we are in source level < 1.5, we report an integer literal
+					if (end == start) {
+						throw new InvalidInputException(INVALID_HEXA);
+					}
 					this.currentPosition = end;
 					return TokenNameIntegerLiteral;
 				}
-				// hexadeciman floating point literal
+				// hexadecimal floating point literal
 				// read decimal part
 				boolean hasNoDigitsBeforeDot = end == start;
 				start = this.currentPosition;

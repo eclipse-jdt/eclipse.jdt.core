@@ -180,69 +180,72 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean unsafeWildcardInvocation = false;
 		TypeBinding[] params = method.parameters;
-		boolean isRawMemberInvocation = !method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters();
+		int paramLength = params.length;
+		boolean isRawMemberInvocation = !method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
-				if (((ParameterizedGenericMethodBinding)method).isRaw && method.hasSubstitutedParameters()) {
+				if (((ParameterizedGenericMethodBinding)method).isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}
 		}
-		if (method.isVarargs()) {
-			// 4 possibilities exist for a call to the vararg method foo(int i, long ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new long[] {1, 2})
-			int lastIndex = params.length - 1;
-			for (int i = 0; i < lastIndex; i++) {
-				TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
-			    if (checkInvocationArgument(scope, arguments[i], params[i] , argumentTypes[i], originalRawParam)) {
-				    unsafeWildcardInvocation = true;
-			    }
-			}
-		   int argLength = arguments.length;
-		   if (lastIndex < argLength) { // vararg argument was provided
-			   	TypeBinding parameterType = params[lastIndex];
-				TypeBinding originalRawParam = null;
-
-			    if (params.length != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
-			    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
-					originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
-			    }
-				for (int i = lastIndex; i < argLength; i++) {
-				    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i], originalRawParam))
+		if (arguments != null) {
+			if (method.isVarargs()) {
+				// 4 possibilities exist for a call to the vararg method foo(int i, long ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new long[] {1, 2})
+				int lastIndex = paramLength - 1;
+				for (int i = 0; i < lastIndex; i++) {
+					TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
+				    if (checkInvocationArgument(scope, arguments[i], params[i] , argumentTypes[i], originalRawParam)) {
+					    unsafeWildcardInvocation = true;
+				    }
+				}
+			   int argLength = arguments.length;
+			   if (lastIndex < argLength) { // vararg argument was provided
+				   	TypeBinding parameterType = params[lastIndex];
+					TypeBinding originalRawParam = null;
+	
+				    if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
+				    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
+						originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
+				    }
+					for (int i = lastIndex; i < argLength; i++) {
+					    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i], originalRawParam))
+						    unsafeWildcardInvocation = true;
+					}
+				}
+	
+			   if (paramLength == argumentTypes.length) { // 70056
+					int varargIndex = paramLength - 1;
+					ArrayBinding varargType = (ArrayBinding) params[varargIndex];
+					TypeBinding lastArgType = argumentTypes[varargIndex];
+					if (lastArgType == NullBinding) {
+						if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
+							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
+					} else if (varargType.dimensions <= lastArgType.dimensions()) {
+						int dimensions = lastArgType.dimensions();
+						if (lastArgType.leafComponentType().isBaseType())
+							dimensions--;
+						if (varargType.dimensions < dimensions)
+							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
+						else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
+							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
+					}
+				}
+			} else {
+				for (int i = 0; i < paramLength; i++) {
+					TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
+				    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i], originalRawParam))
 					    unsafeWildcardInvocation = true;
 				}
 			}
-
-		   if (method.parameters.length == argumentTypes.length) { // 70056
-				int varargIndex = method.parameters.length - 1;
-				ArrayBinding varargType = (ArrayBinding) method.parameters[varargIndex];
-				TypeBinding lastArgType = argumentTypes[varargIndex];
-				if (lastArgType == NullBinding) {
-					if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
-						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
-				} else if (varargType.dimensions <= lastArgType.dimensions()) {
-					int dimensions = lastArgType.dimensions();
-					if (lastArgType.leafComponentType().isBaseType())
-						dimensions--;
-					if (varargType.dimensions < dimensions)
-						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
-					else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
-						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
-				}
+			if (argsContainCast) {
+				CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
 			}
-		} else {
-			for (int i = 0, argLength = arguments.length; i < argLength; i++) {
-				TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
-			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i], originalRawParam))
-				    unsafeWildcardInvocation = true;
-			}
-		}
-		if (argsContainCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
 		}
 		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
-		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
+		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
 		} else if (rawOriginalGenericMethod != null) {
 		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method);

@@ -327,8 +327,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))
 					scope.problemReporter().deprecatedMethod(binding, this);
-				if (this.arguments != null)
-					checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
+				checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate()) {
 					binding.original().modifiers |= AccPrivateUsed;
 				}				
