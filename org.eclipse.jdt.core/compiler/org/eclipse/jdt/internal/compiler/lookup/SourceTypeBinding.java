@@ -1018,7 +1018,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					fieldDecls[f].binding = null;
 					return null;
 				}
-				if (fieldType instanceof ReferenceBinding && (((ReferenceBinding)fieldType).modifiers & AccGenericSignature) != 0) {
+				TypeBinding leafType = fieldType.leafComponentType();
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
 					field.modifiers |= AccGenericSignature;
 				}				
 			} finally {
@@ -1090,7 +1091,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
 			} else {
-			    if (parameterType instanceof ReferenceBinding && (((ReferenceBinding)parameterType).modifiers & AccGenericSignature) != 0) {
+				TypeBinding leafType = parameterType.leafComponentType();
+			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
 					method.modifiers |= AccGenericSignature;
 				}
 				method.parameters[i] = parameterType;
@@ -1116,7 +1118,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				foundReturnTypeProblem = true;
 			} else {
 				method.returnType = methodType;
-				if (methodType instanceof ReferenceBinding && (((ReferenceBinding)methodType).modifiers & AccGenericSignature) != 0) {
+				TypeBinding leafType = methodType.leafComponentType();
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
 					method.modifiers |= AccGenericSignature;
 				}
 			}

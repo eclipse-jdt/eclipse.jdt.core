@@ -12190,5 +12190,34 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	      ^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Object[] to U\n" + 
 			"----------\n");
+	}
+	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81719
+	public void test455() {
+		this.runConformTest(
+			new String[] {
+				"AbstractTest.java",
+				"public abstract class AbstractTest<T> {\n" + 
+				"  abstract void array(T[] a);\n" + 
+				"  abstract void type(T a);\n" + 
+				"  abstract T[] foo();\n" +
+				"}\n",
+			},
+			"");
+
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T> extends AbstractTest<T> {\n" + 
+				"  void array(T[] a) {}\n" + 
+				"  void type(T a) {}\n" + 
+				"  T[] foo() { return null; }\n" +
+				"}\n",
+			},
+			"",
+			null,
+			false, // do not flush output
+			null);		
 	}		
 }
