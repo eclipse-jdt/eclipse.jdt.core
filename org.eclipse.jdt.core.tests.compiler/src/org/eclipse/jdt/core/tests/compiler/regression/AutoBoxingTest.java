@@ -669,5 +669,98 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"y"
 		);
+	}	
+
+	public void test015() { // return statement
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static Integer foo1() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	static int foo2() {\n" + 
+				"		return new Integer(0);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(foo1());\n" + 
+				"		System.out.println(foo2());\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"00"
+		);
 	}
+	
+	public void test016() { // conditional expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = args.length == 0 ? 0 : new Integer(1);\n" + 
+				"		System.out.println(i);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"0"
+		);
+	}	
+
+	public void test017() { // cast expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = new Integer(1);\n" + 
+				"		System.out.println((int)i);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"1"
+		);
+	}		
+	
+	public void test018() { // cast expression
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Float f = args.length == 0 ? new Float(0) : 0;\n" + 
+				"		System.out.println((int)f);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println((int)f);\n" + 
+			"	                   ^^^^^^\n" + 
+			"Cannot cast from Float to int\n" + 
+			"----------\n"
+		);
+	}		
+
+	public void test019() { // cast expression
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println((Integer) 0);\n" + 
+				"		System.out.println((Float) 0);\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println((Float) 0);\n" + 
+			"	                   ^^^^^^^^^\n" + 
+			"Cannot cast from int to Float\n" + 
+			"----------\n"
+		);
+	}		
+
 }

@@ -120,8 +120,8 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 			&& ((variableReference = (SingleNameReference) operation.right).binding == this.binding)
 			&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-			&& ((operation.left.implicitConversion >> 4) != T_String) // exclude string concatenation which would occur backwards
-			&& ((operation.right.implicitConversion >> 4) != T_String)) { // exclude string concatenation which would occur backwards
+			&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String) // exclude string concatenation which would occur backwards
+			&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String)) { // exclude string concatenation which would occur backwards
 			// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
 			return;
@@ -365,7 +365,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	}
 	// perform the actual compound operation
 	int operationTypeID;
-	if ((operationTypeID = this.implicitConversion >> 4) == T_String || operationTypeID == T_Object) {
+	if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String || operationTypeID == T_Object) {
 		codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type

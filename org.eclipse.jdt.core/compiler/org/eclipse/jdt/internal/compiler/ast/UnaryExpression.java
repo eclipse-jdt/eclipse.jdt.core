@@ -71,7 +71,7 @@ public class UnaryExpression extends OperatorExpression {
 		}
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
 			case NOT :
-				switch (this.expression.implicitConversion >> 4) /* runtime type */ {
+				switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) /* runtime type */ {
 					case T_boolean :
 						// ! <boolean>
 						// Generate code for the condition
@@ -97,8 +97,7 @@ public class UnaryExpression extends OperatorExpression {
 				}
 				break;
 			case TWIDDLE :
-				switch (this.expression.implicitConversion >> 4 /* runtime */
-					) {
+				switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4 /* runtime */) {
 					case T_int :
 						// ~int
 						this.expression.generateCode(currentScope, codeStream, valueRequired);
@@ -119,7 +118,7 @@ public class UnaryExpression extends OperatorExpression {
 				// - <num>
 				if (this.constant != NotAConstant) {
 					if (valueRequired) {
-						switch (this.expression.implicitConversion >> 4){ /* runtime */
+						switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4){ /* runtime */
 							case T_int :
 								codeStream.generateInlinedValue(this.constant.intValue() * -1);
 								break;
@@ -136,7 +135,7 @@ public class UnaryExpression extends OperatorExpression {
 				} else {
 					this.expression.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired) {
-						switch (expression.implicitConversion >> 4){ /* runtime type */
+						switch ((expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4){ /* runtime type */
 							case T_int :
 								codeStream.ineg();
 								break;

@@ -385,7 +385,7 @@ public class QualifiedNameReference extends NameReference {
 		// the last field access is a write access
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = implicitConversion >> 4) == T_String) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type

@@ -174,13 +174,13 @@ public class EqualExpression extends BinaryExpression {
 			return;
 		}
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-			if ((left.implicitConversion & 0xF) /*compile-time*/ == T_boolean) {
+			if ((left.implicitConversion & COMPILE_TYPE_MASK) /*compile-time*/ == T_boolean) {
 				generateOptimizedBooleanEqual(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			} else {
 				generateOptimizedNonBooleanEqual(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			}
 		} else {
-			if ((left.implicitConversion & 0xF) /*compile-time*/ == T_boolean) {
+			if ((left.implicitConversion & COMPILE_TYPE_MASK) /*compile-time*/ == T_boolean) {
 				generateOptimizedBooleanEqual(currentScope, codeStream, falseLabel, trueLabel, valueRequired);
 			} else {
 				generateOptimizedNonBooleanEqual(currentScope, codeStream, falseLabel, trueLabel, valueRequired);
@@ -236,7 +236,7 @@ public class EqualExpression extends BinaryExpression {
 		Constant inline;
 		if ((inline = right.constant) != NotAConstant) {
 			// optimized case: x == 0
-			if (((left.implicitConversion >> 4) == T_int) && (inline.intValue() == 0)) {
+			if ((((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_int) && (inline.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -259,7 +259,7 @@ public class EqualExpression extends BinaryExpression {
 		}
 		if ((inline = left.constant) != NotAConstant) {
 			// optimized case: 0 == x
-			if (((left.implicitConversion >> 4) == T_int)
+			if ((((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_int)
 				&& (inline.intValue() == 0)) {
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
@@ -350,7 +350,7 @@ public class EqualExpression extends BinaryExpression {
 			if (falseLabel == null) {
 				if (trueLabel != null) {
 					// implicit falling through the FALSE case
-					switch (left.implicitConversion >> 4) { // operand runtime type
+					switch ((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) { // operand runtime type
 						case T_int :
 							codeStream.if_icmpeq(trueLabel);
 							break;
@@ -373,7 +373,7 @@ public class EqualExpression extends BinaryExpression {
 			} else {
 				// implicit falling through the TRUE case
 				if (trueLabel == null) {
-					switch (left.implicitConversion >> 4) { // operand runtime type
+					switch ((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) { // operand runtime type
 						case T_int :
 							codeStream.if_icmpne(falseLabel);
 							break;

@@ -250,7 +250,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		}
 		int operationTypeID;
-		if ((operationTypeID = implicitConversion >> 4) == T_String) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
 		    // no need for generic cast on previous #getfield since using Object string buffer methods.
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {

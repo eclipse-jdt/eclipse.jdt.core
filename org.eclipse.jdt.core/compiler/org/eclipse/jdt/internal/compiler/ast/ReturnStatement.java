@@ -150,7 +150,13 @@ public class ReturnStatement extends Statement {
 		if (expression == null) {
 			codeStream.return_();
 		} else {
-			switch (expression.implicitConversion >> 4) {
+			final int implicitConversion = expression.implicitConversion;
+			if ((implicitConversion & BOXING) != 0) {
+				codeStream.areturn();
+				return;
+			}
+			int runtimeType = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+			switch (runtimeType) {
 				case T_boolean :
 				case T_int :
 					codeStream.ireturn();

@@ -699,7 +699,7 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int promotedTypeID = left.implicitConversion >> 4;
+		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 > x
@@ -813,7 +813,7 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int promotedTypeID = left.implicitConversion >> 4;
+		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 >= x
@@ -927,7 +927,7 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int promotedTypeID = left.implicitConversion >> 4;
+		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 < x
@@ -1037,7 +1037,7 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int promotedTypeID = left.implicitConversion >> 4;
+		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 <= x
@@ -1152,7 +1152,7 @@ public class BinaryExpression extends OperatorExpression {
 		boolean valueRequired) {
 			
 		Constant condConst;
-		if ((left.implicitConversion & 0xF) == T_boolean) {
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> & x
@@ -1290,7 +1290,7 @@ public class BinaryExpression extends OperatorExpression {
 		boolean valueRequired) {
 			
 		Constant condConst;
-		if ((left.implicitConversion & 0xF) == T_boolean) {
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> | x
@@ -1426,7 +1426,7 @@ public class BinaryExpression extends OperatorExpression {
 		boolean valueRequired) {
 			
 		Constant condConst;
-		if ((left.implicitConversion & 0xF) == T_boolean) {
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> ^ x
@@ -1539,19 +1539,19 @@ public class BinaryExpression extends OperatorExpression {
 			&& ((bits & ReturnTypeIDMASK) == T_String)) {
 			if (constant != NotAConstant) {
 				codeStream.generateConstant(constant, implicitConversion);
-				codeStream.invokeStringConcatenationAppendForType(implicitConversion & 0xF);
+				codeStream.invokeStringConcatenationAppendForType(implicitConversion & COMPILE_TYPE_MASK);
 			} else {
 				int pc = codeStream.position;
 				left.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
-					left.implicitConversion & 0xF);
+					left.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.recordPositionsFrom(pc, left.sourceStart);
 				pc = codeStream.position;
 				right.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
-					right.implicitConversion & 0xF);
+					right.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.recordPositionsFrom(pc, right.sourceStart);
 			}
 		} else {
@@ -1582,13 +1582,13 @@ public class BinaryExpression extends OperatorExpression {
 				left.generateOptimizedStringConcatenationCreation(
 					blockScope,
 					codeStream,
-					left.implicitConversion & 0xF);
+					left.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.recordPositionsFrom(pc, left.sourceStart);
 				pc = codeStream.position;
 				right.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
-					right.implicitConversion & 0xF);
+					right.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.recordPositionsFrom(pc, right.sourceStart);
 			}
 		} else {
@@ -1709,7 +1709,7 @@ public class BinaryExpression extends OperatorExpression {
 		int operator = (bits & OperatorMASK) >> OperatorSHIFT;
 		int operatorSignature = OperatorSignatures[operator][(leftTypeId << 4) + rightTypeId];
 		left.implicitConversion = operatorSignature >>> 12;
-		right.implicitConversion = (operatorSignature >>> 4) & 0x000FF;
+		right.implicitConversion = (operatorSignature >>> 4) & 0xFF;
 
 		bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // record the current ReturnTypeID

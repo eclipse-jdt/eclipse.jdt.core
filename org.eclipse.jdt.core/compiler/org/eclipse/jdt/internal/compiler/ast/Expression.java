@@ -222,7 +222,7 @@ public abstract class Expression extends Statement {
 	
 		// identity conversion cannot be performed upfront, due to side-effects
 		// like constant propagation
-				
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
@@ -245,9 +245,19 @@ public abstract class Expression extends Statement {
 					return true;
 					
 				}
+			} else if (use15specifics) { // unboxing - only exact match is allowed
+				if (scope.computeBoxingType(expressionType) == castType) {
+					// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
+					return true;
+				}
 			}
 			reportIllegalCast(scope, castType, expressionType);
 			return false;
+		} else if (use15specifics && expressionType.isBaseType()) { // boxing - only exact match is allowed
+			if (scope.computeBoxingType(castType) == expressionType) {
+				// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
+				return true;
+			}
 		}
 	
 		//-----------cast to something which is NOT a base type--------------------------	

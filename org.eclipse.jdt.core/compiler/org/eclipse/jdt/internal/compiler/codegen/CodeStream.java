@@ -1811,11 +1811,11 @@ public void generateStringConcatenationAppend(BlockScope blockScope, Expression 
 		this.invokeStringConcatenationStringConstructor();
 	} else {
 		pc = position;
-		oper1.generateOptimizedStringConcatenationCreation(blockScope, this, oper1.implicitConversion & 0xF);
+		oper1.generateOptimizedStringConcatenationCreation(blockScope, this, oper1.implicitConversion & COMPILE_TYPE_MASK);
 		this.recordPositionsFrom(pc, oper1.sourceStart);
 	}
 	pc = position;
-	oper2.generateOptimizedStringConcatenation(blockScope, this, oper2.implicitConversion & 0xF);
+	oper2.generateOptimizedStringConcatenation(blockScope, this, oper2.implicitConversion & COMPILE_TYPE_MASK);
 	this.recordPositionsFrom(pc, oper2.sourceStart);
 	this.invokeStringConcatenationToString();
 }
