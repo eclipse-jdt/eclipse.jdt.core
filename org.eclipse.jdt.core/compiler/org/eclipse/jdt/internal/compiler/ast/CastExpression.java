@@ -159,8 +159,12 @@ public class CastExpression extends Expression {
 				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+						if (!match.isParameterizedType() && !match.isGenericType()) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
@@ -170,8 +174,12 @@ public class CastExpression extends Expression {
 				if (!((ReferenceBinding) expressionType).isFinal()) {
 					// a subclass may implement the interface ==> no check at compile time
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+						if (!match.isParameterizedType() && !match.isGenericType()) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return true;				    
 				}
 				// no subclass for expressionType, thus compile-time check is valid

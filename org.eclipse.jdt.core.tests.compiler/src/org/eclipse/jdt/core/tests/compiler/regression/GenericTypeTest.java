@@ -4932,17 +4932,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n", 
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	return new Vector();\n" + 
-			"	       ^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not return value of raw type Vector instead of type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not cast from Object to Vector<Object>. Generic type information will be erased at runtime\n" + 
-			"----------\n",
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return new Vector();\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not return value of raw type Vector instead of type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: The cast from Object to parameterized type Vector<Object> will not check conformance of type arguments at runtime\n" + 
+		"----------\n",
 			null,
 			true,
 			customOptions);
@@ -5080,7 +5080,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	public void _test182() {
+	public void test182() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
@@ -5118,15 +5118,86 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return (AX<String>) o;\n" + 
 			"	       ^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not cast from Object to AX<String>. Generic type information will be erased at runtime\n" + 
+			"Unsafe type operation: The cast from Object to parameterized type AX<String> will not check conformance of type arguments at runtime\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 12)\n" + 
 			"	return (AX<E>) o;\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not cast from Object to AX<E>. Generic type information will be erased at runtime\n" + 
+			"Unsafe type operation: The cast from Object to parameterized type AX<E> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 15)\n" + 
+			"	return (AX<E>) null;\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type AX<E> for expression of type null\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 18)\n" + 
+			"	return (X<String>) bx;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type X<String> for expression of type BX\n" + 
 			"----------\n",
 			null,
 			true,
 			customOptions);
-	}			
+	}
+	public void test183() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	{\n" + 
+				"		Dictionary<String, Integer> d;\n" + 
+				"		Object o;\n" + 
+				"		\n" + 
+				"		Object a1 = (Hashtable<String,Integer>) d;\n" + 
+				"		Object a2 = (Hashtable) o;\n" + 
+				"\n" + 
+				"		Object a3 = (Hashtable<Float, Double>) d;\n" + 
+				"		Object a4 = (Hashtable<String,Integer>) o;\n" + 
+				"		\n" + 
+				"		abstract class Z1 extends Hashtable<String,Integer> {\n" + 
+				"		}\n" + 
+				"		Z1 z1;\n" + 
+				"		Object a5 = (Hashtable<String,Integer>) z1;\n" + 
+				"\n" + 
+				"		abstract class Z2 extends Z1 {\n" + 
+				"		}\n" + 
+				"		Object a6 = (Z2) z1;\n" + 
+				"\n" + 
+				"		abstract class Z3 extends Hashtable {\n" + 
+				"		}\n" + 
+				"		Z3 z3;\n" + 
+				"		Object a7 = (Hashtable<String,Integer>) z3;\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Object a3 = (Hashtable<Float, Double>) d;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Dictionary<String,Integer> to Hashtable<Float,Double>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from Object to parameterized type Hashtable<String,Integer> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 18)\n" + 
+			"	Object a5 = (Hashtable<String,Integer>) z1;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type Hashtable<String,Integer> for expression of type Z1\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 27)\n" + 
+			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type Hashtable<String,Integer> for expression of type Z3\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}				
 }
