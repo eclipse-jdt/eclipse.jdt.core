@@ -132,23 +132,7 @@ class ASTConverter {
 		// Parse comments
 		int[][] comments = unit.comments;
 		if (comments != null && this.insideComments) {
-			// Build comment table
-			this.commentsTable = new Comment[comments.length];
-			int nbr = 0;
-			for (int i = 0; i < comments.length; i++) {
-				Comment comment = createComment(comments[i]);
-				if (comment != null) {
-					comment.setAlternateRoot(compilationUnit);
-					this.commentsTable[nbr++] = comment;
-				}
-			}
-			// Resize table if  necessary
-			if (nbr<comments.length) {
-				Comment[] newCommentsTable = new Comment[nbr];
-				System.arraycopy(this.commentsTable, 0, newCommentsTable, 0, nbr);
-				this.commentsTable = newCommentsTable;
-			}
-			compilationUnit.setCommentTable(this.commentsTable);
+			buildCommentsTable(compilationUnit, comments);
 		}
 
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
@@ -178,6 +162,30 @@ class ASTConverter {
 		return compilationUnit;
 	}
 	
+	/**
+	 * @param compilationUnit
+	 * @param comments
+	 */
+	void buildCommentsTable(CompilationUnit compilationUnit, int[][] comments) {
+		// Build comment table
+		this.commentsTable = new Comment[comments.length];
+		int nbr = 0;
+		for (int i = 0; i < comments.length; i++) {
+			Comment comment = createComment(comments[i]);
+			if (comment != null) {
+				comment.setAlternateRoot(compilationUnit);
+				this.commentsTable[nbr++] = comment;
+			}
+		}
+		// Resize table if  necessary
+		if (nbr<comments.length) {
+			Comment[] newCommentsTable = new Comment[nbr];
+			System.arraycopy(this.commentsTable, 0, newCommentsTable, 0, nbr);
+			this.commentsTable = newCommentsTable;
+		}
+		compilationUnit.setCommentTable(this.commentsTable);
+	}
+
 	public PackageDeclaration convertPackage(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration) {
 		org.eclipse.jdt.internal.compiler.ast.ImportReference importReference = compilationUnitDeclaration.currentPackage;
 		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
