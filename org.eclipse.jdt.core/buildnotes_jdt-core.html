@@ -70,6 +70,14 @@ What's new in this drop</h2>
       has 1000 package fragment roots, the space limit of the cache of roots will increase to 1000. This size is reset to
       its default when the project is closed.
 </li>
+<li>Added the following compatibility rules APIs:
+     <ul>
+     <li><code>ITypeBinding#isAssignmentCompatible(ITypeBinding)</code></li>
+     <li><code>ITypeBinding#isCastCompatible(ITypeBinding)</code></li>
+     <li><code>ITypeBinding#isSubTypeCompatible(ITypeBinding)</code></li>
+     <li><code>IMethodBinding#overrides(IMethodBinding)</code></li>
+     </ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

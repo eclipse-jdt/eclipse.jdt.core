@@ -10,17 +10,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -130,6 +135,35 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return findNode(unit, markerInfo);
 	}
 	
+	protected MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
+		MarkerInfo[] markerInfos = new MarkerInfo[pathAndSources.length / 2];
+		int index = 0;
+		for (int i = 0, length = pathAndSources.length; i < length; i++) {
+			String path = pathAndSources[i];
+			String source = pathAndSources[++i];
+			markerInfos[index++] = new MarkerInfo(path, source);
+		}
+		return markerInfos;
+	}
+
+	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources, WorkingCopyOwner owner) throws JavaModelException {
+		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
+		return createWorkingCopies(markerInfos, owner);
+	}
+	
+	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner) throws JavaModelException {
+		int length = markerInfos.length;
+		ICompilationUnit[] workingCopies = new ICompilationUnit[length];
+		for (int i = 0; i < length; i++) {
+			MarkerInfo markerInfo = markerInfos[i];
+			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, null, null);
+			workingCopy.getBuffer().setContents(markerInfo.source);
+			workingCopy.makeConsistent(null);
+			workingCopies[i] = workingCopy;
+		}
+		return workingCopies;
+	}
+	
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
 		class EndVisit extends RuntimeException {
 			private static final long serialVersionUID = 1L;
@@ -153,4 +187,29 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return null;
 	}
 
+	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, WorkingCopyOwner owner) {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(getJavaProject("P"));
+		parser.setWorkingCopyOwner(owner);
+		parser.createASTs(cus, bindingKeys,  requestor, null);
+	}
+	
+	protected IBinding[] resolveBindings(String[] bindingKeys, WorkingCopyOwner owner) {
+		class BindingRequestor extends ASTRequestor {
+			HashMap bindings = new HashMap();
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				this.bindings.put(bindingKey, binding);
+			}
+		}
+		BindingRequestor requestor = new BindingRequestor();
+		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, owner);
+		int length = requestor.bindings.size();
+		IBinding[] result = new IBinding[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = (IBinding) requestor.bindings.get(bindingKeys[i]);
+		}
+		return result;
+	}
+	
 }

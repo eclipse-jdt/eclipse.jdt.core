@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -723,6 +724,27 @@ class TypeBinding implements ITypeBinding {
 	public boolean isArray() {
 		return binding.isArrayType();
 	}
+	
+	/* (non-Javadoc)
+	 * @see ITypeBinding#isAssignmentCompatible(ITypeBinding)
+	 */
+	public boolean isAssignmentCompatible(ITypeBinding type) {
+		if (this == type) return true;
+		TypeBinding other = (TypeBinding) type;
+		return this.binding.isCompatibleWith(other.binding);
+	}
+	
+	/* (non-Javadoc)
+	 * @see ITypeBinding#isCastCompatible(ITypeBinding)
+	 */
+	public boolean isCastCompatible(ITypeBinding type) {
+		Expression expression = new Expression() {
+			public StringBuffer printExpression(int indent,StringBuffer output) {
+				return null;
+			}
+		};
+		return expression.checkCastTypesCompatibility(null, this.binding, ((TypeBinding) type).binding, null);
+	}
 
 	/*
 	 * @see ITypeBinding#isClass()
@@ -849,6 +871,17 @@ class TypeBinding implements ITypeBinding {
 		return this.binding.isRawType();
 	}
 
+	/* (non-Javadoc)
+	 * @see ITypeBinding#isSubTypeCompatible(ITypeBinding)
+	 */
+	public boolean isSubTypeCompatible(ITypeBinding type) {
+		if (this == type) return true;
+		if (this.binding.isBaseType()) return false;
+		TypeBinding other = (TypeBinding) type;
+		if (other.binding.isBaseType()) return false;
+		return this.binding.isCompatibleWith(other.binding);
+	}
+	
 	/**
 	 * @see IBinding#isSynthetic()
 	 */

@@ -143,7 +143,7 @@ boolean detectNameClash(MethodBinding one, MethodBinding substituteTwo, boolean 
 	}
 	return false;
 }
-boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	return super.doesMethodOverride(method, computeSubstituteMethod(inheritedMethod, method));
 }
 boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {

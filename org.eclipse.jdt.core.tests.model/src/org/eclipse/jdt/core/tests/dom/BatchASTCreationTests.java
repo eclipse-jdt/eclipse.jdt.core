@@ -72,7 +72,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		ICompilationUnit[] workingCopies = null;
 		try {
 			final MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
-			workingCopies = createWorkingCopies(markerInfos);
+			workingCopies = createWorkingCopies(markerInfos, this.owner);
 			class Requestor extends TestASTRequestor {
 				String bindingKey;
 				int index = -1;
@@ -100,7 +100,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				}
 			};
 			Requestor requestor = new Requestor();
-			resolveASTs(workingCopies, new String[] {expectedKey}, requestor);
+			resolveASTs(workingCopies, new String[] {expectedKey}, requestor, this.owner);
 			
 			if (!expectedKey.equals(requestor.bindingKey))
 				System.out.println(Util.displayString(expectedKey, 3));
@@ -141,7 +141,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					"public class Test {\n" +
 					"}"
 				});
-				resolveASTs(dummyWorkingCopies, new String[] {}, requestor);
+				resolveASTs(dummyWorkingCopies, new String[] {}, requestor, this.owner);
 			} finally {
 				discardWorkingCopies(dummyWorkingCopies);
 			}
@@ -159,45 +159,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		parser.createASTs(cus, new String[] {}, requestor, null);
 	}
 	
-	private MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
-		MarkerInfo[] markerInfos = new MarkerInfo[pathAndSources.length / 2];
-		int index = 0;
-		for (int i = 0, length = pathAndSources.length; i < length; i++) {
-			String path = pathAndSources[i];
-			String source = pathAndSources[++i];
-			markerInfos[index++] = new MarkerInfo(path, source);
-		}
-		return markerInfos;
-	}
-
-	private ICompilationUnit[] createWorkingCopies(String[] pathAndSources) throws JavaModelException {
-		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
-		return createWorkingCopies(markerInfos);
-	}
-	
-	private ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos) throws JavaModelException {
-		int length = markerInfos.length;
-		ICompilationUnit[] workingCopies = new ICompilationUnit[length];
-		for (int i = 0; i < length; i++) {
-			MarkerInfo markerInfo = markerInfos[i];
-			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(this.owner, null, null);
-			workingCopy.getBuffer().setContents(markerInfo.source);
-			workingCopy.makeConsistent(null);
-			workingCopies[i] = workingCopy;
-		}
-		return workingCopies;
+	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources) throws JavaModelException {
+		return createWorkingCopies(pathAndSources, this.owner);
 	}
 	
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
-		resolveASTs(cus, new String[0], requestor);
-	}
-	
-	private void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, TestASTRequestor requestor) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setResolveBindings(true);
-		parser.setProject(getJavaProject("P"));
-		parser.setWorkingCopyOwner(this.owner);
-		parser.createASTs(cus, bindingKeys,  requestor, null);
+		resolveASTs(cus, new String[0], requestor, this.owner);
 	}
 	
 	/*
@@ -250,7 +217,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"/*start*/public class Y {\n" +
 				"}/*end*/",
 			});
-			workingCopies = createWorkingCopies(markerInfos);
+			workingCopies = createWorkingCopies(markerInfos, this.owner);
 			TestASTRequestor requestor = new TestASTRequestor();
 			resolveASTs(workingCopies, requestor);
 			

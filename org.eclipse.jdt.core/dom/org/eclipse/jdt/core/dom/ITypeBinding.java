@@ -50,7 +50,7 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public interface ITypeBinding extends IBinding {
-
+	
 	/**
 	 * Returns the binary name of this type binding.
 	 * The binary name of a class is defined in the Java Language 
@@ -121,6 +121,28 @@ public interface ITypeBinding extends IBinding {
 	 */
 	public int getDimensions();
 	
+	/**
+	 * Returns whether this type is assigment compatible with the given type,
+	 * as specified in section 5.2 of <em>The Java Language 
+	 * Specification, Second Edition</em> (JLS2).
+	 * 
+	 * @param type the type to check compatibility against
+	 * @return whether this type is assigment compatible with the given type
+	 * @since 3.1
+	 */
+	public boolean isAssignmentCompatible(ITypeBinding type);
+	
+	/**
+	 * Returns whether this type is cast compatible with the given type,
+	 * as specified in section 5.5 of <em>The Java Language 
+	 * Specification, Second Edition</em> (JLS2).
+	 * 
+	 * @param type the type to check compatibility against
+	 * @return whether this type is cast compatible with the given type
+	 * @since 3.1
+	 */
+	public boolean isCastCompatible(ITypeBinding type);
+
 	/**
 	 * Returns whether this type binding represents a class type.
 	 *
@@ -570,6 +592,17 @@ public interface ITypeBinding extends IBinding {
 	 * @see Modifier
 	 */
 	public int getDeclaredModifiers();
+	
+	/**
+	 * Returns whether this type is subtype compatible with the given type,
+	 * as specified in section 4.10 of <em>The Java Language 
+	 * Specification, Third Edition</em> (JLS3).
+	 * 
+	 * @param type the type to check compatibility against
+	 * @return whether this type is subtype compatible with the given type
+	 * @since 3.1
+	 */
+	public boolean isSubTypeCompatible(ITypeBinding type);
 	
 	/**
 	 * Returns whether this type binding represents a top-level class,

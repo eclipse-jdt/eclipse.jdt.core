@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.Member;
@@ -394,6 +396,19 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public IMethodBinding getErasure() {
 		return this.resolver.getMethodBinding(this.binding.original());
+	}
+	
+	/* (non-Javadoc)
+	 * @see IMethodBinding#overrides(IMethodBinding)
+	 */
+	public boolean overrides(IMethodBinding method) {
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding otherCompilerBinding = ((MethodBinding) method).binding;
+		if (!this.binding.declaringClass.isCompatibleWith(otherCompilerBinding.declaringClass))
+			return false;
+		if (!(this.resolver instanceof DefaultBindingResolver)) return false;
+		LookupEnvironment lookupEnvironment = ((DefaultBindingResolver) this.resolver).compilationUnitResolver.lookupEnvironment;
+		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
+		return methodVerifier.doesMethodOverride(this.binding, otherCompilerBinding);
 	}
 
 	/* 

@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
-class MethodVerifier implements TagBits, TypeConstants {
+public class MethodVerifier implements TagBits, TypeConstants {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
@@ -474,7 +474,7 @@ void computeMethods() {
 MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
 	return inheritedMethod;
 }
-boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	return areReturnTypesEqual(method, inheritedMethod) && areParametersEqual(method, inheritedMethod);
 }
 ReferenceBinding errorException() {

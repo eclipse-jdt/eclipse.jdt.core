@@ -273,5 +273,16 @@ public interface IMethodBinding extends IBinding {
 	 *    and <code>false</code> otherwise
 	 * @since 3.1
 	 */ 
-	public boolean isVarargs();	
+	public boolean isVarargs();
+	
+	/**
+	 * Returns whether this method overrides the given method,
+	 * as specified in section 6.4.2 of <em>The Java Language 
+	 * Specification, Second Edition</em> (JLS2).
+	 * 
+	 * @param method the method that is possibly overriden
+	 * @return whether this method overrides the given method
+	 * @since 3.1
+	 */
+	public boolean overrides(IMethodBinding method);
 }
