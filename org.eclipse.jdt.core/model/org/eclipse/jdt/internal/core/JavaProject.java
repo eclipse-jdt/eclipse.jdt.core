@@ -437,6 +437,13 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		return getPackageFragmentRoots();
 	}
 	/**
+	 * @see IJavaProject
+	 * @deprecated
+	 */
+	public IClasspathEntry[] getClasspath() throws JavaModelException {
+		return getRawClasspath();
+	}
+	/**
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected String getClasspathAsXMLString(IClasspathEntry[] classpath, IPath outputLocation) throws JavaModelException {
@@ -983,6 +990,27 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	}
 	/**
 	 * @see IJavaProject
+	 * @deprecated
+	 */
+	public IClasspathEntry newLibraryEntry(IPath path) {
+		return JavaCore.newLibraryEntry(path, null, null);
+	}
+	/**
+	 * @see IJavaProject
+ 	 * @deprecated
+	 */
+	public IClasspathEntry newProjectEntry(IPath path) {
+		return JavaCore.newProjectEntry(path);
+	}
+	/**
+	 * @see IJavaProject
+	 * @deprecated	 
+	 */
+	public IClasspathEntry newSourceEntry(IPath path) {
+		return JavaCore.newSourceEntry(path);
+	}
+	/**
+	 * @see IJavaProject
 	 */
 	public ITypeHierarchy newTypeHierarchy(IRegion region, IProgressMonitor monitor) throws JavaModelException {
 		if (region == null) {
@@ -1223,6 +1251,13 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 		}
 	}
 	/**
+	 * @see IJavaProject
+	 * @deprecated
+	 */
+	public void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor) throws JavaModelException {
+		setRawClasspath(entries, monitor, true);
+	}
+	/**
 	 * Update the Java command in the build spec (replace existing one if present,
 	 * add one first if none).
 	 */
@@ -1427,7 +1462,7 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 		try {
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			marker.setAttribute(IMarker.LOCATION, Util.bind("classpath.buildPath"/*nonNLS*/));
 		} catch (CoreException e) {
 		}		
@@ -1447,6 +1482,98 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 	}
 
 	/**
+	 * Returns a message describing the problem related to this classpath entry if any, or null if entry is fine 
+	 * (i.e. if the given classpath entry denotes a valid element to be referenced onto a classpath).
+	 */
+	private String getClasspathEntryErrorMessage(IClasspathEntry entry, boolean checkSourceAttachment){
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();			
+		IPath path = entry.getPath();
+		
+		switch(entry.getEntryKind()){
+
+			// variable entry check
+			case IClasspathEntry.CPE_VARIABLE :
+				entry = JavaCore.getResolvedClasspathEntry(entry);
+				if (entry == null){
+					return Util.bind("classpath.unboundVariablePath"/*nonNLS*/, path.toString());
+				}
+				return getClasspathEntryErrorMessage(entry, checkSourceAttachment);
+
+
+			// library entry check
+			case IClasspathEntry.CPE_LIBRARY :
+				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+					IPath sourceAttachment = entry.getSourceAttachmentPath();
+					Object target = JavaModel.getTarget(workspaceRoot, path, true);
+					if (target instanceof IResource){
+						IResource resolvedResource = (IResource) target;
+						switch(resolvedResource.getType()){
+							case IResource.FILE :
+								String extension = resolvedResource.getFileExtension();
+								if ("jar"/*nonNLS*/.equalsIgnoreCase(extension) || "zip"/*nonNLS*/.equalsIgnoreCase(extension)){ // internal binary archive
+									if (checkSourceAttachment 
+										&& sourceAttachment != null
+										&& !sourceAttachment.isEmpty()
+										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+										return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
+									}
+								}
+								break;
+							case IResource.FOLDER :	// internal binary folder
+								if (checkSourceAttachment 
+									&& sourceAttachment != null 
+									&& !sourceAttachment.isEmpty()
+									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+									return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
+								}
+						}
+					} else if (target instanceof File){
+						if (checkSourceAttachment 
+							&& sourceAttachment != null 
+							&& !sourceAttachment.isEmpty()
+							&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+							return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
+						}
+					} else {
+						return Util.bind("classpath.unboundLibrary"/*nonNLS*/, path.toString());
+					}
+				} else {
+					return Util.bind("classpath.illegalLibraryPath"/*nonNLS*/, path.toString());
+				}
+				break;
+
+			// project entry check
+			case IClasspathEntry.CPE_PROJECT :
+				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+					IProject project = workspaceRoot.getProject(path.segment(0));
+					try {
+						if (!project.exists() || !project.hasNature(JavaCore.NATURE_ID)){
+							return Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString());
+						}
+					} catch (CoreException e){
+						return Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString());
+					}
+				} else {
+					return Util.bind("classpath.illegalProjectPath"/*nonNLS*/, path.segment(0).toString());
+				}
+				break;
+
+			// project source folder
+			case IClasspathEntry.CPE_SOURCE :
+				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+					IPath projectPath= getProject().getFullPath();
+					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
+						return Util.bind("classpath.unboundSourceFolder"/*nonNLS*/, path.toString());
+					}
+				} else {
+					return Util.bind("classpath.illegalSourceFolderPath"/*nonNLS*/, path.toString());
+				}
+				break;
+		}
+		return null;
+	}
+
+	/**
 	 * Internal variant which can create marker on project for invalid entries
 	 */
 	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable, boolean generateMarkerOnError) throws JavaModelException {
@@ -1460,12 +1587,6 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 			
 			IClasspathEntry entry = classpath[i];
 
-			/* validation if needed */
-			if (generateMarkerOnError){
-				IJavaModelStatus status = JavaConventions.validateClasspathEntry(this, entry, false);
-				if (!status.isOK()) createClasspathProblemMarker(entry, status.getMessage());
-			}
-
 			/* resolve variables if any, unresolved ones are ignored */
 			if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
 
@@ -1477,12 +1598,15 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 				IPath variablePath = entry.getPath(); // for error reporting
 				entry = JavaCore.getResolvedClasspathEntry(entry);
 				if (entry == null){
+					if (generateMarkerOnError) createClasspathProblemMarker(classpath[i], Util.bind("classpath.unboundVariablePath"/*nonNLS*/, variablePath.toString()));
 					if (!ignoreUnresolvedVariable){
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, variablePath.toString()));
 					}
 				}
 			}
 			if (entry != null){
+				String msg;
+				if (generateMarkerOnError && (msg = getClasspathEntryErrorMessage(entry, false)) != null) createClasspathProblemMarker(classpath[i], msg);
 				resolvedPath[index++] = entry;
 			}
 		}
