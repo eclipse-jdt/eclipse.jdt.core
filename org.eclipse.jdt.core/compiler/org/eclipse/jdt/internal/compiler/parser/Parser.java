@@ -1299,7 +1299,7 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 	Expression exp, cast, castType;
 	int end = intStack[intPtr--];
 
-	TypeReference rightSide = getTypeReference(intStack[intPtr--]);
+	TypeReference rightSide = getTypeReference(0);
 	int nameSize = identifierLengthStack[identifierLengthPtr];
 	int tokensSize = nameSize;
 	if (rightSide instanceof SingleParameterizedTypeReference) {
@@ -1368,7 +1368,7 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	int end = intStack[intPtr--];
 
 	int dim = intStack[intPtr--];
-	TypeReference rightSide = getTypeReference(intStack[intPtr--]);
+	TypeReference rightSide = getTypeReference(0);
 	int nameSize = identifierLengthStack[identifierLengthPtr];
 	int tokensSize = nameSize;
 	if (rightSide instanceof SingleParameterizedTypeReference) {
