@@ -1,1 +1,0 @@
-public interface CompletionSuperType6 extends CompletionSuper
