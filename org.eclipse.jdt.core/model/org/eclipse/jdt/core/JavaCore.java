@@ -74,7 +74,7 @@ import org.eclipse.jdt.internal.core.*;
  * automatically if not already active.
  * </p>
  */
-public final class JavaCore extends Plugin implements IExecutableExtension {
+public final class JavaCore extends Plugin {
 
 	private static Plugin JAVA_CORE_PLUGIN = null; 
 	/**
@@ -3156,17 +3156,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
 		updateVariableValues(variableNames, paths, monitor);
-	}
-
-	/* (non-Javadoc)
-	 * Method declared on IExecutableExtension.
-	 * Record any necessary initialization data from the plugin.
-	 */
-	public void setInitializationData(
-		IConfigurationElement cfig,
-		String propertyName,
-		Object data)
-		throws CoreException {
 	}
 
 	/**

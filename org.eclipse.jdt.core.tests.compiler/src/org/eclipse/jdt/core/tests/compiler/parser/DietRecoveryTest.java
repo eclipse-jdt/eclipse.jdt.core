@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -90,7 +89,6 @@ public void checkParse(
 			computedUnitToString);
 		if (computedUnit.types != null) {
 			for (int i = computedUnit.types.length; --i >= 0;){
-				computedUnit.types[i].binding = new SourceTypeBinding(){};
 				computedUnit.types[i].parseMethod(parser, computedUnit);
 			}
 		}

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -21,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -53,7 +54,6 @@ public void checkParse(
 	CompilationUnitDeclaration computedUnit = parser.dietParse(sourceUnit, compilationResult);
 	if (computedUnit.types != null) {
 		for (int i = computedUnit.types.length; --i >= 0;){
-			computedUnit.types[i].binding = new SourceTypeBinding(){};
 			computedUnit.types[i].parseMethod(parser, computedUnit);
 		}
 	}
@@ -76,6 +76,9 @@ public void checkParse(
 					buffer.append(problems[i].getMessage());
 					buffer.append("\n");
 				} catch (Exception e) {
+					StringWriter stringWriter = new StringWriter();
+					e.printStackTrace(new PrintWriter(stringWriter));
+					buffer.append(stringWriter.getBuffer());
 				}
 				buffer.append("----------\n");
 			}
