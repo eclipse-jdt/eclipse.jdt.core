@@ -1420,7 +1420,16 @@ protected void consumeClassDeclaration() {
 	
 	//add the default constructor when needed (interface don't have it)
 	if (!hasConstructor) {
-		typeDecl.createsInternalConstructor((!diet || typeDecl instanceof LocalTypeDeclaration), true);
+		boolean insideInitializer = false;
+		if (diet) {
+			for (int i = nestedType; i > 0; i--){
+				if (variablesCounter[i] > 0) {
+					insideInitializer = true;
+					break;
+				}
+			}
+		}
+		typeDecl.createsInternalConstructor(!diet || insideInitializer, true);
 	}
 
 	//always add <clinit> (will be remove at code gen time if empty)
