@@ -129,7 +129,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		    TypeBinding parameterType = method.parameters[i];
 		    TypeBinding argumentType = argumentTypes[i];
 			arguments[i].computeConversion(scope, parameterType, argumentType);
-			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isParameterizedType()) {
+			if (argumentType != parameterType 
+			        && argumentType.isRawType() 
+			        && (parameterType.isParameterizedType() || parameterType.isGenericType())) {
 			    warnRawArgs = true;
 			}
 		}

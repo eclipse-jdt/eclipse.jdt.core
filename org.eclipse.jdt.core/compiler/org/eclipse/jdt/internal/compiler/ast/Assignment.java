@@ -56,6 +56,18 @@ public class Assignment extends Expression {
 		}
 	}
 
+	void checkRawAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
+		
+		FieldBinding leftField = getLastField(this.lhs);
+		if (leftField != null && leftField.declaringClass.isRawType() 
+		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
+		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
+		} else if ((rhsType.isRawType() && (lhsType.isParameterizedType() || lhsType.isGenericType()))
+			        	|| lhsType.isRawType() && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
+		    scope.problemReporter().unsafeRawAssignment(this.expression, rhsType, lhsType);
+		}		
+	}
+	
 	public void generateCode(
 		BlockScope currentScope,
 		CodeStream codeStream,
@@ -89,6 +101,23 @@ public class Assignment extends Expression {
 		}
 		return null;
 	}
+	FieldBinding getLastField(Expression someExpression) {
+	    if (someExpression instanceof SingleNameReference) {
+	        if ((someExpression.bits & RestrictiveFlagMASK) == BindingIds.FIELD) {
+	            return (FieldBinding) ((SingleNameReference)someExpression).binding;
+	        }
+	    } else if (someExpression instanceof FieldReference) {
+	        return ((FieldReference)someExpression).binding;
+	    } else if (someExpression instanceof QualifiedNameReference) {
+	        QualifiedNameReference qName = (QualifiedNameReference) someExpression;
+	        if (qName.otherBindings == null && ((someExpression.bits & RestrictiveFlagMASK) == BindingIds.FIELD)) {
+	            return (FieldBinding)qName.binding;
+	        } else {
+	            return qName.otherBindings[qName.otherBindings.length - 1];
+	        }
+	    }
+	    return null;
+	}	
 	public StringBuffer print(int indent, StringBuffer output) {
 
 		//no () when used as a statement 
@@ -135,10 +164,7 @@ public class Assignment extends Expression {
 				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 				|| rhsType.isCompatibleWith(lhsType)) {
 			expression.computeConversion(scope, lhsType, rhsType);
-			if ((rhsType.isRawType() && lhsType.isParameterizedType())
-			        	|| lhsType.isRawType() && rhsType.isParameterizedType()) {
-				    scope.problemReporter().unsafeRawAssignment(this.expression, rhsType, lhsType);
-			}
+			checkRawAssignment(scope, lhsType, rhsType);
 			return this.resolvedType;
 		}
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, rhsType, lhsType);
@@ -160,10 +186,7 @@ public class Assignment extends Expression {
 				&& (this.lhs.bits & IsStrictlyAssignedMASK) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}
-		if ((rhsType.isRawType() && lhsType.isParameterizedType())
-		        	|| lhsType.isRawType() && rhsType.isParameterizedType()) {
-			    scope.problemReporter().unsafeRawAssignment(this.expression, rhsType, lhsType);
-		}
+		checkRawAssignment(scope, lhsType, rhsType);
 		return type;
 	}
 

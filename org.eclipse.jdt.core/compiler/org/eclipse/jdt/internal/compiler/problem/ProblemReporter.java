@@ -512,6 +512,7 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawVariableAssignment:
 		case IProblem.UnsafeConstructorWithRawArguments:
 		case IProblem.UnsafeMethodWithRawArguments:
+		case IProblem.UnsafeRawFieldAssignment:
 			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
 
 		/*
@@ -3407,6 +3408,16 @@ public void unsafeRawAssignment(Expression expression, TypeBinding expressionTyp
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,
 		expression.sourceEnd);    
+}
+public void unsafeRawFieldAssignment(FieldBinding rawField, TypeBinding expressionType, ASTNode location) {
+	this.handle(
+		IProblem.UnsafeRawFieldAssignment,
+		new String[] { 
+		        new String(expressionType.readableName()), new String(rawField.name), new String(rawField.declaringClass.readableName()), new String(rawField.declaringClass.erasure().readableName()) },
+		new String[] { 
+		        new String(expressionType.shortReadableName()), new String(rawField.name), new String(rawField.declaringClass.shortReadableName()), new String(rawField.declaringClass.erasure().shortReadableName()) },
+		location.sourceStart,
+		location.sourceEnd);    
 }
 public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method) {
     if (method.isConstructor()) {

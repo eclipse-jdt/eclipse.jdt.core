@@ -842,7 +842,8 @@ public interface IProblem {
 	int UnsafeRawVariableAssignment = TypeRelated + 535;
 	/** @since 3.1 */
 	int IllegalArrayOfParameterizedType = TypeRelated + 536;
-	
+	/** @since 3.1 */
+	int UnsafeRawFieldAssignment = TypeRelated + 537;
 
 	/**
 	 * Foreach

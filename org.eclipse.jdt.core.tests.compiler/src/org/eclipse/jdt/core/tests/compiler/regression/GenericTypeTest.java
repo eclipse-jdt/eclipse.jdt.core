@@ -314,9 +314,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"class S {}\n" +
-				"class I implements C<I> {}\n" + // TODO (philippe) NPE with "class I implements C {}\n"
-				"interface C<Tc> {}\n" +
 				"public class X<Tx1 extends S, Tx2 extends C>  extends XS<Tx2> {\n" + 
 				"\n" + 
 				"    public static void main(String[] args) {\n" + 
@@ -324,6 +321,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n" + 
+				"class S {}\n" +
+				"class I implements C<I> {}\n" + // TODO (philippe) NPE with "class I implements C {}\n"
+				"interface C<Tc> {}\n" +
 				"class XS <Txs> {\n" + 
 				"    Txs get(Txs t) {\n" + 
 				"        return t;\n" + 
@@ -2633,8 +2633,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	ax.p = new AX<String>();\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"	^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of type AX<String> to the field p of raw type AX. References to generic type AX<P> should be parameterized\n" + 
 		"----------\n",
 		null,
 		true,
@@ -2760,7 +2760,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(X<String>[] xs) {\n" + 
 		"	         ^\n" + 
-		"Cannot declare an array of the parameterized type X<String> \n" + 
+		"An array of parameterized type X<String> is an invalid type\n" + 
 		"----------\n");		
 	}				
 
@@ -2776,6 +2776,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"     void foo() {\n" + 
 				"         X<String> xs = new X<String>(\"\");\n" + 
 				"         X<String> xs2 = (X<String>) xs;\n" + 
+				"         \n" + 
+				"         ((X)xs).t = this;\n" + 
+				"         \n" + 
 				"         System.out.prinln((T) this.t);\n" + 
 				"     }\n" + 
 				"     public static void main(String[] args) {\n" + 
@@ -2784,10 +2787,36 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	((X)xs).t = this;\n" + 
+		"	        ^\n" + 
+		"Unsafe type operation: Should not assign expression of type X<T> to the field t of raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
 		"	System.out.prinln((T) this.t);\n" + 
 		"	           ^^^^^^\n" + 
 		"The method prinln(T) is undefined for the type PrintStream\n" + 
 		"----------\n");		
 	}		
+
+	public void test093() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = new AX();\n" + 
+				"        ax.p = ax2.p;\n" + // javac reports unchecked warning, which seems a bug as no difference in between lhs and rhs types
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"}\n",
+			},
+		"SUCCESS");		
+	}		
+	
+
 }

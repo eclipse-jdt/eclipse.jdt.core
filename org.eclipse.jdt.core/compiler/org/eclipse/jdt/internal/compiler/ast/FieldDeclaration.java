@@ -190,8 +190,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 								|| (fieldType.isBaseType() && BaseTypeBinding.isWidening(fieldType.id, initializationType.id))
 								|| initializationType.isCompatibleWith(fieldType)) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
-							if ((initializationType.isRawType() && fieldType.isParameterizedType())
-							        	|| fieldType.isRawType() && initializationType.isParameterizedType()) {
+							if ((initializationType.isRawType() && (fieldType.isParameterizedType() || fieldType.isGenericType()))
+							        	|| fieldType.isRawType() && (initializationType.isParameterizedType() || initializationType.isGenericType())) {
 								    initializationScope.problemReporter().unsafeRawAssignment(this.initialization, initializationType, fieldType);
 							}									
 						} else {
