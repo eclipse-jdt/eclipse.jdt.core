@@ -477,7 +477,7 @@ public boolean isEquivalentTo(ReferenceBinding otherType) {
     } else if (this.isWildcard()) {
         WildcardBinding wildcard = (WildcardBinding)this;
         if (wildcard.bound == null) return true;
-
+		// TODO (philippe) fill-in support for bounded wildcard
     }
     return false;
 }

@@ -527,8 +527,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	
-	// TODO reenable once wildcards are supported
-	public void _test010() {
+	public void test010() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -539,16 +538,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	new X<Foo>();\n" + 
-			"	      ^^^\n" + 
-			"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable> of the type X\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new X<Foo>();\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable<? super T>> of the type X<T>\n" + 
+		"----------\n");
 	}
 	
-	// TODO reenable once wildcards are supported
-	public void _test011() {
+	public void test011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2148,9 +2146,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		);
 	}
 	
-	// TODO reenable once wildcards are supported
 	// A is not an interface
-	public void _test075() {
+	public void test075() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2170,7 +2167,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}"
 			},
-			"TODO"
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T extends Object & p.A<? super T>> extends p.A<T> {\n" + 
+		"	                                   ^^^\n" + 
+		"The type A<? super T> is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n"
 		);
 	}
 
