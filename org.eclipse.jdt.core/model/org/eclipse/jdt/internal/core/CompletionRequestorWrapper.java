@@ -20,8 +20,19 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 
 public class CompletionRequestorWrapper implements ICompletionRequestor {
-	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
+	private static Object NO_ATTACHED_SOURCE = new Object();
 	
+	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
+	static final char[] ARG0 = "arg0".toCharArray();  //$NON-NLS-1$
+	static final char[] ARG1 = "arg1".toCharArray();  //$NON-NLS-1$
+	static final char[] ARG2 = "arg2".toCharArray();  //$NON-NLS-1$
+	static final char[] ARG3 = "arg3".toCharArray();  //$NON-NLS-1$
+	static final char[][] ARGS1 = new char[][]{ARG0};
+	static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
+	static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
+	static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
+	
+	public CompletionEngine completionEngine;
 	ICompletionRequestor clientRequestor;
 	NameLookup nameLookup;
 	
@@ -309,8 +320,28 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 	int length = parameterTypeNames.length;
 	
 	char[] typeName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
-	IType type = nameLookup.findType(new String(typeName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
-	if(type instanceof BinaryType){
+	Object cachedType = completionEngine.typeCache.get(typeName);
+	
+	IType type = null;
+	if(cachedType != null) {
+		if(cachedType != NO_ATTACHED_SOURCE && cachedType instanceof BinaryType) {
+			type = (BinaryType)cachedType;
+		}
+	} else { 
+		type = nameLookup.findType(new String(typeName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
+		if(type instanceof BinaryType){
+			if(((BinaryType)type).getSourceMapper() != null) {
+				completionEngine.typeCache.put(typeName, type);
+			} else {
+				completionEngine.typeCache.put(typeName, NO_ATTACHED_SOURCE);
+				type = null;
+			}
+		} else {
+			type = null;
+		}
+	}
+	
+	if(type != null) {
 		String[] args = new String[length];
 		for(int i = 0;	i< length ; i++){
 			char[] parameterType = CharOperation.concat(parameterPackageNames[i],parameterTypeNames[i],'.');
@@ -326,14 +357,33 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 		} catch(JavaModelException e){
 			parameterNames = null;
 		}
-			
 	}
 	// default parameters name
 	if(parameterNames == null) {
-		parameterNames = new char[length][];
-		for (int i = 0; i < length; i++) {
-			parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+		switch (length) {
+			case 0 :
+				parameterNames = new char[length][];
+				break;
+			case 1 :
+				parameterNames = ARGS1;
+				break;
+			case 2 :
+				parameterNames = ARGS2;
+				break;
+			case 3 :
+				parameterNames = ARGS3;
+				break;
+			case 4 :
+				parameterNames = ARGS4;
+				break;
+			default :
+				parameterNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+				}
+				break;
 		}
+		
 	}
 	return parameterNames;
 }

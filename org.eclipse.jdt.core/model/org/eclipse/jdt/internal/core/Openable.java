@@ -127,7 +127,9 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		nameLookup.setUnitsToLookInside(workingCopies);
 
 		// code complete
-		CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
+		CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor,nameLookup);
+		CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
+		requestorWrapper.completionEngine = engine;
 		engine.complete(cu, position, 0);
 	} finally {
 		if (environment != null) {

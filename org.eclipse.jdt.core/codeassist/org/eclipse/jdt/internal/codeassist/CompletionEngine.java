@@ -50,6 +50,8 @@ public final class CompletionEngine
 	extends Engine
 	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants {
 	
+	public HashtableOfObject typeCache;
+	
 	public static boolean DEBUG = false;
 
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
@@ -166,6 +168,7 @@ public final class CompletionEngine
 		this.javaProject = javaProject;
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
+		this.typeCache = new HashtableOfObject(5);
 
 		problemReporter = new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -1223,6 +1226,7 @@ public final class CompletionEngine
 		Scope invocationScope,
 		boolean implicitCall) {
 
+		ObjectVector newFieldsFound = new ObjectVector();
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 		
@@ -1278,7 +1282,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			fieldsFound.add(new Object[]{field, receiverType});
+			newFieldsFound.add(new Object[]{field, receiverType});
 			
 			char[] completion = field.name;
 			
@@ -1307,6 +1311,8 @@ public final class CompletionEngine
 			field.modifiers, startPosition - offset, endPosition - offset,
 			relevance);
 		}
+		
+		fieldsFound.addAll(newFieldsFound);
 	}
 
 	private void findFields(
@@ -1993,6 +1999,7 @@ public final class CompletionEngine
 		boolean implicitCall,
 		boolean superCall) {
 
+		ObjectVector newMethodsFound =  new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
@@ -2080,7 +2087,7 @@ public final class CompletionEngine
 				}
 			}
 
-			methodsFound.add(new Object[]{method, receiverType});
+			newMethodsFound.add(new Object[]{method, receiverType});
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
 			char[][] parameterTypeNames = new char[length][];
@@ -2141,6 +2148,8 @@ public final class CompletionEngine
 				relevance);
 			startPosition = previousStartPosition;
 		}
+		
+		methodsFound.addAll(newMethodsFound);
 	}
 	
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
@@ -2248,6 +2257,7 @@ public final class CompletionEngine
 		boolean exactMatch,
 		ReferenceBinding receiverType) {
 
+		ObjectVector newMethodsFound =  new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 		int methodLength = methodName.length;
@@ -2295,7 +2305,7 @@ public final class CompletionEngine
 				}
 			}
 
-			methodsFound.add(method);
+			newMethodsFound.add(method);
 			
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
@@ -2392,6 +2402,7 @@ public final class CompletionEngine
 				endPosition - offset,
 				relevance);
 		}
+		methodsFound.addAll(newMethodsFound);
 	}
 	private void findMethods(
 		char[] selector,
@@ -2560,25 +2571,36 @@ public final class CompletionEngine
 		}
 		// look into the model		
 		if(parameterNames == null){
-			NameEnvironmentAnswer answer = nameEnvironment.findType(bindingType.compoundName);
+			char[] compoundName = CharOperation.concatWith(bindingType.compoundName, '.');
+			Object type = typeCache.get(compoundName);
+			
+			ISourceType sourceType = null;
+			if(type != null) {
+				if(type instanceof ISourceType) {
+					sourceType = (ISourceType) type;
+				}
+			} else {
+				NameEnvironmentAnswer answer = nameEnvironment.findType(bindingType.compoundName);
+				if(answer != null && answer.isSourceType()) {
+					sourceType = answer.getSourceTypes()[0];
+					typeCache.put(compoundName, sourceType);
+				}
+			}
+			
+			if(sourceType != null) {
+				ISourceMethod[] sourceMethods = sourceType.getMethods();
+				int len = sourceMethods == null ? 0 : sourceMethods.length;
+				for(int i = 0; i < len ; i++){
+					ISourceMethod sourceMethod = sourceMethods[i];
+					char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
 
-			if(answer != null){
-				if(answer.isSourceType()) {
-					ISourceType sourceType = answer.getSourceTypes()[0];
-					ISourceMethod[] sourceMethods = sourceType.getMethods();
-					int len = sourceMethods == null ? 0 : sourceMethods.length;
-					for(int i = 0; i < len ; i++){
-						ISourceMethod sourceMethod = sourceMethods[i];
-						char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
-
-						if(argTypeNames != null &&
-							CharOperation.equals(method.selector,sourceMethod.getSelector()) &&
-							CharOperation.equals(argTypeNames,parameterTypeNames)){
-							parameterNames = sourceMethod.getArgumentNames();
-							break;
-						}
+					if(argTypeNames != null &&
+						CharOperation.equals(method.selector,sourceMethod.getSelector()) &&
+						CharOperation.equals(argTypeNames,parameterTypeNames)){
+						parameterNames = sourceMethod.getArgumentNames();
+						break;
 					}
-				} 
+				}
 			}
 		}
 		return parameterNames;

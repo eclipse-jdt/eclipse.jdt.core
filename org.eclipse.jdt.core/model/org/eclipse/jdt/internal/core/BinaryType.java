@@ -64,7 +64,9 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
 	NameLookup nameLookup = project.getNameLookup();
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
+	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor,nameLookup);
+	CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
+	requestorWrapper.completionEngine = engine;
 
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
