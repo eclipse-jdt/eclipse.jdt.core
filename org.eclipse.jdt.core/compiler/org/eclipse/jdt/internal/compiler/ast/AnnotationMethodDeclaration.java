@@ -36,8 +36,12 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void resolveStatements() {
 
 		super.resolveStatements();
+		if (this.defaultValue != null) {
+			this.defaultValue.resolveType(this.scope);
+		}
 		TypeBinding returnTypeBinding = this.binding.returnType;
 		if (returnTypeBinding != null) {
+				
 			// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 			checkAnnotationMethodType: {
 				TypeBinding leafReturnType = returnTypeBinding.leafComponentType();
@@ -54,15 +58,16 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 					case T_JavaLangClass :
 						break checkAnnotationMethodType;
 				}
-				if (leafReturnType.isEnum())
+				if (leafReturnType.isEnum()) {
 					break checkAnnotationMethodType;
+				}
 				if (leafReturnType.isAnnotationType()) {
 					scope.classScope().detectAnnotationCycle(scope.enclosingSourceType(), leafReturnType, this.returnType);
 					break checkAnnotationMethodType;
 				}
 				scope.problemReporter().invalidAnnotationMemberType(this);
 			}
-			
+			Annotation.checkAnnotationValue(returnTypeBinding, scope.enclosingSourceType(), this.selector, this.defaultValue, scope);
 		}
 		
 		if (this.extendedDimensions != 0) {

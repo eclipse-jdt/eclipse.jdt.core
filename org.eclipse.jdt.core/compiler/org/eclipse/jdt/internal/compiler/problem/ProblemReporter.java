@@ -135,7 +135,24 @@ public void annotationCircularity(TypeBinding sourceType, TypeBinding otherType,
 			reference.sourceStart,
 			reference.sourceEnd);
 }
-
+public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[] name, Expression value) {
+	String str = 	new String(name);
+	this.handle(
+		IProblem.AnnotationValueMustBeClassLiteral,
+		new String[] { new String(annotationType.readableName()), str },
+		new String[] { new String(annotationType.shortReadableName()), str},
+		value.sourceStart,
+		value.sourceEnd);
+}
+public void annotationValueMustBeConstant(TypeBinding annotationType, char[] name, Expression value) {
+	String str = 	new String(name);
+	this.handle(
+		IProblem.AnnotationValueMustBeConstant,
+		new String[] { new String(annotationType.readableName()), str },
+		new String[] { new String(annotationType.shortReadableName()), str},
+		value.sourceStart,
+		value.sourceEnd);
+}
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,

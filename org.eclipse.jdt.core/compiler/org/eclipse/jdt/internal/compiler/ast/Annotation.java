@@ -42,6 +42,46 @@ public abstract class Annotation extends Expression {
 		return this.resolvedType;
 	}
 	
+	public static void checkAnnotationValue(TypeBinding requiredType, TypeBinding annotationType, char[] memberName, Expression memberValue, Scope scope) {
+		if (requiredType == null) 
+			return;
+		if (memberValue == null) 
+			return;
+		
+		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
+		checkAnnotationMethodType: {
+			TypeBinding leafType = requiredType.leafComponentType();
+			switch (leafType.erasure().id) {
+				case T_byte :
+				case T_short :
+				case T_char :
+				case T_int :
+				case T_long :
+				case T_float :
+				case T_double :
+				case T_boolean :
+					if (memberValue.constant == NotAConstant) {
+						scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
+					}
+					break checkAnnotationMethodType;
+				case T_JavaLangString :
+					break checkAnnotationMethodType;
+				case T_JavaLangClass :
+					if (!(memberValue instanceof ClassLiteralAccess)) {
+						scope.problemReporter().annotationValueMustBeClassLiteral(annotationType, memberName, memberValue);
+					}
+					break checkAnnotationMethodType;
+			}
+			if (leafType.isEnum()) {
+				break checkAnnotationMethodType;
+			}
+			if (leafType.isAnnotationType()) {
+				break checkAnnotationMethodType;
+			}
+		}
+	}
+	
+	
 	void checkMemberValues(MemberValuePair[] valuePairs, Scope scope) {
 		
 		ReferenceBinding annotationType = (ReferenceBinding) this.resolvedType;
@@ -76,13 +116,16 @@ public abstract class Annotation extends Expression {
 						continue nextMember;
 					}
 					Expression memberValue = valuePair.value;
-					memberValue.setExpectedType(method.returnType); // needed in case of generic method invocation
+					expectedValueType = method.returnType;
+					memberValue.setExpectedType(expectedValueType); // needed in case of generic method invocation
 					TypeBinding valueType = scope instanceof ClassScope
 						? memberValue.resolveType((ClassScope)scope)
 						: memberValue.resolveType((BlockScope)scope);
 					if (expectedValueType == null || valueType == null)
 						continue nextPair;
 
+					checkAnnotationValue(expectedValueType, method.declaringClass, method.selector, memberValue, scope);
+					
 					// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 					// may require to widen the rhs expression at runtime
 					if ((memberValue.isConstantValueOfTypeAssignableToType(valueType, expectedValueType)

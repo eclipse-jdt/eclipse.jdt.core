@@ -1004,6 +1004,10 @@ public interface IProblem {
 	int DuplicateAnnotationMember = Internal + 610;
 	/** @since 3.1 */
 	int UndefinedAnnotationMember = MethodRelated + 611;
+	/** @since 3.1 */
+	int AnnotationValueMustBeClassLiteral = Internal + 612;
+	/** @since 3.1 */
+	int AnnotationValueMustBeConstant = Internal + 613;
 
 	/**
 	 * Corrupted binaries

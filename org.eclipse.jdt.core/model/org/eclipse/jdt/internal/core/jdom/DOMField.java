@@ -91,7 +91,7 @@ DOMField() {
  *		next part of this member declaration. If there are no modifiers present
  *		in this node's source code (that is, package default visibility), this array
  *		contains two -1's.
- * @param typeRange- a two element array describing the location of the
+ * @param typeRange - a two element array describing the location of the
  *		typeName in the document - the positions of the first and last characters
  *		of the typeName.
  * @param type - the type of the field, in normalized form, as defined in

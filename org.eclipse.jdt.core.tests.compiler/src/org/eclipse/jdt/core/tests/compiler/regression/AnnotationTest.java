@@ -85,7 +85,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public @Foo class X {\n" + 
 			"	       ^^^^\n" + 
-			"The annotation @Foo must define the member value\n" + 
+			"The annotation @Foo must define the attribute value\n" + 
 			"----------\n");
 	}
 	
@@ -119,7 +119,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in Foo.java (at line 2)\n" + 
 			"	Foo value();\n" + 
 			"	^^^\n" + 
-			"Cycle detected: the annotation type Foo cannot contain members of the annotation type itself\n" + 
+			"Cycle detected: the annotation type Foo cannot contain attributes of the annotation type itself\n" + 
 			"----------\n");
 	}		
 
@@ -221,7 +221,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	Runnable value();\n" + 
 			"	^^^^^^^^\n" + 
-			"Invalid type Runnable for the annotation member X.value; only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
+			"Invalid type Runnable for the annotation attribute X.value; only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
 			"----------\n");
 	}
 	
@@ -323,7 +323,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	@Foo(\"hello\") public class X {\n" + 
 			"	^^^^\n" + 
-			"The annotation @Foo must define the member foo\n" + 
+			"The annotation @Foo must define the attribute foo\n" + 
 			"----------\n");
 	}
 	
@@ -346,7 +346,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	@Foo(\n" + 
 			"	^^^^\n" + 
-			"The annotation @Foo must define the member foo\n" + 
+			"The annotation @Foo must define the attribute foo\n" + 
 			"----------\n");
 	}
 	
@@ -396,12 +396,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	@Author(@Name(first=\"Joe\",last=\"Hacker\")) \n" + 
 			"	^^^^^^^\n" + 
-			"The annotation @Author must define the member name\n" + 
+			"The annotation @Author must define the attribute name\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	@Author(@Name(first=\"Joe\",last=\"Hacker\")) \n" + 
 			"	        ^^^^^\n" + 
-			"The member value is undefined for the annotation type Author\n" + 
+			"The attribute value is undefined for the annotation type Author\n" + 
 			"----------\n");
 	}		
 
@@ -428,12 +428,68 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
 			"	                                   ^^^^\n" + 
-			"Duplicate member last in annotation @Name\n" + 
+			"Duplicate attribute last in annotation @Name\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
 			"	                                                ^^^^\n" + 
-			"Duplicate member last in annotation @Name\n" + 
+			"Duplicate attribute last in annotation @Name\n" + 
+			"----------\n");
+	}
+	
+	// check class annotation member value must be a class literal
+	public void test019() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"	Class value() default X.clazz();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@Foo( clazz() )\n" + 
+				"	void foo() {}\n" + 
+				"	static Class clazz() { return X.class; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Class value() default X.clazz();\n" + 
+			"	                      ^^^^^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a class literal\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@Foo( clazz() )\n" + 
+			"	      ^^^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a class literal\n" + 
+			"----------\n");
+	}			
+	
+	// check primitive annotation member value must be a constant
+	public void test020() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"	int value() default X.val();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@Foo( val() )\n" + 
+				"	void foo() {}\n" + 
+				"	static int val() { return 0; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int value() default X.val();\n" + 
+			"	                    ^^^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a constant expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@Foo( val() )\n" + 
+			"	      ^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a constant expression\n" + 
 			"----------\n");
 	}		
 }
