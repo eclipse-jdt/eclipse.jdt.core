@@ -239,7 +239,7 @@ public class CompilationResult {
 	}
 
 	/**
-	 * Answer the tasks (TODO, ...) encountered during compilation.
+	 * Answer the tasks (TO-DO, ...) encountered during compilation.
 	 *
 	 * This is not a compiler internal API - it has side-effects !
 	 * It is intended to be used only once all problems have been detected,

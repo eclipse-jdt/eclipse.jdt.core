@@ -300,6 +300,16 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static final String CORE_ENCODING = PLUGIN_ID + ".encoding"; //$NON-NLS-1$
 	/**
+	 * Default task tag
+	 * @since 2.1
+	 */
+	public static final String DEFAULT_TASK_TAG = "TODO"; //$NON-NLS-1$
+	/**
+	 * Default task priority
+	 * @since 2.1
+	 */
+	public static final String DEFAULT_TASK_PRIORITY = "NORMAL"; //$NON-NLS-1$
+	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
 	 * @since 2.0
@@ -1776,10 +1786,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD, WARNING); 
 		optionNames.add(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD);
 
-		preferences.setDefault(COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
+		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); //$NON-NLS-1$
 		optionNames.add(COMPILER_TASK_TAGS);
 
-		preferences.setDefault(COMPILER_TASK_PRIORITIES, ""); //$NON-NLS-1$
+		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY); //$NON-NLS-1$
 		optionNames.add(COMPILER_TASK_PRIORITIES);
 
 		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
