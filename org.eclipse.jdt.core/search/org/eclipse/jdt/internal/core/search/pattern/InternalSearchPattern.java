@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * TODO add spec
+ * Internal search pattern implementation
  */
 public abstract class InternalSearchPattern {
 
@@ -44,7 +44,12 @@ public abstract class InternalSearchPattern {
 		}
 	}
 	
+	public final int kind;
 	public boolean mustResolve = true;
+	
+	public InternalSearchPattern(int kind) {
+		this.kind = kind;
+	}
 	
 	protected void acceptMatch(String documentName, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 		String documentPath = Index.convertPath(documentName);
