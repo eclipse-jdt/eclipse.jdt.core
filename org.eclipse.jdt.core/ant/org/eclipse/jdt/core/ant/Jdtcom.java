@@ -178,6 +178,13 @@ public class Jdtcom extends MatchingTask {
 		classpath.append(path);
 	}
 	
+	public Path createClasspath() {
+        if (classpath == null) {
+            classpath = new Path(project);
+        }
+        return classpath.createPath();
+    }
+	
 	public void setSrcdir(Path path){
 		if (src == null) {
             src = path;
