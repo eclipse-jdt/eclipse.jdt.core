@@ -62,13 +62,13 @@
 	<jar 
 		jarfile="${plugin-dir}/jdtcore.jar"
 		basedir="bin" 
-		excludes="**/JDTCompilerAdapter.class"/>
+		excludes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
 	<jar 
 		jarfile="${plugin-dir}/jdtCompilerAdapter.jar"
 		basedir="bin" 
-		includes="**/JDTCompilerAdapter.class"/>
+		includes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 
 	<echo message="UPDATE plugin.xml" />
 	<copy file="plugin.xml" todir="${plugin-dir}" />
@@ -123,13 +123,13 @@
 	<jar 
 		jarfile="${bin_dest}/jdtcore.jar"
 		basedir="bin" 
-		excludes="**/JDTCompilerAdapter.class"/>
+		excludes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
 	<jar 
 		jarfile="${bin_dest}/jdtCompilerAdapter.jar"
 		basedir="bin" 
-		includes="**/JDTCompilerAdapter.class"/>
+		includes="**/JDTCompilerAdapter.class,**/antadapter/*"/>
 
 	<echo message="UPDATE plugin.xml" />
 	<copy file="plugin.xml" todir="${bin_dest}" />
@@ -144,7 +144,6 @@
 
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${src_dest}/jdtcoresrc.zip">
-	    <fileset dir="antadapter" />
 	    <fileset dir="batch" />
 	    <fileset dir="codeassist" />
 	    <fileset dir="compiler" />
