@@ -4721,7 +4721,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, node.getNodeType());
 		NumberLiteral literal = (NumberLiteral) node;
-		assertTrue("Is boxed", literal.resolveBoxing());
+		assertTrue("Not boxed", literal.resolveBoxing());
 		assertFalse("Is unboxed", literal.resolveUnboxing());
     }
 	
@@ -4734,7 +4734,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"	public static void main(String[] s) {\n" +
 				"		test(/*start*/bar()/*end*/);\n" +
 				"	}\n" +
-				"	public static void test(Integer i) { System.out.print('y'); }\n" +
+				"	public static void test(Integer i) {}\n" +
 				"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -4742,7 +4742,85 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
 		MethodInvocation methodInvocation = (MethodInvocation) node;
-		assertTrue("Is boxed", methodInvocation.resolveBoxing());
+		assertTrue("Not boxed", methodInvocation.resolveBoxing());
 		assertFalse("Is unboxed", methodInvocation.resolveUnboxing());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0156() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		test(/*start*/new Integer(1)/*end*/);\n" +
+				"	}\n" +
+				"	public static void test(int i) {}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, node.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node;
+		assertFalse("Is boxed", classInstanceCreation.resolveBoxing());
+		assertTrue("Not unboxed", classInstanceCreation.resolveUnboxing());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
+    public void test0157() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		test(/*start*/null/*end*/);\n" +
+				"	}\n" +
+				"	public static void test(Object o) {}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a null literal", ASTNode.NULL_LITERAL, node.getNodeType());
+		NullLiteral nullLiteral = (NullLiteral) node;
+		assertNull("Got a constant", nullLiteral.resolveConstantExpressionValue());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
+    public void test0158() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	private static final String CONST = \"Hello World\";\n" + 
+				"	public static void main(String[] s) {\n" +
+				"		System.out.println(/*start*/CONST/*end*/);\n" +
+				"	}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, node.getNodeType());
+		SimpleName name = (SimpleName) node;
+		assertNotNull("No constant", name.resolveConstantExpressionValue());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0159() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		test(/*start*/new Integer(1)/*end*/);\n" +
+				"	}\n" +
+				"	public static void test(Integer i) {}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, node.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node;
+		assertFalse("Is boxed", classInstanceCreation.resolveBoxing());
+		assertFalse("Is unboxed", classInstanceCreation.resolveUnboxing());
     }
 }
