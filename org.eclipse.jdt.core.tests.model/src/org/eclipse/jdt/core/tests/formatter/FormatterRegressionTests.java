@@ -3691,6 +3691,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}	
 
 	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46686
 	 */
 	public void test338() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
@@ -3700,6 +3701,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}	
 
 	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46686
 	 */
 	public void test339() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
@@ -3709,6 +3711,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}	
 	
 	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46686
 	 */
 	public void test340() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
