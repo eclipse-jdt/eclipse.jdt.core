@@ -33,7 +33,7 @@ public class FileListBlock extends Block {
 			field.putInt4(offset, indexedFile.getFileNumber());
 			offset += 4;
 		}
-		String path= indexedFile.getPath() + indexedFile.propertiesToString();
+		String path= indexedFile.getPath();
 		int prefixLen= prevPath == null ? 0 : Util.prefixLength(prevPath, path);
 		int sizeEstimate= 2 + 2 + (path.length() - prefixLen) * 3;
 		if (offset + sizeEstimate > blockSize - 2)
