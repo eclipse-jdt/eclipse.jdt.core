@@ -82,6 +82,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	notifier.begin();
 	boolean ok = false;
 	try {
+		notifier.checkCancel();
 		initializeBuilder();
 
 		if (kind == FULL_BUILD) {
@@ -139,6 +140,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 }
 
 private void buildAll() {
+	notifier.checkCancel();
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	clearLastState();
 	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
@@ -147,6 +149,7 @@ private void buildAll() {
 }
 
 private void buildDeltas(SimpleLookupTable deltas) {
+	notifier.checkCancel();
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))

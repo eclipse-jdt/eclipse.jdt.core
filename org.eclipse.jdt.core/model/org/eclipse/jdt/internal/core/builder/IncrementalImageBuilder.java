@@ -64,7 +64,6 @@ public boolean build(SimpleLookupTable deltas) {
 		if (sourceDelta != null)
 			if (!findSourceFiles(sourceDelta)) return false;
 		notifier.updateProgressDelta(0.10f);
-		notifier.checkCancel();
 
 		if (javaBuilder.prereqOutputFolders.elementSize > 0) {
 			Object[] keyTable = javaBuilder.prereqOutputFolders.keyTable;
@@ -79,7 +78,6 @@ public boolean build(SimpleLookupTable deltas) {
 			}
 		}
 		notifier.updateProgressDelta(0.10f);
-		notifier.checkCancel();
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
 		addAffectedSourceFiles();
@@ -190,6 +188,7 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource prereq
 		IResourceDelta[] children = binaryDelta.getAffectedChildren();
 		for (int i = 0, length = children.length; i < length; ++i)
 			findAffectedSourceFiles(children[i], outputFolderSegmentCount);
+		notifier.checkCancel();
 	}
 	return true;
 }
@@ -248,6 +247,7 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
 				findSourceFiles(children[c], sourceFolderSegmentCount);
+			notifier.checkCancel();
 		}
 	}
 	return true;

@@ -28,14 +28,12 @@ public void build() {
 		JavaBuilder.removeProblemsFor(javaBuilder.currentProject);
 		scrubOutputFolder();
 		notifier.updateProgressDelta(0.1f);
-		notifier.checkCancel();
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
 		ArrayList locations = new ArrayList(33);
 		ArrayList typeNames = new ArrayList(33);
 		addAllSourceFiles(locations, typeNames);
 		notifier.updateProgressDelta(0.15f);
-		notifier.checkCancel();
 
 		if (locations.size() > 0) {
 			String[] allSourceFiles = new String[locations.size()];
@@ -72,6 +70,7 @@ protected void addAllSourceFiles(final ArrayList locations, final ArrayList type
 				}
 			}
 		);
+		notifier.checkCancel();
 	}
 }
 
@@ -81,6 +80,7 @@ protected void scrubOutputFolder() throws CoreException {
 		IResource[] members = outputFolder.members(); 
 		for (int i = 0, length = members.length; i < length; i++)
 			members[i].delete(true, null);
+		notifier.checkCancel();
 		copyExtraResourcesBack();
 	} else {
 		// outputPath == a source folder so just remove class files
@@ -97,6 +97,7 @@ protected void scrubOutputFolder() throws CoreException {
 			}
 		);
 	}
+	notifier.checkCancel();
 }
 
 protected void copyExtraResourcesBack() throws CoreException {
