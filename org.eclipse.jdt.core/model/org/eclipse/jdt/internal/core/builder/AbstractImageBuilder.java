@@ -237,11 +237,11 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 	newState.record(sourceLocator, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
 }
 
-protected IContainer getOutputFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
+protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
 	if (packagePath.isEmpty()) return outputFolder;
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
-		getOutputFolder(packagePath.removeLastSegments(1), outputFolder);
+		createFolder(packagePath.removeLastSegments(1), outputFolder);
 		folder.create(true, true, null);
 		folder.setDerived(true);
 	}
@@ -387,7 +387,7 @@ protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, bo
 	IPath filePath = new Path(fileName);
 	IContainer container = outputFolder;
 	if (filePath.segmentCount() > 1) {
-		container = getOutputFolder(filePath.removeLastSegments(1), outputFolder);
+		container = createFolder(filePath.removeLastSegments(1), outputFolder);
 		filePath = new Path(filePath.lastSegment());
 	}
 

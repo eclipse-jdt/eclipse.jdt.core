@@ -315,7 +315,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
 					IPath addedPackagePath = resource.getFullPath().removeFirstSegments(segmentCount);
-					getOutputFolder(addedPackagePath, md.binaryFolder); // ensure package exists in the output folder
+					createFolder(addedPackagePath, md.binaryFolder); // ensure package exists in the output folder
 					// add dependents even when the package thinks it exists to be on the safe side
 					if (JavaBuilder.DEBUG)
 						System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
@@ -332,7 +332,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						for (int i = 0, l = sourceLocations.length; i < l; i++) {
 							if (sourceLocations[i].sourceFolder.getFolder(removedPackagePath).exists()) {
 								// only a package fragment was removed, same as removing multiple source files
-								getOutputFolder(removedPackagePath, md.binaryFolder); // ensure package exists in the output folder
+								createFolder(removedPackagePath, md.binaryFolder); // ensure package exists in the output folder
 								IResourceDelta[] removedChildren = sourceDelta.getAffectedChildren();
 								for (int j = 0, m = removedChildren.length; j < m; j++)
 									findSourceFiles(removedChildren[j], md, segmentCount);
@@ -416,7 +416,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						}
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
-						getOutputFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
+						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
 						return;
@@ -437,7 +437,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						}
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
-						getOutputFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
+						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
 				}

@@ -81,29 +81,30 @@ protected void cleanOutputFolders() throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	ArrayList visited = new ArrayList(sourceLocations.length);
-	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
-		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+	next : for (int iSource = 0, length = sourceLocations.length; iSource < length; iSource++) {
+		ClasspathMultiDirectory sourceLocation = sourceLocations[iSource];
 		if (sourceLocation.hasIndependentOutputFolder) {
 			IContainer outputFolder = sourceLocation.binaryFolder;
-			if (visited.contains(outputFolder)) continue next;
-			visited.add(outputFolder);
-			if (deleteAll) {
-				IResource[] members = outputFolder.members(); 
-				for (int ii = 0, ll = members.length; ii < ll; ii++)
-					members[ii].delete(IResource.FORCE, null);
-			} else {
-				outputFolder.accept(
-					new IResourceVisitor() {
-						public boolean visit(IResource resource) throws CoreException {
-							if (resource.getType() == IResource.FILE) {
-								if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
-									resource.delete(IResource.FORCE, null);
-								return false;
+			if (!visited.contains(outputFolder)){
+				visited.add(outputFolder);
+				if (deleteAll) {
+					IResource[] members = outputFolder.members(); 
+					for (int iMember = 0, memberLength = members.length; iMember < memberLength; iMember++)
+						members[iMember].delete(IResource.FORCE, null);
+				} else {
+					outputFolder.accept(
+						new IResourceVisitor() {
+							public boolean visit(IResource resource) throws CoreException {
+								if (resource.getType() == IResource.FILE) {
+									if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+										resource.delete(IResource.FORCE, null);
+									return false;
+								}
+								return true;
 							}
-							return true;
 						}
-					}
-				);
+					);
+				}
 			}
 			copyExtraResourcesBack(sourceLocation, deleteAll);
 		} else {
@@ -130,7 +131,7 @@ protected void cleanOutputFolders() throws CoreException {
 	}
 }
 
-protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
+protected void copyExtraResourcesBack(final ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
@@ -140,13 +141,13 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	sourceLocation.sourceFolder.accept(
 		new IResourceVisitor() {
 			public boolean visit(IResource resource) throws CoreException {
-				if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-					return false;
 				switch(resource.getType()) {
 					case IResource.FILE :
 						String extension = resource.getFileExtension();
 						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
 						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
+						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+							return false;						
 						if (javaBuilder.filterExtraResource(resource)) return false;
 
 						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
@@ -163,9 +164,12 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						return false;
 					case IResource.FOLDER :
 						if (resource.equals(outputFolder)) return false;
+						if (resource.equals(sourceLocation.sourceFolder)) return true;
+						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+							return false;
 						if (javaBuilder.filterExtraResource(resource)) return false;
 
-						getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;
 			}
