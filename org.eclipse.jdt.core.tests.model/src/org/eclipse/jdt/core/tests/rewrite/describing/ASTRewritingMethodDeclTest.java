@@ -808,6 +808,45 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
+public void testListRemoves2() throws Exception {
+IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+StringBuffer buf= new StringBuffer();
+buf.append("package test1;\n");
+buf.append("public class E {\n");
+buf.append("    public void setMyProp(String property1) {}\n");
+buf.append("}\n");	
+ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+
+CompilationUnit astRoot= createAST(cu);
+AST ast= astRoot.getAST();
+
+ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
+
+{ // delete param, insert new
+	MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
+	List parameters= methodDecl.parameters();
+	rewrite.remove((ASTNode) parameters.get(0), null);
+	
+	SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
+	decl.setType(ast.newPrimitiveType(PrimitiveType.INT));
+	decl.setName(ast.newSimpleName("property11"));
+	
+	rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(decl, null);
+	
+}
+String preview= evaluateRewrite(cu, rewrite);
+
+buf= new StringBuffer();
+buf.append("package test1;\n");
+buf.append("public class E {\n");
+buf.append("    public void setMyProp(int property11) {}\n");
+buf.append("}\n");	
+	
+assertEqualString(preview, buf.toString());
+}
+
+	
 	public void testListInserts() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
