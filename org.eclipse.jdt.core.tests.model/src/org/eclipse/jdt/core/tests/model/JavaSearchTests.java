@@ -962,7 +962,7 @@ public void testInnacurateTypeReference3() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertEquals(
-		"src/r4/B21485.java [r3.A21485] EXACT_MATCH\n" +
+		"src/r4/B21485.java [A21485] POTENTIAL_MATCH\n" +
 		"src/r4/B21485.java r4.B21485 [A21485] POTENTIAL_MATCH",
 		resultCollector.toString());
 }

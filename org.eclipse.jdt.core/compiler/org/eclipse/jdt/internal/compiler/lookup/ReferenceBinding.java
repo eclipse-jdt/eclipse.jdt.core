@@ -123,14 +123,18 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBindin
 	} while ((type = type.superclass()) != null);
 	return false;
 }
-/* Answer true if the receiver is visible to the type provided by the scope.
-*
-* NOTE: Cannot invoke this method with a compilation unit scope.
-*/
+/* 
+ * Answer true if the receiver is visible to the type provided by the scope.
+ */
 
 public final boolean canBeSeenBy(Scope scope) {
+	
 	if (isPublic()) return true;
 
+	if (scope.kind == Scope.COMPILATION_UNIT_SCOPE){
+		return this.canBeSeenBy(((CompilationUnitScope)scope).fPackage);
+	}
+	
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (invocationType == this) return true;
 
