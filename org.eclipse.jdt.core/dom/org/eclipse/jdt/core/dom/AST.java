@@ -212,11 +212,12 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		
-		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		char[] source = null;
 		try {
 			source = unit.getSource().toCharArray();
 		} catch(JavaModelException e) {
+			// no source, then we cannot build anything
+			throw new IllegalArgumentException();
 		}
 
 		if (resolveBindings) {
@@ -227,19 +228,29 @@ public final class AST {
 			// discarded, and the various public resolveBinding methods should
 			// thereafter return null.
 			try {
-				compilationUnitDeclaration = CompilationUnitResolver.resolve(
+				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					new AbstractSyntaxTreeVisitorAdapter());
-				return convert(compilationUnitDeclaration, source);
+				ASTConverter converter = new ASTConverter(true);
+				AST ast = new AST();
+				BindingResolver resolver = new DefaultBindingResolver(ast, compilationUnitDeclaration.scope);
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+			
+				CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
+				cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return cu;
 			} catch(JavaModelException e) {
-				// FIXME - if this exception can happen, it needs to be converted
-				// to an appropriate RuntimeException of some ilk
+				/* if a JavaModelException is thrown trying to retrieve the name environment
+				 * then we simply do a parsing without creating bindings.
+				 * Therefore all binding resolution will return null.
+				 */
+				return parseCompilationUnit(source);			
 			}
 		} else {
 			return parseCompilationUnit(source);
 		}
-		// FIXME - this method must not return null!
-		return null;
 	}
 
 	/**
@@ -309,8 +320,6 @@ public final class AST {
 			return parseCompilationUnit(source);
 		}
 	
-		CompilationUnitDeclaration compilationUnitDeclaration = null;
-
 		// FIXME - If resolveBindings is true, we need to record the mod count
 		// once newAST has been constructed. If the mod count goes above
 		// this level, someone is modifying the AST and all bets are off
@@ -318,19 +327,29 @@ public final class AST {
 		// discarded, and the various public resolveBinding methods should
 		// thereafter return null.
 		try {
-			compilationUnitDeclaration =
+			CompilationUnitDeclaration compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
 					source,
 					unitName,
 					project,
 					new AbstractSyntaxTreeVisitorAdapter());
-			return convert(compilationUnitDeclaration, source);
-		} catch (JavaModelException e) {
-			// FIXME - if this exception can happen, it needs to be converted
-			// to an appropriate RuntimeException of some ilk
+			ASTConverter converter = new ASTConverter(true);
+			AST ast = new AST();
+			BindingResolver resolver = new DefaultBindingResolver(ast, compilationUnitDeclaration.scope);
+			ast.setBindingResolver(resolver);
+			converter.setAST(ast);
+		
+			CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
+			cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+			resolver.storeModificationCount(ast.modificationCount());
+			return cu;
+		} catch(JavaModelException e) {
+			/* if a JavaModelException is thrown trying to retrieve the name environment
+			 * then we simply do a parsing without creating bindings.
+			 * Therefore all binding resolution will return null.
+			 */
+			return parseCompilationUnit(source);			
 		}
-		// FIXME - this method must not return null!
-		return null;
 	}
 	  	
 	/**
@@ -360,7 +379,7 @@ public final class AST {
 
 		ASTConverter converter = new ASTConverter(false);
 		AST ast = new AST();
-		ast.setBindingResolver(new BindingResolver());
+		ast.setBindingResolver(new BindingResolver(ast));
 		converter.setAST(ast);
 				
 		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
@@ -371,35 +390,10 @@ public final class AST {
 	}
 
 	/**
-	 * This method is used to convert the compilation unit declaration when the bindings are resolved.
-	 * @param compilationUnitDeclaration org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration
-	 * @param source char[]
-	 * @return org.eclipse.jdt.core.dom.CompilationUnit
-	 */	
-	static CompilationUnit convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source) {
-		if (compilationUnitDeclaration != null && source != null) {
-			ASTConverter converter = new ASTConverter(true);
-			AST ast = new AST();
-			ast.setBindingResolver(new DefaultBindingResolver(compilationUnitDeclaration.scope));
-			converter.setAST(ast);
-		
-			CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
-			// line end table should be extracted from scanner
-			cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
-		
-			// line end table should be extracted from scanner
-			//cu.setLineEndTable(parser.scanner.lineEnds);
-			return cu;
-		} else {
-			return null;
-		}
-	}
-
-	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.
 	 */
-	private BindingResolver resolver = new BindingResolver();
+	private BindingResolver resolver = new BindingResolver(this);
 	
 	/**
 	 * Returns the binding resolver for this AST.
