@@ -182,7 +182,10 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 	return false;
 }
 
-public void reset() {
+public void cleanup() {
+	for (int i = 0, length = classpathLocations.length; i < length; i++){
+		classpathLocations[i].cleanup();
+	}
 }
 
 public void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {

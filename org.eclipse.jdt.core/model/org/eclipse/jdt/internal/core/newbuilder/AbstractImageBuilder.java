@@ -132,6 +132,7 @@ protected void cleanUp() {
 	this.sourceFolders = null;
 	this.notifier = null;
 	this.compiler = null;
+	this.nameEnvironment.cleanup();
 	this.nameEnvironment = null;
 	this.workQueue = null;
 	this.problemTypeLocations = null;

@@ -154,7 +154,7 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 	return false;
 }
 
-public void reset() {
+public void cleanup() {
 	for (int i = 0, max = classpaths.length; i < max; i++) {
 		classpaths[i].reset();
 	}

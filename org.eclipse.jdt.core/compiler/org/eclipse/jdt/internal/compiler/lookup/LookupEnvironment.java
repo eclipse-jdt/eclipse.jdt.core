@@ -546,6 +546,9 @@ public void reset() {
 		this.units[i] = null;
 	this.lastUnitIndex = -1;
 	this.lastCompletedUnitIndex = -1;
+	
+	// name environment has a longer life cycle, and must be reset in
+	// the code which created it.
 }
 void updateArrayCache(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
 	nextDimension : for (int i = 0, length = uniqueArrayBindings.length; i < length; i++) {

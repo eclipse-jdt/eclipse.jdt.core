@@ -375,6 +375,6 @@ public class SearchableEnvironment
 		return result.toString();
 	}
 	
-	public void reset() {
+	public void cleanup() {
 	}
 }

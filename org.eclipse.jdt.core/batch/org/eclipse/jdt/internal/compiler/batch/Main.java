@@ -789,9 +789,11 @@ protected void outputClassFiles(CompilationResult unitResult) {
  *  Low-level API performing the actual compilation
  */
 protected void performCompilation() throws InvalidInputException {
+	
+	INameEnvironment environment = getLibraryAccess();
 	Compiler batchCompiler =
 			new Compiler(
-				getLibraryAccess(),
+				environment,
 				getHandlingPolicy(),
 				getOptions(),
 		 		getBatchRequestor(),
@@ -802,6 +804,9 @@ protected void performCompilation() throws InvalidInputException {
 	options.setVerboseMode(verbose);
 	options.produceReferenceInfo(produceRefInfo);
 	batchCompiler.compile(getCompilationUnits());
+	
+	// cleanup
+	environment.cleanup();
 }
 private void printUsage() {
 	out.println(Main.bind("misc.usage",Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$

@@ -158,6 +158,7 @@ public void evaluateCodeSnippet(
 			}
 		}
 	}
+	INameEnvironment environment = null;
 	try {
 		this.context.evaluate(
 			codeSnippet.toCharArray(),
@@ -167,39 +168,54 @@ public void evaluateCodeSnippet(
 			declaringType == null? null : declaringType.getFullyQualifiedName().toCharArray(),
 			isStatic,
 			isConstructorCall,
-			getBuildNameEnvironment(), 
+			environment = getBuildNameEnvironment(), 
 			JavaCore.getOptions(), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
+	} finally {
+		if (environment != null) environment.cleanup();
 	}
 }
 /**
  * @see IEvaluationContext#evaluateCodeSnippet
  */
 public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor) throws JavaModelException {
+
 	checkBuilderState();
+	INameEnvironment environment = null;
 	try {
-		this.context.evaluate(codeSnippet.toCharArray(), getBuildNameEnvironment(), JavaCore.getOptions(), getInfrastructureEvaluationRequestor(requestor), getProblemFactory());
+		this.context.evaluate(
+			codeSnippet.toCharArray(), 
+			environment = getBuildNameEnvironment(), 
+			JavaCore.getOptions(), 
+			getInfrastructureEvaluationRequestor(requestor), 
+			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
+	} finally {
+		if (environment != null) environment.cleanup();
 	}
 }
 /**
  * @see IEvaluationContext#evaluateVariable
  */
 public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor) throws JavaModelException {
+
 	checkBuilderState();
+	INameEnvironment environment = null;
 	try {
 		this.context.evaluateVariable(
 			((GlobalVariableWrapper)variable).variable, 
-			getBuildNameEnvironment(), 
+			environment = getBuildNameEnvironment(), 
 			JavaCore.getOptions(), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
+	} finally {
+		if (environment != null) environment.cleanup();
 	}
 }
 /**
@@ -306,8 +322,17 @@ public void setPackageName(String packageName) {
  * @see IEvaluationContext#validateImports
  */
 public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelException {
+	
 	checkBuilderState();
-	this.context.evaluateImports(getBuildNameEnvironment(), getInfrastructureEvaluationRequestor(requestor), getProblemFactory());
+	INameEnvironment environment = null;
+	try {
+		this.context.evaluateImports(
+			environment = getBuildNameEnvironment(), 
+			getInfrastructureEvaluationRequestor(requestor), 
+			getProblemFactory());
+	} finally {
+		if (environment != null) environment.cleanup();
+	}
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
