@@ -78,6 +78,13 @@ What's new in this drop</h2>
 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "warning"
+*
+* COMPILER / Reporting final Bound for Type Parameter
+*    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 
+*    bound corresponding to a final type; since final types cannot be further extended, the parameter is pretty useless.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.finalParameterBound"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
 </pre>
 </li>
 </ul>

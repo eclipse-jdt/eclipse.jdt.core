@@ -846,6 +846,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnsafeTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
+						this.options.put(
+							CompilerOptions.OPTION_ReportFinalParameterBound,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
 						if (!useEnableJavadoc) {
 							this.options.put(

@@ -522,6 +522,9 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeMethodWithRawArguments:
 		case IProblem.UnsafeRawFieldAssignment:
 			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
+		
+		case IProblem.FinalBoundForTypeVariable:
+		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
 		/*
 		 * Javadoc syntax errors
@@ -990,6 +993,14 @@ public void finalMethodCannotBeOverridden(MethodBinding currentMethod, MethodBin
 		new String[] {new String(inheritedMethod.declaringClass.shortReadableName())},
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
+}
+public void finalVariableBound(TypeVariableBinding typeVariable, SourceTypeBinding genericType, TypeReference typeRef) {
+	this.handle(
+		IProblem.FinalBoundForTypeVariable,
+		new String[] { new String(typeVariable.sourceName), new String(genericType.readableName()), new String(typeRef.resolvedType.readableName())},
+		new String[] { new String(typeVariable.sourceName), new String(genericType.shortReadableName()), new String(typeRef.resolvedType.shortReadableName())},
+		typeRef.sourceStart,
+		typeRef.sourceEnd);
 }
 public void forwardReference(Reference reference, int indexInQualification, TypeBinding type) {
 	this.handle(

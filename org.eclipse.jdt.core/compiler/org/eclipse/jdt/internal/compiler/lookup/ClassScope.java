@@ -823,7 +823,9 @@ public class ClassScope extends Scope {
 					continue nextVariable;
 				}
 			}
-			// TODO (philippe) add warning to flag final superClass scenario (not useful usage of generics)
+			if (superType.isFinal()) {
+			    problemReporter().finalVariableBound(typeVariable, referenceContext.binding, typeRef);
+			}
 			typeRef.resolvedType = superType; // hold onto the problem type
 			if (superType.isClass())
 				typeVariable.superclass = superType;

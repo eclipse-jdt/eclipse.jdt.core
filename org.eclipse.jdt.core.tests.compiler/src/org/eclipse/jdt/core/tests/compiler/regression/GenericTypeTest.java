@@ -72,6 +72,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
 		return options;
 	}
 	// Use this static initializer to specify subset for tests
@@ -374,7 +375,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X <X> extends X {\n" + 
 			"	                           ^\n" + 
-			"Cannot refer to the type variable X as a supertype\n" + 
+			"Cannot refer to the type parameter X as a supertype\n" + 
 			"----------\n");
 	}
 	
@@ -390,7 +391,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X <X> implements X {\n" + 
 			"	                              ^\n" + 
-			"Cannot refer to the type variable X as a supertype\n" + 
+			"Cannot refer to the type parameter X as a supertype\n" + 
 			"----------\n");
 	}
 	
@@ -411,7 +412,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T s;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n");
 	}
 				
@@ -441,32 +442,32 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong1;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	static void foo(T wrong2) {\n" + 
 			"	                ^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	T wrong3;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	class MX extends T {\n" + 
 			"	                 ^\n" + 
-			"Cannot refer to the type variable T as a supertype\n" + 
+			"Cannot refer to the type parameter T as a supertype\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 13)\n" + 
 			"	static class SMX extends T {\n" + 
 			"	                         ^\n" + 
-			"Cannot refer to the type variable T as a supertype\n" + 
+			"Cannot refer to the type parameter T as a supertype\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n");
 	}
 	
@@ -487,7 +488,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n");
 	}
 	
@@ -506,7 +507,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	static T wrong;\n" + 
 			"	       ^\n" + 
-			"Cannot make a static reference to the type variable T\n" + 
+			"Cannot make a static reference to the type parameter T\n" + 
 			"----------\n");
 	}
 	
@@ -825,12 +826,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X <T extends String> {\n" + 
+			"	                          ^^^^^^\n" + 
+			"The type parameter T for the type X<T> should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	foo(x);\n" + 
 			"	^^^\n" + 
 			"The method foo(T) in the type X<T> is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	new X<String>().foo(new Object());\n" + 
 			"	                ^^^\n" + 
 			"The method foo(String) in the type X<String> is not applicable for the arguments (Object)\n" + 
@@ -1290,7 +1296,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends U, U> {\n" + 
 			"	                ^\n" + 
-			"Illegal forward reference to type variable U\n" + 
+			"Illegal forward reference to type parameter U\n" + 
 			"----------\n");
 	}	
 	
@@ -3012,12 +3018,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X <T extends String> {\n" + 
+			"	                          ^^^^^^\n" + 
+			"The type parameter T for the type X<T> should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	  ^^^^^^^^^^^^\n" + 
 			"Type mismatch: Cannot convert from ? extends AX to the bounded parameter <T extends String> of the type X<T>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	                          ^^\n" + 
 			"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
