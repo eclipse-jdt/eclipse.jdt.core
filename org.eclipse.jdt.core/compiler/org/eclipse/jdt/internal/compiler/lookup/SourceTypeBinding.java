@@ -8,7 +8,6 @@ import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SourceTypeBinding extends ReferenceBinding {
@@ -322,44 +321,25 @@ void faultInTypesForFieldsAndMethods() {
 		((SourceTypeBinding) memberTypes[i]).faultInTypesForFieldsAndMethods();
 }
 // NOTE: the type of each field of a source type is resolved when needed
-
+ 
 public FieldBinding[] fields() {
-	
-	try {
-		int failed = 0;
-		for (int f = fields.length; --f >= 0;) {
-			if (resolveTypeFor(fields[f]) == null) {
-				fields[f] = null;
-				failed++;
-			}
+	int failed = 0;
+	for (int f = fields.length; --f >= 0;) {
+		if (resolveTypeFor(fields[f]) == null) {
+			fields[f] = null;
+			failed++;
 		}
-		if (failed > 0) {
-			int newSize = fields.length - failed;
-			if (newSize == 0)
-				return fields = NoFields;
-	
-			FieldBinding[] newFields = new FieldBinding[newSize];
-			for (int i = 0, n = 0, max = fields.length; i < max; i++)
-				if (fields[i] != null)
-					newFields[n++] = fields[i];
-			fields = newFields;
-		}
-	} catch(AbortCompilation e){
-		// ensure null fields are removed
-		FieldBinding[] newFields = null;
-		int count = 0;
-		for (int i = 0, max = fields.length; i < max; i++){
-			FieldBinding field = fields[i];
-			if (field == null && newFields == null){
-				System.arraycopy(fields, 0, newFields = new FieldBinding[max], 0, i);
-			} else if (newFields != null && field != null) {
-				newFields[count++] = field;
-			}
-		}
-		if (newFields != null){
-			System.arraycopy(newFields, 0, fields = new FieldBinding[count], 0, count);
-		}			
-		throw e;
+	}
+	if (failed > 0) {
+		int newSize = fields.length - failed;
+		if (newSize == 0)
+			return fields = NoFields;
+
+		FieldBinding[] newFields = new FieldBinding[newSize];
+		for (int i = 0, n = 0, max = fields.length; i < max; i++)
+			if (fields[i] != null)
+				newFields[n++] = fields[i];
+		fields = newFields;
 	}
 	return fields;
 }
@@ -485,112 +465,94 @@ public MethodBinding[] getMethods(char[] selector) {
 	// handle forward references to potential default abstract methods
 	addDefaultAbstractMethods();
 
-	try{
-		int count = 0;
-		int lastIndex = -1;
-		int selectorLength = selector.length;
-		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
-			for (int m = 0, length = methods.length; m < length; m++) {
-				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+	int count = 0;
+	int lastIndex = -1;
+	int selectorLength = selector.length;
+	if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+		for (int m = 0, length = methods.length; m < length; m++) {
+			MethodBinding method = methods[m];
+			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				count++;
+				lastIndex = m;
+			}
+		}
+	} else {
+		boolean foundProblem = false;
+		int failed = 0;
+		for (int m = 0, length = methods.length; m < length; m++) {
+			MethodBinding method = methods[m];
+			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				if (resolveTypesFor(method) == null) {
+					foundProblem = true;
+					methods[m] = null; // unable to resolve parameters
+					failed++;
+				} else if (method.returnType == null) {
+					foundProblem = true;
+				} else {
 					count++;
 					lastIndex = m;
 				}
 			}
-		} else {
-			boolean foundProblem = false;
-			int failed = 0;
-			for (int m = 0, length = methods.length; m < length; m++) {
+		}
+
+		if (foundProblem || count > 1) {
+			for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
-					if (resolveTypesFor(method) == null) {
-						foundProblem = true;
-						methods[m] = null; // unable to resolve parameters
-						failed++;
-					} else if (method.returnType == null) {
-						foundProblem = true;
-					} else {
-						count++;
-						lastIndex = m;
-					}
-				}
-			}
-	
-			if (foundProblem || count > 1) {
-				for (int m = methods.length; --m >= 0;) {
-					MethodBinding method = methods[m];
-					if (method != null && method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
-						AbstractMethodDeclaration methodDecl = null;
-						for (int i = 0; i < m; i++) {
-							MethodBinding method2 = methods[i];
-							if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-								if (method.areParametersEqual(method2)) {
-									if (methodDecl == null) {
-										methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
-										scope.problemReporter().duplicateMethodInType(this, methodDecl);
-										methodDecl.binding = null;
-										methods[m] = null;
-										failed++;
-									}
-									scope.problemReporter().duplicateMethodInType(this, method2.sourceMethod());
-									method2.sourceMethod().binding = null;
-									methods[i] = null;
+				if (method != null && method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+					AbstractMethodDeclaration methodDecl = null;
+					for (int i = 0; i < m; i++) {
+						MethodBinding method2 = methods[i];
+						if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
+							if (method.areParametersEqual(method2)) {
+								if (methodDecl == null) {
+									methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
+									scope.problemReporter().duplicateMethodInType(this, methodDecl);
+									methodDecl.binding = null;
+									methods[m] = null;
 									failed++;
 								}
+								scope.problemReporter().duplicateMethodInType(this, method2.sourceMethod());
+								method2.sourceMethod().binding = null;
+								methods[i] = null;
+								failed++;
 							}
 						}
-						if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
-							method.sourceMethod().binding = null;
-							methods[m] = null;
-							failed++;
-						}
+					}
+					if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+						method.sourceMethod().binding = null;
+						methods[m] = null;
+						failed++;
 					}
 				}
-	
-				if (failed > 0) {
-					int newSize = methods.length - failed;
-					if (newSize == 0)
-						return methods = NoMethods;
-	
-					MethodBinding[] newMethods = new MethodBinding[newSize];
-					for (int i = 0, n = 0, max = methods.length; i < max; i++)
-						if (methods[i] != null)
-							newMethods[n++] = methods[i];
-					methods = newMethods;
-					return getMethods(selector); // try again now that the problem methods have been removed
-				}
+			}
+
+			if (failed > 0) {
+				int newSize = methods.length - failed;
+				if (newSize == 0)
+					return methods = NoMethods;
+
+				MethodBinding[] newMethods = new MethodBinding[newSize];
+				for (int i = 0, n = 0, max = methods.length; i < max; i++)
+					if (methods[i] != null)
+						newMethods[n++] = methods[i];
+				methods = newMethods;
+				return getMethods(selector); // try again now that the problem methods have been removed
 			}
 		}
-		if (count == 1)
-			return new MethodBinding[] {methods[lastIndex]};
-		if (count > 1) {
-			MethodBinding[] result = new MethodBinding[count];
-			count = 0;
-			for (int m = 0; m <= lastIndex; m++) {
-				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector))
-					result[count++] = method;
-			}
-			return result;
+	}
+
+	if (count == 1)
+		return new MethodBinding[] {methods[lastIndex]};
+	if (count > 1) {
+		MethodBinding[] result = new MethodBinding[count];
+		count = 0;
+		for (int m = 0; m <= lastIndex; m++) {
+			MethodBinding method = methods[m];
+			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector))
+				result[count++] = method;
 		}
-	} catch(AbortCompilation e){
-		// ensure null methods are removed
-		MethodBinding[] newMethods = null;
-		int count = 0;
-		for (int i = 0, max = methods.length; i < max; i++){
-			MethodBinding method = methods[i];
-			if (method == null && newMethods == null){
-				System.arraycopy(methods, 0, newMethods = new MethodBinding[max], 0, i);
-			} else if (newMethods != null && method != null) {
-				newMethods[count++] = method;
-			}
-		}
-		if (newMethods != null){
-			System.arraycopy(newMethods, 0, methods = new MethodBinding[count], 0, count);
-		}			
-		modifiers ^= AccUnresolved;
-		throw e;
-	}		
+		return result;
+	}
 	return NoMethods;
 }
 /* Answer the synthetic field for <actualOuterLocalVariable>
@@ -652,81 +614,62 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
-	try {
-		if ((modifiers & AccUnresolved) == 0)
-			return methods;
-	
-		int failed = 0;
-		for (int m = methods.length; --m >= 0;) {
-			if (resolveTypesFor(methods[m]) == null) {
-				methods[m] = null; // unable to resolve parameters
+	if ((modifiers & AccUnresolved) == 0)
+		return methods;
+
+	int failed = 0;
+	for (int m = methods.length; --m >= 0;) {
+		if (resolveTypesFor(methods[m]) == null) {
+			methods[m] = null; // unable to resolve parameters
+			failed++;
+		}
+	}
+
+	for (int m = methods.length; --m >= 0;) {
+		MethodBinding method = methods[m];
+		if (method != null) {
+			AbstractMethodDeclaration methodDecl = null;
+			for (int i = 0; i < m; i++) {
+				MethodBinding method2 = methods[i];
+				if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
+					if (method.areParametersEqual(method2)) {
+						if (methodDecl == null) {
+							methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
+							scope.problemReporter().duplicateMethodInType(this, methodDecl);
+							methodDecl.binding = null;
+							methods[m] = null;
+							failed++;
+						}
+						scope.problemReporter().duplicateMethodInType(this, method2.sourceMethod());
+						method2.sourceMethod().binding = null;
+						methods[i] = null;
+						failed++;
+					}
+				}
+			}
+			if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+				method.sourceMethod().binding = null;
+				methods[m] = null;
 				failed++;
 			}
 		}
-	
-		for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			if (method != null) {
-				AbstractMethodDeclaration methodDecl = null;
-				for (int i = 0; i < m; i++) {
-					MethodBinding method2 = methods[i];
-					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						if (method.areParametersEqual(method2)) {
-							if (methodDecl == null) {
-								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
-								scope.problemReporter().duplicateMethodInType(this, methodDecl);
-								methodDecl.binding = null;
-								methods[m] = null;
-								failed++;
-							}
-							scope.problemReporter().duplicateMethodInType(this, method2.sourceMethod());
-							method2.sourceMethod().binding = null;
-							methods[i] = null;
-							failed++;
-						}
-					}
-				}
-				if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
-					method.sourceMethod().binding = null;
-					methods[m] = null;
-					failed++;
-				}
-			}
+	}
+
+	if (failed > 0) {
+		int newSize = methods.length - failed;
+		if (newSize == 0) {
+			methods = NoMethods;
+		} else {
+			MethodBinding[] newMethods = new MethodBinding[newSize];
+			for (int m = 0, n = 0, max = methods.length; m < max; m++)
+				if (methods[m] != null)
+					newMethods[n++] = methods[m];
+			methods = newMethods;
 		}
-	
-		if (failed > 0) {
-			int newSize = methods.length - failed;
-			if (newSize == 0) {
-				methods = NoMethods;
-			} else {
-				MethodBinding[] newMethods = new MethodBinding[newSize];
-				for (int m = 0, n = 0, max = methods.length; m < max; m++)
-					if (methods[m] != null)
-						newMethods[n++] = methods[m];
-				methods = newMethods;
-			}
-		}
-	
-		// handle forward references to potential default abstract methods
-		addDefaultAbstractMethods();
-	} catch(AbortCompilation e){
-		// ensure null methods are removed
-		MethodBinding[] newMethods = null;
-		int count = 0;
-		for (int i = 0, max = methods.length; i < max; i++){
-			MethodBinding method = methods[i];
-			if (method == null && newMethods == null){
-				System.arraycopy(methods, 0, newMethods = new MethodBinding[max], 0, i);
-			} else if (newMethods != null && method != null) {
-				newMethods[count++] = method;
-			}
-		}
-		if (newMethods != null){
-			System.arraycopy(newMethods, 0, methods = new MethodBinding[count], 0, count);
-		}			
-		modifiers ^= AccUnresolved;
-		throw e;
-	}		
+	}
+
+	// handle forward references to potential default abstract methods
+	addDefaultAbstractMethods();
 	modifiers ^= AccUnresolved;
 	return methods;
 }

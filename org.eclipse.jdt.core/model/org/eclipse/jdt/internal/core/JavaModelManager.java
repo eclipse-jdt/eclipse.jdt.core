@@ -1008,7 +1008,7 @@ public void rollback(ISaveContext context){
 	 * Saves the built state for the project.
 	 */
 	private void saveState(PerProjectInfo info) throws CoreException {
-		if (VERBOSE)
+		if (JavaBuilder.DEBUG)
 			System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
 		File file = getSerializationFile(info.project);
 		if (file == null) return;
@@ -1038,7 +1038,7 @@ public void rollback(ISaveContext context){
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
 					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
 		}
-		if (VERBOSE) {
+		if (JavaBuilder.DEBUG) {
 			t = System.currentTimeMillis() - t;
 			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
 		}
