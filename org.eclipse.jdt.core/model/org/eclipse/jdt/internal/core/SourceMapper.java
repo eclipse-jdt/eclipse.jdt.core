@@ -616,15 +616,16 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the name of the element.
 	 */
 	public SourceRange getNameRange(IJavaElement element) {
-		IJavaElement el = element;
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
-			el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(fSourceRanges.get(el) == null) {
-				el = getUnqualifiedMethodHandle((IMethod) element, true);
+			IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
+			if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+				element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+			} else {
+				element = el[0];
 			}
 		}
-		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(el);
+		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
 		if (ranges == null) {
 			return fgUnknownRange;
 		} else {
@@ -637,14 +638,15 @@ public class SourceMapper
 	 * null if no parameter names are known for the method.
 	 */
 	public char[][] getMethodParameterNames(IMethod method) {
-		IJavaElement el = method;
 		if (((IMember) method).isBinary()) {
-			el = getUnqualifiedMethodHandle(method, false);
-			if(fParameterNames.get(el) == null) {
-				el = getUnqualifiedMethodHandle(method, true);
+			IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
+			if(el[1] != null && fParameterNames.get(el[0]) == null) {
+				method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+			} else {
+				method = (IMethod) el[0];
 			}
 		}
-		char[][] parameterNames = (char[][]) fParameterNames.get(el);
+		char[][] parameterNames = (char[][]) fParameterNames.get(method);
 		if (parameterNames == null) {
 			return null;
 		} else {
@@ -657,15 +659,16 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the element.
 	 */
 	public SourceRange getSourceRange(IJavaElement element) {
-		IJavaElement el = element;
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
-			el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(fSourceRanges.get(el) == null) {
-				el = getUnqualifiedMethodHandle((IMethod) element, true);
+			IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
+			if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+				element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+			} else {
+				element = el[0];
 			}
 		}
-		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(el);
+		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
 		if (ranges == null) {
 			return fgUnknownRange;
 		} else {
@@ -688,7 +691,8 @@ public class SourceMapper
 	 * Creates a handle that has parameter types that are not
 	 * fully qualified so that the correct source is found.
 	 */
-	protected IJavaElement getUnqualifiedMethodHandle(IMethod method, boolean noDollar) {
+	protected IJavaElement[] getUnqualifiedMethodHandle(IMethod method, boolean noDollar) {
+		boolean hasDollar = false;
 		String[] qualifiedParameterTypes = method.getParameterTypes();
 		String[] unqualifiedParameterTypes = new String[qualifiedParameterTypes.length];
 		for (int i = 0; i < qualifiedParameterTypes.length; i++) {
@@ -703,6 +707,9 @@ public class SourceMapper
 				unqualifiedName.append(Signature.C_UNRESOLVED);
 				String simpleName = Signature.getSimpleName(qualifiedName.substring(count+1));
 				if(!noDollar) {
+					if(!hasDollar && simpleName.indexOf('$') != -1) {
+						hasDollar = true;
+					}
 					unqualifiedName.append(simpleName);
 				} else {
 					unqualifiedName.append(CharOperation.lastSegment(simpleName.toCharArray(), '$'));
@@ -712,9 +719,15 @@ public class SourceMapper
 			}
 			unqualifiedParameterTypes[i] = unqualifiedName.toString();
 		}
-		return ((IType) method.getParent()).getMethod(
+		
+		IJavaElement[] result = new IJavaElement[2];
+		result[0] = ((IType) method.getParent()).getMethod(
 			method.getElementName(),
 			unqualifiedParameterTypes);
+		if(hasDollar) {
+			result[1] = result[0];
+		}
+		return result;
 	}
 	
 	/**
