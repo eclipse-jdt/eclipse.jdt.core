@@ -74,226 +74,172 @@ public class OR_OR_Expression extends BinaryExpression {
 
 	/**
 	 * Code generation for a binary operation
-	 *
-	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
-	 * @param valueRequired boolean
 	 */
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+
 		int pc = codeStream.position;
-		Label falseLabel, endLabel;
 		if (constant != Constant.NotAConstant) {
+			// inlined value
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		bits |= OnlyValueRequiredMASK;
-		generateOptimizedBoolean(
-			currentScope,
-			codeStream,
-			null,
-			(falseLabel = new Label(codeStream)),
-			valueRequired);
-		/*  improving code gen for such a case:		boolean b = i < 0 || true; 
-		 * since the label has never been used, we have the inlined value on the stack. */
-		if (falseLabel.hasForwardReferences()) {
-			if (valueRequired) {
-				codeStream.iconst_1();
-				if ((bits & ValueForReturnMASK) != 0) {
-					codeStream.ireturn();
-					falseLabel.place();
-					codeStream.iconst_0();
-				} else {
-					codeStream.goto_(endLabel = new Label(codeStream));
-					codeStream.decrStackSize(1);
-					falseLabel.place();
-					codeStream.iconst_0();
-					endLabel.place();
+
+		Label trueLabel = new Label(codeStream), endLabel;
+		Constant cst = left.optimizedBooleanConstant();
+		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
+
+		cst = right.optimizedBooleanConstant();
+		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
+
+		generateOperands : {
+			if (leftIsConst) {
+				left.generateCode(currentScope, codeStream, false);
+				if (leftIsTrue) {
+					break generateOperands; // no need to generate right operand
 				}
 			} else {
-				falseLabel.place();
+				left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, true); 
+				// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1 
+			}
+			if (rightInitStateIndex != -1) {
+				codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+			}
+			if (rightIsConst) {
+				right.generateCode(currentScope, codeStream, false);
+			} else {
+				right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, valueRequired);
 			}
 		}
-		if (valueRequired) {
-			codeStream.generateImplicitConversion(implicitConversion);
+		if (mergedInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		/*
+		 * improving code gen for such a case: boolean b = i < 0 || true since
+		 * the label has never been used, we have the inlined value on the
+		 * stack.
+		 */
+		if (valueRequired) {
+			if (leftIsConst && leftIsTrue) {
+				codeStream.iconst_1();
+				codeStream.updateLastRecordedEndPC(codeStream.position);
+			} else {
+				if (rightIsConst && rightIsTrue) {
+					codeStream.iconst_1();
+					codeStream.updateLastRecordedEndPC(codeStream.position);
+				} else {
+					codeStream.iconst_0();
+				}
+				if (trueLabel.hasForwardReferences()) {
+					if ((bits & ValueForReturnMASK) != 0) {
+						codeStream.ireturn();
+						trueLabel.place();
+						codeStream.iconst_1();
+					} else {
+						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.decrStackSize(1);
+						trueLabel.place();
+						codeStream.iconst_1();
+						endLabel.place();
+					}
+				} else {
+					trueLabel.place();
+				}
+			}
+			codeStream.generateImplicitConversion(implicitConversion);
+			codeStream.updateLastRecordedEndPC(codeStream.position);
+		} else {
+			trueLabel.place();
+		}
 	}
 
 	/**
-	 * Boolean operator code generation
-	 *	Optimized operations are: ||
+	 * Boolean operator code generation Optimized operations are: ||
 	 */
-	public void generateOptimizedBoolean(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
-		boolean valueRequired) {
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}
-		Constant condConst;
-		if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
-			if (condConst.booleanValue() == true) {
-				// <something equivalent to true> || x
-				left.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					trueLabel,
-					falseLabel,
-					false);
-				if (valueRequired) {
-					if ((bits & OnlyValueRequiredMASK) != 0) {
-						codeStream.iconst_1();
-					} else {
-						if (trueLabel != null) {
-							codeStream.goto_(trueLabel);
-						}
-					}
-				}
-				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
-			} else {
-				// <something equivalent to false> || x
-				left.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					trueLabel,
-					falseLabel,
-					false);
-				if (rightInitStateIndex != -1) {
-					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
-				}
-				if ((bits & OnlyValueRequiredMASK) != 0) {
-					right.generateCode(currentScope, codeStream, valueRequired);
-				} else {
-					right.generateOptimizedBoolean(
-						currentScope,
-						codeStream,
-						trueLabel,
-						falseLabel,
-						valueRequired);
-				}
-			}
+
+		// <expr> || false --> <expr>
+		Constant cst = right.constant;
+		if (cst != NotAConstant && cst.booleanValue() == false) {
+			int pc = codeStream.position;
+			this.left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					mergedInitStateIndex);
-			}
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			}			
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
-			if (condConst.booleanValue() == true) {
-				// x || <something equivalent to true>
-				Label internalTrueLabel = new Label(codeStream);
-				left.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					internalTrueLabel,
-					null,
-					true); 
-				if (rightInitStateIndex != -1) {
-					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
-				}
-				right.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					trueLabel,
-					falseLabel,
-					false);
-				internalTrueLabel.place();
-				if (valueRequired) {
-					if ((bits & OnlyValueRequiredMASK) != 0) {
-						codeStream.iconst_1();
-					} else {
-						if (trueLabel != null) {
-							codeStream.goto_(trueLabel);
-						}
-					}
-				}
-				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
-			} else {
-				// x || <something equivalent to false>
-				if ((bits & OnlyValueRequiredMASK) != 0) {
-					left.generateCode(currentScope, codeStream, valueRequired);
-				} else {
-					left.generateOptimizedBoolean(
-						currentScope,
-						codeStream,
-						trueLabel,
-						falseLabel,
-						valueRequired);
-				}
-				if (rightInitStateIndex != -1) {
-					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
-				}
-				right.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					trueLabel,
-					falseLabel,
-					false);
-			}
-			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					mergedInitStateIndex);
-			}
-			return;
-		}
+		
+		cst = left.optimizedBooleanConstant();
+		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
+
+		cst = right.optimizedBooleanConstant();
+		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
+
 		// default case
-		if (falseLabel == null) {
-			if (trueLabel != null) {
-				// implicit falling through the FALSE case
-				left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, true); // need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
-				if (rightInitStateIndex != -1) {
-					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+		generateOperands : {
+			if (falseLabel == null) {
+				if (trueLabel != null) {
+					// implicit falling through the FALSE case
+					left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, !leftIsConst); 
+					// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
+					if (leftIsConst && leftIsTrue) {
+						codeStream.goto_(trueLabel);
+						codeStream.updateLastRecordedEndPC(codeStream.position);
+						break generateOperands; // no need to generate right operand
+					}
+					if (rightInitStateIndex != -1) {
+						codeStream
+								.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+					}
+					right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, valueRequired && !rightIsConst);
+					if (valueRequired && rightIsConst && rightIsTrue) {
+						codeStream.goto_(trueLabel);
+						codeStream.updateLastRecordedEndPC(codeStream.position);
+					}
 				}
-				right.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					trueLabel,
-					null,
-					valueRequired);
-			}
-		} else {
-			// implicit falling through the TRUE case
-			if (trueLabel == null) {
-				Label internalTrueLabel = new Label(codeStream);
-				left.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					internalTrueLabel,
-					null,
-					true);// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
-				if (rightInitStateIndex != -1) {
-					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
-				}
-				right.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					null,
-					falseLabel,
-					valueRequired);
-				internalTrueLabel.place();
 			} else {
-				// no implicit fall through TRUE/FALSE --> should never occur
+				// implicit falling through the TRUE case
+				if (trueLabel == null) {
+					Label internalTrueLabel = new Label(codeStream);
+					left.generateOptimizedBoolean(currentScope, codeStream, internalTrueLabel, null, !leftIsConst); 
+					// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
+					if (leftIsConst && leftIsTrue) {
+						internalTrueLabel.place();
+						break generateOperands; // no need to generate right operand
+					}
+					if (rightInitStateIndex != -1) {
+						codeStream
+								.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+					}
+					right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired && !rightIsConst);
+					if (valueRequired && rightIsConst) {
+						if (!rightIsTrue) {
+							codeStream.goto_(falseLabel);
+							codeStream.updateLastRecordedEndPC(codeStream.position);
+						}
+					}
+					internalTrueLabel.place();
+				} else {
+					// no implicit fall through TRUE/FALSE --> should never occur
+				}
 			}
 		}
 		if (mergedInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				mergedInitStateIndex);
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 	}
-
+	
 	public boolean isCompactableOperation() {
 		return false;
 	}

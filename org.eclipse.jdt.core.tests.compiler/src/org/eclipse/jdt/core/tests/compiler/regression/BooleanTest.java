@@ -255,6 +255,68 @@ public void test010() {
 		"SUCCESS");			
 }
 
+// Bug 46675
+public void test011() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" + 
+			"		boolean b = s != null && (s.length() == 0 ? TestConst.c1 : TestConst.c2);\n" + 
+			"		if (!b) System.out.println(\"SUCCESS\");\n" +
+			"	}\n" + 
+			"\n" + 
+			"	public static class TestConst {\n" + 
+			"		public static final boolean c1 = true;\n" + 
+			"		public static final boolean c2 = true;\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+
+// Bug 46675 - variation
+public void test012() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = \"aaa\";\n" + 
+			"		boolean b = s != null && (s.length() == 0 ? TestConst.c1 : TestConst.c2);\n" + 
+			"		if (b) System.out.println(\"SUCCESS\");\n" +
+			"	}\n" + 
+			"\n" + 
+			"	public static class TestConst {\n" + 
+			"		public static final boolean c1 = true;\n" + 
+			"		public static final boolean c2 = true;\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+
+// Bug 46675 - variation
+public void test013() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = \"aaa\";\n" + 
+			"		boolean b = s == null || (s.length() == 0 ? TestConst.c1 : TestConst.c2);\n" + 
+			"		if (!b) System.out.println(\"SUCCESS\");\n" +
+			"	}\n" + 
+			"\n" + 
+			"	public static class TestConst {\n" + 
+			"		public static final boolean c1 = false;\n" + 
+			"		public static final boolean c2 = false;\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return BooleanTest.class;
 }

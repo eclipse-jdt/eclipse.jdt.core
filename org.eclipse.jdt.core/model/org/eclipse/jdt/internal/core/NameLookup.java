@@ -37,7 +37,6 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.util.PerThreadObject;
 
 /**
  * A <code>NameLookup</code> provides name resolution within a Java project.
@@ -94,7 +93,7 @@ public class NameLookup implements SuffixConstants {
 	 * Allows working copies to take precedence over compilation units.
 	 * The cache is a 2-level cache, first keyed by thread.
 	 */
-	protected PerThreadObject unitsToLookInside = new PerThreadObject();
+	protected ThreadLocal unitsToLookInside = new ThreadLocal();
 
 	public NameLookup(IJavaProject project) throws JavaModelException {
 		configureFromProject(project);
@@ -690,7 +689,7 @@ public class NameLookup implements SuffixConstants {
 		// replace with working copies to look inside
 		int length= compilationUnits.length;
 		boolean[] isWorkingCopy = new boolean[length];
-		Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
+		Map workingCopies = (Map) this.unitsToLookInside.get();
 		int workingCopiesSize;
 		if (workingCopies != null && (workingCopiesSize = workingCopies.size()) > 0) {
 			Map temp = new HashMap(workingCopiesSize);
@@ -801,10 +800,10 @@ public class NameLookup implements SuffixConstants {
 public void setUnitsToLookInside(ICompilationUnit[] unitsToLookInside) {
 	
 	if (unitsToLookInside == null) {
-		this.unitsToLookInside.setCurrent(null); 
+		this.unitsToLookInside.set(null); 
 	} else {
 		HashMap workingCopies = new HashMap();
-		this.unitsToLookInside.setCurrent(workingCopies);
+		this.unitsToLookInside.set(workingCopies);
 		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
 			ICompilationUnit unitToLookInside = unitsToLookInside[i];
 			ICompilationUnit original = unitToLookInside.getPrimary();

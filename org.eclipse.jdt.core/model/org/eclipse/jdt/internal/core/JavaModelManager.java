@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
-import org.eclipse.jdt.internal.core.util.PerThreadObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -437,7 +436,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * Temporary cache of newly opened elements
 	 */
-	private PerThreadObject temporaryCache = new PerThreadObject();
+	private ThreadLocal temporaryCache = new ThreadLocal();
 
 	/**
 	 * Set of elements which are out of sync with their buffers.
@@ -531,7 +530,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * A cache of opened zip files per thread.
 	 * (for a given thread, the object value is a HashMap from IPath to java.io.ZipFile)
 	 */
-	private PerThreadObject zipFiles = new PerThreadObject();
+	private ThreadLocal zipFiles = new ThreadLocal();
 	
 	
 	/**
@@ -571,12 +570,12 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Ignores if there are already clients.
 	 */
 	public void cacheZipFiles() {
-		if (this.zipFiles.getCurrent() != null) return;
-		this.zipFiles.setCurrent(new HashMap());
+		if (this.zipFiles.get() != null) return;
+		this.zipFiles.set(new HashMap());
 	}
 	public void closeZipFile(ZipFile zipFile) {
 		if (zipFile == null) return;
-		if (this.zipFiles.getCurrent() != null) {
+		if (this.zipFiles.get() != null) {
 			return; // zip file will be closed by call to flushZipFiles
 		}
 		try {
@@ -696,9 +695,9 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void flushZipFiles() {
 		Thread currentThread = Thread.currentThread();
-		HashMap map = (HashMap)this.zipFiles.getCurrent();
+		HashMap map = (HashMap)this.zipFiles.get();
 		if (map == null) return;
-		this.zipFiles.setCurrent(null);
+		this.zipFiles.set(null);
 		Iterator iterator = map.values().iterator();
 		while (iterator.hasNext()) {
 			try {
@@ -732,7 +731,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 *  Returns the info for the element.
 	 */
 	public synchronized Object getInfo(IJavaElement element) {
-		HashMap tempCache = (HashMap)this.temporaryCache.getCurrent();
+		HashMap tempCache = (HashMap)this.temporaryCache.get();
 		if (tempCache != null) {
 			Object result = tempCache.get(element);
 			if (result != null) {
@@ -838,10 +837,10 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Creates it if not already created.
 	 */
 	public HashMap getTemporaryCache() {
-		HashMap result = (HashMap)this.temporaryCache.getCurrent();
+		HashMap result = (HashMap)this.temporaryCache.get();
 		if (result == null) {
 			result = new HashMap();
-			this.temporaryCache.setCurrent(result);
+			this.temporaryCache.set(result);
 		}
 		return result;
 	}
@@ -944,7 +943,7 @@ public class JavaModelManager implements ISaveParticipant {
 			
 		HashMap map;
 		ZipFile zipFile;
-		if ((map = (HashMap)this.zipFiles.getCurrent()) != null 
+		if ((map = (HashMap)this.zipFiles.get()) != null 
 				&& (zipFile = (ZipFile)map.get(path)) != null) {
 				
 			return zipFile;
@@ -982,7 +981,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns whether there is a temporary cache for the current thread.
 	 */
 	public boolean hasTemporaryCache() {
-		return this.temporaryCache.getCurrent() != null;
+		return this.temporaryCache.get() != null;
 	}
 
 	public void loadVariablesAndContainers() throws CoreException {
@@ -1085,7 +1084,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 *  disturbing the cache ordering.
 	 */
 	protected synchronized Object peekAtInfo(IJavaElement element) {
-		HashMap tempCache = (HashMap)this.temporaryCache.getCurrent();
+		HashMap tempCache = (HashMap)this.temporaryCache.get();
 		if (tempCache != null) {
 			Object result = tempCache.get(element);
 			if (result != null) {
@@ -1262,7 +1261,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Resets the temporary cache for newly created elements to null.
 	 */
 	public void resetTemporaryCache() {
-		this.temporaryCache.setCurrent(null);
+		this.temporaryCache.set(null);
 	}
 
 	/**

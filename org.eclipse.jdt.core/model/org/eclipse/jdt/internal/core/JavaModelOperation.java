@@ -17,7 +17,6 @@ import java.util.HashMap;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.util.PerThreadObject;
 
 /**
  * Defines behavior common to all Java Model operations
@@ -104,7 +103,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * A per thread stack of java model operations (PerThreadObject of ArrayList).
 	 */
-	protected static PerThreadObject operationStacks = new PerThreadObject();
+	protected static ThreadLocal operationStacks = new ThreadLocal();
 	protected JavaModelOperation() {
 		// default constructor used in subclasses
 	}
@@ -425,10 +424,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns an empty stack if no operations are currently running in this thread. 
 	 */
 	protected ArrayList getCurrentOperationStack() {
-		ArrayList stack = (ArrayList)operationStacks.getCurrent();
+		ArrayList stack = (ArrayList)operationStacks.get();
 		if (stack == null) {
 			stack = new ArrayList();
-			operationStacks.setCurrent(stack);
+			operationStacks.set(stack);
 		}
 		return stack;
 	}
@@ -592,7 +591,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		int size = stack.size();
 		if (size > 0) {
 			if (size == 1) { // top level operation 
-				operationStacks.setCurrent(null); // release reference (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=33927)
+				operationStacks.set(null); // release reference (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=33927)
 			}
 			return (JavaModelOperation)stack.remove(size-1);
 		} else {

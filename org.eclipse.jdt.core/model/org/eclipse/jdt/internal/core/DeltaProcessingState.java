@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.PerThreadObject;
 
 /**
  * Keep the global states used during Java element delta processing.
@@ -44,7 +43,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/*
 	 * The delta processor for the current thread.
 	 */
-	private PerThreadObject deltaProcessors = new PerThreadObject();
+	private ThreadLocal deltaProcessors = new ThreadLocal();
 	
 	/* A table from IPath (from a classpath entry) to RootInfo */
 	public HashMap roots;
@@ -104,10 +103,10 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	}
 
 	public DeltaProcessor getDeltaProcessor() {
-		DeltaProcessor deltaProcessor = (DeltaProcessor)this.deltaProcessors.getCurrent();
+		DeltaProcessor deltaProcessor = (DeltaProcessor)this.deltaProcessors.get();
 		if (deltaProcessor != null) return deltaProcessor;
 		deltaProcessor = new DeltaProcessor(this, JavaModelManager.getJavaModelManager());
-		this.deltaProcessors.setCurrent(deltaProcessor);
+		this.deltaProcessors.set(deltaProcessor);
 		return deltaProcessor;
 	}
 
@@ -225,8 +224,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		try {
 			getDeltaProcessor().resourceChanged(event);
 		} finally {
+			// TODO (jerome) see 47631, may want to get rid of following so as to reuse delta processor ? 
 			if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
-				this.deltaProcessors.setCurrent(null);
+				this.deltaProcessors.set(null);
 			}
 		}
 
