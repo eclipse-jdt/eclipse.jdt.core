@@ -31,31 +31,32 @@ public class OR_OR_Expression extends BinaryExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant opConstant = left.optimizedBooleanConstant();
-		if (opConstant != NotAConstant) {
-			if (opConstant.booleanValue() == false) {
-				// FALSE || anything
-				 // need to be careful of scenario:
-				//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
-				FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-				mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(mergedInfo);
-				return mergedInfo;
-			}
+		Constant cst = this.left.optimizedBooleanConstant();
+		boolean isLeftOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isLeftOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+
+		if (isLeftOptimizedFalse) {
+			// FALSE || anything
+			 // need to be careful of scenario:
+			//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
+			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
+			mergedInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(mergedInfo);
+			return mergedInfo;
 		}
-		FlowInfo leftInfo, rightInfo;
-		leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
+
+		FlowInfo leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 	
 		 // need to be careful of scenario:
 		//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
-		rightInfo = leftInfo.initsWhenFalse().unconditionalInits().copy();
+		FlowInfo rightInfo = leftInfo.initsWhenFalse().unconditionalInits().copy();
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
 
 		int mode = rightInfo.reachMode();
-		if (opConstant != NotAConstant && opConstant.booleanValue() == true){
-			rightInfo.setReachMode(FlowInfo.UNREACHABLE); //SILENT_FAKE_REACHABLE);
+		if (isLeftOptimizedTrue){
+			rightInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
 		FlowInfo falseInfo = rightInfo.initsWhenFalse().copy();

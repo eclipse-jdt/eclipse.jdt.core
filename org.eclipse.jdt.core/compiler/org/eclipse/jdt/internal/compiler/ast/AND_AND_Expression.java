@@ -31,19 +31,21 @@ public class AND_AND_Expression extends BinaryExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant opConstant = left.optimizedBooleanConstant();
-		if (opConstant != NotAConstant) {
-			if (opConstant.booleanValue() == true) {
-				// TRUE && anything
-				 // need to be careful of scenario:
-				//		(x && y) && !z, if passing the left info to the right, it would be swapped by the !
-				FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits(); 
-				mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(mergedInfo);
-				return mergedInfo;
-			}
+		Constant cst = this.left.optimizedBooleanConstant();
+		boolean isLeftOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isLeftOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+
+		if (isLeftOptimizedTrue) {
+			// TRUE && anything
+			 // need to be careful of scenario:
+			//		(x && y) && !z, if passing the left info to the right, it would be swapped by the !
+			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits(); 
+			mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
+			mergedInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(mergedInfo);
+			return mergedInfo;
 		}
+		
 		FlowInfo leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 		 // need to be careful of scenario:
 		//		(x && y) && !z, if passing the left info to the right, it would be swapped by the !
@@ -52,7 +54,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			currentScope.methodScope().recordInitializationStates(rightInfo);
 
 		int mode = rightInfo.reachMode();
-		if (opConstant != NotAConstant && opConstant.booleanValue() == false){
+		if (isLeftOptimizedFalse){
 			rightInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);

@@ -63,8 +63,6 @@ public class IfStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		FlowInfo thenFlowInfo, elseFlowInfo;
-
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
@@ -73,12 +71,9 @@ public class IfStatement extends Statement {
 		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 		
 		// process the THEN part
+		FlowInfo thenFlowInfo = flowInfo.initsWhenTrue().copy();
 		if (isConditionOptimizedFalse) {
-			//thenFlowInfo = conditionInfo.initsWhenTrue().copy().setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-			thenFlowInfo = flowInfo.initsWhenTrue().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
-			
-		} else {
-			thenFlowInfo = flowInfo.initsWhenTrue().copy();
+			thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		if (this.thenStatement != null) {
 			// Save info for code gen
@@ -93,11 +88,9 @@ public class IfStatement extends Statement {
 		this.thenExit = !thenFlowInfo.isReachable();
 
 		// process the ELSE part
+		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
 		if (isConditionOptimizedTrue) {
-			//elseFlowInfo = conditionInfo.initsWhenFalse().copy().setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-			elseFlowInfo = flowInfo.initsWhenFalse().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
-		} else {
-			elseFlowInfo = flowInfo.initsWhenFalse().copy();
+			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		if (this.elseStatement != null) {
 			// Save info for code gen

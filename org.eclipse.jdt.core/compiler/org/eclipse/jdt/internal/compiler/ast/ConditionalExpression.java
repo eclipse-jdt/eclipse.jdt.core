@@ -50,21 +50,17 @@ public class ConditionalExpression extends OperatorExpression {
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == NotAConstant);
 		
 		// process the if-true part
-		FlowInfo trueFlowInfo;
+		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
 		if (isConditionOptimizedFalse) {
-			trueFlowInfo = flowInfo.initsWhenTrue().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
-		} else {
-			trueFlowInfo = flowInfo.initsWhenTrue().copy();
+			trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		trueInitStateIndex = currentScope.methodScope().recordInitializationStates(trueFlowInfo);
 		trueFlowInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueFlowInfo);
 
 		// process the if-false part
-		FlowInfo falseFlowInfo;
+		FlowInfo falseFlowInfo = flowInfo.initsWhenFalse().copy();
 		if (isConditionOptimizedTrue) {
-			falseFlowInfo = flowInfo.initsWhenFalse().copy().setReachMode(FlowInfo.UNREACHABLE); // revert
-		} else {
-			falseFlowInfo = flowInfo.initsWhenFalse().copy();
+			falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		falseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseFlowInfo);
 		falseFlowInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseFlowInfo);
