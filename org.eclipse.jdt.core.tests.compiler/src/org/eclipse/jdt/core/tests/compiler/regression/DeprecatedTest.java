@@ -154,6 +154,46 @@ public void test4() {
 
 	);
 }
+public void test5() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+		  "public class X {\n"
+			+ "/**\n"
+			+ " * @deprecated\n"
+			+ " */\n"
+			+ " 	public static class Y {\n"
+			+ "	}\n" +
+			"   public static void main(String[] args) {	\n" +
+			"        System.out.print(\"SUCCESS\");	\n" +
+			"	}	\n"
+			+ "}"
+		},
+		"SUCCESS", // expected output
+		null,
+		true, // flush previous output dir content
+		null, // special vm args
+		null);  // custom options
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A extends X.Y {}"
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 1)\n" + 
+		"	public class A extends X.Y {}\n" + 
+		"	             ^\n" + 
+		"The constructor X.Y() is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 1)\n" + 
+		"	public class A extends X.Y {}\n" + 
+		"	                       ^^^\n" + 
+		"The type X.Y is deprecated\n" + 
+		"----------\n",// expected output
+		null,
+		false, // flush previous output dir content
+		null);  // custom options
+}
 public static Class testClass() {
 	return DeprecatedTest.class;
 }
