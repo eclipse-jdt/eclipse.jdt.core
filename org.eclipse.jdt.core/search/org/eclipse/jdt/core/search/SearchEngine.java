@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -47,13 +47,16 @@ import java.util.*;
  */
 public class SearchEngine {
 
-	/**
-	 * A list of working copies that take precedence over their original 
-	 * compilation units.
-	 */
-	private IWorkingCopy[] workingCopies = null;
-	
-	public static boolean VERBOSE = false;	
+/**
+ * A list of working copies that take precedence over their original 
+ * compilation units.
+ */
+private IWorkingCopy[] workingCopies = null;
+
+/**
+ * For tracing purpose.
+ */	
+public static boolean VERBOSE = false;	
 
 /**
  * Creates a new search engine.
@@ -166,7 +169,7 @@ public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
  * Returns a java search scope limited to the given java elements.
  * The java elements resulting from a search with this scope will
  * be children of the given elements.
- * <p>
+ * 
  * If an element is an IJavaProject, then the project's source folders, 
  * its jars (external and internal) and - if specified - its referenced projects 
  * (with their source folders and jars, recursively) will be included.
@@ -216,7 +219,7 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * Returns a search pattern based on a given string pattern. The string patterns support '*' wild-cards.
  * The remaining parameters are used to narrow down the type of expected results.
  *
- * <p>
+ * <br>
  *	Examples:
  *	<ul>
  * 		<li>search for case insensitive references to <code>Object</code>:
@@ -226,6 +229,7 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  *  	<li>search for implementers of <code>java.lang.Runnable</code>:
  *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
  *  </ul>
+ * @param stringPattern the given pattern
  * @param searchFor determines the nature of the searched elements
  *	<ul>
  * 		<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
@@ -381,14 +385,14 @@ public void search(IWorkspace workspace, String patternString, int searchFor, in
  *		  for both declarations and all references </li>
  *	  <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: search for
  *		  all implementors of an interface; the value is only valid if
- *		  the Java element represents an interface
+ *		  the Java element represents an interface</li>
  * 	</ul>
  * @param scope the search result has to be limited to the given scope
  * @param resultCollector a callback object to which each match is reported
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the element doesn't exist
- *		<li>the classpath is incorrectly set
+ *		<li>the element doesn't exist</li>
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */
 public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
@@ -406,7 +410,7 @@ public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJav
  * @param resultCollector a callback object to which each match is reported
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the classpath is incorrectly set
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */
 public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
@@ -496,33 +500,33 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
  * @param matchMode one of
  * <ul>
  *		<li><code>IJavaSearchConstants.EXACT_MATCH</code> if the package name and type name are the full names
- *			of the searched types.
+ *			of the searched types.</li>
  *		<li><code>IJavaSearchConstants.PREFIX_MATCH</code> if the package name and type name are prefixes of the names
- *			of the searched types.
- *		<li><code>IJavaSearchConstants.PATTERN_MATCH</code> if the package name and type name contain wild-cards.
+ *			of the searched types.</li>
+ *		<li><code>IJavaSearchConstants.PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
  * </ul>
  * @param isCaseSensitive whether the search should be case sensitive
  * @param searchFor one of
  * <ul>
- * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only
- * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only
- * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces
+ * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
+ * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
+ * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
  * </ul>
  * @param scope the scope to search in
  * @param nameRequestor the requestor that collects the results of the search
  * @param waitingPolicy one of
  * <ul>
- *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately
+ *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
  *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
- *			underlying indexer has not finished indexing the workspace
+ *			underlying indexer has not finished indexing the workspace</li>
  *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
- *			underlying indexer to finish indexing the workspace
+ *			underlying indexer to finish indexing the workspace</li>
  * </ul>
  * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
  *							monitor is provided
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the classpath is incorrectly set
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */
 public void searchAllTypeNames(
@@ -618,8 +622,8 @@ public void searchAllTypeNames(
  * @param resultCollector a callback object to which each match is reported
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the element doesn't exist
- *		<li>the classpath is incorrectly set
+ *		<li>the element doesn't exist</li>
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */	
 public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
@@ -676,8 +680,8 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
  * @param resultCollector a callback object to which each match is reported
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the element doesn't exist
- *		<li>the classpath is incorrectly set
+ *		<li>the element doesn't exist</li>
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */	
 public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
@@ -737,8 +741,8 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
  * @param resultCollector a callback object to which each match is reported
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the element doesn't exist
- *		<li>the classpath is incorrectly set
+ *		<li>the element doesn't exist</li>
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */	
 public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
