@@ -395,6 +395,7 @@ public class Tests extends TestCase {
 		suite.addTest(BasicBuildTests.suite());
 		suite.addTest(BuildpathTests.suite());
 		suite.addTest(CopyResourceTests.suite());
+		suite.addTest(DependencyTests.suite());
 		suite.addTest(ErrorsTests.suite());
 		suite.addTest(EfficiencyTests.suite());
 		suite.addTest(ExecutionTests.suite());
