@@ -89,6 +89,16 @@ What's new in this drop</h2>
       }
    }</pre>
    </li>
+   <li>Relevance of a proposal is higher if the proposal is equals to the current token.
+   <br>In the following example the field <code>var</code> is more relevant than field <code>varPlus</code>.<pre>
+   public class X {
+      int var;
+      int varPlus;
+      void foo() {
+         var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
    </ul>
 </li>
 </ul> 

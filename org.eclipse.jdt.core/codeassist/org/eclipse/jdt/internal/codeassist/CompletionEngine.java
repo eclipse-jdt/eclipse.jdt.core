@@ -1824,7 +1824,11 @@ public final class CompletionEngine
 	
 	private int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
 		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-			return  R_CASE;
+			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
+				return R_CASE + R_EXACT_NAME;
+			} else {
+				return R_CASE;
+			}
 		} else {
 			return 0;
 		}

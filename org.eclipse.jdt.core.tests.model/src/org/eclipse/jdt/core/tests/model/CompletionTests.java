@@ -232,7 +232,7 @@ public void testCompletionFindClass() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one class",
-		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
 		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
@@ -252,7 +252,7 @@ public void testCompletionFindClass2() throws JavaModelException {
 
 	assertEquals(
 		"should have one classe", 
-		"element:PX    completion:pack1.PX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:PX    completion:pack1.PX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 
@@ -806,8 +806,8 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:xBar    completion:    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
-		"element:xBar    completion:CompletionPrefixMethodName3.this.xBar(1,    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:xBar    completion:    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
+		"element:xBar    completion:CompletionPrefixMethodName3.this.xBar(1,    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 
@@ -1100,8 +1100,8 @@ public void testCompletionAmbiguousType() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME)+"\n" +
+		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 
@@ -1117,8 +1117,8 @@ public void testCompletionAmbiguousType2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:ABC    completion:ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
-		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:ABC    completion:ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
+		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 
@@ -1231,11 +1231,11 @@ public void testCompletionSameSuperClass() throws JavaModelException {
 
 	assertEquals(
 		"should have five completions",
-		"element:bar    completion:CompletionSameSuperClass.this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:bar    completion:CompletionSameSuperClass.this.bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:bar    completion:this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:bar    completion:CompletionSameSuperClass.this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME)+"\n"+
+		"element:bar    completion:CompletionSameSuperClass.this.bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME)+"\n"+
+		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n"+
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n"+
+		"element:bar    completion:this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 
