@@ -94,7 +94,7 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
-					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan);
+					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan, false);
 
 					// retrieve available modifiers if any
 					if (intPtr >= 2 && intStack[intPtr-1] == this.lastModifiersStart && intStack[intPtr-2] == this.lastModifiers){
@@ -115,7 +115,7 @@ protected void attachOrphanCompletionNode(){
 				//if (rParenPos < lParenPos){ // inside arguments
 				if (orphan instanceof TypeReference){
 					currentElement = currentElement.parent.add(
-						new CompletionOnFieldType((TypeReference)orphan), 0);
+						new CompletionOnFieldType((TypeReference)orphan, true), 0);
 					return;
 				}
 			}
@@ -1088,7 +1088,7 @@ public void recordCompletionOnReference(){
 		
 		/* generate a pseudo field with a completion on type reference */	
 		currentElement.add(
-			new CompletionOnFieldType(this.getTypeReference(0)), 0);
+			new CompletionOnFieldType(this.getTypeReference(0), false), 0);
 		return;
 	}
 	if (!diet) return; // only record references attached to types
