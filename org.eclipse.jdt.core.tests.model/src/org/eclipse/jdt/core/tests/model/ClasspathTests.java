@@ -136,7 +136,8 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testNoCycleDetection2"));
+		suite.addTest(new ClasspathTests("testClasspathFileRead"));
+		suite.addTest(new ClasspathTests("testClasspathForceReload"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -244,7 +245,39 @@ public void testClasspathCorruption() throws CoreException {
 }
 
 /*
- * Test classpath forced reload (20931)
+ * Test classpath read for non-java project or java project not opened yet (40658)
+ */
+public void testClasspathFileRead() throws CoreException {
+	try {
+		final IProject proj = this.createProject("P1");
+		String newCPContent = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
+			+"<classpath>	\n"
+			+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
+			+"	<classpathentry kind=\"output\" path=\"bin\"/>	\n"
+			+"</classpath>	\n";
+
+		this.createFile("/P1/"+JavaProject.CLASSPATH_FILENAME, newCPContent);
+		final IJavaProject jproj = JavaCore.create(proj);
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			workspace.run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor)	throws CoreException {
+
+					IClasspathEntry[] entries = jproj.readRawClasspath(); // force to read classpath
+					IClasspathEntry entry = entries[0];
+					assertEquals("first classpath entry should have been read", "/P1/src", entry.getPath().toString());
+
+					assertEquals("output location should have been read", "/P1/bin", jproj.readOutputLocation().toString());
+				}
+			}, null);	
+	} finally {
+		// cleanup  
+		this.deleteProject("P1");
+	}
+}
+
+/*
+ * Test classpath forced reload (20931) and new way to read classpath file (40658)
  */
 public void testClasspathForceReload() throws CoreException {
 	try {
@@ -271,6 +304,23 @@ public void testClasspathForceReload() throws CoreException {
 					
 					p1.forceClasspathReload(null);
 					assertEquals("output location should have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
+
+					// New way to force reload since PR 40658
+					createFolder("P1/new_bin"); 
+					newCPContent = 
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
+						+"<classpath>	\n"
+						+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
+						+"	<classpathentry kind=\"output\" path=\"new_bin\"/>	\n"
+						+"</classpath>	\n";
+
+					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+					
+					p1.close();
+					assertEquals("output location should not have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
+					
+					p1.setRawClasspath(p1.readRawClasspath(), p1.readOutputLocation(), null);
+					assertEquals("output location should have been refreshed", "/P1/new_bin", p1.getOutputLocation().toString());
 				}
 			}, null);	
 	} finally {
