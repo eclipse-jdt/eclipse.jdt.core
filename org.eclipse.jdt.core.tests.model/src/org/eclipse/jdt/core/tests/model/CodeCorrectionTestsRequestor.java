@@ -14,10 +14,6 @@ import java.util.*;
 
 import org.eclipse.jdt.core.ICorrectionRequestor;
 
-/**
- * @version 	1.0
- * @author
- */
 public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	private class Suggestion {
 		public String text;
