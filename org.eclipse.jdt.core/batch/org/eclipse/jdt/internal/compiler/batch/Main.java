@@ -268,7 +268,6 @@ private void configure(String[] argv) throws InvalidInputException {
 	final int InsideLog = 8;
 	final int InsideRepetition = 16;
 	final int InsideSource = 32;
-	final int InsideJCK = 64;
 	final int Default = 0;
 	int DEFAULT_SIZE_CLASSPATH = 4;
 	boolean warnOptionInUsed = false;
