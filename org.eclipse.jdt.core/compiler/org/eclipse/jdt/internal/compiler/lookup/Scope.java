@@ -957,12 +957,10 @@ public abstract class Scope
 									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
 							}
 							if (memberType.isValidBinding()) {
-								// from 1.4 on, the JLS 8.5.1 is followed
-								if (environment().options.complianceLevel >= CompilerOptions.JDK1_4){
-									return memberType;
-								}
-								if (sourceType == memberType.enclosingType()) {
+								if (sourceType == memberType.enclosingType()
+									|| environment().options.complianceLevel >= CompilerOptions.JDK1_4) {
 									// found a valid type in the 'immediate' scope (ie. not inherited)
+									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundType == null)
 										return memberType;
 									if (foundType.isValidBinding())

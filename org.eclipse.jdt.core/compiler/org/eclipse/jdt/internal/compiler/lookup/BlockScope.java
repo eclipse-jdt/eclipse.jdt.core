@@ -726,8 +726,10 @@ public class BlockScope extends Scope {
 												NonStaticReferenceInStaticContext);
 									}
 								}
-								if (enclosingType == fieldBinding.declaringClass) {
+								if (enclosingType == fieldBinding.declaringClass
+									|| environment().options.complianceLevel >= CompilerOptions.JDK1_4){
 									// found a valid field in the 'immediate' scope (ie. not inherited)
+									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundField == null) {
 										if (depth > 0)
 											invocationSite.setDepth(depth);
@@ -1224,10 +1226,13 @@ public class BlockScope extends Scope {
 											NonStaticReferenceInStaticContext);
 								}
 							}
+							
 							if (receiverType == methodBinding.declaringClass
-								|| (receiverType.getMethods(selector)) != NoMethods) {
+								|| (receiverType.getMethods(selector)) != NoMethods
+								|| ((fuzzyProblem == null || fuzzyProblem.problemId() != NotVisible) && environment().options.complianceLevel >= CompilerOptions.JDK1_4)){
 								// found a valid method in the 'immediate' scope (ie. not inherited)
 								// OR the receiverType implemented a method with the correct name
+								// OR in 1.4 mode (inherited visible shadows enclosing)
 								if (foundMethod == null) {
 									if (depth > 0)
 										invocationSite.setDepth(depth);
