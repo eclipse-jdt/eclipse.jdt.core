@@ -421,7 +421,7 @@ public abstract class Scope
 			if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 				matchingMethod = currentMethods[0];
 			} else if (currentLength > 0) {
-				if (found.size == 0 && matchingMethod != null) {
+				if (matchingMethod != null) {
 					found.add(matchingMethod);
 					matchingMethod = null;
 				}
@@ -583,7 +583,7 @@ public abstract class Scope
 						if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 							matchingMethod = currentMethods[0];
 						} else if (currentLength > 0) {
-							if (found.size == 0 && matchingMethod != null) {
+							if (matchingMethod != null) {
 								found.add(matchingMethod);
 								matchingMethod = null;
 							}
