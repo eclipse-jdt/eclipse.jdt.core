@@ -153,11 +153,18 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
 			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+
+			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
 			
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
+						expectedPackageName,
 						new String(fileName),
 						encoding));
 			return unit;
@@ -257,10 +264,12 @@ class CompilationUnitResolver extends Compiler {
 			if ("".equals(encoding)) { //$NON-NLS-1$
 				encoding = null;
 			}
+
+			char[][] expectedPackageName = null;
 	
 			unit =
 				compilationUnitVisitor.resolve(
-					new BasicCompilationUnit(source, unitName, encoding));
+					new BasicCompilationUnit(source, expectedPackageName, unitName, encoding));
 			return unit;
 		} finally {
 			if (unit != null) {

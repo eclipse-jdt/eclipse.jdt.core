@@ -754,7 +754,7 @@ public class SourceMapper
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(JavaCore.getOptions()), doFullParse);
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, type.getElementName() + ".java", encoding), //$NON-NLS-1$
+				new BasicCompilationUnit(contents, null, type.getElementName() + ".java", encoding), //$NON-NLS-1$
 				doFullParse);
 			if (searchedElement != null) {
 				ISourceRange range = this.getNameRange(searchedElement);

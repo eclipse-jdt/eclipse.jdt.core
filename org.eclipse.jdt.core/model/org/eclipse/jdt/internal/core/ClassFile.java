@@ -51,6 +51,7 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
+				null,
 				getElementName() + ".java", //$NON-NLS-1$
 				encoding); 
 		codeComplete(cu, cu, offset, requestor);
@@ -70,7 +71,7 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 		while ((parent = current.getDeclaringType()) != null){
 			current = parent;
 		}
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, current.getElementName() + ".java", null); //$NON-NLS-1$
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + ".java", null); //$NON-NLS-1$
 		return super.codeSelect(cu, offset, length);
 	} else {
 		//has no associated souce

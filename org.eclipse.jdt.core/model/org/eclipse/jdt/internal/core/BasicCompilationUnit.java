@@ -16,12 +16,14 @@ import java.io.*;
 public class BasicCompilationUnit implements ICompilationUnit {
 	protected char[] contents;
 	protected char[] fileName;
+	protected char[][] packageName;
 	protected char[] mainTypeName;
 	protected String encoding;
 	
-public BasicCompilationUnit(char[] contents, String fileName, String encoding) {
+public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName, String encoding) {
 	this.contents = contents;
 	this.fileName = fileName.toCharArray();
+	this.packageName = packageName;
 
 	int start = fileName.lastIndexOf("/") + 1; //$NON-NLS-1$
 	if (start == 0 || start < fileName.lastIndexOf("\\")) //$NON-NLS-1$
@@ -35,8 +37,8 @@ public BasicCompilationUnit(char[] contents, String fileName, String encoding) {
 	this.encoding = encoding;
 }
 public char[] getContents() {
-	if (contents != null)
-		return contents;   // answer the cached source
+	if (this.contents != null)
+		return this.contents;   // answer the cached source
 
 	// otherwise retrieve it
 	try {
@@ -46,13 +48,13 @@ public char[] getContents() {
 	return new char[0];
 }
 public char[] getFileName() {
-	return fileName;
+	return this.fileName;
 }
 public char[] getMainTypeName() {
-	return mainTypeName;
+	return this.mainTypeName;
 }
 public char[][] getPackageName() {
-	return null;
+	return this.packageName;
 }
 public String toString(){
 	return "CompilationUnit: "+new String(fileName); //$NON-NLS-1$

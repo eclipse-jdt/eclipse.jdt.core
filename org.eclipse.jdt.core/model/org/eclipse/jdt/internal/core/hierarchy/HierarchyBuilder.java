@@ -264,6 +264,7 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String
 	return 
 		new BasicCompilationUnit(
 			null,
+			null,
 			osPath,
 			encoding);
 }

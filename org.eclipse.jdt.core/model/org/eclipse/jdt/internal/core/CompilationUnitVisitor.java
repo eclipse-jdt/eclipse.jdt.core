@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -24,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class CompilationUnitVisitor extends Compiler {
 	
@@ -140,10 +143,17 @@ public class CompilationUnitVisitor extends Compiler {
 		try {
 			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
 			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+
+			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
+						expectedPackageName,
 						unitElement.getElementName(),
 						encoding));
 			if (unit != null) {

@@ -60,6 +60,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				fakeSource, 
+				null,
 				getElementName(),
 				encoding); 
 

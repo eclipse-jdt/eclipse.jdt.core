@@ -15,7 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -148,9 +150,15 @@ public class CompilationUnitProblemFinder extends Compiler {
 			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
 			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
 			
+			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
 			unit = problemFinder.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
+						expectedPackageName,
 						new String(fileName),
 						encoding));
 			return unit;

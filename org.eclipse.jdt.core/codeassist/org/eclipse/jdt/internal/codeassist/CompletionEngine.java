@@ -732,6 +732,7 @@ public final class CompletionEngine
 		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
 		BasicCompilationUnit fakeUnit = new BasicCompilationUnit(
 			fakeSource, 
+			null,
 			"FakeType.java", //$NON-NLS-1$
 			encoding); 
 			
