@@ -570,7 +570,7 @@ protected void enterType(int declarationStart, int[] javaDocPositions,
 				extendsKeywordRange[0] = nameEnd + 1;
 				extendsKeywordRange[1] = superclassStart - 1;
 				superclassRange[0] = superclassStart;
-				superclassRange[1] = bodyStart - 1;
+				superclassRange[1] = superclassEnd;
 			}
 			if (superinterfaces != null && superinterfaces.length > 0) {
 				superclassRange[1] = superclassEnd;
