@@ -1279,6 +1279,8 @@ public class DefaultCodeFormatterOptions {
 		if (fillingSpaceOption != null) {
 			try {
 				this.filling_space = ((String) fillingSpaceOption).charAt(0);
+			} catch(IndexOutOfBoundsException e) {
+				this.filling_space = ' ';
 			} catch(ClassCastException e) {
 				this.filling_space = ' ';
 			}
