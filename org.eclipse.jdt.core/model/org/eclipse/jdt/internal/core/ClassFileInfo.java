@@ -22,14 +22,14 @@ import java.util.Enumeration;
  */
  
 /* package */ class ClassFileInfo extends OpenableElementInfo {
-	/**
+	/** 
 	 * The children of the <code>BinaryType</code> corresponding to our
 	 * <code>ClassFile</code>. These are kept here because we don't have
 	 * access to the <code>BinaryType</code> info (<code>ClassFileReader</code>).
 	 * <p>
 	 * The children are lazily initialized, on the first call to
 	 * <code>getBinaryChildren()</code>, which in turn is called by
-	 * <code>BinaryType.getChildren()</code>.
+	 * <code>BinaryType.getChildren()</code>. 
 	 */
 	protected IJavaElement[] fBinaryChildren = null;
 	/**

@@ -4,6 +4,9 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
@@ -148,11 +151,30 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 						|| CharOperation.equals(className, CodeSnippetToCuMapper.this.varClassName))) return;
 			originalRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);
 		}
-		public void acceptError(IProblem error) {
-			error.setSourceLineNumber(error.getSourceLineNumber() - lineNumberOffset);
-			error.setSourceStart(error.getSourceStart() - startPosOffset);
-			error.setSourceEnd(error.getSourceEnd() - startPosOffset);
-			originalRequestor.acceptError(error);
+		public void acceptError(IMarker problemMarker) {
+
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_START);
+				int start = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.CHAR_START, start - startPosOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_END);
+				int end = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.CHAR_END, end - startPosOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.LINE_NUMBER);
+				int line = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.LINE_NUMBER, line - lineNumberOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			originalRequestor.acceptError(problemMarker);
 		}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 			originalRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);

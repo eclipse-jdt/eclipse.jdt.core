@@ -5,12 +5,12 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -93,7 +93,7 @@ protected void closing(Object info) throws JavaModelException {
 /**
  * @see ICodeAssist
  */
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICodeCompletionRequestor requestor) throws JavaModelException {
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
@@ -403,5 +403,211 @@ public PackageFragmentRoot getPackageFragmentRoot() {
 		current = current.getParent();
 	} while(current != null);
 	return null;
+}
+/**
+ * @see ICodeAssist
+ * @deprecated - use codeComplete(ICompilationUnit, ICompilationUnit, int, ICompletionRequestor) instead
+ */
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
+	codeComplete(
+		cu,
+		unitToSkip,
+		position,
+		new ICompletionRequestor(){
+			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptError(IMarker marker) {
+				requestor.acceptError(marker);
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd){
+				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
+			}
+			public void acceptLabel(char[] labelName,int completionStart,int completionEnd){
+				requestor.acceptLabel(labelName, completionStart, completionEnd);
+			}
+			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// skip parameter names
+				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd){
+				requestor.acceptModifier(modifierName, completionStart, completionEnd);
+			}
+			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+			}
+			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+			}
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd){
+				// ignore
+			}
+		});
+}
+class Dummy implements ICompletionRequestor {	/*
+	 * @see ICompletionRequestor#acceptClass(char[], char[], char[], int, int, int)
+	 */
+	public void acceptClass(
+		char[] packageName,
+		char[] className,
+		char[] completionName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptError(IMarker)
+	 */
+	public void acceptError(IMarker marker) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptField(char[], char[], char[], char[], char[], char[], int, int, int)
+	 */
+	public void acceptField(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		char[] name,
+		char[] typePackageName,
+		char[] typeName,
+		char[] completionName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptInterface(char[], char[], char[], int, int, int)
+	 */
+	public void acceptInterface(
+		char[] packageName,
+		char[] interfaceName,
+		char[] completionName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptKeyword(char[], int, int)
+	 */
+	public void acceptKeyword(
+		char[] keywordName,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptLabel(char[], int, int)
+	 */
+	public void acceptLabel(
+		char[] labelName,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptLocalVariable(char[], char[], char[], int, int, int)
+	 */
+	public void acceptLocalVariable(
+		char[] name,
+		char[] typePackageName,
+		char[] typeName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptMethod(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int)
+	 */
+	public void acceptMethod(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		char[][] parameterNames,
+		char[] returnTypePackageName,
+		char[] returnTypeName,
+		char[] completionName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptMethodDeclaration(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int)
+	 */
+	public void acceptMethodDeclaration(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		char[][] parameterNames,
+		char[] returnTypePackageName,
+		char[] returnTypeName,
+		char[] completionName,
+		int modifiers,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptModifier(char[], int, int)
+	 */
+	public void acceptModifier(
+		char[] modifierName,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptPackage(char[], char[], int, int)
+	 */
+	public void acceptPackage(
+		char[] packageName,
+		char[] completionName,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptType(char[], char[], char[], int, int)
+	 */
+	public void acceptType(
+		char[] packageName,
+		char[] typeName,
+		char[] completionName,
+		int completionStart,
+		int completionEnd) {
+	}
+
+	/*
+	 * @see ICompletionRequestor#acceptVariableName(char[], char[], char[], char[], int, int)
+	 */
+	public void acceptVariableName(
+		char[] typePackageName,
+		char[] typeName,
+		char[] name,
+		char[] completionName,
+		int completionStart,
+		int completionEnd) {
+	}
+
 }
 }

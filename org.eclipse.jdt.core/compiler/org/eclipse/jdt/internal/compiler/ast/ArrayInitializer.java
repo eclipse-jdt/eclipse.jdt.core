@@ -128,16 +128,27 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTb
 		}
 		return binding;
 	}
-
-	TypeBinding elementTb = (expressions == null) ? scope.getJavaLangObject() : expressions[0].resolveType(scope);
-	if (elementTb != null) {
-		TypeBinding probableTb = scope.createArray(elementTb, 1);
+	
+	// infer initializer type for error reporting based on first element
+	TypeBinding leafElementType = null;
+	int dim = 1;
+	if (expressions == null) {
+		leafElementType = scope.getJavaLangObject();
+	} else {
+		Expression currentExpression = expressions[0];
+		while(currentExpression != null && currentExpression instanceof ArrayInitializer) {
+			dim++;
+			currentExpression = ((ArrayInitializer) currentExpression).expressions[0];
+		}
+		leafElementType = currentExpression.resolveType(scope);
+	}
+	if (leafElementType != null) {
+		TypeBinding probableTb = scope.createArray(leafElementType, dim);
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(this, probableTb, expectedTb);
 	}
 	return null;
 }
 public String toStringExpression() {
-	/* slow code */
 
 	String s = "{" ; //$NON-NLS-1$
 	if (expressions != null)
@@ -149,6 +160,7 @@ public String toStringExpression() {
 			{	s = s + "\n                "; j = 20;}}}; //$NON-NLS-1$
 	s = s + "}"; //$NON-NLS-1$
 	return s;}
+
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		if (expressions != null) {

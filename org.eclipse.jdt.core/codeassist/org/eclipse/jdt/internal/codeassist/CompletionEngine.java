@@ -10,6 +10,11 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.codeassist.impl.*;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
@@ -119,7 +124,23 @@ public final class CompletionEngine
 			public void record(IProblem problem, CompilationResult unitResult) {
 				if (problem.getID() != ProblemIrritants.UnmatchedBracket) {
 					unitResult.record(problem);
-					CompletionEngine.this.requestor.acceptError(problem);
+					
+					if (true) return; // work-around PR 1GD9RLP: ITPJCORE:WIN2000 - Code assist is slow
+					if (problem.isWarning()) return;
+					try {
+						IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
+						marker.setAttribute(IJavaModelMarker.ID, problem.getID());
+						marker.setAttribute(IMarker.CHAR_START, problem.getSourceStart());
+						marker.setAttribute(IMarker.CHAR_END, problem.getSourceEnd() + 1);
+						marker.setAttribute(IMarker.LINE_NUMBER, problem.getSourceLineNumber());
+						//marker.setAttribute(IMarker.LOCATION, "#" + error.getSourceLineNumber());
+						marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
+						marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+				
+						CompletionEngine.this.requestor.acceptError(marker);
+				
+					} catch(CoreException e){
+					}
 				}
 			}
 		};

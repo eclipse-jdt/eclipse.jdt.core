@@ -1,17 +1,21 @@
-package org.eclipse.jdt.internal.codeassist;
+package org.eclipse.jdt.core;
 
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.core.resources.IMarker;
 
 /**
  * A completion requestor accepts results as they are computed and is aware
  * of source positions to complete the various different results.
+ * <p>
+ * This interface may be implemented by clients.
+ * </p>
+ *
+ * @see ICodeAssist
  */
 public interface ICompletionRequestor {
-
 /**
  * Code assist notification of a class completion.
  * 
@@ -22,7 +26,6 @@ public interface ICompletionRequestor {
  * @param completionName char[] - The completion for the class.
  *   Can include ';' for imported classes.
  * @param modifiers int - The modifiers of the class.
- *	 	@see com.ibm.compiler.java.ast.Modifiers
  * @param completionStart int - The start position of insertion of the name of the class.
  * @param completionEnd int - The end position of insertion of the name of the class.
  *
@@ -41,9 +44,9 @@ void acceptClass(
 /**
  * Code assist notification of a compilation error detected during completion.
  *
- *  @return void - Nothing is answered back to code assist engine
+ *  @return void - Nothing is answered back.
  *
- *  @param error com.ibm.compiler.java.api.problem.IProblem
+ *  @param error org.eclipse.core.resources.IMarker
  *      Only problems which are categorized as errors are notified to the requestor,
  *		warnings are silently ignored.
  *		In case an error got signaled, no other completions might be available,
@@ -53,7 +56,7 @@ void acceptClass(
  *		during the code assist process).
  *      Note: the problem knows its originating file name.
  */
-void acceptError(IProblem error);
+void acceptError(IMarker marker);
 /**
  * Code assist notification of a field completion.
  *
@@ -97,7 +100,6 @@ void acceptField(
  * @param completionName char[] - The completion for the interface.
  *   Can include ';' for imported interfaces.
  * @param modifiers int - The modifiers of the interface.
- *	 	@see com.ibm.compiler.java.ast.Modifiers
  * @param completionStart int - The start position of insertion of the name of the interface.
  * @param completionEnd int - The end position of insertion of the name of the interface.
  *
@@ -172,10 +174,8 @@ void acceptLocalVariable(
  *    Should contain as many elements as parameterTypeNames.
  * @param parameterTypeNames char[][] - Names of the parameters types.
  *    Should contain as many elements as parameterPackageNames.
- * @param parameterNames char[][] - Names of the parameters.
- *    Should contain as many elements as parameterPackageNames.
  * @param returnTypePackageName char[] - Name of the package in which the return type is declared.
- * @param returnTypeName char[] - Name of the return type of this new method, should be null for a constructor.
+ * @param returnTypeName char[] - Name of the return type of this new method, should be <code>null</code> for a constructor.
  * @param completionName char[] - The completion for the method.
  *   Can include zero, one or two brackets. If the closing bracket is included, then the cursor should be placed before it.
  * @param modifiers int - The modifiers of this new method.
@@ -228,11 +228,7 @@ void acceptMethodDeclaration(
  * @param completionStart int - The start position of insertion of the name of this new modifier.
  * @param completionEnd int - The end position of insertion of the name of this new modifier.
  */
-	void acceptModifier(
-		char[] modifierName,
-		int completionStart,
-		int completionEnd);
-
+void acceptModifier(char[] modifierName, int completionStart, int completionEnd);
 /**
  * Code assist notification of a package completion.
  *
@@ -305,4 +301,3 @@ void acceptVariableName(
 	int completionStart,
 	int completionEnd);
 }
-

@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -65,15 +66,15 @@ public GlobalVariable[] allVariables() {
  * Computes a completion at the specified position of the given code snippet.
  * (Note that this evaluation context's VM doesn't need to be running.)
  *
- *  @param environment com.ibm.codeassist.java.api.ISearchableNameEnvironment
+ *  @param environment 
  *      used to resolve type/package references and search for types/packages
  *      based on partial names.
  *
- *  @param requestor com.ibm.codeassist.java.api.ICompletionRequestor
+ *  @param requestor 
  *      since the engine might produce answers of various forms, the engine 
  *      is associated with a requestor able to accept all possible completions.
  *
- *  @param options com.ibm.compiler.java.api.ConfigurableOptions
+ *  @param options
  *		set of options used to configure the code assist engine.
  */
 public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, Map options) {

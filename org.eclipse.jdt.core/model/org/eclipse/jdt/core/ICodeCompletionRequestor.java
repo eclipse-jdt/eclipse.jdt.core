@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
  * </p>
  *
  * @see ICodeAssist
+ * @deprecated - use an ICompletionRequestor instead
  */
 public interface ICodeCompletionRequestor {
 /**
@@ -198,21 +199,6 @@ void acceptMethod(
 	char[] selector,
 	char[][] parameterPackageNames,
 	char[][] parameterTypeNames,
-	char[][] parameterNames,
-	char[] returnTypePackageName,
-	char[] returnTypeName,
-	char[] completionName,
-	int modifiers,
-	int completionStart,
-	int completionEnd);
-	
-void acceptMethodDeclaration(
-	char[] declaringTypePackageName,
-	char[] declaringTypeName,
-	char[] selector,
-	char[][] parameterPackageNames,
-	char[][] parameterTypeNames,
-	char[][] parameterNames,
 	char[] returnTypePackageName,
 	char[] returnTypeName,
 	char[] completionName,
@@ -269,34 +255,6 @@ void acceptPackage(
 void acceptType(
 	char[] packageName,
 	char[] typeName,
-	char[] completionName,
-	int completionStart,
-	int completionEnd);
-	
-/**
- * Code assist notification of a variable name completion.
- *
- * @return void - Nothing is answered back to code assist engine
- *
- * @param typePackageName char[] - Name of the package in which the type of this variable is declared.
- * @param typeName char[] - Name of the type of this variable.
- * @param name char[] - Name of the variable.
- * @param completionName char[] - The completion for the variable.
- * @param completionStart int - The start position of insertion of the name of this variable.
- * @param completionEnd int - The end position of insertion of the name of this variable.
- * @see com.ibm.compiler.java.ast.Modifiers
- *
- * NOTE - All package and type names are presented in their readable form:
- *    Package names are in the form "a.b.c".
- *    Base types are in the form "int" or "boolean".
- *    Array types are in the qualified form "M[]" or "int[]".
- *    Nested type names are in the qualified form "A.M".
- *    The default package is represented by an empty array.
- */
-void acceptVariableName(
-	char[] typePackageName,
-	char[] typeName,
-	char[] name,
 	char[] completionName,
 	int completionStart,
 	int completionEnd);
