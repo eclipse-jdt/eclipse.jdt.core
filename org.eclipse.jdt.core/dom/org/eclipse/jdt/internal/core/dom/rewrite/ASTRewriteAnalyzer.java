@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.BlockContext;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.NodeMarker;
@@ -72,13 +73,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private final IDocument document;
 	private final ASTRewriteFormatter formatter;
 	private final NodeInfoStore nodeInfos;
-	private final CompilationUnit astRoot;
+	private final TargetSourceRangeComputer extendedSourceRangeComputer;
 	
 	/*
 	 * Constructor for ASTRewriteAnalyzer.
 	 */
-	public ASTRewriteAnalyzer(IDocument document, CompilationUnit astRoot, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, Map options) {
-		this.astRoot= astRoot;
+	public ASTRewriteAnalyzer(IDocument document, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, Map options, TargetSourceRangeComputer extendedSourceRangeComputer) {
 		this.eventStore= eventStore;
 		this.document= document;
 		this.nodeInfos= nodeInfos;
@@ -88,6 +88,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		this.sourceCopyEndNodes= new Stack();
 		
 		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, getLineDelimiter());
+		
+		this.extendedSourceRangeComputer = extendedSourceRangeComputer;
 	}
 		
 	final TokenScanner getScanner() {
@@ -103,16 +105,28 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return this.document;
 	}
 	
+	/**
+	 * Returns the extended source range computer for this AST rewriter.
+	 * 
+	 * @return an extended source range computer (never null)
+	 * @since 3.1
+	 */
+	private TargetSourceRangeComputer getExtendedSourceRangeComputer() {
+		return this.extendedSourceRangeComputer;
+	}
+	
 	final int getExtendedOffset(ASTNode node) {
-		return this.astRoot.getExtendedStartPosition(node);
+		return getExtendedSourceRangeComputer().computeSourceRange(node).getStartPosition();
 	}
 	
 	final int getExtendedLength(ASTNode node) {
-		return this.astRoot.getExtendedLength(node);
+		return getExtendedSourceRangeComputer().computeSourceRange(node).getLength();
 	}
 	
 	final int getExtendedEnd(ASTNode node) {
-		return this.astRoot.getExtendedStartPosition(node) + this.astRoot.getExtendedLength(node);
+		TargetSourceRangeComputer.SourceRange range =
+			getExtendedSourceRangeComputer().computeSourceRange(node);
+		return range.getStartPosition() + range.getLength();
 	}
 	
 	final TextEdit getCopySourceEdit(CopySourceInfo info) {

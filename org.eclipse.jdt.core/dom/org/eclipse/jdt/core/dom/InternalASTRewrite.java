@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IDocument;
 
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
@@ -65,9 +66,23 @@ class InternalASTRewrite extends NodeEventHandler {
 	public TextEdit rewriteAST(IDocument document, Map options) {
 		TextEdit result = new MultiTextEdit();
 		
-		CompilationUnit rootNode = getRootNode();
+		final CompilationUnit rootNode = getRootNode();
 		if (rootNode != null) {
-			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(document, rootNode, result, this.eventStore, this.nodeStore, options);
+			TargetSourceRangeComputer xsrComputer = new TargetSourceRangeComputer() {
+				/** 
+				 * This implementation of
+				 * {@link TargetSourceRangeComputer#computeSourceRange(ASTNode)}
+				 * is specialized to work in the case of internal AST rewriting, where the
+				 * original AST has been modified from its original form. This means that
+				 * one cannot trust that the root of the given node is the compilation unit.
+				 */
+				public SourceRange computeSourceRange(ASTNode node) {
+					int extendedStartPosition = rootNode.getExtendedStartPosition(node);
+					int extendedLength = rootNode.getExtendedLength(node);
+					return new SourceRange(extendedStartPosition, extendedLength);
+				}
+			};
+			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, xsrComputer);
 			rootNode.accept(visitor);
 		}
 		return result;

@@ -484,8 +484,12 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.0
 	 */
 	public int getExtendedStartPosition(ASTNode node) {
-		if (this.commentMapper == null) {
-			return -1;
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.commentMapper == null || node.getAST() != getAST()) {
+			// fall back: use best info available
+			return node.getStartPosition();
 		} else {
 			return this.commentMapper.getExtendedStartPosition(node);
 		}
@@ -504,8 +508,12 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		if (this.commentMapper == null) {
-			return 0;
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.commentMapper == null || node.getAST() != getAST()) {
+			// fall back: use best info available
+			return node.getLength();
 		} else {
 			return this.commentMapper.getExtendedLength(node);
 		}

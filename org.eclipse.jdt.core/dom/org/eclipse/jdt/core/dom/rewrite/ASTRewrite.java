@@ -85,6 +85,13 @@ public class ASTRewrite {
 	private final NodeInfoStore nodeStore;
 	
 	/**
+	 * Target source range computer; null means uninitialized;
+	 * lazy initialized to <code>new TargetSourceRangeComputer()</code>.
+	 * @since 3.1
+	 */
+	private TargetSourceRangeComputer targetSourceRangeComputer = null;
+	
+	/**
 	 * Creates a new instance for describing manipulations of
 	 * the given AST.
 	 * 
@@ -140,6 +147,11 @@ public class ASTRewrite {
 	 * edits to the given document containing the original source
 	 * code. The document itself is not modified.
 	 * <p>
+	 * For nodes in the original that are being replaced or deleted,
+	 * this rewriter computes the adjusted source ranges
+	 * by calling <code>getTargetSourceRangeComputer().computeSourceRange(node)</code>.
+	 * </p>
+	 * <p>
 	 * Calling this methods does not discard the modifications
 	 * on record. Subsequence modifications are added to the ones
 	 * already on record. If this method is called again later,
@@ -169,8 +181,7 @@ public class ASTRewrite {
 			
 			getRewriteEventStore().markMovedNodesRemoved();
 
-			CompilationUnit astRoot= (CompilationUnit) rootNode.getRoot();
-			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, astRoot, result, this.eventStore, this.nodeStore, options);
+			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, getExtendedSourceRangeComputer());
 			rootNode.accept(visitor); // throws IllegalArgumentException
 		}
 		return result;
@@ -499,6 +510,34 @@ public class ASTRewrite {
 	public final ASTNode createMoveTarget(ASTNode node) {
 		return createTargetNode(node, true);
 	}	
+
+	/**
+	 * Returns the extended source range computer for this AST rewriter.
+	 * The default value is a <code>new ExtendedSourceRangeComputer()</code>.
+	 * 
+	 * @return an extended source range computer
+	 * @since 3.1
+	 */
+	public final TargetSourceRangeComputer getExtendedSourceRangeComputer() {
+		if (this.targetSourceRangeComputer == null) {
+			// lazy initialize
+			this.targetSourceRangeComputer = new TargetSourceRangeComputer(); 
+		}
+		return this.targetSourceRangeComputer;
+	}
+	
+	/**
+	 * Sets the target source range computer for this AST rewriter.
+	 * 
+	 * @param computer a target source range computer,
+	 * or <code>null</code> to restore the default value of
+	 * <code>new TargetSourceRangeComputer()</code>
+	 * @since 3.1
+	 */
+	public final void setTargetSourceRangeComputer(TargetSourceRangeComputer computer) {
+		// if computer==null, rely on lazy init code in getTargetSourceRangeComputer()
+		this.targetSourceRangeComputer = computer;
+	}
 	
 	/**
 	 * Returns a string suitable for debugging purposes (only).
