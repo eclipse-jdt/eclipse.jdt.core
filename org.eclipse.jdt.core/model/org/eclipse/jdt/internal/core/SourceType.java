@@ -718,18 +718,18 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
-		public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
+		public void acceptClass(char[] packageName, char[] className, boolean needQualification, boolean isDeclaration, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(className) });
 		}
 		
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
+		public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification, boolean isDeclaration, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 		}
 
 		public void acceptError(IProblem error) {
 			// ignore
 		}
-		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName) {
+		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, int start, int end) {
 			// ignore
 		}
 		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, boolean isDeclaration, int start, int end) {

@@ -27,6 +27,15 @@ public interface ISelectionRequestor {
 	 * @param needQualification boolean
 	 * 		Flag indicating if the type name 
 	 *    	must be qualified by its package name (depending on imports).
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected method is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -36,7 +45,10 @@ public interface ISelectionRequestor {
 	void acceptClass(
 		char[] packageName,
 		char[] className,
-		boolean needQualification);
+		boolean needQualification,
+		boolean isDeclaration,
+		int start,
+		int end);
 
 	/**
 	 * Code assist notification of a compilation error detected during selection.
@@ -62,6 +74,15 @@ public interface ISelectionRequestor {
 	 * 
 	 * @param name char[]
 	 * 		Name of the field.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected field is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -71,7 +92,10 @@ public interface ISelectionRequestor {
 	void acceptField(
 		char[] declaringTypePackageName,
 		char[] declaringTypeName,
-		char[] name);
+		char[] name,
+		boolean isDeclaration,
+		int start,
+		int end);
 
 	/**
 	 * Code assist notification of an interface selection.
@@ -84,6 +108,15 @@ public interface ISelectionRequestor {
 	 * @param needQualification boolean
 	 * 		Flag indicating if the type name 
 	 *    	must be qualified by its package name (depending on imports).
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected method is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -93,7 +126,10 @@ public interface ISelectionRequestor {
 	void acceptInterface(
 		char[] packageName,
 		char[] interfaceName,
-		boolean needQualification);
+		boolean needQualification,
+		boolean isDeclaration,
+		int start,
+		int end);
 
 	/**
 	 * Code assist notification of a method selection.

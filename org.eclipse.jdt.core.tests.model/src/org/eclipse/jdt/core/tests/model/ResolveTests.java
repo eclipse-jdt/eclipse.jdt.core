@@ -1026,8 +1026,8 @@ public void testEndOfFile() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
  */
-public void testDuplicateMethodDelcaration() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDelcaration.java");
+public void testDuplicateMethodDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration.java");
 	
 	String str = cu.getSource();
 	int start = str.indexOf("foo");
@@ -1036,15 +1036,15 @@ public void testDuplicateMethodDelcaration() throws JavaModelException {
 	
 	assertElementsEqual(
 			"Unexpected elements",
-			"foo() [in ResolveDuplicateMethodDelcaration [in ResolveDuplicateMethodDelcaration.java [in <default> [in src [in Resolve]]]]]",
+			"foo() [in ResolveDuplicateMethodDeclaration [in ResolveDuplicateMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
 			elements
 	);
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
  */
-public void testDuplicateMethodDelcaration2() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDelcaration.java");
+public void testDuplicateMethodDeclaration2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration.java");
 	
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
@@ -1053,7 +1053,287 @@ public void testDuplicateMethodDelcaration2() throws JavaModelException {
 	
 	assertElementsEqual(
 			"Unexpected elements",
-			"foo()#2 [in ResolveDuplicateMethodDelcaration [in ResolveDuplicateMethodDelcaration.java [in <default> [in src [in Resolve]]]]]",
+			"foo()#2 [in ResolveDuplicateMethodDeclaration [in ResolveDuplicateMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Object) [in ResolveDuplicateMethodDeclaration3 [in ResolveDuplicateMethodDeclaration3.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Object)#2 [in ResolveDuplicateMethodDeclaration3 [in ResolveDuplicateMethodDeclaration3.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration5() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration5.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork) [in ResolveDuplicateMethodDeclaration5 [in ResolveDuplicateMethodDeclaration5.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration6() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration5.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork)#2 [in ResolveDuplicateMethodDeclaration5 [in ResolveDuplicateMethodDeclaration5.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration7() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration7.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork) [in Inner [in ResolveDuplicateMethodDeclaration7 [in ResolveDuplicateMethodDeclaration7.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration8() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration7.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork)#2 [in Inner [in ResolveDuplicateMethodDeclaration7 [in ResolveDuplicateMethodDeclaration7.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration9() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration9.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo(/*1*/");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork) [in Inner [in ResolveDuplicateMethodDeclaration9 [in ResolveDuplicateMethodDeclaration9.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration10() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration9.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo(/*1*/");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork)#2 [in Inner [in ResolveDuplicateMethodDeclaration9 [in ResolveDuplicateMethodDeclaration9.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration11() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration11.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo(/*2*/");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork) [in Inner#2 [in ResolveDuplicateMethodDeclaration11 [in ResolveDuplicateMethodDeclaration11.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateMethodDeclaration12() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration11.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo(/*2*/");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Zork)#2 [in Inner#2 [in ResolveDuplicateMethodDeclaration11 [in ResolveDuplicateMethodDeclaration11.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateFieldDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("var;/*1*/");
+	int length = "var".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"var [in Inner [in ResolveDuplicateFieldDeclaration [in ResolveDuplicateFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateFieldDeclaration2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("var;/*1*/");
+	int length = "var".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"var#2 [in Inner [in ResolveDuplicateFieldDeclaration [in ResolveDuplicateFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateFieldDeclaration3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("var;/*2*/");
+	int length = "var".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"var [in Inner#2 [in ResolveDuplicateFieldDeclaration3 [in ResolveDuplicateFieldDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateFieldDeclaration4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("var;/*2*/");
+	int length = "var".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"var#2 [in Inner#2 [in ResolveDuplicateFieldDeclaration3 [in ResolveDuplicateFieldDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("Inner");
+	int length = "Inner".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner [in ResolveDuplicateTypeDeclaration [in ResolveDuplicateTypeDeclaration.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("Inner");
+	int length = "Inner".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner#2 [in ResolveDuplicateTypeDeclaration [in ResolveDuplicateTypeDeclaration.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("Inner2/*1*/");
+	int length = "Inner2".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner2 [in Inner [in ResolveDuplicateTypeDeclaration3 [in ResolveDuplicateTypeDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration3.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("Inner2/*1*/");
+	int length = "Inner2".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner2#2 [in Inner [in ResolveDuplicateTypeDeclaration3 [in ResolveDuplicateTypeDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration5() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration5.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("Inner2/*2*/");
+	int length = "Inner2".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner2 [in Inner#2 [in ResolveDuplicateTypeDeclaration5 [in ResolveDuplicateTypeDeclaration5.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
+public void testDuplicateTypeDeclaration6() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration5.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("Inner2/*2*/");
+	int length = "Inner2".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Inner2#2 [in Inner#2 [in ResolveDuplicateTypeDeclaration5 [in ResolveDuplicateTypeDeclaration5.java [in <default> [in src [in Resolve]]]]]]",
 			elements
 	);
 }

@@ -162,7 +162,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				requestor.acceptClass(
 					packageName,
 					className,
-					false);
+					false,
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
 				this.acceptedAnswer = true;
 			}
 		}
@@ -209,7 +212,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptInterface(
 					packageName,
 					interfaceName,
-					false);
+					false,
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
 				this.acceptedAnswer = true;
 			}
 		}
@@ -235,7 +241,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptClass(
 					acceptedClasses[i][0],
 					acceptedClasses[i][1],
-					true);
+					true,
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
 			}
 			acceptedClasses = null;
 			acceptedClassesCount = 0;
@@ -247,7 +256,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptInterface(
 					acceptedInterfaces[i][0],
 					acceptedInterfaces[i][1],
-					true);
+					true,
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
 			}
 			acceptedInterfaces = null;
 			acceptedInterfacesCount = 0;
@@ -492,12 +504,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				}
 				if (parsedUnit.types != null) {
+					if(selectDeclaration(parsedUnit))
+						return;
 					lookupEnvironment.buildTypeBindings(parsedUnit);
 					if ((this.unitScope = parsedUnit.scope)  != null) {
 						try {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
-							selectDeclaration(parsedUnit);
 							ASTNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
@@ -557,7 +570,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.requestor.acceptInterface(
 						typeBinding.qualifiedPackageName(),
 						typeBinding.qualifiedSourceName(),
-						false);
+						false,
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
 				}
 			} else if(typeBinding instanceof ProblemReferenceBinding){
 				ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).original;
@@ -571,7 +587,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.requestor.acceptClass(
 						original.qualifiedPackageName(),
 						original.qualifiedSourceName(),
-						false);
+						false,
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
 				}
 			} else {
 				noProposal = false;
@@ -583,7 +602,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.requestor.acceptClass(
 						typeBinding.qualifiedPackageName(),
 						typeBinding.qualifiedSourceName(),
-						false);
+						false,
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
 				}
 			}
 			this.acceptedAnswer = true;
@@ -643,7 +665,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
 								declaringClass.qualifiedSourceName(),
-								fieldBinding.name);
+								fieldBinding.name,
+								false,
+								this.actualSelectionStart,
+								this.actualSelectionEnd);
 						}
 						this.acceptedAnswer = true;
 					}
@@ -858,48 +883,111 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	// Check if a declaration got selected in this unit
-	private void selectDeclaration(CompilationUnitDeclaration compilationUnit){
+	private boolean selectDeclaration(CompilationUnitDeclaration compilationUnit){
 
 		// the selected identifier is not identical to the parser one (equals but not identical),
 		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
 		char[] assistIdentifier = this.getParser().assistIdentifier();
-		if (assistIdentifier == null) return;
+		if (assistIdentifier == null) return false;
 		
+		ImportReference currentPackage = compilationUnit.currentPackage;
+		char[] packageName = currentPackage == null ? new char[0] : CharOperation.concatWith(currentPackage.tokens, '.');
 		// iterate over the types
 		TypeDeclaration[] types = compilationUnit.types;
 		for (int i = 0, length = types == null ? 0 : types.length; i < length; i++){
-			selectDeclaration(types[i], assistIdentifier);
+			if(selectDeclaration(types[i], assistIdentifier, packageName))
+				return true;
 		}
+		return false;
 	}
 
 	// Check if a declaration got selected in this type
-	private void selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier){
+	private boolean selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier, char[] packageName){
 	
 		if (typeDeclaration.name == assistIdentifier){
-			throw new SelectionNodeFound(typeDeclaration.binding, true);
+			char[] qualifiedSourceName = null;
+			
+			TypeDeclaration enclosingType = typeDeclaration;
+			while(enclosingType != null) {
+				qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+				enclosingType = enclosingType.enclosingType;
+			}
+			
+			if(!typeDeclaration.isInterface()) {
+				this.requestor.acceptClass(
+					packageName,
+					qualifiedSourceName,
+					false,
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			} else {
+				this.requestor.acceptInterface(
+					packageName,
+					qualifiedSourceName,
+					false,
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			}
+			this.noProposal = false;
+			return true;
 		}
 		TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
 		for (int i = 0, length = memberTypes == null ? 0 : memberTypes.length; i < length; i++){
-			selectDeclaration(memberTypes[i], assistIdentifier);
+			if(selectDeclaration(memberTypes[i], assistIdentifier, packageName))
+				return true;
 		}
 		FieldDeclaration[] fields = typeDeclaration.fields;
 		for (int i = 0, length = fields == null ? 0 : fields.length; i < length; i++){
 			if (fields[i].name == assistIdentifier){
-				throw new SelectionNodeFound(fields[i].binding, true);
+				char[] qualifiedSourceName = null;
+				
+				TypeDeclaration enclosingType = typeDeclaration;
+				while(enclosingType != null) {
+					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+					enclosingType = enclosingType.enclosingType;
+				}
+				
+				this.requestor.acceptField(
+					packageName,
+					qualifiedSourceName,
+					fields[i].name,
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+
+				this.noProposal = false;
+				return true;
 			}
 		}
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
 			AbstractMethodDeclaration method = methods[i];
 			if (method.selector == assistIdentifier){
-				if(method.binding != null) {
-					throw new SelectionNodeFound(method.binding, true);
-				} else {
-					if(method.scope != null) {
-						throw new SelectionNodeFound(new MethodBinding(method.modifiers, method.selector, null, null, null, method.scope.referenceType().binding), true);
-					}
+				char[] qualifiedSourceName = null;
+				
+				TypeDeclaration enclosingType = typeDeclaration;
+				while(enclosingType != null) {
+					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+					enclosingType = enclosingType.enclosingType;
 				}
+				
+				this.requestor.acceptMethod(
+					packageName,
+					qualifiedSourceName,
+					method.selector,
+					null, // SelectionRequestor does not need of parameters type for method declaration
+					null, // SelectionRequestor does not need of parameters type for method declaration
+					method.isConstructor(),
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+				
+				this.noProposal = false;
+				return true;
 			}
 		}
+		return false;
 	}
 }
