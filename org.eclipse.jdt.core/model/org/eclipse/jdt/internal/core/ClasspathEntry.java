@@ -39,6 +39,17 @@ import org.w3c.dom.Element;
  */
 public class ClasspathEntry implements IClasspathEntry {
 
+	public static final String TAG_CLASSPATH = "classpath"; //$NON-NLS-1$
+	public static final String TAG_CLASSPATHENTRY = "classpathentry"; //$NON-NLS-1$
+	public static final String TAG_OUTPUT = "output"; //$NON-NLS-1$
+	public static final String TAG_KIND = "kind"; //$NON-NLS-1$
+	public static final String TAG_PATH = "path"; //$NON-NLS-1$
+	public static final String TAG_SOURCEPATH = "sourcepath"; //$NON-NLS-1$
+	public static final String TAG_ROOTPATH = "rootpath"; //$NON-NLS-1$
+	public static final String TAG_EXPORTED = "exported"; //$NON-NLS-1$
+	public static final String TAG_INCLUDING = "including"; //$NON-NLS-1$
+	public static final String TAG_EXCLUDING = "excluding"; //$NON-NLS-1$
+	
 	/**
 	 * Describes the kind of classpath entry - one of 
 	 * CPE_PROJECT, CPE_LIBRARY, CPE_SOURCE, CPE_VARIABLE or CPE_CONTAINER
@@ -78,9 +89,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
 	 */
 	public IPath[] inclusionPatterns;
-	private char[][] fullCharInclusionPatterns;
+	private char[][] fullInclusionPatternChars;
 	public IPath[] exclusionPatterns;
-	private char[][] fullCharExclusionPatterns;
+	private char[][] fullExclusionPatternChars;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 
 	private String rootID;
@@ -151,15 +162,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.path = path;
 		this.inclusionPatterns = inclusionPatterns;
 	    if (inclusionPatterns != INCLUDE_ALL && inclusionPatterns.length > 0) {
-			this.fullCharInclusionPatterns = UNINIT_PATTERNS;
+			this.fullInclusionPatternChars = UNINIT_PATTERNS;
 	    } else {
-			this.fullCharInclusionPatterns = null; // empty inclusion pattern means everything is included
+			this.fullInclusionPatternChars = null; // empty inclusion pattern means everything is included
 	    }
 		this.exclusionPatterns = exclusionPatterns;
 	    if (exclusionPatterns.length > 0) {
-			this.fullCharExclusionPatterns = UNINIT_PATTERNS;
+			this.fullExclusionPatternChars = UNINIT_PATTERNS;
 	    } else {
-			this.fullCharExclusionPatterns = null; // empty exclusion pattern means nothing is excluded
+			this.fullExclusionPatternChars = null; // empty exclusion pattern means nothing is excluded
 	    }
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
@@ -172,16 +183,16 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public char[][] fullExclusionPatternChars() {
 
-		if (this.fullCharExclusionPatterns == UNINIT_PATTERNS) {
+		if (this.fullExclusionPatternChars == UNINIT_PATTERNS) {
 			int length = this.exclusionPatterns.length;
-			this.fullCharExclusionPatterns = new char[length][];
+			this.fullExclusionPatternChars = new char[length][];
 			IPath prefixPath = this.path.removeTrailingSeparator();
 			for (int i = 0; i < length; i++) {
-				this.fullCharExclusionPatterns[i] = 
+				this.fullExclusionPatternChars[i] = 
 					prefixPath.append(this.exclusionPatterns[i]).toString().toCharArray();
 			}
 		}
-		return this.fullCharExclusionPatterns;
+		return this.fullExclusionPatternChars;
 	}
 	
 	/*
@@ -189,16 +200,16 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public char[][] fullInclusionPatternChars() {
 
-		if (this.fullCharInclusionPatterns == UNINIT_PATTERNS) {
+		if (this.fullInclusionPatternChars == UNINIT_PATTERNS) {
 			int length = this.inclusionPatterns.length;
-			this.fullCharInclusionPatterns = new char[length][];
+			this.fullInclusionPatternChars = new char[length][];
 			IPath prefixPath = this.path.removeTrailingSeparator();
 			for (int i = 0; i < length; i++) {
-				this.fullCharInclusionPatterns[i] = 
+				this.fullInclusionPatternChars[i] = 
 					prefixPath.append(this.inclusionPatterns[i]).toString().toCharArray();
 			}
 		}
-		return this.fullCharInclusionPatterns;
+		return this.fullInclusionPatternChars;
 	}
 
 	/**
@@ -207,7 +218,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine) {
 		HashMap parameters = new HashMap();
 		
-		parameters.put("kind", ClasspathEntry.kindToString(this.entryKind));//$NON-NLS-1$
+		parameters.put(TAG_KIND, ClasspathEntry.kindToString(this.entryKind));
 		
 		IPath xmlPath = this.path;
 		if (this.entryKind != IClasspathEntry.CPE_VARIABLE && this.entryKind != IClasspathEntry.CPE_CONTAINER) {
@@ -223,7 +234,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 			}
 		}
-		parameters.put("path", String.valueOf(xmlPath));//$NON-NLS-1$
+		parameters.put(TAG_PATH, String.valueOf(xmlPath));
 		
 		if (this.sourceAttachmentPath != null) {
 			xmlPath = this.sourceAttachmentPath;
@@ -234,45 +245,44 @@ public class ClasspathEntry implements IClasspathEntry {
 					xmlPath = xmlPath.makeRelative();
 				}
 			}
-			parameters.put("sourcepath", String.valueOf(xmlPath));//$NON-NLS-1$
+			parameters.put(TAG_SOURCEPATH, String.valueOf(xmlPath));
 		}
 		if (this.sourceAttachmentRootPath != null) {
-			parameters.put("rootpath", String.valueOf(this.sourceAttachmentRootPath));//$NON-NLS-1$
+			parameters.put(TAG_ROOTPATH, String.valueOf(this.sourceAttachmentRootPath));
 		}
 		if (this.isExported) {
-			parameters.put("exported", "true");//$NON-NLS-1$//$NON-NLS-2$
+			parameters.put(TAG_EXPORTED, "true");//$NON-NLS-1$
 		}
 		if (this.inclusionPatterns != null && this.inclusionPatterns.length > 0) {
-			StringBuffer includeRule = new StringBuffer(10);
+			StringBuffer rule = new StringBuffer(10);
 			for (int i = 0, max = this.inclusionPatterns.length; i < max; i++){
-				if (i > 0) includeRule.append('|');
-				includeRule.append(this.inclusionPatterns[i]);
+				if (i > 0) rule.append('|');
+				rule.append(this.inclusionPatterns[i]);
 			}
-			parameters.put("including", String.valueOf(includeRule));//$NON-NLS-1$
+			parameters.put(TAG_INCLUDING, String.valueOf(rule));
 		}
 		if (this.exclusionPatterns != null && this.exclusionPatterns.length > 0) {
-			StringBuffer excludeRule = new StringBuffer(10);
+			StringBuffer rule = new StringBuffer(10);
 			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
-				if (i > 0) excludeRule.append('|');
-				excludeRule.append(this.exclusionPatterns[i]);
+				if (i > 0) rule.append('|');
+				rule.append(this.exclusionPatterns[i]);
 			}
-			parameters.put("excluding", String.valueOf(excludeRule));//$NON-NLS-1$
+			parameters.put(TAG_EXCLUDING, String.valueOf(rule));
 		}
-		
 		if (this.specificOutputLocation != null) {
 			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
 			outputLocation = outputLocation.makeRelative();
-			parameters.put("output", String.valueOf(outputLocation));//$NON-NLS-1$
+			parameters.put(TAG_OUTPUT, String.valueOf(outputLocation));
 		}
 
-		writer.printTag("classpathentry", parameters, indent, newLine, true);//$NON-NLS-1$
+		writer.printTag(TAG_CLASSPATHENTRY, parameters, indent, newLine, true);
 	}
 	
 	public static IClasspathEntry elementDecode(Element element, IJavaProject project) {
 	
 		IPath projectPath = project.getProject().getFullPath();
-		String kindAttr = element.getAttribute("kind"); //$NON-NLS-1$
-		String pathAttr = element.getAttribute("path"); //$NON-NLS-1$
+		String kindAttr = element.getAttribute(TAG_KIND);
+		String pathAttr = element.getAttribute(TAG_PATH);
 
 		// ensure path is absolute
 		IPath path = new Path(pathAttr); 		
@@ -282,22 +292,22 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		// source attachment info (optional)
 		IPath sourceAttachmentPath = 
-			element.hasAttribute("sourcepath")	//$NON-NLS-1$
-			? new Path(element.getAttribute("sourcepath")) //$NON-NLS-1$
+			element.hasAttribute(TAG_SOURCEPATH)	
+			? new Path(element.getAttribute(TAG_SOURCEPATH))
 			: null;
 		if (kind != IClasspathEntry.CPE_VARIABLE && sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
 			sourceAttachmentPath = projectPath.append(sourceAttachmentPath);
 		}
 		IPath sourceAttachmentRootPath = 
-			element.hasAttribute("rootpath") //$NON-NLS-1$
-			? new Path(element.getAttribute("rootpath")) //$NON-NLS-1$
+			element.hasAttribute(TAG_ROOTPATH)
+			? new Path(element.getAttribute(TAG_ROOTPATH))
 			: null;
 		
 		// exported flag (optional)
-		boolean isExported = element.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean isExported = element.getAttribute(TAG_EXPORTED).equals("true"); //$NON-NLS-1$
 
 		// inclusion patterns (optional)
-		String inclusion = element.getAttribute("including"); //$NON-NLS-1$ 
+		String inclusion = element.getAttribute(TAG_INCLUDING);
 		IPath[] inclusionPatterns = INCLUDE_ALL;
 		if (!inclusion.equals("")) { //$NON-NLS-1$ 
 			char[][] patterns = CharOperation.splitOn('|', inclusion.toCharArray());
@@ -311,7 +321,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 
 		// exclusion patterns (optional)
-		String exclusion = element.getAttribute("excluding"); //$NON-NLS-1$ 
+		String exclusion = element.getAttribute(TAG_EXCLUDING);
 		IPath[] exclusionPatterns = EXCLUDE_NONE;
 		if (!exclusion.equals("")) { //$NON-NLS-1$ 
 			char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
@@ -323,9 +333,8 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 			}
 		}
-
 		// custom output location
-		IPath outputLocation = element.hasAttribute("output") ? projectPath.append(element.getAttribute("output")) : null; //$NON-NLS-1$ //$NON-NLS-2$
+		IPath outputLocation = element.hasAttribute(TAG_OUTPUT) ? projectPath.append(element.getAttribute(TAG_OUTPUT)) : null;
 		
 		// recreate the CP entry
 		switch (kind) {
@@ -451,7 +460,6 @@ public class ClasspathEntry implements IClasspathEntry {
 						return false;
 				}
 			}
-			
 			otherPath = otherEntry.getOutputLocation();
 			if (this.specificOutputLocation == null) {
 				if (otherPath != null)

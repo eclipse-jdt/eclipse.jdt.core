@@ -545,6 +545,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public IClasspathEntry[] resolvedClasspath;
 		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
 		public IPath outputLocation;
+		
 		public IEclipsePreferences preferences;
 		
 		public PerProjectInfo(IProject project) {
@@ -1767,7 +1768,10 @@ public class JavaModelManager implements ISaveParticipant {
 				String containerString = CP_ENTRY_IGNORE;
 				try {
 					if (container != null) {
-						containerString = ((JavaProject)project).encodeClasspath(container.getClasspathEntries(), null, false);
+						containerString = ((JavaProject)project).encodeClasspath(
+								container.getClasspathEntries(), 
+								null, 
+								false);
 					}
 				} catch(JavaModelException e){
 					// could not encode entry: leave it as CP_ENTRY_IGNORE
@@ -2041,7 +2045,7 @@ public class JavaModelManager implements ISaveParticipant {
 								affectedProject
 									.setRawClasspath(
 										affectedProject.getRawClasspath(),
-										SetClasspathOperation.ReuseOutputLocation,
+										SetClasspathOperation.REUSE_PATH,
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										canChangeResources, 
 										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),

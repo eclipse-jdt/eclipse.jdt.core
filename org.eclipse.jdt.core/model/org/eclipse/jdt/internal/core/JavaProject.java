@@ -1188,7 +1188,7 @@ public class JavaProject
 			}
 			// restore output location				
 			if (outputLocation == null) {
-				outputLocation = SetClasspathOperation.ReuseOutputLocation;
+				outputLocation = SetClasspathOperation.REUSE_PATH;
 				// clean mode will also default to reusing current one
 			}
 			IClasspathEntry[] oldResolvedClasspath = info.resolvedClasspath;
@@ -2625,7 +2625,7 @@ public class JavaProject
 		if (path.equals(getOutputLocation())) {
 			return;
 		}
-		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, path, monitor);
+		this.setRawClasspath(SetClasspathOperation.REUSE_ENTRIES, path, monitor);
 	}
 
 	/**
@@ -2703,7 +2703,7 @@ public class JavaProject
 
 		setRawClasspath(
 			entries, 
-			SetClasspathOperation.ReuseOutputLocation, 
+			SetClasspathOperation.REUSE_PATH, 
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),

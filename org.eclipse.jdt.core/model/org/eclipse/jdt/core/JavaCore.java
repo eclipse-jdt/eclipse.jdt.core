@@ -3525,7 +3525,7 @@ public final class JavaCore extends Plugin {
 						// force a refresh of the affected project (will compute deltas)
 						affectedProject.setRawClasspath(
 								affectedProject.getRawClasspath(),
-								SetClasspathOperation.ReuseOutputLocation,
+								SetClasspathOperation.REUSE_PATH,
 								progressMonitor,
 								canChangeResources,
 								oldResolvedPaths[i],
