@@ -27,8 +27,8 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the binary name (as defined in the Java Language 
 	 * Specification Chapter 13 Section 1) of this type binding.
-	 * It is however slash ('/') separated instead of dot ('.') serarated as in
-	 * says in the specification.
+	 * It is however slash ('/') separated instead of dot ('.') separated as said
+	 * in the specification.
 	 * Returns <code>null</code> if the type is defined in code that is unreachable.
 	 *
 	 * @return the binary name of this type or <code>null</code> if this type is unreachable
