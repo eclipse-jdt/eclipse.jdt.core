@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
 import org.eclipse.jdt.internal.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.formatter.NewCodeFormatter;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
@@ -95,9 +96,18 @@ public class ToolFactory {
 	 * @see JavaCore#getOptions()
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
-
-		if (options == null) options = JavaCore.getOptions();
-		return new CodeFormatter(options);
+		final String NEW_CODE_FORMATTER_ACTIVATION = JavaCore.PLUGIN_ID + ".newformatter.activation";
+	
+		Object newFormatterActivation = JavaCore.getOption(NEW_CODE_FORMATTER_ACTIVATION);
+		
+		ICodeFormatter codeFormatter;
+		if (JavaCore.ENABLED.equals(newFormatterActivation)) {
+			codeFormatter = new NewCodeFormatter();
+		} else {
+			if (options == null) options = JavaCore.getOptions();
+			codeFormatter = new CodeFormatter(options);
+		}
+		return codeFormatter;
 	}
 	
 	/**
