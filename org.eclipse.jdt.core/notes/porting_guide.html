@@ -10,25 +10,28 @@
 <p>Last modified 13:40 CET November 18, 2003</p>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
 <ul>
-  <li>Prior to 3.0, <code>IWorkingCopy</code> gathered all working copy concerns, and <code>ICompilationUnit</code> 
+	<li>Prior to 3.0, <code>IWorkingCopy</code> gathered all working copy concerns, and <code>ICompilationUnit</code> 
   		implemented this interface. However, though only the factory method made sense for compilation units, they still had to implement
   		the entire working copy contract., which was not relevant to clients (implementation detail).
-        <code>IWorkingCopy</code> also implemented the spec'ed factory method, but it didn't work for these.</li>
-   <li>Interface <code>IWorkingCopy</code> is removed and all its functionality is moved to <code>ICompilationUnit</code>.</li>
-   <li>Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can adapt to this change by referencing <code>ICompilationUnit</code> instead of 
+        <code>IWorkingCopy</code> also implemented the spec'ed factory method, but it didn't work for these.
+	</li>
+	<li>Interface <code>IWorkingCopy</code> is removed and all its functionality is merged into <code>ICompilationUnit</code>. 
+		This allows to better close the gap in between resource based compilation units and working copies (need to detail).
+	</li>
+	<li>Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can adapt to this change by referencing <code>ICompilationUnit</code> instead of 
          <code>IWorkingCopy</code> when a working copy is needed. For example:
          <pre>
          ICompilationUnit compilationUnit = ...;
          IWorkingCopy workingCopy = (IWorkingCopy)compilationUnit.getWorkingCopy();
          workingCopy.reconcile(true/*force problem detection*/, null/*no progress monitor*/);
          </pre>
-         should now be:
+         should be converted into:
          <pre>
          ICompilationUnit compilationUnit = ...;
          ICompilationUnit workingCopy = compilationUnit.getWorkingCopy(null/*no progress monitor*/);
          workingCopy.reconcile(true/*force problem detection*/, null/*no progress monitor*/);
          </pre>
-         </li>
+	</li>
 </ul>
 
 </body>
