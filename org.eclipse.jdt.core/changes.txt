@@ -110,7 +110,6 @@ STREAM: 2.0
   1GK2AWS: ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
   1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
-  1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
   1GHW0G1: ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
   1GHW0DF: ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
       
@@ -122,10 +121,14 @@ STREAM: 2.0
   ================================================================================
   * New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)
   	i.e. 2 more APIs on the AST visitor.
+	Note: this was not an official API
+  * ISourceElementRequestor notifies enter/exit initializers instead of just acceptInitializer.
+	Note: this was not an official API
   * Search in inner-classes now works. Indexes are recomputed automatically on start-up.
   	
   PRs Fixed in this Release
   ================================================================================
+  1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
   1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class
   1G4TNX1: ITPJCORE:WINNT - Search - No search anonymous results in inner classes
   1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
