@@ -7286,4 +7286,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"");
 	}		
+	public void test267() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	static void foo(X<?> xany) { \n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo(new X<Object[]>());\n" + 
+				"	}\n" + 
+				"}\n"	
+			},
+			"SUCCESS");
+	}		
+	
 }
