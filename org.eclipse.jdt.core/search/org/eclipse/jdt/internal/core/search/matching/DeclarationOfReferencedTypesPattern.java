@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
@@ -134,8 +135,11 @@ private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocato
 			if (isBinary) {
 				locator.reportBinaryMatch(resource, type, info, IJavaSearchResultCollector.EXACT_MATCH);
 			} else {
-				TypeDeclaration typeDecl = ((SourceTypeBinding)typeBinding).scope.referenceContext;
-				locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, IJavaSearchResultCollector.EXACT_MATCH);
+				ClassScope scope = ((SourceTypeBinding)typeBinding).scope;
+				if (scope != null) {
+					TypeDeclaration typeDecl = scope.referenceContext;
+					locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, IJavaSearchResultCollector.EXACT_MATCH);
+				}
 			}
 			this.knownTypes.add(type);
 		}

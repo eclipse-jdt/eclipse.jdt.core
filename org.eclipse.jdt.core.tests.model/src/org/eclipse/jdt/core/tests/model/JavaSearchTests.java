@@ -330,6 +330,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes4"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes5"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes6"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes7"));
 	
 	// declarations of sent messages
 	suite.addTest(new JavaSearchTests("testSimpleDeclarationsOfSentMessages"));
@@ -700,6 +701,23 @@ public void testDeclarationOfReferencedTypes6() throws CoreException {
 	);
 	assertEquals(
 		"src/d2/Y.java d2.Y [Y]", 
+		resultCollector.toString());
+}
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 37438 searchenging NPE in searchDeclarationsOfReferencedTypes 
+)
+ */
+public void testDeclarationOfReferencedTypes7() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().searchDeclarationsOfReferencedTypes(
+		getWorkspace(), 
+		pkg,
+		resultCollector
+	);
+	assertEquals(
+		"", 
 		resultCollector.toString());
 }
 
