@@ -406,7 +406,7 @@ public abstract class Scope
 			int currentLength = currentMethods.length;
 			if (currentLength == 1) {
 				matchingMethod = currentMethods[0];
-			} else if (currentLength > 0) {
+			} else if (currentLength > 1) {
 				found.addAll(currentMethods);
 			}
 			matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
