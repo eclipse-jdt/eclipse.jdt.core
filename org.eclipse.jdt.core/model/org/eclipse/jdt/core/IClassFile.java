@@ -3,6 +3,7 @@ package org.eclipse.jdt.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.*;
 
 /**
@@ -50,6 +51,28 @@ IJavaElement getElementAt(int position) throws JavaModelException;
  *      exception occurs while accessing its corresponding resource
  */
 IType getType() throws JavaModelException;
+/**
+ * Returns a working copy on the source associated with this class file using the given 
+ * factory to create the buffer, or <code>null</code> if there is no source associated
+ * with the class file.
+ * <p>
+ * The buffer will be automatically initialized with the source of the class file
+ * upon creation.
+ * <p>
+ * The only valid operation on this working copy is <code>getBuffer()</code>.
+ *
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
+ *                 or <code>null</code> if no progress should be reported 
+ * @param factory the factory that creates a buffer that is used to get the content of the working copy
+ *                 or <code>null</code> if the internal factory should be used
+ * @exception JavaModelException if the source of this class file can
+ *   not be determined. Reasons include:
+ * <ul>
+ * <li> This class file does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 2.0
+ */
+IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**
  * Returns whether this type represents a class. This is not guaranteed to be
  * instantaneous, as it may require parsing the underlying file.

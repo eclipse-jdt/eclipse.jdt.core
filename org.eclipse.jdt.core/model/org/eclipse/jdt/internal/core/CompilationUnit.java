@@ -185,6 +185,12 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return false;
 }
 /**
+ * @see IWorkingCopy
+ */
+public IJavaElement findSharedWorkingCopy() {
+	return (IJavaElement)JavaModelManager.getJavaModelManager().sharedWorkingCopies.get(this);
+}
+/**
  * @see Openable
  */
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
@@ -310,6 +316,8 @@ public IImportDeclaration getImport(String name) {
 public IImportContainer getImportContainer() {
 	return new ImportContainer(this);
 }
+
+
 /**
  * @see ICompilationUnit
  */
@@ -405,39 +413,40 @@ public IType[] getTypes() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement getWorkingCopy() throws JavaModelException {
-	return this.getWorkingCopy(null, null, false);
-}
-/**
- * @see IWorkingCopy
- */
-public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, boolean isManaged) throws JavaModelException {
-	WorkingCopy workingCopy;
-	Map managedWorkingCopies = null;
-	JavaModelManager manager = null;
-	if (isManaged) {
-		manager = JavaModelManager.getJavaModelManager();
-		managedWorkingCopies = manager.managedWorkingCopies;
-		workingCopy = (WorkingCopy)managedWorkingCopies.get(this);
-		if (workingCopy != null) {
-			workingCopy.managedCount++;
-			return workingCopy;
-		}
-	}
-	workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
-	// open the working copy now to ensure contents are that of the current state of this element
-	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
-	workingCopy.open(pm, buffer);
-	if (isManaged) {
-		managedWorkingCopies.put(this, workingCopy);
+public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	Map sharedWorkingCopies = manager.sharedWorkingCopies;
+	WorkingCopy workingCopy = (WorkingCopy)sharedWorkingCopies.get(this);
+	if (workingCopy != null) {
+		workingCopy.useCount++;
+		return workingCopy;
+	} else {
+		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory);
+		sharedWorkingCopies.put(this, workingCopy);
 
 		// report added java delta
 		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
 		delta.added(workingCopy);
 		manager.registerJavaModelDelta(delta);
 		manager.fire();
-		
+
+		return workingCopy;
 	}
+}
+/**
+ * @see IWorkingCopy
+ */
+public IJavaElement getWorkingCopy() throws JavaModelException {
+	return this.getWorkingCopy(null, null);
+}
+/**
+ * @see IWorkingCopy
+ */
+public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
+	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
+	// open the working copy now to ensure contents are that of the current state of this element
+	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
+	workingCopy.open(pm, buffer);
 	return workingCopy;
 }
 /**
@@ -457,12 +466,6 @@ public boolean hasChildren() throws JavaModelException {
 	} else {
 		return true;
 	}
-}
-/**
- * @see IWorkingCopy#hasManagedWorkingCopy
- */
-public boolean hasManagedWorkingCopy() {
-	return JavaModelManager.getJavaModelManager().managedWorkingCopies.get(this) != null;
 }
 /**
  * Returns false, this is not a working copy.

@@ -288,13 +288,13 @@ public IType getType() throws JavaModelException {
 	return fBinaryType;
 }
 /**
- * 
+ * @see IClassFile
  */
-public WorkingCopy getWorkingCopy() {
-	String name = getElementName();
-	name = name.substring(0, name.length() - 6); // remove ".class"
-	name = name + ".java"; //$NON-NLS-1$
-	return new WorkingCopy((IPackageFragment) getParent(), name, null);
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+	ClassFileWorkingCopy workingCopy = new ClassFileWorkingCopy();
+	IBuffer buffer = factory == null ? this.getBuffer() : factory.createBuffer(workingCopy);
+	workingCopy.buffer = buffer;
+	return workingCopy;
 }
 /**
  * @see Openable

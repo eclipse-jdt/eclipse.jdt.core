@@ -326,9 +326,9 @@ public static IJavaElement determineIfOnClasspath(
 	
 	/**
 	 * A map from ICompilationUnit to IWorkingCopy
-	 * of the managed working copies.
+	 * of the shared working copies.
 	 */
-	protected Map managedWorkingCopies = new HashMap();
+	protected Map sharedWorkingCopies = new HashMap();
 
 	static class PerProjectInfo {
 		IProject project;
