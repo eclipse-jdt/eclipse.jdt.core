@@ -89,7 +89,6 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int lParenPos,rParenPos; //accurate only when used !
 	//modifiers dimensions nestedType etc.......
 	protected boolean optimizeStringLiterals =true;
-	public boolean keepEmptyStatement;
 	protected int modifiers;
 	protected int modifiersSourceStart;
 	protected int nestedType, dimensions;
@@ -921,8 +920,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 		
 	this.problemReporter = problemReporter;
 	this.options = problemReporter.options;
-	// by default will treat empty statements according to compliance setting (can be toggled independantly, e.g. DOM)
-	this.keepEmptyStatement = this.options.complianceLevel >= CompilerOptions.JDK1_4;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	this.initializeScanner();
 	astLengthStack = new int[50];
@@ -2468,16 +2465,12 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyStatement() {
-	if (!this.keepEmptyStatement) {
-		pushOnAstLengthStack(0); // empty statements can be silently ignored
+	// EmptyStatement ::= ';'
+	if (this.scanner.source[endStatementPosition] == ';') {
+		pushOnAstStack(new EmptyStatement(endStatementPosition, endStatementPosition));
 	} else {
-		// EmptyStatement ::= ';'
-		if (this.scanner.source[endStatementPosition] == ';') {
-			pushOnAstStack(new EmptyStatement(endStatementPosition, endStatementPosition));
-		} else {
-			// we have a Unicode for the ';' (/u003B)
-			pushOnAstStack(new EmptyStatement(endStatementPosition - 5, endStatementPosition));
-		}
+		// we have a Unicode for the ';' (/u003B)
+		pushOnAstStack(new EmptyStatement(endStatementPosition - 5, endStatementPosition));
 	}
 }
 protected void consumeEmptySwitchBlock() {
@@ -4515,26 +4508,14 @@ protected void consumeStatementDo() {
 	//the 'while' pushes a value on intStack that we need to remove
 	intPtr--;
 
-	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) { // silent empty statement
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
-			new DoStatement(
-				expressionStack[expressionPtr--], 
-				null, 
-				intStack[intPtr--], 
-				endPosition); 
-	} else {
-		Statement statement = (Statement) astStack[astPtr];
-		expressionLengthPtr--;
-		astStack[astPtr] = 
-			new DoStatement(
-				expressionStack[expressionPtr--], 
-				statement, 
-				intStack[intPtr--], 
-				endPosition); 
-	}
+	Statement statement = (Statement) astStack[astPtr];
+	expressionLengthPtr--;
+	astStack[astPtr] = 
+		new DoStatement(
+			expressionStack[expressionPtr--], 
+			statement, 
+			intStack[intPtr--], 
+			endPosition); 
 }
 protected void consumeStatementExpressionList() {
 	// StatementExpressionList ::= StatementExpressionList ',' StatementExpression
@@ -4547,15 +4528,11 @@ protected void consumeStatementFor() {
 	int length;
 	Expression cond = null;
 	Statement[] inits, updates;
-	Statement statement;
 	boolean scope = true;
 
 	//statements
-	if (astLengthStack[astLengthPtr--] != 0) { // silent empty statement
-		statement = (Statement) astStack[astPtr--];
-	} else {
-		statement = null;
-	}	
+	astLengthPtr--;
+	Statement statement = (Statement) astStack[astPtr--];
 
 	//updates are on the expresion stack
 	if ((length = expressionLengthStack[expressionLengthPtr--]) == 0) {
@@ -4613,23 +4590,13 @@ protected void consumeStatementIfNoElse() {
 
 	//optimize the push/pop
 	expressionLengthPtr--;
-	if (astLengthStack[astLengthPtr] == 0) { // silent empty statement
-		astLengthStack[astLengthPtr] = 1;
-		astStack[++astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				null, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	} else {
-		Statement thenStatement = (Statement) astStack[astPtr];
-		astStack[astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				thenStatement, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	}
+	Statement thenStatement = (Statement) astStack[astPtr];
+	astStack[astPtr] = 
+		new IfStatement(
+			expressionStack[expressionPtr--], 
+			thenStatement, 
+			intStack[intPtr--], 
+			endStatementPosition); 
 }
 protected void consumeStatementIfWithElse() {
 	// IfThenElseStatement ::=  'if' '(' Expression ')' StatementNoShortIf 'else' Statement
@@ -4638,51 +4605,29 @@ protected void consumeStatementIfWithElse() {
 	expressionLengthPtr--;
 
 	// optimized {..., Then, Else } ==> {..., If }
-	int elseLength = astLengthStack[astLengthPtr--];
-	int thenLength = astLengthStack[astLengthPtr];
+	astLengthPtr--;
 
-	if (thenLength != 0 && elseLength != 0) { // silent empty statement (length==0)
-		//optimize the push/pop
-		astStack[--astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
-				(Statement) astStack[astPtr + 1], 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	} else {
-		astLengthPtr--; //second decrement
-		pushOnAstStack(
-			new IfStatement(expressionStack[expressionPtr--],
-				//here only one of then/else length can be different 0
-				(thenLength == 0) ? null : (Statement) astStack[astPtr--], 
-				(elseLength == 0) ? null : (Statement) astStack[astPtr--], 
-				intStack[intPtr--], 
-				endStatementPosition)); 
-	}
+	//optimize the push/pop
+	astStack[--astPtr] = 
+		new IfStatement(
+			expressionStack[expressionPtr--], 
+			(Statement) astStack[astPtr], 
+			(Statement) astStack[astPtr + 1], 
+			intStack[intPtr--], 
+			endStatementPosition); 
 }
 protected void consumeStatementLabel() {
 	// LabeledStatement ::= 'Identifier' ':' Statement
 	// LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
 
 	//optimize push/pop
-	if (astLengthStack[astLengthPtr] == 0) { // silent empty statement
-		astLengthStack[astLengthPtr] = 1;
-		astStack[++astPtr] = 
-			new LabeledStatement(
-				identifierStack[identifierPtr], 
-				null, 
-				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
-				endStatementPosition); 
-	} else {
-		Statement stmt = (Statement) astStack[astPtr];
-		astStack[astPtr] = 
-			new LabeledStatement(
-				identifierStack[identifierPtr], 
-				stmt, 
-				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
-				endStatementPosition); 
-	}
+	Statement stmt = (Statement) astStack[astPtr];
+	astStack[astPtr] = 
+		new LabeledStatement(
+			identifierStack[identifierPtr], 
+			stmt, 
+			(int) (identifierPositionStack[identifierPtr--] >>> 32), 
+			endStatementPosition); 
 	identifierLengthPtr--;
 }
 protected void consumeStatementReturn() {
@@ -4794,23 +4739,15 @@ protected void consumeStatementWhile() {
 	// WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
 
 	expressionLengthPtr--;
-	if (astLengthStack[astLengthPtr] == 0) { // silent empty statement
-		astLengthStack[astLengthPtr] = 1;
-		astStack[++astPtr] = 
-			new WhileStatement(
-				expressionStack[expressionPtr--], 
-				null,
-				intStack[intPtr--], 
-				endPosition); 
-	} else {
-		Statement statement = (Statement) astStack[astPtr];
-		astStack[astPtr] = 
-			new WhileStatement(
-				expressionStack[expressionPtr--], 
-				statement, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	}
+	Statement statement = (Statement) astStack[astPtr];
+	astStack[astPtr] = 
+		new WhileStatement(
+			expressionStack[expressionPtr--], 
+			statement, 
+			intStack[intPtr--], 
+			statement instanceof Block // TODO (olivier) why isn't it all the time 'endStatementPosition' ? (similar to FOR loop)
+				? endStatementPosition
+				: endPosition); 
 }
 protected void consumeStaticInitializer() {
 	// StaticInitializer ::=  StaticOnly Block

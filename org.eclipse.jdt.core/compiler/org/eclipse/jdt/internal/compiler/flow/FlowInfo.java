@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
@@ -32,12 +30,6 @@ public abstract class FlowInfo {
 	public FlowInfo asNegatedCondition() {
 
 		return this;
-	}
-
-	public boolean complainIfUnreachable(Statement statement, BlockScope scope, boolean didAlreadyComplain) {
-
-		// Report an error if necessary
-		return false;
 	}
 
 	public static FlowInfo conditional(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){

@@ -26,6 +26,20 @@ public abstract class Statement extends AstNode {
 	
 	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 	
+		// Report an error if necessary
+	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
+	
+		if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0) {
+			this.bits &= ~AstNode.IsReachableMASK;
+			boolean reported = flowInfo == FlowInfo.DEAD_END;
+			if (!didAlreadyComplain && reported) {
+				scope.problemReporter().unreachableCode(this);
+			}
+			return reported; // keep going for fake reachable
+		}
+		return false;
+	}
+	
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
 	
 	public boolean isEmptyBlock() {

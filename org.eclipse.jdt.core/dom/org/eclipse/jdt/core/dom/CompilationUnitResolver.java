@@ -73,7 +73,6 @@ class CompilationUnitResolver extends Compiler {
 		IProblemFactory problemFactory) {
 
 		super(environment, policy, settings, requestor, problemFactory, false);
-		this.parser.keepEmptyStatement = true;
 	}
 
 	/**
@@ -190,7 +189,6 @@ class CompilationUnitResolver extends Compiler {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault())),
 				false);
-		parser.keepEmptyStatement = true; // special mode for DOM
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 

@@ -35,8 +35,8 @@ public class Block extends Statement {
 		if (statements == null)	return flowInfo;
 		boolean didAlreadyComplain = false;
 		for (int i = 0, max = statements.length; i < max; i++) {
-			Statement stat;
-			if (!flowInfo.complainIfUnreachable(stat = statements[i], scope, didAlreadyComplain)) {
+			Statement stat = statements[i];
+			if (!stat.complainIfUnreachable(flowInfo, scope, didAlreadyComplain)) {
 				flowInfo = stat.analyseCode(scope, flowContext, flowInfo);
 			} else {
 				didAlreadyComplain = true;

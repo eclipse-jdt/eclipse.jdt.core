@@ -67,7 +67,7 @@ public class SwitchStatement extends Statement {
 					caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
 					didAlreadyComplain = false; // reset complaint
 				}
-				if (!caseInits.complainIfUnreachable(statement, scope, didAlreadyComplain)) {
+				if (!statement.complainIfUnreachable(caseInits, scope, didAlreadyComplain)) {
 					caseInits = statement.analyseCode(scope, switchContext, caseInits);
 				} else {
 					didAlreadyComplain = true;

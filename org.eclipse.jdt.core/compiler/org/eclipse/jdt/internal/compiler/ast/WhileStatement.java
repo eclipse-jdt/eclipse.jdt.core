@@ -99,8 +99,8 @@ public class WhileStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(
 					postCondInfo.initsWhenTrue());
 
-			if (!actionInfo.complainIfUnreachable(action, currentScope, false)) {
-				actionInfo = action.analyseCode(currentScope, loopingContext, actionInfo);
+			if (!this.action.complainIfUnreachable(actionInfo, currentScope, false)) {
+				actionInfo = this.action.analyseCode(currentScope, loopingContext, actionInfo);
 			}
 
 			// code generation can be optimized when no need to continue in the loop

@@ -125,7 +125,7 @@ public class ForStatement extends Statement {
 						actionInfo.setReachMode(FlowInfo.UNREACHABLE);
 					}
 				}
-			if (!actionInfo.complainIfUnreachable(action, scope, false)) {
+			if (!this.action.complainIfUnreachable(actionInfo, scope, false)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
 			}
 

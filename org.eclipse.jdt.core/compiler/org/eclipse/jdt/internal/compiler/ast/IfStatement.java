@@ -79,7 +79,7 @@ public class IfStatement extends Statement {
 			// Save info for code gen
 			thenInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(thenFlowInfo);
-			if (!thenFlowInfo.complainIfUnreachable(thenStatement, currentScope, false)) {
+			if (!thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, false)) {
 				thenFlowInfo =
 					thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 			}
@@ -96,7 +96,7 @@ public class IfStatement extends Statement {
 			// Save info for code gen
 			elseInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(elseFlowInfo);
-			if (!elseFlowInfo.complainIfUnreachable(elseStatement, currentScope, false)) {
+			if (!elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, false)) {
 				elseFlowInfo =
 					elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 			}

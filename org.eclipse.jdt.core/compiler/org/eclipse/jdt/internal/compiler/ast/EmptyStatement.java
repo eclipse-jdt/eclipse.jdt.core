@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -27,6 +28,16 @@ public class EmptyStatement extends Statement {
 		return flowInfo;
 	}
 
+	// Report an error if necessary
+	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
+		
+		// before 1.4, empty statements are tolerated anywhere
+		if (scope.environment().options.complianceLevel < ClassFileConstants.JDK1_4) {
+			return false;
+		}
+		return super.complainIfUnreachable(flowInfo, scope, didAlreadyComplain);
+	}
+	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream){
 		// no bytecode, no need to check for reachability or recording source positions
 	}

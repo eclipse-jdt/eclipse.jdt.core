@@ -65,8 +65,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (statements != null) {
 				boolean didAlreadyComplain = false;
 				for (int i = 0, count = statements.length; i < count; i++) {
-					Statement stat;
-					if (!flowInfo.complainIfUnreachable((stat = statements[i]), scope, didAlreadyComplain)) {
+					Statement stat = statements[i];
+					if (!stat.complainIfUnreachable(flowInfo, scope, didAlreadyComplain)) {
 						flowInfo = stat.analyseCode(scope, methodContext, flowInfo);
 					} else {
 						didAlreadyComplain = true;

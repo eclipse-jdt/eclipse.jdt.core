@@ -26,8 +26,6 @@ public class CodeFormatterParser extends Parser {
 			ProblemReporter problemReporter,
 			boolean optimizeStringLiterals) {
 		super(problemReporter, optimizeStringLiterals);
-	
-		this.keepEmptyStatement = true;
 	}
 
 	public Expression parseExpression(char[] source, CompilationUnitDeclaration unit) {
