@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -79,8 +80,24 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 	
 	AST ast = this.cuAST.getAST();
 	ImportDeclaration importDeclaration = ast.newImportDeclaration();
-	Name name = ast.newName(new String[] {this.importName});
+	// split import name into individual fragments
+	char[][] charFragments = CharOperation.splitOn('.', this.importName.toCharArray());
+	int length = charFragments.length;
+	// check whether on demand
+	boolean onDemand;
+	if (charFragments[length-1].length == 1 && charFragments[length-1][0] == '*') {
+		onDemand = true;
+		length--;
+	} else {
+		onDemand = false;
+	}
+	String[] strFragments = new String[length];
+	for (int i = 0; i < length; i++) {
+		strFragments[i] = String.valueOf(charFragments[i]);
+	}
+	Name name = ast.newName(strFragments);
 	importDeclaration.setName(name);
+	if (onDemand) importDeclaration.setOnDemand(true);
 	return importDeclaration;
 }
 /**
