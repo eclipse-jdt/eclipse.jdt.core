@@ -86,18 +86,19 @@ public class ASTRewrite {
 	 * the given AST.
 	 * 
 	 * @param ast the AST whose nodes will be rewritten
+	 * @return the new rewriter instance
 	 */
 	public static ASTRewrite create(AST ast) {
 		return new ASTRewrite(ast);
 	}
 
 	/**
-	 * Creates a new instance for the given AST.
+	 * Internal constructor. Creates a new instance for the given AST.
+	 * Clients should use {@link #create(AST)} to create instances.
 	 * 
 	 * @param ast the AST being rewritten
-	 * @see #create(AST)
 	 */
-	private ASTRewrite(AST ast) {
+	protected ASTRewrite(AST ast) {
 		this.ast= ast;
 		this.eventStore= new RewriteEventStore();
 		this.nodeStore= new NodeInfoStore(ast);
@@ -112,11 +113,19 @@ public class ASTRewrite {
 		return this.ast;
 	}
 			
-	/* package */ final RewriteEventStore getRewriteEventStore() {
+	/**
+	 * Internal method. Returns the internal event store.
+	 * Clients should not use.
+	 */
+	protected RewriteEventStore getRewriteEventStore() {
 		return this.eventStore;
 	}
 	
-	/* package */ final NodeInfoStore getNodeStore() {
+	/**
+	 * Internal method. Returns the internal node info store.
+	 * Clients should not use.
+	 */
+	protected NodeInfoStore getNodeStore() {
 		return this.nodeStore;
 	}
 	
