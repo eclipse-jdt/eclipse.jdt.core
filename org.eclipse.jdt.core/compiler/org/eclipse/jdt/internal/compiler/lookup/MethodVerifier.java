@@ -95,8 +95,16 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType()
 			&& isSameOrSubTypeOf(currentMethod.returnType, inheritedMethod.returnType);
 		if (!addBridgeMethod && !areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
-			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-			continue nextMethod;
+			// can be [] of Class#RAW vs. Class<T>
+			if (!areReturnTypeErasuresEqual(currentMethod, inheritedMethod)) {
+				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+				continue nextMethod;
+			} else if (inheritedMethod.typeVariables.length > currentMethod.typeVariables.length) {
+				// TODO (kent) work to do on this case
+				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+//				this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
+				continue nextMethod;
+			}
 		}
 
 		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
@@ -314,7 +322,7 @@ private void computeInheritedMethods() {
 	ReferenceBinding superType = this.type.isClass()
 		? this.type.superclass()
 		: this.type.scope.getJavaLangObject(); // check interface methods against Object
-	MethodBinding[] nonVisibleDefaultMethods = null;
+	MethodBinding[] nonVisibleDefaultMethods = null; // TODO (kent) should make this a lookup table keyed by selector
 	int nonVisibleCount = 0;
 
 	while (superType != null) {

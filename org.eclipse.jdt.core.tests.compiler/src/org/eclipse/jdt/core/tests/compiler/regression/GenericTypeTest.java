@@ -4209,7 +4209,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}		
 	// method compatibility
-	// TODO (kent) need to improve error message
+	// TODO (kent) name clash: toArray(java.lang.Object[]) in X and <T>toArray(T[]) in java.util.Collection<java.lang.Object> have the same erasure, yet neither overrides the other
 	public void test149() {
 		this.runNegativeTest(
 			new String[] {
