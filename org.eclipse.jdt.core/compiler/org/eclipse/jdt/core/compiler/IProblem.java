@@ -545,7 +545,7 @@ public interface IProblem {
 	int IllegalModifierForMemberClass = TypeRelated + 304;
 	int IllegalModifierForMemberInterface = TypeRelated + 305;
 	int IllegalModifierForLocalClass = TypeRelated + 306;
-
+	int ForbiddenReference = TypeRelated + 307;
 	int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
 	int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
 	int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
@@ -928,7 +928,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int IllegalClassLiteralForTypeVariable = TypeRelated + 558;
 	/** @since 3.1 */
-	int ReturnTypeUncheckedConversion = MethodRelated + 559;
+	int UnsafeReturnTypeOverride = MethodRelated + 559;
 	/** @since 3.1 */
 	int MethodNameClash = MethodRelated + 560;
 	/** @since 3.1 */

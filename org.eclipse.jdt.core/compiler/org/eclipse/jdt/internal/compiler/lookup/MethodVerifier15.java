@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 
 class MethodVerifier15 extends MethodVerifier {
 
@@ -78,10 +79,10 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 					continue nextMethod;
 				}
 			} else if (inheritedReturnType.isParameterizedType()) {
-				if (!returnType.isParameterizedType())
-					this.problemReporter(currentMethod).returnTypeUncheckedConversion(currentMethod, inheritedMethod);
+				if (!returnType.isParameterizedType()) 
+					this.problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, ((MethodDeclaration)currentMethod.sourceMethod()).returnType);
 			} else if (inheritedReturnType.isTypeVariable()) {
-				this.problemReporter(currentMethod).returnTypeUncheckedConversion(currentMethod, inheritedMethod);
+				this.problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod,  ((MethodDeclaration)currentMethod.sourceMethod()).returnType);
 			}
 			addBridgeMethod = true;
 		}

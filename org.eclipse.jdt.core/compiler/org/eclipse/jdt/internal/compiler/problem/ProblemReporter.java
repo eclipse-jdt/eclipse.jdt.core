@@ -517,16 +517,17 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawConversion:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
+		case IProblem.UnsafeReturnTypeOverride:
 			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
-
-		case IProblem.ReturnTypeUncheckedConversion:
-			return Warning;
 
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
 		case IProblem.MissingSerialVersion:
 			return this.options.getSeverity(CompilerOptions.MissingSerialVersion);
+		
+		case IProblem.ForbiddenReference:
+			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 		
 		/*
 		 * Javadoc syntax errors
@@ -1043,6 +1044,15 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		new String[] { new String(typeVariable.sourceName), new String(typeRef.resolvedType.shortReadableName())},
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
+}
+public void forbiddenReference(TypeBinding type, ASTNode location, String visibilityRuleOwner) {
+	if (location == null) return; 
+	this.handle(
+		IProblem.ForbiddenReference,
+		new String[] {new String(type.readableName()), visibilityRuleOwner},
+		new String[] {new String(type.shortReadableName()), visibilityRuleOwner},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void forwardReference(Reference reference, int indexInQualification, TypeBinding type) {
 	this.handle(
@@ -2994,26 +3004,27 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 	}
 }
 public void methodNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	StringBuffer methodSignature = new StringBuffer();
-	methodSignature
-		.append(inheritedMethod.declaringClass.readableName())
-		.append('.')
-		.append(inheritedMethod.readableName());
 
-	StringBuffer shortSignature = new StringBuffer();
-	shortSignature
-		.append(inheritedMethod.declaringClass.shortReadableName())
-		.append('.')
-		.append(inheritedMethod.shortReadableName());
-
-	int id = IProblem.MethodNameClash;
 	this.handle(
-		id,
-		new String[] {methodSignature.toString()},
-		new String[] {shortSignature.toString()},
-		currentMethod.sourceStart(),
-		currentMethod.sourceEnd());
-}
+			IProblem.MethodNameClash,
+			new String[] {
+				new String(currentMethod.selector),
+				parametersAsString(currentMethod.original().parameters, false),
+				new String(currentMethod.declaringClass.readableName()),
+				parametersAsString(inheritedMethod.original().parameters, false),
+				new String(inheritedMethod.declaringClass.readableName()),
+			 }, 
+			new String[] {
+				new String(currentMethod.selector),
+				parametersAsString(currentMethod.original().parameters, true),
+				new String(currentMethod.declaringClass.shortReadableName()),
+				parametersAsString(inheritedMethod.original().parameters, true),
+				new String(inheritedMethod.declaringClass.shortReadableName()),
+			 }, 
+			currentMethod.sourceStart(),
+			currentMethod.sourceEnd());
+}	
+
 public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,
@@ -3808,27 +3819,7 @@ public void returnTypeCannotBeVoidArray(SourceTypeBinding type, MethodDeclaratio
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void returnTypeUncheckedConversion(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	StringBuffer methodSignature = new StringBuffer();
-	methodSignature
-		.append(inheritedMethod.declaringClass.readableName())
-		.append('.')
-		.append(inheritedMethod.readableName());
 
-	StringBuffer shortSignature = new StringBuffer();
-	shortSignature
-		.append(inheritedMethod.declaringClass.shortReadableName())
-		.append('.')
-		.append(inheritedMethod.shortReadableName());
-
-	int id = IProblem.ReturnTypeUncheckedConversion;
-	this.handle(
-		id,
-		new String[] {methodSignature.toString()},
-		new String[] {shortSignature.toString()},
-		currentMethod.sourceStart(),
-		currentMethod.sourceEnd());
-}
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;
 
@@ -4383,6 +4374,29 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 			location.sourceStart,
 			location.sourceEnd);    
     }
+}
+public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod, ASTNode location) {
+	
+	this.handle(
+			IProblem.UnsafeReturnTypeOverride,
+			new String[] {
+				new String(currentMethod.returnType.readableName()),
+				new String(currentMethod.selector),
+				parametersAsString(currentMethod.original().parameters, false),
+				new String(currentMethod.declaringClass.readableName()),
+				new String(inheritedMethod.returnType.readableName()),
+				//new String(inheritedMethod.returnType.erasure().readableName()),
+			 }, 
+			new String[] {
+				new String(currentMethod.returnType.shortReadableName()),
+				new String(currentMethod.selector),
+				parametersAsString(currentMethod.original().parameters, true),
+				new String(currentMethod.declaringClass.shortReadableName()),
+				new String(inheritedMethod.returnType.shortReadableName()),
+				//new String(inheritedMethod.returnType.erasure().shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 

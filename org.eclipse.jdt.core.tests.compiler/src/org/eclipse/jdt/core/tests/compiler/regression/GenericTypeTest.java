@@ -4226,8 +4226,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Object[] toArray(Object[] a) {\n" + 
-			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
-			"return type needs unchecked conversion from Collection<Object>.toArray(T[])\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Unsafe type operation: The return type Object[] of the method toArray(Object[]) of type X needs unchecked conversion to conform to the return type T[] of inherited method\n" + 
 			"----------\n");
 	}			
 	public void test150() {
@@ -7433,7 +7433,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	public List<String> useList(List<String> l) {\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"name clash : has the same erasure as X.useList(List) but does not override it\n" + 
+			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
 	// 71241 - variation
@@ -7458,8 +7458,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
-			"	            ^^^^^^^^^^^^^^^\n" + 
-			"return type needs unchecked conversion from X.useList(List<String>)\n" + 
+			"	       ^^^^\n" + 
+			"Unsafe type operation: The return type List of the method useList(List) of type Y needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	l.add(\"asdf\");\n" + 
@@ -7486,7 +7486,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	public void useList(List<String> l) {\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"name clash : has the same erasure as X.useList(List) but does not override it\n" + 
+			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
 	// 71241 - variation
@@ -7544,8 +7544,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Class getSomething() { return null; }\n" + 
-			"	             ^^^^^^^^^^^^^^\n" + 
-			"return type needs unchecked conversion from ISomething.getSomething()\n" + 
+			"	       ^^^^^\n" + 
+			"Unsafe type operation: The return type Class of the method getSomething() of type X needs unchecked conversion to conform to the return type Class<? extends Y> of inherited method\n" + 
 			"----------\n");
 	}
 	// 62822
@@ -7821,5 +7821,36 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"	
 			},
 			"");
-	}		
+	}
+	// 73837
+	public void test293() {
+		this.runConformTest(
+			new String[] {
+				"B.java", //---------------------------
+				"public class B<X>{\n"+
+				"    public B(X str,D dValue){}\n"+
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"	,
+				"D.java", //---------------------------
+				"public class D<Y>{}\n",
+			},
+			"SUCCESS");
+
+		this.runConformTest(
+			new String[] {
+				"C.java", //---------------------------
+				"public class C<Z,Y> {\n" + 
+				"    public B<Z> test(Z zValue,D<Y> yValue){ return new B<Z>(zValue,yValue); }\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false, // do not flush output
+			null);		
+	}			
 }
