@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.PerThreadObject;
 
 /**
  * A <code>NameLookup</code> provides name resolution within a Java project.
@@ -85,7 +86,7 @@ public class NameLookup {
 	 * Allows working copies to take precedence over compilation units.
 	 * The cache is a 2-level cache, first keyed by thread.
 	 */
-	protected HashMap unitsToLookInside = new HashMap();
+	protected PerThreadObject unitsToLookInside = new PerThreadObject();
 
 	public NameLookup(IJavaProject project) throws JavaModelException {
 		configureFromProject(project);
@@ -654,14 +655,11 @@ public class NameLookup {
 			
 			// unit to look inside
 			ICompilationUnit unitToLookInside = null;
-			Map workingCopies = (Map)this.unitsToLookInside.get(Thread.currentThread());
-			if (workingCopies != null) {
-				unitToLookInside = (ICompilationUnit)workingCopies.get(compilationUnit);
-				if (unitToLookInside != null) {
-					compilationUnit = unitToLookInside;
-				}
-			}
-			
+			Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
+			if (workingCopies != null 
+					&& (unitToLookInside = (ICompilationUnit)workingCopies.get(compilationUnit)) != null){
+				compilationUnit = unitToLookInside;
+			}			
 			if ((unitToLookInside != null && !potentialMemberType) || nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
@@ -706,14 +704,11 @@ public class NameLookup {
  */
 public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
 	
-	Thread currentThread = Thread.currentThread();
-	if (unitsToLookInside == null) {
-		this.unitsToLookInside.put(currentThread, null);
+	if (unitsToLookInside == null) { 
+		this.unitsToLookInside.setCurrent(null); 
 	} else {
-		Map workingCopies = (Map)this.unitsToLookInside.get(currentThread);
-		if (workingCopies == null){
-			this.unitsToLookInside.put(currentThread, workingCopies = new HashMap());
-		}
+		HashMap workingCopies = new HashMap();
+		this.unitsToLookInside.setCurrent(workingCopies);
 		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
 			IWorkingCopy unitToLookInside = unitsToLookInside[i];
 			ICompilationUnit original = (ICompilationUnit)unitToLookInside.getOriginalElement();
