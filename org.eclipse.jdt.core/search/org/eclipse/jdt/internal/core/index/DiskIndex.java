@@ -419,7 +419,7 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 	File newIndexFile = newDiskIndex.getIndexFile();
 	try {
 		newDiskIndex.initializeFrom(this, newIndexFile);
-		DataOutputStream stream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(newIndexFile, false)));
+		DataOutputStream stream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(newIndexFile, false), 2048));
 		int offsetToHeader = -1;
 		try {
 			newDiskIndex.writeAllDocumentNames(docNames, stream);
@@ -476,7 +476,7 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 	if (this.numberOfChunks <= 0)
 		return new String[0];
 
-	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile())));
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 	try {
 		stream.skip(this.chunkOffsets[0]);
 		int lastIndex = this.numberOfChunks - 1;
@@ -502,7 +502,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 			return cachedTable;
 	}
 
-	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile())));
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 	HashtableOfObject categoryTable = null;
 	char[][] matchingWords = null;
 	int count = 0;
@@ -533,7 +533,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 	}
 
 	if (count > 0) {
-		stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile())));
+		stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 		try {
 			stream.skip(firstOffset);
 			for (int i = 0; i < count; i++) // each array follows the previous one
@@ -593,7 +593,7 @@ synchronized String readDocumentName(int docNumber) throws IOException {
 	int chunkNumber = docNumber / CHUNK_SIZE;
 	String[] chunk = this.cachedChunks[chunkNumber];
 	if (chunk == null) {
-		DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile())));
+		DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 		try {
 			stream.skip(this.chunkOffsets[chunkNumber]);
 			int size = chunkNumber == this.numberOfChunks - 1 ? this.sizeOfLastChunk : CHUNK_SIZE;
@@ -611,7 +611,7 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 	if (arrayOffset instanceof int[])
 		return (int[]) arrayOffset;
 
-	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile())));
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 	try {
 		stream.skip(((Integer) arrayOffset).intValue());
 		return readDocumentArray(stream);
