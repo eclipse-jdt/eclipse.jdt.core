@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.core.internal.resources.RootInfo;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
