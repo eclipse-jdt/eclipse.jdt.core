@@ -86,11 +86,7 @@ public class AssertStatement extends Statement {
 			codeStream.dup();
 			if (exceptionArgument != null) {
 				exceptionArgument.generateCode(currentScope, codeStream, true);
-				if (exceptionArgument.constant != NotAConstant) {
-					codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.constant.typeID());
-				} else {
-					codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.implicitConversion & 0xF);
-				}
+				codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.implicitConversion & 0xF);
 			} else {
 				codeStream.invokeJavaLangAssertionErrorDefaultConstructor();
 			}
