@@ -36,7 +36,7 @@ public class JavadocTestMixed extends JavadocTest {
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] {
-//			"Bug68726conform1", "Bug68726conform2", "Bug68726negative1", "Bug68726negative2"
+//			"Bug73995"
 //		};
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
@@ -1771,7 +1771,7 @@ public class JavadocTestMixed extends JavadocTest {
 					"	 * 					IllegalAccessException\n" + 
 					"	 * @throws\n" + 
 					"	 * 					NullPointerException tag description not empty\n" + 
-					"	 * @return\n" + 
+					"	 * @return int\n" + 
 					"	 * 					an integer\n" + 
 					"	 * @see\n" + 
 					"	 * 			String\n" + 
@@ -3071,17 +3071,17 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	/**@return*/\n" + 
-				"	    ^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	/**@return        */\n" + 
-				"	    ^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	/**@return****/\n" + 
-				"	    ^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 9)\n" + 
@@ -3109,12 +3109,12 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return* */\n" + 
-				"	 	 ^^^^^^^\n" + 
+				"	 	 ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	/**@return** **/\n" + 
-				"	    ^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n"
 		);
@@ -3135,7 +3135,7 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return#\n" + 
-				"	 	 ^^^^^^^\n" + 
+				"	 	 ^^^^^^\n" + 
 				"Javadoc: Invalid tag\n" + 
 				"----------\n"
 		);
@@ -3723,4 +3723,89 @@ public class JavadocTestMixed extends JavadocTest {
 				"----------\n"
 		);
 	}
+
+	/**
+	 * Test fix for bug 73348: [Javadoc] Missing description for return tag is not always warned
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
+	 */
+	public void testBug73348conform() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	int\n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	int\n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			}
+		);
+	}
+	public void testBug73348negative() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return\n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	*	@return\n" + 
+				"	 	 ^^^^^^\n" + 
+				"Javadoc: Invalid tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	*	@return      \n" + 
+				"	 	 ^^^^^^\n" + 
+				"Javadoc: Invalid tag\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
+	 */
+	public void testBug73995() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return {@link Object}     \n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/** @return {@inheritedDoc} */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return\n" + 
+					"	 *		{@unknown_tag}\n" + 
+					"	 */\n" + 
+					"	public int foo3() {return 0; }\n" + 
+					"}\n",
+			}
+ 		);
+ 	}
 }

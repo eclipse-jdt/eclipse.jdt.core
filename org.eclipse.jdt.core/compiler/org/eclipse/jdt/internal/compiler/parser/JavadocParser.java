@@ -271,6 +271,7 @@ public class JavadocParser extends AbstractCommentParser {
 	protected boolean parseReturn() {
 		if (this.returnStatement == null) {
 			this.returnStatement = createReturnStatement();
+			this.returnTagPtr = this.astPtr;
 			return true;
 		}
 		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
@@ -370,7 +371,34 @@ public class JavadocParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
 	protected void pushText(int start, int end) {
-		// compiler does not matter of text
+		// In case of previous return tag, verify that text make it not empty
+		if (this.returnTagPtr != -2 && this.returnStatement != null) {
+			int position = this.index;
+			this.index = start;
+			boolean empty = true;
+			boolean star = false;
+			char ch = readChar();
+			// Look for first character other than white or '*'
+			if (Character.isWhitespace(ch) || start>(this.tagSourceEnd+1)) {
+				while (this.index <= end && empty) {
+					if (!star) {
+						empty = Character.isWhitespace(ch) || ch == '*';
+						star = ch == '*';
+					} else if (ch != '*') {
+						empty = false;
+						break;
+					}
+					ch = readChar();
+				}
+			}
+			// Store result in previous return tag
+			((JavadocReturnStatement)this.returnStatement).empty = empty;
+			// Reset position and current ast ptr if we are on a different tag than previous return one
+			this.index = position;
+			if (this.returnTagPtr != this.astPtr) {
+				this.returnTagPtr = -2;
+			}
+		}
 	}
 
 	/*
