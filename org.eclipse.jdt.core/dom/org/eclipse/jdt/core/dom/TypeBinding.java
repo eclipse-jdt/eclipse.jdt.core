@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -388,6 +389,13 @@ class TypeBinding implements ITypeBinding {
 		}
 		// this is a primitive type
 		return this.getName();
+	}
+
+	/**
+	 * @see ITypeBinding#isNullType()
+	 */
+	public boolean isNullType() {
+		return this.binding == BaseTypes.NullBinding;
 	}
 
 }
