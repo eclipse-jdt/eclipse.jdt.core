@@ -14,6 +14,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -37,6 +38,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
@@ -55,7 +57,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test501"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test508"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -6496,5 +6498,150 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test502", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * Formatting foreach
+	 */
+	public void test503() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Map compilerOptions = new HashMap();
+		compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+		runTest(codeFormatter, "test503", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * Formatting parameterized type
+	 */
+	public void test504() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test504", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	/**
+	 * Formatting parameterized type
+	 */
+	public void test505() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test505", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	/**
+	 * Formatting parameterized type
+	 */
+	public void test506() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test506", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	/**
+	 * Formatting enum declaration
+	 */
+	public void test507() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test507", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	/**
+	 * Formatting annotation type declaration
+	 */
+	public void test508() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test508", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
 	}
 }

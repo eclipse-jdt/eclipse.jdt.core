@@ -82,12 +82,12 @@ public class EnumDeclaration extends TypeDeclaration {
 		return printIndent(indent, output).append('}');
 	}	
 
-	public void traverse(ASTVisitor visitor, BlockScope unitScope) {
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
-			if (visitor.visit(this, unitScope)) {
+			if (visitor.visit(this, blockScope)) {
 				if (this.typeParameters != null) {
 					int length = this.typeParameters.length;
 					for (int i = 0; i < length; i++) {
@@ -129,7 +129,7 @@ public class EnumDeclaration extends TypeDeclaration {
 						this.methods[i].traverse(visitor, scope);
 				}
 			}
-			visitor.endVisit(this, unitScope);
+			visitor.endVisit(this, blockScope);
 		} catch (AbortType e) {
 			// silent abort
 		}

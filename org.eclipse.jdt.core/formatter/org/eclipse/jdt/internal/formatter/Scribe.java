@@ -15,7 +15,10 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
@@ -73,8 +76,16 @@ public class Scribe {
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
+			long sourceLevel = ClassFileConstants.JDK1_3;
+			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
+				sourceLevel = ClassFileConstants.JDK1_4;
+			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
+				sourceLevel = ClassFileConstants.JDK1_5;
+			} else {
+				sourceLevel = ClassFileConstants.JDK1_3;
+			}
 			if (assertModeSetting != null) {
-				this.scanner = new Scanner(true, true, false/*nls*/, JavaCore.VERSION_1_4.equals(assertModeSetting) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+				this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 			} else {
 				this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 			}
@@ -986,8 +997,10 @@ public class Scribe {
 		}
 	}
 
-	public void printModifiers() {
+	public void printModifiers(Annotation[] annotations, ASTVisitor visitor) {
 		try {
+			int annotationsLength = annotations != null ? annotations.length : 0;
+			int annotationsIndex = 0;
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
@@ -1007,6 +1020,19 @@ public class Scribe {
 						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+						break;
+					case TerminalTokens.TokenNameAT :
+						if (!isFirstModifier) {
+							this.space();
+						}
+						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
+						if (annotationsIndex < annotationsLength) {
+							annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
+						} else {
+							return;
+						}
+						isFirstModifier = false;
+						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						this.printBlockComment(this.scanner.getRawTokenSource(), false);
@@ -1105,7 +1131,11 @@ public class Scribe {
 		}
 	}
 
-	public void printNextToken(int[] expectedTokenTypes){
+	public void printNextToken(int[] expectedTokenTypes) {
+		printNextToken(expectedTokenTypes, false);
+	}
+
+	public void printNextToken(int[] expectedTokenTypes, boolean considerSpaceIfAny){
 		printComment();
 		try {
 			this.currentToken = this.scanner.getNextToken();
@@ -1120,7 +1150,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, false);
+			this.print(currentTokenSource, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}

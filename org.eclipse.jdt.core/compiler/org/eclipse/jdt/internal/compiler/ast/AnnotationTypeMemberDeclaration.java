@@ -146,22 +146,11 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 				for (int i = 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
-			if (returnType != null)
+			if (returnType != null) {
 				returnType.traverse(visitor, scope);
-			if (arguments != null) {
-				int argumentLength = arguments.length;
-				for (int i = 0; i < argumentLength; i++)
-					arguments[i].traverse(visitor, scope);
 			}
-			if (thrownExceptions != null) {
-				int thrownExceptionsLength = thrownExceptions.length;
-				for (int i = 0; i < thrownExceptionsLength; i++)
-					thrownExceptions[i].traverse(visitor, scope);
-			}
-			if (statements != null) {
-				int statementsLength = statements.length;
-				for (int i = 0; i < statementsLength; i++)
-					statements[i].traverse(visitor, scope);
+			if (memberValue != null) {
+				memberValue.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, classScope);

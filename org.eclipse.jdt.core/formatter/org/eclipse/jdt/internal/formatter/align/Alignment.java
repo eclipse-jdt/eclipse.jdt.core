@@ -129,7 +129,7 @@ public class Alignment {
 	public static final int CHUNK_FIELD = 1;
 	public static final int CHUNK_METHOD = 2;
 	public static final int CHUNK_TYPE = 3;
-
+	public static final int CHUNK_ENUM = 4;
 
 	// location to align and break on.
 	public Alignment(String name, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart, int continuationIndent){
