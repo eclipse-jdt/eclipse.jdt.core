@@ -307,7 +307,7 @@ public char[] getCurrentIdentifierSource() {
 	//return the token REAL source (aka unicodes are precomputed)
 
 	char[] result;
-	if (withoutUnicodePtr != 0)
+	if (withoutUnicodePtr != 0) {
 		//0 is used as a fast test flag so the real first char is in position 1
 		System.arraycopy(
 			withoutUnicodeBuffer, 
@@ -315,8 +315,9 @@ public char[] getCurrentIdentifierSource() {
 			result = new char[withoutUnicodePtr], 
 			0, 
 			withoutUnicodePtr); 
-	else {
+	} else {
 		int length = currentPosition - startPosition;
+		if (length == this.source.length) return this.source;
 		switch (length) { // see OptimizedLength
 			case 1 :
 				return optimizedCurrentTokenSource1();
@@ -1617,8 +1618,8 @@ public final void jumpOverMethodBody() {
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
-								//an eof will them be generated
-							} 
+								 //an eof will then be generated
+							}
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment
@@ -1637,8 +1638,8 @@ public final void jumpOverMethodBody() {
 									}
 								}
 							} catch (InvalidInputException ex) {
-								// ignore
-							}
+ 								// ignore
+ 							}
 							if (currentCharacter == '*') {
 								star = true;
 							}
@@ -1727,8 +1728,8 @@ public final void jumpOverMethodBody() {
 						try {
 							scanNumber(false);
 						} catch (InvalidInputException ex) {
-							// ignore
-						}
+ 							// ignore
+ 						}
 						break;
 					}
 			}

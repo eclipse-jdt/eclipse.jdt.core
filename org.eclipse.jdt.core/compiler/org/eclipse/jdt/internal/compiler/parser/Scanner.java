@@ -311,7 +311,7 @@ public char[] getCurrentIdentifierSource() {
 	//return the token REAL source (aka unicodes are precomputed)
 
 	char[] result;
-	if (withoutUnicodePtr != 0)
+	if (withoutUnicodePtr != 0) {
 		//0 is used as a fast test flag so the real first char is in position 1
 		System.arraycopy(
 			withoutUnicodeBuffer, 
@@ -319,8 +319,9 @@ public char[] getCurrentIdentifierSource() {
 			result = new char[withoutUnicodePtr], 
 			0, 
 			withoutUnicodePtr); 
-	else {
+	} else {
 		int length = currentPosition - startPosition;
+		if (length == this.source.length) return this.source;
 		switch (length) { // see OptimizedLength
 			case 1 :
 				return optimizedCurrentTokenSource1();
