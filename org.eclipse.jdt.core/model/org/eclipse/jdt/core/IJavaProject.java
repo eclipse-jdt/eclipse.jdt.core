@@ -112,6 +112,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A in package x.y should have a 
 	 * the fully qualified name "x.y.A.B".
 	 * 
+	 * Note that in order to be found, a type name (or its toplevel enclosing
+	 * type name) must match its corresponding compilation unit name. As a 
+	 * consequence, secondary types cannot be found using this functionality.
+	 * Secondary types can however be explicitely accessed through their enclosing
+	 * unit or found by the <code>SearchEngine</code>.
+	 * 
 	 * @param fullyQualifiedName the given fully qualified name
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
@@ -130,6 +136,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A should have the 
 	 * type qualified name "A.B".
 	 * 
+	 * Note that in order to be found, a type name (or its toplevel enclosing
+	 * type name) must match its corresponding compilation unit name. As a 
+	 * consequence, secondary types cannot be found using this functionality.
+	 * Secondary types can however be explicitely accessed through their enclosing
+	 * unit or found by the <code>SearchEngine</code>.
+	 * 
 	 * @param packageName the given package name
 	 * @param typeQualifiedName the given type qualified name
 	 * @exception JavaModelException if this element does not exist or if an
@@ -138,6 +150,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * with the given package name and type qualified name
 	 * or <code>null</code> if none is found
 	 * @see IType#getTypeQualifiedName(char)
+
 	 * @since 2.0
 	 */
 	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
