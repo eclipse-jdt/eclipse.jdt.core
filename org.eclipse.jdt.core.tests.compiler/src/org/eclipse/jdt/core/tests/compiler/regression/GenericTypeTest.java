@@ -2998,7 +2998,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unsafe wildcard operation: The constructor X(? extends AX) of type X<? extends AX> is not applicable for the arguments (AX<String>). The wildcard parameter ? extends AX has no lower bound, and may actually be more restrictive than argument AX<String>\n" + 
+			"Bound mismatch: The constructor X(? extends AX) of type X<? extends AX> is not applicable for the arguments (AX<String>). The wildcard parameter ? extends AX has no lower bound, and may actually be more restrictive than argument AX<String>\n" + 
 			"----------\n");		
 	}		
 
@@ -4140,12 +4140,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lx.add(x);\n" + 
 			"	^^^^^^^^^\n" + 
-			"Unsafe wildcard operation: The method add(?) of type XList<?> is not applicable for the arguments (X). The wildcard parameter ? has no lower bound, and may actually be more restrictive than argument X\n" + 
+			"Bound mismatch: The method add(?) of type XList<?> is not applicable for the arguments (X). The wildcard parameter ? has no lower bound, and may actually be more restrictive than argument X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	lx.slot = x;\n" + 
 			"	          ^\n" + 
-			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"Bound mismatch: Cannot assign expression of type X to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
 			"----------\n");
 	}
 	// 59628
@@ -6106,11 +6106,49 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    E slot;\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Integer i = lx.slot;\n" + 
-		"	        ^\n" + 
-		"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	al.add(new Integer(1)); // (1)\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The method add(? extends Integer) of type ArrayList<? extends Integer> is not applicable for the arguments (Integer). The wildcard parameter ? extends Integer has no lower bound, and may actually be more restrictive than argument Integer\n" + 
+			"----------\n");
 	}	
+	
+	// 69251- instantiating wildcards
+	public void test223() {
+		Map customOptions = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"public class X {\n" + 
+				"    static final Map<String, Class<? extends Object>> classes \n" + 
+				"            = new HashMap<String, Class<? extends Object>>();\n" + 
+				"    \n" + 
+				"    static final Map<String, Class<? extends Object>> classes2 \n" + 
+				"            = new HashMap<String, Class>();\n" + 
+				"    \n" + 
+				"    class MX<E> {\n" + 
+				"    	E get() { return null; }\n" + 
+				"    	void foo(E e) {}\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    void foo() {\n" + 
+				"    	MX<Class<? extends Object>> mx1 = new MX<Class<? extends Object>>();\n" + 
+				"    	MX<Class> mx2 = new MX<Class>();\n" + 
+				"    	mx1.foo(mx2.get());\n" + 
+				"    }\n" + 
+				"}\n"	, 
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 18)\n" + 
+			"	mx1.foo(mx2.get());\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The method foo(E) in the type X.MX<Class<? extends Object>> should not be applied for the arguments (Class). References to generic types should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
 }
