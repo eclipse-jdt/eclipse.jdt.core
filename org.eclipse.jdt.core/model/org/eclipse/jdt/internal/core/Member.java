@@ -190,16 +190,36 @@ protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_TYPE;
 }
 /*
- * Returns the inner most top-level member (a field, a method, or an initializer) that is a declaring this member.
- * e.g for X.java/X/Y/foo()/Z/bar()/T the inner most declaring member is X.java/X/Y/foo()
- * Returns null if this member is already a top-level member.
+ * Returns the outermost context defining a local element. Per construction, it can only be a
+ * method/field/initializarer member; thus, returns null if this member is already a top-level type or member type.
+ * e.g for X.java/X/Y/foo()/Z/bar()/T, it will return X.java/X/Y/foo()
  */
-public Member getInnerMostDeclaringMember() {
+public Member getOuterMostLocalContext() {
+	IJavaElement current = this;
+	Member lastLocalContext = null;
+	parentLoop: while (true) {
+		switch (current.getElementType()) {
+			case COMPILATION_UNIT :
+				break parentLoop; // done recursing
+			case TYPE:
+				// cannot be a local context
+				break;
+			case INITIALIZER:
+			case FIELD:
+			case METHOD:
+				 // these elements can define local members
+				lastLocalContext = (Member) current;
+				break;
+		}		
+		current = current.getParent();
+	} 
+	return lastLocalContext;
+/*	TODO (jerome) check old version, especially was answering local types
 	switch (fParent.getElementType()) {
 		case COMPILATION_UNIT:
 			return null;
 		case TYPE:
-			Member declaringMember = ((Member)fParent).getInnerMostDeclaringMember();
+			Member declaringMember = ((Member)fParent).getOuterMostLocalContext();
 			if (declaringMember == null && getElementType() != TYPE) {
 				return this;
 			} else {
@@ -208,9 +228,10 @@ public Member getInnerMostDeclaringMember() {
 		case INITIALIZER:
 		case FIELD:
 		case METHOD:
-			return ((Member)fParent).getInnerMostDeclaringMember();
+			return ((Member)fParent).getOuterMostLocalContext();
 	}
 	return null;
+*/	
 }
 /**
  * @see IMember
