@@ -303,7 +303,6 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		int flags = IJavaElementDelta.F_CONTENT;
 		if (element instanceof JarPackageFragmentRoot){
 			flags |= IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED;
-			flags |= IJavaElementDelta.F_CLASSPATH_REORDER; // hack for now
 		}
 		fCurrentDelta.changed(element, flags);
 	}

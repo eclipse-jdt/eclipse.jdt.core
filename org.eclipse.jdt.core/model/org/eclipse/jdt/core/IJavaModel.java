@@ -164,6 +164,13 @@ IWorkspace getWorkspace();
  * @exception IllegalArgumentException any element or container is <code>null</code>
  */
 void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean replace, IProgressMonitor monitor) throws JavaModelException;
+
+/**
+ * 
+ */
+void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
+
+
 /**
  * Renames the given elements as specified.
  * If one container is specified, all elements are renamed within that
@@ -188,4 +195,5 @@ void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] sib
  * </ul>
  */
 void rename(IJavaElement[] elements, IJavaElement[] destinations, String[] names, boolean replace, IProgressMonitor monitor) throws JavaModelException;
+
 }
