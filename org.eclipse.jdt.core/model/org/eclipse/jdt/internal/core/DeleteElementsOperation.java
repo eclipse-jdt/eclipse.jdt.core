@@ -17,15 +17,20 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * This operation deletes a collection of elements (and
@@ -46,12 +51,10 @@ public class DeleteElementsOperation extends MultiOperation {
 	 */ 
 	protected Map childrenToRemove;
 	/**
-	 * The <code>DOMFactory</code> used to manipulate the source code of
-	 * <code>ICompilationUnit</code>s.
-	 * @deprecated JDOM is obsolete 
+	 * The <code>ASTParser</code> used to manipulate the source code of
+	 * <code>ICompilationUnit</code>.
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected DOMFactory factory;
+	protected ASTParser parser;
 	/**
 	 * When executed, this operation will delete the given elements. The elements
 	 * to delete cannot be <code>null</code> or empty, and must be contained within a
@@ -59,15 +62,31 @@ public class DeleteElementsOperation extends MultiOperation {
 	 */
 	public DeleteElementsOperation(IJavaElement[] elementsToDelete, boolean force) {
 		super(elementsToDelete, force);
-		initDOMFactory();
+		initASTParser();
 	}
 	
-	/**
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	private void initDOMFactory() {
-		factory = new DOMFactory();
+	private void deleteElement(IJavaElement elementToRemove, ICompilationUnit cu) throws JavaModelException {
+		// ensure cu is consistent (noop if already consistent)
+		cu.makeConsistent(this.progressMonitor);
+		this.parser.setSource(cu);
+		CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
+		ASTNode node = ((JavaElement) elementToRemove).findNode(astCU);
+		if (node == null) 
+			Assert.isTrue(false, "Failed to locate " + elementToRemove.getElementName() + " in " + cu.getElementName()); //$NON-NLS-1$//$NON-NLS-2$
+		IDocument document = getDocument(cu);
+		AST ast = astCU.getAST();
+		ASTRewrite rewriter = ASTRewrite.create(ast);
+		rewriter.remove(node, null);
+ 		TextEdit edits = rewriter.rewriteAST(document, null);
+ 		try {
+	 		edits.apply(document);
+ 		} catch (BadLocationException e) {
+ 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+ 		}
+	}
+
+	private void initASTParser() {
+		this.parser = ASTParser.newParser(AST.JLS3);
 	}
 
 	/**
@@ -126,17 +145,12 @@ public class DeleteElementsOperation extends MultiOperation {
 		// the import container (and report it in the delta)
 		int numberOfImports = cu.getImports().length;
 	
-		IBuffer buffer = cu.getBuffer();
-		if (buffer == null) return;
 		JavaElementDelta delta = new JavaElementDelta(cu);
 		IJavaElement[] cuElements = ((IRegion) childrenToRemove.get(cu)).getElements();
 		for (int i = 0, length = cuElements.length; i < length; i++) {
 			IJavaElement e = cuElements[i];
 			if (e.exists()) {
-				char[] contents = buffer.getCharacters();
-				if (contents == null) continue;
-				String cuName = cu.getElementName();
-				replaceElementInBuffer(buffer, e, cuName);
+				deleteElement(e, cu);
 				delta.removed(e);
 				if (e.getElementType() == IJavaElement.IMPORT_DECLARATION) {
 					numberOfImports--;
@@ -155,19 +169,6 @@ public class DeleteElementsOperation extends MultiOperation {
 		}
 	}
 	/**
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	private void replaceElementInBuffer(IBuffer buffer, IJavaElement elementToRemove, String cuName) {
-		IDOMCompilationUnit cuDOM = factory.createCompilationUnit(buffer.getCharacters(), cuName);
-		org.eclipse.jdt.internal.core.jdom.DOMNode node = (org.eclipse.jdt.internal.core.jdom.DOMNode)((JavaElement) elementToRemove).findNode(cuDOM);
-		if (node == null) Assert.isTrue(false, "Failed to locate " + elementToRemove.getElementName() + " in " + cuDOM.getName()); //$NON-NLS-1$//$NON-NLS-2$
-
-		int startPosition = node.getStartPosition();
-		buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, CharOperation.NO_CHAR);
-	}
-
-	/**
 	 * @see MultiOperation
 	 * This method first group the elements by <code>ICompilationUnit</code>,
 	 * and then processes the <code>ICompilationUnit</code>.
@@ -185,12 +186,6 @@ public class DeleteElementsOperation extends MultiOperation {
 			IJavaElement child = children[i];
 			if (child.getCorrespondingResource() != null)
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
-
-			Member localContext;
-			if (child instanceof Member && (localContext = ((Member)child).getOuterMostLocalContext()) != null && localContext != child) {
-				// JDOM doesn't support source manipulation in local/anonymous types
-				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
-			}
 
 			if (child.isReadOnly())
 				error(IJavaModelStatusConstants.READ_ONLY, child);

@@ -854,6 +854,30 @@ public void testCopyInnerTypeWithPositioningInDifferentProject() throws CoreExce
 	}
 }
 /**
+ * Ensures that a local type can be copied.
+ */
+public void testCopyLocalType() throws CoreException {
+	this.createFile(
+		"/P/src/X.java",
+		"public class X {\n" +
+		"  void foo() {\n" +
+		"    class Z {\n" +
+		"    }\n" +
+		"  }\n" +
+		"}"
+	);
+	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X").getMethod("foo", new String[0]).getType("Z", 1);
+
+	this.createFile(
+		"/P/src/Y.java",
+		"public class Y {\n" +
+		"}"
+	);
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/Y.java");
+
+	copyPositive(typeSource,  cuDest, null, null, false);
+}
+/**
  * Ensures that a main type can be copied.
  */
 public void testCopyMainType() throws CoreException {

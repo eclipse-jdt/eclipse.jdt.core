@@ -19,9 +19,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * This operation copies/moves/renames a collection of resources from their current
@@ -59,17 +69,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	protected Map deltasPerProject = new HashMap(1);
 	/**
-	 * The <code>DOMFactory</code> used to manipulate the source code of
+	 * The <code>ASTParser</code> used to manipulate the source code of
 	 * <code>ICompilationUnit</code>.
-	 * @deprecated JDOM is obsolete
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected DOMFactory fFactory;
-	/**
-	 * A collection of renamed compilation units.  These cus do
-	 * not need to be saved as they no longer exist.
-	 */
-	protected ArrayList fRenamedCompilationUnits = null;
+	protected ASTParser parser;
 	/**
 	 * When executed, this operation will copy the given resources to the
 	 * given container.
@@ -85,14 +88,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	public CopyResourceElementsOperation(IJavaElement[] resourcesToCopy, IJavaElement[] destContainers, boolean force) {
 		super(resourcesToCopy, destContainers, force);
-		initializeDOMFactory();
+		initializeASTParser();
 	}
-	/**
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	private void initializeDOMFactory() {
-		fFactory = new DOMFactory();
+	private void initializeASTParser() {
+		this.parser = ASTParser.newParser(AST.JLS3);
 	}
 	/**
 	 * Returns the children of <code>source</code> which are affected by this operation.
@@ -402,9 +401,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 *
 	 * @exception JavaModelException if the operation is unable to
 	 * complete
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
 	private void processPackageFragmentResource(PackageFragment source, PackageFragmentRoot root, String newName) throws JavaModelException {
 		try {
 			String[] newFragName = (newName == null) ? source.names : Util.getTrimmedSimpleNames(newName);
@@ -431,18 +428,18 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}	
 			}
 			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.getParent().getResource(), root, newFragName, shouldMoveFolder);
-			boolean sourceIsReadOnly = srcFolder.isReadOnly();
+			boolean sourceIsReadOnly = Util.isReadOnly(srcFolder);
 	
 			// Process resources
 			if (shouldMoveFolder) {
 				// move underlying resource
 				// TODO Revisit once bug 43044 is fixed
 				if (sourceIsReadOnly) {
-					srcFolder.setReadOnly(false);
+					Util.setReadOnly(srcFolder, false);
 				}
 				srcFolder.move(destPath, force, true /* keep history */, getSubProgressMonitor(1));
 				if (sourceIsReadOnly) {
-					srcFolder.setReadOnly(true);
+					Util.setReadOnly(srcFolder, true);
 				}
 				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 			} else {
@@ -497,24 +494,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resourceName);
 						if (Util.isExcluded(cu.getPath(), inclusionPatterns, exclusionPatterns, false/*not a folder*/)) continue;
-						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
-						if (domCU != null) {
-							updatePackageStatement(domCU, newFragName);
-							IBuffer buffer = cu.getBuffer();
-							if (buffer == null) continue;
-							String bufferContents = buffer.getContents();
-							if (bufferContents == null) continue;
-							String domCUContents = domCU.getContents();
-							String cuContents = null;
-							if (domCUContents != null) {
-								cuContents = Util.normalizeCRs(domCU.getContents(), bufferContents);
-							} else {
-								// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=11285
-								cuContents = bufferContents;//$NON-NLS-1$
-							}
-							buffer.setContents(cuContents);
-							cu.save(null, false);
-						}
+						this.parser.setSource(cu);
+						CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
+						updatePackageStatement(astCU, newFragName, getDocument(cu));
+						cu.save(null, false);
 					}
 				}
 			}
@@ -530,8 +513,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					for (int i = 0, length = remaining.length; i < length; i++) {
 						IResource file = remaining[i];
 						if (file instanceof IFile) {
-							if (file.isReadOnly()) {
-								file.setReadOnly(false);
+							if (Util.isReadOnly(file)) {
+								Util.setReadOnly(file, false);
 							}
 							this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 						} else {
@@ -562,8 +545,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				IJavaProject destProject = newFrag.getJavaProject();
 				getDeltaFor(destProject).movedTo(newFrag, source);
 			}
-		} catch (DOMException dom) {
-			throw new JavaModelException(dom, IJavaModelStatusConstants.DOM_EXCEPTION);
 		} catch (JavaModelException e) {
 			throw e;
 		} catch (CoreException ce) {
@@ -575,9 +556,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * declaration as necessary.
 	 *
 	 * @return the new source
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
 	private String updatedContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
 		String[] currPackageName = ((PackageFragment) cu.getParent()).names;
 		String[] destPackageName = dest.names;
@@ -586,47 +565,37 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		} else {
 			String typeName = cu.getElementName();
 			typeName = typeName.substring(0, typeName.length() - 5);
-			IDOMCompilationUnit cuDOM = null;
-			IBuffer buffer = cu.getBuffer();
-			if (buffer == null) return null;
-			char[] contents = buffer.getCharacters();
-			if (contents == null) return null;
-			cuDOM = fFactory.createCompilationUnit(contents, typeName);
-			updateTypeName(cu, cuDOM, cu.getElementName(), newName);
-			updatePackageStatement(cuDOM, destPackageName);
-			return cuDOM.getContents();
+			// ensure cu is consistent (noop if already consistent)
+			cu.makeConsistent(this.progressMonitor);
+			this.parser.setSource(cu);
+			CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
+			IDocument document = getDocument(cu);
+			updateTypeName(cu, astCU, cu.getElementName(), newName, document);
+			updatePackageStatement(astCU, destPackageName, document);
+			return document.get();
 		}
 	}
-	/**
-	 * Makes sure that <code>cu</code> declares to be in the <code>pkgName</code> package.
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	private void updatePackageStatement(IDOMCompilationUnit domCU, String[] pkgName) {
+	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, IDocument document) throws JavaModelException {
 		boolean defaultPackage = pkgName.length == 0;
-		boolean seenPackageNode = false;
-		Enumeration nodes = domCU.getChildren();
-		while (nodes.hasMoreElements()) {
-			IDOMNode node = (IDOMNode) nodes.nextElement();
-			if (node.getNodeType() == IDOMNode.PACKAGE) {
-				if (! defaultPackage) {
-					node.setName(Util.concatWith(pkgName, '.'));
-				} else {
-					node.remove();
-				}
-				seenPackageNode = true;
-				break;
-			}
+		AST ast = astCU.getAST();
+		ASTRewrite rewriter = ASTRewrite.create(ast);
+		if (defaultPackage) {
+			// remove existing package statement
+			if (astCU.getPackage() != null)
+				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, null, null);
+		} else {
+			// add new package statement or replace existing
+			org.eclipse.jdt.core.dom.PackageDeclaration pkg = ast.newPackageDeclaration();
+			Name name = ast.newName(pkgName);
+			pkg.setName(name);
+			rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
 		}
-		if (!seenPackageNode && !defaultPackage) {
-			//the cu was in a default package...no package declaration
-			//create the new package declaration as the first child of the cu
-			IDOMPackage pkg = fFactory.createPackage("package " + Util.concatWith(pkgName, '.') + ";" + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
-			IDOMNode firstChild = domCU.getFirstChild();
-			if (firstChild != null) {
-				firstChild.insertSibling(pkg);
-			} // else the cu was empty: leave it empty
-		}
+ 		TextEdit edits = rewriter.rewriteAST(document, null);
+ 		try {
+	 		edits.apply(document);
+ 		} catch (BadLocationException e) {
+ 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+ 		}
 	}
 	
 	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName) {
@@ -655,31 +624,43 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		}
 	}
 		/**
-		 * Renames the main type in <code>cu</code>.
-	     * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-		 */
-        // TODO - JDOM - remove once model ported off of JDOM
-		private void updateTypeName(ICompilationUnit cu, IDOMCompilationUnit domCU, String oldName, String newName) throws JavaModelException {
-			if (newName != null) {
-				if (fRenamedCompilationUnits == null) {
-					fRenamedCompilationUnits= new ArrayList(1);
-				}
-				fRenamedCompilationUnits.add(cu);
-				String oldTypeName= oldName.substring(0, oldName.length() - 5);
-				String newTypeName= newName.substring(0, newName.length() - 5);
-				// update main type name
-				IType[] types = cu.getTypes();
-				for (int i = 0, max = types.length; i < max; i++) {
-					IType currentType = types[i];
-					if (currentType.getElementName().equals(oldTypeName)) {
-						IDOMNode typeNode = ((JavaElement) currentType).findNode(domCU);
-						if (typeNode != null) {
-							typeNode.setName(newTypeName);
+	 * Renames the main type in <code>cu</code>.
+	 */
+	private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, IDocument document) throws JavaModelException {
+		if (newName != null) {
+			String oldTypeName= oldName.substring(0, oldName.length() - 5);
+			String newTypeName= newName.substring(0, newName.length() - 5);
+			AST ast = astCU.getAST();
+			ASTRewrite rewriter = ASTRewrite.create(ast);
+			// update main type name
+			IType[] types = cu.getTypes();
+			for (int i = 0, max = types.length; i < max; i++) {
+				IType currentType = types[i];
+				if (currentType.getElementName().equals(oldTypeName)) {
+					TypeDeclaration typeNode = (TypeDeclaration) ((JavaElement) currentType).findNode(astCU);
+					if (typeNode != null) {
+						// rename type
+						rewriter.replace(typeNode.getName(), ast.newSimpleName(newTypeName), null);
+						MethodDeclaration[] methods = typeNode.getMethods();
+						for (int j = 0, length = methods.length; j < length; j++) {
+							MethodDeclaration methodDeclaration = methods[j];
+							SimpleName methodName = methodDeclaration.getName();
+							if (methodName.getIdentifier().equals(oldTypeName)) {
+								// rename constructor
+								rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+							}
 						}
 					}
 				}
 			}
+	 		TextEdit edits = rewriter.rewriteAST(document, null);
+	 		try {
+		 		edits.apply(document);
+	 		} catch (BadLocationException e) {
+	 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+	 		}
 		}
+	}
 	/**
 	 * Possible failures:
 	 * <ul>
@@ -719,7 +700,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		int elementType = element.getElementType();
 	
 		if (elementType == IJavaElement.COMPILATION_UNIT) {
-			CompilationUnit compilationUnit = (CompilationUnit)element;
+			org.eclipse.jdt.internal.core.CompilationUnit compilationUnit = (org.eclipse.jdt.internal.core.CompilationUnit) element;
 			if (isMove() && compilationUnit.isWorkingCopy() && !compilationUnit.isPrimary())
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		} else if (elementType != IJavaElement.PACKAGE_FRAGMENT) {

@@ -13,15 +13,23 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.jdom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * <p>This abstract class implements behavior common to <code>CreateElementInCUOperations</code>.
@@ -36,11 +44,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	/**
-	 * The compilation unit DOM used for this operation
-	 * @deprecated JDOM is obsolete
+	 * The compilation unit AST used for this operation
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected IDOMCompilationUnit fCUDOM;
+	protected CompilationUnit cuAST;		
 	/**
 	 * A constant meaning to position the new element
 	 * as the last child of its parent element.
@@ -61,7 +67,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * One of the position constants, describing where
 	 * to position the newly created element.
 	 */
-	protected int fInsertionPolicy = INSERT_LAST;
+	protected int insertionPolicy = INSERT_LAST;
 	/**
 	 * The element that the newly created element is
 	 * positioned relative to, as described by
@@ -69,30 +75,14 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * if the newly created element will be positioned
 	 * last.
 	 */
-	protected IJavaElement fAnchorElement = null;
+	protected IJavaElement anchorElement = null;
 	/**
 	 * A flag indicating whether creation of a new element occurred.
 	 * A request for creating a duplicate element would request in this
 	 * flag being set to <code>false</code>. Ensures that no deltas are generated
 	 * when creation does not occur.
 	 */
-	protected boolean fCreationOccurred = true;
-	/**
-	 * The element that is being created.
-	 * @deprecated JDOM is obsolete
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected DOMNode fCreatedElement;
-	/**
-	 * The position of the element that is being created.
-	 */
-	protected int fInsertionPosition = -1;
-	/**
-	 * The number of characters the new element replaces,
-	 * or 0 if the new element is inserted,
-	 * or -1 if the new element is append to the end of the CU.
-	 */
-	protected int fReplacementLength = -1;
+	protected boolean creationOccurred = true;
 	/**
 	 * Constructs an operation that creates a Java Language Element with
 	 * the specified parent, contained within a compilation unit.
@@ -100,6 +90,14 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	public CreateElementInCUOperation(IJavaElement parentElement) {
 		super(null, new IJavaElement[]{parentElement});
 		initializeDefaultPosition();
+	}
+	protected void apply(ASTRewrite rewriter, IDocument document) throws JavaModelException {
+		TextEdit edits = rewriter.rewriteAST(document, null);
+ 		try {
+	 		edits.apply(document);
+ 		} catch (BadLocationException e) {
+ 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+ 		}
 	}
 	/**
 	 * Only allow cancelling if this operation is not nested.
@@ -136,27 +134,9 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 			beginTask(getMainTaskName(), getMainAmountOfWork());
 			JavaElementDelta delta = newJavaElementDelta();
 			ICompilationUnit unit = getCompilationUnit();
-			generateNewCompilationUnitDOM(unit);
-			if (fCreationOccurred) {
+			generateNewCompilationUnitAST(unit);
+			if (this.creationOccurred) {
 				//a change has really occurred
-				IBuffer buffer = unit.getBuffer();
-				if (buffer  == null) return;
-				char[] bufferContents = buffer.getCharacters();
-				if (bufferContents == null) return;
-				char[] elementContents = Util.normalizeCRs(getCreatedElementCharacters(), bufferContents);
-				switch (fReplacementLength) {
-					case -1 : 
-						// element is append at the end
-						buffer.append(elementContents);
-						break;
-					case 0 :
-						// element is inserted
-						buffer.replace(fInsertionPosition, 0, elementContents);
-						break;
-					default :
-						// element is replacing the previous one
-						buffer.replace(fInsertionPosition, fReplacementLength, elementContents);
-				}
 				unit.save(null, false);
 				boolean isWorkingCopy = unit.isWorkingCopy();
 				if (!isWorkingCopy)
@@ -177,37 +157,32 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 			done();
 		}
 	}
-	/**
-	 * Returns the current contents of the created document fragment as a
-	 * character array.
-	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	private char[] getCreatedElementCharacters() {
-		return fCreatedElement.getCharacters();
-	}
-	/**
-	 * Returns a JDOM document fragment for the element being created.
-	 * @deprecated JDOM is obsolete
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected abstract IDOMNode generateElementDOM() throws JavaModelException;
-	/**
-	 * Returns the DOM with the new source to use for the given compilation unit.
-	 * @deprecated JDOM is obsolete
-	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaModelException {
-		IBuffer buffer = cu.getBuffer();
-		if (buffer == null) return;
-		char[] prevSource = buffer.getCharacters();
-		if (prevSource == null) return;
 	
-		// create a JDOM for the compilation unit
-		fCUDOM = (new DOMFactory()).createCompilationUnit(prevSource, cu.getElementName());
-		IDOMNode child = generateElementDOM();
+	/*
+	 * Returns the property descriptor for the element being created.
+	 */
+	protected abstract StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent);
+	
+	/*
+	 * Returns an AST node for the element being created.
+	 */
+	protected abstract ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException;
+	/*
+	 * Generates a new AST for this operation and applies it to the given cu
+	 */
+	protected void generateNewCompilationUnitAST(ICompilationUnit cu) throws JavaModelException {
+		this.cuAST = parse(cu);
+		
+		AST ast = this.cuAST.getAST();
+		ASTRewrite rewriter = ASTRewrite.create(ast);
+		IDocument document = getDocument(cu);
+		ASTNode child = generateElementAST(rewriter, document, cu);
 		if (child != null) {
-			insertDOMNode(fCUDOM, child);
+			ASTNode parent = ((JavaElement) getParentElement()).findNode(this.cuAST);
+			if (parent == null)
+				parent = this.cuAST;
+			insertASTNode(rewriter, parent, child);
+			apply(rewriter, document);
 		}
 		worked(1);
 	}
@@ -256,34 +231,49 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		// last child of the parent element in which it is created.
 	}
 	/**
-	 * Inserts the given child into the given JDOM, 
+	 * Inserts the given child into the given AST, 
 	 * based on the position settings of this operation.
 	 *
 	 * @see #createAfter(IJavaElement)
 	 * @see #createBefore(IJavaElement)
-	 * @deprecated JDOM is obsolete
 	 */
-    // TODO - JDOM - remove once model ported off of JDOM
-	protected void insertDOMNode(IDOMNode parent, IDOMNode child) {
-		if (fInsertionPolicy != INSERT_LAST) {
-			IDOMNode sibling = ((JavaElement)fAnchorElement).findNode(fCUDOM);
-			if (sibling != null && fInsertionPolicy == INSERT_AFTER) {
-				sibling = sibling.getNextNode();
-			}
-			if (sibling != null) {
-				sibling.insertSibling(child);
-				fCreatedElement = (DOMNode)child;
-				fInsertionPosition = ((DOMNode)sibling).getStartPosition();
-				fReplacementLength = 0;
-				return;
-			}
+	protected void insertASTNode(ASTRewrite rewriter, ASTNode parent, ASTNode child) throws JavaModelException {
+		StructuralPropertyDescriptor propertyDescriptor = getChildPropertyDescriptor(parent);
+		if (propertyDescriptor instanceof ChildListPropertyDescriptor) {
+			ChildListPropertyDescriptor childListPropertyDescriptor = (ChildListPropertyDescriptor) propertyDescriptor;
+	 		ListRewrite rewrite = rewriter.getListRewrite(parent, childListPropertyDescriptor);
+	 		switch (this.insertionPolicy) {
+	 			case INSERT_BEFORE:
+	 				ASTNode element = ((JavaElement) this.anchorElement).findNode(this.cuAST);
+	 				if (childListPropertyDescriptor.getElementType().isAssignableFrom(element.getClass()))
+		 				rewrite.insertBefore(child, element, null);
+	 				else
+	 					// case of an empty import list: the anchor element is the top level type and cannot be used in insertBefore as it is not the same type
+	 					rewrite.insertLast(child, null);
+	 				break;
+	 			case INSERT_AFTER:
+	 				element = ((JavaElement) this.anchorElement).findNode(this.cuAST);
+	 				if (childListPropertyDescriptor.getElementType().isAssignableFrom(element.getClass()))
+		 				rewrite.insertAfter(child, element, null);
+	 				else
+	 					// case of an empty import list: the anchor element is the top level type and cannot be used in insertAfter as it is not the same type
+	 					rewrite.insertLast(child, null);
+	 				break;
+	 			case INSERT_LAST:
+	 				rewrite.insertLast(child, null);
+	 				break;
+	 		}
+		} else {
+			rewriter.set(parent, propertyDescriptor, child, null);
 		}
-		//add as the last element of the parent
-		parent.addChild(child);
-		fCreatedElement = (org.eclipse.jdt.internal.core.jdom.DOMNode)child;
-		fInsertionPosition = ((org.eclipse.jdt.internal.core.jdom.DOMNode)parent).getInsertionPosition();
-	//	fInsertionPosition = lastChild == null ? ((DOMNode)parent).getInsertionPosition() : lastChild.getInsertionPosition();
-		fReplacementLength = parent.getParent() == null ? -1 : 0;
+ 	}
+	protected CompilationUnit parse(ICompilationUnit cu) throws JavaModelException {
+		// ensure cu is consistent (noop if already consistent)
+		cu.makeConsistent(this.progressMonitor);
+		// create an AST for the compilation unit
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(cu);
+		return (CompilationUnit) parser.createAST(this.progressMonitor);
 	}
 	/**
 	 * Sets the name of the <code>DOMNode</code> that will be used to
@@ -302,11 +292,11 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 */
 	protected void setRelativePosition(IJavaElement sibling, int policy) throws IllegalArgumentException {
 		if (sibling == null) {
-			fAnchorElement = null;
-			fInsertionPolicy = INSERT_LAST;
+			this.anchorElement = null;
+			this.insertionPolicy = INSERT_LAST;
 		} else {
-			fAnchorElement = sibling;
-			fInsertionPolicy = policy;
+			this.anchorElement = sibling;
+			this.insertionPolicy = policy;
 		}
 	}
 	/**
@@ -324,13 +314,13 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		if (getParentElement() == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (fAnchorElement != null) {
-			IJavaElement domPresentParent = fAnchorElement.getParent();
+		if (this.anchorElement != null) {
+			IJavaElement domPresentParent = this.anchorElement.getParent();
 			if (domPresentParent.getElementType() == IJavaElement.IMPORT_CONTAINER) {
 				domPresentParent = domPresentParent.getParent();
 			}
 			if (!domPresentParent.equals(getParentElement())) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, fAnchorElement);
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.anchorElement);
 			}
 		}
 		return JavaModelStatus.VERIFIED_OK;

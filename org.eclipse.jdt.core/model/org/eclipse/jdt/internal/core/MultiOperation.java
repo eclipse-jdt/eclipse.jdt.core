@@ -103,11 +103,13 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * Returns the new name for <code>element</code>, or <code>null</code>
 	 * if there are no renamings specified.
 	 */
-	protected String getNewNameFor(IJavaElement element) {
+	protected String getNewNameFor(IJavaElement element) throws JavaModelException {
+		String newName = null;
 		if (this.renamings != null)
-			return (String) this.renamings.get(element);
-		else
-			return null;
+			newName = (String) this.renamings.get(element);
+		if (newName == null && element instanceof IMethod && ((IMethod) element).isConstructor())
+			newName = getDestinationParent(element).getElementName();
+		return newName;
 	}
 	/**
 	 * Sets up the renamings hashtable - keys are the elements and

@@ -50,10 +50,14 @@ Eclipse SDK 3.1M5 - ?th January 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Java model operations have been ported off the deprecated JDOM. They now use AST rewrite. This enables
+     these operations on local and anonymous types, enumerations and annotation types.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83161">83161</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77894">77894</a>
+[model] Remove dependency to old JDOM in JavaModel implementation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83161">83161</a>
 Can't access public field from private subclass
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78151">78151</a>
 'Insert single proposals automatically' should not insert without prefix

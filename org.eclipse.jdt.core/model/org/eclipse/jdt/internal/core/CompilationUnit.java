@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -423,35 +422,6 @@ public boolean equals(Object obj) {
 	if (!(obj instanceof CompilationUnit)) return false;
 	CompilationUnit other = (CompilationUnit)obj;
 	return this.owner.equals(other.owner) && super.equals(obj);
-}
-/**
- * @see JavaElement#equalsDOMNode(IDOMNode)
- * @deprecated JDOM is obsolete
- */
-// TODO - JDOM - remove once model ported off of JDOM
-protected boolean equalsDOMNode(IDOMNode node) {
-	String elementName = getElementName();
-	if (node.getNodeType() == IDOMNode.COMPILATION_UNIT && elementName != null ) {
-		String nodeName = node.getName();
-		if (nodeName == null) return false;		
-		if (elementName.equals(nodeName)) {
-			return true;
-		} else {
-			try {
-				// iterate through all the types inside the receiver and see if one of them can fit
-				IType[] types = getTypes();
-				String typeNodeName = nodeName.substring(0, nodeName.lastIndexOf('.'));
-				for (int i = 0, max = types.length; i < max; i++) {
-					if (types[i].getElementName().equals(typeNodeName)) {
-						return true;
-					}
-				}
-			} catch (JavaModelException e) {
-				return false;
-			}
-		}
-	}
-	return false;
 }
 public boolean exists() {
 	// working copy always exists in the model until it is gotten rid of (even if not on classpath)

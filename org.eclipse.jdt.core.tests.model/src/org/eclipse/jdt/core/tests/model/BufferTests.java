@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -18,7 +20,7 @@ import org.eclipse.jdt.core.*;
 import junit.framework.Test;
 
 public class BufferTests extends ModifyingResourceTests implements IBufferChangedListener {
-	protected BufferChangedEvent event= null;
+	protected ArrayList events = null;
 public BufferTests(String name) {
 	super(name);
 }
@@ -26,14 +28,14 @@ public BufferTests(String name) {
  * Cache the event
  */
 public void bufferChanged(BufferChangedEvent bufferChangedEvent) {
-	this.event= bufferChangedEvent;
+	this.events.add(bufferChangedEvent);
 }
 protected IBuffer createBuffer(String path, String content) throws CoreException {
 	this.createFile(path, content);
 	ICompilationUnit cu = this.getCompilationUnit(path);
 	IBuffer buffer = cu.getBuffer();
 	buffer.addBufferChangedListener(this);
-	this.event = null;
+	this.events = new ArrayList();
 	return buffer;
 }
 protected void deleteBuffer(IBuffer buffer) throws CoreException {
@@ -105,9 +107,9 @@ public void testAppendReadOnly() throws CoreException {
 		IClassFile classFile = getClassFile("P1", getExternalJCLPathString(), "java.lang", "String.class");
 		buffer = classFile.getBuffer();
 		buffer.addBufferChangedListener(this);
-		this.event = null;
+		this.events = new ArrayList();
 		buffer.append("\nclass B {}");
-		assertTrue("unexpected event", this.event == null);
+		assertTrue("unexpected event", this.events.isEmpty());
 		assertSourceEquals(
 			"unexpected buffer contents",
 			"package java.lang;\n" + 
@@ -483,8 +485,13 @@ public void testCreateImport() throws CoreException {
 		copy = this.getCompilationUnit("P/x/y/A.java").getWorkingCopy(null);
 		buffer = copy.getBuffer();
 		buffer.addBufferChangedListener(this);
+		this.events = new ArrayList();
 		copy.createImport("java.io.IOException", null, null);
-		assertBufferEvent(13, 0, "import java.io.IOException;" + "\n"); // A.java has a \n line delimiter
+		assertBufferEvents(
+			"(12, 0) import java.io.IOException;\n" + 
+			"(12, 0) \n" + 
+			"\n"
+		); // A.java has a \n line delimiter
 	} finally {
 		if (buffer != null) {
 			buffer.removeBufferChangedListener(this);
@@ -500,13 +507,35 @@ public void testCreateImport() throws CoreException {
  * The given text must contain '\n' line separators.
  */
 protected void assertBufferEvent(int offset, int length, String text) {
-	assertTrue("event should not be null", this.event != null);
-	assertEquals("unexpected offset", offset, this.event.getOffset());
-	assertEquals("unexpected length", length, this.event.getLength());
+	assertTrue("events should not be null", this.events != null);
+	assertTrue("events should not be empty", !this.events.isEmpty());
+	BufferChangedEvent event = (BufferChangedEvent) this.events.get(0);
+	assertEquals("unexpected offset", offset, event.getOffset());
+	assertEquals("unexpected length", length, event.getLength());
 	if (text == null) {
-		assertTrue("text should be null", this.event.getText() == null);
+		assertTrue("text should be null", event.getText() == null);
 	} else {
-		assertSourceEquals("unexpected text", text, this.event.getText());
+		assertSourceEquals("unexpected text", text, event.getText());
 	}
+}
+
+protected void assertBufferEvents(String expected) {
+	StringBuffer buffer = new StringBuffer();
+	if (this.events == null)
+		buffer.append("<null>");
+	else {
+		for (int i = 0, length = this.events.size(); i < length; i++) {
+			BufferChangedEvent event = (BufferChangedEvent) this.events.get(i);
+			buffer.append('(');
+			buffer.append(event.getOffset());
+			buffer.append(", ");
+			buffer.append(event.getLength());
+			buffer.append(") ");
+			buffer.append(event.getText());
+			if (i < length-1)
+				buffer.append("\n");
+		}
+	}
+	assertSourceEquals("Unexpected buffer events", expected, buffer.toString());
 }
 }

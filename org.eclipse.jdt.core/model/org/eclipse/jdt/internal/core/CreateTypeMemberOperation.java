@@ -10,15 +10,29 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IBuffer;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.dom.rewrite.Indents;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
 
 /**
  * Implements functionality common to
@@ -28,71 +42,125 @@ public abstract class CreateTypeMemberOperation extends CreateElementInCUOperati
 	/**
 	 * The source code for the new member.
 	 */
-	protected String fSource = null;
+	protected String source = null;
 	/**
-	 * The name of the <code>DOMNode</code> that may be used to
+	 * The name of the <code>ASTNode</code> that may be used to
 	 * create this new element.
 	 * Used by the <code>CopyElementsOperation</code> for renaming
 	 */
-	protected String fAlteredName;
+	protected String alteredName;
 	/**
-	 * The JDOM document fragment representing the element that
+	 * The AST node representing the element that
 	 * this operation created.
-	 * @deprecated JDOM is obsolete
 	 */
-     // TODO - JDOM - remove once model ported off of JDOM
-	 protected IDOMNode fDOMNode;
+	 protected ASTNode createdNode;
 /**
  * When executed, this operation will create a type member
  * in the given parent element with the specified source.
  */
 public CreateTypeMemberOperation(IJavaElement parentElement, String source, boolean force) {
 	super(parentElement);
-	fSource= source;
-	this.force= force;
+	this.source = source;
+	this.force = force;
 }
-/**
- * @see CreateElementInCUOperation#generateNewCompilationUnitDOM
- * @deprecated JDOM is obsolete
+protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent) {
+	switch (parent.getNodeType()) {
+		case ASTNode.COMPILATION_UNIT:
+			return CompilationUnit.TYPES_PROPERTY;
+		default:
+			return TypeDeclaration.BODY_DECLARATIONS_PROPERTY;
+	}
+}
+protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+	if (this.createdNode == null) {
+		this.source = removeIndentAndNewLines(this.source, document, cu);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(this.source.toCharArray());
+		parser.setProject(getCompilationUnit().getJavaProject());
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		ASTNode node = parser.createAST(this.progressMonitor);
+		String createdNodeSource;
+		if (node.getNodeType() != ASTNode.TYPE_DECLARATION) {
+			createdNodeSource = generateSyntaxIncorrectAST();
+			if (this.createdNode == null)
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+		} else {
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			this.createdNode = (ASTNode) typeDeclaration.bodyDeclarations().iterator().next();
+			createdNodeSource = this.source;
+		}
+		if (this.alteredName != null) {
+			SimpleName newName = this.createdNode.getAST().newSimpleName(this.alteredName);
+			SimpleName oldName = rename(this.createdNode, newName);
+			int nameStart = oldName.getStartPosition();
+			int nameEnd = nameStart + oldName.getLength();
+			StringBuffer newSource = new StringBuffer();
+			if (this.source.equals(createdNodeSource)) {
+				newSource.append(createdNodeSource.substring(0, nameStart));
+				newSource.append(this.alteredName);
+				newSource.append(createdNodeSource.substring(nameEnd));
+			} else {
+				// syntacticaly incorrect source
+				int createdNodeStart = this.createdNode.getStartPosition();
+				int createdNodeEnd = createdNodeStart + this.createdNode.getLength();
+				newSource.append(createdNodeSource.substring(createdNodeStart, nameStart));
+				newSource.append(this.alteredName);
+				newSource.append(createdNodeSource.substring(nameEnd, createdNodeEnd));
+				
+			}
+			this.source = newSource.toString();
+		}
+	}
+	if (rewriter == null) return this.createdNode;
+	// return a string place holder (instead of the created node) so has to not lose comments and formatting
+	return rewriter.createStringPlaceholder(this.source, this.createdNode.getNodeType());
+}
+private String removeIndentAndNewLines(String code, IDocument document, ICompilationUnit cu) {
+	IJavaProject project = cu.getJavaProject();
+	Map options = project.getOptions(true/*inherit JavaCore options*/);
+	int tabWidth;
+	try {
+		tabWidth = Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
+	} catch (NumberFormatException e) {
+		tabWidth = 4;
+	}
+	int indent = Indents.computeIndent(code, tabWidth);
+	int firstNonWhiteSpace = -1;
+	int length = code.length();
+	while (firstNonWhiteSpace < length-1)
+		if (!Character.isWhitespace(code.charAt(++firstNonWhiteSpace)))
+			break;
+	int lastNonWhiteSpace = length;
+	while (lastNonWhiteSpace > 0)
+		if (!Character.isWhitespace(code.charAt(--lastNonWhiteSpace)))
+			break;
+	String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
+	return Indents.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, "", lineDelimiter); //$NON-NLS-1$
+}
+/*
+ * Renames the given node to the given name.
+ * Returns the old name.
  */
-// TODO - JDOM - remove once model ported off of JDOM
-protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaModelException {
-	IBuffer buffer = cu.getBuffer();
-	if (buffer == null) return;
-	char[] prevSource = buffer.getCharacters();
-	if (prevSource == null) return;
-
-	// create a JDOM for the compilation unit
-	fCUDOM = (new DOMFactory()).createCompilationUnit(prevSource, cu.getElementName());
-	IDOMNode parent = ((JavaElement) getParentElement()).findNode(fCUDOM);
-	if (parent == null) {
-		//#findNode does not work for autogenerated CUs as the contents are empty
-		parent = fCUDOM;
-	}
-	IDOMNode child = deprecatedGenerateElementDOM();
-	if (child != null) {
-		insertDOMNode(parent, child);
-	}
-	worked(1);
-}
+protected abstract SimpleName rename(ASTNode node, SimpleName newName);
 /**
- * Generates a <code>IDOMNode</code> based on the source of this operation
+ * Generates an <code>ASTNode</code> based on the source of this operation
  * when there is likely a syntax error in the source.
- * @deprecated JDOM is obsolete
+ * Returns the source used to generate this node.
  */
-// TODO - JDOM - remove once model ported off of JDOM
-protected IDOMNode generateSyntaxIncorrectDOM() {
-	//create some dummy source to generate a dom node
+protected String generateSyntaxIncorrectAST() {
+	//create some dummy source to generate an ast node
 	StringBuffer buff = new StringBuffer();
 	buff.append(Util.LINE_SEPARATOR + " public class A {" + Util.LINE_SEPARATOR); //$NON-NLS-1$
-	buff.append(fSource);
+	buff.append(this.source);
 	buff.append(Util.LINE_SEPARATOR).append('}');
-	IDOMCompilationUnit domCU = (new DOMFactory()).createCompilationUnit(buff.toString(), "A.java"); //$NON-NLS-1$
-	IDOMNode node = (IDOMNode) domCU.getChild("A").getChildren().nextElement(); //$NON-NLS-1$
-	if (node != null) {
-		node.remove();
-	}
-	return node;
+	ASTParser parser = ASTParser.newParser(AST.JLS3);
+	parser.setSource(buff.toString().toCharArray());
+	CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+	TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().iterator().next();
+	List bodyDeclarations = typeDeclaration.bodyDeclarations();
+	if (bodyDeclarations.size() != 0)
+		this.createdNode = (ASTNode) bodyDeclarations.iterator().next();
+	return buff.toString();
 }
 /**
  * Returns the IType the member is to be created in.
@@ -101,12 +169,12 @@ protected IType getType() {
 	return (IType)getParentElement();
 }
 /**
- * Sets the name of the <code>DOMNode</code> that will be used to
+ * Sets the name of the <code>ASTNode</code> that will be used to
  * create this new element.
  * Used by the <code>CopyElementsOperation</code> for renaming
  */
 protected void setAlteredName(String newName) {
-	fAlteredName = newName;
+	this.alteredName = newName;
 }
 /**
  * Possible failures: <ul>
@@ -121,19 +189,14 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	IJavaElement parent = getParentElement(); // non-null since check was done in supper
-	Member localContext;
-	if (parent instanceof Member && (localContext = ((Member)parent).getOuterMostLocalContext()) != null && localContext != parent) {
-		// JDOM doesn't support source manipulation in local/anonymous types
-		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, parent);
-	}
-	if (fSource == null) {
+	if (this.source == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}
 	if (!force) {
 		//check for name collisions
 		try {
-			deprecatedGenerateElementDOM();
+			ICompilationUnit cu = getCompilationUnit();
+			generateElementAST(null, getDocument(cu), cu);
 		} catch (JavaModelException jme) {
 			return jme.getJavaModelStatus();
 		}
@@ -141,13 +204,6 @@ public IJavaModelStatus verify() {
 	}
 	
 	return JavaModelStatus.VERIFIED_OK;
-}
-/**
- * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
- */
-// TODO - JDOM - remove once model ported off of JDOM
-private IDOMNode deprecatedGenerateElementDOM() throws JavaModelException {
-	return generateElementDOM();
 }
 /**
  * Verify for a name collision in the destination container.

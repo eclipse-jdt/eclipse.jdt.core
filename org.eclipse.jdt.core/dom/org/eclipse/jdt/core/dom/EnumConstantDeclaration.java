@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -407,38 +406,6 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 */	
 	public IVariableBinding resolveVariable() {
 		return this.ast.getBindingResolver().resolveVariable(this);
-	}
-	
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
-	void appendDebugString(StringBuffer buffer) {
-		buffer.append("EnumConstantDeclaration[");//$NON-NLS-1$
-		buffer.append(getName().getIdentifier());
-		buffer.append(" ");//$NON-NLS-1$
-		if (!arguments().isEmpty()) {
-			buffer.append("(");//$NON-NLS-1$
-			for (Iterator it = arguments().iterator(); it.hasNext(); ) {
-				Expression e = (Expression) it.next();
-				e.appendDebugString(buffer);
-				if (it.hasNext()) {
-					buffer.append(",");//$NON-NLS-1$
-				}
-			}
-			buffer.append(")");//$NON-NLS-1$
-		}
-		if (getAnonymousClassDeclaration() != null) {
-			buffer.append(" {");//$NON-NLS-1$
-			for (Iterator it = getAnonymousClassDeclaration().bodyDeclarations().iterator(); it.hasNext(); ) {
-				BodyDeclaration d = (BodyDeclaration) it.next();
-				d.appendDebugString(buffer);
-				if (it.hasNext()) {
-					buffer.append(";");//$NON-NLS-1$
-				}
-			}
-			buffer.append("}");//$NON-NLS-1$
-		}
-		buffer.append("]");//$NON-NLS-1$
 	}
 		
 	/* (omit javadoc for this method)

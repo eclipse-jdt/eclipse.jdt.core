@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 /**
  * @see IField
@@ -33,13 +33,12 @@ public boolean equals(Object o) {
 	if (!(o instanceof SourceField)) return false;
 	return super.equals(o);
 }
-/**
- * @see JavaElement#equalsDOMNode
- * @deprecated JDOM is obsolete
- */
-// TODO - JDOM - remove once model ported off of JDOM
-protected boolean equalsDOMNode(IDOMNode node) {
-	return (node.getNodeType() == IDOMNode.FIELD) && super.equalsDOMNode(node);
+public ASTNode findNode(org.eclipse.jdt.core.dom.CompilationUnit ast) {
+	// For field declarations, a variable declaration fragment is returned
+	// Return the FieldDeclaration instead
+	ASTNode node = super.findNode(ast);
+	if (node == null) return null;
+	return node.getParent();
 }
 /**
  * @see IField

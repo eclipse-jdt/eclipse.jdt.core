@@ -513,29 +513,30 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 		assertTrue("Buffer for A should not be null", this.copy.getBuffer() != null);
 		assertSourceEquals("Invalid content for A", 
 			"package x.y;\n" +
-			"import java.io.File;\n",
+			"import java.io.File;",
 			this.copy.getBuffer().getContents());
 		assertTrue("Buffer for B should not be null", copy2.getBuffer() != null);
 		assertSourceEquals("Invalid content for B", 
-			"package x.y;\n" +
-			"public class B {\n" +
-			"public class A {\n" +
-			"  public class Inner {\n" +
-			"    public class InnerInner {\n" +
-			"    }\n" +
-			"    int innerField;\n" +
-			"    void innerMethod() {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  static String FIELD;\n" +
-			"  {\n" +
-			"    FIELD = File.pathSeparator;\n" +
-			"  }\n" +
-			"  int field1;\n" +
-			"  boolean field2;\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}\n" +
+			"package x.y;\n" + 
+			"public class B {\n" + 
+			"\n" + 
+			"	public class A {\n" + 
+			"	  public class Inner {\n" + 
+			"	    public class InnerInner {\n" + 
+			"	    }\n" + 
+			"	    int innerField;\n" + 
+			"	    void innerMethod() {\n" + 
+			"	    }\n" + 
+			"	  }\n" + 
+			"	  static String FIELD;\n" + 
+			"	  {\n" + 
+			"	    FIELD = File.pathSeparator;\n" + 
+			"	  }\n" + 
+			"	  int field1;\n" + 
+			"	  boolean field2;\n" + 
+			"	  public void foo() {\n" + 
+			"	  }\n" + 
+			"	}\n" + 
 			"}",
 			copy2.getBuffer().getContents());
 	} finally {

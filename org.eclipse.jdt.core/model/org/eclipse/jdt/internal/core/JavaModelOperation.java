@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * Defines behavior common to all Java Model operations
@@ -414,6 +415,15 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			operationStacks.set(stack);
 		}
 		return stack;
+	}
+	/*
+	 * Returns the existing document for the given cu, or a DocumentAdapter if none.
+	 */
+	protected IDocument getDocument(ICompilationUnit cu) throws JavaModelException {
+		IBuffer buffer = cu.getBuffer();
+		if (buffer instanceof IDocument)
+			return (IDocument) buffer;
+		return new DocumentAdapter(buffer);
 	}
 	/**
 	 * Returns the elements to which this operation applies,

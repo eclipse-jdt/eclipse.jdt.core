@@ -777,26 +777,6 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	void appendDebugString(StringBuffer buffer) {
-		buffer.append("TypeDeclaration["); //$NON-NLS-1$
-		buffer.append(isInterface()
-		   ? "interface " //$NON-NLS-1$
-		   : "class "); //$NON-NLS-2$//$NON-NLS-1$
-		buffer.append(getName().getIdentifier());
-		buffer.append(" "); //$NON-NLS-1$
-		for (Iterator it = bodyDeclarations().iterator(); it.hasNext();) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
-			d.appendDebugString(buffer);
-			if (it.hasNext()) {
-				buffer.append(";"); //$NON-NLS-1$
-			}
-		}
-		buffer.append("]"); //$NON-NLS-1$
-	}
-		
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	int memSize() {
 		return super.memSize() + 6 * 4;
 	}

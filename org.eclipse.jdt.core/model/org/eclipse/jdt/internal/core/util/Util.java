@@ -24,6 +24,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
@@ -997,6 +1005,68 @@ public class Util {
 		}
 	}
 	
+	/*
+	 * Returns the signature of the given type.
+	 */
+	public static String getSignature(Type type) {
+		StringBuffer buffer = new StringBuffer();
+		getFullyQualifiedName(type, buffer);
+		return Signature.createTypeSignature(buffer.toString(), false/*not resolved in source*/);
+	}
+	
+	/*
+	 * Appends to the given buffer the fully qualified name (as it appears in the source) of the given type
+	 */
+	private static void getFullyQualifiedName(Type type, StringBuffer buffer) {
+		switch (type.getNodeType()) {
+			case ASTNode.ARRAY_TYPE:
+				ArrayType arrayType = (ArrayType) type;
+				getFullyQualifiedName(arrayType.getElementType(), buffer);
+				for (int i = 0, length = arrayType.getDimensions(); i < length; i++) {
+					buffer.append('[');
+					buffer.append(']');
+				}
+				break;
+			case ASTNode.PARAMETERIZED_TYPE:
+				ParameterizedType parameterizedType = (ParameterizedType) type;
+				getFullyQualifiedName(parameterizedType.getType(), buffer);
+				buffer.append('<');
+				Iterator iterator = parameterizedType.typeArguments().iterator();
+				boolean isFirst = true;
+				while (iterator.hasNext()) {
+					if (!isFirst)
+						buffer.append(',');
+					else
+						isFirst = false;
+					Type typeArgument = (Type) iterator.next();
+					getFullyQualifiedName(typeArgument, buffer);
+				}
+				buffer.append('>');
+				break;
+			case ASTNode.PRIMITIVE_TYPE:
+				buffer.append(((PrimitiveType) type).getPrimitiveTypeCode().toString());
+				break;
+			case ASTNode.QUALIFIED_TYPE:
+				buffer.append(((QualifiedType) type).getName().getFullyQualifiedName());
+				break;
+			case ASTNode.SIMPLE_TYPE:
+				buffer.append(((SimpleType) type).getName().getFullyQualifiedName());
+				break;
+			case ASTNode.WILDCARD_TYPE:
+				buffer.append('?');
+				WildcardType wildcardType = (WildcardType) type;
+				Type bound = wildcardType.getBound();
+				if (bound == null) return;
+				if (wildcardType.isUpperBound()) {
+					buffer.append(" extends "); //$NON-NLS-1$
+				} else {
+					buffer.append(" super "); //$NON-NLS-1$
+				}
+				getFullyQualifiedName(bound, buffer);
+				break;
+		}
+	}
+
 	/**
 	 * Returns a trimmed version the simples names returned by Signature.
 	 */

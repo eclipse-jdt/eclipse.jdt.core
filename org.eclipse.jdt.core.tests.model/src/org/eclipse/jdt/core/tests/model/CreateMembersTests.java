@@ -46,9 +46,10 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createMethod("\tpublic void foo() {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n", null, true, new NullProgressMonitor());
 		String expectedSource = 
-			"public class A\n" +
-			"{	public void foo() {\n" +
-			"		System.out.println(\"Hello World\");\n" +
+			"public class A {\n" + 
+			"\n" + 
+			"	public void foo() {\n" + 
+			"		System.out.println(\"Hello World\");\n" + 
 			"	}\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());

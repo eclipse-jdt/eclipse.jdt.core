@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation creates a field declaration in a type.
@@ -39,34 +45,17 @@ public class CreateFieldOperation extends CreateTypeMemberOperation {
 public CreateFieldOperation(IType parentElement, String source, boolean force) {
 	super(parentElement, source, force);
 }
-/**
- * @see CreateTypeMemberOperation#generateSyntaxIncorrectDOM()
- * @deprecated JDOM is obsolete
- */
-// TODO - JDOM - remove once model ported off of JDOM
-protected IDOMNode generateElementDOM() throws JavaModelException {
-	if (fDOMNode == null) {
-		fDOMNode = (new DOMFactory()).createField(fSource);
-		if (fDOMNode == null) {
-			fDOMNode = generateSyntaxIncorrectDOM();
-			if (fDOMNode == null) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-			}
-		}
-		if (fAlteredName != null && fDOMNode != null) {
-			fDOMNode.setName(fAlteredName);
-		}
-	}
-	if (!(fDOMNode instanceof IDOMField)) {
+protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+	ASTNode node = super.generateElementAST(rewriter, document, cu);
+	if (node.getNodeType() != ASTNode.FIELD_DECLARATION)
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-	}
-	return fDOMNode;
+	return node;
 }
 /**
  * @see CreateElementInCUOperation#generateResultHandle
  */
 protected IJavaElement generateResultHandle() {
-	return getType().getField(getDOMNodeName());
+	return getType().getField(getASTNodeName());
 }
 /**
  * @see CreateElementInCUOperation#getMainTaskName()
@@ -99,19 +88,25 @@ protected void initializeDefaultPosition() {
  * @see CreateTypeMemberOperation#verifyNameCollision
  */
 protected IJavaModelStatus verifyNameCollision() {
-	IType type= getType();
-	if (type.getField(getDOMNodeName()).exists()) {
-		return new JavaModelStatus(
-			IJavaModelStatusConstants.NAME_COLLISION, 
-			Util.bind("status.nameCollision", getDOMNodeName())); //$NON-NLS-1$
+	if (this.createdNode != null) {
+		IType type= getType();
+		String fieldName = getASTNodeName();
+		if (type.getField(fieldName).exists()) {
+			return new JavaModelStatus(
+				IJavaModelStatusConstants.NAME_COLLISION, 
+				Util.bind("status.nameCollision", fieldName)); //$NON-NLS-1$
+		}
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }
-/**
- * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
- */
-// TODO - JDOM - remove once model ported off of JDOM
-private String getDOMNodeName() {
-	return fDOMNode.getName();
+private String getASTNodeName() {
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) this.createdNode).fragments().iterator().next();
+	return fragment.getName().getIdentifier();
+}
+protected SimpleName rename(ASTNode node, SimpleName newName) {
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) node).fragments().iterator().next();
+	SimpleName oldName = fragment.getName();
+	fragment.setName(newName);
+	return oldName;
 }
 }

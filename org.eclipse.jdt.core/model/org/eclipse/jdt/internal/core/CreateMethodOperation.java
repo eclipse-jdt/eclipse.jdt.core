@@ -10,14 +10,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Iterator;
+import java.util.List;
+
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation creates an instance method. 
@@ -29,7 +37,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  * </ul>
  */
 public class CreateMethodOperation extends CreateTypeMemberOperation {
-	protected String[] fParameterTypes;
+	
+	protected String[] parameterTypes;
+	
 /**
  * When executed, this operation will create a method
  * in the given type with the specified source.
@@ -39,77 +49,40 @@ public CreateMethodOperation(IType parentElement, String source, boolean force) 
 }
 /**
  * Returns the type signatures of the parameter types of the
- * current <code>DOMMethod</code>
- * @deprecated JDOM is obsolete
+ * current <code>MethodDeclaration</code>
  */
-// TODO - JDOM - remove once model ported off of JDOM
-protected String[] convertDOMMethodTypesToSignatures() {
-	if (fParameterTypes == null) {
-		if (isDOMNodeNull()) {
-			String[] domParameterTypes = ((IDOMMethod)fDOMNode).getParameterTypes();
-			if (domParameterTypes != null) {
-				fParameterTypes = new String[domParameterTypes.length];
-				// convert the DOM types to signatures
-				int i;
-				for (i = 0; i < fParameterTypes.length; i++) {
-					fParameterTypes[i] = Signature.createTypeSignature(domParameterTypes[i].toCharArray(), false);
-				}
+protected String[] convertASTMethodTypesToSignatures() {
+	if (this.parameterTypes == null) {
+		if (this.createdNode != null) {
+			List parameters = ((MethodDeclaration) this.createdNode).parameters();
+			int size = parameters.size();
+			this.parameterTypes = new String[size];
+			Iterator iterator = parameters.iterator();
+			// convert the AST types to signatures
+			for (int i = 0; i < size; i++) {
+				SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
+				this.parameterTypes[i] = Util.getSignature(parameter.getType());
 			}
 		}
 	}
-	return fParameterTypes;
+	return this.parameterTypes;
 }
-/**
- * @see CreateTypeMemberOperation#generateSyntaxIncorrectDOM()
- * @deprecated JDOM is obsolete
- */
-// TODO - JDOM - remove once model ported off of JDOM
-protected IDOMNode generateElementDOM() throws JavaModelException {
-	if (fDOMNode == null) {
-		fDOMNode = (new DOMFactory()).createMethod(fSource);
-		if (fDOMNode == null) {
-			//syntactically incorrect source
-			fDOMNode = generateSyntaxIncorrectDOM();
-			if (fDOMNode == null) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-			}
-		}
-		if (fAlteredName != null && isDOMNodeNull()) {
-			fDOMNode.setName(fAlteredName);
-		}
-	}
-	if (!(fDOMNode instanceof IDOMMethod)) {
+protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+	ASTNode node = super.generateElementAST(rewriter, document, cu);
+	if (node.getNodeType() != ASTNode.METHOD_DECLARATION)
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-	}
-	return fDOMNode;
+	return node;
 }
 /**
  * @see CreateElementInCUOperation#generateResultHandle
  */
 protected IJavaElement generateResultHandle() {
-	String[] types = convertDOMMethodTypesToSignatures();
-	String name = computeName();
+	String[] types = convertASTMethodTypesToSignatures();
+	String name = getASTNodeName();
 	return getType().getMethod(name, types);
 }
-/**
- * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
- */
-// TODO - JDOM - remove once model ported off of JDOM
-private String computeName() {
-	String name;
-	if (((IDOMMethod) fDOMNode).isConstructor()) {
-		name = fDOMNode.getParent().getName();
-	} else {
-		name = getDOMNodeName();
-	}
-	return name;
-}
-/**
- * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
- */
-// TODO - JDOM - remove once model ported off of JDOM
-private String getDOMNodeName() {
-	return fDOMNode.getName();
+private String getASTNodeName() {
+	return ((MethodDeclaration) this.createdNode).getName().getIdentifier();
 }
 /**
  * @see CreateElementInCUOperation#getMainTaskName()
@@ -117,17 +90,24 @@ private String getDOMNodeName() {
 public String getMainTaskName(){
 	return Util.bind("operation.createMethodProgress"); //$NON-NLS-1$
 }
+protected SimpleName rename(ASTNode node, SimpleName newName) {
+	MethodDeclaration method = (MethodDeclaration) node;
+	SimpleName oldName = method.getName();
+	method.setName(newName);
+	return oldName;
+}
 /**
  * @see CreateTypeMemberOperation#verifyNameCollision
  */
 protected IJavaModelStatus verifyNameCollision() {
-	if (isDOMNodeNull()) {
+	if (this.createdNode != null) {
 		IType type = getType();
-		String name = getDOMNodeName();
-		if (name == null) { //constructor
+		String name;
+		if (((MethodDeclaration) this.createdNode).isConstructor())
 			name = type.getElementName();
-		}
-		String[] types = convertDOMMethodTypesToSignatures();
+		else
+			name = getASTNodeName();
+		String[] types = convertASTMethodTypesToSignatures();
 		if (type.getMethod(name, types).exists()) {
 			return new JavaModelStatus(
 				IJavaModelStatusConstants.NAME_COLLISION, 
@@ -135,12 +115,5 @@ protected IJavaModelStatus verifyNameCollision() {
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;
-}
-/**
- * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
- */
-// TODO - JDOM - remove once model ported off of JDOM
-private boolean isDOMNodeNull() {
-	return fDOMNode != null;
 }
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Iterator;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
@@ -19,8 +21,15 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation adds an import declaration to an existing compilation unit.
@@ -45,38 +54,40 @@ public class CreateImportOperation extends CreateElementInCUOperation {
 	/**
 	 * The name of the import to be created.
 	 */
-	protected String fImportName;
+	protected String importName;
 /**
  * When executed, this operation will add an import to the given compilation unit.
  */
 public CreateImportOperation(String importName, ICompilationUnit parentElement) {
 	super(parentElement);
-	fImportName = importName;
+	this.importName = importName;
 }
-/**
- * @see CreateTypeMemberOperation
- * @deprecated JDOM is obsolete
- */
-// TODO - JDOM - remove once model ported off of JDOM
-protected IDOMNode generateElementDOM() {
-	if (fCUDOM.getChild(fImportName) == null) {
-		DOMFactory factory = new DOMFactory();
-		//not a duplicate
-		IDOMImport imp = factory.createImport();
-		imp.setName(fImportName);
-		return imp;
+protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent) {
+	return CompilationUnit.IMPORTS_PROPERTY;
+}
+protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+	// ensure no duplicate
+	Iterator imports = this.cuAST.imports().iterator();
+	while (imports.hasNext()) {
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.next();
+		if (this.importName.equals(importDeclaration.getName().getFullyQualifiedName())) {
+			//no new import was generated
+			this.creationOccurred = false;
+			return null;
+		}
 	}
 	
-	//no new import was generated
-	fCreationOccurred = false;
-	//all the work has already been done
-	return null;
+	AST ast = this.cuAST.getAST();
+	ImportDeclaration importDeclaration = ast.newImportDeclaration();
+	Name name = ast.newName(new String[] {this.importName});
+	importDeclaration.setName(name);
+	return importDeclaration;
 }
 /**
  * @see CreateElementInCUOperation#generateResultHandle
  */
 protected IJavaElement generateResultHandle() {
-	return getCompilationUnit().getImport(fImportName);
+	return getCompilationUnit().getImport(this.importName);
 }
 /**
  * @see CreateElementInCUOperation#getMainTaskName()
@@ -130,8 +141,8 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	if (JavaConventions.validateImportDeclaration(fImportName).getSeverity() == IStatus.ERROR) {
-		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fImportName);
+	if (JavaConventions.validateImportDeclaration(this.importName).getSeverity() == IStatus.ERROR) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, this.importName);
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }

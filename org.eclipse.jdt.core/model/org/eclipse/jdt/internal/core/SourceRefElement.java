@@ -23,6 +23,9 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.core.util.DOMFinder;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -85,6 +88,19 @@ public boolean equals(Object o) {
 	if (!(o instanceof SourceRefElement)) return false;
 	return this.occurrenceCount == ((SourceRefElement)o).occurrenceCount &&
 			super.equals(o);
+}
+/**
+ * Returns the <code>ASTNode</code> that corresponds to this <code>JavaElement</code>
+ * or <code>null</code> if there is no corresponding node.
+ */
+public ASTNode findNode(CompilationUnit ast) {
+	DOMFinder finder = new DOMFinder(ast, this, false);
+	try {
+		return finder.search();
+	} catch (JavaModelException e) {
+		// receiver doesn't exist
+		return null;
+	}
 }
 /*
  * @see JavaElement#generateInfos
