@@ -58,43 +58,42 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
-			CompilationUnit copy = (CompilationUnit)getCompilationUnit();
-			ICompilationUnit original = copy.getPrimary();
+			CompilationUnit workingCopy = (CompilationUnit)getCompilationUnit();
+			ICompilationUnit primary = workingCopy.getPrimary();
 		
-			
 			// creates the delta builder (this remembers the content of the cu)	
-			if (!original.isOpen()) {
+			if (!primary.isOpen()) {
 				// force opening so that the delta builder can get the old info
-				original.open(null);
+				primary.open(null);
 			}
 			JavaElementDeltaBuilder deltaBuilder;
-			if (Util.isExcluded(original)) {
+			if (Util.isExcluded(primary)) {
 				deltaBuilder = null;
 			} else {
-				deltaBuilder = new JavaElementDeltaBuilder(original);
+				deltaBuilder = new JavaElementDeltaBuilder(primary);
 			}
 		
 			// save the cu
-			IBuffer originalBuffer = original.getBuffer();
-			if (originalBuffer == null) return;
-			char[] originalContents = originalBuffer.getCharacters();
+			IBuffer primaryBuffer = primary.getBuffer();
+			if (primaryBuffer == null) return;
+			char[] primaryContents = primaryBuffer.getCharacters();
 			boolean hasSaved = false;
 			try {
-				IBuffer copyBuffer = copy.getBuffer();
-				if (copyBuffer == null) return;
-				originalBuffer.setContents(copyBuffer.getCharacters());
-				original.save(fMonitor, fForce);
-				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+				IBuffer workingCopyBuffer = workingCopy.getBuffer();
+				if (workingCopyBuffer == null) return;
+				primaryBuffer.setContents(workingCopyBuffer.getCharacters());
+				primary.save(fMonitor, fForce);
+				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 				hasSaved = true;
 			} finally {
 				if (!hasSaved){
 					// restore original buffer contents since something went wrong
-					originalBuffer.setContents(originalContents);
+					primaryBuffer.setContents(primaryContents);
 				}
 			}
 			// make sure working copy is in sync
-			copy.updateTimeStamp((CompilationUnit)original);
-			copy.makeConsistent(this);
+			workingCopy.updateTimeStamp((CompilationUnit)primary);
+			workingCopy.makeConsistent(this);
 			worked(1);
 		
 			if (deltaBuilder != null) {

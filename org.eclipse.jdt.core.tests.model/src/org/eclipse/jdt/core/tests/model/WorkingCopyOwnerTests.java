@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
@@ -24,6 +25,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.core.Util;
 
 import junit.framework.Test;
 
@@ -119,6 +121,38 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
+		}
+	}
+	
+	/*
+	 * Tests that a primary working copy can be commited.
+	 */
+	public void testCommitPrimaryWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			IFile file = createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			String newContents = 
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}";
+			workingCopy.getBuffer().setContents(newContents);
+			workingCopy.commitWorkingCopy(false, null);
+			assertSourceEquals(
+				"Unexpected source",
+				newContents,
+				new String(Util.getResourceContentsAsCharArray(file)));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
 		}
 	}
 

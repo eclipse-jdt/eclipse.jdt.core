@@ -279,12 +279,13 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
 	if (!isWorkingCopy()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
 	}
-	ICompilationUnit original = (ICompilationUnit)this.getOriginalElement(); 
-	// TODO (jerome) shouldn't it use #getPrimary() instead ? or directly #getResource()
-	if (original.exists()) {
+	ICompilationUnit primary = getPrimary(); 
+	if (primary.exists()) { 
+		// primary cu on the classpath
 		CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
 		runOperation(op, monitor);
-	} else {
+	} else { 
+		// primary resource doesn't exist OR primary not on classpath
 		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 		String contents = this.getSource();
 		if (contents == null) return;
@@ -293,7 +294,7 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
 				? contents.getBytes() 
 				: contents.getBytes(encoding);
 			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-			IFile originalRes = (IFile)original.getResource();
+			IFile originalRes = (IFile)primary.getResource();
 			if (originalRes.exists()) {
 				originalRes.setContents(
 					stream, 
@@ -1084,7 +1085,8 @@ public void restore() throws JavaModelException {
  * @see IOpenable
  */
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
-	if (!isWorkingCopy()) {
+	// if not a working copy or if primary working copy
+	if (this.owner == DefaultWorkingCopyOwner.PRIMARY || !isWorkingCopy()) {
 		super.save(pm, force);
 		return;
 	}
@@ -1092,13 +1094,9 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 	}
 	// no need to save the buffer for a working copy (this is a noop)
-	//IBuffer buf = getBuffer();
-	//if (buf != null) { // some Openables (like a JavaProject) don't have a buffer
-	//	buf.save(pm, force);
-		this.reconcile();   // not simply makeConsistent, also computes fine-grain deltas
+	this.reconcile();   // not simply makeConsistent, also computes fine-grain deltas
 							// in case the working copy is being reconciled already (if not it would miss
 							// one iteration of deltas).
-	//}
 }
 /**
  * @private Debugging purposes
