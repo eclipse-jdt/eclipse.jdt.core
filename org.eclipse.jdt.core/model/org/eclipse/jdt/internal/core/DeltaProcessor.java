@@ -786,6 +786,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 						element.getParent().getElementType(), 
 						null/* root info must be retrieved as it can be different from the current one (move from one root to another*/);
 				
+				// reset current element as it might be inside a nested root (popUntilPrefixOf() may use the outer root)
+				this.currentElement = null;
+			
 				// create the moved from element
 				Openable movedFromElement = 
 					elementType != IJavaElement.JAVA_PROJECT && movedFromType == IJavaElement.JAVA_PROJECT ? 
@@ -882,6 +885,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 					delta.getFlags(),
 					element.getParent().getElementType(), 
 					null/* root info must be retrieved as it can be different from the current one (move from one root to another*/);
+
+			// reset current element as it might be inside a nested root (popUntilPrefixOf() may use the outer root)
+			this.currentElement = null;
 			
 			// create the moved To element
 			Openable movedToElement = 

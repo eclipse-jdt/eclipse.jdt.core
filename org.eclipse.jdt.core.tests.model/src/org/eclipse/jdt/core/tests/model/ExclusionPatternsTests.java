@@ -406,6 +406,27 @@ public void testNestedSourceFolder5() throws CoreException {
 	);
 }
 /*
+ * Ensures that moving a package from an outer source folder to a nested
+ * source folder reports a move delta.
+ */
+public void testNestedSourceFolder6() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	this.createFolder("/P/src1/p");
+	
+	this.clearDeltas();
+	this.moveFolder("/P/src1/p", "/P/src1/src2/p");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src1[*]: {CHILDREN}\n" + 
+		"		p[-]: {MOVED_TO(p [in src1/src2 [in P]])}\n" + 
+		"	src1/src2[*]: {CHILDREN}\n" + 
+		"		p[+]: {MOVED_FROM(p [in src1 [in P]])}"
+	);
+}
+/*
  * Ensure that renaming an excluded compilation unit so that it is not excluded any longer
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
