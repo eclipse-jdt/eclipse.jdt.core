@@ -639,13 +639,16 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			char[] typeQualification;
 			try {
 				String typeSignature = Signature.toString(field.getTypeSignature()).replace('$', '.');
-				lastDot = typeSignature.lastIndexOf('.');
-				typeSimpleName = (lastDot != -1 ? typeSignature.substring(lastDot + 1) : typeSignature).toCharArray();
-				typeQualification = 
-					lastDot != -1 ? 
+				if ((lastDot = typeSignature.lastIndexOf('.')) == -1) {
+					typeSimpleName = typeSignature.toCharArray();
+					typeQualification = null;
+				} else {
+					typeSimpleName = typeSignature.substring(lastDot + 1).toCharArray();
+					typeQualification = field.isBinary()
+						? typeSignature.substring(0, lastDot).toCharArray()
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						CharOperation.concat(ONE_STAR, typeSignature.substring(0, lastDot).toCharArray()) : 
-						null;
+						: CharOperation.concat(ONE_STAR, typeSignature.substring(0, lastDot).toCharArray());
+				}
 			} catch (JavaModelException e) {
 				return null;
 			}
@@ -755,13 +758,16 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			char[] returnQualification;
 			try {
 				String returnType = Signature.toString(method.getReturnType()).replace('$', '.');
-				lastDot = returnType.lastIndexOf('.');
-				returnSimpleName = (lastDot != -1 ? returnType.substring(lastDot + 1) : returnType).toCharArray();
-				returnQualification = 
-					lastDot != -1 ? 
+				if ((lastDot = returnType.lastIndexOf('.')) == -1) {
+					returnSimpleName = returnType.toCharArray();
+					returnQualification = null;
+				} else {
+					returnSimpleName = returnType.substring(lastDot + 1).toCharArray();
+					returnQualification = method.isBinary()
+						? returnType.substring(0, lastDot).toCharArray()
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						CharOperation.concat(ONE_STAR, returnType.substring(0, lastDot).toCharArray()) : 
-						null;
+						: CharOperation.concat(ONE_STAR, returnType.substring(0, lastDot).toCharArray());
+				}
 			} catch (JavaModelException e) {
 				return null;
 			}
@@ -771,13 +777,16 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			char[][] parameterQualifications = new char[paramCount][];
 			for (int i = 0; i < paramCount; i++) {
 				String signature = Signature.toString(parameterTypes[i]).replace('$', '.');
-				lastDot = signature.lastIndexOf('.');
-				parameterSimpleNames[i] = (lastDot != -1 ? signature.substring(lastDot + 1) : signature).toCharArray();
-				parameterQualifications[i] = 
-					lastDot != -1 ? 
+				if ((lastDot = signature.lastIndexOf('.')) == -1) {
+					parameterSimpleNames[i] = signature.toCharArray();
+					parameterQualifications[i] = null;
+				} else {
+					parameterSimpleNames[i] = signature.substring(lastDot + 1).toCharArray();
+					parameterQualifications[i] = method.isBinary()
+						? signature.substring(0, lastDot).toCharArray()
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray()) : 
-						null;
+						: CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray());
+				}
 			}
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
