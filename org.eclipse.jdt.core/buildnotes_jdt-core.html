@@ -15,7 +15,18 @@ Eclipse SDK Build ???????? - ??th ?????? ????
 <br>Project org.eclipse.jdt.core v_???
 <h2>
 What's new in this drop</h2>
-
+<ul>
+<li> New incremental builder implementation enabled by default (can reenable the 
+old implementation by changing the builder extension in the plugin.xml)
+<li> Delta processing is no longer creating unnecessary Java elements when
+traversing the resource delta.
+<li> Source folder resource copying no longer perfom any copies as soon as
+one source folder coincidates with the output location.
+<li> Open on selection is more fault-tolerant: will now try to locate a
+selected method for which argument types are incorrect.
+<li> Compiler no longer rejects correct code with respect to access to protected
+members defined in enclosing types (was only accepting a subset of correct scenarii).
+</ul>
 <h3>
 Problem Reports Fixed</h3>
 <a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6456">6456</a>:
