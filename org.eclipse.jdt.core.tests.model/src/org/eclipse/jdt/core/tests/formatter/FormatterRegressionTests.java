@@ -1405,10 +1405,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test143", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/**
-	 * TODO fix it. Fails in nightly build
-	 */
-	public void _test144() {
+	public void test144() {
 		DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getDefault();
 		preferences.use_tab = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
