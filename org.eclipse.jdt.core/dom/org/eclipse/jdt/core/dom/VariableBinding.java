@@ -12,7 +12,13 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
  * Internal implementation of variable bindings.
@@ -52,8 +58,8 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public ITypeBinding getDeclaringClass() {
 		if (isField()) {
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (this.declaringClass == null) {
+				FieldBinding fieldBinding = (FieldBinding) this.binding;
 				this.declaringClass = this.resolver.getTypeBinding(fieldBinding.declaringClass);
 			}
 			return this.declaringClass;
@@ -61,7 +67,7 @@ class VariableBinding implements IVariableBinding {
 			return null;
 		}
 	}
-
+	
 	/*
 	 * @see IVariableBinding#getType()
 	 */
@@ -123,8 +129,46 @@ class VariableBinding implements IVariableBinding {
 			}
 			buffer.append(this.getName());
 			return buffer.toString();
-		}			
-		return null;
+		} else {
+			StringBuffer buffer = new StringBuffer();
+			
+			// declaring method or type
+			LocalVariableBinding localVarBinding = (LocalVariableBinding) this.binding;
+			BlockScope scope = localVarBinding.declaringScope;
+			MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+			ReferenceContext referenceContext = methodScope.referenceContext;
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
+				IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
+				if (methodBinding != null) {
+					buffer.append(methodBinding.getKey());
+				}
+			} else if (referenceContext instanceof TypeDeclaration) {
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((TypeDeclaration) referenceContext).binding;
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
+				if (typeBinding != null) {
+					buffer.append(typeBinding.getKey());
+				}
+			}
+
+			// scope index
+			getKey(((LocalVariableBinding) this.binding).declaringScope, buffer);
+
+			// variable name
+			buffer.append('/');
+			buffer.append(getName());
+			
+			return buffer.toString();
+		}
+	}
+	
+	private void getKey(BlockScope scope, StringBuffer buffer) {
+		int scopeIndex = scope.scopeIndex();
+		if (scopeIndex != -1) {
+			getKey((BlockScope)scope.parent, buffer);
+			buffer.append('/');
+			buffer.append(scopeIndex);
+		}
 	}
 	
 	/*

@@ -142,15 +142,15 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public String getKey() {
 		StringBuffer buffer = new StringBuffer();
+		buffer.append(this.getDeclaringClass().getKey());
+		buffer.append('/');
 		ITypeBinding _returnType = getReturnType();
 		if (_returnType != null) {
 			buffer.append(_returnType.getKey());
 		}
 		if (!isConstructor()) {
 			buffer.append(this.getName());
-			buffer.append('/');
 		}
-		buffer.append(this.getDeclaringClass().getKey());
 		ITypeBinding[] parameters = getParameterTypes();
 		buffer.append('(');
 		for (int i = 0, max = parameters.length; i < max; i++) {

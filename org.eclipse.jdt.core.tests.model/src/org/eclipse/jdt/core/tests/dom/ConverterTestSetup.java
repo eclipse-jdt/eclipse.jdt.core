@@ -139,6 +139,10 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		} else if (bodyDeclaration instanceof TypeDeclaration) {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) bodyDeclaration;
 			return (ASTNode) typeDeclaration.bodyDeclarations().get(statementIndex);
+		} else if (bodyDeclaration instanceof Initializer) {
+			Initializer initializer = (Initializer) bodyDeclaration;
+			Block block = initializer.getBody();
+			return (ASTNode) block.statements().get(statementIndex);
 		}
 		return null;
 	}

@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0499"));
+		suite.addTest(new ASTConverterTest2("test0502"));
 		return suite;
 	}
 	/**
@@ -2809,5 +2809,56 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// test0502.A/0/i
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 0, 0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		IVariableBinding localBinding = fragment.resolveBinding();
+		ASTNode declaringNode = unit.findDeclaringNode(localBinding.getKey());
+		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+
+		// test0502.A/0/0/j
+		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 0, 1);
+		Block block = (Block)ifStatement.getThenStatement();
+		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		localBinding = fragment.resolveBinding();
+		declaringNode = unit.findDeclaringNode(localBinding.getKey());
+		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+
+		// test0502.A/foo()/i
+		variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		localBinding = fragment.resolveBinding();
+		declaringNode = unit.findDeclaringNode(localBinding.getKey());
+		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+
+		// test0502.A/foo()/0/j
+		ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
+		block = (Block)ifStatement.getThenStatement();
+		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		localBinding = fragment.resolveBinding();
+		declaringNode = unit.findDeclaringNode(localBinding.getKey());
+		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+
+		// test0502.A/foo()/1/j
+		ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
+		block = (Block)ifStatement.getElseStatement();
+		variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		localBinding = fragment.resolveBinding();
+		declaringNode = unit.findDeclaringNode(localBinding.getKey());
+		assertEquals("Unexpected declaring node", fragment, declaringNode); //$NON-NLS-1$
+
+	}
+	
 }
 
