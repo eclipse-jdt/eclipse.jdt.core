@@ -23,32 +23,38 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ForeachStatement extends Statement {
-	private static final char[] SecretCollectionVariableName = " collection".toCharArray(); //$NON-NLS-1$
-	private static final char[] SecretIndexVariableName = " index".toCharArray(); //$NON-NLS-1$
-	private static final char[] SecretMaxVariableName = " max".toCharArray(); //$NON-NLS-1$
-	private static final int ARRAY = 0;
-	private static final int RAW_ITERABLE = 1;
-	private static final int GENERIC_ITERABLE = 2;
-	
+    
+	public LocalDeclaration itemVariable;
+	public int itemVariableImplicitWidening = -1; // TODO (olivier) why do we need this ?
 	public Expression collection;
-	public LocalDeclaration localDeclaration;
-	public int localDeclarationImplicitWidening = -1;
-
 	public Statement action;
 	
 	// set the kind of foreach
 	private int kind;
+	// possible kinds of iterating behavior
+	private static final int ARRAY = 0;
+	private static final int RAW_ITERABLE = 1;
+	private static final int GENERIC_ITERABLE = 2;
+
 	private int arrayElementTypeID;
 
+	// loop labels
 	private Label breakLabel;
 	private Label continueLabel;
 	
-	// we always need a new scope.
 	public BlockScope scope;
 
-	public LocalVariableBinding collectionVariable;
+	// secret variables for codegen
 	public LocalVariableBinding indexVariable;
+	public LocalVariableBinding collectionVariable;	// to store the collection expression value
 	public LocalVariableBinding maxVariable;
+	// secret variable names
+	private static final char[] SecretIndexVariableName = " index".toCharArray(); //$NON-NLS-1$
+	private static final char[] SecretCollectionVariableName = " collection".toCharArray(); //$NON-NLS-1$
+	private static final char[] SecretMaxVariableName = " max".toCharArray(); //$NON-NLS-1$
+	
+	int preInitStateIndex = -1;
+	int mergedInitStateIndex = -1;
 	
 	public ForeachStatement(
 		LocalDeclaration localDeclaration,
@@ -57,7 +63,7 @@ public class ForeachStatement extends Statement {
 		int start,
 		int end) {
 
-		this.localDeclaration = localDeclaration;
+		this.itemVariable = localDeclaration;
 		this.collection = collection;
 		this.sourceStart = start;
 		this.sourceEnd = end;
@@ -74,35 +80,31 @@ public class ForeachStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		// mark the synthetic variables as being used
+	    // TODO (philippe) should only allocate/tag required variables
 		this.collectionVariable.useFlag = LocalVariableBinding.USED;
 		this.indexVariable.useFlag = LocalVariableBinding.USED;
 		this.maxVariable.useFlag = LocalVariableBinding.USED;
-		
-		// the local declaration is always used
-		this.localDeclaration.binding.useFlag = LocalVariableBinding.USED;
 
 		// initialize break and continue labels
 		breakLabel = new Label();
 		continueLabel = new Label();
 
+		// process the item variable and collection
+		flowInfo = this.itemVariable.analyseCode(scope, flowContext, flowInfo);
 		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
-		flowInfo = this.localDeclaration.analyseCode(scope, flowContext, flowInfo);
 
-		// the local is always initialized
-		flowInfo.markAsDefinitelyAssigned(this.localDeclaration.binding);
-		
+		preInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+		// item variable will be assigned when iterating
+		flowInfo.markAsDefinitelyAssigned(this.itemVariable.binding);
+		// TODO (philippe) item variable is always used ? if action is empty, do we still use it ?
+		this.itemVariable.binding.useFlag = LocalVariableBinding.USED;
+
 		// process the action
-		LoopingFlowContext loopingContext;
-		FlowInfo actionInfo;
-		if (action == null 
-			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
-			actionInfo = flowInfo.initsWhenTrue().copy();
-			loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
-		} else {
-			loopingContext =
-				new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
-			FlowInfo initsWhenTrue = flowInfo.initsWhenTrue();
-			actionInfo = initsWhenTrue.copy();
+		LoopingFlowContext loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
+		FlowInfo actionInfo = flowInfo.initsWhenTrue().copy();
+		if (!(action == null || (action.isEmptyBlock() 
+		        	&& currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3))) {
+
 			if (!this.action.complainIfUnreachable(actionInfo, scope, false)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
 			}
@@ -118,11 +120,12 @@ public class ForeachStatement extends Statement {
 
 		//end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
-				loopingContext.initsOnBreak,
+				loopingContext.initsOnBreak, 
 				false, 
-				flowInfo.initsWhenFalse(),
-				false,
-				true);
+				flowInfo.initsWhenFalse(), 
+				false, 
+				true /*for(;;){}while(true); unreachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 
@@ -168,7 +171,7 @@ public class ForeachStatement extends Statement {
 		if (!(action == null || action.isEmptyBlock())) {
 			int jumpPC = codeStream.position;
 			codeStream.goto_(conditionLabel);
-			codeStream.recordPositionsFrom(jumpPC, this.localDeclaration.sourceStart);
+			codeStream.recordPositionsFrom(jumpPC, this.itemVariable.sourceStart);
 		}
 		// generate the loop action
 		actionLabel.place();
@@ -179,10 +182,10 @@ public class ForeachStatement extends Statement {
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.arrayAt(this.arrayElementTypeID);
-					if (this.localDeclarationImplicitWidening != -1) {
-						codeStream.generateImplicitConversion(this.localDeclarationImplicitWidening);
+					if (this.itemVariableImplicitWidening != -1) {
+						codeStream.generateImplicitConversion(this.itemVariableImplicitWidening);
 					}
-					codeStream.store(this.localDeclaration.binding, false);
+					codeStream.store(this.itemVariable.binding, false);
 					break;
 				case RAW_ITERABLE :
 					// TODO to be completed
@@ -233,7 +236,7 @@ public class ForeachStatement extends Statement {
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 
 		printIndent(tab, output).append("for ("); //$NON-NLS-1$
-		this.localDeclaration.print(0, output); 
+		this.itemVariable.print(0, output); 
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
@@ -253,10 +256,11 @@ public class ForeachStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 		// use the scope that will hold the init declarations
 		scope = new BlockScope(upperScope);
-		localDeclaration.resolve(scope);
-		TypeBinding elementType = localDeclaration.type.resolvedType;
-		TypeBinding collectionType = collection.resolveType(scope);
-		// TODO need to handle java.lang.Iterable and java.lang.Iterable<E>
+		this.itemVariable.resolve(scope); // collection expression can see itemVariable
+		TypeBinding elementType = this.itemVariable.type.resolvedType;
+		TypeBinding collectionType = this.collection.resolveType(scope);
+
+		// TODO (olivier) need to handle java.lang.Iterable and java.lang.Iterable<E>
 		if (collectionType.isArrayType()) {
 			this.kind = ARRAY;
 			TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
@@ -266,13 +270,13 @@ public class ForeachStatement extends Statement {
 			// in case we need to do a conversion
 			this.arrayElementTypeID = collectionElementType.id;
 			if (elementType.isBaseType()) {
-				this.localDeclarationImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
+				this.itemVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
 			}
 		}
-/*		if (collectionType.isRawIterable()) {
+/*		if (collectionType == scope.getJavaLangIterable()) {
 			this.kind = RAW_ITERABLE;
 		}
-		if (collectionType.isGnericIterable()) {
+		if (collectionType.isGenericIterable()) {
 			this.kind = GENERIC_ITERABLE;
 		}
 */
@@ -303,7 +307,7 @@ public class ForeachStatement extends Statement {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			this.localDeclaration.traverse(visitor, scope);
+			this.itemVariable.traverse(visitor, scope);
 			this.collection.traverse(visitor, scope);
 			if (action != null) {
 				action.traverse(visitor, scope);
