@@ -4568,16 +4568,16 @@ class ASTConverter {
 			char[][] tokens = qualifiedTypeReference.tokens;
 			long[] positions = qualifiedTypeReference.sourcePositions;
 			// QualifiedName
-			name = setQualifiedNameNameAndSourceRanges(tokens, positions, compilerAnnotation);
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, typeReference);
 		} else {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) typeReference;
 			name = this.ast.newSimpleName(new String(singleTypeReference.token));
 			int start = singleTypeReference.sourceStart;
 			int end = singleTypeReference.sourceEnd;
 			name.setSourceRange(start, end - start + 1);
-		}
-		if (this.resolveBindings) {
-			recordNodes(name, compilerAnnotation);
+			if (this.resolveBindings) {
+				recordNodes(name, typeReference);
+			}
 		}
 		annotation.setTypeName(name);
 	}
