@@ -263,6 +263,11 @@ protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR);
 	pushOnElementStack(K_TYPE_DELIMITER);
 }
+protected void consumeEnterAnonymousClassBodySimpleName() {
+	super.consumeEnterAnonymousClassBodySimpleName();
+	popElement(K_SELECTOR);
+	pushOnElementStack(K_TYPE_DELIMITER);
+}
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
 	popElement(K_SELECTOR);
