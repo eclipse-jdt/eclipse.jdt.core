@@ -35,8 +35,7 @@ public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
 public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"; //$NON-NLS-1$
-public static final String OPTION_InvalidClasspath = "org.eclipse.jdt.core.builder.invalidClasspath"; //$NON-NLS-1$
-public static final String IGNORE = "ignore";  //$NON-NLS-1$
+
 public static boolean DEBUG = false;
 
 static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
@@ -84,30 +83,28 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	boolean ok = false;
 	try {
 		initializeBuilder();
-		if (this.classpath != null) {
 
-			if (kind == FULL_BUILD) {
+		if (kind == FULL_BUILD) {
+			buildAll();
+		} else {
+			if ((this.lastState = getLastState(currentProject)) == null) {
+				if (DEBUG)
+					System.out.println("Performing full build since last saved state was not found"); //$NON-NLS-1$
 				buildAll();
-			} else {
-				if ((this.lastState = getLastState(currentProject)) == null) {
-					if (DEBUG)
-						System.out.println("Performing full build since last saved state was not found"); //$NON-NLS-1$
+			} else if (hasClasspathChanged() || hasOutputLocationChanged()) {
+				// if the output location changes, do not delete the binary files from old location
+				// the user may be trying something
+				buildAll();
+			} else if (sourceFolders.length > 0) {
+				// if there is no source to compile & no classpath changes then we are done
+				SimpleLookupTable deltas = findDeltas();
+				if (deltas == null)
 					buildAll();
-				} else if (hasClasspathChanged() || hasOutputLocationChanged()) {
-					// if the output location changes, do not delete the binary files from old location
-					// the user may be trying something
-					buildAll();
-				} else if (sourceFolders.length > 0) {
-					// if there is no source to compile & no classpath changes then we are done
-					SimpleLookupTable deltas = findDeltas();
-					if (deltas == null)
-						buildAll();
-					else
-						buildDeltas(deltas);
-				}
+				else
+					buildDeltas(deltas);
 			}
-			ok = true;
 		}
+		ok = true;
 	} catch (CoreException e) {
 		try {
 			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
@@ -293,18 +290,12 @@ private void initializeBuilder() throws CoreException {
 
 	ArrayList sourceList = new ArrayList();
 	this.prereqOutputFolders = new SimpleLookupTable();
-	
-	try {
-		this.classpath = NameEnvironment.computeLocations(
-			workspaceRoot,
-			javaProject,
-			outputFolder.getLocation().toString(),
-			sourceList,
-			prereqOutputFolders,
-			IGNORE.equals(JavaCore.getOptions().get(OPTION_InvalidClasspath)));
-	} catch(JavaModelException e){
-		this.classpath = null;
-	}
+	this.classpath = NameEnvironment.computeLocations(
+		workspaceRoot,
+		javaProject,
+		outputFolder.getLocation().toString(),
+		sourceList,
+		prereqOutputFolders);
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 	

@@ -19,14 +19,6 @@ What's new in this drop</h2>
      get the same <code>IWorkingCopy</code> instance when asking for a working copy.
      See <code>IWorkingCopy.getWorkingCopy(IProgressMonitor, IBufferFactory, boolean)</code>
      and <code>IWorkingCopy.destroy()</code> for more detail.
-<li> Added JavaCore option to control Java builder behavior in presence of an invalid project classpath.
-	Allows to toggle the builder to abort if the classpath is invalid
-	<ul>
-	<li> option id:			"org.eclipse.jdt.core.builder.invalidClasspath"
-	 <li> possible values:	{ "abort", "ignore" }
-	 <li> default:			"ignore"
-	 </ul>
-</li>
 <li> Added extension point to jdtcore so as to allow client plugins to register classpath variable initializers.
   Extension point is "org.eclipse.jdt.core.classpathVariableInitializer").
   (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/variable%20init/uninit-classpath-vars.html">design notes</a>)

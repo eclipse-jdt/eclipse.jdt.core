@@ -33,7 +33,7 @@ public NameEnvironment(IJavaProject javaProject) {
 		String outputFolderLocation = null;
 		if (outputFolder != null && outputFolder.exists())
 			outputFolderLocation = outputFolder.getLocation().toString();
-		this.classpathLocations = computeLocations(workspaceRoot, javaProject, outputFolderLocation, null, null, true);
+		this.classpathLocations = computeLocations(workspaceRoot, javaProject, outputFolderLocation, null, null);
 	} catch(JavaModelException e) {
 		this.classpathLocations = new ClasspathLocation[0];
 	}
@@ -67,10 +67,9 @@ public static ClasspathLocation[] computeLocations(
 	IJavaProject javaProject,
 	String outputFolderLocation,
 	ArrayList sourceFolders,
-	SimpleLookupTable prereqOutputFolders,
-	boolean ignoreInvalidClasspath) throws JavaModelException {
+	SimpleLookupTable prereqOutputFolders) throws JavaModelException {
 
-	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(ignoreInvalidClasspath, true);
+	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true, true);
 	int cpCount = 0;
 	int max = classpathEntries.length;
 	ClasspathLocation[] classpathLocations = new ClasspathLocation[max];
@@ -79,14 +78,7 @@ public static ClasspathLocation[] computeLocations(
 	nextEntry : for (int i = 0; i < max; i++) {
 		IClasspathEntry entry = classpathEntries[i];
 		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
-		if (target == null){
-			if (!ignoreInvalidClasspath){
-				throw new JavaModelException(new JavaModelStatus(
-								IJavaModelStatusConstants.INVALID_CLASSPATH,
-								entry.getPath().toString()));
-			}
-			continue nextEntry;
-		}
+		if (target == null) continue nextEntry;
 
 		if (target instanceof IResource) {
 			IResource resource = (IResource) target;

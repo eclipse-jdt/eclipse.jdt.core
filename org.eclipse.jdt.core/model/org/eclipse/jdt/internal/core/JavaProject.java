@@ -1102,9 +1102,7 @@ public class JavaProject
 				if (!status.isOK())
 					createClasspathProblemMarker(
 						status.getMessage(), 
-						JavaBuilder.IGNORE.equals(JavaCore.getOptions().get(JavaBuilder.OPTION_InvalidClasspath)) 
-							? IMarker.SEVERITY_WARNING
-							: IMarker.SEVERITY_ERROR,
+						IMarker.SEVERITY_WARNING,
 						false);
 			}
 
