@@ -1827,9 +1827,13 @@ public void test057() {
 				"    }\n" + 
 				"}\n", 
 			},
-		// TODO (philippe) should also issue unchecked warning
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X x = new X(args);\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the constructor X(T) of raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	X<String> xs = new X<String>(args);\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
 		"The constructor X<String>(String[]) is undefined\n" + 
@@ -1900,7 +1904,7 @@ public void test057() {
 		"1. WARNING in X.java (at line 10)\n" + 
 		"	X<IOException> xioe2 = x; // unsafe\n" + 
 		"	                       ^\n" + 
-		"Unsafe type operation: Should not use expression of raw type X in place of X<IOException>. References to generic type X<T> should be parameterized\n" + 
+		"Unsafe type operation: Should not assign expression of raw type X to X<IOException>. References to generic type X<T> should be parameterized\n" + 
 		"----------\n",
 		null,
 		true,
@@ -2344,5 +2348,58 @@ public void test057() {
 			},
 			"TOTO"
 		);
+	}	
+	// unsafe type operation: only for constructors with signature change
+	public void test082() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends p.A<T> {\n" + 
+				"	 X() {\n" +
+				"		super(null);\n" +
+				"	}\n"+
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"    }\n" + 
+				"    X(X<T> xt) {\n" + 
+				"        super(xt.t);\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X x = new X();\n" + 
+				"        X x1 = new X(args);\n" + 
+				"        X x2 = new X(x);\n" + 
+				"        X<String> xs = new X<String>(args);\n" + 
+				"	}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A<P> {\n" + 
+				"    protected P p;\n" + 
+				"    protected A(P p) {\n" + 
+				"        this.p = p;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	super(xt.t);\n" + 
+			"	      ^^^^\n" + 
+			"xt.t cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	X x1 = new X(args);\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor X(T) of raw type X. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	X x2 = new X(x);\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor X(X<T>) of raw type X. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	X<String> xs = new X<String>(args);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X<String>(String[]) is undefined\n" + 
+			"----------\n");
 	}	
 }

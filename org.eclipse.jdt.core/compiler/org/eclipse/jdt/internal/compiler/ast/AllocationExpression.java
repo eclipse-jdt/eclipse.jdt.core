@@ -246,8 +246,7 @@ public class AllocationExpression
 			return this.resolvedType;
 		}
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
-		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this))
-			.isValidBinding()) {
+		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 			if (binding.declaringClass == null)
 				binding.declaringClass = allocationType;
 			scope.problemReporter().invalidConstructor(this, binding);
@@ -255,7 +254,9 @@ public class AllocationExpression
 		}
 		if (isMethodUseDeprecated(binding, scope))
 			scope.problemReporter().deprecatedMethod(binding, this);
-
+		if (allocationType.isRawType() && this.binding.hasSubstitutedParameters()) {
+		    scope.problemReporter().unsafeRawInvocation(this, allocationType, this.binding);
+		}
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
 				arguments[i].computeConversion(scope, binding.parameters[i], argumentTypes[i]);

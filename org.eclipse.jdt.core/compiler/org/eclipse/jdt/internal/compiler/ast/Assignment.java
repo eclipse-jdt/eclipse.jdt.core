@@ -135,6 +135,9 @@ public class Assignment extends Expression {
 				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 				|| rhsType.isCompatibleWith(lhsType)) {
 			expression.computeConversion(scope, lhsType, rhsType);
+			if (rhsType.isRawType() && lhsType.isParameterizedType()) {
+				    scope.problemReporter().unsafeRawAssignment(this.expression, rhsType, lhsType);
+			}					
 			return this.resolvedType;
 		}
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, rhsType, lhsType);
@@ -154,7 +157,9 @@ public class Assignment extends Expression {
 				&& (this.lhs.bits & IsStrictlyAssignedMASK) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}
-
+		if (this.expression.resolvedType.isRawType() && this.lhs.resolvedType.isParameterizedType()) {
+			    scope.problemReporter().unsafeRawAssignment(this.expression, this.expression.resolvedType, this.lhs.resolvedType);
+		}		
 		return type;
 	}
 

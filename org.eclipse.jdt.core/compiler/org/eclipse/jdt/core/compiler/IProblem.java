@@ -826,9 +826,13 @@ public interface IProblem {
 	int DuplicateMethodErasure = TypeRelated + 527;
 	/** @since 3.0 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
-	/** @since 3.0 */
-	int UnsafeRawOperation = TypeRelated + 529;
-    
+    /** @since 3.0 */
+	int UnsafeRawConstructorInvocation = TypeRelated + 529;
+    /** @since 3.0 */
+	int UnsafeRawMethodInvocation = TypeRelated + 530;
+    /** @since 3.0 */
+	int UnsafeRawAssignment = TypeRelated + 531;
+	
 	/**
 	 * Foreach
 	 */

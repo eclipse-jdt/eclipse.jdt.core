@@ -490,7 +490,9 @@ public int computeSeverity(int problemId){
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
 
-		case IProblem.UnsafeRawOperation:
+		case IProblem.UnsafeRawConstructorInvocation:
+		case IProblem.UnsafeRawMethodInvocation:
+		case IProblem.UnsafeRawAssignment:
 			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
 
 		/*
@@ -3364,13 +3366,49 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		nameRef.sourceStart,
 		end);
 }
-public void unsafeRawType(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
+public void unsafeRawAssignment(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		IProblem.UnsafeRawOperation,
+		IProblem.UnsafeRawAssignment,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,
 		expression.sourceEnd);    
+}
+public void unsafeRawInvocation(ASTNode location, ReferenceBinding receiverType, MethodBinding method) {
+    method = ((ParameterizedMethodBinding) method).originalMethod;
+    if (method.isConstructor()) {
+		this.handle(
+			IProblem.UnsafeRawConstructorInvocation,
+			new String[] {
+				new String(receiverType.readableName()),
+				parametersAsString(method.parameters, false),
+				new String(receiverType.erasure().readableName()),
+			 }, 
+			new String[] {
+				new String(receiverType.shortReadableName()),
+				parametersAsString(method.parameters, true),
+				new String(receiverType.erasure().shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    } else {
+		this.handle(
+			IProblem.UnsafeRawMethodInvocation,
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, false),
+				new String(receiverType.readableName()),
+				new String(receiverType.erasure().readableName()),
+			 }, 
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, true),
+				new String(receiverType.shortReadableName()),
+				new String(receiverType.erasure().shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    }
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 
