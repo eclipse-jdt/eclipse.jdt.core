@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.*;
 
-public class SuperTypeReferencePattern extends SearchPattern {
+public class SuperTypeReferencePattern extends SearchPattern implements IIndexConstants {
 
 public char[] superQualification;
 public char[] superSimpleName;

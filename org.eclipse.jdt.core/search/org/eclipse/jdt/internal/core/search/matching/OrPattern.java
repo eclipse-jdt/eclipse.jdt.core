@@ -16,8 +16,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class OrPattern extends SearchPattern {
+public class OrPattern extends SearchPattern implements IIndexConstants {
 
 protected SearchPattern[] patterns;
 

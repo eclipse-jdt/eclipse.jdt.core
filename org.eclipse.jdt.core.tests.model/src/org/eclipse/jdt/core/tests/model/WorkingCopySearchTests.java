@@ -146,8 +146,8 @@ public void testAllTypeNames1() throws CoreException {
 		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		PATTERN_MATCH,
-		CASE_INSENSITIVE,
+		SearchPattern.R_PATTERN_MATCH,
+		false, // case insensitive
 		TYPE,
 		scope, 
 		requestor,
@@ -179,8 +179,8 @@ public void testAllTypeNames2() throws CoreException {
 		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		PATTERN_MATCH,
-		CASE_INSENSITIVE,
+		SearchPattern.R_PATTERN_MATCH,
+		false, // case insensitive
 		TYPE,
 		scope, 
 		requestor,
@@ -217,8 +217,8 @@ public void testAllTypeNames3() throws CoreException {
 			ResourcesPlugin.getWorkspace(),
 			"wc3".toCharArray(),
 			"X".toCharArray(),
-			PREFIX_MATCH,
-			CASE_INSENSITIVE,
+			SearchPattern.R_PREFIX_MATCH,
+			false, // case insensitive
 			TYPE,
 			scope, 
 			requestor,
@@ -256,8 +256,8 @@ public void testAllTypeNames4() throws CoreException {
 			ResourcesPlugin.getWorkspace(),
 			"wc3".toCharArray(),
 			"X".toCharArray(),
-			PREFIX_MATCH,
-			CASE_INSENSITIVE,
+			SearchPattern.R_PREFIX_MATCH,
+			false, // case insensitive
 			TYPE,
 			scope, 
 			requestor,

@@ -12,8 +12,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class FieldPattern extends VariablePattern {
+public class FieldPattern extends VariablePattern implements IIndexConstants {
 
 // declaring type
 protected char[] declaringQualification;

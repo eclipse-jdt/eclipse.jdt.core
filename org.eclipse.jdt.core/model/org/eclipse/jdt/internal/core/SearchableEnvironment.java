@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
@@ -252,8 +253,8 @@ public class SearchableEnvironment
 					this.project.getProject().getWorkspace(),
 					qualification,
 					simpleName,
-					PREFIX_MATCH,
-					CASE_INSENSITIVE,
+					SearchPattern.R_PREFIX_MATCH,
+					false, // not case sensitive
 					IJavaSearchConstants.TYPE,
 					this.searchScope,
 					nameRequestor,

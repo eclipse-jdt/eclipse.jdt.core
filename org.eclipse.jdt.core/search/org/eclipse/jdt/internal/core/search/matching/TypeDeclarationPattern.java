@@ -15,8 +15,9 @@ import java.io.IOException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class TypeDeclarationPattern extends SearchPattern {
+public class TypeDeclarationPattern extends SearchPattern implements IIndexConstants {
 
 public char[] simpleName;
 public char[] pkg;
