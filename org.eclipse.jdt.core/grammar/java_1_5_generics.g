@@ -904,13 +904,12 @@ SwitchBlockStatement ::= SwitchLabels BlockStatements
 /.$putCase consumeSwitchBlockStatement() ; $break ./
 /:$readableName SwitchBlockStatement:/
 
-
 SwitchLabels ::= SwitchLabel
 SwitchLabels ::= SwitchLabels SwitchLabel
 /.$putCase consumeSwitchLabels() ; $break ./
 /:$readableName SwitchLabels:/
 
-SwitchLabel ::= 'case' EnumConst ':'
+SwitchLabel ::= 'case' ConstantExpression ':'
 /. $putCase consumeCaseLabel(); $break ./
 
 SwitchLabel ::= 'default' ':'
@@ -1490,19 +1489,27 @@ EnumDeclaration ::= Modifiersopt 'enum' Identifier ClassHeaderImplementsopt Enum
 /:$readableName EnumDeclaration:/
 
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
+/. $putCase consumeEnumBody(); $break ./
 EnumBody ::= '{' ',' EnumBodyDeclarationsopt '}'
+/. $putCase consumeEnumBody(); $break ./
 EnumBody ::= '{' EnumConstants ',' EnumBodyDeclarationsopt '}'
+/. $putCase consumeEnumBody(); $break ./
 EnumBody ::= '{' EnumConstants EnumBodyDeclarationsopt '}'
+/. $putCase consumeEnumBody(); $break ./
+/:$readableName EnumBody:/
 
 EnumConstants ::= EnumConstant
 EnumConstants ::= EnumConstants ',' EnumConstant
 /.$putCase consumeEnumConstants(); $break ./
+/:$readableName EnumConstants:/
 
 EnumConstant ::= Identifier Argumentsopt ClassBodyopt
 /.$putCase consumeEnumConstant(); $break ./
+/:$readableName EnumConstant:/
 
 Arguments ::= '(' ArgumentListopt ')'
 /.$putCase consumeArguments(); $break ./
+/:$readableName Arguments:/
 
 Argumentsopt ::= $empty
 /.$putCase consumeEmptyArguments(); $break ./
@@ -1511,14 +1518,15 @@ Argumentsopt ::= Arguments
 
 EnumDeclarations ::= ';' ClassBodyDeclarationsopt
 /.$putCase consumeEnumDeclarations(); $break ./
+/:$readableName EnumDeclarations:/
 
 EnumBodyDeclarationsopt ::= $empty
 /.$putCase consumeEmptyEnumDeclarations(); $break ./
 
 EnumBodyDeclarationsopt ::= EnumDeclarations
 
-EnumConst ::= Name
-EnumConst ::= Expression_NotName
+ConstantExpression -> Expression
+/:$readableName ConstantExpression:/
 
 -----------------------------------------------
 -- 1.5 features : enhanced for statement
