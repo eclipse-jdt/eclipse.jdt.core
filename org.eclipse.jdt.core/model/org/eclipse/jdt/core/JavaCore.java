@@ -1446,5 +1446,177 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		return defaultOptions;
 	}
+
+
+	/**
+	 * Names of recognized configurable options
+	 */
 	
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"; //$NON-NLS-1$
+		// possible values are GENERATE or DO_NOT_GENERATE (default is DO_NOT_GENERATE)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"; //$NON-NLS-1$
+		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"; //$NON-NLS-1$
+		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"; //$NON-NLS-1$
+		// possible values are PRESERVE or OPTIMIZE_OUT	(default is OPTIMIZE_OUT)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
+		// possible values are VERSION_1_1 or VERSION_1_2	(default is VERSION_1_1)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
+		// possible values are ERROR or WARNING	(default is ERROR)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
+		// possible values are ERROR or WARNING	(default is ERROR)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is IGNORE)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
+		// possible values are COMPUTE or IGNORE (default is COMPUTE)
+
+	/**
+	 * Possible values for configurable options
+	 */
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String GENERATE = "generate"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String DO_NOT_GENERATE = "do not generate"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String PRESERVE = "preserve"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String OPTIMIZE_OUT = "optimize out"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String VERSION_1_1 = "1.1"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String ERROR = "error"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String WARNING = "warning"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String IGNORE = "ignore"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPUTE = "compute"; //$NON-NLS-1$
 }

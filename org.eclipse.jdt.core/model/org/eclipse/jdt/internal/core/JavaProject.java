@@ -5,10 +5,14 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -2043,5 +2047,50 @@ public class JavaProject
 			}
 		} catch (CoreException e) {
 		}
+	}
+	/*
+	 * @see IJavaProject#getClasspath()
+	 * @deprecated
+	 */
+	public IClasspathEntry[] getClasspath() throws JavaModelException {
+
+		return this.getRawClasspath();
+	}
+
+	/*
+	 * @see IJavaProject#newLibraryEntry(IPath)
+	 * @deprecated
+	 */
+	public IClasspathEntry newLibraryEntry(IPath path) {
+
+		return JavaCore.newLibraryEntry(path, null, null, false);
+	}
+
+	/*
+	 * @see IJavaProject#newProjectEntry(IPath)
+	 * @deprecated
+	 */
+	public IClasspathEntry newProjectEntry(IPath path) {
+		
+		return JavaCore.newProjectEntry(path, false);
+	}
+
+	/*
+	 * @see IJavaProject#newSourceEntry(IPath)
+	 * @deprecated
+	 */
+	public IClasspathEntry newSourceEntry(IPath path) {
+		
+		return JavaCore.newSourceEntry(path);
+	}
+
+	/*
+	 * @see IJavaProject#setClasspath(IClasspathEntry[], IProgressMonitor)
+	 * @deprecated
+	 */
+	public void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor)
+		throws JavaModelException {
+			
+		this.setRawClasspath(entries, monitor);
 	}
 }

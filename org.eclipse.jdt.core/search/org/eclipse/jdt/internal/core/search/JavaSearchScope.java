@@ -196,6 +196,7 @@ private IPath fullPath(IJavaElement element) {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesBinaries()
+ * @deprecated
  */
 public boolean includesBinaries() {
 	return true;
@@ -203,6 +204,7 @@ public boolean includesBinaries() {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesClasspaths()
+ * @deprecated
  */
 public boolean includesClasspaths() {
 	return true;
@@ -210,12 +212,14 @@ public boolean includesClasspaths() {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludesBinaries
+ * @deprecated
  */
 public void setIncludesBinaries(boolean includesBinaries) {
 }
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludeClasspaths
+ * @deprecated
  */
 public void setIncludesClasspaths(boolean includesClasspaths) {
 }

@@ -242,4 +242,14 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append(']');
 		return buffer.toString();
 	}
+	
+	/**
+	 * @see IClasspathEntry
+	 * @deprecated
+	 */
+	public IClasspathEntry getResolvedEntry() {
+	
+		return JavaCore.getResolvedClasspathEntry(this);
+	}
+	
 }
