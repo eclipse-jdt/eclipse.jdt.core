@@ -1615,6 +1615,29 @@ public void testInvalidClasspath2() throws CoreException {
 	}
 }
 /**
+ * Ensures that only one marker is created if building a project that is
+ * missing its .classpath file multiple times.
+ * (regression test for bug 39877 Rebuild All generates extra "Unable to read classpath" entry.)
+ */
+public void testMissingClasspath() throws CoreException {
+	try {
+		IJavaProject javaProject = createJavaProject("P");
+		IProject project = javaProject.getProject();
+		project.close(null);
+		deleteFile(new File(project.getLocation().toOSString(), ".classpath"));
+		project.open(null);
+		
+		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertMarkers(
+			"Unexpected markers",
+			"Unable to read \'P/.classpath\' file.",
+			javaProject);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
  * Test that a marker is added when a project as a missing project in its classpath.
  */
 public void testMissingPrereq1() throws CoreException {

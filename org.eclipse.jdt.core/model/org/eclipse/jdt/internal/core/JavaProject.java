@@ -582,7 +582,7 @@ public class JavaProject
 		String[] arguments = new String[0];
 		boolean isCycleProblem = false, isClasspathFileFormatProblem = false;
 		switch (status.getCode()) {
-
+	
 			case  IJavaModelStatusConstants.CLASSPATH_CYCLE :
 				isCycleProblem = true;
 				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true))) {
@@ -591,12 +591,12 @@ public class JavaProject
 					severity = IMarker.SEVERITY_WARNING;
 				}
 				break;
-
+	
 			case  IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT :
 				isClasspathFileFormatProblem = true;
 				severity = IMarker.SEVERITY_ERROR;
 				break;
-
+	
 			case  IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL :
 				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 					severity = IMarker.SEVERITY_ERROR;
@@ -1640,6 +1640,12 @@ public class JavaProject
 			IClasspathEntry[] infoPath = perProjectInfo.resolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
+
+		// flush .classpath format markers (see bug 39877 Rebuild All generates extra "Unable to read classpath" entry)
+		if (generateMarkerOnError){
+			flushClasspathProblemMarkers(false/*don't flush cycle markers*/, true/*flush classpath format markers*/);
+		}
+
 		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(
 			getRawClasspath(), 
