@@ -37,7 +37,7 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		env.addClass(src1, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
@@ -55,7 +55,7 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		env.addClass(src1, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
@@ -80,9 +80,9 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-			IPath src = env.addPackageFragmentRoot(projectPath, "src", null, null); //$NON-NLS-1$
-			IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
-			IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+			env.addPackageFragmentRoot(projectPath, "src", null, null); //$NON-NLS-1$
+			env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 			env.addExternalJar(projectPath, Util.getJavaClassLib());
 			
 			fullBuild();
@@ -101,9 +101,9 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-			IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
-			IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1")}, null); //$NON-NLS-1$
-			IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+			env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
+			env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1")}, null); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 			env.addExternalJar(projectPath, Util.getJavaClassLib());
 			
 			fullBuild();
@@ -120,9 +120,9 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 	public void test0005() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
-		IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		fullBuild();

@@ -36,7 +36,7 @@ class RemoveFromIndex extends IndexRequest {
 
 		try {
 			/* ensure no concurrent write access to index */
-			IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
+			IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ false /*create if none*/);
 			if (index == null) return true;
 			ReadWriteMonitor monitor = manager.getMonitorFor(index);
 			if (monitor == null) return true; // index got deleted since acquired
