@@ -204,7 +204,7 @@ public class Disassembler implements IClassFileDisassembler {
 		buffer
 			.append(Util.bind("disassembler.openinnerclassentry")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.inner_class_info_name")) //$NON-NLS-1$
-			.append(Util.bind("disassembler.constantpoolentry")) //$NON-NLS-1$
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(innerClassNameIndex);
 		if (innerClassNameIndex != 0) {
 			buffer
@@ -215,7 +215,7 @@ public class Disassembler implements IClassFileDisassembler {
 		dumpTab(tabNumber, buffer);
 		buffer
 			.append(Util.bind("disassembler.outer_class_info_name")) //$NON-NLS-1$
-			.append(Util.bind("disassembler.constantpoolentry")) //$NON-NLS-1$
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(outerClassNameIndex);
 		if (outerClassNameIndex != 0) {
 			buffer	
@@ -226,7 +226,7 @@ public class Disassembler implements IClassFileDisassembler {
 		dumpTab(tabNumber, buffer);
 		buffer
 			.append(Util.bind("disassembler.inner_name")) //$NON-NLS-1$
-			.append(Util.bind("disassembler.constantpoolentry")) //$NON-NLS-1$
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(innerNameIndex);
 		if (innerNameIndex != 0) {
 			buffer
