@@ -44,6 +44,8 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public final static int RECEIVER_TYPE_EMUL = 3;
 	
 	Hashtable[] synthetics;
+	char[] genericReferenceTypeSignature;
+	
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -390,6 +392,29 @@ public char[] genericSignature() {
 	    }
 		return sig.toString().toCharArray();
 }
+/**
+ * Produce a signature equivalent to the genericTypeSignature of a reference to this type: X<T> 
+ * where args are actual params
+ * type<param1 ... paramN>
+ * LX<TT;>;
+ */
+public char[] genericReferenceTypeSignature() {
+    if (this.genericReferenceTypeSignature == null) {
+	    StringBuffer sig = new StringBuffer(10);
+	    char[] typeSig = this.genericTypeSignature();
+	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
+	    	sig.append(typeSig[i]);
+	    }
+	    sig.append('<');
+	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+	        sig.append(this.typeVariables[i].genericTypeSignature());
+	    }
+	    sig.append(">;"); //$NON-NLS-1$
+		this.genericReferenceTypeSignature = sig.toString().toCharArray();
+    }
+    return this.genericReferenceTypeSignature;
+}
+
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)
