@@ -1983,7 +1983,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	private void reportPrimaryError(int msgCode, int nameIndex, int token, int scopeNameIndex) {
 		String name;
 		if (nameIndex >= 0) {
-			name = Parser.name[nameIndex];
+			name = Parser.readableName[nameIndex];
 		} else {
 			name = EMPTY_STRING;
 		}
@@ -2052,7 +2052,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			case SCOPE_CODE:
 				StringBuffer buf = new StringBuffer();
 				for (int i = Parser.scope_suffix[- nameIndex]; Parser.scope_rhs[i] != 0; i++) {
-					buf.append(Parser.name[Parser.scope_rhs[i]]);
+					buf.append(Parser.readableName[Parser.scope_rhs[i]]);
 					if (Parser.scope_rhs[i + 1] != 0) // any more symbols to print?
 						buf.append(' ');
 						
@@ -2063,7 +2063,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 						errorStart, 
 						errorEnd,
 						buf.toString(),
-						Parser.name[scopeNameIndex]);
+						Parser.readableName[scopeNameIndex]);
 				} else {
 					problemReporter().parseErrorInsertToCompleteScope(
 						errorStart, 
@@ -2112,7 +2112,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	private void reportSecondaryError(int msgCode,	int nameIndex,	int leftToken,	int rightToken, int scopeNameIndex) {
 		String name;
 		if (nameIndex >= 0) {
-			name = Parser.name[nameIndex];
+			name = Parser.readableName[nameIndex];
 		} else {
 			name = EMPTY_STRING;	
 		}
@@ -2148,7 +2148,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			
 	            StringBuffer buf = new StringBuffer();
 	            for (int i = Parser.scope_suffix[- nameIndex]; Parser.scope_rhs[i] != 0; i++) {
-	                buf.append(Parser.name[Parser.scope_rhs[i]]);
+	                buf.append(Parser.readableName[Parser.scope_rhs[i]]);
 	                if (Parser.scope_rhs[i+1] != 0)
 	                     buf.append(' ');
 	            }
@@ -2157,7 +2157,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 						errorStart, 
 						errorEnd,
 						buf.toString(),
-						Parser.name[scopeNameIndex]);
+						Parser.readableName[scopeNameIndex]);
 	            } else {
 	            	problemReporter().parseErrorInsertToCompletePhrase(
 						errorStart, 

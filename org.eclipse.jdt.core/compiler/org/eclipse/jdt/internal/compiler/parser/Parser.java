@@ -12,6 +12,9 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -122,6 +125,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 
 	public static String name[] = null;
+	public static String readableName[] = null;
     
 	public static short check_table[] = null;
 	public static char lhs[] =  null;
@@ -139,6 +143,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
     public static char in_symb[] = null;
     
 	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
+	private final static String READABLE_NAMES_FILE = "readableNames"; //$NON-NLS-1$
+	private final static String READABLE_NAMES =
+		"org.eclipse.jdt.internal.compiler.parser." + READABLE_NAMES_FILE; //$NON-NLS-1$
 
 	static {
 		try{
@@ -315,6 +322,44 @@ private final static void buildFileForName(String filename, String contents) thr
 
 	buildFileForTable(filename, buffer.toString().toCharArray());
 }
+private static void buildFileForReadableName(
+	String file,
+	String lhs_fileName,
+	String non_terminal_index_fileName,
+	String name_fileName,
+	String[] tokens) throws java.io.IOException {
+		
+	StringBuffer buffer = new StringBuffer();
+	
+	char[] newLhs = readTable(lhs_fileName);
+	char[] newNonTerminal = readTable(non_terminal_index_fileName);
+	String[] newName = readNameTable(name_fileName);
+	boolean[] alreadyAdded = new boolean[newName.length];
+	
+	for (int i = 0; i < tokens.length; i = i + 2) {
+		int index = newNonTerminal[newLhs[Integer.parseInt(tokens[i])]];
+		if(!alreadyAdded[index]) {
+			alreadyAdded[index] = true;
+			buffer.append(newName[index]);
+			buffer.append('=');
+			buffer.append(tokens[i+1].trim());
+			buffer.append('\n');
+		}
+	}
+	
+	for (int i = NT_OFFSET + 3; i < alreadyAdded.length; i++) {
+		if(!alreadyAdded[i]) {
+			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
+		}
+	}
+	buildFile(file, buffer.toString());//$NON-NLS-1$
+}
+private final static void buildFile(String filename, String content) throws java.io.IOException {
+	java.io.FileWriter stream = new FileWriter(filename);
+	stream.write(content);
+	stream.close();
+	System.out.println(filename + " creation complete"); //$NON-NLS-1$
+}
 private final static void buildFileForTable(String filename, char[] chars) throws java.io.IOException {
 
 	byte[] bytes = new byte[chars.length * 2];
@@ -334,7 +379,7 @@ private final static void buildFileForTable(String filename, byte[] bytes) throw
 	stream.close();
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
-public final static void buildFilesFromLPG(String dataFilename)	throws java.io.IOException {
+public final static void buildFilesFromLPG(String dataFilename, String dataFilename2)	throws java.io.IOException {
 
 	//RUN THIS METHOD TO GENERATE PARSER*.RSC FILES
 
@@ -359,14 +404,17 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 	}
 	final String prefix = FILEPREFIX;
 	i = 0;
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "lhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	
+	String lhs_fileName = prefix + (++i) + ".rsc"; //$NON-NLS-1$
+	buildFileOfIntFor(lhs_fileName, "lhs", tokens); //$NON-NLS-1$
 	buildFileOfShortFor(prefix + (++i) + ".rsc", "check_table", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "asb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "asr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "terminal_index", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "non_terminal_index", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	String non_terminal_index_fileName = prefix + (++i) + ".rsc"; //$NON-NLS-1$
+	buildFileOfIntFor(non_terminal_index_fileName, "non_terminal_index", tokens); //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "term_action", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_prefix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
@@ -381,7 +429,23 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "term_check", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "scope_la", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
-	buildFileForName(prefix + (++i) + ".rsc", new String(contents));//$NON-NLS-1$
+	String name_fileName = prefix + (++i) + ".rsc";//$NON-NLS-1$
+	buildFileForName(name_fileName, new String(contents));
+	
+	contents = new char[] {};
+	try {
+		contents = Util.getFileCharContent(new File(dataFilename2), null);
+	} catch (IOException ex) {
+		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
+		return;
+	}
+	st = new java.util.StringTokenizer(new String(contents), "\t\n\r=");  //$NON-NLS-1$
+	tokens = new String[st.countTokens()];
+	i = 0;
+	while (st.hasMoreTokens()) {
+		tokens[i++] = st.nextToken();
+	}
+	buildFileForReadableName(READABLE_NAMES_FILE+".properties", lhs_fileName, non_terminal_index_fileName, name_fileName, tokens);//$NON-NLS-1$
 	
 	System.out.println(Util.bind("parser.moveFiles")); //$NON-NLS-1$
 }
@@ -5257,6 +5321,7 @@ public final static void initTables() throws java.io.IOException {
 	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
 	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	readableName = readReadableNameTable(READABLE_NAMES);
 	
 	base_action = lhs;
 }
@@ -6119,6 +6184,34 @@ protected static byte[] readByteTable(String filename) throws java.io.IOExceptio
 	}
 	return bytes;
 }
+protected static String[] readReadableNameTable(String filename) throws java.io.IOException {
+	String[] result = new String[name.length];
+
+	ResourceBundle bundle;
+	try {
+		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
+	for (int i = 0; i < NT_OFFSET + 1; i++) {
+		result[i] = name[i];
+	}
+	for (int i = NT_OFFSET; i < name.length; i++) {
+		try {
+			String n = bundle.getString(name[i]);
+			if(n != null && n.length() > 0) {
+				result[i] = n;
+			} else {
+				result[i] = name[i];
+			}
+		} catch(MissingResourceException e) {
+			result[i] = name[i];
+		}
+	}
+	return result;
+}
+	
 protected static String[] readNameTable(String filename) throws java.io.IOException {
 	char[] contents = readTable(filename);
 	char[][] nameAsChar = CharOperation.splitOn('\n', contents);
