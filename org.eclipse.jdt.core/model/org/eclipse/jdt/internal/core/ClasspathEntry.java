@@ -193,13 +193,13 @@ public class ClasspathEntry implements IClasspathEntry {
 								this.getContentKind(), this.getEntryKind(), this.getPath(),
 								ClasspathEntry.concatPatterns(referringEntry.getInclusionPatterns(), this.getInclusionPatterns()), 
 								ClasspathEntry.concatPatterns(referringEntry.getExclusionPatterns(), this.getExclusionPatterns()), 
-								this.getOutputLocation(), this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), 
+								this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), this.getOutputLocation(), 
 								referringEntry.isExported()|| this.isExported); // duplicate container entry for tagging it as exported
 		}
 		// no need to clone
 		return this;
 	}
-	
+
 	/**
 	 * Concatenate two pattern lists
 	 */
