@@ -435,28 +435,24 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * using an exclusion pattern. 
 	 * 
 	 * @param element the given element
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
 	 * @return <code>true</code> if the given element is on the classpath of
 	 * this project, <code>false</code> otherwise
 	 * @see IClasspathEntry#getExclusionPatterns
 	 * @since 2.0
 	 */
-	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
+	boolean isOnClasspath(IJavaElement element);
 	/**
 	 * Returns whether the given resource is on the classpath of this project,
 	 * that is, referenced from a classpath entry and not explicitly excluded
 	 * using an exclusion pattern.
 	 * 
 	 * @param element the given element
-	 * @exception JavaModelException if this project does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
 	 * @return <code>true</code> if the given resource is on the classpath of
 	 * this project, <code>false</code> otherwise
 	 * @see IClasspathEntry#getExclusionPatterns
 	 * @since 2.1
 	 */
-	boolean isOnClasspath(IResource resource) throws JavaModelException;
+	boolean isOnClasspath(IResource resource);
 
 	/**
 	 * Creates a new evaluation context.

@@ -1738,7 +1738,7 @@ public class JavaProject
 	/*
 	 * @see IJavaProject
 	 */
-	public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
+	public boolean isOnClasspath(IJavaElement element) {
 		IPath path = element.getPath();
 		switch (element.getElementType()) {
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
@@ -1756,8 +1756,13 @@ public class JavaProject
 		}
 		return this.isOnClasspath(path);
 	}
-	private boolean isOnClasspath(IPath path) throws JavaModelException {
-		IClasspathEntry[] classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+	private boolean isOnClasspath(IPath path) {
+		IClasspathEntry[] classpath;
+		try {
+			classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+		} catch(JavaModelException e){
+			return false; // not a Java project
+		}
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getPath().isPrefixOf(path) 
@@ -1770,7 +1775,7 @@ public class JavaProject
 	/*
 	 * @see IJavaProject
 	 */
-	public boolean isOnClasspath(IResource resource) throws JavaModelException {
+	public boolean isOnClasspath(IResource resource) {
 		IPath path = resource.getFullPath();
 		
 		// ensure that folders are only excluded if all of their children are excluded
