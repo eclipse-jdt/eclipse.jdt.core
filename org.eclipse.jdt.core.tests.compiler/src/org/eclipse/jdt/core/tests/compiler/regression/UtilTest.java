@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+
 import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
@@ -26,11 +28,16 @@ public static Test suite() {
 }
 public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {
 	
+	CharOperation.replace(pattern, '/', File.separatorChar);
+	CharOperation.replace(pattern, '\\', File.separatorChar);
+	CharOperation.replace(path, '/', File.separatorChar);
+	CharOperation.replace(path, '\\', File.separatorChar);
+	
 	boolean antResult = SelectorUtils.matchPath(new String(pattern), new String(path), isCaseSensitive);
-	boolean result = CharOperation.pathMatch(pattern, path, isCaseSensitive, '/');
-	if (antResult != result) {
-		new AssertionFailedError("WARNING : Ant expectation for patchMatch(\""+new String(pattern)+"\", \""+new String(path)+"\", ...) is: "+antResult).printStackTrace();
-	}
+	boolean result = CharOperation.pathMatch(pattern, path, isCaseSensitive, File.separatorChar);
+//	if (antResult != result) {
+//		new AssertionFailedError("WARNING : Ant expectation for patchMatch(\""+new String(pattern)+"\", \""+new String(path)+"\", ...) is: "+antResult).printStackTrace();
+//	}
 	return result;
 }
 
