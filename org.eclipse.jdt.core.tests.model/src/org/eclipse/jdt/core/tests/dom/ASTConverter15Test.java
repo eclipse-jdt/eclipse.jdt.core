@@ -2886,4 +2886,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * Ensures that resolving a generic method with a non existing parameter type doesn't throw a NPE when computing its binding key.
+	 * (regression test for 81134 [dom] [5.0] NPE when creating AST
+	 */
+	public void test0095() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"public class X {\n" + 
+				"   /*start*/<T> void foo(NonExisting arg) {\n" + 
+				"   }/*end*/\n" + 
+				"}",
+				workingCopy);
+			IBinding binding = ((MethodDeclaration) node).resolveBinding();
+			assertEquals(
+				null,
+				binding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

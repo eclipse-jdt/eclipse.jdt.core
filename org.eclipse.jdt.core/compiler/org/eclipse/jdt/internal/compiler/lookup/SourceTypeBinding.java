@@ -1111,6 +1111,13 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	if (foundArgProblem) {
 		methodDecl.binding = null;
+		// nullify type parameter bindings as well as they have a backpointer to the method binding
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=81134)
+		if (typeParameters != null)
+			for (int i = 0, length = typeParameters.length; i < length; i++) {
+				TypeParameter parameter = typeParameters[i];
+				parameter.binding = null;
+			}
 		return null;
 	}
 	if (foundReturnTypeProblem)
