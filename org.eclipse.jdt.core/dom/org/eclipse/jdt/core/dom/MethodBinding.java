@@ -245,8 +245,7 @@ class MethodBinding implements IMethodBinding {
 	 * @since 3.1
 	 */
 	public boolean isVarargs() {
-		// TODO (olivier) - missing implementation
-		return false;
+		return this.binding.isVarargs();
 	}
 
 	/*
