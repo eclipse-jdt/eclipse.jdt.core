@@ -15,11 +15,14 @@ import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
 /**
  * Utility class to decode or create a binding key.
+ * <p>
+ * This class is not intended to be subclassed by clients.
+ * </p>
  * 
  * @see org.eclipse.jdt.core.dom.IBinding#getKey()
  * @since 3.1
  */
-public class BindingKey {
+public final class BindingKey {
 	
 	private String key;
 	
