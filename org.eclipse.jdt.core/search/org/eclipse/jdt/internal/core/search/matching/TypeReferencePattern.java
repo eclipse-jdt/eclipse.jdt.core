@@ -444,12 +444,13 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 		Binding binding = nameRef.binding;
 
 		if (nameRef instanceof SingleNameReference) {
-			if (binding == null || binding instanceof ProblemBinding){
+			if (binding instanceof ProblemReferenceBinding) {
+				binding = ((ProblemReferenceBinding)binding).original;
+			}
+			if (!(binding instanceof TypeBinding)){
 				return INACCURATE_MATCH;
-			} else if (binding instanceof TypeBinding) {
-				return this.matchLevelForType(this.simpleName, this.qualification, (TypeBinding) binding);
 			} else {
-				return IMPOSSIBLE_MATCH; // must be a type binding
+				return this.matchLevelForType(this.simpleName, this.qualification, (TypeBinding) binding);
 			}
 		} else { // QualifiedNameReference
 			TypeBinding typeBinding = null;
@@ -467,6 +468,9 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				case BindingIds.LOCAL : // reading a local variable
 					return IMPOSSIBLE_MATCH; // no type match in it
 				case BindingIds.TYPE : //=============only type ==============
+					if (binding instanceof ProblemReferenceBinding) {
+						binding = ((ProblemReferenceBinding)binding).original;
+					}
 					if (!(binding instanceof TypeBinding)) {
 						return INACCURATE_MATCH;
 					}
@@ -485,7 +489,15 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 						lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
 						if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
 					} else if (binding instanceof ProblemReferenceBinding) {
-						return INACCURATE_MATCH;
+						ProblemReferenceBinding pbBinding = (ProblemReferenceBinding)binding;
+						binding = pbBinding.original;
+						if (!(binding instanceof TypeBinding)) {
+							return INACCURATE_MATCH;
+						}
+						typeBinding = (TypeBinding)binding;
+						char[][] partialQualifiedName = pbBinding.compoundName;
+						lastIndex = partialQualifiedName == null ? -1 : partialQualifiedName.length - 1; // index of last bound token is one before the pb token
+						if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
 					}
 					break;
 			}
@@ -545,34 +557,42 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 		} 
 	} else {
 		TypeBinding typeBinding = typeRef.resolvedType;
+		if (typeBinding instanceof ArrayBinding) {
+			typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+		}
+		if (typeBinding instanceof ProblemReferenceBinding) {
+			Binding binding = ((ProblemReferenceBinding)typeBinding).original;
+			if (binding instanceof TypeBinding) {
+				typeBinding = (TypeBinding)binding;
+			} else if (binding == null) {
+				typeBinding = null;
+			}
+		}
 		if (typeBinding == null) {
 			return INACCURATE_MATCH;
-		} else {
-			if (typeBinding instanceof ArrayBinding) typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
-			if (typeBinding instanceof ProblemReferenceBinding) return INACCURATE_MATCH;
-			if (typeRef instanceof SingleTypeReference){
-				return this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
-			} else { // QualifiedTypeReference
-				QualifiedTypeReference qTypeRef = (QualifiedTypeReference)typeRef;
-				char[][] tokens = qTypeRef.tokens;
-				int lastIndex = tokens.length-1;
-				// try to match all enclosing types for which the token matches as well.
-				while (typeBinding != null && lastIndex >= 0){
-					if (matchesName(this.simpleName, tokens[lastIndex--])) {
-						int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
-						if (level != IMPOSSIBLE_MATCH) {
-							return level;
-						}
-					}
-					if (typeBinding instanceof ReferenceBinding){
-						typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-					} else {
-						typeBinding = null;
+		}
+		if (typeRef instanceof SingleTypeReference){
+			return this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+		} else { // QualifiedTypeReference
+			QualifiedTypeReference qTypeRef = (QualifiedTypeReference)typeRef;
+			char[][] tokens = qTypeRef.tokens;
+			int lastIndex = tokens.length-1;
+			// try to match all enclosing types for which the token matches as well.
+			while (typeBinding != null && lastIndex >= 0){
+				if (matchesName(this.simpleName, tokens[lastIndex--])) {
+					int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+					if (level != IMPOSSIBLE_MATCH) {
+						return level;
 					}
 				}
-				return IMPOSSIBLE_MATCH;
-			} 
-		}
+				if (typeBinding instanceof ReferenceBinding){
+					typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+				} else {
+					typeBinding = null;
+				}
+			}
+			return IMPOSSIBLE_MATCH;
+		} 
 			
 	}
 }

@@ -230,6 +230,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceInCast"));
 	suite.addTest(new JavaSearchTests("testPatternMatchTypeReference"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceNotCaseSensitive"));
+	suite.addTest(new JavaSearchTests("testAccurateTypeReference"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -348,6 +349,26 @@ public void testAccuratePackageReference() throws JavaModelException, CoreExcept
 		resultCollector);
 	assertEquals(
 		"src/PackageReference/K.java [p3.p2]", 
+		resultCollector.toString());
+}
+/**
+ * Type reference test.
+ */
+public void testAccurateTypeReference() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"d5.X", 
+		TYPE,
+		REFERENCES, 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {
+			getPackageFragment("JavaSearch", "src", "d5")
+		}), 
+		resultCollector);
+	assertEquals(
+		"src/d5/Y.java d5.Y.T [d5.X]\n" +
+		"src/d5/Y.java d5.Y.c [d5.X]\n" +
+		"src/d5/Y.java d5.Y.o [d5.X]",
 		resultCollector.toString());
 }
 /**
@@ -2243,6 +2264,7 @@ public void testTypeReferenceAsSingleNameReference() throws JavaModelException, 
 		getJavaSearchScope(), 
 		resultCollector);
 	assertEquals(
+		"src/TypeReferenceAsSingleNameReference.java TypeReferenceAsSingleNameReference.hasReference() -> void [TypeReferenceAsSingleNameReference]\n" +
 		"src/TypeReferenceAsSingleNameReference.java TypeReferenceAsSingleNameReference.hasReference() -> void [TypeReferenceAsSingleNameReference]",
 		resultCollector.toString());
 }
