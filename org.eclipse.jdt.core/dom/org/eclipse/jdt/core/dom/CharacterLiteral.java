@@ -11,6 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+
 /**
  * Character literal nodes.
  * 
@@ -103,8 +106,22 @@ public class CharacterLiteral extends Expression {
 	 * @exception $precondition-violation:invalid-argument$
 	 */ 
 	public void setEscapedValue(String value) {
-		if (value == null || value.length() < 3
-		|| !value.startsWith("\'") || ! value.endsWith("\'")) {//$NON-NLS-1$//$NON-NLS-2$
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		Scanner scanner = new Scanner();
+		char[] source = value.toCharArray();
+		scanner.setSourceBuffer(source);
+		scanner.resetTo(0, source.length);
+		try {
+			int tokenType = scanner.getNextToken();
+			switch(tokenType) {
+				case Scanner.TokenNameCharacterLiteral:
+					break;
+				default:
+					throw new IllegalArgumentException("Not a character literal");
+			}
+		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
 		modifying();

@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+
 /**
  * AST node for a simple name. A simple name is an identifier other than
  * a keyword, boolean literal ("true", "false") or null literal ("null").
@@ -167,24 +170,22 @@ public class SimpleName extends Name {
 	 *    if not valid
 	 */
 	public static boolean isJavaIdentifier(String identifier) {
-		int len = identifier.length();
-		if (len == 0) {
-			return false;
+		// FIXME
+		// assert won't be considered as a keyword
+		Scanner scanner = new Scanner();
+		char[] source = identifier.toCharArray();
+		scanner.setSourceBuffer(source);
+		scanner.resetTo(0, source.length);
+		try {
+			int tokenType = scanner.getNextToken();
+			switch(tokenType) {
+				case Scanner.TokenNameIdentifier:
+					return true;
+				default:
+			}
+		} catch(InvalidInputException e) {
 		}
-		char c = identifier.charAt(0);
-		if (!Character.isJavaIdentifierStart(c)) {
-			return false;
-		}			
-		for (int i= 1; i < len; i++) {
-			c = identifier.charAt(i);
-			if (!Character.isJavaIdentifierPart(c)) {
-				return false;
-			}	
-		}
-		if (KEYWORDS.contains(identifier)) {
-			return false;
-		}			
-		return true;
+		return false;
 	}
 	
 	/* (omit javadoc for this method)

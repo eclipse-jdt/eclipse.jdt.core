@@ -11,6 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+
 /**
  * Number literal nodes.
  * 
@@ -88,6 +91,36 @@ public class NumberLiteral extends Expression {
 		modifying();
 		// FIXME - check the token more thoroughly
 		// ideally, scan it to ensure that it is legal
+		Scanner scanner = new Scanner();
+		char[] source = token.toCharArray();
+		scanner.setSourceBuffer(source);
+		scanner.resetTo(0, source.length);
+		try {
+			int tokenType = scanner.getNextToken();
+			switch(tokenType) {
+				case Scanner.TokenNameDoubleLiteral:
+				case Scanner.TokenNameIntegerLiteral:
+				case Scanner.TokenNameFloatingPointLiteral:
+				case Scanner.TokenNameLongLiteral:
+					break;
+				case Scanner.TokenNameMINUS :
+					tokenType = scanner.getNextToken();
+					switch(tokenType) {
+						case Scanner.TokenNameDoubleLiteral:
+						case Scanner.TokenNameIntegerLiteral:
+						case Scanner.TokenNameFloatingPointLiteral:
+						case Scanner.TokenNameLongLiteral:
+							break;
+						default:
+							throw new IllegalArgumentException("Not a literal type");
+					}
+					break;		
+				default:
+					throw new IllegalArgumentException("Not a literal type");
+			}
+		} catch(InvalidInputException e) {
+			throw new IllegalArgumentException();
+		}
 		this.tokenValue = token;
 	}
 	
