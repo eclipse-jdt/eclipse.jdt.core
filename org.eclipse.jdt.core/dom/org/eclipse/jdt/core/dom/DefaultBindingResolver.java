@@ -124,24 +124,24 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		ASTNode parent = name.getParent();
-		if (parent instanceof MethodDeclaration) {
+		if (parent instanceof MethodDeclaration && name.equals(((MethodDeclaration) parent).getName())) {
 			return this.resolveMethod((MethodDeclaration)parent);
 		}
-		if (parent instanceof TypeDeclaration) {
+		if (parent instanceof TypeDeclaration && name.equals(((TypeDeclaration) parent).getName())) {
 			return this.resolveType((TypeDeclaration)parent);
 		}
-		if (parent instanceof MethodInvocation
-			|| parent instanceof SuperMethodInvocation) {
+		if ((parent instanceof MethodInvocation && name.equals(((MethodInvocation) parent).getName()))
+			|| (parent instanceof SuperMethodInvocation && name.equals(((SuperMethodInvocation) parent).getName()))) {
 			return this.internalResolveNameForMethodInvocation(name);
 		}
-		if (parent instanceof FieldAccess
-		   || parent instanceof SuperFieldAccess) {
+		if ((parent instanceof FieldAccess && name.equals(((FieldAccess) parent).getName()))
+		   || (parent instanceof SuperFieldAccess && name.equals(((SuperFieldAccess) parent).getName()))) {
 			return this.internalResolveNameForFieldAccess(name);
 		}
-		if (parent instanceof PackageDeclaration) {
+		if (parent instanceof PackageDeclaration && name.equals(((PackageDeclaration) parent).getName())) {
 			return this.internalResolveNameForPackageDeclaration(name);
 		}
-		if (parent instanceof SimpleType) {
+		if (parent instanceof SimpleType && name.equals(((SimpleType) parent).getName())) {
 			return this.internalResolveNameForSimpleType(name);
 		}
 		if (parent instanceof ThisExpression) {
