@@ -27,7 +27,8 @@ public class FieldReferenceMatch extends JavaSearchMatch {
 		this.isReadAccess = isReadAccess;
 		this.isWriteAccess = isWriteAccess;
 	}
-	
+
+	// important point is that a match can be read & write at once in case of compound assignments:  e.g. i += 0;
 	public boolean isReadAccess() {
 		return this.isReadAccess;
 	}
