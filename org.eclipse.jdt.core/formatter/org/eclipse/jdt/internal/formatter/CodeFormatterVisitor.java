@@ -530,10 +530,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (initialization != null) {
 			this.scribe.alignFragment(memberAlignment, 1);
 			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-			if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operator) {
-				this.scribe.space();
+			if (initialization instanceof ArrayInitializer) {
+				formatArrayInitializer((ArrayInitializer) initialization, scope, this.preferences.insert_space_after_assignment_operator || this.preferences.insert_space_before_opening_brace_in_array_initializer);
+			} else {
+				if (this.preferences.insert_space_after_assignment_operator) {
+					this.scribe.space();
+				}
+				initialization.traverse(this, scope);
 			}
-			initialization.traverse(this, scope);
 		}
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -640,10 +644,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							this.scribe.alignFragment(fieldAlignment, 1);
 						}
 						this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-						if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operator) {
-							this.scribe.space();
+						if (initialization instanceof ArrayInitializer) {
+							formatArrayInitializer((ArrayInitializer) initialization, scope, this.preferences.insert_space_after_assignment_operator || this.preferences.insert_space_before_opening_brace_in_array_initializer);
+						} else {
+							if (this.preferences.insert_space_after_assignment_operator) {
+								this.scribe.space();
+							}
+							initialization.traverse(this, scope);
 						}
-						initialization.traverse(this, scope);
 					}
 					
 					if (i != length - 1) {
@@ -1329,10 +1337,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 * Print the method name
 			 */	
 			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-			if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operator) {
-				this.scribe.space();
+			if (initialization instanceof ArrayInitializer) {
+				formatArrayInitializer((ArrayInitializer) initialization, scope, this.preferences.insert_space_after_assignment_operator || this.preferences.insert_space_before_opening_brace_in_array_initializer);
+			} else {
+				if (this.preferences.insert_space_after_assignment_operator) {
+					this.scribe.space();
+				}
+				initialization.traverse(this, scope);
 			}
-			initialization.traverse(this, scope);
 		}
 
 		if (isPartOfMultipleLocalDeclaration()) {
@@ -2000,7 +2012,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayInitializer, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
-		formatArrayInitializer(arrayInitializer, scope, this.preferences.insert_space_before_opening_brace_in_array_initializer || this.preferences.insert_space_after_assignment_operator);
+		formatArrayInitializer(arrayInitializer, scope, this.preferences.insert_space_before_opening_brace_in_array_initializer);
 		return false;
 	}
 	
@@ -2173,10 +2185,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		assignment.lhs.traverse(this, scope);
 		this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-		if (!(assignment.expression instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operator) {
-			this.scribe.space();
+		if (assignment.expression instanceof ArrayInitializer) {
+			formatArrayInitializer((ArrayInitializer) assignment.expression, scope, this.preferences.insert_space_after_assignment_operator || this.preferences.insert_space_before_opening_brace_in_array_initializer);
+		} else {
+			if (this.preferences.insert_space_after_assignment_operator) {
+				this.scribe.space();
+			}
+			assignment.expression.traverse(this, scope);
 		}
-		assignment.expression.traverse(this, scope);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(assignment, numberOfParens);
