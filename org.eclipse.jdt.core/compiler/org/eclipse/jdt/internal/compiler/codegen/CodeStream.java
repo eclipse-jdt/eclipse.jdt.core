@@ -5158,119 +5158,117 @@ public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
 	}
 }
 
-// TODO: (olivier) should be rewritten to use a switch(type.id)
 public final void store(LocalVariableBinding localBinding, boolean valueRequired) {
-	TypeBinding type = localBinding.type;
 	int position = localBinding.resolvedPosition;
 	// Using dedicated int bytecode
-	if ((type == IntBinding) || (type == CharBinding) || (type == ByteBinding) || (type == ShortBinding) || (type == BooleanBinding)) {
-		if (valueRequired)
-			this.dup();
-		switch (position) {
-			case 0 :
-				this.istore_0();
-				break;
-			case 1 :
-				this.istore_1();
-				break;
-			case 2 :
-				this.istore_2();
-				break;
-			case 3 :
-				this.istore_3();
-				break;
-			//case -1 :
-			// internal failure: trying to store into variable not supposed to be generated
-			//	break;
-			default :
-				this.istore(position);
-		}
-		return;
-	}
-	// Using dedicated float bytecode
-	if (type == FloatBinding) {
-		if (valueRequired)
-			this.dup();
-		switch (position) {
-			case 0 :
-				this.fstore_0();
-				break;
-			case 1 :
-				this.fstore_1();
-				break;
-			case 2 :
-				this.fstore_2();
-				break;
-			case 3 :
-				this.fstore_3();
-				break;
-			default :
-				this.fstore(position);
-		}
-		return;
-	}
-	// Using dedicated long bytecode
-	if (type == LongBinding) {
-		if (valueRequired)
-			this.dup2();
-		switch (position) {
-			case 0 :
-				this.lstore_0();
-				break;
-			case 1 :
-				this.lstore_1();
-				break;
-			case 2 :
-				this.lstore_2();
-				break;
-			case 3 :
-				this.lstore_3();
-				break;
-			default :
-				this.lstore(position);
-		}
-		return;
-	}
-	// Using dedicated double bytecode
-	if (type == DoubleBinding) {
-		if (valueRequired)
-			this.dup2();
-		switch (position) {
-			case 0 :
-				this.dstore_0();
-				break;
-			case 1 :
-				this.dstore_1();
-				break;
-			case 2 :
-				this.dstore_2();
-				break;
-			case 3 :
-				this.dstore_3();
-				break;
-			default :
-				this.dstore(position);
-		}
-		return;
-	}
-	// Reference object
-	if (valueRequired)
-		this.dup();
-	switch (position) {
-		case 0 :
-			this.astore_0();
+	switch(localBinding.type.id) {
+		case TypeIds.T_int :
+		case TypeIds.T_char :
+		case TypeIds.T_byte :
+		case TypeIds.T_short :
+		case TypeIds.T_boolean :
+			if (valueRequired)
+				this.dup();
+			switch (position) {
+				case 0 :
+					this.istore_0();
+					break;
+				case 1 :
+					this.istore_1();
+					break;
+				case 2 :
+					this.istore_2();
+					break;
+				case 3 :
+					this.istore_3();
+					break;
+				//case -1 :
+				// internal failure: trying to store into variable not supposed to be generated
+				//	break;
+				default :
+					this.istore(position);
+			}
 			break;
-		case 1 :
-			this.astore_1();
+		case TypeIds.T_float :
+			if (valueRequired)
+				this.dup();
+			switch (position) {
+				case 0 :
+					this.fstore_0();
+					break;
+				case 1 :
+					this.fstore_1();
+					break;
+				case 2 :
+					this.fstore_2();
+					break;
+				case 3 :
+					this.fstore_3();
+					break;
+				default :
+					this.fstore(position);
+			}
 			break;
-		case 2 :
-			this.astore_2();
+		case TypeIds.T_double :
+			if (valueRequired)
+				this.dup2();
+			switch (position) {
+				case 0 :
+					this.dstore_0();
+					break;
+				case 1 :
+					this.dstore_1();
+					break;
+				case 2 :
+					this.dstore_2();
+					break;
+				case 3 :
+					this.dstore_3();
+					break;
+				default :
+					this.dstore(position);
+			}
 			break;
-		case 3 :
-			this.astore_3();
+		case TypeIds.T_long :
+			if (valueRequired)
+				this.dup2();
+			switch (position) {
+				case 0 :
+					this.lstore_0();
+					break;
+				case 1 :
+					this.lstore_1();
+					break;
+				case 2 :
+					this.lstore_2();
+					break;
+				case 3 :
+					this.lstore_3();
+					break;
+				default :
+					this.lstore(position);
+			}
 			break;
-		default :
-			this.astore(position);
+		default:
+			// Reference object
+			if (valueRequired)
+				this.dup();
+			switch (position) {
+				case 0 :
+					this.astore_0();
+					break;
+				case 1 :
+					this.astore_1();
+					break;
+				case 2 :
+					this.astore_2();
+					break;
+				case 3 :
+					this.astore_3();
+					break;
+				default :
+					this.astore(position);
+			}
 	}
 }
 public final void store(TypeBinding type, int position) {
