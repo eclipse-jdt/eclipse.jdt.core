@@ -29,7 +29,7 @@ import java.util.List;
  *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
  * InterfaceDeclaration:
  *      [ Javadoc ] { Modifier } <b>interface</b> Identifier
- *			[ <b>extends</b> Type]
+ *			[ <b>extends</b> Type { <b>,</b> Type } ]
  * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
  * </pre>
  * <p>
