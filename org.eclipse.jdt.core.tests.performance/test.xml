@@ -30,9 +30,8 @@
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.performance.OneTest"/>
     </ant>
-    <delete quiet="true">
-      <fileset dir="${jdt-core-performance-folder}/.." includes="*.zip"/>
-    </delete>
+    <delete file="${jdt-core-performance-folder}/../jclMin.jar" quiet="true"/>
+    <delete file="${jdt-core-performance-folder}/../jclMinsrc.zip" quiet="true"/>
   </target>
 
   <!-- This target holds code to cleanup the testing environment after -->
@@ -59,9 +58,8 @@
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" value="org.eclipse.jdt.core.tests.performance.AllPerformanceTests"/>
     </ant>
-    <delete quiet="true">
-      <fileset dir="${jdt-core-performance-folder}/.." includes="*.zip"/>
-    </delete>
+    <delete file="${jdt-core-performance-folder}/../jclMin.jar" quiet="true"/>
+    <delete file="${jdt-core-performance-folder}/../jclMinsrc.zip" quiet="true"/>
   </target>
 
   <!-- This target runs the performance test suite. Any actions that need to happen -->
