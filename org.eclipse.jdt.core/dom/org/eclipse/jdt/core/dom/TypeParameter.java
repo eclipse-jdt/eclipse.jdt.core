@@ -205,6 +205,7 @@ public class TypeParameter extends ASTNode {
 	 * 
 	 * @return the binding, or <code>null</code> if the binding cannot be 
 	 *    resolved
+	 * @since 3.1
 	 */	
 	public final IBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveTypeParameter(this);
