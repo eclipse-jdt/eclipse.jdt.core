@@ -55,6 +55,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		try {
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
+			assertEquals("Wrong size", 2, scanner.getCurrentTokenSource().length);
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
@@ -73,6 +74,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameCOMMENT_LINE, token);
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
+			assertEquals("Wrong size", 2, scanner.getCurrentTokenSource().length);
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
