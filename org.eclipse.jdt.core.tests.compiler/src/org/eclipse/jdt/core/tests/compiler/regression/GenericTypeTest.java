@@ -1331,7 +1331,7 @@ public void test055() {
 }
 
 public void test056() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X <T> extends p.A<T> {\n" + 
@@ -1398,18 +1398,7 @@ public void test057() {
 			"    }\n" + 
 			"}\n", 
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	System.out.println((X)xs.t);\n" + 
-		"	                   ^^^^^^^\n" + 
-		"Cannot cast from String to X\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p\\A.java (at line 7)\n" + 
-		"	protected void print(P p) {\n" + 
-		"	                       ^\n" + 
-		"The parameter p is hiding a field from type A\n" + 
-		"----------\n");
+		"SUCCESS");
 }
 
 public static Class testClass() {
