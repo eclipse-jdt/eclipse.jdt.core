@@ -50,6 +50,19 @@ protected boolean compiledAllAtOnce;
 private boolean inCompiler;
 
 public static int MAX_AT_ONCE = 1000;
+public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
+					IMarker.MESSAGE, 
+					IMarker.SEVERITY, 
+					IJavaModelMarker.ID, 
+					IMarker.CHAR_START, 
+					IMarker.CHAR_END, 
+					IMarker.LINE_NUMBER, 
+					IJavaModelMarker.ARGUMENTS};
+public final static Integer S_ERROR = new Integer(IMarker.SEVERITY_ERROR);
+public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
+public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
+public final static Integer P_NORMAL = new Integer(IMarker.PRIORITY_NORMAL);
+public final static Integer P_LOW = new Integer(IMarker.PRIORITY_LOW);
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.javaBuilder = javaBuilder;
@@ -366,17 +379,10 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 		if (id != IProblem.Task) {
 			IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttributes(
-				new String[] {
-					IMarker.MESSAGE, 
-					IMarker.SEVERITY, 
-					IJavaModelMarker.ID, 
-					IMarker.CHAR_START, 
-					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER, 
-					IJavaModelMarker.ARGUMENTS},
+				JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES,
 				new Object[] { 
 					problem.getMessage(),
-					new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
+					problem.isError() ? S_ERROR : S_WARNING, 
 					new Integer(id),
 					new Integer(problem.getSourceStart()),
 					new Integer(problem.getSourceEnd() + 1),
@@ -416,30 +422,22 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 		IProblem task = tasks[i];
 		if (task.getID() == IProblem.Task) {
 			IMarker marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
-			int priority = IMarker.PRIORITY_NORMAL;
+			Integer priority = P_NORMAL;
 			String compilerPriority = task.getArguments()[2];
 			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority))
-				priority = IMarker.PRIORITY_HIGH;
+				priority = P_HIGH;
 			else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority))
-				priority = IMarker.PRIORITY_LOW;
+				priority = P_LOW;
 			marker.setAttributes(
-				new String[] {
-					IMarker.MESSAGE, 
-					IMarker.PRIORITY, 
-					IMarker.DONE, 
-					IMarker.CHAR_START, 
-					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER,
-					IMarker.USER_EDITABLE, 
-				}, 
+				JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES,
 				new Object[] { 
 					task.getMessage(),
-					new Integer(priority),
+					priority,
 					org.eclipse.jdt.internal.compiler.util.Util.toBoolean(false),
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
-					new Boolean(false),
+					Boolean.FALSE,
 				});
 		}
 	}
