@@ -781,7 +781,13 @@ public interface ITypeBinding extends IBinding {
 	 * <li>For members of top-level types, the fully qualified name is the
 	 * simple name of the type preceded by the fully qualified name of the
 	 * enclosing type (as computed by this method) and a ".".
-	 * Example: <code>"java.io.ObjectInputStream.GetField"</code>.</li>
+	 * Example: <code>"java.io.ObjectInputStream.GetField"</code>.
+	 * If the binding is for a member type that corresponds to a particular instance
+	 * of a generic type arising from a parameterized type reference, the simple
+	 * name of the type is followed by the fully qualified names of the type arguments
+	 * (as computed by this method) surrounded by "&lt;&gt;" and separated by ",".
+	 * Example: <code>"pkg.Outer.Inner&lt;java.lang.String&gt;"</code>.
+	 * </li>
 	 * <li>For primitive types, the fully qualified name is the keyword for
 	 * the primitive type.
 	 * Example: <code>"int"</code>.</li>
