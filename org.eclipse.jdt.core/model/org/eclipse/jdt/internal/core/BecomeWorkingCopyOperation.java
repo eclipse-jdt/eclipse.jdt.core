@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
@@ -21,23 +20,21 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class BecomeWorkingCopyOperation extends JavaModelOperation {
 	
-	IPath path;
 	IProblemRequestor problemRequestor;
 	
 	/*
 	 * Creates a BecomeWorkingCopyOperation for the given working copy.
 	 * perOwnerWorkingCopies map is not null if the working copy is a shared working copy.
 	 */
-	public BecomeWorkingCopyOperation(CompilationUnit workingCopy, IPath path, IProblemRequestor problemRequestor) {
+	public BecomeWorkingCopyOperation(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 		super(new IJavaElement[] {workingCopy});
-		this.path = path;
 		this.problemRequestor = problemRequestor;
 	}
 	protected void executeOperation() throws JavaModelException {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
+		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), this.progressMonitor);
 
 		if (!workingCopy.isPrimary()) {
