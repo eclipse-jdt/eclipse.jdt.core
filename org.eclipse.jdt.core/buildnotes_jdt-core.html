@@ -16,6 +16,25 @@ Eclipse SDK Build 20020411 - 11th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added char array based APIs on Signature. This APIs avoid creating needless Strings and
+	are thus much more performant than their String based equivalent.
+	<ul>
+		<li><code>createArraySignature(char[], int arrayCount)</code></li>
+		<li><code>createCharArrayTypeSignature(char[], boolean)</code></li>
+		<li><code>createMethodSignature(char[][], char[]) </code></li>
+		<li><code>getArrayCount(char[])</code></li>
+		<li><code>getElementType(char[])</code></li>
+		<li><code>getParameterCount(char[])</code></li>
+		<li><code>getParameterTypes(char[])</code></li>
+		<li><code>getQualifier(char[])</code></li>
+		<li><code>getReturnType(char[])</code></li>
+		<li><code>getSimpleName(char[])</code></li>
+		<li><code>getSimpleNames(char[])</code></li>
+		<li><code>toCharArray(char[], char[], char[][], boolean, boolean)</code></li>
+		<li><code>toCharArray(char[])</code></li>
+		<li><code>toQualifiedName(char[][])</code></li>
+	</ul>
+</li>
 <li>Removed temporary 2.0 API which were deprecated in previous builds:
 	<ul>
 		<li><code>IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)</code>, use API with extra <code>IProblemRequestor</code></li>
