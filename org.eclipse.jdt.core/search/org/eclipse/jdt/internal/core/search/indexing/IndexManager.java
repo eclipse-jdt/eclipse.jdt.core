@@ -35,7 +35,9 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.impl.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.Index;
+import org.eclipse.jdt.internal.core.index.impl.SafeRandomAccessFile;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
@@ -150,7 +152,7 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 			// index isn't cached, consider reusing an existing index file
 			if (reuseExistingFile) {
 				File indexFile = new File(indexName);
-				if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
+				if (indexFile.exists() && isIndexSignatureValid(indexFile)) { // check before creating index so as to avoid creating a new empty index if file is missing
 					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
 					if (index != null) {
 						indexes.put(path, index);
@@ -272,6 +274,21 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 	}
 
 	this.request(new AddFolderToIndex(sourceFolder, project, exclusionPattern, this));
+}
+private boolean isIndexSignatureValid(File indexFile) {
+	SafeRandomAccessFile raf = null;
+	try {
+		raf = new SafeRandomAccessFile(indexFile, "r"); //$NON-NLS-1$
+		String signature = raf.readUTF();
+		return IIndexConstants.SIGNATURE.equals(signature);
+	} catch(IOException e){
+	} finally {
+		try {
+			if (raf != null) raf.close();
+		} catch(IOException e) {
+		}
+	}
+	return false;
 }
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
