@@ -935,6 +935,8 @@ public void testMethodWithError09() throws CoreException {
 			"	public abstract void bar();	\n"+
 			"}"
 		);
+		workingCopy1.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		
 		this.cu = getCompilationUnit("Reconciler", "src", "p", "X.java");
 		this.problemRequestor =  new ProblemRequestor();
 		String contents = 
@@ -942,8 +944,10 @@ public void testMethodWithError09() throws CoreException {
 			"public class X extends p1.X1 {\n" +
 			"	public void bar(){}	\n"+
 			"}";
-		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy = this.cu.getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy.getBuffer().setContents(contents);
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 
 		assertProblems(
 			"Unexpected problems",
