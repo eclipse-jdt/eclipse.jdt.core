@@ -64,15 +64,15 @@ import org.eclipse.core.runtime.IPath;
  * 	which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
  * 	After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>
  * 
- *  <li> A named classpath container identified by a 2-segments path.
+ *  <li> A named classpath container identified by its container path.
  *     A classpath container provides a way to indirectly reference a set of classpath entries through
  *     a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
  *     be used to describe a complex library composed of multiple JARs, projects or classpath variables,
  *     considering also that containers can be mapped differently on each project. Several projects can
  *     reference the same generic container path, but have each of them actually bound to a different
  *     container object.
- *     The containerPath is a 2-segments path, formed by an ID segment followed with an extra segment 
- *     which can be used as an additional hint for resolving this container reference. If no container was ever 
+ *     The container path is a formed by a first ID segment followed with extra segments 
+ *     which can be used as additional hints for resolving this container reference. If no container was ever 
  *     recorded for this container path onto this project (using <code>setClasspathContainer</code>, 
  * 	then a <code>ClasspathContainerInitializer</code> will be activated if any was registered for this 
  * 	container ID onto the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
@@ -191,8 +191,8 @@ public interface IClasspathEntry {
 	 *		path without the variable.</li>
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the path of the entry
 	 * 	is the name of the classpath container, which can be bound indirectly to a set of classpath 
-	 * 	entries after resolution. The containerPath is a 2-segments path, formed by an ID segment 
-	 *     followed with an extra segment that can be used as an additional hint for resolving this container 
+	 * 	entries after resolution. The containerPath is a formed by a first ID segment followed with 
+	 *     extra segments that can be used as additional hints for resolving this container 
 	 * 	reference (also see <code>IClasspathContainer</code>).
 	 * </li>
 	 * </ul>

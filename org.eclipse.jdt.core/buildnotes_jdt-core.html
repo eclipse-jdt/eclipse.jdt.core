@@ -18,6 +18,8 @@ What's new in this drop</h2>
 <ul>
     <li> Added <code>IClasspathContainer</code> new kind constant <code>K_DEFAULT_SYSTEM</code> to denote system libraries implicitely contributed
     	by a runtime. </li>
+    <li> Classpath container path can have more than 2 segments. First one is still the container ID, the remaining ones are forming the hints
+    	passed to the resolution phase (<code>ClasspathContainerInitializer</code> </li>
     <li> Classpath containers can no longer contain variable entries </li>
 	<li>JavaCore now persists its options (<code>JavaCore#getOptions</code>) using its plugin property store. Clients no longer need to save them. </li>
 	<li>JavaCore now provides constants for all supported option IDs and values.</li>

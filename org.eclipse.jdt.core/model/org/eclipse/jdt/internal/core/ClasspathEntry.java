@@ -44,9 +44,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
 	 *		is computed by appending to <it>P</it> the segments of the returned
 	 *		path without the variable.</li>
-	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - a 2-segments path, the first denoting
+	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the first segment of the path is denoting
 	 *     the unique container identifier (for which a <code>ClasspathContainerInitializer</code> could be
-	 * 	registered), and the second segment is used as additional hint for resolving the container entry to
+	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
 	 * 	an actual <code>IClasspathContainer</code>.</li>
 	 */
 	protected IPath path;

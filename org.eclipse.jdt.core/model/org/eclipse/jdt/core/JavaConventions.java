@@ -526,7 +526,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 
 			// container entry check
 			case IClasspathEntry.CPE_CONTAINER :
-				if (path != null && path.segmentCount() == 2){
+				if (path != null && path.segmentCount() >= 1){
 					try {
 						IClasspathContainer container = JavaCore.getClasspathContainer(path, javaProject);
 						// container retrieval is performing validation check on container entry kinds.
