@@ -456,38 +456,24 @@ public void testRenameFieldsResultingInCollision() throws JavaModelException {
  * Ensures that renaming can be canceled.
  */
 public void testRenameFieldsWithCancel() throws CoreException {
-	final IProgressMonitor monitor = TestProgressMonitor.getInstance();
-	final boolean[] isCanceled = new boolean[] {false};
-	try {
-		Runnable runnable = new Runnable() {
-			public void run() {
-				try {
-					String addition = "new1";
-					IType type = RenameTests.this.cu.getType("X");
-					IField[] iFields = type.getFields();
-					String[] newNames = new String[iFields.length];
-					int i;
-					for (i = 0; i < iFields.length; i++) {
-						IField f = iFields[i];
-						newNames[i] = addition + f.getElementName();
-					}
-					renamePositive(iFields, new IJavaElement[] {type}, newNames, false, false, monitor);
-				} catch (JavaModelException jme) {
-					assertTrue("Code not correct for JavaModelException: " + jme, false);					
-					return;
-				} catch (OperationCanceledException e) {
-					isCanceled[0] = true;
-					return;
-				}
-			}
-		};
-		Thread runner = new Thread(runnable);
-		monitor.setCanceled(true);
-		runner.start();
-		runner.join();
-		assertTrue("Operation should have thrown an operation canceled exception", isCanceled[0]);
-	} catch (InterruptedException ie) {
+	boolean isCanceled = false;
+	String addition = "new1";
+	IType type = RenameTests.this.cu.getType("X");
+	IField[] iFields = type.getFields();
+	String[] newNames = new String[iFields.length];
+	int i;
+	for (i = 0; i < iFields.length; i++) {
+		IField f = iFields[i];
+		newNames[i] = addition + f.getElementName();
 	}
+	try {
+		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
+		monitor.setCancelledCounter(1);
+		renamePositive(iFields, new IJavaElement[] {type}, newNames, false, false, monitor);
+	} catch (OperationCanceledException e) {
+		isCanceled = true;
+	}
+	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 }
 /**
  * Ensures that an initializer cannot be renamed.

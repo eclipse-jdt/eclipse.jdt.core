@@ -14,7 +14,6 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 
@@ -2351,32 +2350,17 @@ public void testMoveMethodsWithCancel() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	final IType typeDest = getCompilationUnit("/P/src/Y.java").getType("Y");
+	IType typeDest = getCompilationUnit("/P/src/Y.java").getType("Y");
 
-	final IProgressMonitor monitor = TestProgressMonitor.getInstance();
-	final boolean[] isCanceled = new boolean[] {false};
+	boolean isCanceled = false;
 	try {
-		Runnable runnable = new Runnable() {
-			public void run() {
-				try {
-					movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
-				} catch (JavaModelException jme) {
-					assertTrue("Code not correct for JavaModelException: " + jme, false);					
-					return;
-				} catch (OperationCanceledException e) {
-					isCanceled[0] = true;
-					return;
-				}
-			}
-		};
-		Thread runner = new Thread(runnable);
-		runner.setPriority(Thread.MIN_PRIORITY);
-		monitor.setCanceled(true);
-		runner.start();
-		runner.join(5000);
-		assertTrue("Operation should have thrown an operation canceled exception", isCanceled[0]);
-	} catch (InterruptedException ie) {
+		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
+		monitor.setCancelledCounter(1);
+		movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
+	} catch (OperationCanceledException e) {
+		isCanceled = true;
 	}
+	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 }
 /**
  * Ensures that a method moves across differnt projects can be cancelled.
@@ -2402,32 +2386,17 @@ public void testMoveMethodsWithCancelInDifferentProject() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		final IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
+		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
 	
-		final IProgressMonitor monitor = TestProgressMonitor.getInstance();
-		final boolean[] isCanceled = new boolean[] {false};
+		boolean isCanceled = false;
 		try {
-			Runnable runnable = new Runnable() {
-				public void run() {
-					try {
-						movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
-					} catch (JavaModelException jme) {
-						assertTrue("Code not correct for JavaModelException: " + jme, false);					
-						return;
-					} catch (OperationCanceledException e) {
-						isCanceled[0] = true;
-						return;
-					}
-				}
-			};
-			Thread runner = new Thread(runnable);
-			runner.setPriority(Thread.MIN_PRIORITY);
-			monitor.setCanceled(true);
-			runner.start();
-			runner.join(5000);
-			assertTrue("Operation should have thrown an operation canceled exception", isCanceled[0]);
-		} catch (InterruptedException ie) {
+			TestProgressMonitor monitor = TestProgressMonitor.getInstance();
+			monitor.setCancelledCounter(1);
+			movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
+		} catch (OperationCanceledException e) {
+			isCanceled = true;
 		}
+		assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 	} finally {
 		this.deleteProject("P2");
 	}

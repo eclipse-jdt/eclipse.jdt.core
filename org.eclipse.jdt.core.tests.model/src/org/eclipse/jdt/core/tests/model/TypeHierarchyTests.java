@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
@@ -350,33 +349,18 @@ public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
  * Ensures that the creation of a type hierarchy can be cancelled.
  */
 public void testCancel() throws JavaModelException {
-	final IProgressMonitor monitor = TestProgressMonitor.getInstance();
-	final boolean[] isCanceled = new boolean[] {false};
+	boolean isCanceled = false;
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java").getType("X");
+	IRegion region = JavaCore.newRegion();
+	region.add(getPackageFragmentRoot("TypeHierarchy", "src"));
 	try {
-		Runnable runnable = new Runnable() {
-			public void run() {
-				try {
-					IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java").getType("X");
-					IRegion region = JavaCore.newRegion();
-					region.add(getPackageFragmentRoot("TypeHierarchy", "src"));
-					type.getJavaProject().newTypeHierarchy(type, region, monitor);
-				} catch (JavaModelException jme) {
-					assertTrue("Code not correct for JavaModelException: " + jme, false);					
-					return;
-				} catch (OperationCanceledException e) {
-					isCanceled[0] = true;
-					return;
-				}
-			}
-		};
-		Thread runner = new Thread(runnable);
-		runner.setPriority(Thread.MIN_PRIORITY);
-		monitor.setCanceled(true);
-		runner.start();
-		runner.join();
-		assertTrue("Operation should have thrown an operation canceled exception", isCanceled[0]);
-	} catch (InterruptedException ie) {
+		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
+		monitor.setCancelledCounter(1);
+		type.getJavaProject().newTypeHierarchy(type, region, monitor);
+	} catch (OperationCanceledException e) {
+		isCanceled = true;
 	}
+	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.

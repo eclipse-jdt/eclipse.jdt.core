@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class TestProgressMonitor implements IProgressMonitor {
 
-	private static IProgressMonitor singleton = new TestProgressMonitor();
-	public boolean cancelled = false;
+	private static TestProgressMonitor singleton = new TestProgressMonitor();
+	public int isCanceledCounter;
 
 /**
  * @see IProgressMonitor#beginTask
@@ -27,7 +27,7 @@ public void beginTask(String name, int totalWork) {
  */
 public void done() {
 }
-public static IProgressMonitor getInstance() {
+public static TestProgressMonitor getInstance() {
 	return singleton;
 }
 public void internalWorked(double work) {
@@ -36,7 +36,7 @@ public void internalWorked(double work) {
  * @see IProgressMonitor#isCanceled
  */
 public boolean isCanceled() {
-	return this.cancelled;
+	return --this.isCanceledCounter < 0;
 }
 public void reset() {
 }
@@ -44,7 +44,12 @@ public void reset() {
  * @see IProgressMonitor#setCanceled
  */
 public void setCanceled(boolean b) {
-	this.cancelled= b;
+}
+/*
+ * Sets the number of time isCanceled() can be called before it returns true.
+ */ 
+public void setCancelledCounter(int counter) {
+	this.isCanceledCounter = counter;
 }
 /**
  * @see IProgressMonitor#setTaskName
