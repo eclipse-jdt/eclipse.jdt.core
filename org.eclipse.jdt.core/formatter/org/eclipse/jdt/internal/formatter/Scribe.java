@@ -236,10 +236,12 @@ public class Scribe {
 		needSpace = true;
 	}
 	public void printBlockComment(char[] s) {
-		StringTokenizer tokenizer = new StringTokenizer(new String(s), "\r\n");	//$NON-NLS-1$
+		String commentSource = new String(s);
+		StringTokenizer tokenizer = new StringTokenizer(commentSource, "\r\n");	//$NON-NLS-1$
 		printIndentationIfNecessary();
 		Location location = null;
 		int lineCounter = 0;
+		int startSearchIndex = 0;
 		while(tokenizer.hasMoreElements()) {
 			String lineContents = tokenizer.nextToken();
 			if (lineContents.length() != 0) {
@@ -248,8 +250,15 @@ public class Scribe {
 					buffer.append(" ");//$NON-NLS-1$
 				}
 				// add position mapping
-				buffer.append(lineContents);
-				column += lineContents.length();
+				String reduceLine = lineContents.trim();
+				final int reduceLineLength = reduceLine.length();
+				if (this.positionsToMap != null) {
+					int start = commentSource.indexOf(reduceLine, startSearchIndex);
+					mapPositions(start, this.buffer.length(), reduceLineLength);
+					startSearchIndex = start + reduceLineLength + 1;
+				}
+				buffer.append(reduceLine);
+				column += reduceLineLength;
 				location = new Location(this, 0);
 				buffer.append(this.lineSeparator);
 				this.line++;
