@@ -416,6 +416,8 @@ public void updateFromParserState(){
 		Parser parser = this.parser();
 		/* might want to recover implemented interfaces */
 		if (parser.listLength > 0){ // awaiting interface type references
+			
+			// protection for bugs 15142
 			int typePtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
 			if(typePtr >= 0 && parser.astStack[typePtr] instanceof TypeDeclaration) {
 				parser.consumeClassHeaderImplements(); 

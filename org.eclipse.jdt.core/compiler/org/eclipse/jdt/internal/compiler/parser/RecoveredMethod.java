@@ -318,6 +318,8 @@ public void updateFromParserState(){
 		if (parser.listLength > 0){ // awaiting interface type references
 			/* has consumed the arguments - listed elements must be thrown exceptions */
 			if (methodDeclaration.sourceEnd == parser.rParenPos) {
+				
+				// protection for bugs 15142
 				int methodPtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
 				if (parser.astStack[parser.astPtr] instanceof TypeReference && methodPtr >= 0 && parser.astStack[methodPtr] instanceof AbstractMethodDeclaration){
 					parser.consumeMethodHeaderThrowsClause(); 
@@ -356,6 +358,8 @@ public void updateFromParserState(){
 					if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
 				}
 				if (parser.listLength > 0){
+					
+					// protection for bugs 15142
 					int methodPtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
 					if(methodPtr >= 0 && parser.astStack[methodPtr] instanceof AbstractMethodDeclaration) {
 						parser.consumeMethodHeaderParameters();
