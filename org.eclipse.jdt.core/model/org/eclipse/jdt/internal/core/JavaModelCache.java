@@ -56,8 +56,8 @@ public JavaModelCache() {
 	this.childrenCache = new HashMap(OPENABLE_CACHE_SIZE*20); // average 20 chilren per openable
 }
 
-public double openableFillingRate() {
-	return this.openableCache.fillingRate();
+public double openableFillingRatio() {
+	return this.openableCache.fillingRatio();
 }
 public int pkgSize() {
 	return this.pkgCache.size();

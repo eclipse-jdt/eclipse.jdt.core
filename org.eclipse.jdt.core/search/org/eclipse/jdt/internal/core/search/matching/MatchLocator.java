@@ -430,24 +430,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	protected Scanner getScanner() {
 		return this.parser == null ? null : this.parser.scanner;
 	}
-/*
- * Creates a new set of matching openables and initializes it with the given
- * working copies.
- */
-private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
-	this.matchingOpenables = new MatchingOpenableSet();
-	if (workingCopies != null) {
-		for (int i = 0, length = workingCopies.length; i < length; i++) {
-			IWorkingCopy workingCopy = workingCopies[i];
-			try {
-				IResource res = workingCopy.getOriginalElement().getUnderlyingResource();
-				this.addMatchingOpenable(res, (Openable)workingCopy);
-			} catch (JavaModelException e) {
-				// continue with next working copy
-			}
-		}
-	}
-}
+
 
 	/**
 	 * Locate the matches in the given files and report them using the search requestor. 
@@ -1139,23 +1122,34 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 	 * Asks the pattern to initialize itself for polymorphic search.
 	 */
 	public void createParser(JavaProject project) throws JavaModelException {
+		// cleaup and recreate file name environment
 		if (this.nameEnvironment != null) {
 			this.nameEnvironment.cleanup();
 		}
 		this.nameEnvironment = this.getNameEnvironment(project);
 		
-		IProblemFactory problemFactory = new DefaultProblemFactory();
-
+		// create lookup environment
 		CompilerOptions options = new CompilerOptions(JavaCore.getOptions());
 		ProblemReporter problemReporter =
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				options,
-				problemFactory);
+				new DefaultProblemFactory());
 		this.lookupEnvironment =
 			new LookupEnvironment(this, options, problemReporter, this.nameEnvironment);
+			
+		// create parser
 		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
+		
+		// reset parsed units (they could hold onto obsolete bindings: see bug 16052)
+		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(project.getPackageFragmentRoots());
+		for (int i = 0, length = openables.length; i < length; i++) {
+			MatchingOpenable matchingOpenable = openables[i];
+			matchingOpenable.reset();
+		}
 		this.parsedUnits = new HashtableOfObject(10);
+		
+		// remember project's name lookup
 		this.nameLookup = project.getNameLookup();
 	}
 
