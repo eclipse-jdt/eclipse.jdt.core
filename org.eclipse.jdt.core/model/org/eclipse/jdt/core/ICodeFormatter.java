@@ -17,9 +17,15 @@ package org.eclipse.jdt.core;
 public interface ICodeFormatter {
 
 	/** 
-	 * Formats the char array <code>sourceString</code>,
+	 * Formats the String <code>sourceString</code>,
 	 * and returns a string containing the formatted version.
-	 * The positions array is modified to contain the mapped positions.
+	 * 
+	 * Formatting can be passed along an initial indentation level
+	 * to shift left/right the entire source fragment. An initial indentation
+	 * level of zero has no effect.
+	 * Furthermore, the formatting can also map character-based source
+	 * positions, so as to relocate elements associated with the original
+	 * source. It updates the positions array with updated positions.
 	 * 
 	 * @param string the string to format
 	 * @param indentationLevel the initial indentation level
