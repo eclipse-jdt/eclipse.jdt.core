@@ -30,8 +30,8 @@ public class PostfixExpression extends Expression {
  	 * Postfix operators (typesafe enumeration).
 	 * <pre>
 	 * PostfixOperator:
-	 *    <b><code>++</code></p>  <code>INCREMENT</code>
-	 *    <b><code>--</code></p>  <code>DECREMENT</code>
+	 *    <b><code>++</code></b>  <code>INCREMENT</code>
+	 *    <b><code>--</code></b>  <code>DECREMENT</code>
 	 * </pre>
 	 */
 	public static class Operator {

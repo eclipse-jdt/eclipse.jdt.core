@@ -30,12 +30,12 @@ public class PrefixExpression extends Expression {
  	 * Prefix operators (typesafe enumeration).
 	 * <pre>
 	 * PrefixOperator:
-	 *    <b><code>++</code></p>  <code>INCREMENT</code>
-	 *    <b><code>--</code></p>  <code>DECREMENT</code>
-	 *    <b><code>+</code></p>  <code>PLUS</code>
-	 *    <b><code>-</code></p>  <code>MINUS</code>
-	 *    <b><code>~</code></p>  <code>COMPLEMENT</code>
-	 *    <b><code>!</code></p>  <code>NOT</code>
+	 *    <b><code>++</code></b>  <code>INCREMENT</code>
+	 *    <b><code>--</code></b>  <code>DECREMENT</code>
+	 *    <b><code>+</code></b>  <code>PLUS</code>
+	 *    <b><code>-</code></b>  <code>MINUS</code>
+	 *    <b><code>~</code></b>  <code>COMPLEMENT</code>
+	 *    <b><code>!</code></b>  <code>NOT</code>
 	 * </pre>
 	 */
 	public static class Operator {

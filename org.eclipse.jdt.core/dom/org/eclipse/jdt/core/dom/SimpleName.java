@@ -145,7 +145,6 @@ public class SimpleName extends Name {
 	 * <li>The type name in a <code>TypeDeclaration</code> node.</li>
 	 * <li>The method name in a <code>MethodDeclaration</code> node
 	 * providing <code>isConstructor</code> is <code>false</code>.</li>
-	 * </ul>
 	 * <li>The variable name in any type of <code>VariableDeclaration</code>
 	 * node.</li>
 	 * </ul>

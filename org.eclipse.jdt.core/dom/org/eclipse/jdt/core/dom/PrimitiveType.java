@@ -41,15 +41,15 @@ public class PrimitiveType extends Type {
 	/**
  	 * Primitive type codes (typesafe enumeration).
 	 * <pre>
-	 *    <b>byte</b> 		BYTE
-	 *    <b>short</b> 		SHORT
-	 *    <b>char</b> 		CHAR
-	 *    <b>int</b>  		INT
-	 *    <b>long</b>  		LONG
+	 *    <b>byte</b> 	BYTE
+	 *    <b>short</b> 	SHORT
+	 *    <b>char</b> 	CHAR
+	 *    <b>int</b>  	INT
+	 *    <b>long</b>  	LONG
 	 *    <b>float</b>  	FLOAT
 	 *    <b>double</b> 	DOUBLE
 	 *    <b>boolean</b>	BOOLEAN
-	 *    <b>void</b>  		VOID
+	 *    <b>void</b>  	VOID
 	 * </pre>
 	 */
 	public static class Code {

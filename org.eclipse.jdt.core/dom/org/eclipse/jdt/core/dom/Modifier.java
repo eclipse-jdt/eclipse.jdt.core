@@ -115,7 +115,7 @@ public final class Modifier {
 	 * Applicable to types, methods, constructors, and fields.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>PUBLIC</code> bit is
+	 * @return <code>true</code> if the <code>PUBLIC</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isPublic(int flags) {
@@ -127,7 +127,7 @@ public final class Modifier {
 	 * Applicable to types, methods, constructors, and fields.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>PRIVATE</code> bit is
+	 * @return <code>true</code> if the <code>PRIVATE</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isPrivate(int flags) {
@@ -139,7 +139,7 @@ public final class Modifier {
 	 * Applicable to types, methods, constructors, and fields.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>PROTECTED</code> bit is
+	 * @return <code>true</code> if the <code>PROTECTED</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isProtected(int flags) {
@@ -151,7 +151,7 @@ public final class Modifier {
 	 * Applicable to types, methods, fields, and initializers.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>STATIC</code> bit is
+	 * @return <code>true</code> if the <code>STATIC</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isStatic(int flags) {
@@ -163,7 +163,7 @@ public final class Modifier {
 	 * Applicable to types, methods, fields, and variables.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>FINAL</code> bit is
+	 * @return <code>true</code> if the <code>FINAL</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isFinal(int flags) {
@@ -175,7 +175,7 @@ public final class Modifier {
 	 * Applicable only to methods.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>SYNCHRONIZED</code> bit is
+	 * @return <code>true</code> if the <code>SYNCHRONIZED</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isSynchronized(int flags) {
@@ -187,7 +187,7 @@ public final class Modifier {
 	 * Applicable only to fields.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>VOLATILE</code> bit is
+	 * @return <code>true</code> if the <code>VOLATILE</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isVolatile(int flags) {
@@ -199,7 +199,7 @@ public final class Modifier {
 	 * Applicable only to fields.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>TRANSIENT</code> bit is
+	 * @return <code>true</code> if the <code>TRANSIENT</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isTransient(int flags) {
@@ -211,7 +211,7 @@ public final class Modifier {
 	 * Applicable only to methods.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>NATIVE</code> bit is
+	 * @return <code>true</code> if the <code>NATIVE</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isNative(int flags) {
@@ -223,7 +223,7 @@ public final class Modifier {
 	 * Applicable to types and methods.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>ABSTRACT</code> bit is
+	 * @return <code>true</code> if the <code>ABSTRACT</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isAbstract(int flags) {
@@ -235,7 +235,7 @@ public final class Modifier {
 	 * Applicable to types and methods.
 	 * 
 	 * @param flags the modifier flags
-	 * @return <code>true<code> if the <code>STRICTFP</code> bit is
+	 * @return <code>true</code> if the <code>STRICTFP</code> bit is
 	 *   set, and <code>false</code> otherwise
 	 */
 	public static boolean isStrictfp(int flags) {

@@ -33,27 +33,27 @@ public class InfixExpression extends Expression {
 
 	/**
  	 * Infix operators (typesafe enumeration).
-	 * <pre>
-	 * InfixOperator:
-	 *    <b><code>*</code></p>  <code>TIMES</code>
-	 *    <b><code>/</code></p>  <code>DIVIDE</code>
-	 *    <b><code>%</code></p>  <code>REMAINDER</code>
-	 *    <b><code>+</code></p>  <code>PLUS</code>
-	 *    <b><code>-</code></p>  <code>MINUS</code>
-	 *    <b><code>&lt;&lt;</code></p>  <code>LEFT_SHIFT</code>
-	 *    <b><code>&gt;&gt;</code></p>  <code>RIGHT_SHIFT_SIGNED</code>
-	 *    <b><code>&gt;&gt;&gt;</code></p>  <code>RIGHT_SHIFT_UNSIGNED</code>
-	 *    <b><code>&lt;</code></p>  <code>LESS</code>
-	 *    <b><code>&gt;</code></p>  <code>GREATER</code>
-	 *    <b><code>&lt;=</code></p>  <code>LESS_EQUALS</code>
-	 *    <b><code>&gt;=</code></p>  <code>GREATER_EQUALS</code>
-	 *    <b><code>==</code></p>  <code>EQUALS</code>
-	 *    <b><code>!=</code></p>  <code>NOT_EQUALS</code>
-	 *    <b><code>^</code></p>  <code>XOR</code>
-	 *    <b><code>&amp;</code></p>  <code>AND</code>
-	 *    <b><code>|</code></p>  <code>OR</code>
-	 *    <b><code>&amp;&amp;</code></p>  <code>CONDITIONAL_AND</code>
-	 *    <b><code>||</code></p>  <code>CONDITIONAL_OR</code>
+ 	 * <pre>
+	 * InfixOperator:<code>
+	 *    <b>*</b>	TIMES
+	 *    <b>/</b>  DIVIDE
+	 *    <b>%</b>  REMAINDER
+	 *    <b>+</b>  PLUS
+	 *    <b>-</b>  MINUS
+	 *    <b>&lt;&lt;</b>  LEFT_SHIFT
+	 *    <b>&gt;&gt;</b>  RIGHT_SHIFT_SIGNED
+	 *    <b>&gt;&gt;&gt;</b>  RIGHT_SHIFT_UNSIGNED
+	 *    <b>&lt;</b>  LESS
+	 *    <b>&gt;</b>  GREATER
+	 *    <b>&lt;=</b>  LESS_EQUALS
+	 *    <b>&gt;=</b>  GREATER_EQUALS
+	 *    <b>==</b>  EQUALS
+	 *    <b>!=</b>  NOT_EQUALS
+	 *    <b>^</b>  XOR
+	 *    <b>&amp;</b>  AND
+	 *    <b>|</b>  OR
+	 *    <b>&amp;&amp;</b>  CONDITIONAL_AND
+	 *    <b>||</b>  CONDITIONAL_OR</code>
 	 * </pre>
 	 */
 	public static class Operator {
