@@ -531,4 +531,189 @@ public void testToStringInnerType() {
 		"x.y.A.Inner",
 		Signature.toString("Lx.y.A$Inner;"));
 }
+
+/**
+ * @see Signature.getTypeSignatureKind(String)
+ */
+public void testGetTypeSignatureKind() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 1", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("Ljava.lang.String;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 2", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[Ljava.lang.String;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 3", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QString;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 4", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[[QString;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 5", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("Z"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 6", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("B"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 7", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("C"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 8", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("D"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 9", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("F"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 10", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("I"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 11", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("J"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 12", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("S"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 13", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("V"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 14", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[[[I"));
+	
+	// signatures with 1.5 elements
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 15", 
+		Signature.TYPE_VARIABLE_SIGNATURE,
+		Signature.getTypeSignatureKind("TVAR;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 16", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<QB;>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 17", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<*>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 18", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<+QB;>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 19", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<-QB;>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 20", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("LA<*****>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 21", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;"));
+}
+
+/**
+ * @see Signature.getTypeSignatureKind(char[])
+ */
+public void testGetTypeSignatureKind2() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 1", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("Ljava.lang.String;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 2", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[Ljava.lang.String;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 3", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QString;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 4", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[[QString;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 5", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("Z".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 6", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("B".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 7", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("C".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 8", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("D".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 9", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("F".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 10", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("I".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 11", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("J".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 12", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("S".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 13", 
+		Signature.BASE_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("V".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 14", 
+		Signature.ARRAY_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("[[[I".toCharArray()));
+	
+	// signatures with 1.5 elements
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 15", 
+		Signature.TYPE_VARIABLE_SIGNATURE,
+		Signature.getTypeSignatureKind("TVAR;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 16", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<QB;>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 17", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<*>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 18", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<+QB;>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 19", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("QA<-QB;>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 20", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("LA<*****>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 21", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;".toCharArray()));
+}
+
 }

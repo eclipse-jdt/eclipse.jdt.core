@@ -319,6 +319,35 @@ public final class Signature {
 	 */
 	public static final String SIG_VOID			= "V"; //$NON-NLS-1$
 	
+
+	/**
+	 * Kind constant for a class type signature.
+	 * @see #getTypeSignatureKind(String)
+	 * @since 3.0
+	 */
+	public static int CLASS_TYPE_SIGNATURE = 1;
+
+	/**
+	 * Kind constant for a base (primitive or void) type signature.
+	 * @see #getTypeSignatureKind(String)
+	 * @since 3.0
+	 */
+	public static int BASE_TYPE_SIGNATURE = 2;
+
+	/**
+	 * Kind constant for a type variable signature.
+	 * @see #getTypeSignatureKind(String)
+	 * @since 3.0
+	 */
+	public static int TYPE_VARIABLE_SIGNATURE = 3;
+
+	/**
+	 * Kind constant for an array type signature.
+	 * @see #getTypeSignatureKind(String)
+	 * @since 3.0
+	 */
+	public static int ARRAY_TYPE_SIGNATURE = 4;
+
 	private static final char[] BOOLEAN = {'b', 'o', 'o', 'l', 'e', 'a', 'n'};
 	private static final char[] BYTE = {'b', 'y', 't', 'e'};
 	private static final char[] CHAR = {'c', 'h', 'a', 'r'};
@@ -730,6 +759,84 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
 		}
 	} catch (ArrayIndexOutOfBoundsException e) {
 		throw new IllegalArgumentException();
+	}
+}
+
+/**
+ * Returns the kind of type signature encoded by the given string.
+ * 
+ * @param typeSignature the type signature string
+ * @return the kind of type signature; one of the kind constants:
+ * {@link #ARRAY_TYPE_SIGNATURE}, {@link #CLASS_TYPE_SIGNATURE},
+ * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE}
+ * @exception IllegalArgumentException if this is not a type signature
+ * @since 3.0
+ */
+public static int getTypeSignatureKind(char[] typeSignature) {
+	// need a minimum 1 char
+	if (typeSignature.length < 1) {
+		throw new IllegalArgumentException();
+	}
+	char c = typeSignature[0];
+	switch (c) {
+		case C_ARRAY :
+			return ARRAY_TYPE_SIGNATURE;
+		case C_RESOLVED :
+		case C_UNRESOLVED :
+			return CLASS_TYPE_SIGNATURE;
+		case C_TYPE_VARIABLE :
+			return TYPE_VARIABLE_SIGNATURE;
+		case C_BOOLEAN :
+		case C_BYTE :
+		case C_CHAR :
+		case C_DOUBLE :
+		case C_FLOAT :
+		case C_INT :
+		case C_LONG :
+		case C_SHORT :
+		case C_VOID :
+			return BASE_TYPE_SIGNATURE;
+		default :
+			throw new IllegalArgumentException();
+	}
+}
+
+/**
+ * Returns the kind of type signature encoded by the given string.
+ * 
+ * @param typeSignature the type signature string
+ * @return the kind of type signature; one of the kind constants:
+ * {@link #ARRAY_TYPE_SIGNATURE}, {@link #CLASS_TYPE_SIGNATURE},
+ * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE}
+ * @exception IllegalArgumentException if this is not a type signature
+ * @since 3.0
+ */
+public static int getTypeSignatureKind(String typeSignature) {
+	// need a minimum 1 char
+	if (typeSignature.length() < 1) {
+		throw new IllegalArgumentException();
+	}
+	char c = typeSignature.charAt(0);
+	switch (c) {
+		case C_ARRAY :
+			return ARRAY_TYPE_SIGNATURE;
+		case C_RESOLVED :
+		case C_UNRESOLVED :
+			return CLASS_TYPE_SIGNATURE;
+		case C_TYPE_VARIABLE :
+			return TYPE_VARIABLE_SIGNATURE;
+		case C_BOOLEAN :
+		case C_BYTE :
+		case C_CHAR :
+		case C_DOUBLE :
+		case C_FLOAT :
+		case C_INT :
+		case C_LONG :
+		case C_SHORT :
+		case C_VOID :
+			return BASE_TYPE_SIGNATURE;
+		default :
+			throw new IllegalArgumentException();
 	}
 }
 
