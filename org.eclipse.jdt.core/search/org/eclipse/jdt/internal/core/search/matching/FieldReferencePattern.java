@@ -128,7 +128,7 @@ protected void matchCheck(AstNode node, MatchSet set) {
 		AstNode lhs = ((Assignment)node).lhs;
 		if (this.writeAccess) {
 			super.matchCheck(lhs, set);
-		} else {
+		} else if (!(node instanceof CompoundAssignment)){
 			// the lhs may have been added when checking if it was a read access
 			set.removePossibleMatch(lhs);
 			set.removeTrustedMatch(lhs);

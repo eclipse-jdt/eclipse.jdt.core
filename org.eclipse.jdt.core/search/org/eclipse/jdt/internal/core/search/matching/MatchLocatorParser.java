@@ -106,7 +106,8 @@ protected void consumeAssignment() {
 	if (this.matchSet != null) {
 		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
 	}
-}	
+}
+	
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
 	if (this.matchSet != null) {
@@ -147,6 +148,12 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
 	if (this.matchSet != null) {
 		this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	}
+}
+protected void consumeUnaryExpression(int op, boolean post) {
+	super.consumeUnaryExpression(op, post);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
 	}
 }
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
