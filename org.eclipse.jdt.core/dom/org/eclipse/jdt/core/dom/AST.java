@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -331,22 +332,51 @@ public final class AST {
 			if (classFile == null) {
 				throw new IllegalArgumentException();
 			}
-			String source = null;
+			char[] source = null;
+			String sourceString = null;
 			try {
-				source = classFile.getSource();
+				sourceString = classFile.getSource();
 			} catch (JavaModelException e) {
 				throw new IllegalArgumentException();
 			}
-			if (source == null) {
+			if (sourceString == null) {
 				throw new IllegalArgumentException();
 			}
 			if (!resolveBindings) {
-				return AST.parseCompilationUnit(source.toCharArray());
+				return AST.parseCompilationUnit(source);
 			}
-			return AST.parseCompilationUnit(
-				source.toCharArray(),
-				classFile.getElementName(),
-				classFile.getJavaProject());
+			
+			source = sourceString.toCharArray();
+			StringBuffer buffer = new StringBuffer(".java"); //$NON-NLS-1$
+			
+			String classFileName = classFile.getElementName(); // this includes the trailing .class
+			buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
+			IJavaProject project = classFile.getJavaProject();
+			try {
+				CompilationUnitDeclaration compilationUnitDeclaration =
+					CompilationUnitResolver.resolve(
+						source,
+						CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
+						buffer.toString(),
+						project,
+						new AbstractSyntaxTreeVisitorAdapter());
+				ASTConverter converter = new ASTConverter(project.getOptions(true), true);
+				AST ast = new AST();
+				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+			
+				CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
+				cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return cu;
+			} catch(JavaModelException e) {
+				/* if a JavaModelException is thrown trying to retrieve the name environment
+				 * then we simply do a parsing without creating bindings.
+				 * Therefore all binding resolution will return null.
+				 */
+				return parseCompilationUnit(source);			
+			}
 	}
 			
 	/**

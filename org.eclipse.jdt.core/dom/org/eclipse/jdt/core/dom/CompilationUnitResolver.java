@@ -265,11 +265,52 @@ class CompilationUnitResolver extends Compiler {
 		CompilationUnitDeclaration unit = null;
 		try {
 			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
-			char[][] expectedPackageName = null;
-	
+
 			unit =
 				compilationUnitVisitor.resolve(
-					new BasicCompilationUnit(source, expectedPackageName, unitName, encoding),
+					new BasicCompilationUnit(
+						source,
+						null,
+						unitName,
+						encoding),
+					true, // method verification
+					true, // analyze code
+					true); // generate code
+			return unit;
+		} finally {
+			if (unit != null) {
+				unit.cleanUp();
+			}
+		}
+	}
+
+	public static CompilationUnitDeclaration resolve(
+		char[] source,
+		char[][] packageName,
+		String unitName,
+		IJavaProject javaProject,
+		IAbstractSyntaxTreeVisitor visitor)
+		throws JavaModelException {
+	
+		CompilationUnitResolver compilationUnitVisitor =
+			new CompilationUnitResolver(
+				getNameEnvironment(javaProject),
+				getHandlingPolicy(),
+				javaProject.getOptions(true),
+				getRequestor(),
+				getProblemFactory(unitName.toCharArray(), visitor));
+	
+		CompilationUnitDeclaration unit = null;
+		try {
+			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
+
+			unit =
+				compilationUnitVisitor.resolve(
+					new BasicCompilationUnit(
+						source,
+						packageName,
+						unitName,
+						encoding),
 					true, // method verification
 					true, // analyze code
 					true); // generate code
@@ -280,4 +321,5 @@ class CompilationUnitResolver extends Compiler {
 			}
 		}
 	}	
+	
 }
