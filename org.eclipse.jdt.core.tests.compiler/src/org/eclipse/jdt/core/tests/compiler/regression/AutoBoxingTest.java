@@ -855,4 +855,22 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"y"
 		);
 	}
+	
+	public void test026() { // compound assignment
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    Integer i = 0;\n" + 
+				"	    i += b;\n" + 
+				"		System.out.println(i);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"1"
+		);
+	}			
 }
