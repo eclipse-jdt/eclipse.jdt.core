@@ -1568,6 +1568,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (index > 0) {
 			final String projectName = propertyName.substring(containerPrefixLength, index).trim();
 			JavaProject project = (JavaProject)getJavaModelManager().getJavaModel().getJavaProject(projectName);
+			if (!project.getProject().isAccessible()) return; // avoid leaking deleted project's persisted container
 			final IPath containerPath = new Path(propertyName.substring(index+1).trim());
 			
 			if (containerString == null || containerString.equals(CP_ENTRY_IGNORE)) {
