@@ -547,29 +547,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 			// do nothing
 		}
 	}
-	//TODO: (jerome) unused?
-	private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) {
-		JavaElementDelta delta = (JavaElementDelta)fCurrentDelta.find(root);
-		if (delta == null) return;
-		JavaElementDelta clone = (JavaElementDelta)delta.clone(project);
-		fCurrentDelta.insertDeltaTree(clone.getElement(), clone);
-		switch (clone.getKind()) {
-			case IJavaElementDelta.ADDED:
-				this.addToParentInfo((Openable)clone.getElement());
-				break;
-			case IJavaElementDelta.REMOVED:
-				Openable element = (Openable)clone.getElement();
-				if (element.isOpen()) {
-					try {
-						element.close();
-					} catch (JavaModelException e) {
-					}
-				}
-				this.removeFromParentInfo(element);
-				break;
-		}
-	}
-
 	/**
 	 * Generic processing for elements with changed contents:<ul>
 	 * <li>The element is closed such that any subsequent accesses will re-open

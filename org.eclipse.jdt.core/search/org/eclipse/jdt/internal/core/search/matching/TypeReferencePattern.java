@@ -44,7 +44,6 @@ public class TypeReferencePattern extends MultipleSearchPattern {
 	private char[] qualification;
 	private char[] simpleName;
 
-	private char[] decodedQualification;//TODO: (jerome) is it truly unused?
 	private char[] decodedSimpleName;
 
 	private static char[][] TAGS = { TYPE_REF, SUPER_REF, REF, CONSTRUCTOR_REF };

@@ -16,8 +16,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -52,40 +50,6 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	 */
 	public CommitWorkingCopyOperation(ICompilationUnit element, boolean force) {
 		super(new IJavaElement[] {element}, force);
-	}
-	/**
-	 * Checks that the package declaration in the compilation unit matches the actual
-	 * package fragment the CU is defined in.
-	 *
-	 * @exception JavaModelException with an <code>INVALID_PACKAGE</code> JavaModelStatus if the
-	 * package declaration is invalid.
-	 * @see IJavaModelStatusConstants.INVALID_PACKAGE
-	 */
-	//TODO: (jerome) unused?
-	private void checkPackageDeclaration(ICompilationUnit cu)
-		throws JavaModelException {
-		IPackageFragment frag = (IPackageFragment) cu.getParent();
-		IPackageDeclaration[] decls = cu.getPackageDeclarations();
-		String pkgName = frag.getElementName();
-		if (pkgName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-			if (decls != null && decls.length > 0) {
-				throw new JavaModelException(
-					new JavaModelStatus(
-						IJavaModelStatusConstants.INVALID_PACKAGE, 
-						cu, 
-						decls[0].getElementName())); 
-			}
-		} else {
-			if (decls == null
-				|| decls.length != 1
-				|| !pkgName.equals(decls[0].getElementName())) {
-				throw new JavaModelException(
-					new JavaModelStatus(
-						IJavaModelStatusConstants.INVALID_PACKAGE, 
-						cu, 
-						(decls == null || decls.length == 0) ? IPackageFragment.DEFAULT_PACKAGE_NAME : decls[0].getElementName())); 
-			}
-		}
 	}
 	/**
 	 * @exception JavaModelException if setting the source
