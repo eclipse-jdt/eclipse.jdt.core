@@ -715,8 +715,7 @@ public final class JavaConventions {
 						IResource resolvedResource = (IResource) target;
 						switch(resolvedResource.getType()){
 							case IResource.FILE :
-								String extension = resolvedResource.getFileExtension();
-								if ("jar".equalsIgnoreCase(extension) || "zip".equalsIgnoreCase(extension)){ // internal binary archive //$NON-NLS-2$ //$NON-NLS-1$
+								if (Util.isArchiveFileName(resolvedResource.getFileExtension())) {
 									if (checkSourceAttachment 
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()

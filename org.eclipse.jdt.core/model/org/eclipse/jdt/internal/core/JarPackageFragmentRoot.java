@@ -175,6 +175,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 			vChildren.add(packFrag);
 		}
 	} catch (CoreException e) {
+		if (e instanceof JavaModelException) throw (JavaModelException)e;
 		throw new JavaModelException(e);
 	} finally {
 		JavaModelManager.getJavaModelManager().closeZipFile(jar);

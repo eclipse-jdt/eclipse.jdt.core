@@ -1188,9 +1188,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 					((JavaProjectElementInfo) info).setNonJavaResources(null);
 	
 					// if a package fragment root is the project, clear it too
+					JavaProject project = (JavaProject) element;
 					PackageFragmentRoot projectRoot =
-						(PackageFragmentRoot) ((JavaProject) element).getPackageFragmentRoot(
-							element.getPath());
+						(PackageFragmentRoot) project.getPackageFragmentRoot(project.getProject());
 					if (projectRoot.isOpen()) {
 						((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
 							null);

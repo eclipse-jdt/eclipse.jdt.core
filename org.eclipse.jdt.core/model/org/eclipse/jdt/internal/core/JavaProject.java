@@ -337,7 +337,7 @@ public class JavaProject
 							rootIDs.add(rootID);
 						}
 					} else {
-						IPackageFragmentRoot root = getPackageFragmentRoot(entryPath);
+						IPackageFragmentRoot root = getFolderPackageFragmentRoot(entryPath);
 						if (root != null) {
 							accumulatedRoots.add(root);
 							rootIDs.add(rootID);
@@ -1126,12 +1126,28 @@ public class JavaProject
 				// default root
 				return getPackageFragmentRoot(getProject());
 			default:
+				// a path ending with .jar/.zip is still ambiguous and could still resolve to a source/lib folder 
+				// thus will try to guess based on existing resource
 				if (Util.isArchiveFileName(path.lastSegment())) {
+					IResource resource = getProject().getWorkspace().getRoot().findMember(path); 
+					if (resource != null && resource.getType() == IResource.FOLDER){
+						return getPackageFragmentRoot(resource);
+					}
 					return getPackageFragmentRoot0(path);
 				} else {
 					return getPackageFragmentRoot(getProject().getWorkspace().getRoot().getFolder(path));
 				}
 		}
+	}
+
+	/**
+	 * The path is known to match a source/library folder entry.
+	 */
+	public IPackageFragmentRoot getFolderPackageFragmentRoot(IPath path) {
+		if (path.segmentCount() == 1) { // default project root
+			return getPackageFragmentRoot(getProject());
+		}
+		return getPackageFragmentRoot(getProject().getWorkspace().getRoot().getFolder(path));
 	}
 	
 	/**

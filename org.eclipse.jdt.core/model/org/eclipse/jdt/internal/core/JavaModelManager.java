@@ -389,7 +389,8 @@ public class JavaModelManager implements ISaveParticipant {
 				if (rootPath.equals(resourcePath)) {
 					return project.getPackageFragmentRoot(resource);
 				} else if (rootPath.isPrefixOf(resourcePath) && !Util.isExcluded(resource, ((ClasspathEntry)entry).fullExclusionPatternChars())) {
-					IPackageFragmentRoot root = ((JavaProject) project).getPackageFragmentRoot(rootPath);
+					// given we have a resource child of the root, it cannot be a JAR pkg root
+					IPackageFragmentRoot root = ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
 					if (root == null) return null;
 					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 					if (resource.getType() == IResource.FILE) {
@@ -1008,7 +1009,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * does not yet exist, it is created, opened, and added to the cache
 	 * of open ZipFiles. The location must be a absolute path.
 	 *
-	 * @exception CoreException If unable to create/open the ZipFile.
+	 * @exception CoreException If unable to create/open the ZipFile
 	 */
 	public synchronized ZipFile getZipFile(IPath path) throws CoreException {
 		Thread currentThread = Thread.currentThread();
@@ -1023,23 +1024,23 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource file = root.findMember(path);
 		if (path.isAbsolute() && file != null) {
-			if (file == null || file.getType() != IResource.FILE) {
+			if (file == null) { // external file
 				fileSystemPath= path.toOSString();
-			} else {
-				IPath location = file.getLocation();
-				if (location == null) {
-					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
+			} else { // internal resource (not an IFile or not existing)
+				IPath location;
+				if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
+					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
 				}
 				fileSystemPath= location.toOSString();
 			}
 		} else if (!path.isAbsolute()) {
 			file= root.getFile(path);
 			if (file == null || file.getType() != IResource.FILE) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
 			}
 			IPath location = file.getLocation();
 			if (location == null) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
 			}
 			fileSystemPath= location.toOSString();
 		} else {
