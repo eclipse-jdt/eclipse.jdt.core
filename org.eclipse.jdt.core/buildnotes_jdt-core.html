@@ -26,6 +26,11 @@ control the default encoding (no support yet for per file custom encoding).
 	<li>default:				"" 
 	</ul>
 </li>
+<li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9035">9035</a> required to increment the index signature 
+version so as to trigger automatic reindexing on workspace startup (and thus add somme type references that were previously
+from the binary index files). Subsequent startups will not reindex any further (only if inconsistency is detected, 
+e.g. signature version is different).
+</li>
 </ul>
 
 <h3>
