@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -401,29 +402,35 @@ public abstract class Expression extends Statement {
 				}				
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
-
-			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
-			if (match != null) {
-				return checkUnsafeCast(scope, castType, expressionType, match, false);
-			}
-			
-			match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-			if (match != null) {
-				tagAsNeedCheckCast();
-				return checkUnsafeCast(scope, castType, expressionType, match, true);
-			}  else {
-				MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
-				MethodBinding[] expressionTypeMethods =
-					getAllInheritedMethods((ReferenceBinding) expressionType);
-				int exprMethodsLength = expressionTypeMethods.length;
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
-				MethodVerifier verifier = env.methodVerifier();
-				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
-					for (int j = 0; j < exprMethodsLength; j++)
-						if (verifier.doReturnTypesCollide(castTypeMethods[i], expressionTypeMethods[j]))
-							return false;
+				ReferenceBinding interfaceType = (ReferenceBinding) expressionType;
+				TypeBinding match = interfaceType.findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+				if (match != null) {
+					return checkUnsafeCast(scope, castType, interfaceType, match, false);
 				}
-			}
+				
+				tagAsNeedCheckCast();
+				match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)interfaceType.erasure());
+				if (match != null) {
+					return checkUnsafeCast(scope, castType, interfaceType, match, true);
+				}
+				if (use15specifics) {
+					// a subclass may implement the interface ==> no check at compile time
+					return true;
+				}
+				// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
+				MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
+				MethodBinding[] expressionTypeMethods = getAllInheritedMethods((ReferenceBinding) expressionType);
+				int exprMethodsLength = expressionTypeMethods.length;
+				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
+					for (int j = 0; j < exprMethodsLength; j++) {
+						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
+								&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
+								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+							return false;
+
+						}
+					}
+				return true;
 		}
 		tagAsNeedCheckCast();
 		return true;

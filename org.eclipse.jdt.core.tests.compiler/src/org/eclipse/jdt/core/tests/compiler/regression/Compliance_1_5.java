@@ -3242,6 +3242,64 @@ public void test094(){
 		"Syntax error on token \"(\", AnnotationName expected before this token\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743
+public void test095(){
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"   int foo();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"   String foo();\n" + 
+			"}\n" + 
+			" \n" + 
+			"public class X implements I {\n" + 
+			"   public int foo() {\n" + 
+			" 	return 0;\n" + 
+			"   }\n" + 
+			"   public static void main(String[] args) {\n" + 
+			"         I i = new X();\n" + 
+			"         try {\n" + 
+			"	        J j = (J) i;\n" + 
+			"         } catch(ClassCastException e) {\n" + 
+			"	        System.out.println(\"SUCCESS\");\n" + 
+			"         }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"SUCCESS");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
+ */
+public void test096() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    interface A {\n" + 
+			"       void doSomething();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    interface B {\n" + 
+			"       int doSomething();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    interface C extends B {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        A a = null;\n" + 
+			"        C c = (C)a; \n" + 
+			"    }\n" + 
+			"}"
+		},
+		"");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

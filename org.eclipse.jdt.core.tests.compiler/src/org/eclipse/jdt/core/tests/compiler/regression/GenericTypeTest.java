@@ -13456,5 +13456,44 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}		
+	}
+	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743 - variation in -source 1.4 mode but 1.5 compliance (ignore covariance)
+public void test498(){
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"   String foo();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"   Object foo();\n" + 
+			"}\n" + 
+			" \n" + 
+			"public class X implements I {\n" + 
+			"   public String foo() {\n" + 
+			" 	return \"\";\n" + 
+			"   }\n" + 
+			"   public static void main(String[] args) {\n" + 
+			"         I i = new X();\n" + 
+			"         try {\n" + 
+			"	        J j = (J) i;\n" + 
+			"         } catch(ClassCastException e) {\n" + 
+			"	        System.out.println(\"SUCCESS\");\n" + 
+			"         }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	J j = (J) i;\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from I to J\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}	
 }

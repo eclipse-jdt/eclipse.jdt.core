@@ -3248,6 +3248,75 @@ public void test094(){
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743
+public void test095(){
+
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"   int foo();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"   String foo();\n" + 
+			"}\n" + 
+			" \n" + 
+			"public class X implements I {\n" + 
+			"   public int foo() {\n" + 
+			" 	return 0;\n" + 
+			"   }\n" + 
+			"   public static void main(String[] args) {\n" + 
+			"         I i = new X();\n" + 
+			"         try {\n" + 
+			"	        J j = (J) i;\n" + 
+			"         } catch(ClassCastException e) {\n" + 
+			"	        System.out.println(\"SUCCESS\");\n" + 
+			"         }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	J j = (J) i;\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from I to J\n" + 
+		"----------\n");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
+ */
+public void test096() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    interface A {\n" + 
+			"       void doSomething();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    interface B {\n" + 
+			"       int doSomething();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    interface C extends B {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        A a = null;\n" + 
+			"        C c = (C)a; //COMPILER ERROR\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 17)\n" + 
+		"	C c = (C)a; //COMPILER ERROR\n" + 
+		"	      ^^^^\n" + 
+		"Cannot cast from X.A to X.C\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

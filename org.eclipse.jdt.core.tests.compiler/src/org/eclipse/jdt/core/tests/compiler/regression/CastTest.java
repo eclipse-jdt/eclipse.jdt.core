@@ -20,6 +20,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CastTest extends AbstractRegressionTest {
@@ -895,7 +896,34 @@ public void test025() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
 public void test026() { 
-	this.runNegativeTest(
+	
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    A a = null;\n" + 
+				"    B b = (B) a;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"interface A {\n" + 
+				"  void doSomething();\n" + 
+				"}\n" + 
+				"interface B {\n" + 
+				"  int doSomething();\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	B b = (B) a;\n" + 
+			"	      ^^^^^\n" + 
+			"Cannot cast from A to B\n" + 
+			"----------\n");
+		return;
+	}
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -911,20 +939,40 @@ public void test026() {
 			"  int doSomething();\n" + 
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	B b = (B) a;\n" + 
-		"	      ^^^^^\n" + 
-		"Cannot cast from A to B\n" + 
-		"----------\n",
-		null,
-		true);
+		"");
+	
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
 public void test027() { 
-	this.runNegativeTest(
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    A a = null;\n" + 
+				"    boolean b = a instanceof B;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"interface A {\n" + 
+				"  void doSomething();\n" + 
+				"}\n" + 
+				"interface B {\n" + 
+				"  int doSomething();\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	boolean b = a instanceof B;\n" + 
+			"	            ^^^^^^^^^^^^^^\n" + 
+			"Incompatible conditional operand types A and B\n" + 
+			"----------\n");
+		return;
+	}
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -940,20 +988,40 @@ public void test027() {
 			"  int doSomething();\n" + 
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	boolean b = a instanceof B;\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"Incompatible conditional operand types A and B\n" + 
-		"----------\n",
-		null,
-		true);
+		"");
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
-public void test028() { 
-	this.runNegativeTest(
+public void test028() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    A a = null;\n" + 
+				"    B b = null;\n" + 
+				"    boolean c = a == b;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"interface A {\n" + 
+				"  void doSomething();\n" + 
+				"}\n" + 
+				"interface B {\n" + 
+				"  int doSomething();\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	boolean c = a == b;\n" + 
+			"	            ^^^^^^\n" + 
+			"Incompatible operand types A and B\n" + 
+			"----------\n");
+		return;
+	}
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -970,14 +1038,8 @@ public void test028() {
 			"  int doSomething();\n" + 
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	boolean c = a == b;\n" + 
-		"	            ^^^^^^\n" + 
-		"Incompatible operand types A and B\n" + 
-		"----------\n",
-		null,
-		true);
+		"");
+	
 }
 
 /*
