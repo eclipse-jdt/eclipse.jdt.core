@@ -85,7 +85,7 @@ public String[] getCommandLine() {
 		(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
 		"bin" + 
 		File.separator + 
-		"javaw");
+		"java");
 
 	// VM arguments
 	if (this.vmArguments != null) {
