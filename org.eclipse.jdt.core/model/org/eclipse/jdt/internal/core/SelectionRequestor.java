@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
