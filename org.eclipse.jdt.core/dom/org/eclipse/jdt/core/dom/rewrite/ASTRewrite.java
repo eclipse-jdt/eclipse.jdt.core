@@ -328,7 +328,6 @@ public class ASTRewrite {
 		if (node == null || property == null) {
 			throw new IllegalArgumentException();
 		}
-		validateIsInsideAST(node);
 		validateIsListProperty(property);
 		
 		return new ListRewrite(this, node, property);
