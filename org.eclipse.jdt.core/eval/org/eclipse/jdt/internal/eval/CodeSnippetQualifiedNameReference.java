@@ -491,7 +491,7 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 		boolean useDelegate = index == 0 && this.delegateThis != null;
 		if (useDelegate) lastReceiverType = this.delegateThis.type;
 
@@ -499,7 +499,7 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
 			&& fieldBinding.constant == NotAConstant
-			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+			&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
 					&& (index > 0 || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !(useDelegate
@@ -526,7 +526,7 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 		boolean useDelegate = fieldBinding == binding && this.delegateThis != null;
 		if (useDelegate) lastReceiverType = this.delegateThis.type;
 
@@ -534,7 +534,7 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
 			&& fieldBinding.constant == NotAConstant
-			&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+			&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
 					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !(useDelegate
