@@ -1001,7 +1001,7 @@ public void reconcile(
 	
 	NameLookup lookup = null;
 	try {
-		// set the units to look inside only for problem detection purpose
+		// set the units to look inside only for problem detection purpose (40322)
 		if (forceProblemDetection) {
 			lookup = ((JavaProject)getJavaProject()).getNameLookup();
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
