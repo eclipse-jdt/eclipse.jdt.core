@@ -1807,6 +1807,7 @@ TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
 /:$compliance 1.5:/
 
 TypeParameter1 ::= TypeParameterHeader '>'
+/.$putCase consumeTypeParameter1(); $break ./
 /:$compliance 1.5:/
 TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType1
 /.$putCase consumeTypeParameter1WithExtends(); $break ./

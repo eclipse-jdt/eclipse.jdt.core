@@ -2100,6 +2100,54 @@ protected void consumeToken(int token) {
 		}
 	}
 }
+protected void consumeOnlyTypeArguments() {
+	super.consumeOnlyTypeArguments();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeReferenceType1() {
+	super.consumeReferenceType1();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeReferenceType2() {
+	super.consumeReferenceType2();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeReferenceType3() {
+	super.consumeReferenceType3();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeArgumentReferenceType1() {
+	super.consumeTypeArgumentReferenceType1();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeArgumentReferenceType2() {
+	super.consumeTypeArgumentReferenceType2();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeArguments() {
+	super.consumeTypeArguments();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeParameters() {
+	super.consumeTypeParameters();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeParameters1() {
+	super.consumeTypeParameter1();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeWildcard1() {
+	super.consumeWildcard1();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeWildcard2() {
+	super.consumeWildcard2();
+	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeWildcard3() {
+	super.consumeWildcard3();
+	popElement(K_BINARY_OPERATOR);
+}
 protected void consumeUnaryExpression(int op) {
 	super.consumeUnaryExpression(op);
 	popElement(K_UNARY_OPERATOR);
