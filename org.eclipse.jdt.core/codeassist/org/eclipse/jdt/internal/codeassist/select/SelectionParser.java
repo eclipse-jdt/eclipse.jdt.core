@@ -289,6 +289,11 @@ protected void consumeFormalParameter() {
 		assistNode = arg;
 		this.lastCheckPoint = (int) namePositions;
 		isOrphanCompletionNode = true;
+		
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
 
 		/* if incomplete method header, listLength counter will not have been reset,
 			indicating that some arguments are available on the stack */
@@ -453,6 +458,10 @@ protected LocalDeclaration createLocalDeclaration(Expression initialization,char
 		SelectionOnLocalName local = new SelectionOnLocalName(initialization, name, sourceStart, sourceEnd);
 		this.assistNode = local;
 		this.lastCheckPoint = sourceEnd + 1;
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
 		return local;
 	}
 }
