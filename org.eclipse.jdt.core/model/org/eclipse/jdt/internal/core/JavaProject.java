@@ -1504,6 +1504,7 @@ public class JavaProject
 		for (int i = 0; i < length; i++) {
 
 			IClasspathEntry rawEntry = classpathEntries[i];
+			IPath resolvedPath;
 			status = null;
 			
 			/* validation if needed */
@@ -1520,7 +1521,7 @@ public class JavaProject
 					if (resolvedEntry == null) {
 						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 					} else {
-						if (reverseMap != null) reverseMap.put(resolvedEntry.getPath(), rawEntry);
+						if (reverseMap != null && reverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
 						resolvedEntries.add(resolvedEntry);
 					}
 					break; 
@@ -1552,14 +1553,14 @@ public class JavaProject
 								cEntry.getSourceAttachmentRootPath(), cEntry.getOutputLocation(), 
 								true); // duplicate container entry for tagging it as exported
 						}
-						if (reverseMap != null) reverseMap.put(cEntry.getPath(), rawEntry);
+						if (reverseMap != null && reverseMap.get(resolvedPath = cEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
 						resolvedEntries.add(cEntry);
 					}
 					break;
 										
 				default :
 
-					if (reverseMap != null) reverseMap.put(rawEntry.getPath(), rawEntry);
+					if (reverseMap != null && reverseMap.get(resolvedPath = rawEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
 					resolvedEntries.add(rawEntry);
 				
 			}					
