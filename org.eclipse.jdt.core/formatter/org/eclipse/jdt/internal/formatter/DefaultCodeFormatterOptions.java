@@ -1799,7 +1799,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_postfix_operator = false;
 		this.insert_space_after_prefix_operator = false;
 		this.insert_space_after_question_in_conditional = true;
-		this.insert_space_after_question_in_wilcard = true;
+		this.insert_space_after_question_in_wilcard = false;
 		this.insert_space_after_semicolon_in_for = true;
 		this.insert_space_after_unary_operator = false;
 		this.insert_space_before_and_in_type_parameter = true;
@@ -1882,7 +1882,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_postfix_operator = false;
 		this.insert_space_before_prefix_operator = false;
 		this.insert_space_before_question_in_conditional = true;
-		this.insert_space_before_question_in_wilcard = true;
+		this.insert_space_before_question_in_wilcard = false;
 		this.insert_space_before_semicolon = false;
 		this.insert_space_before_semicolon_in_for = false;
 		this.insert_space_before_unary_operator = false;
@@ -2028,7 +2028,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_postfix_operator = false;
 		this.insert_space_after_prefix_operator = false;
 		this.insert_space_after_question_in_conditional = true;
-		this.insert_space_after_question_in_wilcard = true;
+		this.insert_space_after_question_in_wilcard = false;
 		this.insert_space_after_semicolon_in_for = true;
 		this.insert_space_after_unary_operator = false;
 		this.insert_space_before_and_in_type_parameter = true;
@@ -2111,7 +2111,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_postfix_operator = false;
 		this.insert_space_before_prefix_operator = false;
 		this.insert_space_before_question_in_conditional = true;
-		this.insert_space_before_question_in_wilcard = true;
+		this.insert_space_before_question_in_wilcard = false;
 		this.insert_space_before_semicolon = false;
 		this.insert_space_before_semicolon_in_for = false;
 		this.insert_space_before_unary_operator = false;
