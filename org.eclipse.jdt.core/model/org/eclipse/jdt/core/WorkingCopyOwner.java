@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.internal.core.BufferManager;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 
 /**
  * The owner of an <code>ICompilationUnit</code> handle in working copy mode. 
@@ -27,6 +28,22 @@ import org.eclipse.jdt.internal.core.BufferManager;
  * @since 3.0
  */
 public abstract class WorkingCopyOwner {
+	
+	/**
+	 * Sets the buffer provider of the primary working copy owner. Note that even if the
+	 * buffer provider is a working copy owner, only its <code>createBuffer(ICompilationUnit)</code>
+	 * method is used by the primary working copy owner. It doesn't replace the internal primary 
+	 * working owner.
+ 	 * <p>
+	 * This method is for internal use by the jdt-related plug-ins.
+	 * Clients outside of the jdt should not reference this method.
+	 * </p>
+	 * 
+	 * @param primaryBufferProvider the primary buffer provider
+	 */
+	public static void setPrimaryBufferProvider(WorkingCopyOwner primaryBufferProvider) {
+		DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider = primaryBufferProvider;
+	}
 	
 	/**
 	 * Creates a buffer for the given working copy.
