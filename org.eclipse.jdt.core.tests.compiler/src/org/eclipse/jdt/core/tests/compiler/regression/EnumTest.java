@@ -1354,7 +1354,74 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			""
 		);
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914
+	 */
+	public void _test047() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" +
+				"	;\n" +
+				"	X() {\n" +
+				"		super();\n" +
+				"	}\n" +
+				"}"
+			},
+			"ERROR"
+		);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77211
+	 */
+	public void _test048() {
+		this.runConformTest(
+			new String[] {
+				"StopLight.java",
+				"public enum StopLight{\n" +
+				"    RED{\n" +
+				"        public StopLight next(){ return GREEN; }\n" +
+				"    },\n" +
+				"    GREEN{\n" +
+				"        public StopLight next(){ return YELLOW; }\n" +
+				"    },\n" +
+				"    YELLOW{\n" +
+				"        public StopLight next(){ return RED; }\n" +
+				"    };\n" +
+				"\n" +
+				"   public abstract StopLight next();\n" +
+				"}"
+			},
+			""
+		);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78915
+	 */
+	public void _test049() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract enum X {}"
+			},
+			"ERROR"
+		);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916
+	 */
+	public void _test050() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {}"
+			},
+			"ERROR"
+		);
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
