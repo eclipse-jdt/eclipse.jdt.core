@@ -651,12 +651,11 @@ public abstract class Expression extends Statement {
 			case T_JavaLangObject :
 			case T_undefined :
 				// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
-				// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
+				// append(Object) returns append(valueOf(Object)), which means that the null case is handled by the next case.
 				codeStream.invokeStringConcatenationDefaultConstructor();
 				generateCode(blockScope, codeStream, true);
 				codeStream.invokeStringConcatenationAppendForType(T_JavaLangObject);
 				return;
-
 			case T_JavaLangString :
 			case T_null :
 				if (constant != NotAConstant) {
@@ -667,11 +666,11 @@ public abstract class Expression extends Statement {
 					}
 					codeStream.ldc(stringValue);
 				} else {
+					// null case is not a constant
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(T_JavaLangObject);
 				}
 				break;
-				
 			default :
 				generateCode(blockScope, codeStream, true);
 				codeStream.invokeStringValueOf(typeID);
