@@ -88,6 +88,9 @@ public static Test suite() {
 	suite.addTest(TypeHierarchyTests.suite());
 	suite.addTest(TypeHierarchyNotificationTests.suite());
 	
+	//Resolve type tests
+	suite.addTest(TypeResolveTests.suite());
+
 	return suite;
 }
 
