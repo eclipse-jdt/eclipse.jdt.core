@@ -407,7 +407,7 @@ public class TestingEnvironment {
 			IJavaProject javaProject = JavaCore.create(getProject(projectPath));
 			return javaProject.getOutputLocation();
 		} catch(CoreException e){
-		
+			// ignore
 		}
 		return null;
 	}
@@ -454,6 +454,7 @@ public class TestingEnvironment {
 			problems.toArray(result);
 			return result;
 		} catch(CoreException e){
+			// ignore
 		}
 		return new Problem[0];
 	}
