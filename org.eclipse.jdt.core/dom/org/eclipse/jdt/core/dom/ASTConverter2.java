@@ -20,6 +20,9 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -119,13 +122,48 @@ class ASTConverter2 extends ASTConverter {
 		if (methodDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) methodDeclaration);
 		}
-		return super.convert(methodDeclaration);	
+		MethodDeclaration declaration = (MethodDeclaration) super.convert(methodDeclaration);
+		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = null;
+		if (methodDeclaration instanceof ParameterizedConstructorDeclaration) {
+			ParameterizedConstructorDeclaration parameterizedConstructorDeclaration = (ParameterizedConstructorDeclaration) methodDeclaration;
+			typeParameters = parameterizedConstructorDeclaration.typeParameters;
+		} else if (methodDeclaration instanceof ParameterizedMethodDeclaration) {
+			ParameterizedMethodDeclaration parameterizedMethodDeclaration = (ParameterizedMethodDeclaration) methodDeclaration;
+			typeParameters = parameterizedMethodDeclaration.typeParameters;
+		}
+		if (typeParameters != null) {
+			switch(this.ast.apiLevel) {
+				case AST.LEVEL_2_0 :
+					declaration.setFlags(ASTNode.MALFORMED);
+					break;
+				case AST.LEVEL_3_0 :
+					for (int i = 0, max = typeParameters.length; i < max; i++) {
+						declaration.typeParameters().add(convert(typeParameters[i]));
+					}
+			}
+		}
+		return declaration;
 	}
 	
 	public ClassInstanceCreation convert(org.eclipse.jdt.internal.compiler.ast.AllocationExpression expression) {
 		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
+		}
+		if (expression instanceof ParameterizedAllocationExpression) {
+			switch(this.ast.apiLevel) {
+				case AST.LEVEL_2_0 :
+					classInstanceCreation.setFlags(ASTNode.MALFORMED);
+					break;
+				case AST.LEVEL_3_0 :
+					ParameterizedAllocationExpression parameterizedAllocationExpression = (ParameterizedAllocationExpression) expression;
+					TypeReference[] typeArguments = parameterizedAllocationExpression.typeArguments;
+					if (typeArguments != null) {
+						for (int i = 0, max = typeArguments.length; i < max; i++) {
+							classInstanceCreation.typeArguments().add(convert(typeArguments[i]));
+						}
+					}
+			}
 		}
 		classInstanceCreation.setType(convertType(expression.type));
 		classInstanceCreation.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
