@@ -1462,6 +1462,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}	
 	}
 
+	private void formatNecessaryEmptyStatement() {
+		if (this.preferences.put_empty_statement_on_new_line) {
+			this.scribe.printNewLine();
+			this.scribe.indent();
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+			this.scribe.unIndent();
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+		}
+	}
+
 	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
 	
 		if (DefaultCodeFormatterConstants.NEXT_LINE.equals(bracePosition)) {
@@ -2681,25 +2694,26 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (action instanceof Block) {
 				formatLeftCurlyBrace(line, this.preferences.block_brace_position);
 				action.traverse(this, scope);
+			} else if (action instanceof EmptyStatement) {
+				/*
+				 * This is an empty statement
+				 */
+				formatNecessaryEmptyStatement();
 			} else {
 				this.scribe.printNewLine();
 				this.scribe.indent();
 				action.traverse(this, scope);
+				if (action instanceof Expression) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
+				}
 				this.scribe.unIndent();
-				this.scribe.printNewLine();
-			}
-			if (action instanceof Expression) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
 			}
 		} else {
-			this.scribe.indent();
 			/*
 			 * This is an empty statement
 			 */
-			formatEmptyStatement(); 
-			this.scribe.unIndent();
+			formatNecessaryEmptyStatement(); 
 		}
 		
 		if (this.preferences.insert_new_line_in_control_statements) {
@@ -2942,8 +2956,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (action instanceof Block) {
 	            formatLeftCurlyBrace(line, this.preferences.block_brace_position);
 				action.traverse(this, scope);
-			} else if (action instanceof EmptyStatement && !this.preferences.put_empty_statement_on_new_line) {
-				action.traverse(this, scope);
+			} else if (action instanceof EmptyStatement) {
+				/*
+				 * This is an empty statement
+				 */
+				formatNecessaryEmptyStatement();
 			} else {
 				this.scribe.indent();
 				this.scribe.printNewLine();
@@ -2955,12 +2972,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printTrailingComment();
 			}
 		} else {
-			this.scribe.indent();
 			/*
 			 * This is an empty statement
 			 */
-			formatEmptyStatement(); 
-			this.scribe.unIndent();
+			formatNecessaryEmptyStatement(); 
 		}
 		return false;
 	}
@@ -4039,23 +4054,26 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (action instanceof Block) {
                 formatLeftCurlyBrace(line, this.preferences.block_brace_position);
 				action.traverse(this, scope);
+			} else if (action instanceof EmptyStatement) {
+				/*
+				 * This is an empty statement
+				 */
+				formatNecessaryEmptyStatement();
 			} else {
 				this.scribe.printNewLine();
 				this.scribe.indent();
 				action.traverse(this, scope);
+				if (action instanceof Expression) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
+				}
 				this.scribe.unIndent();
 			}
-			if (action instanceof Expression) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.printTrailingComment();
-			}
 		} else {
-			this.scribe.indent();
 			/*
 			 * This is an empty statement
 			 */
-			formatEmptyStatement(); 
-			this.scribe.unIndent();
+			formatNecessaryEmptyStatement();
 		}
 		return false;
 	}
