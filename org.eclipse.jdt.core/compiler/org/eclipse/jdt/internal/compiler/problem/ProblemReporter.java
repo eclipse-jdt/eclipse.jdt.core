@@ -327,15 +327,6 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotUseTypeVariable(TypeVariableBinding typeParameter, ASTNode location) {
-	String[] arguments =new String[]{ new String(typeParameter.readableName())};
-	this.handle(
-		IProblem.CannotUseTypeVariable,
-		arguments,
-		arguments,
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void cannotReturnInInitializer(ASTNode location) {
 	this.handle(
 		IProblem.CannotReturnInInitializer,
@@ -376,6 +367,15 @@ public void cannotUseSuperInCodeSnippet(int start, int end) {
 		Error | Abort,
 		start,
 		end);
+}
+public void cannotUseTypeVariable(TypeVariableBinding typeParameter, ASTNode location) {
+	String[] arguments =new String[]{ new String(typeParameter.readableName())};
+	this.handle(
+		IProblem.CannotUseTypeVariable,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
@@ -541,6 +541,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidSeeReference:
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
+		case IProblem.JavadocInvalidTag:
 			return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 
 		/*
@@ -2368,6 +2369,9 @@ public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 }
 public void javadocInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidTag(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidThrowsClass(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);

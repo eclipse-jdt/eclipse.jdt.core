@@ -52,7 +52,7 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		ReferenceBinding rawType = (ReferenceBinding) type;
 		this.resolvedType = scope.createParameterizedType(rawType, typeArgumentBindings);
 		if (this.dimensions > 0){
-			this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
+			this.resolvedType = scope.createArray(this.resolvedType, dimensions);
 		}
 		return this.resolvedType;
 	}

@@ -38,17 +38,6 @@ class MethodBinding implements IMethodBinding {
 	public boolean isConstructor() {
 		return this.binding.isConstructor();
 	}
-	
-	/*
-	 * @see IMethodBinding#isDefaultConstructor()
-	 * @since 3.0
-	 */
-	public boolean isDefaultConstructor() {
-		if (this.binding.declaringClass.isBinaryBinding()) {
-			return false;
-		}
-		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
-	}	
 
 	/*
 	 * @see IMethodBinding#isDefaultConstructor()
