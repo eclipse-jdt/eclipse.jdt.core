@@ -1102,7 +1102,7 @@ public class JavaProject
 				if (!status.isOK())
 					createClasspathProblemMarker(
 						status.getMessage(), 
-						IMarker.SEVERITY_WARNING,
+						IMarker.SEVERITY_ERROR,
 						false);
 			}
 
