@@ -3553,6 +3553,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.setLeadingComment("// X\n"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getLeadingComment() == "// X\n"); //$NON-NLS-1$
+
+		// check that end-of-line comment without a line break at the end is allowed
+		previousCount = ast.modificationCount();
+		x.setLeadingComment("// X"); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getLeadingComment() == "// X"); //$NON-NLS-1$
 		
 		// check that end-of-line comment with embedded end of line 
 		// not allowed
