@@ -74,7 +74,6 @@ public class SourceFile implements ICompilationUnit {
 			// character
 			if (len != length)
 				System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
-			if (contents.length == 0) this.packageName = null; // 22418
 			return contents;
 		} catch (FileNotFoundException e) {
 			throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));

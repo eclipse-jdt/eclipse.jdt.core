@@ -59,8 +59,15 @@ void buildTypeBindings() {
 	topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
 	if (referenceContext.compilationResult.compilationUnit != null) {
 		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
-		if (expectedPackageName != null && !CharOperation.equals(currentPackageName, expectedPackageName)) {
-			problemReporter().packageIsNotExpectedPackage(referenceContext);
+		if (expectedPackageName != null 
+				&& !CharOperation.equals(currentPackageName, expectedPackageName)) {
+
+			// only report if the unit isn't structurally empty
+			if (referenceContext.currentPackage != null 
+					|| referenceContext.types != null 
+					|| referenceContext.imports != null) {
+				problemReporter().packageIsNotExpectedPackage(referenceContext);
+			}
 			currentPackageName = expectedPackageName.length == 0 ? CharOperation.NO_CHAR_CHAR : expectedPackageName;
 		}
 	}
