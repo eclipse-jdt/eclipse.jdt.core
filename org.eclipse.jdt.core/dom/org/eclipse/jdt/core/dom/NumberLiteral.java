@@ -97,6 +97,8 @@ public class NumberLiteral extends Expression {
 		char[] source = token.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
+		scanner.tokenizeComments = false;
+		scanner.tokenizeWhiteSpace = false;
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
@@ -122,6 +124,9 @@ public class NumberLiteral extends Expression {
 			}
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();
+		} finally {
+			scanner.tokenizeComments = true;
+			scanner.tokenizeWhiteSpace = true;
 		}
 		modifying();
 		this.tokenValue = token;

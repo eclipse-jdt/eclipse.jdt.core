@@ -97,8 +97,8 @@ public final class AST {
 	 */
 	public AST(Map options) {
 		this.scanner = new Scanner(
-			false /*comment*/, 
-			false /*whitespace*/, 
+			true /*comment*/, 
+			true /*whitespace*/, 
 			false /*nls*/, 
 			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) /*assert*/, 
 			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_COMPLIANCE)) /*strict comment*/, 

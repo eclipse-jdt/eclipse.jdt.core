@@ -99,7 +99,7 @@ public class Javadoc extends ASTNode {
 			throw new IllegalArgumentException();
 		}
 		char[] source = javadocComment.toCharArray();
-		Scanner scanner = new Scanner(true, true, false, false, false, null, null);
+		Scanner scanner = this.getAST().scanner;
 		scanner.resetTo(0, source.length);
 		scanner.setSource(source);
 		try {

@@ -3120,19 +3120,18 @@ class ASTConverter {
 		int trimLeftPosition = expression.sourceStart;
 		int trimRigthPosition = expression.sourceEnd;
 		boolean first = true;
-		Scanner savedScanner = this.scanner;
+		Scanner removeBlankScanner = this.ast.scanner;
 		try {
-			scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/);
-			scanner.setSource(this.compilationUnitSource);
-			scanner.resetTo(start, end);
+			removeBlankScanner.setSource(this.compilationUnitSource);
+			removeBlankScanner.resetTo(start, end);
 			while (true) {
-				token = scanner.getNextToken();
+				token = removeBlankScanner.getNextToken();
 				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE :
 						if (first) {
-							trimLeftPosition = scanner.currentPosition;
+							trimLeftPosition = removeBlankScanner.currentPosition;
 						}
-						trimRigthPosition = scanner.startPosition - 1;
+						trimRigthPosition = removeBlankScanner.startPosition - 1;
 						break;
 					case TerminalTokens.TokenNameEOF :
 						expression.sourceStart = trimLeftPosition;
@@ -3148,9 +3147,6 @@ class ASTConverter {
 				first = false;
 			}
 		} catch (InvalidInputException e){
-		} finally {
-			scanner = savedScanner;
-			scanner.setSource(this.compilationUnitSource);
 		}
 	}
 	
