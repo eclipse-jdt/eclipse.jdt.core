@@ -1806,7 +1806,6 @@ public abstract class Scope
 			Scope scope = this;
 			ReferenceBinding foundType = null;
 			boolean insideStaticContext = false;
-			boolean resolvingHierarchy = false;
 			if ((mask & TYPE) == 0) {
 				Scope next = scope;
 				while ((next = scope.parent) != null)
@@ -1839,15 +1838,11 @@ public abstract class Scope
 									return typeVariable;
 								if (CharOperation.equals(name, sourceType.sourceName))
 									return sourceType;
-								resolvingHierarchy = true;
 								break;
 							}
 							// type variables take precedence over member types
 							TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
 							if (typeVariable != null) {
-								if (resolvingHierarchy)
-									// class X <T> { class MX extends T {}}
-									return new ProblemReferenceBinding(name, IllegalSuperTypeVariable); // cannot bind to a type variable
 								if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
 									return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
 								return typeVariable;
