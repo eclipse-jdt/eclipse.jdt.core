@@ -36,12 +36,18 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M3 Build - 19th July 2003
+Eclipse SDK 3.0M3 Build - 19th August 2003
 <br>Project org.eclipse.jdt.core v_366 
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_366">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>To reduce the memory consumption and improve performance, the following new APIs were added:
+<ul>
+<li>AST.parsePartialCompilationUnit(ICompilationUnit unit, int position, boolean resolveBindings)</li>
+<li>AST.parsePartialCompilationUnit(ICompilationUnit unit, int position, boolean resolveBindings, WorkingCopyOwner owner)</li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -63,7 +69,7 @@ Numerous single type imports can slow compiler down significantly
 org.eclipse.jdt.core.Signature cannot resolve complex type that has package name starting with letters as any primitive type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38633">38633</a>
 Search should not open requested types with match locator parser
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40954">40954</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40954">40954</a>
 ArrayIndexOutOfBoundsException during sort members
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40804">40804</a>
 NPE in MethodBinding.sourceMethod()
