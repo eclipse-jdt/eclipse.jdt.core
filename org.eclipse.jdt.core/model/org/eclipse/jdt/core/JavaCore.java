@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.builder.*;
@@ -20,6 +21,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.*;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
 import org.eclipse.jdt.internal.core.search.indexing.*;
+import org.eclipse.jdt.internal.formatter.CodeFormatter;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -38,7 +40,7 @@ import org.eclipse.jdt.internal.core.search.indexing.*;
  * </p>
  */
 public final class JavaCore extends Plugin implements IExecutableExtension {
-
+	private static final String JAVA_CORE_INIT = "JavaCore.ini";
 
 	private static Plugin JAVA_CORE_PLUGIN = null;
 	/**
@@ -73,85 +75,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Name of the handle id attribute in a Java marker
 	 */
 	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"/*nonNLS*/;
-
-	/**
-	 * Names of recognized configurable options
-	 */
-	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"/*nonNLS*/;
-		// possible values are GENERATE or DO_NOT_GENERATE (default is DO_NOT_GENERATE)
-		
-	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"/*nonNLS*/;
-		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
-		
-	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"/*nonNLS*/;
-		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
-
-	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"/*nonNLS*/;
-		// possible values are PRESERVE or OPTIMIZE_OUT	(default is OPTIMIZE_OUT)
-
-	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"/*nonNLS*/;
-		// possible values are VERSION_1_1 or VERSION_1_2	(default is VERSION_1_1)
-
-	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"/*nonNLS*/;
-		// possible values are ERROR or WARNING	(default is ERROR)
-
-	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"/*nonNLS*/;
-		// possible values are ERROR or WARNING	(default is ERROR)
-
-	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-		
-	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is IGNORE)	
 	
-	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"/*nonNLS*/;
-		// possible values are COMPUTE or IGNORE (default is COMPUTE)
-		
-	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is IGNORE)
-
-	public static final String COMPILER_COMPILATION_SOURCE = PLUGIN_ID + ".compiler.compilation.source"/*nonNLS*/;
-		// possible values are VERSION_1_3 or VERSION_1_4 (default is VERSION_1_3)
-
-	public static final String COMPILER_PB_ASSERT_IDENTIFIER = PLUGIN_ID + ".compiler.problem.assertIdentifier"/*nonNLS*/;
-		// possible values are WARNING or IGNORE (default is IGNORE)
-
-	/**
-	 * Possible values for configurable options
-	 */
-	public static final String GENERATE = "generate"/*nonNLS*/;
-	public static final String DO_NOT_GENERATE = "do not generate"/*nonNLS*/;
-	public static final String PRESERVE = "preserve"/*nonNLS*/;
-	public static final String OPTIMIZE_OUT = "optimize out"/*nonNLS*/;
-	public static final String VERSION_1_1 = "1.1"/*nonNLS*/;
-	public static final String VERSION_1_2 = "1.2"/*nonNLS*/;
-	public static final String VERSION_1_3 = "1.3"/*nonNLS*/;
-	public static final String VERSION_1_4 = "1.4"/*nonNLS*/;
-	public static final String ERROR = "error"/*nonNLS*/;
-	public static final String WARNING = "warning"/*nonNLS*/;
-	public static final String IGNORE = "ignore"/*nonNLS*/;
-	public static final String COMPUTE = "compute"/*nonNLS*/;
-	
-	private static Hashtable ConfigurableOptions;
 	private static Hashtable Variables = new Hashtable(5);
-
-	private static Hashtable DefaultOptions;
-	private final static String PropertiesBundleName = "org.eclipse.jdt.core.JavaCore"/*nonNLS*/;
 /**
  * Creates the Java core plug-in.
  */
@@ -474,30 +399,6 @@ public static String[] getClasspathVariableNames() {
 	}
 	return result;
 }
-/**
- * Answers a set of configurable options with their default values.
- * These options allow to configure the behavior of the underlying components.
- */
-public static Hashtable getDefaultOptions(){
-	if (DefaultOptions == null) {
-		DefaultOptions = new Hashtable(10);
-		
-		try{
-			ResourceBundle bundle =
-				ResourceBundle.getBundle(PropertiesBundleName,Locale.getDefault());
-			
-			Enumeration enum = bundle.getKeys();
-			while(enum.hasMoreElements()){
-				String id = (String)enum.nextElement();
-				DefaultOptions.put(id,bundle.getString(id));
-			}
-		} catch(Exception ex){}
-	}
-
-	return (Hashtable)DefaultOptions.clone();
-	
-	
-}
 
 private static IPath getInstallLocation() {
 	return new Path(getPlugin().getDescriptor().getInstallURL().getFile());
@@ -526,19 +427,6 @@ private IJavaProject getJavaProject(IProject project) {
 	} catch (CoreException e) {
 	}
 	return null;
-}
-/**
- * Answers a copy of the current set of configurable options supported by the Java core.
- * These options allow to configure the behavior of the underlying components.
- *
- * Changes on the set of options are not committed until invoking <code>JavaCore.setOptions</code>
- *
- * For a list of recognized options, refer to <code>JavaCore.getDefaultOptions</code>
- */
-public static Hashtable getOptions(){
-
-	if (ConfigurableOptions == null) return ConfigurableOptions = getDefaultOptions();
-	return (Hashtable)ConfigurableOptions.clone();
 }
 /**
  * Returns the single instance of the Java core plug-in runtime class.
@@ -871,15 +759,7 @@ public static void setClasspathVariable(String variableName, IPath path, IProgre
  * Record any necessary initialization data from the plugin.
  */
 public void setInitializationData(IConfigurationElement cfig, String propertyName, Object data) throws CoreException {}
-/**
- * Set current set of configurable options supported by the Java core.
- * These options allow to configure the behavior of the underlying components.
- * 
- * For a list of recognized options, refer to <code>JavaCore.getDefaultOptions</code>
- */
-public static void setOptions(Hashtable configurableOptions){
-	ConfigurableOptions = (Hashtable) configurableOptions.clone();
-}
+
 /**
  * Shutdown the JavaCore plugin
  * <p>
@@ -945,6 +825,7 @@ public void startup() {
 
 		workspace.addSaveParticipant(this, manager);
 		manager.loadVariables();
+		manager.loadOptions();
 	} catch(CoreException e) {
 	} catch(RuntimeException e){
 		manager.shutdown();
@@ -1012,5 +893,340 @@ private static void updateVariableValue(String variableName, IPath path, IProgre
 		}
 	}
 }
+/**
+* Set the value of the current setting for an option.
+*
+* @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
+* are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
+* doesn't exist.
+*/
+public static IJavaModelStatus setOptionValue(String id, String value){
+	IJavaModelStatus status = validateOptionValue(id,value);
+	if(status.getCode() == IJavaModelStatus.OK){
+		ConfigurableOption option = (ConfigurableOption)getOptions().get(id);
+		if(option != null)
+			option.setValue(value);
+	}
+	return status;
+}
 
+/**
+* Answer the value of the current setting for an option.
+*
+* @return String
+*/
+public static String getOptionValue(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getValue();
+		
+	return null;
+}
+
+/**
+* Set the value of the default setting for an option.
+*
+* @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
+* are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
+* doesn't exist.
+*/
+private static IJavaModelStatus setOptionDefaultValue(String id, String value){
+	IJavaModelStatus status = validateOptionValue(id,value);
+	if(status.getCode() == IJavaModelStatus.OK){
+		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+		if(option != null)
+			option.setDefaultValue(value);
+	}
+	return status;
+}
+
+/**
+* Answer the value of the default setting for an option.
+*
+* @return String
+*/
+public static String getOptionDefaultValue(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getDefaultValue();
+	
+	return null;
+}
+
+/**
+* Return an String that represents the localized description of an option.
+*
+* @return java.lang.String
+*/
+public static String getOptionDescription(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getDescription();
+		
+	return null;
+}
+/**
+* Return a String that represents the localized name of an option.
+* @return java.lang.String
+*/
+public static String getOptionName(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getName();
+			
+	return null;
+}
+
+/**
+* Return a String that identifies the component owner of an option
+* (typically the qualified type name of the class which it corresponds to).
+*
+* e.g. "org.eclipse.jdt.internal.compiler.api.Compiler"
+*
+* @return java.lang.String
+*/
+public static String getOptionComponentName(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getComponentName();
+			
+	return null;
+}
+
+/**
+ * Return a String that represents the localized category of an option.
+ * @return java.lang.String
+ */
+public static String getOptionCategory(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getCategory();
+			
+	return null;
+}
+
+/**
+* Return an array of String that represents the localized possible values of an option.
+*
+* @return java.lang.String[]
+*/
+public static String[] getOptionPossibleValues(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getPossibleValues();
+			
+	return null;
+}
+
+/**
+ * Return the type of option. Type is a String with possible value :
+ * <code>discrete</code>,<code>string</code>,<code>int</code> and
+ * <code>float</code>.
+ */
+public static String getOptionType(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getType();
+			
+	return null;
+}
+
+/**
+ * Return the maximum value of option if option's type is <code>int</code>
+ *  or <code>float</code>.Otherwise return null.
+ */
+public static Number getOptionMax(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null){
+		return option.getMax();
+	}
+			
+	return null;
+}
+
+/**
+ * Return the minimum value of option if option's type is <code>int</code>
+ *  or <code>float</code>.Otherwise return null.
+ */
+public static Number getOptionMin(String id){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null)
+		return option.getMin();
+			
+	return null;
+}
+
+/**
+ * Answers a set of option'IDs which are in option set of JavaCore
+ */
+public static String[] getOptionIDs(){
+	return JavaModelManager.getOptionIDs();
+}
+
+/**
+ * Answers a set of option'IDs which are in option set of JavaCore
+ * and associated with a component.
+ */
+public static String[] getOptionIDs(String componentName){
+	String[] ids = getOptionIDs();
+	
+	String[] result = new String[ids.length];
+	int resultCount = 0;
+	for(int i=0;i<ids.length;i++){
+		if(ids[i].startsWith(componentName))
+			result[resultCount++] = ids[i];
+	}
+	
+	System.arraycopy(result,0,result = new String[resultCount],0,resultCount);
+	
+	return result;
+}
+
+/**
+ * Answers if a value is valide for an option
+ * 
+ * @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
+ * are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
+ * doesn't exist.
+ */
+public static IJavaModelStatus validateOptionValue(String id, String value){
+	ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
+	
+	if(option != null){
+		String[] values = option.getPossibleValues();
+		if(values == ConfigurableOption.NoDiscreteValue){
+			try{
+				if(option.getType().equals(ConfigurableOption.INT)){
+					int max = option.getMax().intValue();
+					int min = option.getMin().intValue();
+					int val = Integer.parseInt(value);
+					if(val > max || val < min)
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
+				}
+				else if(option.getType().equals(ConfigurableOption.FLOAT)){
+					float max = option.getMax().floatValue();
+					float min = option.getMin().floatValue();
+					float val = Float.parseFloat(value);
+					if(val > max || val < min)
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
+				}
+			} catch(NumberFormatException e){
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
+			}
+			return JavaModelStatus.VERIFIED_OK;
+		} else {
+			for(int i = 0 ; i < values.length ; i++){
+				if(values[i].equals(value))
+					return JavaModelStatus.VERIFIED_OK;
+			}
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
+		}
+	}
+	return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION);
+}
+
+/**
+ * Reset JavaCore option values to defaults.
+ */
+public static void resetOptions(){
+	Locale locale = Locale.getDefault();
+
+	if(JavaModelManager.fOptions == null){
+		JavaModelManager.initializeOptions();		
+		// Set options to JavaCore default value
+		setJavaCoreDefaultOptionsValue(locale);
+		
+	}
+	else{
+		ConfigurableOption[] options = (ConfigurableOption[])JavaModelManager.fOptions.values().toArray(new ConfigurableOption[0]);
+		for(int i = 0 ; i < options.length ; i++)
+			options[i].setToDefault();
+	}
+}
+
+//private static void setConfigurableOptions(ConfigurableOption[] configurableOptions) {
+//	for(int i = 0; i < configurableOptions.length;i ++){
+//		String id = configurableOptions[i].getID();
+//		if(JavaModelManager.fOptions.get(id) == null){
+//			JavaModelManager.addOption(configurableOptions[i]);
+//		}
+//		else{
+//			ConfigurableOption option = (ConfigurableOption)JavaModelManager.fOptions.get(id);
+//			if(option.getPossibleValues() == ConfigurableOption.NoDiscreteValue){
+//				option.setDefaultValue(configurableOptions[i].getValue());
+//			}
+//			else{
+//				option.setDefaultValueIndex(configurableOptions[i].getValueIndex());
+//			}
+//		}
+//	}
+//}
+
+private static void setJavaCoreDefaultOptionsValue(Locale locale){
+	BufferedReader reader;
+	try {
+		reader = new BufferedReader(new InputStreamReader(JavaCore.class.getResourceAsStream(JAVA_CORE_INIT)));
+		String line = reader.readLine();
+		while(line != null){
+			int equalIndex = line.indexOf("="/*nonNLS*/);
+			if(!line.startsWith("#"/*nonNLS*/) && equalIndex != -1){
+				String id = line.substring(0,equalIndex).trim();
+				
+//				ConfigurableOption option = (ConfigurableOption) JavaModelManager.fOptions.get(id);
+				ConfigurableOption option = new ConfigurableOption(id,locale);
+				
+				if (option.getPossibleValues()!= ConfigurableOption.NoDiscreteValue) {
+					try {
+						int index = Integer.parseInt(line.substring(equalIndex+1).trim());
+						option.setDefaultValueIndex(index);
+					} catch (NumberFormatException e) {
+						// value is default default value
+					}
+				} else {
+					String value = line.substring(equalIndex+1).trim();
+					option.setDefaultValue(value);
+				}
+				
+				JavaModelManager.addOption(option);
+			}
+			line = reader.readLine();
+		}
+		reader.close();
+	} catch (FileNotFoundException e) {
+	} catch (IOException e) {
+	} finally{
+	}
+}
+private static Hashtable getOptions(){
+	if(JavaModelManager.fOptions == null)
+		setOptionsToDefault();
+	
+	return JavaModelManager.fOptions;
+}
+/**
+ * Returns all the options of Java Core to be shown by the UI
+ *
+ * @param locale java.util.Locale
+ * @return org.eclipse.jdt.internal.compiler.ConfigurableOption[]
+ */
+private static ConfigurableOption[] getDefaultOptions(Locale locale) {
+	String[] ids = ConfigurableOption.getIDs(JavaCore.class.getName(),locale);
+	
+	ConfigurableOption[] result = new ConfigurableOption[ids.length];
+	for(int i = 0 ; i < ids.length ; i++){
+		result[i] = new ConfigurableOption(ids[i],locale);
+	}
+	
+	return result;
+}
 }

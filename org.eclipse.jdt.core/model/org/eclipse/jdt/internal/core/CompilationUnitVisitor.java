@@ -110,8 +110,7 @@ public class CompilationUnitVisitor extends Compiler {
 	 *  Low-level API performing the actual compilation
 	 */
 	protected static ConfigurableOption[] getOptions() {
-		CompilerOptions options = new CompilerOptions();
-		return options.getConfigurableOptions(Locale.getDefault());
+		return JavaModelManager.getOptions();
 	}
 
 	/*

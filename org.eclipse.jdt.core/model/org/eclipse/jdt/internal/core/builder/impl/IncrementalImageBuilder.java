@@ -203,8 +203,7 @@ public void applySourceDelta(Hashtable deltas) {
 	fNewState = fOldState.copy(fNewProject, fImageContext);
 
 	// options might have changed since last builder run, thus refresh them
-	fCompilerOptions = JavaModelManager.convertConfigurableOptions(JavaCore.getOptions());
-	fNewState.setCompilerOptions(fCompilerOptions);
+	fCompilerOptions = JavaModelManager.getOptions();
 	
 	try {
 		/* find out what has changed at the package level */
