@@ -346,10 +346,9 @@ public class JavaProject
 				: getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
 			
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		boolean isInitialProject = this.equals(initialProject);
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
-
-			boolean isInitialProject = this.equals(initialProject);
 			if (isInitialProject || entry.isExported()){
 				
 				accumulatedEntries.add(entry);
