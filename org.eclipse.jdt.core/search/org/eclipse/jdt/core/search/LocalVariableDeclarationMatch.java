@@ -8,21 +8,16 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core.index.impl;
+package org.eclipse.jdt.core.search;
 
-/**
- * Types implementing this interface can occupy a variable amount of space
- * in an LRUCache.  Cached items that do not implement this interface are
- * considered to occupy one unit of space.
- *
- * @see LRUCache
- */
-public interface ILRUCacheable {
-	/**
-	 * Returns the space the receiver consumes in an LRU Cache.  The default space
-	 * value is 1.
-	 *
-	 * @return int Amount of cache space taken by the receiver
-	 */
-	public int getCacheFootprint();
+import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
+
+public class LocalVariableDeclarationMatch extends JavaSearchMatch {
+
+	public LocalVariableDeclarationMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
+	}
+
 }

@@ -16,22 +16,21 @@ package org.eclipse.jdt.internal.core.search.indexing;
  */
 public class ReadWriteMonitor {
 
-	/**
-	 * <0 : writing (cannot go beyond -1, i.e one concurrent writer)
-	 * =0 : idle
-	 * >0 : reading (number of concurrent readers)
-	 */
-	private int status = 0;
+/**
+ * <0 : writing (cannot go beyond -1, i.e one concurrent writer)
+ * =0 : idle
+ * >0 : reading (number of concurrent readers)
+ */
+private int status = 0;
 /**
  * Concurrent reading is allowed
  * Blocking only when already writing.
  */
 public synchronized void enterRead() {
-
-	while (status < 0){
+	while (status < 0) {
 		try {
 			wait();
-		} catch(InterruptedException e){
+		} catch(InterruptedException e) {
 			// ignore
 		}
 	}
@@ -42,11 +41,10 @@ public synchronized void enterRead() {
  * Blocking only when already writing or reading.
  */
 public synchronized void enterWrite() {
-
-	while (status != 0){
+	while (status != 0) {
 		try {
 			wait();
-		} catch(InterruptedException e){
+		} catch(InterruptedException e) {
 			// ignore
 		}
 	}
@@ -68,6 +66,18 @@ public synchronized void exitWrite() {
 	if (++status == 0) notifyAll();
 }
 /**
+ * Atomic exitRead/enterWrite: Allows to keep monitor in between
+ * exit read and next enter write.
+ * Use when writing changes is optional, otherwise call the individual methods.
+ * Returns false if multiple readers are accessing the index.
+ */
+public synchronized boolean exitReadEnterWrite() {
+	if (status != 1) return false; // only continue if this is the only reader
+
+	status = -1;
+	return true;
+}
+/**
  * Atomic exitWrite/enterRead: Allows to keep monitor in between
  * exit write and next enter read.
  * When writing is over, all readers are granted permissing to restart
@@ -83,5 +93,19 @@ public synchronized void exitWrite() {
 public synchronized void exitWriteEnterRead() {
 	this.exitWrite();
 	this.enterRead();
-} 
+}
+public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	if (status == 0) {
+		buffer.append("Monitor idle "); //$NON-NLS-1$
+	} else if (status < 0) {
+		buffer.append("Monitor writing "); //$NON-NLS-1$
+	} else if (status > 0) {
+		buffer.append("Monitor reading "); //$NON-NLS-1$
+	}
+	buffer.append("(status = "); //$NON-NLS-1$
+	buffer.append(this.status);
+	buffer.append(")"); //$NON-NLS-1$
+	return buffer.toString();
+}
 }

@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
-import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -35,9 +34,6 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public IWorkspace workspace;
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
 	private Map indexes = new HashMap(5);
-
-	/* read write monitors */
-	private Map monitors = new HashMap(5);
 
 	/* need to save ? */
 	private boolean needToSave = false;
@@ -131,9 +127,8 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 			File indexFile = new File(indexName);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new org.eclipse.jdt.internal.core.index.impl.IndexImpl(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
 					indexes.put(path, index);
-					monitors.put(index, new ReadWriteMonitor());
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
@@ -157,9 +152,8 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 			try {
 				if (VERBOSE)
 					JobManager.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new org.eclipse.jdt.internal.core.index.impl.IndexImpl(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(path, index);
-				monitors.put(index, new ReadWriteMonitor());
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
@@ -199,20 +193,10 @@ private IPath getJavaPluginWorkingLocation() {
 
 	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
 }
-/**
- * Index access is controlled through a read-write monitor so as
- * to ensure there is no concurrent read and write operations
- * (only concurrent reading is allowed).
- */
-public ReadWriteMonitor getMonitorFor(Index index){
-	return (ReadWriteMonitor) monitors.get(index);
-}
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
 		searchDocument.index = index;
-		((org.eclipse.jdt.internal.core.index.impl.IndexImpl) index).indexDocument(searchDocument, searchParticipant, indexPath);
-// to be replaced by
-//		searchParticipant.indexDocument(searchDocument, indexPath);
+		searchParticipant.indexDocument(searchDocument, indexPath);
 	} finally {
 		searchDocument.index = null;
 	}
@@ -289,7 +273,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
 	if (o instanceof Index) {
-		this.monitors.remove(o);
+		((Index) o).monitor = null;
 		this.indexes.remove(path);
 	}
 	updateIndexState(computeIndexName(path), UNKNOWN_STATE);
@@ -353,15 +337,15 @@ public synchronized Index recreateIndex(IPath path) {
 	// only called to over write an existing cached index...
 	try {
 		Index index = (Index) this.indexes.get(path);
-		ReadWriteMonitor monitor = (ReadWriteMonitor) this.monitors.remove(index);
+		ReadWriteMonitor monitor = index.monitor;
 
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
 		if (VERBOSE)
 			JobManager.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new org.eclipse.jdt.internal.core.index.impl.IndexImpl(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
+		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
 		indexes.put(path, index);
-		monitors.put(index, monitor);
+		index.monitor = monitor;
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
@@ -392,7 +376,7 @@ public synchronized void removeIndex(IPath path) {
 		indexFile.delete();
 	Object o = this.indexes.get(path);
 	if (o instanceof Index)
-		this.monitors.remove(o);
+		((Index) o).monitor = null;
 	this.indexes.remove(path);
 	updateIndexState(indexName, null);
 }
@@ -436,7 +420,6 @@ public void reset() {
 	super.reset();
 	if (this.indexes != null) {
 		this.indexes = new HashMap(5);
-		this.monitors = new HashMap(5);
 		this.indexStates = null;
 	}
 	this.indexNames = new SimpleLookupTable();
@@ -476,34 +459,37 @@ public void saveIndexes() {
 		}
 	}
 
+	boolean allSaved = true;
 	for (int i = 0, length = toSave.size(); i < length; i++) {
 		Index index = (Index) toSave.get(i);
-		ReadWriteMonitor monitor = getMonitorFor(index);
+		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
 			// take read lock before checking if index has changed
 			// don't take write lock yet since it can cause a deadlock (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=50571)
 			monitor.enterRead(); 
 			if (index.hasChanged()) {
-				monitor.exitRead();
-				monitor.enterWrite();
-				try {
-					saveIndex(index);
-				} catch(IOException e){
-					if (VERBOSE) {
-						JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
-						e.printStackTrace();
+				if (monitor.exitReadEnterWrite()) {
+					try {
+						saveIndex(index);
+					} catch(IOException e) {
+						if (VERBOSE) {
+							JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
+							e.printStackTrace();
+						}
+						allSaved = false;
+					} finally {
+						monitor.exitWriteEnterRead();
 					}
-					//Util.log(e);
-				} finally {
-					monitor.exitWriteEnterRead();
+				} else {
+					allSaved = false;
 				}
 			}
 		} finally {
 			monitor.exitRead();
 		}
 	}
-	needToSave = false;
+	this.needToSave = !allSaved;
 }
 public void scheduleDocumentIndexing(final SearchDocument searchDocument, final IPath indexPath, final SearchParticipant searchParticipant) {
 	request(new IndexRequest(indexPath, this) {
@@ -513,7 +499,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, final 
 			/* ensure no concurrent write access to index */
 			Index index = getIndex(indexPath, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) return true;
-			ReadWriteMonitor monitor = getMonitorFor(index);
+			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
 			
 			try {
@@ -543,9 +529,7 @@ public void shutdown() {
 	SearchParticipant[] participants = SearchEngine.getSearchParticipants();
 	IJavaSearchScope scope = new JavaWorkspaceScope();
 	for (int i = 0, length = participants.length; i < length; i++) {
-		SearchParticipant participant = participants[i];
-		SearchPattern pattern = new TypeDeclarationPattern(null, null, null, ' ', SearchPattern.R_PATTERN_MATCH);
-		PatternSearchJob job = new PatternSearchJob(pattern, participant, scope, null);
+		PatternSearchJob job = new PatternSearchJob(null, participants[i], scope, null);
 		Index[] selectedIndexes = job.getIndexes(null);
 		for (int j = 0, max = selectedIndexes.length; j < max; j++) {
 			String path = selectedIndexes[j].getIndexFile().getAbsolutePath();

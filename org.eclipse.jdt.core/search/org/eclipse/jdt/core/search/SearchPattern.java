@@ -54,12 +54,19 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	public static final int R_CASE_SENSITIVE = 4;
 
 
-	public boolean mustResolve = true;
-	
+	public final int kind;
+	public final boolean isCaseSensitive;
+	public final int matchMode;
+
+	/* focus element (used for reference patterns*/
+	public IJavaElement focus;
+
 	public SearchPattern(int patternKind, int matchRule) {
-		super(patternKind, matchRule);
+		this.kind = patternKind;
+		this.isCaseSensitive = (matchRule & R_CASE_SENSITIVE) != 0;
+		this.matchMode = matchRule - (this.isCaseSensitive ? R_CASE_SENSITIVE : 0);
 	}
-	
+
 	/**
 	 * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
 	 * e.g. java.lang.Object()
@@ -1092,31 +1099,40 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 				return null;
 		}
 	}
-	
+	public static char[] encodeIndexKey(char[] key, int matchMode) {
+		return key; // null means match all words
+
+//		switch(matchMode) {
+//			case SearchPattern.R_EXACT_MATCH :
+//			case  SearchPattern.R_PREFIX_MATCH :
+//			case  SearchPattern.R_PATTERN_MATCH :
+//				return key;
+//			case  SearchPattern.R_REGEXP_MATCH:
+//				// TODO (jerome) implement
+//				return key;
+//		}
+	}
 	/**
-	 * Decoded the given index key into the given record.
+	 * Decode the given index key.
 	 */
 	public void decodeIndexKey(char[] key) {
-		// override as necessary
+		// called from findIndexMatches(), override as necessary
 	}
-
-	/**
-	 * Returns a key to find in relevant index categories. The key will be matched according to some match rule.
-	 * These potential matches will be further narrowed by the match locator, but precise
-	 * match locating can be expensive, and index query should be as accurate as possible
-	 * so as to eliminate obvious false hits.
-	 */
-	public char[] encodeIndexKey() {
-		return null; // override as necessary
-	}
-
 	/**
 	 * TODO (jerome) spec
 	 */
 	public SearchPattern getBlankPattern() {
-		return null; // override as necessary
+		return null; // called from findIndexMatches(), override as necessary
 	}
-
+	/**
+	 * Returns a key to find in relevant index categories, if null then all words are matched.
+	 * The key will be matched according to some match rule. These potential matches
+	 * will be further narrowed by the match locator, but precise match locating can be expensive,
+	 * and index query should be as accurate as possible so as to eliminate obvious false hits.
+	 */
+	public char[] getIndexKey() {
+		return null; // called from queryIn(), override as necessary
+	}
 	/**
 	 * Returns an array of index categories to consider for this index query.
 	 * These potential matches will be further narrowed by the match locator, but precise
@@ -1124,9 +1140,8 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	 * so as to eliminate obvious false hits.
 	 */
 	public char[][] getMatchCategories() {
-		return CharOperation.NO_CHAR_CHAR; // override as necessary
+		return CharOperation.NO_CHAR_CHAR; // called from queryIn(), override as necessary
 	}
-	
 	/**
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
@@ -1134,14 +1149,12 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	public int getMatchRule() {
 		return this.matchMode + (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 	}
-	
 	/**
 	 * TODO (jerome) spec
 	 */
-	public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
-		return false; // override as necessary
+	public boolean matchesDecodedKey(SearchPattern decodedPattern) {
+		return true; // called from findIndexMatches(), override as necessary if index key is encoded
 	}
-
 	/**
 	 * Returns whether the given name matches the given pattern.
 	 */
@@ -1164,7 +1177,6 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		}
 		return false;
 	}
-
 	public String toString() {
 		return "SearchPattern"; //$NON-NLS-1$
 	}

@@ -183,10 +183,11 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					int innerOffset = readOffset + 6;
 					int number_of_classes = u2At(innerOffset);
 					if (number_of_classes != 0) {
+						innerOffset+= 2;
 						this.innerInfos = new InnerClassInfo[number_of_classes];
 						for (int j = 0; j < number_of_classes; j++) {
 							this.innerInfos[j] = 
-								new InnerClassInfo(reference, this.constantPoolOffsets, innerOffset + 2); 
+								new InnerClassInfo(reference, this.constantPoolOffsets, innerOffset); 
 							if (this.classNameIndex == this.innerInfos[j].innerClassNameIndex) {
 								this.innerInfo = this.innerInfos[j];
 								this.innerInfoIndex = j;
@@ -341,8 +342,18 @@ public IBinaryNestedType[] getMemberTypes() {
 			 * attribute entry is a member class, but due to the bug:
 			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=14592
 			 * we needed to add an extra check. So we check that innerNameIndex is different from 0 as well.
+			 * 
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49879
+			 * From JavaMail 1.2, the class javax.mail.Folder contains an anonymous class in the
+			 * terminateQueue() method for which the inner attribute is boggus.
+			 * outerClassNameIdx is not 0, innerNameIndex is not 0, but the sourceName length is 0.
+			 * So I added this extra check to filter out this anonymous class from the 
+			 * member types.
 			 */
-			if (outerClassNameIdx != 0 && innerNameIndex != 0 && outerClassNameIdx == this.classNameIndex) {
+			if (outerClassNameIdx != 0
+				&& innerNameIndex != 0
+				&& outerClassNameIdx == this.classNameIndex
+				&& currentInnerInfo.getSourceName().length != 0) {
 				memberTypes[memberTypeIndex++] = currentInnerInfo;
 			}
 		}

@@ -43,6 +43,9 @@ Eclipse SDK 3.0M8 Build - ?th February 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new API to create a DOM AST while reconciling 
+	 <code>ICompilationUnit.reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)</code>.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -54,6 +57,8 @@ Special 'serialPersistentFields' marked as 'never used locally'
 The type AbstractStringBuilder is not visible
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49259">49259</a>
 Task tags starting with TODO don't correctly display their priority in Tasks View
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49879">49879</a>
+java.lang.ClassCastException (SourceTypeBinding to a BinaryTypeBinding) in 30M6 within jdt.core.dom.TypeBinding.getKey(TypeBinding.java:411)
 
 <a name="v_408"></a>
 <p><hr><h1>

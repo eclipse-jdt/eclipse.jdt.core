@@ -14,7 +14,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -143,15 +145,16 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		if (element != null)
 			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
 	} else if (this.pattern.findReferences && reference instanceof MessageSend) {
-		// message ref are starting at the selector start
-		locator.report(
-			(int) (((MessageSend) reference).nameSourcePosition >>> 32),
-			reference.sourceEnd,
-			element,
-			accuracy);
+		int sourceStart = (int) (((MessageSend) reference).nameSourcePosition >>> 32);
+		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.METHOD, element, accuracy, sourceStart, reference.sourceEnd+1, locator);
+		locator.report(match);
 	} else {
-		super.matchReportReference(reference, element, accuracy, locator);
+		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.METHOD, element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+		locator.report(match);
 	}
+}
+protected int referenceType() {
+	return IJavaElement.METHOD;
 }
 protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locator, SimpleSet knownMethods) throws CoreException {
 	ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -175,7 +178,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
-		locator.reportBinaryMatch(resource, method, info, IJavaSearchResultCollector.EXACT_MATCH);
+		locator.reportBinaryMemberDeclaration(resource, method, info, IJavaSearchResultCollector.EXACT_MATCH);
 	} else {
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
@@ -188,14 +191,10 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 					break;
 				}
 			} 
-			if (methodDecl != null)
-				locator.report(
-					resource, 
-					methodDecl.sourceStart, 
-					methodDecl.sourceEnd, 
-					method, 
-					IJavaSearchResultCollector.EXACT_MATCH, 
-					locator.getParticipant());
+			if (methodDecl != null) {
+				SearchMatch match = new MethodDeclarationMatch(method, IJavaSearchResultCollector.EXACT_MATCH, methodDecl.sourceStart, methodDecl.sourceEnd+1, locator.getParticipant(), resource);
+				locator.report(match);
+			}
 		}
 	}
 }

@@ -13,19 +13,16 @@ package org.eclipse.jdt.internal.core.search.indexing;
 public interface IIndexConstants {
 
 	/* index encoding */
-	char[] REF= "ref/".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_REF= "fieldRef/".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_REF= "methodRef/".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_REF= "constructorRef/".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_REF= "typeRef/".toCharArray(); //$NON-NLS-1$
-	char[] SUPER_REF = "superRef/".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_DECL = "typeDecl/".toCharArray(); //$NON-NLS-1$
-	int 	TYPE_DECL_LENGTH = 9;
-	char[] CLASS_DECL= "typeDecl/C/".toCharArray(); //$NON-NLS-1$
-	char[] INTERFACE_DECL= "typeDecl/I/".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_DECL= "methodDecl/".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_DECL= "constructorDecl/".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_DECL= "fieldDecl/".toCharArray(); //$NON-NLS-1$
+	char[] REF= "ref".toCharArray(); //$NON-NLS-1$
+	char[] FIELD_REF= "fieldRef".toCharArray(); //$NON-NLS-1$
+	char[] METHOD_REF= "methodRef".toCharArray(); //$NON-NLS-1$
+	char[] CONSTRUCTOR_REF= "constructorRef".toCharArray(); //$NON-NLS-1$
+	char[] TYPE_REF= "typeRef".toCharArray(); //$NON-NLS-1$
+	char[] SUPER_REF = "superRef".toCharArray(); //$NON-NLS-1$
+	char[] TYPE_DECL = "typeDecl".toCharArray(); //$NON-NLS-1$
+	char[] METHOD_DECL= "methodDecl".toCharArray(); //$NON-NLS-1$
+	char[] CONSTRUCTOR_DECL= "constructorDecl".toCharArray(); //$NON-NLS-1$
+	char[] FIELD_DECL= "fieldDecl".toCharArray(); //$NON-NLS-1$
 	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
 	char[][] COUNTS= 
 		new char[][] { new char[] {'/', '0'}, new char[] {'/', '1'}, new char[] {'/', '2'}, new char[] {'/', '3'}, new char[] {'/', '4'},

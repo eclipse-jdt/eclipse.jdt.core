@@ -8,23 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core.index.impl;
+package org.eclipse.jdt.core.search;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
 
-/**
- * A safe subclass of RandomAccessFile, which ensure that it's closed
- * on finalize.
- */
-public class SafeRandomAccessFile extends RandomAccessFile {
-	public SafeRandomAccessFile(java.io.File file, String mode) throws java.io.IOException {
-		super(file, mode);
-	}
-	public SafeRandomAccessFile(String name, String mode) throws java.io.IOException {
-		super(name, mode);
-	}
-	protected void finalize() throws IOException {
-		close();
+public class TypeReferenceMatch extends JavaSearchMatch {
+
+	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+		super(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 	}
 }

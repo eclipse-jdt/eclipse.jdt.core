@@ -20,6 +20,8 @@ protected char[] pkgName;
 protected char[][] segments;
 protected int currentSegment;
 
+protected static char[][] CATEGORIES = { REF };
+
 public PackageReferencePattern(char[] pkgName, int matchRule) {
 	this(matchRule);
 
@@ -40,24 +42,25 @@ public void decodeIndexKey(char[] key) {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
 	this.pkgName = key; // decode into the pkg name, see matchesDecodedPattern()
 }
-public char[] encodeIndexKey() {
-	if (this.currentSegment < 0) return null;
-	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
-	return encodeIndexKey(this.segments[this.currentSegment]);
-}
 public SearchPattern getBlankPattern() {
 	return new PackageReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
+public char[] getIndexKey() {
+	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
+	if (this.currentSegment >= 0) 
+		return encodeIndexKey(this.segments[this.currentSegment], this.matchMode);
+	return null;
+}
 public char[][] getMatchCategories() {
-	return new char[][] {REF};
+	return CATEGORIES;
 }
 protected boolean hasNextQuery() {
 	// if package has at least 4 segments, don't look at the first 2 since they are mostly
 	// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
-public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
-	return matchesName(this.segments[this.currentSegment], ((PackageReferencePattern) decodedPattern).pkgName);
+public boolean matchesDecodedKey(SearchPattern decodedPattern) {
+	return true; // index key is not encoded so query results all match
 }
 protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */

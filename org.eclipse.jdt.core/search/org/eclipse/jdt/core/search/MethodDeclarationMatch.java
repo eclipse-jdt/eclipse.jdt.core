@@ -8,14 +8,16 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core.index.impl;
+package org.eclipse.jdt.core.search;
 
-public class Int {
-	public int value;
-	/**
-	 * Int constructor comment.
-	 */
-	public Int(int i) {
-		value= i;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
+
+public class MethodDeclarationMatch extends JavaSearchMatch {
+
+	public MethodDeclarationMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
 	}
+
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -49,6 +50,9 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 
 protected int matchContainer() {
 	return CLASS_CONTAINER;
+}
+protected int referenceType() {
+	return IJavaElement.TYPE;
 }
 public int resolveLevel(ASTNode node) {
 	if (!(node instanceof TypeReference)) return IMPOSSIBLE_MATCH;

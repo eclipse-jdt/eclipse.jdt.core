@@ -54,10 +54,10 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 	ICompilationUnit copy = unit.getWorkingCopy(null);
 	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
-	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
+	assertEquals("Different output", expectedResult, sortedSource); //$NON-NLS-1$
 	if (testPositions) {
 		for (int i = 0, max = positions.length; i < max; i++) {
-			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i])); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], expectedResult.charAt(positions[i]), initialSource[i]); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -83,7 +83,7 @@ public static Test suite() {
 			}
 		}
 	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test011")); //$NON-NLS-1$
+		suite.addTest(new SortCompilationUnitElementsTests("test014")); //$NON-NLS-1$
 	}	
 	return suite;
 }
@@ -932,6 +932,66 @@ public void test013() throws CoreException {
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+	}
+}
+/**
+ * Preserve comments
+ */
+public void test014() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"  int j;\n" + 
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"  int j;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+/**
+ * Preserve comments
+ */
+public void test015() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"  int j;\n" + 
+			"  \n" +
+			"  /** some Java doc */\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"  \n" +
+			"  /** some Java doc */\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"  int j;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
 	}
 }
 }
