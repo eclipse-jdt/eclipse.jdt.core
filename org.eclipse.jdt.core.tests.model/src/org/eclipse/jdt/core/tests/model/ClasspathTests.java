@@ -302,9 +302,9 @@ public void testClasspathDeleteNestedRoot() throws JavaModelException, CoreExcep
  * Test classpath diamond (23979) */
 public void testClasspathDiamond() throws CoreException {
 	try {
-		IJavaProject p1 = this.createJavaProject("P1", new String[]{""}, "");
-		IJavaProject p2 = this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{"/P1"}, "");
-		IJavaProject p3 = this.createJavaProject("P3", new String[]{""}, new String[]{}, new String[]{"/P1", "/P2"}, "");
+		this.createJavaProject("P1", new String[]{""}, "");
+		this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{"/P1"}, "");
+		this.createJavaProject("P3", new String[]{""}, new String[]{}, new String[]{"/P1", "/P2"}, "");
 		IJavaProject p4 = this.createJavaProject("P4", new String[]{""}, new String[]{}, new String[]{"/P2", "/P3"}, "");
 	
 		assertTrue("Should not detect cycle", !p4.hasClasspathCycle(null));
