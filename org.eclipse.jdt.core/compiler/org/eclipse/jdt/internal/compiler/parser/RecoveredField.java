@@ -128,7 +128,14 @@ public FieldDeclaration updatedFieldDeclaration(){
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if (bracketBalance > 0){ // was an array initializer
 		bracketBalance--;
-		if (bracketBalance == 0) alreadyCompletedFieldInitialization = true;
+		if (bracketBalance == 0) {
+			if(fieldDeclaration.type == null) {
+				updateSourceEndIfNecessary(braceEnd - 1);
+				return parent;
+			} else {
+				alreadyCompletedFieldInitialization = true;
+			}
+		}
 		return this;
 	} else if (bracketBalance == 0) {
 		alreadyCompletedFieldInitialization = true;
@@ -149,6 +156,11 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 		&& !alreadyCompletedFieldInitialization){
 		bracketBalance++;
 		return null; // no update is necessary	(array initializer)
+	}
+	if (fieldDeclaration.declarationSourceEnd == 0 
+		&& fieldDeclaration.type == null){
+		bracketBalance++;
+		return null; // no update is necessary	(enum constant)
 	}
 	// might be an array initializer
 	this.updateSourceEndIfNecessary(braceStart - 1, braceEnd - 1);	
