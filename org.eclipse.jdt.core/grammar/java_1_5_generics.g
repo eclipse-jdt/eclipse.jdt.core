@@ -95,7 +95,6 @@ $Terminals
 	COMMA
 	DOT
 	EQUAL
---	GENERIC_LESS
 
 --    BodyMarker
 
@@ -315,8 +314,6 @@ PackageDeclarationName ::= 'package' Name
 
 ImportDeclaration ::= SingleTypeImportDeclaration
 ImportDeclaration ::= TypeImportOnDemandDeclaration
-/:$readableName ImportDeclaration:/
-
 -----------------------------------------------
 -- 1.5 feature
 -----------------------------------------------
@@ -1377,6 +1374,8 @@ Expressionopt ::= $empty
 Expressionopt ::= Expression
 /:$readableName Expression:/
 
+ConstantExpression -> Expression
+/:$readableName ConstantExpression:/
 
 ---------------------------------------------------------------------------------------
 --
@@ -1525,9 +1524,6 @@ EnumBodyDeclarationsopt ::= $empty
 
 EnumBodyDeclarationsopt ::= EnumDeclarations
 
-ConstantExpression -> Expression
-/:$readableName ConstantExpression:/
-
 -----------------------------------------------
 -- 1.5 features : enhanced for statement
 -----------------------------------------------
@@ -1555,14 +1551,18 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 -----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
--- TypeArguments ::= GENERIC_LESS TypeArgumentList1
 TypeArguments ::= LESS TypeArgumentList1
+/.$putCase consumeTypeArguments(); $break ./
+/:$readableName TypeArguments:/
 
 TypeArgumentList1 ::= TypeArgument1
 TypeArgumentList1 ::= TypeArgumentList ',' TypeArgument1
+/.$putCase consumeTypeArgumentList1(); $break ./
+/:$readableName TypeArgumentList1:/
 
 TypeArgumentList ::= TypeArgument
 TypeArgumentList ::= TypeArgumentList ',' TypeArgument
+/.$putCase consumeTypeArgumentList(); $break ./
 
 TypeArgument ::= ReferenceType
 TypeArgument ::= Wildcard
@@ -1571,84 +1571,116 @@ TypeArgument1 ::= ReferenceType1
 TypeArgument1 ::= Wildcard1
 
 ReferenceType1 ::= ReferenceType '>'
--- ReferenceType1 ::= ClassOrInterface GENERIC_LESS TypeArgumentList2
+/.$putCase consumeReferenceType1(); $break ./
 ReferenceType1 ::= ClassOrInterface LESS TypeArgumentList2
+/.$putCase consumeReferenceType1(); $break ./
 
 TypeArgumentList2 ::= TypeArgument2
 TypeArgumentList2 ::= TypeArgumentList ',' TypeArgument2
+/.$putCase consumeTypeArgumentList2(); $break ./
 
 TypeArgument2 ::= ReferenceType2
 TypeArgument2 ::= Wildcard2
 
 ReferenceType2 ::= ReferenceType '>>'
--- ReferenceType2 ::= ClassOrInterface GENERIC_LESS TypeArgumentList3
+/.$putCase consumeReferenceType2(); $break ./
 ReferenceType2 ::= ClassOrInterface LESS TypeArgumentList3
+/.$putCase consumeReferenceType2(); $break ./
 
 TypeArgumentList3 ::= TypeArgument3
 TypeArgumentList3 ::= TypeArgumentList ',' TypeArgument3
+/.$putCase consumeTypeArgumentList3(); $break ./
 
 TypeArgument3 ::= ReferenceType3
 TypeArgument3 ::= Wildcard3
 
 ReferenceType3 ::= ReferenceType '>>>'
+/.$putCase consumeReferenceType3(); $break ./
 
 Wildcard ::= '?' WildcardBoundsopt
+/.$putCase consumeWildcard(); $break ./
 
 WildcardBoundsopt ::= $empty
+/.$putCase consumeEmptyWildcardBounds(); $break ./
 WildcardBoundsopt ::= WildcardBounds
 
 WildcardBounds ::= 'extends' ReferenceType
+/.$putCase consumeWildcardBounds(); $break ./
 WildcardBounds ::= 'super' ReferenceType
+/.$putCase consumeWildcardBounds(); $break ./
 
 Wildcard1 ::= '?' '>'
+/.$putCase consumeWildcard1(); $break ./
 Wildcard1 ::= '?' WildcardBounds1
+/.$putCase consumeWildcard1(); $break ./
 
 WildcardBounds1 ::= 'extends' ReferenceType1
+/.$putCase consumeWildcardBounds1(); $break ./
 WildcardBounds1 ::= 'super' ReferenceType1
+/.$putCase consumeWildcardBounds1(); $break ./
 
 Wildcard2 ::= '?' '>>'
+/.$putCase consumeWildcard2(); $break ./
 Wildcard2 ::= '?' WildcardBounds2
+/.$putCase consumeWildcard2(); $break ./
 
 WildcardBounds2 ::= 'extends' ReferenceType2
+/.$putCase consumeWildcardBounds2(); $break ./
 WildcardBounds2 ::= 'super' ReferenceType2
+/.$putCase consumeWildcardBounds2(); $break ./
 
 Wildcard3 ::= '?' '>>>'
+/.$putCase consumeWildcard3(); $break ./
 Wildcard3 ::= '?' WildcardBounds3
+/.$putCase consumeWildcard3(); $break ./
 
 WildcardBounds3 ::= 'extends' ReferenceType3
+/.$putCase consumeWildcardBounds3(); $break ./
 WildcardBounds3 ::= 'super' ReferenceType3
+/.$putCase consumeWildcardBounds3(); $break ./
 
--- TypeParameters ::= GENERIC_LESS TypeParameterList1
 TypeParameters ::= LESS TypeParameterList1
+/.$putCase consumeTypeParameters(); $break ./
 
 TypeParameterList ::= TypeParameter
 TypeParameterList ::= TypeParameterList ',' TypeParameter
+/.$putCase consumeTypeParameterList(); $break ./
 
 TypeParameter ::= Identifier
+/.$putCase consumeTypeParameter(); $break ./
 TypeParameter ::= Identifier 'extends' ReferenceType
+/.$putCase consumeTypeParameter(); $break ./
 TypeParameter ::= Identifier 'extends' ReferenceType AdditionalBoundList
+/.$putCase consumeTypeParameter(); $break ./
 
 AdditionalBoundList ::= AdditionalBound
 AdditionalBoundList ::= AdditionalBoundList AdditionalBound
+/.$putCase consumeAdditionalBoundList(); $break ./
 
 AdditionalBound ::= '&' ReferenceType
+/.$putCase consumeAdditionalBound(); $break ./
 
 TypeParameterList1 ::= TypeParameter1
 TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
+/.$putCase consumeTypeParameterList1(); $break ./
 
 TypeParameter1 ::= Identifier '>'
+/.$putCase consumeTypeParameter1(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType1
+/.$putCase consumeTypeParameter1(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType1 AdditionalBoundList1
+/.$putCase consumeTypeParameter1(); $break ./
 
 AdditionalBoundList1 ::= AdditionalBound1
 AdditionalBoundList1 ::= AdditionalBoundList1 AdditionalBound1
+/.$putCase consumeAdditionalBoundList1(); $break ./
 
 AdditionalBound1 ::= '&' ReferenceType1
+/.$putCase consumeAdditionalBound1(); $break ./
 
------------------------------------------------
--- Duplicate rules to remove ambiguity for (x)
------------------------------------------------
-
+-------------------------------------------------
+-- Duplicate rules to remove ambiguity for (x) --
+-------------------------------------------------
 PostfixExpression_NotName ::= Primary
 /.$putCase consumePostfixExpression(); $break ./
 PostfixExpression_NotName ::= PostIncrementExpression
