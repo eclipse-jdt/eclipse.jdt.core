@@ -900,6 +900,7 @@ public final class CharOperation {
 	 * @param array the array in which the search is done
 	 * @return true if the array contains an occurrence of one of the characters, false otherwise.
 	 * @throws NullPointerException if array is null.
+	 * @since 3.1
 	 */
 	public static final boolean contains(char[] characters, char[] array) {
 		for (int i = array.length; --i >= 0;)
@@ -2244,6 +2245,7 @@ public final class CharOperation {
 	 * @param toBeReplaced characters to be replaced
 	 * @param replacementChar the replacement character
 	 * @throws NullPointerException if arrays are null.
+	 * @since 3.1
 	 */
 	public static final void replace(char[] array, char[] toBeReplaced, char replacementChar) {
 		for (int i = array.length; --i >= 0;)

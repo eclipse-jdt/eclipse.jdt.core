@@ -348,6 +348,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * </p>
 	 * 
 	 * @see #getKind()
+     * @since 3.1
 	 */
 	public static final int POTENTIAL_METHOD_DECLARATION = 11;
 	
@@ -376,6 +377,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * </p>
 	 * 
 	 * @see #getKind()
+     * @since 3.1
 	 */
 	public static final int METHOD_NAME_REFERENCE = 12;
 	
@@ -823,6 +825,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @return a unique key, or <code>null</code> if none
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
+     * @since 3.1
 	 */
 	public char[] getDeclarationUniqueKey() {
 		return this.declarationUniqueKey;
@@ -859,6 +862,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @param key the type or package unique key, or
 	 * <code>null</code> if none
+     * @since 3.1
 	 */
 	public void setDeclarationUniqueKey(char[] key) {
 		this.declarationUniqueKey = key;
@@ -969,6 +973,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @return the unique key, or <code>null</code> if none
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
+     * @since 3.1
 	 */
 	public char[] getUniqueKey() {
 		return this.uniqueKey;
@@ -1208,6 +1213,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * </p>
 	 * 
 	 * @param key the unique key, or <code>null</code> if none
+     * @since 3.1
 	 */
 	public void setUniqueKey(char[] key) {
 		this.uniqueKey = key;
