@@ -48,8 +48,23 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
 	// store a copy of the merged info, so as to compute the local variable attributes afterwards
-	thenInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo.initsWhenTrue());
-	elseInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo.initsWhenFalse());
+	FlowInfo trueInfo = flowInfo.initsWhenTrue();
+	thenInitStateIndex = currentScope.methodScope().recordInitializationStates(trueInfo);
+	FlowInfo falseInfo = flowInfo.initsWhenFalse();
+	elseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseInfo);
+	
+	// propagate analysis
+	trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo.copy());
+	falseInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseInfo.copy());
+	
+	// merge back using a conditional info
+	// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
+	FlowInfo mergedInfo = FlowInfo.conditional(
+		trueInfo.initsWhenTrue().unconditionalInits().mergedWith(
+			falseInfo.initsWhenTrue().unconditionalInits()),
+		falseInfo.initsWhenFalse().unconditionalInits().mergedWith(
+			falseInfo.initsWhenFalse().unconditionalInits()));
+/*			
 	FlowInfo mergedInfo = valueIfTrue.analyseCode(
 		currentScope,
 		flowContext,
@@ -61,6 +76,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						flowContext,
 						flowInfo.initsWhenFalse().copy()).
 							unconditionalInits());
+*/							
 	mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 	return mergedInfo;
 }
