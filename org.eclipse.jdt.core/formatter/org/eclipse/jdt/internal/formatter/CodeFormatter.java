@@ -779,10 +779,7 @@ private void format() {
     case Scanner.TokenNameCOMMENT_JAVADOC :
     case Scanner.TokenNameCOMMENT_BLOCK :
      currentCommentOffset = getCurrentCommentOffset();
-     if (openParenthesis[0]==0 && openBracketCount < 1){
-      pendingNewLines = 1;
-      // a new line is inserted only if the comment is not between parenthesis.
-     }
+     pendingNewLines = 1;
      break;
     case Scanner.TokenNameWHITESPACE :
 

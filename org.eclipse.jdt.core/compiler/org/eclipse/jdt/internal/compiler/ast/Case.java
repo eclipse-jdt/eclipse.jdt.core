@@ -13,10 +13,10 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class Case extends Statement {
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
-public Case(Expression constantExpression) {
+public Case(int sourceStart, Expression constantExpression) {
 	this.constantExpression = constantExpression;
-	sourceEnd = constantExpression.sourceEnd;
-	sourceStart = constantExpression.sourceStart;
+	this.sourceEnd = constantExpression.sourceEnd;
+	this.sourceStart = sourceStart;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 

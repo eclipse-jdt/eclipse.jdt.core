@@ -17,13 +17,12 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 	//  var op exp is equivalent to var = (varType) var op exp
 	// assignmentImplicitConversion stores the cast needed for the assignment
 
-public CompoundAssignment(Expression lhs, Expression expression,int operator) {
+public CompoundAssignment(Expression lhs, Expression expression,int operator, int sourceEnd) {
 	//lhs is always a reference by construction ,
 	//but is build as an expression ==> the checkcast cannot fail
 
-	super(lhs, expression);
+	super(lhs, expression, sourceEnd);
 	this.operator = operator ;
-	
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// record setting a variable: various scenarii are possible, setting an array reference, 
