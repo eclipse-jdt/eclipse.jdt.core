@@ -26,7 +26,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit2 = 0x2; 			// return type (operators) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 			// return type (operators) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 			// return type (operators) | first assignment to local (local decl)
-	public final static int Bit5 = 0x10; 			// value for return (binary expression)
+	public final static int Bit5 = 0x10; 			// value for return (binary expression) | 
 	public final static int Bit6 = 0x20; 			// depth (name ref, msg) | only value required (binary expression)
 	public final static int Bit7 = 0x40; 			// depth (name ref, msg) | operator (operators)
 	public final static int Bit8 = 0x80; 			// depth (name ref, msg) | operator (operators) 
@@ -35,7 +35,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit11 = 0x400; 			// depth (name ref, msg) | operator (operators)
 	public final static int Bit12 = 0x800; 			// depth (name ref, msg) | operator (operators)
 	public final static int Bit13 = 0x1000; 		// depth (name ref, msg) 
-	public final static int Bit14 = 0x2000; 
+	public final static int Bit14 = 0x2000; 		// assigned (reference lhs)
 	public final static int Bit15 = 0x4000; 
 	public final static int Bit16 = 0x8000; 
 	public final static int Bit17 = 0x10000; 
@@ -93,6 +93,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for assignment
 	public static final int IsAssignmentWithNoEffectMASK = Bit30;	
+	
+	// for references on lhs of assignment (set only for true assignments, as opposed to compound ones)
+	public static final int IsStrictlyAssignedMASK = Bit14;
 	
 	public AstNode() {
 

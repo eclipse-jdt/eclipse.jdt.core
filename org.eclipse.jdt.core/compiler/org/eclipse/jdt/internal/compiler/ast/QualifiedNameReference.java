@@ -55,6 +55,7 @@ public class QualifiedNameReference extends NameReference {
 			// reading from a field
 			// check if final blank field
 			if ((lastFieldBinding = (FieldBinding) binding).isBlankFinal()
+			    && this.otherBindings != null // the last field binding is only assigned
  				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
 				if (!flowInfo.isDefinitelyAssigned(lastFieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(
@@ -141,23 +142,19 @@ public class QualifiedNameReference extends NameReference {
 			// in a context where it can be assigned?
 			if (lastFieldBinding.isBlankFinal()
 					&& !isCompound
-					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
+					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding) 
+					&& indexOfFirstFieldBinding == 1) {
 				if (flowInfo.isPotentiallyAssigned(lastFieldBinding)) {
-					if (indexOfFirstFieldBinding == 1) {
-						// was an implicit reference to the first field binding
-						currentScope.problemReporter().duplicateInitializationOfBlankFinalField(
-							lastFieldBinding,
-							this);
-					} else {
-						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
-						// attempting to assign a non implicit reference
-					}
+					currentScope.problemReporter().duplicateInitializationOfBlankFinalField(lastFieldBinding, this);
 				} else {
 					flowContext.recordSettingFinal(lastFieldBinding, this);
 				}
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 			} else {
 				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
+				if (currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) { // pretend it got assigned
+					flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
+				}
 			}
 		}
 		// equivalent to valuesRequired[maxOtherBindings]
@@ -540,8 +537,7 @@ public class QualifiedNameReference extends NameReference {
 		int index = indexOfFirstFieldBinding;
 		int length = tokens.length;
 		if (index == length) { //	restrictiveFlag == FIELD
-			constant =
-				FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1);
+			this.constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
 			return type;
 		}
 		// allocation of the fieldBindings array	and its respective constants
@@ -550,9 +546,9 @@ public class QualifiedNameReference extends NameReference {
 		otherDepths = new int[otherBindingsLength];
 		
 		// fill the first constant (the one of the binding)
-		constant =
+		this.constant =
 			((bits & FIELD) != 0)
-				? FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1)
+				? FieldReference.getConstantFor((FieldBinding) binding, this, false, scope)
 				: ((VariableBinding) binding).constant;
 		// save first depth, since will be updated by visibility checks of other bindings
 		int firstDepth = (bits & DepthMASK) >> DepthSHIFT;
@@ -570,12 +566,12 @@ public class QualifiedNameReference extends NameReference {
 			if (field.isValidBinding()) {
 				if (isFieldUseDeprecated(field, scope))
 					scope.problemReporter().deprecatedField(field, this);
-				Constant someConstant =
-					FieldReference.getConstantFor(field, false, this, scope, place);
+				Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 				// constant propagation can only be performed as long as the previous one is a constant too.
-				if (constant != NotAConstant) {
-					constant = someConstant;
+				if (this.constant != NotAConstant) {
+					this.constant = someConstant;					
 				}
+
 				type = field.type;
 				index++;
 				

@@ -397,7 +397,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	int index = indexOfFirstFieldBinding;
 	int length = tokens.length;
 	if (index == length) { //	restrictiveFlag == FIELD
-		constant = FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1);
+		constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
 		return type;
 	}
 
@@ -408,7 +408,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	// fill the first constant (the one of the binding)
 	constant =
 		((bits & FIELD) != 0)
-			? FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1)
+			? FieldReference.getConstantFor((FieldBinding) binding, this, false, scope)
 			: ((VariableBinding) binding).constant;
 
 	// iteration on each field	
@@ -439,7 +439,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		if (field.isValidBinding()) {
 			if (isFieldUseDeprecated(field, scope))
 				scope.problemReporter().deprecatedField(field, this);
-			Constant someConstant = FieldReference.getConstantFor(field, false, this, scope, place);
+			Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 			// constant propagation can only be performed as long as the previous one is a constant too.
 			if (constant != NotAConstant){
 				constant = someConstant;

@@ -89,7 +89,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 			return null;
 		}
 	}
-	constant = FieldReference.getConstantFor(fieldBinding, true, this, scope, 0);
+	constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 	if (isFieldUseDeprecated(fieldBinding, scope))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 

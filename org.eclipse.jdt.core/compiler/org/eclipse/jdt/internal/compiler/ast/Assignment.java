@@ -26,6 +26,8 @@ public class Assignment extends Expression {
 		//but is build as an expression ==> the checkcast cannot fail
 
 		this.lhs = (Reference) lhs;
+		lhs.bits |= IsStrictlyAssignedMASK; // tag lhs as assigned
+		
 		this.expression = expression;
 
 		this.sourceStart = lhs.sourceStart;

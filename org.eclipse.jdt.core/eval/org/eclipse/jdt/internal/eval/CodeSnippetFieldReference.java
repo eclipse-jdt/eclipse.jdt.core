@@ -352,7 +352,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().deprecatedField(binding, this);
 
 	// check for this.x in static is done in the resolution of the receiver
-	constant = FieldReference.getConstantFor(binding, receiver.isImplicitThis(), this, scope, 0);
+	constant = FieldReference.getConstantFor(binding, this, receiver.isImplicitThis(), scope);
 	if (!receiver.isThis())
 		constant = NotAConstant;
 

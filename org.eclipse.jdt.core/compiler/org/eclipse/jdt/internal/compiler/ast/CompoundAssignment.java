@@ -27,6 +27,7 @@ public CompoundAssignment(Expression lhs, Expression expression,int operator, in
 	//but is build as an expression ==> the checkcast cannot fail
 
 	super(lhs, expression, sourceEnd);
+	lhs.bits &= ~IsStrictlyAssignedMASK; // tag lhs as NON assigned - it is also a read access
 	this.operator = operator ;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

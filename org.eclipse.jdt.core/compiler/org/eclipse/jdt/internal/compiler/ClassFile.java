@@ -2461,7 +2461,7 @@ public class ClassFile
 		if ((fields != null) && (fields != NoFields)) {
 			for (int i = 0, max = fields.length; i < max; i++) {
 				if (fields[i].constant == null) {
-					FieldReference.getConstantFor(fields[i], false, null, null, 0);
+					FieldReference.getConstantFor(fields[i], null, false, null);
 				}
 			}
 			classFile.addFieldInfos();

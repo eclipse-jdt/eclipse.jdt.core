@@ -131,7 +131,7 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 			
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy();
+			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
 			
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
@@ -194,8 +194,8 @@ public class TypeDeclaration
 			InitializationFlowContext staticInitializerContext =
 				new InitializationFlowContext(null, this, staticInitializerScope);
 
-			FlowInfo nonStaticFieldInfo = flowInfo.copy();
-			FlowInfo staticFieldInfo = flowInfo.copy();
+			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
 
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
@@ -293,7 +293,7 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy();
+			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
@@ -354,8 +354,8 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 			InitializationFlowContext staticInitializerContext =
 				new InitializationFlowContext(null, this, staticInitializerScope);
-			FlowInfo nonStaticFieldInfo = flowInfo.copy();
-			FlowInfo staticFieldInfo = flowInfo.copy();
+			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];

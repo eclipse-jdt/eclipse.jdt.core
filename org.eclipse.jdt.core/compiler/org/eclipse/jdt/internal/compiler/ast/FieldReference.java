@@ -290,10 +290,9 @@ public class FieldReference extends Reference implements InvocationSite {
 
 	public static final Constant getConstantFor(
 		FieldBinding binding,
-		boolean implicitReceiver,
 		Reference reference,
-		Scope referenceScope,
-		int indexInQualification) {
+		boolean isImplicit,
+		Scope referenceScope) {
 
 		//propagation of the constant.
 
@@ -315,12 +314,8 @@ public class FieldReference extends Reference implements InvocationSite {
 			return binding.constant = NotAConstant;
 		}
 		if (binding.constant != null) {
-			if (indexInQualification == 0) {
-				return binding.constant;
-			}
-			//see previous comment for the (sould-always-be) valid cast
-			QualifiedNameReference qualifiedReference = (QualifiedNameReference) reference;
-			if (indexInQualification == (qualifiedReference.indexOfFirstFieldBinding - 1)) {
+			if (isImplicit || (reference instanceof QualifiedNameReference
+					&& binding == ((QualifiedNameReference)reference).binding)) {
 				return binding.constant;
 			}
 			return NotAConstant;
@@ -335,47 +330,15 @@ public class FieldReference extends Reference implements InvocationSite {
 		TypeDeclaration typeDecl = typeBinding.scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(binding);
 
-		//what scope to use (depend on the staticness of the field binding)
-		MethodScope fieldScope =
-			binding.isStatic()
+		fieldDecl.resolve(binding.isStatic() //side effect on binding 
 				? typeDecl.staticInitializerScope
-				: typeDecl.initializerScope;
+				: typeDecl.initializerScope); 
 
-		if (implicitReceiver) { //Determine if the ref is legal in the current class of the field
-			//i.e. not a forward reference .... 
-			if (fieldScope.fieldDeclarationIndex == MethodScope.NotInFieldDecl) {
-				// no field is currently being analysed in typeDecl
-				fieldDecl.resolve(fieldScope); //side effect on binding 
-				return binding.constant;
-			}
-			//We are re-entering the same class fields analysing
-			if ((reference != null)
-				&& (binding.declaringClass == referenceScope.enclosingSourceType()) // only complain for access inside same type
-				&& (binding.id > fieldScope.fieldDeclarationIndex)) {
-				//forward reference. The declaration remains unresolved.
-				referenceScope.problemReporter().forwardReference(reference, indexInQualification, typeBinding);
-				return NotAConstant;
-			}
-			fieldDecl.resolve(fieldScope); //side effect on binding 
+		if (isImplicit || (reference instanceof QualifiedNameReference
+				&& binding == ((QualifiedNameReference)reference).binding)) {
 			return binding.constant;
 		}
-		//the field reference is explicity. It has to be a "simple" like field reference to get the
-		//constant propagation. For example in Packahe.Type.field1.field2 , field1 may have its
-		//constant having a propagation where field2 is always not propagating its
-		if (indexInQualification == 0) {
-			fieldDecl.resolve(fieldScope); //side effect on binding ... 
-			return binding.constant;
-		}
-		// Side-effect on the field binding may not be propagated out for the qualified reference
-		// unless it occurs in first place of the name sequence
-		fieldDecl.resolve(fieldScope); //side effect on binding ... 
-		//see previous comment for the cast that should always be valid
-		QualifiedNameReference qualifiedReference = (QualifiedNameReference) reference;
-		if (indexInQualification == (qualifiedReference.indexOfFirstFieldBinding - 1)) {
-			return binding.constant;
-		} else {
-			return NotAConstant;
-		}
+		return NotAConstant;
 	}
 
 	public boolean isSuperAccess() {
@@ -526,18 +489,11 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (isFieldUseDeprecated(binding, scope))
 			scope.problemReporter().deprecatedField(binding, this);
 
-		// check for this.x in static is done in the resolution of the receiver
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
-		constant =
-			FieldReference.getConstantFor(
-				binding,
-				isImplicitThisRcv,
-				this,
-				scope,
-				0);
-		if (!isImplicitThisRcv)
+		constant = FieldReference.getConstantFor(binding, this, isImplicitThisRcv, scope);
+		if (!isImplicitThisRcv) {
 			constant = NotAConstant;
-
+		}
 		if (binding.isStatic()) {
 			// static field accessed through receiver? legal but unoptimal (optional warning)
 			if (!(isImplicitThisRcv

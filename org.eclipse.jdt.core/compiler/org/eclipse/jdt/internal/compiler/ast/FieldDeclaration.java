@@ -74,9 +74,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					.analyseCode(initializationScope, flowContext, flowInfo)
 					.unconditionalInits();
 			flowInfo.markAsDefinitelyAssigned(binding);
-		} else {
-			flowInfo.markAsDefinitelyNotAssigned(binding);
-			// clear the bit in case it was already set (from enclosing info)
 		}
 		return flowInfo;
 	}

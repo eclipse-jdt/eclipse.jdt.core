@@ -142,41 +142,19 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	if (!((FieldBinding) binding).isStatic()) {
 		// must check for the static status....
 		if (scope.methodScope().isStatic) {
-			scope.problemReporter().staticFieldAccessToNonStaticVariable(
-				this,
-				fieldBinding);
+			scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
 			constant = NotAConstant;
-			return null;
+			return fieldBinding.type;
 		}
 	}
-	constant = FieldReference.getConstantFor(fieldBinding, true, this, scope, 0);
+	constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
+
 	if (isFieldUseDeprecated(fieldBinding, scope))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 
-	//===============================================
-	//cycle are forbidden ONLY within the same class...why ?????? (poor javac....)
-	//Cycle can be done using cross class ref but not direct into a same class reference ????
-	//class A {	static int k = B.k+1;}
-	//class B {	static int k = A.k+2;}
-	//The k-cycle in this example is valid.
-
-	//class C { static int k = k + 1 ;}
-	//here it is forbidden ! ????
-	//but the next one is valid !!!
-	//class C { static int k = C.k + 1;}
-
-	//notice that the next one is also valid ?!?!
-	//class A {	static int k = foo().k+1 ; static A foo(){return new A();}}
-
-	//for all these reasons, the next piece of code is only here and not
-	//commun for all FieldRef and QualifiedNameRef....(i.e. in the getField(..) API.....
-
-	//instance field may refer to forward static field, like in
-	//int i = staticI;
-	//static int staticI = 2 ;
-
 	MethodScope ms = scope.methodScope();
-	if (ms.enclosingSourceType() == fieldBinding.declaringClass
+	if ((this.bits & IsStrictlyAssignedMASK) == 0
+		&& ms.enclosingSourceType() == fieldBinding.declaringClass
 		&& ms.fieldDeclarationIndex != MethodScope.NotInFieldDecl
 		&& fieldBinding.id >= ms.fieldDeclarationIndex) {
 		//if the field is static and ms is not .... then it is valid
@@ -669,7 +647,11 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (binding instanceof LocalVariableBinding) {
 						bits &= ~RestrictiveFlagMASK;  // clear bits
 						bits |= LOCAL;
-						constant = variable.constant;
+						if ((this.bits & IsStrictlyAssignedMASK) == 0) {
+							constant = variable.constant;
+						} else {
+							constant = NotAConstant;
+						}
 						if ((!variable.isFinal()) && ((bits & DepthMASK) != 0)) {
 							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 						}
