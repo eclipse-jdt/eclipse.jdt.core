@@ -462,7 +462,7 @@ public interface ITypeBinding extends IBinding {
 	 * or statement in which this type is declared.
 	 * </p>
 	 * <p>The declaring class of a type variable is the class in which the type variable
-	 * is declared if it is declared on a type. It returns null otherwise.
+	 * is declared if it is declared on a type. It returns <code>null</code> otherwise.
 	 * </p>
 	 * <p>Array types, primitive types, the null type, top-level types,
 	 * and wildcard types have no declaring class.
