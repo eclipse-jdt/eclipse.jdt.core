@@ -68,6 +68,11 @@ public class JavaModelManager implements ISaveParticipant {
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
 	public boolean batchContainerInitializations = true;
+	
+	/*
+	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
+	 */
+	private ThreadLocal classpathsBeingResolved = new ThreadLocal();
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -1310,6 +1315,27 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		return container;
+	}
+	
+	private HashSet getClasspathBeingResolved() {
+	    HashSet result = (HashSet) this.classpathsBeingResolved.get();
+	    if (result == null) {
+	        result = new HashSet();
+	        this.classpathsBeingResolved.set(result);
+	    }
+	    return result;
+	}
+	
+	public boolean isClasspathBeingResolved(IJavaProject project) {
+	    return getClasspathBeingResolved().contains(project);
+	}
+	
+	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
+	    if (classpathIsResolved) {
+	        getClasspathBeingResolved().add(project);
+	    } else {
+	        getClasspathBeingResolved().remove(project);
+	    }
 	}
 
 	public void loadVariablesAndContainers() throws CoreException {
