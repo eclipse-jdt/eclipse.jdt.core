@@ -619,7 +619,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		// resolve new path (asking for marker creation if problems)
 		if (this.newResolvedPath == null) {
-			this.newResolvedPath = project.getResolvedClasspath(true, this.canChangeResources);
+			this.newResolvedPath = project.getResolvedClasspath(true, this.canChangeResources, false/*don't returnResolutionInProgress*/);
 		}
 		
 		if (this.oldResolvedPath != null) {
@@ -669,7 +669,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 											SetClasspathOperation.ReuseOutputLocation, 
 											SetClasspathOperation.this.progressMonitor, 
 											SetClasspathOperation.this.canChangeResources,  
-											affectedProject.getResolvedClasspath(true), 
+											affectedProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
 											false, // updating only - no validation
 											false); // updating only - no need to save
 									}

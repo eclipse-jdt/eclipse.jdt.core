@@ -309,8 +309,8 @@ public class SearchEngine {
 			IJavaElement element = elements[i];
 			if (element != null) {
 				try {
-					if (element instanceof IJavaProject) {
-						scope.add((IJavaProject)element, includeMask, visitedProjects);
+					if (element instanceof JavaProject) {
+						scope.add((JavaProject)element, includeMask, visitedProjects);
 					} else {
 						scope.add(element);
 					}

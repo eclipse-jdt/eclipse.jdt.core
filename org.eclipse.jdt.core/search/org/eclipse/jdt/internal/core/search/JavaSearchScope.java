@@ -69,20 +69,20 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject javaProject, int includeMask, HashSet visitedProjects) throws JavaModelException {
+public void add(JavaProject javaProject, int includeMask, HashSet visitedProjects) throws JavaModelException {
 	IProject project = javaProject.getProject();
 	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
 	this.addEnclosingProjectOrJar(project.getFullPath());
 
-	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
+	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 	IJavaModel model = javaProject.getJavaModel();
 	for (int i = 0, length = entries.length; i < length; i++) {
 		IClasspathEntry entry = entries[i];
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
 				IClasspathEntry rawEntry = null;
-				JavaModelManager.PerProjectInfo perProjectInfo = ((JavaProject)javaProject).getPerProjectInfo();
+				JavaModelManager.PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
 				if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
 					rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
 				}
@@ -110,7 +110,7 @@ public void add(IJavaProject javaProject, int includeMask, HashSet visitedProjec
 				break;
 			case IClasspathEntry.CPE_PROJECT:
 				if ((includeMask & REFERENCED_PROJECTS) != 0) {
-					add(model.getJavaProject(entry.getPath().lastSegment()), includeMask, visitedProjects);
+					add((JavaProject) model.getJavaProject(entry.getPath().lastSegment()), includeMask, visitedProjects);
 				}
 				break;
 			case IClasspathEntry.CPE_SOURCE:
@@ -129,7 +129,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			break; 
 		case IJavaElement.JAVA_PROJECT:
 			int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
-			this.add((IJavaProject)element, includeMask, new HashSet(2));
+			this.add((JavaProject)element, includeMask, new HashSet(2));
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			root = (IPackageFragmentRoot)element;

@@ -2723,13 +2723,16 @@ public final class JavaCore extends Plugin {
 	 * within the root will have children of type <code>IClassFile</code>.
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
+	 * The target root folder can only be defined internally to the workspace (absolute path relative
+	 * to the workspace root). To use a binary folder external to the workspace, it must first be
+	 * linked (see IFolder#createLink(...)).
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "c:/classes/" </code> - reference to an external binary folder</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
@@ -2761,13 +2764,16 @@ public final class JavaCore extends Plugin {
 	 * will have children of type <code>IClassFile</code>.
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 *	<p>
+	 * The target root folder can only be defined internally to the workspace (absolute path relative
+	 * to the workspace root). To use a binary folder external to the workspace, it must first be
+	 * linked (see IFolder#createLink(...)).
+	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "c:/classes/" </code> - reference to an external binary folder</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
@@ -3454,7 +3460,7 @@ public final class JavaCore extends Plugin {
 				continue;
 			}
 			remaining++; 
-			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 		}
 		
@@ -3829,7 +3835,7 @@ public final class JavaCore extends Plugin {
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 	
 							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;

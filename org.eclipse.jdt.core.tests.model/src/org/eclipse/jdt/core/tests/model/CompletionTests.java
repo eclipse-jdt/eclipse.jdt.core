@@ -153,6 +153,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionPackageAndClass1"));
 	suite.addTest(new CompletionTests("testCompletionPackageAndClass2"));
 	suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
+	suite.addTest(new CompletionTests("testCompletionInsideStaticMethod"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8578,6 +8579,19 @@ public void testCompletionNonStaticFieldRelevance() throws JavaModelException {
 	assertEquals(
 			"element:Ii0    completion:Ii0    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
 			"element:ii1    completion:ii1    relevance:" + (R_DEFAULT + R_INTERESTING + R_NON_STATIC),
+			requestor.getResults());
+}
+public void testCompletionInsideStaticMethod() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionInsideStaticMethod.java");
+
+	String str = cu.getSource();
+	String completeBehind = "doT";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:doTheThing    completion:doTheThing()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }

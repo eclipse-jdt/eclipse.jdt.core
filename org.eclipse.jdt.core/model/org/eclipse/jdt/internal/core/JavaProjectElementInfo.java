@@ -73,7 +73,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		IClasspathEntry[] classpath = null;
 		IPath projectOutput = null;
 		try {
-			classpath = project.getResolvedClasspath(true/*ignore unresolved variable*/);
+			classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			for (int i = 0; i < classpath.length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {

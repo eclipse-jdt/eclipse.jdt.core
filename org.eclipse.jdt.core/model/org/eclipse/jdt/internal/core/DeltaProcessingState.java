@@ -257,7 +257,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					JavaProject project = (JavaProject) projects[i];
 					IClasspathEntry[] classpath;
 					try {
-						classpath = project.getResolvedClasspath(true);
+						classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 					} catch (JavaModelException e) {
 						// continue with next project
 						continue;

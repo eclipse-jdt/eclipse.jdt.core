@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -76,7 +77,7 @@ public void initialize() {
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
-			this.add(projects[i], includeMask, new HashSet(2));
+			this.add((JavaProject) projects[i], includeMask, new HashSet(2));
 		}
 	} catch (JavaModelException ignored) {
 		// ignore

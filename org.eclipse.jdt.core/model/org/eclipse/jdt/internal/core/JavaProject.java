@@ -266,7 +266,7 @@ public class JavaProject
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot wRoot = workspace.getRoot();
 		// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
-		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
+		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 
 		// compute the pkg fragment roots
 		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false));	
@@ -309,7 +309,7 @@ public class JavaProject
 	 * @throws JavaModelException
 	 */
 	public void computeChildren(JavaProjectElementInfo info) throws JavaModelException {
-		IClasspathEntry[] classpath = getResolvedClasspath(true);
+		IClasspathEntry[] classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 		IPackageFragmentRoot[] oldRoots = info.allPkgFragmentRootsCache;
 		if (oldRoots != null) {
 			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
@@ -356,7 +356,7 @@ public class JavaProject
 		IClasspathEntry[] immediateClasspath = 
 			preferredClasspath != null 
 				? getResolvedClasspath(preferredClasspath, preferredOutput, ignoreUnresolvedVariable, generateMarkerOnError, null)
-				: getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
+				: getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError, false/*don't returnResolutionInProgress*/);
 			
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		boolean isInitialProject = this.equals(initialProject);
@@ -536,7 +536,7 @@ public class JavaProject
 						rootIDs.add(rootID);
 						JavaProject requiredProject = (JavaProject)JavaCore.create(requiredProjectRsc);
 						requiredProject.computePackageFragmentRoots(
-							requiredProject.getResolvedClasspath(true), 
+							requiredProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
 							accumulatedRoots, 
 							rootIDs, 
 							false, 
@@ -611,7 +611,7 @@ public class JavaProject
 		IClasspathEntry[] classpath;
 		IPath output;
 		try {
-			classpath = getResolvedClasspath(true);
+			classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			output = getOutputLocation();
 		} catch (JavaModelException e) {
 			return false;
@@ -1199,7 +1199,7 @@ public class JavaProject
 				outputLocation, 
 				monitor, 
 				!ResourcesPlugin.getWorkspace().isTreeLocked(), // canChangeResource
-				oldResolvedClasspath != null ? oldResolvedClasspath : getResolvedClasspath(true), // ignoreUnresolvedVariable
+				oldResolvedClasspath != null ? oldResolvedClasspath : getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
 				true, // needValidation
 				false); // no need to save
 			
@@ -1245,7 +1245,7 @@ public class JavaProject
 	public IPackageFragmentRoot[] getAllPackageFragmentRoots()
 		throws JavaModelException {
 
-		return computePackageFragmentRoots(getResolvedClasspath(true), true);
+		return computePackageFragmentRoots(getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), true/*retrieveExportedRoots*/);
 	}
 
 	/**
@@ -1758,7 +1758,7 @@ public class JavaProject
 	 */
 	public String[] getRequiredProjectNames() throws JavaModelException {
 
-		return this.projectPrerequisites(getResolvedClasspath(true));
+		return this.projectPrerequisites(getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 	}
 
 	/**
@@ -2101,7 +2101,7 @@ public class JavaProject
 		IPath path = element.getPath();
 		IClasspathEntry[] classpath;
 		try {
-			classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+			classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 		} catch(JavaModelException e){
 			return false; // not a Java project
 		}
@@ -2148,7 +2148,7 @@ public class JavaProject
 		
 		IClasspathEntry[] classpath;
 		try {
-			classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+			classpath = this.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 		} catch(JavaModelException e){
 			return false; // not a Java project
 		}
@@ -2632,7 +2632,7 @@ public class JavaProject
 			outputLocation, 
 			monitor, 
 			true, // canChangeResource (as per API contract)
-			getResolvedClasspath(true), // ignoreUnresolvedVariable
+			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
 			true, // needValidation
 			true); // need to save
 	}
@@ -2683,7 +2683,7 @@ public class JavaProject
 			SetClasspathOperation.ReuseOutputLocation, 
 			monitor, 
 			true, // canChangeResource (as per API contract)
-			getResolvedClasspath(true), // ignoreUnresolvedVariable
+			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
 			true, // needValidation
 			true); // need to save
 	}
@@ -2799,7 +2799,7 @@ public class JavaProject
 		try {
 			IClasspathEntry[] classpath = null;
 			if (preferredClasspaths != null) classpath = (IClasspathEntry[])preferredClasspaths.get(this);
-			if (classpath == null) classpath = getResolvedClasspath(true);
+			if (classpath == null) classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				

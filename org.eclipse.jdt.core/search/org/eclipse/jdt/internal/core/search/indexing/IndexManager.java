@@ -100,6 +100,7 @@ public void cleanUpIndexes() {
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
 	for (int j = 0, max = selectedIndexes.length; j < max; j++) {
+		// TODO should use getJavaPluginWorkingLocation()+index simple name to avoid bugs such as https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
 		String path = selectedIndexes[j].getIndexFile().getAbsolutePath();
 		knownPaths.put(path, path);
 	}
@@ -243,7 +244,13 @@ private SimpleLookupTable getIndexStates() {
 private IPath getJavaPluginWorkingLocation() {
 	if (this.javaPluginLocation != null) return this.javaPluginLocation;
 
-	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
+	IPath stateLocation = JavaCore.getPlugin().getStateLocation();
+	
+	// TODO (jerome) workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
+	String device = stateLocation.getDevice();
+	if (device != null && device.charAt(0) == '/') stateLocation = stateLocation.setDevice(device.substring(1));
+	
+	return this.javaPluginLocation = stateLocation;
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) throws IOException {
 	try {
@@ -264,11 +271,11 @@ public void indexAll(IProject project) {
 	// determine the new children
 	try {
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-		IJavaProject javaProject = model.getJavaProject(project);	
+		JavaProject javaProject = (JavaProject) model.getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
 		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
 		// will be run in the current thread.
-		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
+		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);	
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
@@ -483,6 +490,7 @@ public void saveIndex(Index index) throws IOException {
 			Util.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
+	// TODO should use getJavaPluginWorkingLocation()+index simple name to avoid bugs such as https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
 	String indexLocation = index.getIndexFile().getPath();
 	if (this.jobEnd > this.jobStart) {
 		Object containerPath = this.indexLocations.keyForValue(indexLocation);

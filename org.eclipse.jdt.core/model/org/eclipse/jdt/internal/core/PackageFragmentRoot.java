@@ -600,7 +600,7 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 
 	IClasspathEntry rawEntry = null;
 	JavaProject project = (JavaProject)this.getJavaProject();
-	project.getResolvedClasspath(true); // force the reverse rawEntry cache to be populated
+	project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/); // force the reverse rawEntry cache to be populated
 	JavaModelManager.PerProjectInfo perProjectInfo = project.getPerProjectInfo();
 	if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
 		rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(this.getPath());
@@ -798,8 +798,8 @@ protected boolean isOnClasspath() {
 	IPath path = this.getPath();
 	try {
 		// check package fragment root on classpath of its project
-		IJavaProject project = this.getJavaProject();
-		IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
+		JavaProject project = (JavaProject) getJavaProject();
+		IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);	
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getPath().equals(path)) {
