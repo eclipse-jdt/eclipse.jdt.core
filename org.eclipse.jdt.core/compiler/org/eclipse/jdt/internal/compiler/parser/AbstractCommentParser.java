@@ -165,6 +165,8 @@ public abstract class AbstractCommentParser {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
+								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+								// Cannot have @ inside inline comment
 								if (this.sourceParser != null) {
 									int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
 									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
@@ -174,151 +176,151 @@ public abstract class AbstractCommentParser {
 									pushText(this.textStart, previousPosition);
 								}
 								if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
-							} // else {
-								if (previousChar == '{') {
-									if (this.textStart != -1 && this.textStart < this.inlineTagStart) {
-										pushText(this.textStart, this.inlineTagStart);
-									}
-									this.inlineTagStarted = true;
-									invalidInlineTagLineEnd = this.lineEnd;
-								} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
-									pushText(this.textStart, invalidTagLineEnd);
+							}
+							if (previousChar == '{') {
+								if (this.textStart != -1 && this.textStart < this.inlineTagStart) {
+									pushText(this.textStart, this.inlineTagStart);
 								}
-								this.scanner.resetTo(this.index, this.endComment);
-								this.currentTokenType = -1; // flush token cache at line begin
-								try {
-									int tk = readTokenAndConsume();
-									this.tagSourceStart = this.kind == COMPIL_PARSER ? this.scanner.getCurrentTokenStartPosition() : previousPosition;
-									this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-									switch (tk) {
-										case TerminalTokens.TokenNameIdentifier :
-											char[] tag = this.scanner.getCurrentIdentifierSource();
-											if (CharOperation.equals(tag, TAG_DEPRECATED)) {
-												this.deprecated = true;
-												if (this.kind == DOM_PARSER) {
-													valid = parseTag();
-												} else {
-													valid = true;
-												}
-											} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
-												this.inherited = true;
-												if (this.kind == DOM_PARSER) {
-													valid = parseTag();
-												} else {
-													valid = true;
-												}
-											} else if (CharOperation.equals(tag, TAG_PARAM)) {
-												valid = parseParam();
-											} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
-												valid = parseThrows(false);
-											} else if (CharOperation.equals(tag, TAG_SEE)) {
-												if (this.inlineTagStarted) {
-//													valid = parseTag();
-													valid = false;
-													if (this.sourceParser != null)
-														this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-												} else {
-													valid = parseSee(false);
-												}
-											} else if (CharOperation.equals(tag, TAG_LINK)) {
-												if (this.inlineTagStarted) {
-													valid = parseSee(false);
-												} else {
-//													valid = parseTag();
-													valid = false;
-													if (this.sourceParser != null)
-														this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-												}
-											} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
-												if (this.inlineTagStarted) {
-													valid = parseSee(true);
-												} else {
-													valid = parseTag();
-												}
+								this.inlineTagStarted = true;
+								invalidInlineTagLineEnd = this.lineEnd;
+							} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
+								pushText(this.textStart, invalidTagLineEnd);
+							}
+							this.scanner.resetTo(this.index, this.endComment);
+							this.currentTokenType = -1; // flush token cache at line begin
+							try {
+								int tk = readTokenAndConsume();
+								this.tagSourceStart = this.kind == COMPIL_PARSER ? this.scanner.getCurrentTokenStartPosition() : previousPosition;
+								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+								switch (tk) {
+									case TerminalTokens.TokenNameIdentifier :
+										char[] tag = this.scanner.getCurrentIdentifierSource();
+										if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+											this.deprecated = true;
+											if (this.kind == DOM_PARSER) {
+												valid = parseTag();
+											} else {
+												valid = true;
+											}
+										} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
+											this.inherited = true;
+											if (this.kind == DOM_PARSER) {
+												valid = parseTag();
+											} else {
+												valid = true;
+											}
+										} else if (CharOperation.equals(tag, TAG_PARAM)) {
+											valid = parseParam();
+										} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+											valid = parseThrows(false);
+										} else if (CharOperation.equals(tag, TAG_SEE)) {
+											if (this.inlineTagStarted) {
+												// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+												// Cannot have @see inside inline comment
+												valid = false;
+												if (this.sourceParser != null)
+													this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+											} else {
+												valid = parseSee(false);
+											}
+										} else if (CharOperation.equals(tag, TAG_LINK)) {
+											if (this.inlineTagStarted) {
+												valid = parseSee(false);
+											} else {
+												// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+												// Cannot have @link outside inline comment
+												valid = false;
+												if (this.sourceParser != null)
+													this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+											}
+										} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
+											if (this.inlineTagStarted) {
+												valid = parseSee(true);
 											} else {
 												valid = parseTag();
 											}
-											break;
-										case TerminalTokens.TokenNamereturn :
-											valid = parseReturn();
-											break;
-										case TerminalTokens.TokenNamethrows :
-											valid = parseThrows(true);
-											break;
-										default:
-											if (this.kind == DOM_PARSER) {
-												switch (tk) {
-													case TerminalTokens.TokenNameabstract:
-													case TerminalTokens.TokenNameassert:
-													case TerminalTokens.TokenNameboolean:
-													case TerminalTokens.TokenNamebreak:
-													case TerminalTokens.TokenNamebyte:
-													case TerminalTokens.TokenNamecase:
-													case TerminalTokens.TokenNamecatch:
-													case TerminalTokens.TokenNamechar:
-													case TerminalTokens.TokenNameclass:
-													case TerminalTokens.TokenNamecontinue:
-													case TerminalTokens.TokenNamedefault:
-													case TerminalTokens.TokenNamedo:
-													case TerminalTokens.TokenNamedouble:
-													case TerminalTokens.TokenNameelse:
-													case TerminalTokens.TokenNameextends:
-													case TerminalTokens.TokenNamefalse:
-													case TerminalTokens.TokenNamefinal:
-													case TerminalTokens.TokenNamefinally:
-													case TerminalTokens.TokenNamefloat:
-													case TerminalTokens.TokenNamefor:
-													case TerminalTokens.TokenNameif:
-													case TerminalTokens.TokenNameimplements:
-													case TerminalTokens.TokenNameimport:
-													case TerminalTokens.TokenNameinstanceof:
-													case TerminalTokens.TokenNameint:
-													case TerminalTokens.TokenNameinterface:
-													case TerminalTokens.TokenNamelong:
-													case TerminalTokens.TokenNamenative:
-													case TerminalTokens.TokenNamenew:
-													case TerminalTokens.TokenNamenull:
-													case TerminalTokens.TokenNamepackage:
-													case TerminalTokens.TokenNameprivate:
-													case TerminalTokens.TokenNameprotected:
-													case TerminalTokens.TokenNamepublic:
-													case TerminalTokens.TokenNameshort:
-													case TerminalTokens.TokenNamestatic:
-													case TerminalTokens.TokenNamestrictfp:
-													case TerminalTokens.TokenNamesuper:
-													case TerminalTokens.TokenNameswitch:
-													case TerminalTokens.TokenNamesynchronized:
-													case TerminalTokens.TokenNamethis:
-													case TerminalTokens.TokenNamethrow:
-													case TerminalTokens.TokenNametransient:
-													case TerminalTokens.TokenNametrue:
-													case TerminalTokens.TokenNametry:
-													case TerminalTokens.TokenNamevoid:
-													case TerminalTokens.TokenNamevolatile:
-													case TerminalTokens.TokenNamewhile:
-														valid = parseTag();
-														break;
-												}
-											}
-									}
-									this.textStart = this.index;
-									if (!valid) {
-										// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
-										// do not stop the inline tag when error is encountered to get text after
-//										this.inlineTagStarted = false;
-										validComment = false;
-										// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
-										// for DOM AST node, store tag as text in case of invalid syntax
-										if (this.kind == DOM_PARSER) {
-											parseTag();
-											this.textStart = this.tagSourceEnd+1;
-											invalidTagLineEnd  = this.lineEnd;
+										} else {
+											valid = parseTag();
 										}
-									}
-								} catch (InvalidInputException e) {
-									consumeToken();
+										break;
+									case TerminalTokens.TokenNamereturn :
+										valid = parseReturn();
+										break;
+									case TerminalTokens.TokenNamethrows :
+										valid = parseThrows(true);
+										break;
+									default:
+										if (this.kind == DOM_PARSER) {
+											switch (tk) {
+												case TerminalTokens.TokenNameabstract:
+												case TerminalTokens.TokenNameassert:
+												case TerminalTokens.TokenNameboolean:
+												case TerminalTokens.TokenNamebreak:
+												case TerminalTokens.TokenNamebyte:
+												case TerminalTokens.TokenNamecase:
+												case TerminalTokens.TokenNamecatch:
+												case TerminalTokens.TokenNamechar:
+												case TerminalTokens.TokenNameclass:
+												case TerminalTokens.TokenNamecontinue:
+												case TerminalTokens.TokenNamedefault:
+												case TerminalTokens.TokenNamedo:
+												case TerminalTokens.TokenNamedouble:
+												case TerminalTokens.TokenNameelse:
+												case TerminalTokens.TokenNameextends:
+												case TerminalTokens.TokenNamefalse:
+												case TerminalTokens.TokenNamefinal:
+												case TerminalTokens.TokenNamefinally:
+												case TerminalTokens.TokenNamefloat:
+												case TerminalTokens.TokenNamefor:
+												case TerminalTokens.TokenNameif:
+												case TerminalTokens.TokenNameimplements:
+												case TerminalTokens.TokenNameimport:
+												case TerminalTokens.TokenNameinstanceof:
+												case TerminalTokens.TokenNameint:
+												case TerminalTokens.TokenNameinterface:
+												case TerminalTokens.TokenNamelong:
+												case TerminalTokens.TokenNamenative:
+												case TerminalTokens.TokenNamenew:
+												case TerminalTokens.TokenNamenull:
+												case TerminalTokens.TokenNamepackage:
+												case TerminalTokens.TokenNameprivate:
+												case TerminalTokens.TokenNameprotected:
+												case TerminalTokens.TokenNamepublic:
+												case TerminalTokens.TokenNameshort:
+												case TerminalTokens.TokenNamestatic:
+												case TerminalTokens.TokenNamestrictfp:
+												case TerminalTokens.TokenNamesuper:
+												case TerminalTokens.TokenNameswitch:
+												case TerminalTokens.TokenNamesynchronized:
+												case TerminalTokens.TokenNamethis:
+												case TerminalTokens.TokenNamethrow:
+												case TerminalTokens.TokenNametransient:
+												case TerminalTokens.TokenNametrue:
+												case TerminalTokens.TokenNametry:
+												case TerminalTokens.TokenNamevoid:
+												case TerminalTokens.TokenNamevolatile:
+												case TerminalTokens.TokenNamewhile:
+													valid = parseTag();
+													break;
+											}
+										}
 								}
-							//}
+								this.textStart = this.index;
+								if (!valid) {
+									// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+									// do not stop the inline tag when error is encountered to get text after
+									validComment = false;
+									// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+									// for DOM AST node, store tag as text in case of invalid syntax
+									if (this.kind == DOM_PARSER) {
+										parseTag();
+										this.textStart = this.tagSourceEnd+1;
+										invalidTagLineEnd  = this.lineEnd;
+									}
+								}
+							} catch (InvalidInputException e) {
+								consumeToken();
+							}
 						}
 						break;
 					case '\r':
@@ -327,7 +329,6 @@ public abstract class AbstractCommentParser {
 							pushText(this.textStart, previousPosition);
 						}
 						this.lineStarted = false;
-//						this.inlineTagStarted = false;
 						// Fix bug 51650
 						this.textStart = -1;
 						break;
@@ -343,13 +344,14 @@ public abstract class AbstractCommentParser {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
 							}
-//							this.lineStarted = true;
 						}
 						this.lineStarted = true;
 						break;
 					case '{' :
 						if (this.inlineTagStarted) {
 							this.inlineTagStarted = false;
+							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+							// Cannot have opening brace in inline comment
 							if (this.sourceParser != null) {
 								int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
 								this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
@@ -358,13 +360,12 @@ public abstract class AbstractCommentParser {
 								pushText(this.textStart, previousPosition);
 							}
 							if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
-						} //else {
-							if (!this.lineStarted) {
-								this.textStart = previousPosition;
-							}
-							this.lineStarted = true;
-							this.inlineTagStart = previousPosition;
-						//}
+						}
+						if (!this.lineStarted) {
+							this.textStart = previousPosition;
+						}
+						this.lineStarted = true;
+						this.inlineTagStart = previousPosition;
 						break;
 					case '*' :
 						// do nothing for '*' character
@@ -378,6 +379,8 @@ public abstract class AbstractCommentParser {
 						}
 				}
 			}
+			// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+			// Cannot leave comment inside inline comment
 			if (this.inlineTagStarted) {
 				this.inlineTagStarted = false;
 				if (this.sourceParser != null) {
