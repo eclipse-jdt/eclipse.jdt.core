@@ -2803,7 +2803,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						}
 						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
 					}
-					oldContainer = previousContainer;
+					oldContainer = null; //33695 - cannot filter out restored container, must update affected project to reset cached CP
 				} else {
 					oldContainer = null;
 				}
@@ -3089,7 +3089,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					}
 					JavaModelManager.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
 				}
-				oldPath = previousPath;
+				oldPath = null;  //33695 - cannot filter out restored variable, must update affected project to reset cached CP
 			}
 			if (oldPath != null && oldPath.equals(variablePaths[i])){
 				variableNames[i] = null;
