@@ -179,14 +179,11 @@
 <!-- =================================================================================== -->
 <!-- Extension: Javac Ant Adapter                                                        -->
 <!-- =================================================================================== -->
-
 <extension 
-	point="org.eclipse.ant.core.antObjects">
-	<antObject
-		name="org.eclipse.jdt.core.JDTCompilerAdapter"
-		class="org.eclipse.jdt.core.JDTCompilerAdapter"
+	point="org.eclipse.ant.core.extraClasspathEntries">
+	<extraClasspathEntry
 		library="jdtCompilerAdapter.jar">
-	</antObject>
+	</extraClasspathEntry>
 </extension> 
    
 </plugin>
