@@ -1218,7 +1218,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * JAVACORE / Default Source Encoding Format
 	 *    Select the encoding format for compiled sources.
 	 *     - option id:				"org.eclipse.jdt.core.encoding"
-	 *     - possible values:	{ "" for platform default, or any of the supported sun.
+	 *     - possible values:	{ "" for platform default, or any of the supported encoding name}.
 	 *     - default:				""
 	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace

@@ -15,7 +15,17 @@ Eclipse SDK Build ? - ?
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>new</li>
+<li>Encoding support : Batch compiler can be specified the source encoding format using '-encoding myEncoding' command line option.
+In case of necessity, each individual file specified on the command line can be associated with a custom encoding
+by suffixing its name with '[myEncoding]' (if applied to a folder, then all files in it will be sharing the custom
+encoding). When no encoding is specified, then the platform default is used (as before). Similarily, a JavaCore option got added to
+control the default encoding (no support yet for per file custom encoding).
+	<ul>
+	<li>option id:				"org.eclipse.jdt.core.encoding"
+	<li>possible values:	{ "" for platform default, or any of the supported encoding name.
+	<li>default:				"" 
+	</ul>
+</li>
 </ul>
 
 <h3>
