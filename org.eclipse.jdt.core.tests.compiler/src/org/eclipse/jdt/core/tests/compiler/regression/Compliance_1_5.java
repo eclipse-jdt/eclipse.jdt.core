@@ -2616,7 +2616,7 @@ public void test079() {
 		"1. ERROR in Hello.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
 		"	^^^^\n" + 
-		"Syntax error on token \"void\", AT expected\n" + 
+		"Syntax error on token \"void\", @ expected\n" + 
 		"----------\n" + 
 		"2. ERROR in Hello.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 

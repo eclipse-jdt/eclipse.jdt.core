@@ -1163,7 +1163,7 @@ public void test0028() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(int ... ){\n" + 
 		"	             ^^^\n" + 
-		"Syntax error on token \"ELLIPSIS\", invalid VariableDeclaratorId\n" + 
+		"Syntax error on token \"...\", invalid VariableDeclaratorId\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	}\n" + 
@@ -1183,7 +1183,7 @@ public void test0028() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(int ... ){\n" + 
 		"	             ^^^\n" + 
-		"Syntax error on token \"ELLIPSIS\", VariableDeclaratorId expected after this token\n" + 
+		"Syntax error on token \"...\", VariableDeclaratorId expected after this token\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	}\n" + 
@@ -1832,7 +1832,7 @@ public void test0042() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
 		"	^^^^\n" + 
-		"Syntax error on token \"void\", AT expected\n" + 
+		"Syntax error on token \"void\", @ expected\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
@@ -1868,6 +1868,53 @@ public void test0042() {
 		"	}\n" + 
 		"	^\n" + 
 		"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
+		"----------\n";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72942
+ */
+public void test0043() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"}\n" + 
+		"public static void foo(){}\n" + 
+		"\n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public static void foo(){}\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	public static void foo(){}\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete EnumDeclaration\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public static void foo(){}\n" + 
+		"	              ^^^^\n" + 
+		"Syntax error on token \"void\", @ expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	public static void foo(){}\n" + 
+		"	                       ^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(

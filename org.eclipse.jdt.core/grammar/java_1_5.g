@@ -2186,6 +2186,8 @@ COLON ::=    ':'
 COMMA ::=    ','    
 DOT ::=    '.'    
 EQUAL ::=    '='    
+AT ::=    '@'    
+ELLIPSIS ::=    '...'    
 
 $end
 -- need a carriage return after the $end
