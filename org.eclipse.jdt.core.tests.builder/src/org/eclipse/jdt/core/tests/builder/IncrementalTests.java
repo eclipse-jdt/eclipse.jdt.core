@@ -29,7 +29,7 @@ public class IncrementalTests extends Tests {
 
 	public void testDefaultPackage() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
 
 		env.addClass(projectPath, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -50,7 +50,7 @@ public class IncrementalTests extends Tests {
 
 	public void testDefaultPackage2() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(projectPath, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -113,7 +113,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRenameMainType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -169,7 +169,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRemoveSecondaryType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -236,7 +236,7 @@ public class IncrementalTests extends Tests {
 	 */
 	public void testRemoveSecondaryType2() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -299,7 +299,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMoveSecondaryType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -352,7 +352,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMoveMemberType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -422,7 +422,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMovePackage() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath[] exclusionPatterns = new Path[] {new Path("src2/")}; //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", exclusionPatterns, null); //$NON-NLS-1$ 
@@ -447,7 +447,7 @@ public class IncrementalTests extends Tests {
 
 	public void testMemberTypeFromClassFile() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -501,7 +501,7 @@ public class IncrementalTests extends Tests {
 	public void testObjectWithSuperInterfaces() throws JavaModelException {
 		try {
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-			env.addExternalJar(projectPath, Util.getJavaClassLib());
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	
 			// remove old package fragment root so that names don't collide
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -561,7 +561,7 @@ public class IncrementalTests extends Tests {
 		//           Step 1
 		//----------------------------
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$

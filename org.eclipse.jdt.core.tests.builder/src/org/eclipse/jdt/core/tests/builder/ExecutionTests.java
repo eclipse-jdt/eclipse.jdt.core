@@ -29,7 +29,7 @@ public class ExecutionTests extends Tests {
 	
 	public void testSuccess() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -54,7 +54,7 @@ public class ExecutionTests extends Tests {
 	
 	public void testFailure() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide

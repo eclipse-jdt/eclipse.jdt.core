@@ -27,7 +27,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testBoolean() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -59,7 +59,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testByte() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -91,7 +91,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testChar() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -123,7 +123,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testDouble() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -155,7 +155,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testFloat() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -187,7 +187,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testInt() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -219,7 +219,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testLong() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -251,7 +251,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testShort() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -283,7 +283,7 @@ public class StaticFinalTests extends Tests {
 
 	public void testString() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$

@@ -25,8 +25,7 @@ import junit.framework.*;
 
 public abstract class AbstractRegressionTest extends StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
-	public static String JAVA_CLASS_LIB_PATH = Util.getJavaClassLib();
-
+	
 	protected INameEnvironment javaClassLib;
 	protected String[] classpaths;
 	protected TestVerifier verifier;
@@ -48,29 +47,13 @@ protected INameEnvironment[] getClassLibs() {
 	String encoding = (String) getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 	if ("".equals(encoding)) encoding = null;
 	
-	int length = this.classpaths.length;
-	INameEnvironment[] classLibs = new INameEnvironment[length];
-	for (int i = 0; i < length; i++) {
-		String classpath = this.classpaths[i];
-		if (classpath.equals(JAVA_CLASS_LIB_PATH)) {
-			if (this.javaClassLib == null) {
-				this.javaClassLib =
-					new FileSystem(
-						new String[] {classpath}, 
-						new String[] {}, // ignore initial file names
-						encoding // default encoding
-				);
-			}
-			classLibs[i] = this.javaClassLib;
-		} else {
-			classLibs[i] =
-				new FileSystem(
-					new String[] {classpath}, 
-					new String[] {}, // ignore initial file names
-					encoding // default encoding			
-				);
-		}
-	}
+	INameEnvironment[] classLibs = new INameEnvironment[1];
+	classLibs[0] =
+		new FileSystem(
+			classpaths, 
+			new String[] {}, // ignore initial file names
+			encoding // default encoding			
+		);
 	return classLibs;
 }
 protected Map getCompilerOptions() {
@@ -99,7 +82,7 @@ protected Map getCompilerOptions() {
 		return defaultOptions;
 }
 protected String[] getDefaultClassPaths() {
-	return new String[] {JAVA_CLASS_LIB_PATH, OUTPUT_DIR}; 
+	return Util.concatWithClassLibs(OUTPUT_DIR, false);
 }
 protected IErrorHandlingPolicy getErrorHandlingPolicy() {
 	return new IErrorHandlingPolicy() {

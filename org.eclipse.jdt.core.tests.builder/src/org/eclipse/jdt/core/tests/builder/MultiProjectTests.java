@@ -37,7 +37,7 @@ public class MultiProjectTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -48,7 +48,7 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		env.addExternalJar(project2Path, Util.getJavaClassLib());
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
@@ -60,7 +60,7 @@ public class MultiProjectTests extends Tests {
 			//         Project3
 			//----------------------------
 		IPath project3Path = env.addProject("Project3"); //$NON-NLS-1$
-		env.addExternalJar(project3Path, Util.getJavaClassLib());
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
 		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
 		env.addClass(root3, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class C {\n"+ //$NON-NLS-1$
@@ -91,7 +91,7 @@ public class MultiProjectTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -103,7 +103,7 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		env.addExternalJar(project2Path, Util.getJavaClassLib());
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		IPath b = env.addClass(root2, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
@@ -140,7 +140,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -157,7 +157,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
@@ -174,7 +174,7 @@ public class MultiProjectTests extends Tests {
 		//         Project3
 		//----------------------------
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
-		env.addExternalJar(p3, Util.getJavaClassLib());
+		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
@@ -211,7 +211,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -231,7 +231,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
@@ -254,7 +254,7 @@ public class MultiProjectTests extends Tests {
 		//         Project3
 		//----------------------------
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
-		env.addExternalJar(p3, Util.getJavaClassLib());
+		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
@@ -305,7 +305,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -325,7 +325,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
@@ -348,7 +348,7 @@ public class MultiProjectTests extends Tests {
 		//         Project3
 		//----------------------------
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
-		env.addExternalJar(p3, Util.getJavaClassLib());
+		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
@@ -402,7 +402,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -422,7 +422,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
@@ -445,7 +445,7 @@ public class MultiProjectTests extends Tests {
 		//         Project3
 		//----------------------------
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
-		env.addExternalJar(p3, Util.getJavaClassLib());
+		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
@@ -515,7 +515,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -525,7 +525,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
@@ -548,7 +548,7 @@ public class MultiProjectTests extends Tests {
 		//         Project3
 		//----------------------------
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
-		env.addExternalJar(p3, Util.getJavaClassLib());
+		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
@@ -624,7 +624,7 @@ public class MultiProjectTests extends Tests {
 		//         Project1
 		//----------------------------
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
-		env.addExternalJar(p1, Util.getJavaClassLib());
+		env.addExternalJars(p1, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
@@ -643,7 +643,7 @@ public class MultiProjectTests extends Tests {
 		//         Project2
 		//----------------------------
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
-		env.addExternalJar(p2, Util.getJavaClassLib());
+		env.addExternalJars(p2, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$

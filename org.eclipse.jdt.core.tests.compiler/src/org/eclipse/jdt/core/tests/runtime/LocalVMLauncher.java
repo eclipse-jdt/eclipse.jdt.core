@@ -49,9 +49,12 @@ public abstract class LocalVMLauncher implements RuntimeConstants {
  * Returns a launcher that will launch the same kind of VM that is currently running
  */
 public static LocalVMLauncher getLauncher() {
-	if ("J9".equals(System.getProperty("java.vm.name"))) {
+	final String vmName = System.getProperty("java.vm.name");
+	if ("J9".equals(vmName)) {
 		return new J9VMLauncher();
-	} else {
+	} else if ("IBM J9SE VM".equals(vmName)) {
+		return new SideCarVMLauncher();
+	} else  {
 		return new StandardVMLauncher();
 	}
 }

@@ -30,15 +30,15 @@ public class ClasspathTests extends Tests {
 
 	public void testClosedProject() throws JavaModelException {
 		IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0}); //$NON-NLS-1$
 
 		IPath project2Path = env.addProject("CP2"); //$NON-NLS-1$
-		env.addExternalJar(project2Path, Util.getJavaClassLib());
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 
 		IPath project3Path = env.addProject("CP3"); //$NON-NLS-1$
-		env.addExternalJar(project3Path, Util.getJavaClassLib());
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
 		env.addExternalJar(project3Path, jarPath.toString());
 
 		fullBuild();
@@ -95,10 +95,10 @@ public class ClasspathTests extends Tests {
 
 	public void testMissingProject() throws JavaModelException {
 		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		IPath project2Path = env.addProject("MP2"); //$NON-NLS-1$
-		env.addExternalJar(project2Path, Util.getJavaClassLib());
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 
 		fullBuild();
@@ -119,7 +119,7 @@ public class ClasspathTests extends Tests {
 		);
 
 		project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -139,7 +139,7 @@ public class ClasspathTests extends Tests {
 		);
 
 		project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -170,7 +170,7 @@ public class ClasspathTests extends Tests {
 		//----------------------------
 		//           Step 2
 		//----------------------------	
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -217,7 +217,7 @@ public class ClasspathTests extends Tests {
 		//----------------------------
 		//           Step 2
 		//----------------------------	
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		incrementalBuild();
 		expectingNoProblems();

@@ -33,7 +33,7 @@ public class PackageTests extends Tests {
 		//           Step 1
 		//----------------------------
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$

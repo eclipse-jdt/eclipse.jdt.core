@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.eval.IRequestor;
 
 public class SimpleTest {
 	static final String JRE_PATH = Util.getJREDirectory();
-	static final String[] COMPILATION_CLASSPATH = new String[] {Util.getJavaClassLib(), Util.getOutputDirectory()};
+	static final String[] COMPILATION_CLASSPATH = Util.concatWithClassLibs(Util.getOutputDirectory(), false);
 	static final String[] RUNTIME_CLASSPATH =  new String[] {Util.getOutputDirectory()};
 	static final String TARGET_PATH = Util.getOutputDirectory() + File.separator + "evaluation";
 	protected EvaluationContext context;

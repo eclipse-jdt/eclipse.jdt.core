@@ -162,10 +162,24 @@ public class TestingEnvironment {
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, isExported));
 	}
 
+	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {
+		addExternalJars(projectPath, jars, false);
+	}
+
 	public void addExternalJar(IPath projectPath, String jar) throws JavaModelException {
 		addExternalJar(projectPath, jar, false);
 	}
 	
+	/** Adds an external jar to the classpath of a project.
+	 */
+	public void addExternalJars(IPath projectPath, String[] jars, boolean isExported) throws JavaModelException {
+		for (int i = 0, max = jars.length; i < max; i++) {
+			String jar = jars[i];
+			checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
+		}
+	}
+
 	/** Adds an external jar to the classpath of a project.
 	 */
 	public void addExternalJar(IPath projectPath, String jar, boolean isExported) throws JavaModelException {

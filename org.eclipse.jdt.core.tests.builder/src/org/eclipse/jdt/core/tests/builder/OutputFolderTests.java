@@ -33,7 +33,7 @@ public class OutputFolderTests extends Tests {
 
 	public void testChangeOutputFolder() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -58,7 +58,7 @@ public class OutputFolderTests extends Tests {
 
 	public void testDeleteOutputFolder() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
@@ -93,7 +93,7 @@ public class OutputFolderTests extends Tests {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	
 		// add cu and build
 		env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -109,7 +109,7 @@ public class OutputFolderTests extends Tests {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
 			"<classpath>\n" + //$NON-NLS-1$
 			"    <classpathentry kind=\"src\" path=\"src\"/>\n" + //$NON-NLS-1$
-			"    <classpathentry kind=\"var\" path=\"" + Util.getJavaClassLib() + "\"/>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+			"    <classpathentry kind=\"var\" path=\"" + Util.getJavaClassLibs() + "\"/>\n" + //$NON-NLS-1$ //$NON-NLS-2$
 			"    <classpathentry kind=\"output\" path=\"\"/>\n" + //$NON-NLS-1$
 			"</classpath>" //$NON-NLS-1$
 		);
@@ -131,7 +131,7 @@ public class OutputFolderTests extends Tests {
 	public void testSimpleProject() throws JavaModelException {
 		IPath projectPath = env.addProject("P1"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(projectPath, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -153,7 +153,7 @@ public class OutputFolderTests extends Tests {
 		IPath projectPath = env.addProject("P2"); //$NON-NLS-1$
 		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -176,7 +176,7 @@ public class OutputFolderTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -200,7 +200,7 @@ public class OutputFolderTests extends Tests {
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -224,7 +224,7 @@ public class OutputFolderTests extends Tests {
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "src1"); //$NON-NLS-1$ //$NON-NLS-2$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "src2"); //$NON-NLS-1$ //$NON-NLS-2$
 		/*IPath bin =*/ env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -248,7 +248,7 @@ public class OutputFolderTests extends Tests {
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$ //$NON-NLS-2$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -273,7 +273,7 @@ public class OutputFolderTests extends Tests {
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 		IPath src3 = env.addPackageFragmentRoot(projectPath, "src3", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -300,12 +300,12 @@ public class OutputFolderTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		IPath projectPath2 = env.addProject("P8"); //$NON-NLS-1$
 		IPath binLocation = env.getProject(projectPath).getFolder("bin").getLocation(); //$NON-NLS-1$
 		env.setExternalOutputFolder(projectPath2, "externalBin", binLocation); //$NON-NLS-1$
-		env.addExternalJar(projectPath2, Util.getJavaClassLib());
+		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
 		env.addRequiredProject(projectPath2, projectPath);
 
 		env.addClass(projectPath2, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$

@@ -98,7 +98,7 @@ protected void setUp() {
 	this.target.connect("localhost", evalPort, 10000);
 
 	// Create name environment
-	INameEnvironment env = new FileSystem(new String[] {Util.getJavaClassLib()}, new String[0], null);
+	INameEnvironment env = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
 
 	// Init wrapped suite
 	initTest(fTest, this.context, this.target, this.launchedVM, env);

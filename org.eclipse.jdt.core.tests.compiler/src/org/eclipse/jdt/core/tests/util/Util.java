@@ -15,7 +15,20 @@ public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
 
 	public static int MAX_PORT_NUMBER = 9999;
-	
+
+public static String[] concatWithClassLibs(String classpath, boolean inFront) {
+	String[] classLibs = getJavaClassLibs();
+	final int length = classLibs.length;
+	String[] defaultClassPaths = new String[length + 1];
+	if (inFront) {
+		System.arraycopy(classLibs, 0, defaultClassPaths, 1, length);
+		defaultClassPaths[0] = classpath;
+	} else {
+		System.arraycopy(classLibs, 0, defaultClassPaths, 0, length);
+		defaultClassPaths[length] = classpath;
+	} 
+	return defaultClassPaths;
+}
 public static String convertToIndependantLineDelimiter(String source) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = source.length(); i < length; i++) {
@@ -312,17 +325,37 @@ public static void flushDirectoryContent(File dir) {
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getJavaClassLib()]
 */
-public static String getJavaClassLib() {
+public static String[] getJavaClassLibs() {
 	String jreDir = getJREDirectory();
 	if (jreDir == null)  {
-		return null;
+		return new String[] {};
 	} else {
-		if ("J9".equals(System.getProperty("java.vm.name"))) {
-			return toNativePath(jreDir + "/lib/jclMax/classes.zip");
+		final String vmName = System.getProperty("java.vm.name");
+		if ("J9".equals(vmName)) {
+			return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip")};
+		} else if ("IBM J9SE VM".equals(vmName)) {
+			return new String[] { 
+				toNativePath(jreDir + "/lib/core.jar"),
+				toNativePath(jreDir + "/lib/security.jar"),
+				toNativePath(jreDir + "/lib/graphics.jar")
+			};				
 		} else {
-			return toNativePath(jreDir + "/lib/rt.jar");
+			return new String[] {
+				toNativePath(jreDir + "/lib/rt.jar")
+			};				
 		}
 	}
+}
+public static String getJavaClassLibsAsString() {
+	String[] classLibs = getJavaClassLibs();
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, max = classLibs.length; i < max; i++) {
+		buffer
+			.append(classLibs[i])
+			.append(File.pathSeparatorChar);
+		
+	}
+	return buffer.toString();
 }
 /**
  * Returns the JRE directory this tests are running on.

@@ -104,7 +104,7 @@ public void testBug29832() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			new String[]{Util.getJavaClassLib()},
+			Util.getJavaClassLibs(),
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -113,7 +113,7 @@ public void testBug29832() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{Util.getJavaClassLib()},
+			Util.getJavaClassLibs(),
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -217,7 +217,7 @@ public void testBug33560() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			new String[]{Util.getJavaClassLib()},
+			Util.getJavaClassLibs(),
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -226,7 +226,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{Util.getJavaClassLib()},
+			Util.getJavaClassLibs(),
 			new String[]{"/P1"},
 			new boolean[]{true},
 			"bin");
@@ -235,7 +235,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{Util.getJavaClassLib()},
+			Util.getJavaClassLibs(),
 			new String[]{"/P2"},
 			"bin");
 		this.createFile(

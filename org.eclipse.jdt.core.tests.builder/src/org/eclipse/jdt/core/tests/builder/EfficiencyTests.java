@@ -29,7 +29,7 @@ public class EfficiencyTests extends Tests {
 	
 	public void testEfficiency() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -69,7 +69,7 @@ public class EfficiencyTests extends Tests {
 	public void testMethodAddition() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -121,7 +121,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeAddition() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -173,7 +173,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeAddition2() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -231,7 +231,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeRemoval() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -283,7 +283,7 @@ public class EfficiencyTests extends Tests {
 	public void testLocalTypeRemoval2() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide

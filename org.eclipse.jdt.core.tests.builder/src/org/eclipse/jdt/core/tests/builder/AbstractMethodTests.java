@@ -33,7 +33,7 @@ public class AbstractMethodTests extends Tests {
 			//         Project1
 			//----------------------------
 		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
-		env.addExternalJar(project1Path, Util.getJavaClassLib());
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
@@ -60,7 +60,7 @@ public class AbstractMethodTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		env.addExternalJar(project2Path, Util.getJavaClassLib());
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		
 		// remove old package fragment root so that names don't collide

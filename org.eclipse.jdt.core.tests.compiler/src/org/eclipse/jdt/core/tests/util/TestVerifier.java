@@ -85,7 +85,7 @@ private void compileVerifyTests(String verifierDir) {
 	}
 	String fileName = dir + File.separator + simpleName + ".java";
 	Util.writeToFile(this.getVerifyTestsCode(), fileName);
-	org.eclipse.jdt.internal.compiler.batch.Main.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -classpath \"" + Util.getJavaClassLib() + "\"");
+	org.eclipse.jdt.internal.compiler.batch.Main.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -classpath \"" + Util.getJavaClassLibsAsString() + "\"");
 }
 public void execute(String className, String[] classpaths) {
 	this.outputBuffer = new StringBuffer();

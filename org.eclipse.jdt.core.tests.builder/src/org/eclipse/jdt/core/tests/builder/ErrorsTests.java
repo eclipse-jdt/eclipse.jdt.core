@@ -30,7 +30,7 @@ public class ErrorsTests extends Tests {
 	
 	public void testErrors() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
@@ -73,7 +73,7 @@ public class ErrorsTests extends Tests {
 	 */
 	public void testRenameToNonJava() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$

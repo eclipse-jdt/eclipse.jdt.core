@@ -50,7 +50,7 @@ public void run(TestResult result) {
 }
 protected void setUp() {
 	// Create name environment
-	INameEnvironment javaClassLib = new FileSystem(new String[] {Util.getJavaClassLib()}, new String[0], null);
+	INameEnvironment javaClassLib = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
 
 	// Init wrapped suite
 	initTest(fTest, this.verifier, javaClassLib);
