@@ -98,11 +98,6 @@ public class Jdtcom extends MatchingTask {
 			arguments.append(" -verbose"); //$NON-NLS-1$
 	}
 	
-	public void setReferenceinfo(boolean referenceinfo){
-		if(referenceinfo)
-			arguments.append(" -referenceInfo"); //$NON-NLS-1$
-	}
-
 	public void setPreservealllocals(boolean preservealllocals){
 		if(preservealllocals)
 			arguments.append(" -preserveAllLocals"); //$NON-NLS-1$
