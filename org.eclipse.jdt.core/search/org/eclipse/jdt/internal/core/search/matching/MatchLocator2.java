@@ -341,40 +341,36 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	 */
 	protected boolean createHierarchyResolver(PotentialMatch[] potentialMatches) {
 		// create hierarchy resolver if scope is a hierarchy scope
-		if (this.scope instanceof HierarchyScope) {
-			IType focusType = ((HierarchyScope)this.scope).focusType;
-			if (focusType != null) {
-				// cache focus type if not a potential match
-				char[][] compoundName = CharOperation.splitOn('.', focusType.getFullyQualifiedName().toCharArray());
-				boolean isPotentialMatch = false;
-				for (int i = 0, length = potentialMatches.length; i < length; i++) {
-					if (CharOperation.equals(potentialMatches[i].compoundName, compoundName)) {
-						isPotentialMatch = true;
-						break;
+		IType focusType = getFocusType();
+		if (focusType != null) {
+			// cache focus type if not a potential match
+			char[][] compoundName = CharOperation.splitOn('.', focusType.getFullyQualifiedName().toCharArray());
+			boolean isPotentialMatch = false;
+			for (int i = 0, length = potentialMatches.length; i < length; i++) {
+				if (CharOperation.equals(potentialMatches[i].compoundName, compoundName)) {
+					isPotentialMatch = true;
+					break;
+				}
+			}
+			if (!isPotentialMatch) {
+				if (focusType.isBinary()) {
+					// cache binary type
+					try {
+						this.cacheBinaryType(focusType);
+					} catch (JavaModelException e) {
+						return false;
 					}
+				} else {
+					// cache all types in the focus' compilation unit (even secondary types)
+					this.accept((ICompilationUnit)focusType.getCompilationUnit());
 				}
-				if (!isPotentialMatch) {
-					if (focusType.isBinary()) {
-						// cache binary type
-						try {
-							this.cacheBinaryType(focusType);
-						} catch (JavaModelException e) {
-							return false;
-						}
-					} else {
-						// cache all types in the focus' compilation unit (even secondary types)
-						this.accept((ICompilationUnit)focusType.getCompilationUnit());
-					}
-				}
-				
-				// resolve focus type
-				this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
-				if (this.hierarchyResolver.setFocusType(compoundName) == null) {
-					// focus type is not visible from this project
-					return false;
-				}
-			} else {
-				this.hierarchyResolver = null;
+			}
+			
+			// resolve focus type
+			this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
+			if (this.hierarchyResolver.setFocusType(compoundName) == null) {
+				// focus type is not visible from this project
+				return false;
 			}
 		} else {
 			this.hierarchyResolver = null;
@@ -516,6 +512,9 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	protected IResource getCurrentResource() {
 		return this.currentPotentialMatch.resource;
 	}
+	protected IType getFocusType() {
+		return this.scope instanceof HierarchyScope ? ((HierarchyScope)this.scope).focusType : null;
+	}
 	public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFile, IResource resource) throws CoreException {
 		BinaryType binaryType = (BinaryType)classFile.getType();
 		if (classFile.isOpen()) {
@@ -635,7 +634,11 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	 * Locate the matches amongst the potential matches.
 	 */
 	private void locateMatches(JavaProject javaProject) throws JavaModelException {
-		PotentialMatch[] potentialMatches = this.potentialMatches.getPotentialMatches(javaProject.getPackageFragmentRoots());
+		PotentialMatch[] potentialMatches = 
+			this.potentialMatches.getPotentialMatches(
+				getFocusType() == null ?
+				javaProject.getPackageFragmentRoots() :
+				javaProject.getAllPackageFragmentRoots()); // all potential matches are resolved in the focus' project context
 		
 		// copy array because elements  from the original are removed below
 		int length = potentialMatches.length;
@@ -787,7 +790,8 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			this.potentialMatches = new PotentialMatchSet();
 			this.pattern.initializePolymorphicSearch(this, progressMonitor);
 			
-			JavaProject previousJavaProject = null;
+			IType focusType = getFocusType();
+			JavaProject previousJavaProject = focusType == null ? null : (JavaProject)focusType.getJavaProject();
 			for (int i = 0; i < length; i++) {
 				if (progressMonitor != null && progressMonitor.isCanceled()) {
 					throw new OperationCanceledException();
@@ -820,7 +824,8 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 					if (resource == null) { // case of a file in an external jar
 						resource = javaProject.getProject();
 					}
-					if (!javaProject.equals(previousJavaProject)) {
+					if (focusType == null // when searching in hierarchy, all potential matches are resolved in the focus project context
+							&& !javaProject.equals(previousJavaProject)) {
 						// locate matches in previous project
 						if (previousJavaProject != null) {
 							try {
