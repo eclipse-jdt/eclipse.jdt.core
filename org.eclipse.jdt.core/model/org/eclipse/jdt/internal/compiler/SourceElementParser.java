@@ -166,7 +166,7 @@ public void checkComment() {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
 				if (constructor.type != null) {
-					char[][] compoundName = constructor.type.getTypeName();
+					char[][] compoundName = constructor.type.getParameterizedTypeName();
 					this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
 					if (!constructor.type.isThis()) {
 						acceptJavadocTypeReference(constructor.type);
@@ -197,7 +197,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		requestor.acceptConstructorReference(
 			typeRef instanceof SingleTypeReference 
 				? ((SingleTypeReference) typeRef).token
-				: CharOperation.concatWith(alloc.type.getTypeName(), '.'),
+				: CharOperation.concatWith(alloc.type.getParameterizedTypeName(), '.'),
 			alloc.arguments == null ? 0 : alloc.arguments.length, 
 			alloc.sourceStart);
 	}
@@ -465,7 +465,7 @@ public TypeReference getTypeReference(int dim) {
 			ref.sourceEnd = endPosition;
 		}
 		if (reportReferenceInfo){
-				requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+				requestor.acceptTypeReference(ref.getParameterizedTypeName(), ref.sourceStart, ref.sourceEnd);
 		}
 		return ref;
 	} else {
@@ -814,7 +814,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		thrownExceptionTypes = new char[thrownExceptionLength][];
 		for (int i = 0; i < thrownExceptionLength; i++) {
 			thrownExceptionTypes[i] = 
-				CharOperation.concatWith(thrownExceptions[i].getTypeName(), '.'); 
+				CharOperation.concatWith(thrownExceptions[i].getParameterizedTypeName(), '.'); 
 		}
 	}
 	// by default no selector end position
@@ -1017,7 +1017,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfacesLength; i++) {
 				interfaceNames[i] = 
-					CharOperation.concatWith(superInterfaces[i].getTypeName(), '.'); 
+					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
 			}
 		}
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
@@ -1035,7 +1035,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					char[][] boundNames = new char[boundLength][];
 					for (int j = 0; j < boundLength; j++) {
 						boundNames[j] = 
-							CharOperation.concatWith(bounds[i].getTypeName(), '.'); 
+							CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
 					}
 					typeParameterBounds[i] = boundNames;
 				}
@@ -1085,7 +1085,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.name, 
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
-						CharOperation.concatWith(superclass.getTypeName(), '.'), 
+						CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
 						interfaceNames,
 						typeParameterNames,
 						typeParameterBounds);
@@ -1097,7 +1097,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
 			}
 			typeNames[nestedTypeIndex] = typeDeclaration.name;
-			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getTypeName(), '.');
+			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
 		}
 	}
 	while ((fieldIndex < fieldCounter)
@@ -1367,10 +1367,10 @@ private char[] returnTypeName(TypeReference type) {
 			dimensionsArray[(i * 2) + 1] = ']';
 		}
 		return CharOperation.concat(
-			CharOperation.concatWith(type.getTypeName(), '.'), 
+			CharOperation.concatWith(type.getParameterizedTypeName(), '.'), 
 			dimensionsArray); 
 	}
-	return CharOperation.concatWith(type.getTypeName(), '.');
+	return CharOperation.concatWith(type.getParameterizedTypeName(), '.');
 }
 
 public void addUnknownRef(NameReference nameRef) {

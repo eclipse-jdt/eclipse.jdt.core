@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -26,8 +27,30 @@ public class Wildcard extends SingleTypeReference {
 	public int kind;
 
 	public Wildcard(int kind) {
-		super(null, 0);
+		super(WILDCARD_NAME, 0);
 		this.kind = kind;
+	}
+	
+	public char [][] getParameterizedTypeName() {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+               return new char[][] { WILDCARD_NAME };
+            case Wildcard.EXTENDS :
+                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
+			default: // SUPER
+                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
+        }        	    
+	}	
+
+	public char [][] getTypeName() {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+               return new char[][] { WILDCARD_NAME };
+            case Wildcard.EXTENDS :
+                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
+			default: // SUPER
+                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
+        }        	    
 	}
 	
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding genericType, int rank) {
