@@ -147,7 +147,7 @@ public int getBlockNum(int blockLocation) {
 		while (min <= max && match < 0) {
 			int mid= (min + max) / 2;
 			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(mid);
-			int compare= CharOperation.compareWith(entry.word, prefix, true);
+			int compare= CharOperation.compareWith(entry.word, prefix);
 			if (compare == 0) {
 				match= mid;
 				break;
@@ -167,7 +167,7 @@ public int getBlockNum(int blockLocation) {
 		// Look if previous blocks are affected
 		for (; firstBlock >= 0; firstBlock--) {
 			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(firstBlock);
-			if (!CharOperation.startsWith(entry.word, prefix))
+			if (!CharOperation.prefixEquals(prefix, entry.word))
 				break;
 		}
 		if (firstBlock < 0)
@@ -177,7 +177,7 @@ public int getBlockNum(int blockLocation) {
 		int firstNotIncludedBlock= match + 1;
 		for (; firstNotIncludedBlock < size; firstNotIncludedBlock++) {
 			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(firstNotIncludedBlock);
-			if (!CharOperation.startsWith(entry.word, prefix))
+			if (!CharOperation.prefixEquals(prefix, entry.word))
 				break;
 		}
 		
@@ -191,9 +191,6 @@ public int getBlockNum(int blockLocation) {
 		return result;
 	}
 public int getFirstBlockLocationForPrefix(char[] prefix) {
-	return getFirstBlockLocationForPrefix(prefix, true);
-}
-public int getFirstBlockLocationForPrefix(char[] prefix, boolean isCaseSensitive) {
 	int min = 0;
 	int size = firstWordsInBlocks.size();
 	int max = size - 1;
@@ -201,7 +198,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix, boolean isCaseSensitive
 	while (min <= max) {
 		int mid = (min + max) / 2;
 		FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.get(mid);
-		int compare = CharOperation.compareWith(entry.word, prefix, isCaseSensitive);
+		int compare = CharOperation.compareWith(entry.word, prefix);
 		if (compare == 0) {
 			match = mid;
 			break;
@@ -222,9 +219,8 @@ public int getFirstBlockLocationForPrefix(char[] prefix, boolean isCaseSensitive
 		// look for possible matches inside previous blocks
 		while (match > 0){
 			FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.get(match);
-			if (!CharOperation.startsWith(entry.word, prefix)){
+			if (!CharOperation.prefixEquals(prefix, entry.word))
 				break;
-			}
 			match--;
 		}
 	}
@@ -243,7 +239,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix, boolean isCaseSensitive
 public int getNextBlockLocationForPrefix(char[] prefix, int blockLoc) {
 	if (++blockLoc < firstWordsInBlocks.size()){
 		FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(blockLoc);
-		if (CharOperation.startsWith(entry.word, prefix)) return blockLoc;
+		if (CharOperation.prefixEquals(prefix, entry.word)) return blockLoc;
 	}
 	return -1;
 }

@@ -269,7 +269,7 @@ public class CorrectionEngine implements ProblemReasons {
 				char[] tokenSource = scanner.getCurrentTokenSource();
 				
 				argumentSource = CharOperation.concat(argumentSource, tokenSource);
-				if(!CharOperation.startsWith(argument, argumentSource))
+				if(!CharOperation.prefixEquals(argumentSource, argument))
 					return;
 				
 				if(CharOperation.equals(argument, argumentSource)) {

@@ -137,9 +137,6 @@ public class SimpleIndexInput extends IndexInput {
 	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
 		return null;
 	}
-	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix, boolean isCaseSensitive) throws IOException {
-		return null;
-	}
 	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
 			return null;
 	}

@@ -38,7 +38,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	int maxRefs = -1;
 	this.resetQuery();
 	do {
-		IEntryResult[] entries = input.queryEntriesPrefixedBy(indexEntryPrefix(), isCaseSensitive);
+		IEntryResult[] entries = input.queryEntriesPrefixedBy(indexEntryPrefix());
 		if (entries == null) break;
 
 		int numFiles = input.getNumFiles();

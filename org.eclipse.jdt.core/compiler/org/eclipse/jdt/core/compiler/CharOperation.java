@@ -213,13 +213,10 @@ public final class CharOperation {
 	 * Compare the contents of the two arrays array and prefix and answers:
 	 * <ul>
 	 * <li>zero if the array starts with the prefix contents</li>
-	 * <li>the difference between the first two characters that are not equal starting from 
-	 * the end of the shortest array</li>
+	 * <li>the difference between the first two characters that are not equal </li>
 	 * <li>one if array length is lower than the prefix length and that the prefix starts with the 
 	 * array contents.</li>
 	 * </ul>
-	 * The comparison can be case-sensitive if isCaseSensitive is set to true.
-	 * <br>
 	 * <br>
 	 * For example:
 	 * <ol>
@@ -232,41 +229,30 @@ public final class CharOperation {
 	 * <li><pre>
 	 *    array = { 'a', 'b', 'c', 'd', 'e' }
 	 *    prefix = { 'a', 'b', 'c'}
-	 * 	  isCaseSensitive = true
 	 *    => result = 0
 	 * </pre>
 	 * </li>
 	 * <li><pre>
 	 *    array = { 'a', 'b', 'c', 'd', 'e' }
 	 *    prefix = { 'a', 'B', 'c'}
-	 * 	  isCaseSensitive = false
-	 *    => result = 0
-	 * </pre>
-	 * <li><pre>
-	 *    array = { 'a', 'b', 'c', 'd', 'e' }
-	 *    prefix = { 'a', 'B', 'c'}
-	 * 	  isCaseSensitive = true
 	 *    => result = 32
 	 * </pre>
 	 * </li>
 	 * <li><pre>
 	 *    array = { 'd', 'b', 'c', 'd', 'e' }
 	 *    prefix = { 'a', 'b', 'c'}
-	 * 	  isCaseSensitive = true
 	 *    => result = 3
 	 * </pre>
 	 * </li>
 	 * <li><pre>
 	 *    array = { 'a', 'b', 'c', 'd', 'e' }
 	 *    prefix = { 'd', 'b', 'c'}
-	 * 	  isCaseSensitive = true
 	 *    => result = -3
 	 * </pre>
 	 * </li>
 	 * <li><pre>
 	 *    array = { 'a', 'a', 'c', 'd', 'e' }
 	 *    prefix = { 'a', 'e', 'c'}
-	 * 	  isCaseSensitive = true
 	 *    => result = -4
 	 * </pre>
 	 * </li>
@@ -274,29 +260,19 @@ public final class CharOperation {
 	 * 
 	 * @param array the given array
 	 * @param prefix the given prefix
-	 * @param isCaseSensitive check whether or not the comparison should be case sensitive
 	 * @return the result of the comparison
 	 * @exception NullPointerException if either array or prefix is null
 	 */
-	public static final int compareWith(char[] array, char[] prefix, boolean isCaseSensitive) {
+	public static final int compareWith(char[] array, char[] prefix) {
 		int arrayLength = array.length;
 		int prefixLength = prefix.length;
 		int min = Math.min(arrayLength, prefixLength);
 		int i = 0;
-		if (isCaseSensitive) {
-			while (min-- != 0) {
-				char c1 = array[i];
-				char c2 = prefix[i++];
-				if (c1 != c2)
-					return c1 - c2;
-			}
-		} else {
-			while (min-- != 0) {
-				char c1 = Character.toLowerCase(array[i]);
-				char c2 = Character.toLowerCase(prefix[i++]);
-				if (c1 != c2)
-					return c1 - c2;
-			}
+		while (min-- != 0) {
+			char c1 = array[i];
+			char c2 = prefix[i++];
+			if (c1 != c2)
+				return c1 - c2;
 		}
 		if (prefixLength == i)
 			return 0;
@@ -2389,97 +2365,6 @@ public final class CharOperation {
 		return split;
 	}
 
-	/**
-	 * Answers true if the given array starts with the given characters, false otherwise.
-	 * The comparison is case sensitive.
-	 * <br>
-	 * <br>
-	 * For example:
-	 * <ol>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'b' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    result => true
-	 * </pre>
-	 * </li>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'c' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    result => false
-	 * </pre>
-	 * </li>
-	 * </ol>
-	 * 
-	 * @param array the given array
-	 * @param toBeFound the given character to search
-	 * @return true if the given array starts with the given characters, false otherwise
-	 * @exception NullPointerException if the given array is null or if the given characters array to be found is null
-	 */
-	public static final boolean startsWith(char[] array, char[] toBeFound) {
-		int i = toBeFound.length;
-		if (i > array.length)
-			return false;
-		while (--i >= 0)
-			if (toBeFound[i] != array[i])
-				return false;
-		return true;
-	}
-
-	/**
-	 * Answers true if the given array starts with the given characters, false otherwise.
-	 * The comparison can be set to be case sensitive or not.
-	 * <br>
-	 * <br>
-	 * For example:
-	 * <ol>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'b' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    isCaseSensitive = true
-	 *    result => true
-	 * </pre>
-	 * </li>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'B' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    isCaseSensitive = false
-	 *    result => true
-	 * </pre>
-	 * </li>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'B' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    isCaseSensitive = true
-	 *    result => false
-	 * </pre>
-	 * </li>
-	 * <li><pre>
-	 *    toBeFound = { 'a' , 'c' }
-	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-	 *    isCaseSensitive = true
-	 *    result => false
-	 * </pre>
-	 * </li>
-	 * </ol>
-	 * 
-	 * @param array the given array
-	 * @param toBeFound the given character to search
-	 * @param isCaseSensitive to set whether or not the comparison should be case sensitive
-	 * @return true if the given array starts with the given characters, false otherwise
-	 * @exception NullPointerException if the given array is null or if the given characters array to be found is null
-	 */
-	public static final boolean startsWith(char[] array, char[] toBeFound, boolean isCaseSensitive) {
-		if (isCaseSensitive)
-			return startsWith(array, toBeFound);
-		int i = toBeFound.length;
-		if (i > array.length)
-			return false;
-		while (--i >= 0)
-			if (Character.toLowerCase(toBeFound[i]) != Character.toLowerCase(array[i]))
-				return false;
-		return true;
-	}
-	
 	/**
 	 * Answers a new array which is a copy of the given array starting at the given start and 
 	 * ending at the given end. The given start is inclusive and the given end is exclusive.

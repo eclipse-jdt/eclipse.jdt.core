@@ -1052,7 +1052,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		Enumeration enum = synthetics[FIELD].elements();
 		while (enum.hasMoreElements()) {
 			field = (FieldBinding) enum.nextElement();
-			if (CharOperation.startsWith(field.name, SyntheticArgumentBinding.EnclosingInstancePrefix)
+			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
 				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
 					return field;
 		}

@@ -239,7 +239,7 @@ public final class NamingConventions {
 			int bestLength = 0;
 			for (int i= 0; i < prefixes.length; i++) {
 				char[] prefix = prefixes[i];
-				if (CharOperation.startsWith(name, prefix)) {
+				if (CharOperation.prefixEquals(prefix, name)) {
 					int currLen = prefix.length;
 					boolean lastCharIsLetter = Character.isLetter(prefix[currLen - 1]);
 					if(!lastCharIsLetter || (lastCharIsLetter && name.length > currLen && Character.isUpperCase(name[currLen]))) {
@@ -665,7 +665,7 @@ public final class NamingConventions {
 		if (isBoolean) {
 			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
 			int prefixLen =  GETTER_BOOL_NAME.length;
-			if (CharOperation.startsWith(name, GETTER_BOOL_NAME) 
+			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name) 
 				&& name.length > prefixLen && Character.isUpperCase(name[prefixLen])) {
 				return suggestNewName(name, excludedNames);
 			} else {
@@ -745,7 +745,7 @@ public final class NamingConventions {
 		if (isBoolean) {
 			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
 			int prefixLen =  GETTER_BOOL_NAME.length;
-			if (CharOperation.startsWith(name, GETTER_BOOL_NAME) 
+			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name) 
 				&& name.length > prefixLen && Character.isUpperCase(name[prefixLen])) {
 				name = CharOperation.subarray(name, prefixLen, name.length);
 				return suggestNewName(
