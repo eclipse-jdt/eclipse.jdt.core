@@ -87,6 +87,7 @@ PRs Fixed in this Release (since 1.0NL stream)
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
+1GJUN99: ITPJCORE:ALL - NL problems in PLUGINUPDATE.XML, BUILD.XML, PLUGIN.XML 
 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
 1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
 1GH3218: ITPJUI:WIN - mnuemonic problems
