@@ -399,15 +399,30 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("generic(Object)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
+			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
 			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_ERASURE_MATCH"
+			*/
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] EXACT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("complete(Exception, Single<Exception>)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
+			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_ERASURE_MATCH"
+			*/
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [complete(new RuntimeException(), gs)] EXACT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments07() throws CoreException {
@@ -471,14 +486,26 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("generic(Object,Exception,RuntimeException)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
+			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH"
+			*/
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EXACT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("complete(Object,RuntimeException,RuntimeException,Multiple<Object, RuntimeException, RuntimeException>)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
+			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_ERASURE_MATCH"
+			*/
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments06() throws CoreException {

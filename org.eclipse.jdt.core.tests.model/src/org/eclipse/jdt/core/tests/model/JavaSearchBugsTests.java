@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJavaSearchConstants {
 	
 	public JavaSearchBugsTests(String name) {
-		super(name, 4);
+		super(name);
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchBugsTests.class);
@@ -566,12 +566,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IMethod method = type.getMethod("X", new String[] {"[[QZ;"});
 		// Search for constructor declarations and references
 		search(method, ALL_OCCURRENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b77093/X.java b77093.X() [this(new Z[10][])] EXACT_MATCH\n"+
 			"src/b77093/X.java b77093.X(Z[][]) [X] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug77093field() throws CoreException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -580,14 +579,13 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IField field = type.getField("z_arrays");
 		// Search for field declarations and references
 		search(field, ALL_OCCURRENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b77093/X.java b77093.X.z_arrays [z_arrays] EXACT_MATCH\n" +
 			"src/b77093/X.java b77093.X(Z[][]) [z_arrays] EXACT_MATCH\n" + 
 			"src/b77093/X.java void b77093.X.bar() [z_arrays] EXACT_MATCH\n" + 
 			"src/b77093/X.java void b77093.X.bar() [z_arrays] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug77093method() throws CoreException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -716,12 +714,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"}\n"	);
 		IType type = workingCopies[0].getType("A");
 		search(type, REFERENCES, ERASURE_RULE);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH\n" + 
 			"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug79803string() throws CoreException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -758,11 +755,10 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			true);
 		IType type = workingCopies[0].getType("A");
 		search(type, REFERENCES, getJavaSearchScopeBugs("b79860", false));
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b79860/X.java b79860.X [A] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug79860string() throws CoreException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -825,11 +821,10 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IType type = workingCopies[0].getType("Test");
 		IMethod method = type.getMethod("doSomething", new String[] { "QMap<QString;QObject;>;" } );
 		search(method, REFERENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug80194b() throws CoreException, JavaModelException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -837,33 +832,32 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IType type = workingCopies[0].getType("Test");
 		IMethod method = type.getMethod("doSomething", new String[] { "QMap<QString;QObject;>;", "Z" } );
 		search(method, REFERENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug80194string1() throws CoreException, JavaModelException {
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
 		search("doSomething(boolean)", METHOD, ALL_OCCURRENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
+			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
 			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
 			"src/b80194/Test.java void b80194.Test.doSomething(boolean) [doSomething] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug80194string2() throws CoreException, JavaModelException {
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
 		search("doSomething(Map<String,Object>)", METHOD, ALL_OCCURRENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
+			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
 			"src/b80194/Test.java void b80194.Test.doSomething(Map<String,Object>) [doSomething] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug80194string3() throws CoreException, JavaModelException {
 		assertNotNull("Problem in tests processing", workingCopies);
@@ -980,12 +974,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(field1, REFERENCES);
 		IField field2 = type.getField("fList2");
 		search(field2, REFERENCES);
+		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH"
 		);
-		// keep working copies for next test
-		discard = false;
 	}
 	public void testBug81084string() throws CoreException, JavaModelException {
 		assertNotNull("Problem in tests processing", workingCopies);

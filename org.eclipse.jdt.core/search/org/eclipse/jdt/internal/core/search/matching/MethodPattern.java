@@ -283,7 +283,9 @@ protected boolean mustResolve() {
 	if (returnSimpleName != null || returnQualification != null) return true;
 
 	// parameter types
-	if (parameterSimpleNames != null && parameterSimpleNames.length > 0) return true;
+	if (parameterSimpleNames != null)
+		for (int i = 0, max = parameterSimpleNames.length; i < max; i++)
+			if (parameterQualifications[i] != null) return true;
 	return false;
 }
 EntryResult[] queryIn(Index index) throws IOException {

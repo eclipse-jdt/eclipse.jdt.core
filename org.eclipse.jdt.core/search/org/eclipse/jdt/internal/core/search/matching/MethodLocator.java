@@ -66,17 +66,15 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	// Verify method name
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 	
-	// Verify parameters types count
+	// Verify parameters types
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
-
-		/* Remove as we need to resolve to be really sure that method matches or not...
-		for (int i = 0; i < argsLength; i++)
+		for (int i = 0; i < argsLength; i++) {
 			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return IMPOSSIBLE_MATCH;
-		*/
+		}
 	}
 	
 	// Verify return type
