@@ -163,9 +163,13 @@ public abstract class ClasspathContainerInitializer {
 	 */
 	public Object getComparisonID(IPath containerPath, IJavaProject project) {
 
-		// By default, containers are identical if they have the same containerPath,
+		// By default, containers are identical if they have the same containerPath first segment,
 		// but this may be refined by other container initializer implementations.
-		return containerPath; 
+		if (containerPath == null) {
+			return null;
+		} else {
+			return containerPath.segment(0);
+		}
 	}
 }
 

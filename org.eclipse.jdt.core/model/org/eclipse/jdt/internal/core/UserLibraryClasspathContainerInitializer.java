@@ -76,6 +76,6 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getComparisonID(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
 	 */
 	public Object getComparisonID(IPath containerPath, IJavaProject project) {
-		return containerPath.segment(0);
+		return containerPath;
 	}
 }
