@@ -2422,6 +2422,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				// we don't need to use an alignment
 				if (this.preferences.insert_space_after_opening_brace_in_array_initializer) {
 					this.scribe.space();
+				} else {
+					this.scribe.needSpace = false;
 				}
 				expressions[0].traverse(this, scope);
 				if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
