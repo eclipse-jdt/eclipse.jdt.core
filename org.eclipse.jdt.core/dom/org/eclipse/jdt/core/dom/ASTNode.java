@@ -659,7 +659,7 @@ public abstract class ASTNode {
 	 * Flag constant (bit mask, value 1) indicating that there is something
 	 * not quite right with this AST node.
 	 * <p>
-	 * The standard parser (<code>AST.parseCompilationUnit</code>) sets this
+	 * The standard parsers (<code>AST.parse&ast;(...)</code>) sets this
 	 * flag on a node to indicate a syntax error detected in the vicinity.
 	 * </p>
 	 */
