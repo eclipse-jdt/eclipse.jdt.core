@@ -53,7 +53,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		
 		// update classpath if needed
 		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
-			updateDestProjectClasspath(rootEntry, workspaceRoot);
+			addEntryToClasspath(rootEntry, workspaceRoot);
 		}
 	}
 	protected void copyResource(
@@ -131,10 +131,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 	}
-	protected void updateDestProjectClasspath(
-		IClasspathEntry rootEntry,
-		IWorkspaceRoot workspaceRoot)
-		throws JavaModelException {
+	protected void addEntryToClasspath(IClasspathEntry rootEntry, IWorkspaceRoot workspaceRoot) throws JavaModelException {
 		
 		IProject destProject = workspaceRoot.getProject(this.destination.segment(0));
 		IJavaProject jProject = JavaCore.create(destProject);
@@ -155,7 +152,6 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					return;
 				}
 			}
-			
 		} 
 		
 		// other cases

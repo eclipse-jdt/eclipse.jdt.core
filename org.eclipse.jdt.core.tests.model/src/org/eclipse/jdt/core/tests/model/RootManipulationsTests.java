@@ -1066,4 +1066,44 @@ public void testRenameJarFile2() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
+/*
+ * Ensure that renaming of a jar file to an existing file in REPLACE mode
+ * triggers the right delta and that the model is up-to-date.
+ */
+public void testRenameJarFile3() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, new String[] {"/P/myLib1.jar", "/P/myLib2.jar"}, "bin");
+		this.createFile("/P/myLib1.jar", "");
+		this.createFile("/P/myLib2.jar", "");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/myLib1.jar");
+		this.startDeltas();
+		root.move(
+			new Path("/P/myLib2.jar"),
+			IResource.NONE,
+			IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH 
+				| IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH 
+				| IPackageFragmentRoot.REPLACE,
+			null,
+			null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	myLib1.jar[-]: {MOVED_TO(myLib2.jar [in P])}\n" + 
+			"	myLib2.jar[*]: {REORDERED IN CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	myLib2.jar\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
 }

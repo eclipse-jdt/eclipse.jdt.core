@@ -16,6 +16,48 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 
 public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOperation {
+	/*
+	 * Renames the classpath entries equal to the given path in the given project.
+	 * If an entry with the destination path already existed, remove it.
+	 */
+	protected void renameEntryInClasspath(IPath rootPath, IJavaProject project) throws JavaModelException {
+			
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		IClasspathEntry[] newClasspath = null;
+		int cpLength = classpath.length;
+		int newCPIndex = -1;
+
+		for (int i = 0; i < cpLength; i++) {
+			IClasspathEntry entry = classpath[i];
+			IPath entryPath = entry.getPath();
+			if (rootPath.equals(entryPath)) {
+				// rename entry
+				if (newClasspath == null) {
+					newClasspath = new IClasspathEntry[cpLength];
+					System.arraycopy(classpath, 0, newClasspath, 0, i);
+					newCPIndex = i;
+				}
+				newClasspath[newCPIndex++] = copy(entry);
+			} else if (this.destination.equals(entryPath)) {
+				// remove entry equals to destination
+				if (newClasspath == null) {
+					newClasspath = new IClasspathEntry[cpLength];
+					System.arraycopy(classpath, 0, newClasspath, 0, i);
+					newCPIndex = i;
+				}
+			} else if (newClasspath != null) {
+				newClasspath[newCPIndex++] = entry;
+			}
+		}
+		
+		if (newClasspath != null) {
+			if (newCPIndex < newClasspath.length) {
+				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
+			}
+			project.setRawClasspath(newClasspath, fMonitor);
+		}
+	}
+
 	public MovePackageFragmentRootOperation(
 		IPackageFragmentRoot root,
 		IPath destination,
@@ -40,22 +82,31 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 		if (!root.isExternal() && (this.updateModelFlags & IPackageFragmentRoot.NO_RESOURCE_MODIFICATION) == 0) {
 			moveResource(root, rootEntry, workspaceRoot);
 		}
+		
+		// update refering projects classpath excluding orignating project
+		IJavaProject originatingProject = root.getJavaProject();
+		if ((this.updateModelFlags & IPackageFragmentRoot.OTHER_REFERRING_PROJECTS_CLASSPATH) != 0) {
+			updateReferringProjectClasspaths(rootEntry.getPath(), originatingProject);
+		}
 
-		// update classpath if needed
-		if ((this.updateModelFlags & IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH) != 0) {
-			IJavaProject originatingProject = root.getJavaProject();
-			if (this.destination.segment(0).equals(originatingProject.getElementName())) {
-				// it is a rename: reference will be updated when updating destination project classpath
-				this.updateModelFlags |= IPackageFragmentRoot.REPLACE;
+		boolean isRename = this.destination.segment(0).equals(originatingProject.getElementName());
+		boolean updateOriginating = (this.updateModelFlags & IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH) != 0;
+		boolean updateDestination = (this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0;
+
+		// update originating classpath
+		if (updateOriginating) {
+			if (isRename && updateDestination) {
+				renameEntryInClasspath(rootEntry.getPath(), originatingProject);
 			} else {
-				updateProjectClasspath(rootEntry.getPath(), originatingProject);
+				removeEntryFromClasspath(rootEntry.getPath(), originatingProject);
 			}
 		}
-		if ((this.updateModelFlags & IPackageFragmentRoot.OTHER_REFERRING_PROJECTS_CLASSPATH) != 0) {
-			updateReferringProjectClasspaths(rootEntry.getPath(), root.getJavaProject());
-		}
-		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
-			updateDestProjectClasspath(rootEntry, workspaceRoot);
+		
+		// update destination classpath
+		if (updateDestination) {
+			if (!isRename || !updateOriginating) {
+				addEntryToClasspath(rootEntry, workspaceRoot);
+			}  // else reference has been updated when updating originating project classpath
 		}
 	}
 	protected void moveResource(
@@ -134,8 +185,6 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	}
 	/*
 	 * Renames the classpath entries equal to the given path in all Java projects.
-	 * However if a source entry refers to this path, deletes it (a project cannot refer 
-	 * to an outside source folder)
 	 */
 	protected void updateReferringProjectClasspaths(IPath rootPath, IJavaProject projectOfRoot) throws JavaModelException {
 		IJavaModel model = this.getJavaModel();
@@ -143,35 +192,32 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject project = projects[i];
 			if (project.equals(projectOfRoot)) continue;
-			updateProjectClasspath(rootPath, project);
+			renameEntryInClasspath(rootPath, project);
 		}
 	}
 	/*
-	 * Renames the classpath entries equal to the given path in the given project.
-	 * However if a source entry refers to this path, deletes it (a project cannot refer 
-	 * to an outside source folder)
+	 * Removes the classpath entry equal to the given path from the given project's classpath.
 	 */
-	protected void updateProjectClasspath(IPath rootPath, IJavaProject project)
-		throws JavaModelException {
+	protected void removeEntryFromClasspath(IPath rootPath, IJavaProject project) throws JavaModelException {
+		
 		IClasspathEntry[] classpath = project.getRawClasspath();
 		IClasspathEntry[] newClasspath = null;
 		int cpLength = classpath.length;
 		int newCPIndex = -1;
-		for (int j = 0; j < cpLength; j++) {
-			IClasspathEntry entry = classpath[j];
+		
+		for (int i = 0; i < cpLength; i++) {
+			IClasspathEntry entry = classpath[i];
 			if (rootPath.equals(entry.getPath())) {
 				if (newClasspath == null) {
 					newClasspath = new IClasspathEntry[cpLength];
-					System.arraycopy(classpath, 0, newClasspath, 0, j);
-					newCPIndex = j;
+					System.arraycopy(classpath, 0, newClasspath, 0, i);
+					newCPIndex = i;
 				}
-				if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) { // library entry
-					newClasspath[newCPIndex++] = copy(entry);
-				} // else source folder is moved to another project: deletes its classpath entry
 			} else if (newClasspath != null) {
 				newClasspath[newCPIndex++] = entry;
 			}
 		}
+		
 		if (newClasspath != null) {
 			if (newCPIndex < newClasspath.length) {
 				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
