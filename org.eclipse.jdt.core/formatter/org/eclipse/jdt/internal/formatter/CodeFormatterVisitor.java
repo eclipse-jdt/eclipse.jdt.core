@@ -3096,6 +3096,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
 				}
 				this.scribe.unIndent();
 			}
