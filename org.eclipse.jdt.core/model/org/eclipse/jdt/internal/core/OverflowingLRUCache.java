@@ -172,10 +172,17 @@ public double getLoadFactor() {
 		spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
 		LRUCacheEntry entry = fEntryQueueTail;
 	
-		while (fCurrentSpace + spaceNeeded > limit && entry != null) {
-			LRUCacheEntry previous = entry._fPrevious;
-			this.privateRemoveEntry(entry, false, false);
-			entry = previous;
+		try {
+			// disable timestamps update while making space so that the previous and next links are not changed
+			// (by a call to get(Object) for example)
+			fTimestampsOn = false;
+			
+			while (fCurrentSpace + spaceNeeded > limit && entry != null) {
+				this.privateRemoveEntry(entry, false, false);
+				entry = entry._fPrevious;
+			}
+		} finally {
+			fTimestampsOn = true;
 		}
 	
 		/* check again, since we may have aquired enough space */
