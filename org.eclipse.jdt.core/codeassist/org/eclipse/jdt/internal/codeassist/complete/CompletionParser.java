@@ -70,6 +70,11 @@ public class CompletionParser extends AssistParser {
 	// it is poped when a block is exited 
 	int blockInvocationPtr;
 	int[] blockInvocationStack = new int[StackIncrement];
+	
+/** @deprecated - should use constructor with assertMode */
+public CompletionParser(ProblemReporter problemReporter) {
+	this(problemReporter, false/*no assertion by default*/);
+}
 public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }

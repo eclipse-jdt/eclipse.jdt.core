@@ -31,6 +31,11 @@ public class SelectionParser extends AssistParser {
 	public AstNode selectionNode;
 
 	public static final char[] SUPER = "super"/*nonNLS*/.toCharArray();
+
+/** @deprecated - should use constructor with assertMode */
+public SelectionParser(ProblemReporter problemReporter) {
+	this(problemReporter, false/*no assertion by default*/);
+}	
 public SelectionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }
