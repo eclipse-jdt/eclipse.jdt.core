@@ -65,6 +65,7 @@ public static Test suite() {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
 	    tests_1_5.add(GenericTypeTest.class);
 	    tests_1_5.add(ForeachStatementTest.class);
+	    tests_1_5.add(GenericTypeSignatureTest.class);
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 	// Add Javadoc test suites
