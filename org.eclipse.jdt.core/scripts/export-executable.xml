@@ -54,16 +54,16 @@
        </apply>
     </target>
 
-<target name="ignore">
-        <echo message='compiling resources   -> .o'/>
-        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
-            <arg value='--verbose'/>
-            <arg value='-c'/>
-            <srcfile/>
-            <arg value='--resource'/>
-            <targetfile/>
-            <fileset dir='${work}' excludes='**/*.java,**/*html' />
-			<mapper type='regexp' from='^(.*)\.(.*)$$' to='\1.\2 -o \1.o'/>
-        </apply>
-</target>    	
+	<target name="ignore">
+	        <echo message='compiling resources   -> .o'/>
+	        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
+	            <arg value='--verbose'/>
+	            <arg value='-c'/>
+	            <srcfile/>
+	            <arg value='--resource'/>
+	            <targetfile/>
+	            <fileset dir='${work}' excludes='**/*.java,**/*html' />
+				<mapper type='regexp' from='^(.*)\.(.*)$$' to='\1.\2 -o \1.o'/>
+	        </apply>
+	</target>    	
 </project>
