@@ -41,6 +41,16 @@ Eclipse SDK 2.1 Build - ?th February 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Surfaced compiler options for reporting usage of char[] in String concatenations (default is still warning).
+<pre>
+* COMPILER / Reporting Usage of char[] Expressions in String Concatenations
+*    When enabled, the compiler will issue an error or a warning whenever a char[] expression
+*    is used in String concatenations (e.g. "hello" + new char[]{'w','o','r','l','d'}).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 <li>Added API <code>IJavaModel.contains()</code> to find out if an <code>IResource</code> is visible in
      the Java model.
 </li>
