@@ -71,7 +71,7 @@ protected void assertResourcesEqual(String message, String expected, Object[] re
 		if (i != length-1)buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
 	}
 	assertEquals(
 		message,
@@ -86,7 +86,7 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 		if (i != length-1) buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
 	}
 	assertEquals(
 		message,
@@ -148,7 +148,7 @@ protected void assertTypesEqual(String message, String expected, IType[] types) 
 		buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
 	}
 	assertEquals(
 		message,
@@ -870,76 +870,5 @@ public void stopDeltas() {
 	JavaCore.removeElementChangedListener(this.deltaListener);
 	clearDeltas();
 }
-
-/**
- * Generate a display string from the given String.
- * @param indent number of tabs are added at the begining of each line.
- *
- * Example of use: [org.eclipse.jdt.tests.compiler.Util.displayString("abc\ndef\tghi")]
-*/
-public static String displayString(String inputString){
-	return displayString(inputString, 0);
-}
-
-/**
- * Generate a display string from the given String.
- * @param indent number of tabs are added at the begining of each line.
- *
- * Example of use: [org.eclipse.jdt.tests.compiler.Util.displayString("abc\ndef\tghi", 3)]
-*/
-public static String displayString(String inputString, int indent) {
-	int length = inputString.length();
-	StringBuffer buffer = new StringBuffer(length);
-	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r");
-	int count = 0;
-	for (int i = 0; i < indent; i++) buffer.append("\t");
-	buffer.append("\"");
-	while (tokenizer.hasMoreTokens()){
-		if (count++ != 0) {
-			buffer.append("\\n\" + \n");
-			for (int i = 0; i < indent; i++) buffer.append("\t");
-			buffer.append("\"");
-		}
-		String token = tokenizer.nextToken();
-		StringBuffer tokenBuffer = new StringBuffer();
-		for (int i = 0; i < token.length(); i++){ 
-			char c = token.charAt(i);
-			switch (c) {
-				case '\b' :
-					tokenBuffer.append("\\b");
-					break;
-				case '\t' :
-					tokenBuffer.append("\t");
-					break;
-				case '\n' :
-					tokenBuffer.append("\\n");
-					break;
-				case '\f' :
-					tokenBuffer.append("\\f");
-					break;
-				case '\r' :
-					tokenBuffer.append("\\r");
-					break;
-				case '\"' :
-					tokenBuffer.append("\\\"");
-					break;
-				case '\'' :
-					tokenBuffer.append("\\'");
-					break;
-				case '\\' :
-					tokenBuffer.append("\\\\");
-					break;
-				default :
-					tokenBuffer.append(c);
-			}
-		}
-		buffer.append(tokenBuffer.toString());
-	}
-	char lastChar = length == 0 ? 0 : inputString.charAt(length-1);
-	if ((lastChar == '\n') || (lastChar == '\r')) buffer.append("\\n");
-	buffer.append("\"");
-	return buffer.toString();
-}
-
 
 }

@@ -47,7 +47,7 @@ protected void assertResources(String message, String expected, IResource[] reso
 
 	String actual = buffer.toString();
 	if (!expected.equals(actual)) {
-		System.out.println(displayString(buffer.toString(), 2));
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
 	}
 	
 	assertEquals(message, expected, actual);
