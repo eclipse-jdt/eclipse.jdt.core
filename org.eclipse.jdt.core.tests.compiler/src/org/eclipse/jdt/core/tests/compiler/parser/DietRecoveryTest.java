@@ -5075,16 +5075,16 @@ public void test90() {
 public void test91() {
 
 	String s = 
-		"public interface Spew {		\n" +
+		"public interface Fred {		\n" +
 		"	void foo();					\n" +
 		"	void bar();					\n" +
-		"	public spew(X x, int y);	\n" +
+		"	public fred(X x, int y);	\n" +
 		"}								\n";
 	String expectedDietUnitToString = 
-		"public interface Spew {\n" + 
+		"public interface Fred {\n" + 
 		"  void foo();\n" + 
 		"  void bar();\n" + 
-		"  public spew(X x, int y) {\n" + 
+		"  public fred(X x, int y) {\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -5112,12 +5112,12 @@ public void test92() {
 		"public interface Test {		\n"+
 		"	void foo();					\n"+
 		"								\n"+
-		"	public spew(Spew x, int y);	\n"+
+		"	public fred(Fred x, int y);	\n"+
 		"}								\n";
 	String expectedDietUnitToString = 
 		"public interface Test {\n" + 
 		"  void foo();\n" + 
-		"  public spew(Spew x, int y) {\n" + 
+		"  public fred(Fred x, int y) {\n" + 
 		"  }\n" + 
 		"}\n";
 	
