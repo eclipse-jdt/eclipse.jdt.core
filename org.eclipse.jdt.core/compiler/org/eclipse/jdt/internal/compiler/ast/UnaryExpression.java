@@ -212,8 +212,20 @@ public class UnaryExpression extends OperatorExpression {
 			this.constant = NotAConstant;
 			return null;
 		}
-		int expressionTypeId = expressionType.id;
-		if (expressionTypeId > 15) {
+		int expressionTypeID = expressionType.id;
+		// autoboxing support
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		boolean unboxedExpression = false;
+		if (use15specifics) {
+			if (!expressionType.isBaseType()) {
+				int unboxedID = scope.computeBoxingType(expressionType).id;
+				if (unboxedID != expressionTypeID) {
+					expressionTypeID = unboxedID;
+					unboxedExpression = true;
+				}
+			}
+		}		
+		if (expressionTypeID > 15) {
 			this.constant = NotAConstant;
 			scope.problemReporter().invalidOperator(this, expressionType);
 			return null;
@@ -235,8 +247,8 @@ public class UnaryExpression extends OperatorExpression {
 		// (cast)  left   Op (cast)  rigth --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
-		int operatorSignature = OperatorSignatures[tableId][(expressionTypeId << 4) + expressionTypeId];
-		this.expression.implicitConversion = operatorSignature >>> 12;
+		int operatorSignature = OperatorSignatures[tableId][(expressionTypeID << 4) + expressionTypeID];
+		this.expression.implicitConversion = (unboxedExpression ? UNBOXING : 0) | (operatorSignature >>> 12);
 		this.bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // only switch on possible result type.....
 			case T_boolean :
@@ -262,7 +274,7 @@ public class UnaryExpression extends OperatorExpression {
 				break;
 			default : //error........
 				this.constant = Constant.NotAConstant;
-				if (expressionTypeId != T_undefined)
+				if (expressionTypeID != T_undefined)
 					scope.problemReporter().invalidOperator(this, expressionType);
 				return null;
 		}
@@ -271,7 +283,7 @@ public class UnaryExpression extends OperatorExpression {
 			this.constant =
 				Constant.computeConstantOperation(
 					this.expression.constant,
-					expressionTypeId,
+					expressionTypeID,
 					(bits & OperatorMASK) >> OperatorSHIFT);
 		} else {
 			this.constant = Constant.NotAConstant;
@@ -283,7 +295,7 @@ public class UnaryExpression extends OperatorExpression {
 		}
 		if (expressionIsCast) {
 		// check need for operand cast
-			CastExpression.checkNeedForArgumentCast(scope, tableId, operatorSignature, this.expression, expressionTypeId);
+			CastExpression.checkNeedForArgumentCast(scope, tableId, operatorSignature, this.expression, expressionTypeID);
 		}
 		return this.resolvedType;
 	}
