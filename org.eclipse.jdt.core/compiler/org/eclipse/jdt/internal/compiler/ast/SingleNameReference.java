@@ -184,6 +184,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
 	 */
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+		if (runtimeTimeType == null || compileTimeType == null)
+			return;				
 		if ((bits & FIELD) != 0 && this.binding != null && this.binding.isValidBinding()) {
 			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 			FieldBinding originalBinding = ((FieldBinding)this.binding).original();

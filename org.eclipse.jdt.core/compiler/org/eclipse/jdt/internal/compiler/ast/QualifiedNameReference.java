@@ -262,7 +262,8 @@ public class QualifiedNameReference extends NameReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
 	 */
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
-		
+		if (runtimeTimeType == null || compileTimeType == null)
+			return;		
 		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 		FieldBinding field = null;
 		int length = this.otherBindings == null ? 0 : this.otherBindings.length;
