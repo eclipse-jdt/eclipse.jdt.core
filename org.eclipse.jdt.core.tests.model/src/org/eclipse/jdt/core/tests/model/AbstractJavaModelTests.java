@@ -105,11 +105,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		return buildTestSuite(evaluationTestClass, "test", null); //$NON-NLS-1$
+		return buildTestSuite(evaluationTestClass, null, null); //$NON-NLS-1$
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		return buildTestSuite(evaluationTestClass, "test", suiteName); //$NON-NLS-1$
+		return buildTestSuite(evaluationTestClass, null, suiteName); //$NON-NLS-1$
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, String testPrefix, String suiteName) {
@@ -129,54 +129,69 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		// Get all tests from "test%" methods
 		Method[] methods = evaluationTestClass.getDeclaredMethods();
-		for (int m = 0, max = methods.length; m < max; m++) {
+		nextMethod: for (int m = 0, max = methods.length; m < max; m++) {
 			try {
 				if (Flags.isPublic(methods[m].getModifiers()) &&
 					methods[m].getName().startsWith("test")) {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
-					int numStart = testPrefix.length();
-					// tests names subset
-					if (testsNames != null) {
-						for (int i = 0, imax= testsNames.length; i<imax; i++) {
-							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
-								tests.add(methName);
-								suite.addTest((Test)constructor.newInstance(params));
-								break;
-							}
-						}
+					// no prefix, no subsets => add method
+					if (testPrefix == null && testsNames == null && testsNumbers == null && testsRange == null) {
+						suite.addTest((Test)constructor.newInstance(params));
+						continue nextMethod;
 					}
-					// look for test number
-					if (methName.startsWith(testPrefix) && Character.isDigit(methName.charAt(numStart))) {
-						try {
-							// get test number
-							int n = numStart;
-							while (methName.charAt(n) == '0') n++;
-							int num = Integer.parseInt(methName.substring(n));
-							// tests numbers subset
-							if (testsNumbers != null && !tests.contains(methName)) {
-								for (int i = 0; i < testsNumbers.length; i++) {
-									if (testsNumbers[i] == num) {
-										tests.add(methName);
-										suite.addTest((Test)constructor.newInstance(params));
-										break;
-									}
-								}
-							}
-							// tests range subset
-							if (testsRange != null && testsRange.length == 2 && !tests.contains(methName)) {
-								if ((testsRange[0]==-1 || num>=testsRange[0]) && (testsRange[1]==-1 || num<=testsRange[1])) {
+					// no prefix or method matches prefix
+					if (testPrefix == null || methName.startsWith(testPrefix)) {
+						int numStart = testPrefix==null ? 4 /* test */ : testPrefix.length();
+						// tests names subset
+						if (testsNames != null) {
+							for (int i = 0, imax= testsNames.length; i<imax; i++) {
+								if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
 									tests.add(methName);
 									suite.addTest((Test)constructor.newInstance(params));
+									continue nextMethod;
 								}
 							}
-						} catch (NumberFormatException e) {
-							System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
 						}
-					}
-					// no subset, add all tests
-					if (testsNames==null && testsNumbers==null &&testsRange==null) {
-						suite.addTest((Test)constructor.newInstance(params));
+						// look for test number
+						int length = methName.length();
+						if (numStart < length) {
+							// get test number
+							while (numStart<length && !Character.isDigit(methName.charAt(numStart))) numStart++; // skip to first digit
+							while (numStart<length && methName.charAt(numStart) == '0') numStart++; // skip to first non-nul digit
+							int n = numStart;
+							while (n<length && Character.isDigit(methName.charAt(n))) n++; // skip to next non-digit
+							if (n>numStart && n <= length) {
+								try {
+									int num = Integer.parseInt(methName.substring(numStart, n));
+									// tests numbers subset
+									if (testsNumbers != null && !tests.contains(methName)) {
+										for (int i = 0; i < testsNumbers.length; i++) {
+											if (testsNumbers[i] == num) {
+												tests.add(methName);
+												suite.addTest((Test)constructor.newInstance(params));
+												continue nextMethod;
+											}
+										}
+									}
+									// tests range subset
+									if (testsRange != null && testsRange.length == 2 && !tests.contains(methName)) {
+										if ((testsRange[0]==-1 || num>=testsRange[0]) && (testsRange[1]==-1 || num<=testsRange[1])) {
+											tests.add(methName);
+											suite.addTest((Test)constructor.newInstance(params));
+											continue nextMethod;
+										}
+									}
+								} catch (NumberFormatException e) {
+									System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
+								}
+							}
+						}
+
+						// no subset, add all tests
+						if (testsNames==null && testsNumbers==null && testsRange==null) {
+							suite.addTest((Test)constructor.newInstance(params));
+						}
 					}
 				}
 			}

@@ -300,28 +300,20 @@ public JavaSearchTests(String name) {
 }
 public static Test suite() {
 	return buildTestSuite(JavaSearchTests.class);
+//	return buildTestSuite(JavaSearchTests.class, "testTypeReference", null);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReferenceBug73696" };
+//	testsNames = new String[] { "testTypeReference10" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //	testsRange = new int[] { 16, -1 };
-	}
+}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
-}
-IJavaSearchScope getJavaSearchScope15() {
-	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
-}
-IJavaSearchScope getJavaSearchPackageScope(String packageName, boolean search15) throws JavaModelException {
-	String projectName = "JavaSearch";
-	if (search15) projectName += "15";
-	IJavaElement[] searchPackages = new IJavaElement[] { getPackageFragment(projectName, "src", packageName) };
-	return SearchEngine.createJavaSearchScope(searchPackages);
 }
 protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 	new SearchEngine().search(
@@ -344,12 +336,10 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	this.javaProject = setUpJavaProject("JavaSearch");
-	setUpJavaProject("JavaSearch15", "1.5");
 	setUpJavaProject("JavaSearchBugs");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearch");
-	deleteProject("JavaSearch15");
 	deleteProject("JavaSearchBugs");
 
 	super.tearDownSuite();
@@ -513,22 +503,6 @@ public void testConstructorReference08() throws CoreException { // was testConst
 		resultCollector);
 	assertSearchResults(
 		"src/c10/X.java c10.B() [new X().super()]", 
-		resultCollector);
-}
-/*
- * Generic constructor reference
- */
-public void testConstructorReference09() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
-	IMethod method = type.getMethod("X", new String[] {"QE;"});
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope15(), 
-		resultCollector);
-	assertSearchResults(
-		"src/p2/Y.java Object p2.Y.foo() [new X<Object>(this)]",
 		resultCollector);
 }
 /**
@@ -763,32 +737,6 @@ public void testDeclarationOfReferencedTypes08() throws CoreException {
 	assertSearchResults(
 		"Starting search...\n"+
 		"Done searching.", 
-		resultCollector);
-}
-
-/**
- * Declaration of referenced types test.
- * (Regression test for bug 68862 [1.5] ClassCastException when moving a a java file 
-)
- */
-public void testDeclarationOfReferencedTypes09() throws CoreException {
-	ICompilationUnit cu = getCompilationUnit("JavaSearch15/src/p3/X.java");
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
-	    public void beginReporting() {
-	        results.append("Starting search...");
-        }
-	    public void endReporting() {
-	        results.append("\nDone searching.");
-        }
-	};
-	searchDeclarationsOfReferencedTypes(
-		cu, 
-		resultCollector
-	);
-	assertSearchResults(
-		"Starting search...\n" + 
-		getExternalJCLPathString() + " java.lang.Object\n" + 
-		"Done searching.",
 		resultCollector);
 }
 
@@ -1927,19 +1875,6 @@ public void testMethodReference15() throws CoreException { // was testMethodRefe
 		"src/s4/X.java void s4.X.fred() [foo()] OUTSIDE_JAVADOC",
 		resultCollector);
 }
-/*
- * Generic method reference.
- */
-public void testMethodReference16() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
-	IMethod method = type.getMethod("foo", new String[] {"QE;"});
-	
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
-	assertSearchResults(
-		"src/p2/Y.java void p2.Y.bar() [foo(this)]",
-		resultCollector);
-}
 /**
  * OrPattern test.
  * (regression test for bug 5862 search : too many matches on search with OrPattern)
@@ -2414,24 +2349,6 @@ public void testTypeDeclaration01() throws CoreException { // was testSimpleType
 }
 /**
  * Type declaration test.
- * (generic type)
- */
-public void testTypeDeclaration02() throws CoreException {
-	IPackageFragment pkg = this.getPackageFragment("JavaSearch15", "src", "p1");
-	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		"Y", 
-		TYPE,
-		DECLARATIONS,
-		scope, 
-		resultCollector);
-	assertSearchResults(
-		"src/p1/Y.java p1.Y [Y]",
-		resultCollector);
-}
-/**
- * Type declaration test.
  * (regression test for bug 29524 Search for declaration via patterns adds '"*")
  */
 public void testTypeDeclaration03() throws CoreException { // was testTypeDeclaration
@@ -2603,13 +2520,13 @@ public void testTypeDeclaration12() throws CoreException { // was testLocalTypeD
  * Test fix for bug 73696: searching only works for IJavaSearchConstants.TYPE, but not CLASS or INTERFACE
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73696">73696</a>
  */
-public void testTypeDeclarationBug73696() throws CoreException {
+// Test type declaration with interface suffix
+public void testTypeDeclarationBug73696i() throws CoreException {
 	IPackageFragment pkg = this.getPackageFragment("JavaSearchBugs", "src", "b73696");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	
-	// Interface declaration
-	TypeDeclarationPattern pattern = new TypeDeclarationPattern(
+	SearchPattern pattern = new TypeDeclarationPattern(
 		null,
 		null,
 		null,
@@ -2622,8 +2539,14 @@ public void testTypeDeclarationBug73696() throws CoreException {
 		scope,
 		resultCollector,
 		null);
-	// Class declaration
-	pattern = new TypeDeclarationPattern(
+	assertSearchResults("src/b73696/I.java b73696.I [I]", resultCollector);
+}
+// Test type declaration with class suffix
+public void testTypeDeclarationBug73696c() throws CoreException {
+	IPackageFragment pkg = this.getPackageFragment("JavaSearchBugs", "src", "b73696");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	SearchPattern pattern = new TypeDeclarationPattern(
 		null,
 		null,
 		null,
@@ -2636,10 +2559,7 @@ public void testTypeDeclarationBug73696() throws CoreException {
 		scope,
 		resultCollector,
 		null);
-	assertSearchResults(
-		"src/b73696/I.java b73696.I [I]\n" + 
-		"src/b73696/C.java b73696.C [C]",
-		resultCollector);
+	assertSearchResults("src/b73696/C.java b73696.C [C]", resultCollector);
 }
 /**
  * Type ocurrence test.
@@ -2799,22 +2719,6 @@ public void testTypeReference05() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"test48261.jar p.X$Y(java.lang.String)",
-		resultCollector);
-}
-/**
- * Type reference test
- * (in a generic type)
- */
-public void testTypeReference06() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/p1/X.java").getType("X");
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchPackageScope("p1", true), 
-		resultCollector);
-	assertSearchResults(
-		"src/p1/Y.java Object p1.Y.foo() [X]",
 		resultCollector);
 }
 /**
@@ -3425,63 +3329,6 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
-		resultCollector);
-}
-/**
- * Type reference for 1.5.
- * Bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
- * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73336)
- */
-public void testTypeReferenceBug73336() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/bug73336/A.java").getType("A");
-	
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(type,
-		REFERENCES,
-		getJavaSearchPackageScope("bug73336", true), 
-		resultCollector);
-	assertSearchResults(
-		"src/bug73336/AA.java bug73336.AA [A]\n" + 
-		"src/bug73336/B.java bug73336.B [A]\n" + 
-		"src/bug73336/B.java bug73336.B [A]\n" + 
-		"src/bug73336/C.java bug73336.C [A]\n" + 
-		"src/bug73336/C.java void bug73336.C.foo() [A]\n" + 
-		"src/bug73336/C.java void bug73336.C.foo() [A]",
-		resultCollector);
-}
-public void testTypeReferenceBug73336b() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/bug73336b/A.java").getType("A");
-	
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(type,
-		REFERENCES,
-		getJavaSearchPackageScope("bug73336b", true), 
-		resultCollector);
-	assertSearchResults(
-		"src/bug73336b/B.java bug73336b.B [A]\n" + 
-		"src/bug73336b/B.java bug73336b.B [A]\n" + 
-		"src/bug73336b/C.java bug73336b.C [A]\n" + 
-		"src/bug73336b/C.java bug73336b.C [A]\n" + 
-		"src/bug73336b/C.java bug73336b.C [A]\n" + 
-		"src/bug73336b/C.java bug73336b.C() [A]\n" + 
-		"src/bug73336b/C.java bug73336b.C() [A]",
-		resultCollector);
-}
-// Verify that no NPE was raised on following case
-public void testTypeReferenceBug73336c() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/bug73336c/A.java").getType("A");
-	
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(type,
-		REFERENCES,
-		getJavaSearchPackageScope("bug73336c", true), 
-		resultCollector);
-	assertSearchResults(
-			"src/bug73336c/B.java bug73336c.B [A]\n" + 
-			"src/bug73336c/B.java bug73336c.B [A]\n" + 
-			"src/bug73336c/C.java bug73336c.C [A]\n" + 
-			"src/bug73336c/C.java bug73336c.C [A]\n" + 
-			"src/bug73336c/C.java bug73336c.C [A]",
 		resultCollector);
 }
 /**

@@ -407,6 +407,12 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	return info.typeParameters;
 }
 
+// SEARCH_15 Get type parameter names
+public char[][] getTypeParameterNames() throws JavaModelException {
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return info.getTypeParameterNames();
+}
+
 /**
  * @see IType#getTypeParameterSignatures()
  * @since 3.0

@@ -12,12 +12,22 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class TypeReferencePattern extends AndPattern implements IIndexConstants {
 
 protected char[] qualification;
 protected char[] simpleName;
+	
+// SEARCH_15 Additional information for generics search
+protected boolean declaration;	// show whether the search is based on a declaration or an instance
+protected char[][] typeNames;	// type arguments names storage
+protected TypeBinding[] typeBindings;	// cache for type arguments bindings
+protected int[] wildcards;	// show wildcard kind for each type arguments
 
 protected char[] currentCategory;
 
@@ -40,6 +50,17 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRu
 
 	((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
+// SEARCH_15 Instanciate a type reference pattern with additional information for generics search
+public TypeReferencePattern(char[] qualification, char[] simpleName, char[][] typeNames, boolean fromJavaElement, int[] wildcards, int matchRule) {
+	this(qualification, simpleName,matchRule);
+
+	if (typeNames != null) {
+		// store type arguments as is even if patter is not case sensitive
+		this.typeNames= typeNames;
+	}
+	this.declaration = fromJavaElement;
+	this.wildcards = wildcards;
+}
 TypeReferencePattern(int matchRule) {
 	super(TYPE_REF_PATTERN, matchRule);
 }
@@ -61,6 +82,28 @@ public char[] getIndexKey() {
 public char[][] getIndexCategories() {
 	return CATEGORIES;
 }
+/*
+ * Get binding of type argument from a class unit scope and its index position.
+ * Cache is lazy initialized and if no binding is found, then store a problem binding
+ * to avoid making research twice...
+ */
+protected TypeBinding getTypeNameBinding(CompilationUnitScope unitScope, int index) {
+	int length = this.typeNames.length;
+	if (this.typeBindings == null) this.typeBindings = new TypeBinding[length];
+	if (index <0 || index > length) return null;
+	TypeBinding typeBinding = this.typeBindings[index];
+	if (typeBinding == null) {
+		typeBinding = unitScope.getType(this.typeNames[index]);
+		if (typeBinding == null) {
+			this.typeBindings[index] = new ProblemReferenceBinding(this.typeNames[index], ProblemReasons.NotFound);
+		} else {
+			this.typeBindings[index] = typeBinding;
+		}
+	} else if (!typeBinding.isValidBinding()) {
+		typeBinding = null;
+	}
+	return typeBinding;
+}
 protected boolean hasNextQuery() {
 	if (this.segments == null) return false;
 
@@ -76,6 +119,15 @@ protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 	if (this.segments != null)
 		this.currentSegment = this.segments.length - 1;
+}
+/*
+ * Show if selection should be extended. While selecting text on a search match, we nee to extend
+ * it if the pattern is on an parameterized type which have non-null type arguments.
+ * For example, when search match is on List<String>, extension has to be extended to include
+ * type arguments until the closing '>'.
+ */
+protected boolean shouldExtendSelection() {
+	return !this.declaration && this.typeNames != null && this.typeNames.length > 0;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);

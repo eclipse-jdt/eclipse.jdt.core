@@ -29,6 +29,7 @@ static Class[] getAllTestClasses() {
 		CompilationUnitTests.class,
 		AttachSourceTests.class,
 		JavaSearchTests.class,
+		JavaSearch15Tests.class,
 		JavaSearchMultipleProjectsTests.class,
 		WorkingCopySearchTests.class,
 		JavaSearchJavadocTests.class,
@@ -111,6 +112,7 @@ public static Test suite() {
 	
 	// Java search tests
 	suite.addTest(JavaSearchTests.suite());
+	suite.addTest(JavaSearch15Tests.suite());
 	suite.addTest(JavaSearchMultipleProjectsTests.suite());
 	suite.addTest(WorkingCopySearchTests.suite());
 	suite.addTest(JavaSearchJavadocTests.suite());

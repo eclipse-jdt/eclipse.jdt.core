@@ -22,6 +22,8 @@ public abstract class PatternLocator implements IIndexConstants {
 
 protected int matchMode;
 protected boolean isCaseSensitive;
+// SEARCH_15
+protected CompilationUnitScope unitScope;
 
 /* match levels */
 public static final int IMPOSSIBLE_MATCH = 0;
@@ -293,6 +295,7 @@ public int resolveLevel(Binding binding) {
 protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
 	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
 }
+
 /**
  * Returns whether the given type binding matches the given qualified pattern.
  * Returns ACCURATE_MATCH if it does.

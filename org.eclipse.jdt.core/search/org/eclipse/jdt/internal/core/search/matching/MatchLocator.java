@@ -58,6 +58,8 @@ public int matchContainer;
 public SearchRequestor requestor;
 public IJavaSearchScope scope;
 public IProgressMonitor progressMonitor;
+// SEARCH_15
+public CompilationUnitScope unitScope;
 
 public org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
 public HandleFactory handleFactory;
@@ -1263,6 +1265,57 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, typeRef);
 	report(match);
 }
+
+/**
+ * SEARCH_15
+ * Finds the accurate positions of the sequence of tokens given by qualifiedName
+ * in the source and reports a reference to this this qualified name
+ * to the search requestor.
+ */
+protected void reportAccurateParameterizedTypeReference(ASTNode typeRef, char[] name, IJavaElement element, int accuracy) throws CoreException {
+	if (accuracy == -1) return;
+	if (!encloses(element)) return;
+
+	int sourceStart = typeRef.sourceStart;
+//	int sourceEnd = typeRef.sourceEnd;
+	
+	// compute source positions of the qualified reference 
+	Scanner scanner = this.parser.scanner;
+	scanner.setSource(this.currentPossibleMatch.getContents());
+	int sourceEnd = scanner.eofPosition;
+	scanner.resetTo(sourceStart, sourceEnd);
+
+	int token = -1;
+	int currentPosition;
+	do {
+		currentPosition = scanner.currentPosition;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			// ignore
+		}
+		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
+			// extends selection end for parameterized types if necessary
+			try {
+				while (token != TerminalTokens.TokenNameGREATER) {
+					token = scanner.getNextToken();
+					if (token == TerminalTokens.TokenNameEOF) {
+						// TODO (search-frederic) Abnormal end of file, perhaps trace something in DEBUG
+						return;
+					}
+				}
+			} catch (InvalidInputException e1) {
+				// ignore
+			}
+			int length = scanner.currentPosition-currentPosition;
+			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, length, typeRef);
+			report(match);
+			return;
+		}
+	} while (token != TerminalTokens.TokenNameEOF);
+	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, typeRef);
+	report(match);
+}
 /**
  * Finds the accurate positions of each valid token in the source and
  * reports a reference to this token to the search requestor.
@@ -1415,10 +1468,15 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 }
 /**
  * Visit the given resolved parse tree and report the nodes that match the search pattern.
+ * SEARCH_15
+ * 	Add unit scope storage in pattern locator. This will allow some additional verification
+ * 	while resolving levels of type arguments.
  */
 protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
 	if (mustResolve) {
+		this.unitScope = unit.scope.compilationUnitScope();
+		this.patternLocator.unitScope = this.unitScope;
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
@@ -1431,13 +1489,16 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 
 				ImportReference importRef = (ImportReference) node;
 				Binding binding = importRef.onDemand
-					? unit.scope.compilationUnitScope().getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
-					: unit.scope.compilationUnitScope().getImport(importRef.tokens, false, importRef.isStatic());
+					? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
+					: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
 			}
 			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
+	} else {
+		this.unitScope = null;
+		this.patternLocator.unitScope = null;
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found
@@ -1672,5 +1733,4 @@ protected boolean typeInHierarchy(ReferenceBinding binding) {
 	}
 	return false;
 }
-
 }

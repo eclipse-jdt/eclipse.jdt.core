@@ -43,12 +43,17 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	public static Test suite() {
-		if (false) {
-			Suite suite = new Suite(WorkingCopyOwnerTests.class.getName());
-			suite.addTest(new WorkingCopyOwnerTests("testSearch3"));
-			return suite;
-		}
-		return new Suite(WorkingCopyOwnerTests.class);
+		return buildTestSuite(WorkingCopyOwnerTests.class);
+	}
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "testSearch1" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		testsNumbers = new int[] { 2, 12 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { 16, -1 };
 	}
 
 	public WorkingCopyOwnerTests(String name) {

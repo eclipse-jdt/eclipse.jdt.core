@@ -466,6 +466,17 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	return typeParameters;
 }
 
+// SEARCH_15 Get type parameter names
+public char[][] getTypeParameterNames() throws JavaModelException {
+	String[] typeParameterSignatures = getTypeParameterSignatures();
+	int length = typeParameterSignatures.length;
+	char[][] names = new char[length][];
+	for (int i = 0; i < length; i++) {
+		names[i] = Signature.getTypeVariable(typeParameterSignatures[i]).toCharArray();
+	}
+	return names;
+}
+
 /**
  * @see IType#getTypeParameterSignatures()
  * @since 3.0
