@@ -32,9 +32,7 @@ class AddCompilationUnitToIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(this.indexedContainer.getProject().getName());
 	}
-	public boolean execute(IProgressMonitor progressMonitor) {
-
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+	public boolean execute() {
 		try {
 			IIndex index = manager.getIndex(this.indexedContainer.getFullPath());
 			if (!resource.isLocal(IResource.DEPTH_ZERO)) {

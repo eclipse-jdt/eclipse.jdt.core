@@ -145,7 +145,7 @@ public abstract class JobManager implements Runnable {
 		IProgressMonitor progress) {
 
 		if (VERBOSE)
-			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): START - " + searchJob); //$NON-NLS-1$
+			System.out.println("-> performing concurrent job : START - " + searchJob); //$NON-NLS-1$
 		boolean status = IJob.FAILED;
 		if (awaitingJobsCount() > 0) {
 			switch (waitingPolicy) {
@@ -153,13 +153,13 @@ public abstract class JobManager implements Runnable {
 				case IJob.ForceImmediate :
 					if (VERBOSE)
 						System.out.println(
-							"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - ForceImmediate - " + searchJob);//$NON-NLS-1$
+							"-> performing concurrent job : NOT READY - ForceImmediate - " + searchJob);//$NON-NLS-1$
 					boolean wasEnabled = isEnabled();
 					try {
 						disable(); // pause indexing
-						status = searchJob.execute(progress);
+						status = searchJob.execute();
 						if (VERBOSE)
-							System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): END - " + searchJob); //$NON-NLS-1$
+							System.out.println("-> performing concurrent job : END - " + searchJob); //$NON-NLS-1$
 					} finally {
 						if (wasEnabled)
 							enable();
@@ -168,7 +168,7 @@ public abstract class JobManager implements Runnable {
 				case IJob.CancelIfNotReady :
 					if (VERBOSE)
 						System.out.println(
-							"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - CancelIfNotReady - " + searchJob); //$NON-NLS-1$
+							"-> performing concurrent job : NOT READY - CancelIfNotReady - " + searchJob); //$NON-NLS-1$
 					progress.setCanceled(true);
 					break;
 
@@ -184,7 +184,7 @@ public abstract class JobManager implements Runnable {
 						if (currentJob != null && currentJob != previousJob) {
 							if (VERBOSE)
 								System.out.println(
-									"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - WaitUntilReady - " + searchJob);//$NON-NLS-1$
+									"-> performing concurrent job : NOT READY - WaitUntilReady - " + searchJob);//$NON-NLS-1$
 							if (progress != null) {
 								progress.subTask(
 									Util.bind("manager.filesToIndex", Integer.toString(awaitingWork))); //$NON-NLS-1$
@@ -198,9 +198,9 @@ public abstract class JobManager implements Runnable {
 					}
 			}
 		}
-		status = searchJob.execute(progress);
+		status = searchJob.execute();
 		if (VERBOSE)
-			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): END - " + searchJob); //$NON-NLS-1$
+			System.out.println("-> performing concurrent job : END - " + searchJob); //$NON-NLS-1$
 		return status;
 	}
 	public abstract String processName();
@@ -221,7 +221,7 @@ public abstract class JobManager implements Runnable {
 		}
 		awaitingJobs[jobEnd] = job;
 		if (VERBOSE)
-			System.out.println("-> requesting job ("+ Thread.currentThread()+"): " + job); //$NON-NLS-1$
+			System.out.println("-> requesting job: " + job); //$NON-NLS-1$
 
 	}
 	/**
@@ -258,12 +258,12 @@ public abstract class JobManager implements Runnable {
 					idlingStart = -1;
 				}
 				if (VERBOSE) {
-					System.out.println("-> executing ("+ Thread.currentThread()+"): " + job); //$NON-NLS-1$
+					System.out.println("-> executing: " + job); //$NON-NLS-1$
 					System.out.println("\t" + awaitingJobsCount() + " awaiting jobs.");	//$NON-NLS-1$ //$NON-NLS-2$
 				}
 				try {
 					executing = true;
-					boolean status = job.execute(null);
+					boolean status = job.execute();
 					//if (status == FAILED) request(job);
 					moveToNextJob();
 				} finally {

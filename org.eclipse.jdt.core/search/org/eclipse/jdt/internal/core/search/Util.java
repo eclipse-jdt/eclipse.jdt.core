@@ -6,13 +6,8 @@ package org.eclipse.jdt.internal.core.search;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class Util {
-	
-	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
-	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
-
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
 	private final static String bundleName = "org.eclipse.jdt.internal.core.search.messages"; //$NON-NLS-1$
@@ -48,11 +43,6 @@ public static String bind(String id, String[] bindings) {
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 		return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
-	// for compatibility with MessageFormat which eliminates double quotes in original message
-	char[] messageWithNoDoubleQuotes =
-	CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-	message = new String(messageWithNoDoubleQuotes);
-
 	if (bindings == null)
 		return message;
 	int length = message.length();

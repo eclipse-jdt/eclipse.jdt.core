@@ -4,22 +4,14 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.apache.tools.ant.taskdefs.optional.depend.ClassFile;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -54,7 +46,7 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	public static final int FIELD = 4;
 	public static final int METHOD = 8;
 	
-
+	public static final char[][][] NOT_FOUND_DECLARING_TYPE = new char[0][][];
 
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
 	this.matchMode = matchMode;
@@ -1181,17 +1173,103 @@ public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$
 }
 
+/**
+ * Collects the super type names of the given declaring type.
+ * Returns NOT_FOUND_DECLARING_TYPE if the declaring type was not found.
+ * Returns null if the declaring type pattern doesn't require an exact match.
+ */
+protected char[][][] collectSuperTypeNames(char[] declaringQualification, char[] declaringSimpleName, int matchMode, LookupEnvironment env) {
 
-
-
-
-
+	try {
+		char[][] declaringTypeName = null;
+		if (declaringQualification != null 
+				&& declaringSimpleName != null
+				&& matchMode == EXACT_MATCH) {
+			char[][] qualification = CharOperation.splitOn('.', declaringQualification);
+			declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
+		}
+		if (declaringTypeName != null) {
+			for (int i = 0, max = declaringTypeName.length; i < max; i++) {
+				ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
+				if (matchingDeclaringType != null 
+					&& (matchingDeclaringType.isValidBinding()
+						|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
+					return this.collectSuperTypeNames(matchingDeclaringType);
+				}
+				// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
+				int last = declaringTypeName.length - 1;
+				if (last == 0) break; 
+				declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
+				declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
+			}
+			return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
+		} else {
+			// non exact match: use the null value so that matches is more tolerant
+			return null;
+		}
+	} catch (AbortCompilation e) {
+		// classpath problem: default to null value so that matches is more tolerant
+		return null;
+	}
+}
 
 /**
- * Initializes this search pattern so that polymorphic search can be performed.
+ * Collects the names of all the supertypes of the given type.
+ */
+private char[][][] collectSuperTypeNames(ReferenceBinding type) {
+
+	// superclass
+	char[][][] superClassNames = null;
+	ReferenceBinding superclass = type.superclass();
+	if (superclass != null) {
+		superClassNames = this.collectSuperTypeNames(superclass);
+	}
+
+	// interfaces
+	char[][][][] superInterfaceNames = null;
+	int superInterfaceNamesLength = 0;
+	ReferenceBinding[] interfaces = type.superInterfaces();
+	if (interfaces != null) {
+		superInterfaceNames = new char[interfaces.length][][][];
+		for (int i = 0; i < interfaces.length; i++) {
+			superInterfaceNames[i] = this.collectSuperTypeNames(interfaces[i]);
+			superInterfaceNamesLength += superInterfaceNames[i].length;
+		}
+	}
+
+	int length = 
+		(superclass == null ? 0 : 1)
+		+ (superClassNames == null ? 0 : superClassNames.length)
+		+ (interfaces == null ? 0 : interfaces.length)
+		+ superInterfaceNamesLength;
+	char[][][] result = new char[length][][];
+	int index = 0;
+	if (superclass != null) {
+		result[index++] = superclass.compoundName;
+		if (superClassNames != null) {
+			System.arraycopy(superClassNames, 0, result, index, superClassNames.length);
+			index += superClassNames.length;
+		}
+	}
+	if (interfaces != null) {
+		for (int i = 0, max = interfaces.length; i < max; i++) {
+			result[index++] = interfaces[i].compoundName;
+			if (superInterfaceNames != null) {
+				System.arraycopy(superInterfaceNames[i], 0, result, index, superInterfaceNames[i].length);
+				index += superInterfaceNames[i].length;
+			}
+		}
+	}
+	
+	return result;
+}
+
+/**
+ * Initializes this search pattern from the given lookup environment.
+ * Returns whether it could be initialized.
  */ 
-public void initializePolymorphicSearch(MatchLocator locator, IJavaProject project, IProgressMonitor progressMonitor) {
-	// default is to do nothing
+public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
+	return true;
 }
 
 /**

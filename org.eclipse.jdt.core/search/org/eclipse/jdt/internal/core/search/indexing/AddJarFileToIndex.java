@@ -40,9 +40,7 @@ class AddJarFileToIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
 	}
-	public boolean execute(IProgressMonitor progressMonitor) {
-		
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+	public boolean execute() {
 		try {
 			if (this.resource != null) {
 				if (!this.resource.isLocal(IResource.DEPTH_ZERO)) {
@@ -84,7 +82,7 @@ class AddJarFileToIndex implements IJob {
 				}
 
 				if (JobManager.VERBOSE)
-					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$
+					System.out.println("INDEX : " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
 				final Hashtable indexedFileNames = new Hashtable(100);

@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
 
@@ -108,12 +107,14 @@ public String toString(){
 }
 
 /**
- * see SearchPattern.initializePolymorphicSearch
+ * see SearchPattern.initializeFromLookupEnvironment
  */
-public void initializePolymorphicSearch(MatchLocator locator, IJavaProject project, IProgressMonitor progressMonitor) {
+public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
 
-	this.leftPattern.initializePolymorphicSearch(locator, project, progressMonitor);
-	this.rightPattern.initializePolymorphicSearch(locator, project, progressMonitor);
+	// need to perform both operand initialization due to side-effects.
+	boolean leftInit = this.leftPattern.initializeFromLookupEnvironment(env);
+	boolean rightInit = this.rightPattern.initializeFromLookupEnvironment(env);
+	return leftInit || rightInit;
 }
 
 /**

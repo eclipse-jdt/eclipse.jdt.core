@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.core.search.processing;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 
 public interface IJob {
@@ -27,5 +26,5 @@ public interface IJob {
 	 *      RESCHEDULE if the job should be rescheduled later on
 	 *      COMPLETE if the job is over
 	 */
-	public boolean execute(IProgressMonitor progress);
+	public boolean execute();
 }

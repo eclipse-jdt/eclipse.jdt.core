@@ -34,9 +34,7 @@ public class IndexBinaryFolder implements IJob {
 	 * and discover resources which have either been changed, added or deleted
 	 * since the index was produced.
 	 */
-	public boolean execute(IProgressMonitor progressMonitor) {
-
-		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+	public boolean execute() {
 
 		if (!this.folder.isAccessible())
 			return COMPLETE; // nothing to do

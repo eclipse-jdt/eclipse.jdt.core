@@ -5,10 +5,8 @@ package org.eclipse.jdt.internal.core.search.indexing;
  * All Rights Reserved.
  */
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
@@ -50,7 +48,7 @@ protected void indexFile(IDocument document) throws IOException {
 
 	// Create a new Parser
 	SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
-	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, new CompilerOptions(JavaCore.getOptions()), true); // index local declarations
+	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, true); // index local declarations
 
 	// Launch the parser
 	char[] source = null;

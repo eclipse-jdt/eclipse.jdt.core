@@ -22,17 +22,19 @@ public class PatternSearchJob implements IJob {
 	protected IJavaSearchScope scope;
 	protected IJavaElement focus;
 	protected IIndexSearchRequestor requestor;
+	protected IProgressMonitor progressMonitor;
 	protected IndexManager indexManager;
 	protected int detailLevel;
 	protected IndexSelector indexSelector;
+
 	protected long executionTime = 0;
-	
 	public PatternSearchJob(
 		SearchPattern pattern,
 		IJavaSearchScope scope,
 		int detailLevel,
 		IIndexSearchRequestor requestor,
-		IndexManager indexManager) {
+		IndexManager indexManager,
+		IProgressMonitor progressMonitor) {
 
 		this(
 			pattern,
@@ -40,16 +42,17 @@ public class PatternSearchJob implements IJob {
 			null,
 			detailLevel,
 			requestor,
-			indexManager);
+			indexManager,
+			progressMonitor);
 	}
-
 	public PatternSearchJob(
 		SearchPattern pattern,
 		IJavaSearchScope scope,
 		IJavaElement focus,
 		int detailLevel,
 		IIndexSearchRequestor requestor,
-		IndexManager indexManager) {
+		IndexManager indexManager,
+		IProgressMonitor progressMonitor) {
 
 		this.pattern = pattern;
 		this.scope = scope;
@@ -57,16 +60,15 @@ public class PatternSearchJob implements IJob {
 		this.detailLevel = detailLevel;
 		this.requestor = requestor;
 		this.indexManager = indexManager;
+		this.progressMonitor = progressMonitor;
 	}
-
 	public boolean belongsTo(String jobFamily) {
 		return true;
 	}
-
 	/**
 	 * execute method comment.
 	 */
-	public boolean execute(IProgressMonitor progressMonitor) {
+	public boolean execute() {
 
 		if (progressMonitor != null && progressMonitor.isCanceled())
 			throw new OperationCanceledException();
@@ -78,20 +80,18 @@ public class PatternSearchJob implements IJob {
 		}
 		IIndex[] searchIndexes = this.indexSelector.getIndexes();
 		for (int i = 0, max = searchIndexes.length; i < max; i++) {
-			isComplete &= search(searchIndexes[i], progressMonitor);
+			isComplete &= search(searchIndexes[i]);
 		}
 		if (JobManager.VERBOSE) {
 			System.out.println(
-				"-> execution time: " + executionTime + " ms. for : " + this);
-			//$NON-NLS-2$ //$NON-NLS-1$
+				"-> execution time: " + executionTime + " ms. for : " + this); 	//$NON-NLS-2$ //$NON-NLS-1$
 		}
 		return isComplete;
 	}
-
 	/**
 	 * execute method comment.
 	 */
-	public boolean search(IIndex index, IProgressMonitor progressMonitor) {
+	public boolean search(IIndex index) {
 
 		if (progressMonitor != null && progressMonitor.isCanceled())
 			throw new OperationCanceledException();
@@ -110,8 +110,7 @@ public class PatternSearchJob implements IJob {
 					monitor.exitRead(); // free read lock
 					monitor.enterWrite(); // ask permission to write
 					if (IndexManager.VERBOSE)
-						System.out.println("-> merging index : " + index.getIndexFile());
-					//$NON-NLS-1$
+						System.out.println("-> merging index : " + index.getIndexFile()); //$NON-NLS-1$
 					index.save();
 				} catch (IOException e) {
 					return FAILED;
@@ -135,7 +134,6 @@ public class PatternSearchJob implements IJob {
 			monitor.exitRead(); // finished reading
 		}
 	}
-
 	public String toString() {
 		return "searching " + pattern.toString(); //$NON-NLS-1$
 	}

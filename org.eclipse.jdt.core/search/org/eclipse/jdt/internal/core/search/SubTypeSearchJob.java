@@ -21,11 +21,11 @@ import java.util.*;
 public class SubTypeSearchJob extends PatternSearchJob {
 
 	Hashtable inputs = new Hashtable(5);
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
-	super(pattern, scope, detailLevel, requestor, indexManager);
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager, IProgressMonitor progressMonitor) {
+	super(pattern, scope, detailLevel, requestor, indexManager, progressMonitor);
 }
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, org.eclipse.jdt.internal.core.search.indexing.IndexManager indexManager) {
-	super(pattern, scope, focus, detailLevel, requestor, indexManager);
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, org.eclipse.jdt.internal.core.search.indexing.IndexManager indexManager, IProgressMonitor progressMonitor) {
+	super(pattern, scope, focus, detailLevel, requestor, indexManager, progressMonitor);
 }
 public void closeAll(){
 
@@ -41,7 +41,7 @@ public void closeAll(){
 /**
  * execute method comment.
  */
-public boolean search(IIndex index, IProgressMonitor progressMonitor) {
+public boolean search(IIndex index) {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
