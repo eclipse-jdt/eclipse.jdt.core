@@ -551,7 +551,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions TODO: (olivier) why not simply using VERSION_1_1 instead ?
 	 * @since 3.0
 	 */
 	public static final int JDK1_1 = 0;
