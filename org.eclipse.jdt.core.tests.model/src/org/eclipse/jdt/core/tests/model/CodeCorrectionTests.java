@@ -87,6 +87,7 @@ public void setUpSuite() throws Exception {
 	JavaCore.setOptions(JavaCore.getDefaultOptions());
 	try {
 		getWorkspace().getRoot().getProject("CodeCorrection").build(IncrementalProjectBuilder.FULL_BUILD,null);
+		waitForAutoBuild();
 	} catch (CoreException e) {
 		assertTrue("building failed", false);
 	}

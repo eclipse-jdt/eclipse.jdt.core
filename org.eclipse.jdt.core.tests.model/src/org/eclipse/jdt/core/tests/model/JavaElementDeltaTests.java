@@ -582,6 +582,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		
 		// full build
 		p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
@@ -602,6 +603,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 
 		// incremental buid
 		p1.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		waitForAutoBuild();
 		assertDeltas(
 			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 

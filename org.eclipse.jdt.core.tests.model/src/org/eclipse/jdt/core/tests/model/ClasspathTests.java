@@ -1649,6 +1649,7 @@ public void testInvalidClasspath2() throws CoreException {
 		// (regression test for bug 42366: Classpath validation error message removed while rebuilding a project.)
 		IProject project = javaProject.getProject();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
 			"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
@@ -1671,7 +1672,9 @@ public void testMissingClasspath() throws CoreException {
 		project.open(null);
 		
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
 			"Unable to read '.classpath' file of project P.",

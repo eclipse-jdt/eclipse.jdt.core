@@ -170,6 +170,7 @@ public void setUpSuite() throws Exception {
 		"}"
 	);
 	project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	waitForAutoBuild();
 	project.setRawClasspath(
 		new IClasspathEntry[] {
 			JavaCore.newLibraryEntry(new Path("/BinaryProject/lib"), null, null)

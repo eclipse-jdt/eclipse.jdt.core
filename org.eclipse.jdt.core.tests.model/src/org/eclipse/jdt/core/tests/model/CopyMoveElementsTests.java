@@ -34,6 +34,7 @@ public void setUpSuite() throws Exception {
 		"}"
 	);
 	project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	waitForAutoBuild();
 }
 /**
  * Setup for the next test.
