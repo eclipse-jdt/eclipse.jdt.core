@@ -30,47 +30,39 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SelectionOnQualifiedNameReference extends QualifiedNameReference {
-	public long[] sourcePositions;
-	// positions of each token, the last one being the positions of the completion identifier
-	public SelectionOnQualifiedNameReference(
-		char[][] previousIdentifiers,
-		char[] selectionIdentifier,
-		long[] positions) {
-		super(
-			CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
-			(int) (positions[0] >>> 32),
-			(int) positions[positions.length - 1]);
-		this.sourcePositions = positions;
-	}
-
-	public TypeBinding resolveType(BlockScope scope) {
-		// it can be a package, type, member type, local variable or field
-		binding = scope.getBinding(tokens, this);
-		if (!binding.isValidBinding()) {
-			if (binding instanceof ProblemFieldBinding) {
-				scope.problemReporter().invalidField(this, (FieldBinding) binding);
-			} else
-				if (binding instanceof ProblemReferenceBinding) {
-					scope.problemReporter().invalidType(this, (TypeBinding) binding);
-				} else {
-					scope.problemReporter().unresolvableReference(this, binding);
-				}
-			throw new SelectionNodeFound();
+	public long[] sourcePositions; // positions of each token, the last one being the positions of the completion identifier
+public SelectionOnQualifiedNameReference(char[][] previousIdentifiers, char[] selectionIdentifier, long[] positions) {
+	super(
+		CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
+		(int) (positions[0] >>> 32),
+		(int) positions[positions.length - 1]);
+	this.sourcePositions = positions;
+}
+public TypeBinding resolveType(BlockScope scope) {
+	// it can be a package, type, member type, local variable or field
+	binding = scope.getBinding(tokens, this);
+	if (!binding.isValidBinding()) {
+		if (binding instanceof ProblemFieldBinding) {
+			scope.problemReporter().invalidField(this, (FieldBinding) binding);
+		} else if (binding instanceof ProblemReferenceBinding) {
+			scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		} else {
+			scope.problemReporter().unresolvableReference(this, binding);
 		}
-
-		throw new SelectionNodeFound(binding);
+		throw new SelectionNodeFound();
 	}
 
-	public String toStringExpression() {
+	throw new SelectionNodeFound(binding);
+}
+public String toStringExpression() {
 
-		StringBuffer buffer = new StringBuffer("<SelectOnName:");
-		for (int i = 0, length = tokens.length; i < length; i++) {
-			buffer.append(tokens[i]);
-			if (i != length - 1)
-				buffer.append(".");
-		}
-		buffer.append(">");
-		return buffer.toString();
+	StringBuffer buffer = new StringBuffer("<SelectOnName:"/*nonNLS*/);
+	for (int i = 0, length = tokens.length; i < length; i++) {
+		buffer.append(tokens[i]);
+		if (i != length - 1)
+			buffer.append("."/*nonNLS*/);
 	}
-
+	buffer.append(">"/*nonNLS*/);
+	return buffer.toString();
+}
 }

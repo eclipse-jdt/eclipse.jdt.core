@@ -14,12 +14,11 @@ import java.util.*;
  *
  */
 public class UnresolvedCompilationError extends Error {
-	/**
-	 * Insert method's description here.
-	 * @param s java.lang.String
-	 */
-	public UnresolvedCompilationError(String s) {
-		super(s);
-	}
-
+/**
+ * Insert method's description here.
+ * @param s java.lang.String
+ */
+public UnresolvedCompilationError(String s) {
+	super(s);
+}
 }

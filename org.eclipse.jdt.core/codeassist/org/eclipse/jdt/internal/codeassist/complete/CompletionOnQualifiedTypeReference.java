@@ -17,53 +17,44 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The source range of the completion node denotes the source range
  * which should be replaced by the completion.
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedTypeReference
-	extends QualifiedTypeReference {
+public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
 	public char[] completionIdentifier;
-	public CompletionOnQualifiedTypeReference(
-		char[][] previousIdentifiers,
-		char[] completionIdentifier,
-		long[] positions) {
-		super(previousIdentifiers, positions);
-		this.completionIdentifier = completionIdentifier;
+public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
+	super(previousIdentifiers, positions);
+	this.completionIdentifier = completionIdentifier;
+}
+public void aboutToResolve(Scope scope) {
+	getTypeBinding(scope.parent); // step up from the ClassScope
+}
+/*
+ * No expansion of the completion reference into an array one
+ */
+public TypeReference copyDims(int dim){
+	return this;
+}
+public TypeBinding getTypeBinding(Scope scope) {
+	// it can be a package, type or member type
+	Binding binding = scope.getTypeOrPackage(tokens);
+	if (!binding.isValidBinding()) {
+		scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		throw new CompletionNodeFound();
 	}
 
-	public void aboutToResolve(Scope scope) {
-		getTypeBinding(scope.parent); // step up from the ClassScope
+	throw new CompletionNodeFound(this, binding, scope);
+}
+public String toStringExpression(int tab) {
+
+	StringBuffer buffer = new StringBuffer();
+	buffer.append("<CompleteOnType:"/*nonNLS*/);
+	for (int i = 0; i < tokens.length; i++) {
+		buffer.append(tokens[i]);
+		buffer.append("."/*nonNLS*/);
 	}
-
-	/*
-	 * No expansion of the completion reference into an array one
-	 */
-	public TypeReference copyDims(int dim) {
-		return this;
-	}
-
-	public TypeBinding getTypeBinding(Scope scope) {
-		// it can be a package, type or member type
-		Binding binding = scope.getTypeOrPackage(tokens);
-		if (!binding.isValidBinding()) {
-			scope.problemReporter().invalidType(this, (TypeBinding) binding);
-			throw new CompletionNodeFound();
-		}
-
-		throw new CompletionNodeFound(this, binding, scope);
-	}
-
-	public String toStringExpression(int tab) {
-
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("<CompleteOnType:");
-		for (int i = 0; i < tokens.length; i++) {
-			buffer.append(tokens[i]);
-			buffer.append(".");
-		}
-		buffer.append(completionIdentifier).append(">");
-		return buffer.toString();
-	}
-
+	buffer.append(completionIdentifier).append(">"/*nonNLS*/);
+	return buffer.toString();
+}
 }

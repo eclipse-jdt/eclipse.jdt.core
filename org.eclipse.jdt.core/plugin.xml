@@ -4,14 +4,8 @@
     name = "Java Development Tools Core"
     id = "org.eclipse.jdt.core"
     version = "0.9"
-    vendor-name = "Object Technology International, Inc."
+    provider-name = "Object Technology International, Inc."
     class="org.eclipse.jdt.core.JavaCore">
-
-
-<!-- =========================================================================== -->
-<!-- The Java Development Tools Core Plugin                                                        -->
-<!-- {purpose goes here}                                                         -->
-<!-- =========================================================================== -->
 
 <requires>
     <import plugin="org.eclipse.core.resources"/>
@@ -67,6 +61,11 @@
 	<persistent value="true"/>
 	<attribute name="id"/>
 	<attribute name="flags"/>
+</extension>   
+<extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="Build path Problem">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
 </extension>   
 <extension id="transient_problem" point="org.eclipse.core.resources.markers" name="Transient Java Problem">
 	<super type="org.eclipse.core.resources.textmarker"/>

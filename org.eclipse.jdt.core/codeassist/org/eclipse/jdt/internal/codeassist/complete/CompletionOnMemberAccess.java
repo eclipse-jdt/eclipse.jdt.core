@@ -30,23 +30,21 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnMemberAccess extends FieldReference {
-	public CompletionOnMemberAccess(char[] source, long pos) {
-		super(source, pos);
-	}
-
-	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding receiverType = receiver.resolveType(scope);
-		if (receiverType == null || receiverType.isBaseType())
-			throw new CompletionNodeFound();
-		else
-			throw new CompletionNodeFound(this, receiverType, scope);
-		// array types are passed along to find the length field
-	}
-
-	public String toStringExpression() {
-		/* slow code */
-
-		return "<CompleteOnMemberAccess:" + super.toStringExpression() + ">";
-	}
-
+public CompletionOnMemberAccess(char[] source , long pos) {
+	super(source, pos);
+}
+public TypeBinding resolveType(BlockScope scope) {
+	TypeBinding receiverType = receiver.resolveType(scope);
+	if (receiverType == null || receiverType.isBaseType())
+		throw new CompletionNodeFound();
+	else
+		throw new CompletionNodeFound(this, receiverType, scope); // array types are passed along to find the length field
+}
+public String toStringExpression(){
+	/* slow code */
+	
+	return 	"<CompleteOnMemberAccess:"/*nonNLS*/ 
+			+ super.toStringExpression() 
+			+ ">"/*nonNLS*/;
+}
 }

@@ -15,44 +15,37 @@ package org.eclipse.jdt.internal.codeassist.select;
  *	---> class X extends <SelectOnType:Object>
  *
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionOnSingleTypeReference extends SingleTypeReference {
-	public SelectionOnSingleTypeReference(char[] source, long pos) {
-		super(source, pos);
+public SelectionOnSingleTypeReference(char[] source, long pos) {
+	super(source, pos);
+}
+public void aboutToResolve(Scope scope) {
+	getTypeBinding(scope.parent); // step up from the ClassScope
+}
+public TypeBinding getTypeBinding(Scope scope) {
+	// it can be a package, type or member type
+	Binding binding = scope.getTypeOrPackage(new char[][] {token});
+	if (!binding.isValidBinding()) {
+		scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		throw new SelectionNodeFound();
 	}
 
-	public void aboutToResolve(Scope scope) {
-		getTypeBinding(scope.parent); // step up from the ClassScope
-	}
+	throw new SelectionNodeFound(binding);
+}
+public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
+	super.resolveTypeEnclosing(scope, enclosingType);
 
-	public TypeBinding getTypeBinding(Scope scope) {
-		// it can be a package, type or member type
-		Binding binding = scope.getTypeOrPackage(new char[][] { token });
-		if (!binding.isValidBinding()) {
-			scope.problemReporter().invalidType(this, (TypeBinding) binding);
-			throw new SelectionNodeFound();
-		}
-
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
 		throw new SelectionNodeFound(binding);
-	}
+}
+public String toStringExpression(int tab){
 
-	public TypeBinding resolveTypeEnclosing(
-		BlockScope scope,
-		ReferenceBinding enclosingType) {
-		super.resolveTypeEnclosing(scope, enclosingType);
-
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
-	}
-
-	public String toStringExpression(int tab) {
-
-		return "<SelectOnType:" + new String(token) + ">";
-	}
-
+	return "<SelectOnType:"/*nonNLS*/ + new String(token) + ">"/*nonNLS*/ ;
+}
 }

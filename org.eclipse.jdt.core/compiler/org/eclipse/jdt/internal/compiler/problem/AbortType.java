@@ -13,8 +13,7 @@ import org.eclipse.jdt.internal.compiler.*;
  * should only be thrown from within problem handlers.
  */
 public class AbortType extends AbortCompilationUnit {
-	public AbortType(CompilationResult compilationResult) {
-		super(compilationResult);
-	}
-
+public AbortType(CompilationResult compilationResult) {
+	super(compilationResult);
+}
 }

@@ -10,12 +10,11 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SourceFieldDeclaration extends FieldDeclaration {
 	public int fieldEndPosition;
-	public SourceFieldDeclaration(
-		Expression initialization,
-		char[] name,
-		int sourceStart,
-		int sourceEnd) {
-		super(initialization, name, sourceStart, sourceEnd);
-	}
-
+public SourceFieldDeclaration(
+	Expression initialization, 
+	char[] name, 
+	int sourceStart, 
+	int sourceEnd) {
+	super(initialization, name, sourceStart, sourceEnd);
+}
 }

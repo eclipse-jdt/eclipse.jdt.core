@@ -22,28 +22,27 @@ package org.eclipse.jdt.internal.codeassist.select;
  *       }
  *
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionOnFieldReference extends FieldReference {
-	public SelectionOnFieldReference(char[] source, long pos) {
-		super(source, pos);
-	}
+public SelectionOnFieldReference(char[] source , long pos) {
+	super(source, pos);
+}
+public TypeBinding resolveType(BlockScope scope) {
+	super.resolveType(scope);
 
-	public TypeBinding resolveType(BlockScope scope) {
-		super.resolveType(scope);
-
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
-	}
-
-	public String toStringExpression() {
-		/* slow code */
-
-		return "<SelectionOnFieldReference:" + super.toStringExpression() + ">";
-	}
-
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
+		throw new SelectionNodeFound(binding);
+}
+public String toStringExpression(){
+	/* slow code */
+	
+	return 	"<SelectionOnFieldReference:"/*nonNLS*/ 
+			+ super.toStringExpression() 
+			+ ">"/*nonNLS*/;
+}
 }

@@ -11,34 +11,25 @@ public class ImportBinding extends Binding {
 	public boolean onDemand;
 
 	Binding resolvedImport; // must ensure the import is resolved
-	public ImportBinding(
-		char[][] compoundName,
-		boolean isOnDemand,
-		Binding binding) {
-		this.compoundName = compoundName;
-		this.onDemand = isOnDemand;
-		this.resolvedImport = binding;
-	}
+public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding) {
+	this.compoundName = compoundName;
+	this.onDemand = isOnDemand;
+	this.resolvedImport = binding;
+}
+/* API
+* Answer the receiver's binding type from Binding.BindingID.
+*/
 
-	/* API
-	* Answer the receiver's binding type from Binding.BindingID.
-	*/
-
-	public final int bindingType() {
-		return IMPORT;
-	}
-
-	public char[] readableName() {
-		if (onDemand)
-			return CharOperation.concat(
-				CharOperation.concatWith(compoundName, '.'),
-				".*".toCharArray());
-		else
-			return CharOperation.concatWith(compoundName, '.');
-	}
-
-	public String toString() {
-		return "import : " + new String(readableName());
-	}
-
+public final int bindingType() {
+	return IMPORT;
+}
+public char[] readableName() {
+	if (onDemand)
+		return CharOperation.concat(CharOperation.concatWith(compoundName, '.'), ".*".toCharArray());
+	else
+		return CharOperation.concatWith(compoundName, '.');
+}
+public String toString() {
+	return "import : " + new String(readableName());
+}
 }

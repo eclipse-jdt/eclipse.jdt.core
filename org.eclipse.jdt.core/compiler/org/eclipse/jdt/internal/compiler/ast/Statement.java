@@ -22,16 +22,13 @@ public abstract class Statement extends AstNode {
 	public static final int OnlyValueRequiredMASK = 32; // for binary expressions
 	public static final int OperatorSHIFT = 6;
 	public static final int OperatorMASK = 63 << OperatorSHIFT;
-
+	
 	// for name references only
 	// Reach . . . . . . . . . . . . . . . . D D D D D D D D VrF R R R
-	public static final int RestrictiveFlagMASK = 7;
-	// 3 lower bits for name references
-	public static final int FirstAssignmentToLocalMASK = 8;
-	// for single name references
+	public static final int RestrictiveFlagMASK = 7; // 3 lower bits for name references
+	public static final int FirstAssignmentToLocalMASK = 8; // for single name references
 	public static final int DepthSHIFT = 5;
-	public static final int DepthMASK = 0xFF << DepthSHIFT;
-	// 8 bits for actual depth value (max. 255)
+	public static final int DepthMASK = 0xFF << DepthSHIFT; // 8 bits for actual depth value (max. 255)
 
 	// for statements only
 	public static final int IsReachableMASK = 0x80000000; // highest bit
@@ -70,54 +67,41 @@ public abstract class Statement extends AstNode {
 	public final static int BitMask31= 0x40000000; // decimal 1073741824
 	public final static int BitMask32= 0x80000000; // decimal 2147483648	
 	*/
-	/**
-	 * Statement constructor comment.
-	 */
-	public Statement() {
-		super();
-	}
+/**
+ * Statement constructor comment.
+ */
+public Statement() {
+	super();
+}
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	return flowInfo;
+}
+public void generateCode(BlockScope currentScope, CodeStream codeStream){
+	throw new ShouldNotImplement("Missing statement code generation implementation");
+}
+public boolean isEmptyBlock(){
+	return false;
+}
+public boolean isValidJavaStatement(){
+	//the use of this method should be avoid in most cases
+	//and is here mostly for documentation purpose.....
+	//while the parser is responsable for creating
+	//welled formed expression statement, which results
+	//in the fact that java-non-semantic-expression-used-as-statement
+	//should not be parsable...thus not being built.
+	//It sounds like the java grammar as help the compiler job in removing
+	//-by construction- some statement that would have no effect....
+	//(for example all expression that may do side-effects are valid statement
+	// -this is an appromative idea.....-)
+	
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-		return flowInfo;
-	}
+	return true ;}
+public void resolve(BlockScope scope) {
+}
+public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
+	// statement within a switch that are not case are treated as normal statement.... 
 
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		throw new ShouldNotImplement("Missing statement code generation implementation");
-	}
-
-	public boolean isEmptyBlock() {
-		return false;
-	}
-
-	public boolean isValidJavaStatement() {
-		//the use of this method should be avoid in most cases
-		//and is here mostly for documentation purpose.....
-		//while the parser is responsable for creating
-		//welled formed expression statement, which results
-		//in the fact that java-non-semantic-expression-used-as-statement
-		//should not be parsable...thus not being built.
-		//It sounds like the java grammar as help the compiler job in removing
-		//-by construction- some statement that would have no effect....
-		//(for example all expression that may do side-effects are valid statement
-		// -this is an appromative idea.....-)
-
-		return true;
-	}
-
-	public void resolve(BlockScope scope) {
-	}
-
-	public Constant resolveCase(
-		BlockScope scope,
-		TypeBinding testType,
-		SwitchStatement switchStatement) {
-		// statement within a switch that are not case are treated as normal statement.... 
-
-		resolve(scope);
-		return null;
-	}
-
+	resolve(scope);
+	return null;
+}
 }

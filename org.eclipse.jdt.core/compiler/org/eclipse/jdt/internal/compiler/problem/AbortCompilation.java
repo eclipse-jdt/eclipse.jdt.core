@@ -16,37 +16,30 @@ import org.eclipse.jdt.internal.compiler.*;
 public class AbortCompilation extends RuntimeException {
 	public CompilationResult compilationResult;
 	public Throwable exception;
-
-	public int problemId;
+	
+	public int problemId; 
 	public String[] problemArguments;
 
 	/* special fields used to abort silently (e.g. when cancelling build process) */
 	public boolean isSilent;
 	public RuntimeException silentException;
-	public AbortCompilation() {
-		this((CompilationResult) null);
-	}
+public AbortCompilation() {
+	this((CompilationResult)null);
+}
+public AbortCompilation(int problemId, String[] problemArguments) {
 
-	public AbortCompilation(int problemId, String[] problemArguments) {
-
-		this.problemId = problemId;
-		this.problemArguments = problemArguments;
-	}
-
-	public AbortCompilation(CompilationResult compilationResult) {
-		this(compilationResult, null);
-	}
-
-	public AbortCompilation(
-		CompilationResult compilationResult,
-		Throwable exception) {
-		this.compilationResult = compilationResult;
-		this.exception = exception;
-	}
-
-	public AbortCompilation(boolean isSilent, RuntimeException silentException) {
-		this.isSilent = isSilent;
-		this.silentException = silentException;
-	}
-
+	this.problemId = problemId;
+	this.problemArguments = problemArguments;
+}
+public AbortCompilation(CompilationResult compilationResult) {
+	this(compilationResult, null);
+}
+public AbortCompilation(CompilationResult compilationResult, Throwable exception) {
+	this.compilationResult = compilationResult;
+	this.exception = exception;
+}
+public AbortCompilation(boolean isSilent, RuntimeException silentException) {
+	this.isSilent = isSilent;
+	this.silentException = silentException;
+}
 }

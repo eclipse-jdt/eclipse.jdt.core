@@ -24,30 +24,27 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The arguments of the allocation expression are all the arguments defined
  * before the cursor.
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnFieldType extends FieldDeclaration {
 
-	public CompletionOnFieldType(TypeReference type) {
-		super();
-		this.sourceStart = type.sourceStart;
-		this.sourceEnd = type.sourceEnd;
-		this.type = type;
-		this.name = NoChar;
-	}
+public CompletionOnFieldType(TypeReference type){
+	super();
+	this.sourceStart = type.sourceStart;
+	this.sourceEnd = type.sourceEnd;
+	this.type = type;
+	this.name = NoChar;
+}
+public TypeBinding getTypeBinding(Scope scope) {
+	if(type instanceof CompletionOnSingleTypeReference)
+		throw new CompletionNodeFound(this, scope);
+	else // handle the qualified type ref directly
+		return type.getTypeBinding(scope);
+}
+public String toString(int tab) {
 
-	public TypeBinding getTypeBinding(Scope scope) {
-		if (type instanceof CompletionOnSingleTypeReference)
-			throw new CompletionNodeFound(this, scope);
-		else // handle the qualified type ref directly
-			return type.getTypeBinding(scope);
-	}
-
-	public String toString(int tab) {
-
-		return type.toString(tab);
-	}
-
+	return type.toString(tab);
+}
 }

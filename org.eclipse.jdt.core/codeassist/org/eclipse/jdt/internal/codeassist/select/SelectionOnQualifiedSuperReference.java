@@ -31,30 +31,23 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-public class SelectionOnQualifiedSuperReference
-	extends QualifiedSuperReference {
-	public SelectionOnQualifiedSuperReference(
-		TypeReference name,
-		int pos,
-		int sourceEnd) {
-		super(name, pos, sourceEnd);
-	}
+public class SelectionOnQualifiedSuperReference extends QualifiedSuperReference {
+public SelectionOnQualifiedSuperReference(TypeReference name, int pos, int sourceEnd) {
+	super(name, pos, sourceEnd);
+}
+public TypeBinding resolveType(BlockScope scope) {
+	TypeBinding binding = super.resolveType(scope);
 
-	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding binding = super.resolveType(scope);
-
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
-	}
-
-	public String toStringExpression() {
-
-		StringBuffer buffer = new StringBuffer("<SelectOnQualifiedSuper:");
-		buffer.append(super.toStringExpression());
-		buffer.append(">");
-		return buffer.toString();
-	}
-
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
+		throw new SelectionNodeFound(binding);
+}
+public String toStringExpression(){
+	
+	StringBuffer buffer = new StringBuffer("<SelectOnQualifiedSuper:"/*nonNLS*/);
+	buffer.append(super.toStringExpression());
+	buffer.append(">"/*nonNLS*/);
+	return buffer.toString();
+}
 }

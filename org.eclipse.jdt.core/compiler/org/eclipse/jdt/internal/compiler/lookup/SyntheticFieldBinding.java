@@ -8,15 +8,8 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 
 public class SyntheticFieldBinding extends FieldBinding {
 	public int index;
-	public SyntheticFieldBinding(
-		char[] name,
-		TypeBinding type,
-		int modifiers,
-		ReferenceBinding declaringClass,
-		Constant constant,
-		int index) {
-		super(name, type, modifiers, declaringClass, constant);
-		this.index = index;
-	}
-
+public SyntheticFieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant, int index) {
+	super(name, type, modifiers, declaringClass, constant);
+	this.index = index;
+}
 }

@@ -22,27 +22,25 @@ package org.eclipse.jdt.internal.codeassist.select;
  *       }
  *
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class SelectionOnImportReference extends ImportReference {
 
-	public SelectionOnImportReference(char[][] tokens, long[] positions) {
-		super(tokens, positions, false);
-	}
+public SelectionOnImportReference(char[][] tokens , long[] positions) {
+	super(tokens, positions, false);
+}
+public String toString(int tab, boolean withOnDemand) {
 
-	public String toString(int tab, boolean withOnDemand) {
-
-		StringBuffer buffer = new StringBuffer(tabString(tab));
-		buffer.append("<SelectOnImport:");
-		for (int i = 0; i < tokens.length; i++) {
-			buffer.append(tokens[i]);
-			if (i < (tokens.length - 1)) {
-				buffer.append(".");
-			}
+	StringBuffer buffer = new StringBuffer(tabString(tab));
+	buffer.	append("<SelectOnImport:"/*nonNLS*/);
+	for (int i = 0; i < tokens.length; i++) {
+		buffer.append(tokens[i]);
+		if (i < (tokens.length - 1)) {
+			buffer.append("."/*nonNLS*/);
 		}
-		buffer.append(">");
-		return buffer.toString();
 	}
-
+	buffer.append(">"/*nonNLS*/);
+	return buffer.toString();
+}
 }

@@ -11,9 +11,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 
 import java.io.*;
 
-public class ClassFileReader
-	extends ClassFileStruct
-	implements AttributeNamesConstants, IBinaryType {
+public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
 	private int constantPoolCount;
 	private int[] constantPoolOffsets;
 	private int accessFlags;
@@ -32,533 +30,490 @@ public class ClassFileReader
 	private char[] classFileName;
 	private int classNameIndex;
 	private int innerInfoIndex;
-	/**
-	 * @param classFileBytes actual bytes of a .class file
-	 * @param fileName actual name of the file that contains the bytes, can be null
-	 */
-	public ClassFileReader(byte classFileBytes[], char[] fileName)
-		throws ClassFormatException {
-		// This method looks ugly but is actually quite simple, the constantPool is constructed
-		// in 3 passes.  All non-primitive constant pool members that usually refer to other members
-		// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
-		// all subsequent uses of the constant pool element faster.
-		super(classFileBytes, 0);
-		classFileName = fileName;
-		int readOffset = 10;
-		try {
-			constantPoolCount = this.u2At(8);
-			// Pass #1 - Fill in all primitive constants
-			constantPoolOffsets = new int[constantPoolCount];
-			for (int i = 1; i < constantPoolCount; i++) {
-				int tag = this.u1At(readOffset);
-				switch (tag) {
-					case Utf8Tag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += u2At(readOffset + 1);
-						readOffset += ConstantUtf8FixedSize;
-						break;
-					case IntegerTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantIntegerFixedSize;
-						break;
-					case FloatTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantFloatFixedSize;
-						break;
-					case LongTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantLongFixedSize;
-						i++;
-						break;
-					case DoubleTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantDoubleFixedSize;
-						i++;
-						break;
-					case ClassTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantClassFixedSize;
-						break;
-					case StringTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantStringFixedSize;
-						break;
-					case FieldRefTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantFieldRefFixedSize;
-						break;
-					case MethodRefTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantMethodRefFixedSize;
-						break;
-					case InterfaceMethodRefTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantInterfaceMethodRefFixedSize;
-						break;
-					case NameAndTypeTag :
-						constantPoolOffsets[i] = readOffset;
-						readOffset += ConstantNameAndTypeFixedSize;
-				}
+/**
+ * @param classFileBytes actual bytes of a .class file
+ * @param fileName actual name of the file that contains the bytes, can be null
+ */
+public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
+	// This method looks ugly but is actually quite simple, the constantPool is constructed
+	// in 3 passes.  All non-primitive constant pool members that usually refer to other members
+	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
+	// all subsequent uses of the constant pool element faster.
+	super(classFileBytes, 0);
+	classFileName = fileName;
+	int readOffset = 10;
+	try {
+		constantPoolCount = this.u2At(8);
+		// Pass #1 - Fill in all primitive constants
+		constantPoolOffsets = new int[constantPoolCount];
+		for (int i = 1; i < constantPoolCount; i++) {
+			int tag = this.u1At(readOffset);
+			switch (tag) {
+				case Utf8Tag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += u2At(readOffset + 1);
+					readOffset += ConstantUtf8FixedSize;
+					break;
+				case IntegerTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantIntegerFixedSize;
+					break;
+				case FloatTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantFloatFixedSize;
+					break;
+				case LongTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantLongFixedSize;
+					i++;
+					break;
+				case DoubleTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantDoubleFixedSize;
+					i++;
+					break;
+				case ClassTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantClassFixedSize;
+					break;
+				case StringTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantStringFixedSize;
+					break;
+				case FieldRefTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantFieldRefFixedSize;
+					break;
+				case MethodRefTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantMethodRefFixedSize;
+					break;
+				case InterfaceMethodRefTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantInterfaceMethodRefFixedSize;
+					break;
+				case NameAndTypeTag :
+					constantPoolOffsets[i] = readOffset;
+					readOffset += ConstantNameAndTypeFixedSize;
 			}
-			// Read and validate access flags
-			accessFlags = u2At(readOffset);
-			readOffset += 2;
+		}
+		// Read and validate access flags
+		accessFlags = u2At(readOffset);
+		readOffset += 2;
 
-			// Read the classname, use exception handlers to catch bad format
-			classNameIndex = u2At(readOffset);
-			className = getConstantClassNameAt(classNameIndex);
-			readOffset += 2;
+		// Read the classname, use exception handlers to catch bad format
+		classNameIndex = u2At(readOffset);
+		className = getConstantClassNameAt(classNameIndex);
+		readOffset += 2;
 
-			// Read the superclass name, can be null for java.lang.Object
-			int superclassNameIndex = u2At(readOffset);
-			readOffset += 2;
-			// if superclassNameIndex is equals to 0 there is no need to set a value for the 
-			// field superclassName. null is fine.
-			if (superclassNameIndex != 0) {
-				superclassName = getConstantClassNameAt(superclassNameIndex);
+		// Read the superclass name, can be null for java.lang.Object
+		int superclassNameIndex = u2At(readOffset);
+		readOffset += 2;
+		// if superclassNameIndex is equals to 0 there is no need to set a value for the 
+		// field superclassName. null is fine.
+		if (superclassNameIndex != 0) {
+			superclassName = getConstantClassNameAt(superclassNameIndex);
+		}
+
+		// Read the interfaces, use exception handlers to catch bad format
+		interfacesCount = u2At(readOffset);
+		readOffset += 2;
+		if (interfacesCount != 0) {
+			interfaceNames = new char[interfacesCount][];
+			for (int i = 0; i < interfacesCount; i++) {
+				interfaceNames[i] = getConstantClassNameAt(u2At(readOffset));
+				readOffset += 2;
 			}
-
-			// Read the interfaces, use exception handlers to catch bad format
-			interfacesCount = u2At(readOffset);
-			readOffset += 2;
-			if (interfacesCount != 0) {
-				interfaceNames = new char[interfacesCount][];
-				for (int i = 0; i < interfacesCount; i++) {
-					interfaceNames[i] = getConstantClassNameAt(u2At(readOffset));
-					readOffset += 2;
-				}
+		}
+		// Read the fields, use exception handlers to catch bad format
+		fieldsCount = u2At(readOffset);
+		readOffset += 2;
+		if (fieldsCount != 0) {
+			FieldInfo field;
+			fields = new FieldInfo[fieldsCount];
+			for (int i = 0; i < fieldsCount; i++) {
+				field = new FieldInfo(reference, constantPoolOffsets, readOffset);
+				fields[i] = field;
+				readOffset += field.sizeInBytes();
 			}
-			// Read the fields, use exception handlers to catch bad format
-			fieldsCount = u2At(readOffset);
-			readOffset += 2;
-			if (fieldsCount != 0) {
-				FieldInfo field;
-				fields = new FieldInfo[fieldsCount];
-				for (int i = 0; i < fieldsCount; i++) {
-					field = new FieldInfo(reference, constantPoolOffsets, readOffset);
-					fields[i] = field;
-					readOffset += field.sizeInBytes();
-				}
+		}
+		// Read the methods
+		methodsCount = u2At(readOffset);
+		readOffset += 2;
+		if (methodsCount != 0) {
+			methods = new MethodInfo[methodsCount];
+			MethodInfo method;
+			for (int i = 0; i < methodsCount; i++) {
+				method = new MethodInfo(reference, constantPoolOffsets, readOffset);
+				methods[i] = method;
+				readOffset += method.sizeInBytes();
 			}
-			// Read the methods
-			methodsCount = u2At(readOffset);
-			readOffset += 2;
-			if (methodsCount != 0) {
-				methods = new MethodInfo[methodsCount];
-				MethodInfo method;
-				for (int i = 0; i < methodsCount; i++) {
-					method = new MethodInfo(reference, constantPoolOffsets, readOffset);
-					methods[i] = method;
-					readOffset += method.sizeInBytes();
-				}
-			}
+		}
 
-			// Read the attributes
-			int attributesCount = u2At(readOffset);
-			readOffset += 2;
+		// Read the attributes
+		int attributesCount = u2At(readOffset);
+		readOffset += 2;
 
-			for (int i = 0; i < attributesCount; i++) {
-				int utf8Offset = constantPoolOffsets[u2At(readOffset)];
-				char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-				if (CharOperation.equals(attributeName, DeprecatedName)) {
-					accessFlags |= AccDeprecated;
-				} else {
-					if (CharOperation.equals(attributeName, InnerClassName)) {
-						int innerOffset = readOffset + 6;
-						int number_of_classes = u2At(innerOffset);
-						if (number_of_classes != 0) {
-							innerInfos = new InnerClassInfo[number_of_classes];
-							for (int j = 0; j < number_of_classes; j++) {
-								innerInfos[j] =
-									new InnerClassInfo(reference, constantPoolOffsets, innerOffset + 2);
-								if (classNameIndex == innerInfos[j].innerClassNameIndex) {
-									innerInfo = innerInfos[j];
-									innerInfoIndex = j;
-								}
-								innerOffset += 8;
+		for (int i = 0; i < attributesCount; i++) {
+			int utf8Offset = constantPoolOffsets[u2At(readOffset)];
+			char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			if (CharOperation.equals(attributeName, DeprecatedName)) {
+				accessFlags |= AccDeprecated;
+			} else {
+				if (CharOperation.equals(attributeName, InnerClassName)) {
+					int innerOffset = readOffset + 6;
+					int number_of_classes = u2At(innerOffset);
+					if (number_of_classes != 0) {
+						innerInfos = new InnerClassInfo[number_of_classes];
+						for (int j = 0; j < number_of_classes; j++) {
+							innerInfos[j] = 
+								new InnerClassInfo(reference, constantPoolOffsets, innerOffset + 2); 
+							if (classNameIndex == innerInfos[j].innerClassNameIndex) {
+								innerInfo = innerInfos[j];
+								innerInfoIndex = j;
 							}
+							innerOffset += 8;
 						}
+					}
+				} else {
+					if (CharOperation.equals(attributeName, SourceName)) {
+						utf8Offset = constantPoolOffsets[u2At(readOffset + 6)];
+						sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 					} else {
-						if (CharOperation.equals(attributeName, SourceName)) {
-							utf8Offset = constantPoolOffsets[u2At(readOffset + 6)];
-							sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-						} else {
-							if (CharOperation.equals(attributeName, SyntheticName)) {
-								accessFlags |= AccSynthetic;
-							}
+						if (CharOperation.equals(attributeName, SyntheticName)) {
+							accessFlags |= AccSynthetic;
 						}
 					}
 				}
-				readOffset += (6 + u4At(readOffset + 2));
 			}
-		} catch (Exception e) {
-			throw new ClassFormatException(
-				ClassFormatException.ErrTruncatedInput,
-				readOffset);
+			readOffset += (6 + u4At(readOffset + 2));
 		}
+	} catch (Exception e) {
+		throw new ClassFormatException(
+			ClassFormatException.ErrTruncatedInput, 
+			readOffset); 
 	}
-
-	/**
-	 * 	Answer the receiver's access flags.  The value of the access_flags
-	 *	item is a mask of modifiers used with class and interface declarations.
-	 *  @return int 
-	 */
-	public int accessFlags() {
-		return accessFlags;
+}
+/**
+ * 	Answer the receiver's access flags.  The value of the access_flags
+ *	item is a mask of modifiers used with class and interface declarations.
+ *  @return int 
+ */
+public int accessFlags() {
+	return accessFlags;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * Answer the char array that corresponds to the class name of the constant class.
+ * constantPoolIndex is the index in the constant pool that is a constant class entry.
+ *
+ * @param int constantPoolIndex
+ * @return char[]
+ */
+private char[] getConstantClassNameAt(int constantPoolIndex) {
+	int utf8Offset = constantPoolOffsets[u2At(constantPoolOffsets[constantPoolIndex] + 1)];
+	return utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+}
+/**
+ * Answer the int array that corresponds to all the offsets of each entry in the constant pool
+ *
+ * @return int[]
+ */
+public int[] getConstantPoolOffsets() {
+	return constantPoolOffsets;
+}
+/*
+ * Answer the resolved compoundName of the enclosing type
+ * or null if the receiver is a top level type.
+ */
+public char[] getEnclosingTypeName() {
+	if (innerInfo != null) {
+		return innerInfo.getEnclosingTypeName();
 	}
+	return null;
+}
+/**
+ * Answer the receiver's fields or null if the array is empty.
+ * @return org.eclipse.jdt.internal.compiler.api.IBinaryField[]
+ */
+public IBinaryField[] getFields() {
+	return fields;
+}
+/**
+ * Answer the file name which defines the type.
+ * The format is unspecified.
+ */
+public char[] getFileName() {
+	return classFileName;
+}
+/**
+ * Answer the source name if the receiver is a inner type. Return null if it is an anonymous class or if the receiver is a top-level class.
+ * e.g.
+ * public class A {
+ *	public class B {
+ *	}
+ *	public void foo() {
+ *		class C {}
+ *	}
+ *	public Runnable bar() {
+ *		return new Runnable() {
+ *			public void run() {}
+ *		};
+ *	}
+ * }
+ * It returns {'B'} for the member A$B
+ * It returns null for A
+ * It returns {'C'} for the local class A$1$C
+ * It returns null for the anonymous A$1
+ * @return char[]
+ */
+public char[] getInnerSourceName() {
+	if (innerInfo != null)
+		return innerInfo.getSourceName();
+	return null;
+}
+/**
+ * Answer the resolved names of the receiver's interfaces in the
+ * class file format as specified in section 4.2 of the Java 2 VM spec
+ * or null if the array is empty.
+ *
+ * For example, java.lang.String is java/lang/String.
+ * @return char[][]
+ */
+public char[][] getInterfaceNames() {
+	return interfaceNames;
+}
+/**
+ * Answer the receiver's nested types or null if the array is empty.
+ *
+ * This nested type info is extracted from the inner class attributes.
+ * Ask the name environment to find a member type using its compound name
+ * @return org.eclipse.jdt.internal.compiler.api.IBinaryNestedType[]
+ */
+public IBinaryNestedType[] getMemberTypes() {
+	// we might have some member types of the current type
+	if (innerInfos == null) return null;
 
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 *
-	 * Answer the char array that corresponds to the class name of the constant class.
-	 * constantPoolIndex is the index in the constant pool that is a constant class entry.
-	 *
-	 * @param int constantPoolIndex
-	 * @return char[]
-	 */
-	private char[] getConstantClassNameAt(int constantPoolIndex) {
-		int utf8Offset =
-			constantPoolOffsets[u2At(constantPoolOffsets[constantPoolIndex] + 1)];
-		return utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-	}
-
-	/**
-	 * Answer the int array that corresponds to all the offsets of each entry in the constant pool
-	 *
-	 * @return int[]
-	 */
-	public int[] getConstantPoolOffsets() {
-		return constantPoolOffsets;
-	}
-
-	/*
-	 * Answer the resolved compoundName of the enclosing type
-	 * or null if the receiver is a top level type.
-	 */
-	public char[] getEnclosingTypeName() {
-		if (innerInfo != null) {
-			return innerInfo.getEnclosingTypeName();
-		}
-		return null;
-	}
-
-	/**
-	 * Answer the receiver's fields or null if the array is empty.
-	 * @return org.eclipse.jdt.internal.compiler.api.IBinaryField[]
-	 */
-	public IBinaryField[] getFields() {
-		return fields;
-	}
-
-	/**
-	 * Answer the file name which defines the type.
-	 * The format is unspecified.
-	 */
-	public char[] getFileName() {
-		return classFileName;
-	}
-
-	/**
-	 * Answer the source name if the receiver is a inner type. Return null if it is an anonymous class or if the receiver is a top-level class.
-	 * e.g.
-	 * public class A {
-	 *	public class B {
-	 *	}
-	 *	public void foo() {
-	 *		class C {}
-	 *	}
-	 *	public Runnable bar() {
-	 *		return new Runnable() {
-	 *			public void run() {}
-	 *		};
-	 *	}
-	 * }
-	 * It returns {'B'} for the member A$B
-	 * It returns null for A
-	 * It returns {'C'} for the local class A$1$C
-	 * It returns null for the anonymous A$1
-	 * @return char[]
-	 */
-	public char[] getInnerSourceName() {
-		if (innerInfo != null)
-			return innerInfo.getSourceName();
-		return null;
-	}
-
-	/**
-	 * Answer the resolved names of the receiver's interfaces in the
-	 * class file format as specified in section 4.2 of the Java 2 VM spec
-	 * or null if the array is empty.
-	 *
-	 * For example, java.lang.String is java/lang/String.
-	 * @return char[][]
-	 */
-	public char[][] getInterfaceNames() {
-		return interfaceNames;
-	}
-
-	/**
-	 * Answer the receiver's nested types or null if the array is empty.
-	 *
-	 * This nested type info is extracted from the inner class attributes.
-	 * Ask the name environment to find a member type using its compound name
-	 * @return org.eclipse.jdt.internal.compiler.api.IBinaryNestedType[]
-	 */
-	public IBinaryNestedType[] getMemberTypes() {
-		// we might have some member types of the current type
-		if (innerInfos == null)
-			return null;
-
-		int length = innerInfos.length;
-		int startingIndex = innerInfo != null ? innerInfoIndex + 1 : 0;
-		if (length != startingIndex) {
-			IBinaryNestedType[] memberTypes =
-				new IBinaryNestedType[length - innerInfoIndex];
-			int memberTypeIndex = 0;
-			for (int i = startingIndex; i < length; i++) {
-				InnerClassInfo currentInnerInfo = innerInfos[i];
-				int outerClassNameIdx = currentInnerInfo.outerClassNameIndex;
-				if (outerClassNameIdx != 0 && outerClassNameIdx == classNameIndex) {
-					memberTypes[memberTypeIndex++] = currentInnerInfo;
-				}
+	int length = innerInfos.length;
+	int startingIndex = innerInfo != null ? innerInfoIndex + 1 : 0;
+	if (length != startingIndex) {
+		IBinaryNestedType[] memberTypes = 
+			new IBinaryNestedType[length - innerInfoIndex]; 
+		int memberTypeIndex = 0;
+		for (int i = startingIndex; i < length; i++) {
+			InnerClassInfo currentInnerInfo = innerInfos[i];
+			int outerClassNameIdx = currentInnerInfo.outerClassNameIndex;
+			if (outerClassNameIdx != 0 && outerClassNameIdx == classNameIndex) {
+				memberTypes[memberTypeIndex++] = currentInnerInfo;
 			}
-			if (memberTypeIndex == 0)
-				return null;
-			if (memberTypeIndex != memberTypes.length) {
-				// we need to resize the memberTypes array. Some local or anonymous classes
-				// are present in the current class.
-				System.arraycopy(
-					memberTypes,
-					0,
-					(memberTypes = new IBinaryNestedType[memberTypeIndex]),
-					0,
-					memberTypeIndex);
-			}
-			return memberTypes;
 		}
+		if (memberTypeIndex == 0) return null;
+		if (memberTypeIndex != memberTypes.length) {
+			// we need to resize the memberTypes array. Some local or anonymous classes
+			// are present in the current class.
+			System.arraycopy(
+				memberTypes, 
+				0, 
+				(memberTypes = new IBinaryNestedType[memberTypeIndex]), 
+				0, 
+				memberTypeIndex); 
+		}
+		return memberTypes;
+	}
+	return null;
+}
+/**
+ * Answer the receiver's methods or null if the array is empty.
+ * @return org.eclipse.jdt.internal.compiler.api.env.IBinaryMethod[]
+ */
+public IBinaryMethod[] getMethods() {
+	return methods;
+}
+/**
+ * Answer an int whose bits are set according the access constants
+ * defined by the VM spec.
+ * Set the AccDeprecated and AccSynthetic bits if necessary
+ * @return int
+ */
+public int getModifiers() {
+	if (innerInfo != null) {
+		return innerInfo.getModifiers();
+	}
+	return accessFlags;
+}
+/**
+ * Answer the resolved name of the type in the
+ * class file format as specified in section 4.2 of the Java 2 VM spec.
+ *
+ * For example, java.lang.String is java/lang/String.
+ * @return char[]
+ */
+public char[] getName() {
+	return className;
+}
+/**
+ * Answer the resolved name of the receiver's superclass in the
+ * class file format as specified in section 4.2 of the Java 2 VM spec
+ * or null if it does not have one.
+ *
+ * For example, java.lang.String is java/lang/String.
+ * @return char[]
+ */
+public char[] getSuperclassName() {
+	return superclassName;
+}
+/**
+ * Answer true if the receiver is an anonymous type, false otherwise
+ *
+ * @return <CODE>boolean</CODE>
+ */
+public boolean isAnonymous() {
+	return innerInfo != null && innerInfo.getEnclosingTypeName() == null && innerInfo.getSourceName() == null;
+}
+/**
+ * Answer whether the receiver contains the resolved binary form
+ * or the unresolved source form of the type.
+ * @return boolean
+ */
+public boolean isBinaryType() {
+	return true;
+}
+/**
+ * Answer true if the receiver is a class. False otherwise.
+ * @return boolean
+ */
+public boolean isClass() {
+	return (getModifiers() & AccInterface) == 0;
+}
+/**
+ * Answer true if the receiver is an interface. False otherwise.
+ * @return boolean
+ */
+public boolean isInterface() {
+	return (getModifiers() & AccInterface) != 0;
+}
+/**
+ * Answer true if the receiver is a local type, false otherwise
+ *
+ * @return <CODE>boolean</CODE>
+ */
+public boolean isLocal() {
+	return innerInfo != null && innerInfo.getEnclosingTypeName() == null && innerInfo.getSourceName() != null;
+}
+/**
+ * Answer true if the receiver is a member type, false otherwise
+ *
+ * @return <CODE>boolean</CODE>
+ */
+public boolean isMember() {
+	return innerInfo != null && innerInfo.getEnclosingTypeName() != null;
+}
+/**
+ * Answer true if the receiver is a nested type, false otherwise
+ *
+ * @return <CODE>boolean</CODE>
+ */
+public boolean isNestedType() {
+	return innerInfo != null;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param file The file you want to read
+ * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
+ */
+public static ClassFileReader read(java.io.File file) throws ClassFormatException, java.io.IOException {
+	int fileLength;
+	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
+	java.io.FileInputStream stream = new java.io.FileInputStream(file);
+	int bytesRead = 0;
+	int lastReadSize = 0;
+	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
+		bytesRead += lastReadSize;
+	}
+	ClassFileReader classFile = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
+	stream.close();
+	return classFile;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param String fileName
+ */
+public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
+	int fileLength;
+	File file = new File(fileName);
+	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
+	java.io.FileInputStream stream = new java.io.FileInputStream(file);
+	int bytesRead = 0;
+	int lastReadSize = 0;
+	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
+		bytesRead += lastReadSize;
+	}
+	ClassFileReader classFile = new ClassFileReader(classFileBytes, fileName.toCharArray());
+	stream.close();
+	return classFile;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param java.util.zip.ZipFile zip
+ * @param java.lang.String filename
+ * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
+ */
+public static ClassFileReader read(
+	java.util.zip.ZipFile zip, 
+	String filename)
+	throws ClassFormatException, java.io.IOException {
+	java.util.zip.ZipEntry ze = zip.getEntry(filename);
+	if (ze == null)
 		return null;
+	java.io.InputStream zipInputStream = zip.getInputStream(ze);
+	byte classFileBytes[] = new byte[(int) ze.getSize()];
+	int length = classFileBytes.length;
+	int len = 0;
+	int readSize = 0;
+	while ((readSize != -1) && (len != length)) {
+		readSize = zipInputStream.read(classFileBytes, len, length - len);
+		len += readSize;
 	}
+	zipInputStream.close();
+	return new ClassFileReader(classFileBytes, filename.toCharArray());
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * Answer the source file name attribute. Return null if there is no source file attribute for the receiver.
+ * 
+ * @return char[]
+ */
+public char[] sourceFileName() {
+	return sourceFileName;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ * 
+ * 
+ */
+public String toString() {
+	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+	java.io.PrintWriter print = new java.io.PrintWriter(out);
+	
+	print.println(this.getClass().getName() + "{");
+	print.println(" className: " + new String(getName()));
+	print.println(" superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName())));
+	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")");
 
-	/**
-	 * Answer the receiver's methods or null if the array is empty.
-	 * @return org.eclipse.jdt.internal.compiler.api.env.IBinaryMethod[]
-	 */
-	public IBinaryMethod[] getMethods() {
-		return methods;
-	}
-
-	/**
-	 * Answer an int whose bits are set according the access constants
-	 * defined by the VM spec.
-	 * Set the AccDeprecated and AccSynthetic bits if necessary
-	 * @return int
-	 */
-	public int getModifiers() {
-		if (innerInfo != null) {
-			return innerInfo.getModifiers();
-		}
-		return accessFlags;
-	}
-
-	/**
-	 * Answer the resolved name of the type in the
-	 * class file format as specified in section 4.2 of the Java 2 VM spec.
-	 *
-	 * For example, java.lang.String is java/lang/String.
-	 * @return char[]
-	 */
-	public char[] getName() {
-		return className;
-	}
-
-	/**
-	 * Answer the resolved name of the receiver's superclass in the
-	 * class file format as specified in section 4.2 of the Java 2 VM spec
-	 * or null if it does not have one.
-	 *
-	 * For example, java.lang.String is java/lang/String.
-	 * @return char[]
-	 */
-	public char[] getSuperclassName() {
-		return superclassName;
-	}
-
-	/**
-	 * Answer true if the receiver is an anonymous type, false otherwise
-	 *
-	 * @return <CODE>boolean</CODE>
-	 */
-	public boolean isAnonymous() {
-		return innerInfo != null
-			&& innerInfo.getEnclosingTypeName() == null
-			&& innerInfo.getSourceName() == null;
-	}
-
-	/**
-	 * Answer whether the receiver contains the resolved binary form
-	 * or the unresolved source form of the type.
-	 * @return boolean
-	 */
-	public boolean isBinaryType() {
-		return true;
-	}
-
-	/**
-	 * Answer true if the receiver is a class. False otherwise.
-	 * @return boolean
-	 */
-	public boolean isClass() {
-		return (getModifiers() & AccInterface) == 0;
-	}
-
-	/**
-	 * Answer true if the receiver is an interface. False otherwise.
-	 * @return boolean
-	 */
-	public boolean isInterface() {
-		return (getModifiers() & AccInterface) != 0;
-	}
-
-	/**
-	 * Answer true if the receiver is a local type, false otherwise
-	 *
-	 * @return <CODE>boolean</CODE>
-	 */
-	public boolean isLocal() {
-		return innerInfo != null
-			&& innerInfo.getEnclosingTypeName() == null
-			&& innerInfo.getSourceName() != null;
-	}
-
-	/**
-	 * Answer true if the receiver is a member type, false otherwise
-	 *
-	 * @return <CODE>boolean</CODE>
-	 */
-	public boolean isMember() {
-		return innerInfo != null && innerInfo.getEnclosingTypeName() != null;
-	}
-
-	/**
-	 * Answer true if the receiver is a nested type, false otherwise
-	 *
-	 * @return <CODE>boolean</CODE>
-	 */
-	public boolean isNestedType() {
-		return innerInfo != null;
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 *
-	 * @param file The file you want to read
-	 * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
-	 */
-	public static ClassFileReader read(java.io.File file)
-		throws ClassFormatException, java.io.IOException {
-		int fileLength;
-		byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-		java.io.FileInputStream stream = new java.io.FileInputStream(file);
-		int bytesRead = 0;
-		int lastReadSize = 0;
-		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-			lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-			bytesRead += lastReadSize;
-		}
-		ClassFileReader classFile =
-			new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
-		stream.close();
-		return classFile;
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 *
-	 * @param String fileName
-	 */
-	public static ClassFileReader read(String fileName)
-		throws ClassFormatException, java.io.IOException {
-		int fileLength;
-		File file = new File(fileName);
-		byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-		java.io.FileInputStream stream = new java.io.FileInputStream(file);
-		int bytesRead = 0;
-		int lastReadSize = 0;
-		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-			lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-			bytesRead += lastReadSize;
-		}
-		ClassFileReader classFile =
-			new ClassFileReader(classFileBytes, fileName.toCharArray());
-		stream.close();
-		return classFile;
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 *
-	 * @param java.util.zip.ZipFile zip
-	 * @param java.lang.String filename
-	 * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
-	 */
-	public static ClassFileReader read(java.util.zip.ZipFile zip, String filename)
-		throws ClassFormatException, java.io.IOException {
-		java.util.zip.ZipEntry ze = zip.getEntry(filename);
-		if (ze == null)
-			return null;
-		java.io.InputStream zipInputStream = zip.getInputStream(ze);
-		byte classFileBytes[] = new byte[(int) ze.getSize()];
-		int length = classFileBytes.length;
-		int len = 0;
-		int readSize = 0;
-		while ((readSize != -1) && (len != length)) {
-			readSize = zipInputStream.read(classFileBytes, len, length - len);
-			len += readSize;
-		}
-		zipInputStream.close();
-		return new ClassFileReader(classFileBytes, filename.toCharArray());
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 *
-	 * Answer the source file name attribute. Return null if there is no source file attribute for the receiver.
-	 * 
-	 * @return char[]
-	 */
-	public char[] sourceFileName() {
-		return sourceFileName;
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 * 
-	 * 
-	 */
-	public String toString() {
-		java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-		java.io.PrintWriter print = new java.io.PrintWriter(out);
-
-		print.println(this.getClass().getName() + "{");
-		print.println(" className: " + new String(getName()));
-		print.println(
-			" superclassName: "
-				+ (getSuperclassName() == null ? "null" : new String(getSuperclassName())));
-		print.println(
-			" access_flags: "
-				+ ClassFileStruct.printTypeModifiers(accessFlags())
-				+ "("
-				+ accessFlags()
-				+ ")");
-
-		print.flush();
-		return out.toString();
-	}
-
+	print.flush();
+	return out.toString();
+}
 }

@@ -16,132 +16,108 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class ConditionalFlowInfo extends FlowInfo {
 	public FlowInfo initsWhenTrue;
 	public FlowInfo initsWhenFalse;
-	ConditionalFlowInfo(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
-		this.initsWhenTrue = initsWhenTrue;
-		this.initsWhenFalse = initsWhenFalse;
-	}
-
-	public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits) {
-		return unconditionalInits().addInitializationsFrom(otherInits);
-	}
-
-	public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits) {
-		return unconditionalInits().addPotentialInitializationsFrom(otherInits);
-	}
-
-	public FlowInfo asNegatedCondition() {
-		FlowInfo extra = initsWhenTrue;
-		initsWhenTrue = initsWhenFalse;
-		initsWhenFalse = extra;
-		return this;
-	}
-
-	public FlowInfo copy() {
-		return new ConditionalFlowInfo(initsWhenTrue.copy(), initsWhenFalse.copy());
-	}
-
-	public FlowInfo initsWhenFalse() {
-		return initsWhenFalse;
-	}
-
-	public FlowInfo initsWhenTrue() {
-		return initsWhenTrue;
-	}
-
-	/**
-	 * Check status of definite assignment for a field.
-	 */
-	public boolean isDefinitelyAssigned(FieldBinding field) {
-		return initsWhenTrue.isDefinitelyAssigned(field)
+ConditionalFlowInfo(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){
+	this.initsWhenTrue = initsWhenTrue;
+	this.initsWhenFalse = initsWhenFalse; 
+}
+public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits) {
+	return unconditionalInits().addInitializationsFrom(otherInits);
+}
+public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits) {
+	return unconditionalInits().addPotentialInitializationsFrom(otherInits);
+}
+public FlowInfo asNegatedCondition() {
+	FlowInfo extra = initsWhenTrue;
+	initsWhenTrue = initsWhenFalse;
+	initsWhenFalse = extra;
+	return this;
+}
+public FlowInfo copy() {
+	return new ConditionalFlowInfo(initsWhenTrue.copy(), initsWhenFalse.copy());
+}
+public FlowInfo initsWhenFalse() {
+	return initsWhenFalse;
+}
+public FlowInfo initsWhenTrue() {
+	return initsWhenTrue;
+}
+/**
+ * Check status of definite assignment for a field.
+ */
+public boolean isDefinitelyAssigned(FieldBinding field) {
+	return initsWhenTrue.isDefinitelyAssigned(field) 
 			&& initsWhenFalse.isDefinitelyAssigned(field);
-
-	}
-
-	/**
-	 * Check status of definite assignment for a local variable.
-	 */
-	public boolean isDefinitelyAssigned(LocalVariableBinding local) {
-		return initsWhenTrue.isDefinitelyAssigned(local)
+	
+}
+/**
+ * Check status of definite assignment for a local variable.
+ */
+public boolean isDefinitelyAssigned(LocalVariableBinding local) {
+	return initsWhenTrue.isDefinitelyAssigned(local) 
 			&& initsWhenFalse.isDefinitelyAssigned(local);
-
-	}
-
-	public boolean isFakeReachable() {
-		return unconditionalInits().isFakeReachable();
-		//should maybe directly be: false
-	}
-
-	/**
-	 * Check status of potential assignment for a field.
-	 */
-	public boolean isPotentiallyAssigned(FieldBinding field) {
-		return initsWhenTrue.isPotentiallyAssigned(field)
+	
+}
+public boolean isFakeReachable(){
+	return unconditionalInits().isFakeReachable();	
+	//should maybe directly be: false
+}
+/**
+ * Check status of potential assignment for a field.
+ */
+public boolean isPotentiallyAssigned(FieldBinding field) {
+	return initsWhenTrue.isPotentiallyAssigned(field) 
 			|| initsWhenFalse.isPotentiallyAssigned(field);
-
-	}
-
-	/**
-	 * Check status of potential assignment for a local variable.
-	 */
-	public boolean isPotentiallyAssigned(LocalVariableBinding local) {
-		return initsWhenTrue.isPotentiallyAssigned(local)
+	
+}
+/**
+ * Check status of potential assignment for a local variable.
+ */
+public boolean isPotentiallyAssigned(LocalVariableBinding local) {
+	return initsWhenTrue.isPotentiallyAssigned(local) 
 			|| initsWhenFalse.isPotentiallyAssigned(local);
-
-	}
-
-	/**
-	 * Record a field got definitely assigned.
-	 */
-	public void markAsDefinitelyAssigned(FieldBinding field) {
-		initsWhenTrue.markAsDefinitelyAssigned(field);
-		initsWhenFalse.markAsDefinitelyAssigned(field);
-	}
-
-	/**
-	 * Record a field got definitely assigned.
-	 */
-	public void markAsDefinitelyAssigned(LocalVariableBinding local) {
-		initsWhenTrue.markAsDefinitelyAssigned(local);
-		initsWhenFalse.markAsDefinitelyAssigned(local);
-	}
-
-	/**
-	 * Clear the initialization info for a field
-	 */
-	public void markAsDefinitelyNotAssigned(FieldBinding field) {
-		initsWhenTrue.markAsDefinitelyNotAssigned(field);
-		initsWhenFalse.markAsDefinitelyNotAssigned(field);
-	}
-
-	/**
-	 * Clear the initialization info for a local variable
-	 */
-	public void markAsDefinitelyNotAssigned(LocalVariableBinding local) {
-		initsWhenTrue.markAsDefinitelyNotAssigned(local);
-		initsWhenFalse.markAsDefinitelyNotAssigned(local);
-	}
-
-	public FlowInfo markAsFakeReachable(boolean isFakeReachable) {
-		initsWhenTrue.markAsFakeReachable(isFakeReachable);
-		initsWhenFalse.markAsFakeReachable(isFakeReachable);
-		return this;
-	}
-
-	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
-		return unconditionalInits().mergedWith(otherInits);
-	}
-
-	public String toString() {
-		return "FlowInfo<true: "
-			+ initsWhenTrue.toString()
-			+ ", false: "
-			+ initsWhenFalse.toString()
-			+ ">";
-	}
-
-	public UnconditionalFlowInfo unconditionalInits() {
-		return initsWhenTrue.unconditionalInits().copy().mergedWith(
-			initsWhenFalse.unconditionalInits());
-	}
-
+	
+}
+/**
+ * Record a field got definitely assigned.
+ */
+public void markAsDefinitelyAssigned(FieldBinding field) {
+	initsWhenTrue.markAsDefinitelyAssigned(field);
+	initsWhenFalse.markAsDefinitelyAssigned(field);	
+}
+/**
+ * Record a field got definitely assigned.
+ */
+public void markAsDefinitelyAssigned(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyAssigned(local);
+	initsWhenFalse.markAsDefinitelyAssigned(local);	
+}
+/**
+ * Clear the initialization info for a field
+ */
+public void markAsDefinitelyNotAssigned(FieldBinding field) {
+	initsWhenTrue.markAsDefinitelyNotAssigned(field);
+	initsWhenFalse.markAsDefinitelyNotAssigned(field);	
+}
+/**
+ * Clear the initialization info for a local variable
+ */
+public void markAsDefinitelyNotAssigned(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyNotAssigned(local);
+	initsWhenFalse.markAsDefinitelyNotAssigned(local);	
+}
+public FlowInfo markAsFakeReachable(boolean isFakeReachable) {
+	initsWhenTrue.markAsFakeReachable(isFakeReachable);
+	initsWhenFalse.markAsFakeReachable(isFakeReachable);
+	return this;
+}
+public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
+	return unconditionalInits().mergedWith(otherInits);
+}
+public String toString() {
+	return "FlowInfo<true: " + initsWhenTrue.toString() + ", false: " + initsWhenFalse.toString() + ">";
+}
+public UnconditionalFlowInfo unconditionalInits() {
+	return initsWhenTrue.unconditionalInits().copy()
+			.mergedWith(initsWhenFalse.unconditionalInits());
+}
 }

@@ -17,39 +17,31 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The source range of the completion node denotes the source range
  * which should be replaced by the completion.
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnSingleTypeReference extends SingleTypeReference {
-	public CompletionOnSingleTypeReference(char[] source, long pos) {
-		super(source, pos);
-	}
+public CompletionOnSingleTypeReference(char[] source, long pos) {
+	super(source, pos);
+}
+public void aboutToResolve(Scope scope) {
+	getTypeBinding(scope.parent); // step up from the ClassScope
+}
+/*
+ * No expansion of the completion reference into an array one
+ */
+public TypeReference copyDims(int dim){
+	return this;
+}
+public TypeBinding getTypeBinding(Scope scope) {
+	throw new CompletionNodeFound(this, scope);
+}
+public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
+	throw new CompletionNodeFound(this, enclosingType, scope);
+}
+public String toStringExpression(int tab){
 
-	public void aboutToResolve(Scope scope) {
-		getTypeBinding(scope.parent); // step up from the ClassScope
-	}
-
-	/*
-	 * No expansion of the completion reference into an array one
-	 */
-	public TypeReference copyDims(int dim) {
-		return this;
-	}
-
-	public TypeBinding getTypeBinding(Scope scope) {
-		throw new CompletionNodeFound(this, scope);
-	}
-
-	public TypeBinding resolveTypeEnclosing(
-		BlockScope scope,
-		ReferenceBinding enclosingType) {
-		throw new CompletionNodeFound(this, enclosingType, scope);
-	}
-
-	public String toStringExpression(int tab) {
-
-		return "<CompleteOnType:" + new String(token) + ">";
-	}
-
+	return "<CompleteOnType:"/*nonNLS*/ + new String(token) + ">"/*nonNLS*/ ;
+}
 }

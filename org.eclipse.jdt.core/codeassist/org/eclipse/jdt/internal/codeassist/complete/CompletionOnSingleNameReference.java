@@ -27,18 +27,15 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-
+ 
 public class CompletionOnSingleNameReference extends SingleNameReference {
-	public CompletionOnSingleNameReference(char[] source, long pos) {
-		super(source, pos);
-	}
-
-	public TypeBinding resolveType(BlockScope scope) {
-		throw new CompletionNodeFound(this, scope);
-	}
-
-	public String toStringExpression() {
-		return "<CompleteOnName:" + super.toStringExpression() + ">";
-	}
-
+public CompletionOnSingleNameReference(char[] source, long pos) {
+	super(source, pos);
+}
+public TypeBinding resolveType(BlockScope scope) {
+	throw new CompletionNodeFound(this, scope);
+}
+public String toStringExpression() {
+	return "<CompleteOnName:"/*nonNLS*/ + super.toStringExpression() + ">"/*nonNLS*/;
+}
 }

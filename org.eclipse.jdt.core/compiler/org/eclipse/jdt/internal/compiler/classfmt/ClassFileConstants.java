@@ -7,7 +7,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 public interface ClassFileConstants extends IConstants {
-
+	
 	int Utf8Tag = 1;
 	int IntegerTag = 3;
 	int FloatTag = 4;
@@ -19,7 +19,7 @@ public interface ClassFileConstants extends IConstants {
 	int MethodRefTag = 10;
 	int InterfaceMethodRefTag = 11;
 	int NameAndTypeTag = 12;
-
+	
 	int ConstantMethodRefFixedSize = 5;
 	int ConstantClassFixedSize = 3;
 	int ConstantDoubleFixedSize = 9;

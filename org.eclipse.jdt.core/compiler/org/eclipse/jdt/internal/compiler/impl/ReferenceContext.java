@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 public interface ReferenceContext {
-	public void abort(int abortLevel);
-	public CompilationResult compilationResult();
-	void tagAsHavingErrors();
+public void abort(int abortLevel);
+public CompilationResult compilationResult();
+void tagAsHavingErrors();
 }

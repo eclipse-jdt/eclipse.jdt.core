@@ -12,4 +12,5 @@ public interface ConfigurableProblems {
 	final int UnusedArgument = 0x20000;
 	final int TemporaryWarning = 0x40000;
 	final int AccessEmulation = 0x80000;
+	final int NonExternalizedString = 0x100000;
 }

@@ -31,44 +31,33 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedAllocationExpression
-	extends QualifiedAllocationExpression {
-	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding typeBinding = null;
-		if (enclosingInstance != null) {
-			TypeBinding enclosingType = enclosingInstance.resolveType(scope);
-			if (!(enclosingType instanceof ReferenceBinding)) {
-				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
-					enclosingType,
-					enclosingInstance);
-				throw new CompletionNodeFound();
-			}
-			typeBinding =
-				((SingleTypeReference) type).resolveTypeEnclosing(
-					scope,
-					(ReferenceBinding) enclosingType);
-			if (!(typeBinding instanceof ReferenceBinding))
-				throw new CompletionNodeFound();
-			// no need to continue if its an array or base type
-			if (typeBinding.isInterface()) // handle the anonymous class definition case
-				typeBinding = scope.getJavaLangObject();
-		} else {
-			typeBinding = type.resolveType(scope);
-			if (!(typeBinding instanceof ReferenceBinding))
-				throw new CompletionNodeFound();
-			// no need to continue if its an array or base type
+public class CompletionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
+public TypeBinding resolveType(BlockScope scope) {
+	TypeBinding typeBinding = null;
+	if (enclosingInstance != null) {
+		TypeBinding enclosingType = enclosingInstance.resolveType(scope);
+		if (!(enclosingType instanceof ReferenceBinding)) {
+			scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(enclosingType, enclosingInstance);
+			throw new CompletionNodeFound();
 		}
-
-		throw new CompletionNodeFound(this, typeBinding, scope);
+		typeBinding = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
+		if (!(typeBinding instanceof ReferenceBinding))
+			throw new CompletionNodeFound(); // no need to continue if its an array or base type
+		if (typeBinding.isInterface()) // handle the anonymous class definition case
+			typeBinding = scope.getJavaLangObject();
+	} else {
+		typeBinding = type.resolveType(scope);
+		if (!(typeBinding instanceof ReferenceBinding))
+			throw new CompletionNodeFound(); // no need to continue if its an array or base type
 	}
 
-	public String toStringExpression(int tab) {
-		return (
-			(this.enclosingInstance == null)
-				? "<CompleteOnAllocationExpression:"
-				: "<CompleteOnQualifiedAllocationExpression:")
-			+ super.toStringExpression(tab)
-			+ ">";
-	}
-
+	throw new CompletionNodeFound(this, typeBinding, scope);
+}
+public String toStringExpression(int tab) {
+	return 
+		((this.enclosingInstance == null) ? 
+			"<CompleteOnAllocationExpression:"/*nonNLS*/ : 
+			"<CompleteOnQualifiedAllocationExpression:"/*nonNLS*/) + 
+		super.toStringExpression(tab) + ">"/*nonNLS*/;
+}
 }

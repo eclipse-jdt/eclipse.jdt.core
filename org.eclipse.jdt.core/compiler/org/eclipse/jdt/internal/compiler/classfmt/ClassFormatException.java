@@ -8,10 +8,10 @@ public class ClassFormatException extends Exception {
 	public static final int ErrBadMinorVersion = 2;
 	public static final int ErrBadMajorVersion = 3;
 
-	public static final int ErrBadConstantClass = 4;
-	public static final int ErrBadConstantString = 5;
+	public static final int ErrBadConstantClass= 4;
+	public static final int ErrBadConstantString= 5;
 	public static final int ErrBadConstantNameAndType = 6;
-	public static final int ErrBadConstantFieldRef = 7;
+	public static final int ErrBadConstantFieldRef= 7;
 	public static final int ErrBadConstantMethodRef = 8;
 	public static final int ErrBadConstantInterfaceMethodRef = 9;
 	public static final int ErrBadConstantPoolIndex = 10;
@@ -22,9 +22,9 @@ public class ClassFormatException extends Exception {
 	public static final int ErrClassCannotBeAbstractFinal = 15;
 	public static final int ErrBadClassname = 16;
 	public static final int ErrBadFieldInfo = 17;
-	public static final int ErrBadMethodInfo = 17;
+	public static final int ErrBadMethodInfo = 17; 
 
-	public static final int ErrEmptyConstantPool = 18;
+	public static final int ErrEmptyConstantPool =18;
 	public static final int ErrMalformedUtf8 = 19;
 	public static final int ErrUnknownConstantTag = 20;
 	public static final int ErrTruncatedInput = 21;
@@ -35,33 +35,30 @@ public class ClassFormatException extends Exception {
 	public static final int ErrIncorrectInterfaceMethods = 26;
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 * 
-	 * 
-	 */
-	public ClassFormatException(int code) {
-		errorCode = code;
-	}
-
-	/**
-	 * (c)1998 Object Technology International.
-	 * (c)1998 International Business Machines Corporation.
-	 * 
-	 * 
-	 */
-	public ClassFormatException(int code, int bufPos) {
-		errorCode = code;
-		bufferPosition = bufPos;
-	}
-
-	/**
-	 * @return int
-	 */
-	public int getErrorCode() {
-		return errorCode;
-	}
-
+	
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ * 
+ * 
+ */
+public ClassFormatException(int code) {
+	errorCode = code;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ * 
+ * 
+ */
+public ClassFormatException(int code, int bufPos) {
+	errorCode = code;
+	bufferPosition = bufPos;
+}
+/**
+ * @return int
+ */
+public int getErrorCode() {
+	return errorCode;
+}
 }

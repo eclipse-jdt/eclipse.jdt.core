@@ -17,39 +17,30 @@ import org.eclipse.jdt.internal.compiler.util.*;
  */
 public class LabelFlowContext extends SwitchFlowContext {
 	public char[] labelName;
-	public LabelFlowContext(
-		FlowContext parent,
-		AstNode associatedNode,
-		char[] labelName,
-		Label breakLabel,
-		BlockScope scope) {
+public LabelFlowContext(FlowContext parent, AstNode associatedNode, char[] labelName, Label breakLabel, BlockScope scope){
+	
+	super(parent, associatedNode, breakLabel);
+	this.labelName = labelName;	
+	checkLabelValidity(scope);
+}
+void checkLabelValidity(BlockScope scope) {
 
-		super(parent, associatedNode, breakLabel);
-		this.labelName = labelName;
-		checkLabelValidity(scope);
-	}
+	// check if label was already defined above
 
-	void checkLabelValidity(BlockScope scope) {
-
-		// check if label was already defined above
-
-		FlowContext current = parent;
-		while (current != null) {
-			char[] currentLabelName;
-			if (((currentLabelName = current.labelName()) != null)
-				&& CharOperation.equals(currentLabelName, labelName)) {
-				scope.problemReporter().alreadyDefinedLabel(labelName, associatedNode);
-			}
-			current = current.parent;
+	FlowContext current = parent;
+	while (current != null) {
+		char[] currentLabelName;
+		if (((currentLabelName = current.labelName()) != null) 
+			&& CharOperation.equals(currentLabelName, labelName)) {
+			scope.problemReporter().alreadyDefinedLabel(labelName, associatedNode);
 		}
+		current = current.parent;
 	}
-
-	public String individualToString() {
-		return "Label flow context [label:" + String.valueOf(labelName) + "]";
-	}
-
-	public char[] labelName() {
-		return labelName;
-	}
-
+}
+public String individualToString(){
+	return "Label flow context [label:"+String.valueOf(labelName)+"]";
+}
+public char[] labelName() {
+	return labelName;
+}
 }

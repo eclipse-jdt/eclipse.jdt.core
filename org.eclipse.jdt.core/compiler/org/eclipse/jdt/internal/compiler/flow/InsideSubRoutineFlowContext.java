@@ -14,18 +14,13 @@ import org.eclipse.jdt.internal.compiler.problem.*;
  *	try statements, exception handlers, etc...
  */
 public class InsideSubRoutineFlowContext extends FlowContext {
-	public InsideSubRoutineFlowContext(
-		FlowContext parent,
-		AstNode associatedNode) {
-		super(parent, associatedNode);
-	}
-
-	public boolean isNonReturningContext() {
-		return associatedNode.cannotReturn();
-	}
-
-	public AstNode subRoutine() {
-		return associatedNode;
-	}
-
+public InsideSubRoutineFlowContext(FlowContext parent, AstNode associatedNode){
+	super(parent, associatedNode);
+}
+public boolean isNonReturningContext() {
+	return associatedNode.cannotReturn();
+}
+public AstNode subRoutine(){
+	return associatedNode;
+}
 }

@@ -33,23 +33,20 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SelectionOnSuperReference extends SuperReference {
 
-	public SelectionOnSuperReference(int pos, int sourceEnd) {
-		super(pos, sourceEnd);
-	}
+public SelectionOnSuperReference(int pos, int sourceEnd) {
+	super(pos, sourceEnd);
+}
+public TypeBinding resolveType(BlockScope scope) {
+	TypeBinding binding = super.resolveType(scope);
 
-	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding binding = super.resolveType(scope);
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
+		throw new SelectionNodeFound(binding);
+}
+public String toStringExpression(){
 
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
-	}
-
-	public String toStringExpression() {
-
-		return "<SelectOnSuper:" + super.toStringExpression() + ">";
-
-	}
-
+	return "<SelectOnSuper:"/*nonNLS*/+super.toStringExpression()+">"/*nonNLS*/;
+	
+}
 }

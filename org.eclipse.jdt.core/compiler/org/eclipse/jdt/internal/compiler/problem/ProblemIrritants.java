@@ -27,7 +27,7 @@ public interface ProblemIrritants { // max: 500
 	final int MissingEnclosingInstanceForConstructorCall = TypeRelated + 20;
 	final int MissingEnclosingInstance = TypeRelated + 21;
 	final int IncorrectEnclosingInstanceReference = TypeRelated + 22;
-	final int IllegalEnclosingInstanceSpecification = TypeRelated + 23;
+	final int IllegalEnclosingInstanceSpecification = TypeRelated + 23;	
 	final int CannotDefineStaticInitializerInLocalType = Internal + 24;
 	final int OuterLocalMustBeFinal = Internal + 25;
 	final int CannotDefineInterfaceInLocalType = Internal + 26;
@@ -53,7 +53,7 @@ public interface ProblemIrritants { // max: 500
 	final int BytecodeExceeds64KLimitForClinit = Internal + 64;
 	final int TooManyArgumentSlots = Internal + 65;
 	final int TooManyLocalVariableSlots = Internal + 66;
-
+		
 	// fields
 	final int UndefinedField = FieldRelated + 70;
 	final int NotVisibleField = FieldRelated + 71;
@@ -84,7 +84,7 @@ public interface ProblemIrritants { // max: 500
 	final int NoMessageSendOnBaseType = MethodRelated + 114;
 	final int ParameterMismatch = MethodRelated + 115;
 	final int NoMessageSendOnArrayType = MethodRelated + 116;
-
+	
 	// constructors
 	final int UndefinedConstructor = ConstructorRelated + 130;
 	final int NotVisibleConstructor = ConstructorRelated + 131;
@@ -162,7 +162,7 @@ public interface ProblemIrritants { // max: 500
 	final int UnmatchedBracket = Internal + 220;
 	final int NoFieldOnBaseType = FieldRelated + 221;
 	final int InvalidExpressionAsStatement = Internal + 222;
-
+	
 	// constants
 	final int END_OF_SOURCE = Internal + 250;
 	final int INVALID_HEXA = Internal + 251;
@@ -184,7 +184,7 @@ public interface ProblemIrritants { // max: 500
 	final int IllegalModifierForMemberClass = TypeRelated + 304;
 	final int IllegalModifierForMemberInterface = TypeRelated + 305;
 	final int IllegalModifierForLocalClass = TypeRelated + 306;
-	//	final int IllegalModifierForLocalInterface = TypeRelated + 307; 
+//	final int IllegalModifierForLocalInterface = TypeRelated + 307; 
 	final int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
 	final int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
 	final int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
@@ -205,11 +205,9 @@ public interface ProblemIrritants { // max: 500
 	final int PublicClassMustMatchFileName = TypeRelated + 325;
 	final int MustSpecifyPackage = 326;
 	final int HierarchyHasProblems = TypeRelated + 327;
-	final int InvalidSuperclassBase = TypeRelated + 329;
-	// reserved to 334 included
+	final int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
 
-	final int InvalidInterfaceBase = TypeRelated + 334;
-	// reserved to 339 included
+	final int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
 
 	// field related problems
 	final int DuplicateField = FieldRelated + 340;
@@ -235,21 +233,17 @@ public interface ProblemIrritants { // max: 500
 	final int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
 	final int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
 	final int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
-	final int ArgumentProblemBase = MethodRelated + 369;
-	// reserved to 374 included.
+	final int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
 
-	final int ExceptionTypeProblemBase = MethodRelated + 374;
-	// reserved to 379 included.
+	final int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
 
-	final int ReturnTypeProblemBase = MethodRelated + 379;
-	// reserved to 384 included.
+	final int ReturnTypeProblemBase = MethodRelated + 379; // reserved to 384 included.
 
 	// import related problems
 	final int ConflictingImport = ImportRelated + 385;
 	final int DuplicateImport = ImportRelated + 386;
 	final int CannotImportPackage = ImportRelated + 387;
-	final int ImportProblemBase = ImportRelated + 389;
-	// reserved to 394 included.
+	final int ImportProblemBase = ImportRelated + 389; // reserved to 394 included.
 
 	// local variable related problems
 	final int DuplicateModifierForVariable = MethodRelated + 395;
@@ -259,8 +253,7 @@ public interface ProblemIrritants { // max: 500
 	final int AbstractMethodMustBeImplemented = MethodRelated + 400;
 	final int FinalMethodCannotBeOverridden = MethodRelated + 401;
 	final int IncompatibleExceptionInThrowsClause = MethodRelated + 402;
-	final int IncompatibleExceptionInInheritedMethodThrowsClause =
-		MethodRelated + 403;
+	final int IncompatibleExceptionInInheritedMethodThrowsClause = MethodRelated + 403;
 	final int IncompatibleReturnType = MethodRelated + 404;
 	final int InheritedMethodReducesVisibility = MethodRelated + 405;
 	final int CannotOverrideAStaticMethodWithAnInstanceMethod = MethodRelated + 406;
@@ -274,4 +267,5 @@ public interface ProblemIrritants { // max: 500
 	// code snippet support
 	final int CodeSnippetMissingClass = Internal + 420;
 	final int CodeSnippetMissingMethod = Internal + 421;
+	final int NonExternalizedStringLiteral = Internal + 261;
 }

@@ -27,32 +27,30 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionOnMessageSend extends MessageSend {
-	public TypeBinding resolveType(BlockScope scope) {
-		super.resolveType(scope);
+public TypeBinding resolveType(BlockScope scope) {
+	super.resolveType(scope);
 
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
+		throw new SelectionNodeFound(binding);
+}
+public String toStringExpression() {
+	/*slow code*/
+
+	String s = "<SelectOnMessageSend:"/*nonNLS*/;
+	if (receiver != ThisReference.ThisImplicit)
+		s = s + receiver.toStringExpression() + "."/*nonNLS*/;
+	s = s + new String(selector) + "("/*nonNLS*/;
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length; i++) {
+			s += arguments[i].toStringExpression();
+			if (i != arguments.length - 1) {
+				s += ", "/*nonNLS*/;
+			}
+		};
 	}
-
-	public String toStringExpression() {
-		/*slow code*/
-
-		String s = "<SelectOnMessageSend:";
-		if (receiver != ThisReference.ThisImplicit)
-			s = s + receiver.toStringExpression() + ".";
-		s = s + new String(selector) + "(";
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				s += arguments[i].toStringExpression();
-				if (i != arguments.length - 1) {
-					s += ", ";
-				}
-			};
-		}
-		s = s + ")>";
-		return s;
-	}
-
+	s = s + ")>"/*nonNLS*/;
+	return s;
+}
 }

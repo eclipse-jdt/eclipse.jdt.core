@@ -30,25 +30,22 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
 	public char[] completionIdentifier;
-	public CompletionOnClassLiteralAccess(long pos, TypeReference t) {
-		super((int) (pos >>> 32), t);
-		this.sourceEnd = (int) pos;
-	}
-
-	public TypeBinding resolveType(BlockScope scope) {
-		if (super.resolveType(scope) == null)
-			throw new CompletionNodeFound();
-		else
-			throw new CompletionNodeFound(this, targetType, scope);
-	}
-
-	public String toStringExpression() {
-		StringBuffer result = new StringBuffer("<CompleteOnClassLiteralAccess:");
-		result.append(type.toString());
-		result.append(".");
-		result.append(completionIdentifier);
-		result.append(">");
-		return result.toString();
-	}
-
+public CompletionOnClassLiteralAccess(long pos, TypeReference t) {
+	super((int) (pos >>> 32), t);
+	this.sourceEnd = (int)pos;
+}
+public TypeBinding resolveType(BlockScope scope) {
+	if (super.resolveType(scope) == null)
+		throw new CompletionNodeFound();
+	else
+		throw new CompletionNodeFound(this, targetType, scope);
+}
+public String toStringExpression() {
+	StringBuffer result = new StringBuffer("<CompleteOnClassLiteralAccess:"/*nonNLS*/);
+	result.append(type.toString());
+	result.append("."/*nonNLS*/);
+	result.append(completionIdentifier);
+	result.append(">"/*nonNLS*/);
+	return result.toString();
+}
 }

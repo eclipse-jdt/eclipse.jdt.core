@@ -25,25 +25,23 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The arguments of the allocation expression are all the arguments defined
  * before the cursor.
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class CompletionOnPackageReference extends ImportReference {
-	public CompletionOnPackageReference(char[][] tokens, long[] positions) {
-		super(tokens, positions, true);
-	}
-
-	public String toString(int tab, boolean withOnDemand) {
-		StringBuffer buffer = new StringBuffer(tabString(tab));
-		buffer.append("<CompleteOnPackage:");
-		for (int i = 0; i < tokens.length; i++) {
-			buffer.append(tokens[i]);
-			if (i < (tokens.length - 1)) {
-				buffer.append(".");
-			}
+public CompletionOnPackageReference(char[][] tokens , long[] positions) {
+	super(tokens, positions, true);
+}
+public String toString(int tab, boolean withOnDemand) {
+	StringBuffer buffer = new StringBuffer(tabString(tab));
+	buffer.	append("<CompleteOnPackage:"/*nonNLS*/);
+	for (int i = 0; i < tokens.length; i++) {
+		buffer.append(tokens[i]);
+		if (i < (tokens.length - 1)) {
+			buffer.append("."/*nonNLS*/);
 		}
-		buffer.append(">");
-		return buffer.toString();
 	}
-
+	buffer.append(">"/*nonNLS*/);
+	return buffer.toString();
+}
 }

@@ -26,41 +26,37 @@ package org.eclipse.jdt.internal.codeassist.select;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class SelectionOnExplicitConstructorCall
-	extends ExplicitConstructorCall {
-	public SelectionOnExplicitConstructorCall(int accessMode) {
-		super(accessMode);
+public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall {
+public SelectionOnExplicitConstructorCall(int accessMode) {
+	super(accessMode);
+}
+public void resolve(BlockScope scope) {
+	super.resolve(scope);
+
+	if (binding == null || !binding.isValidBinding())
+		throw new SelectionNodeFound();
+	else
+		throw new SelectionNodeFound(binding);
+}
+public String toString(int tab) {
+	String s = tabString(tab);
+	s += "<SelectOnExplicitConstructorCall:"/*nonNLS*/;
+	if (qualification != null)
+		s = s + qualification.toStringExpression() + "."/*nonNLS*/;
+	if (accessMode == This) {
+		s = s + "this("/*nonNLS*/;
+	} else {
+		s = s + "super("/*nonNLS*/;
 	}
-
-	public void resolve(BlockScope scope) {
-		super.resolve(scope);
-
-		if (binding == null || !binding.isValidBinding())
-			throw new SelectionNodeFound();
-		else
-			throw new SelectionNodeFound(binding);
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length; i++) {
+			s += arguments[i].toStringExpression();
+			if (i != arguments.length - 1) {
+				s += ", "/*nonNLS*/;
+			}
+		};
 	}
-
-	public String toString(int tab) {
-		String s = tabString(tab);
-		s += "<SelectOnExplicitConstructorCall:";
-		if (qualification != null)
-			s = s + qualification.toStringExpression() + ".";
-		if (accessMode == This) {
-			s = s + "this(";
-		} else {
-			s = s + "super(";
-		}
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				s += arguments[i].toStringExpression();
-				if (i != arguments.length - 1) {
-					s += ", ";
-				}
-			};
-		}
-		s += ")>";
-		return s;
-	}
-
+	s += ")>"/*nonNLS*/;
+	return s;
+}
 }

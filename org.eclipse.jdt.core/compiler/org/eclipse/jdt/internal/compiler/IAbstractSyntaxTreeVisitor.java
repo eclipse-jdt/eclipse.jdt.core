@@ -4,7 +4,7 @@ package org.eclipse.jdt.internal.compiler;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.*; 
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -14,20 +14,12 @@ public interface IAbstractSyntaxTreeVisitor {
 	void acceptProblem(IProblem problem);
 	void endVisit(AllocationExpression allocationExpression, BlockScope scope);
 	void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope);
-	void endVisit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope);
+	void endVisit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope);
 	void endVisit(Argument argument, BlockScope scope);
-	void endVisit(
-		ArrayAllocationExpression arrayAllocationExpression,
-		BlockScope scope);
+	void endVisit(ArrayAllocationExpression arrayAllocationExpression, BlockScope scope);
 	void endVisit(ArrayInitializer arrayInitializer, BlockScope scope);
-	void endVisit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		BlockScope scope);
-	void endVisit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		ClassScope scope);
+	void endVisit(ArrayQualifiedTypeReference arrayQualifiedTypeReference, BlockScope scope);
+	void endVisit(ArrayQualifiedTypeReference arrayQualifiedTypeReference, ClassScope scope);
 	void endVisit(ArrayReference arrayReference, BlockScope scope);
 	void endVisit(ArrayTypeReference arrayTypeReference, BlockScope scope);
 	void endVisit(ArrayTypeReference arrayTypeReference, ClassScope scope);
@@ -40,9 +32,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(CharLiteral charLiteral, BlockScope scope);
 	void endVisit(ClassLiteralAccess classLiteral, BlockScope scope);
 	void endVisit(Clinit clinit, ClassScope scope);
-	void endVisit(
-		CompilationUnitDeclaration compilationUnitDeclaration,
-		CompilationUnitScope scope);
+	void endVisit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope);
 	void endVisit(CompoundAssignment compoundAssignment, BlockScope scope);
 	void endVisit(ConditionalExpression conditionalExpression, BlockScope scope);
 	void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope scope);
@@ -74,13 +64,9 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope);
 	void endVisit(PostfixExpression postfixExpression, BlockScope scope);
 	void endVisit(PrefixExpression prefixExpression, BlockScope scope);
-	void endVisit(
-		QualifiedAllocationExpression qualifiedAllocationExpression,
-		BlockScope scope);
+	void endVisit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);
 	void endVisit(QualifiedNameReference qualifiedNameReference, BlockScope scope);
-	void endVisit(
-		QualifiedSuperReference qualifiedSuperReference,
-		BlockScope scope);
+	void endVisit(QualifiedSuperReference qualifiedSuperReference, BlockScope scope);
 	void endVisit(QualifiedThisReference qualifiedThisReference, BlockScope scope);
 	void endVisit(QualifiedTypeReference qualifiedTypeReference, BlockScope scope);
 	void endVisit(QualifiedTypeReference qualifiedTypeReference, ClassScope scope);
@@ -103,20 +89,12 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(WhileStatement whileStatement, BlockScope scope);
 	boolean visit(AllocationExpression allocationExpression, BlockScope scope);
 	boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope);
-	boolean visit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope);
+	boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope);
 	boolean visit(Argument argument, BlockScope scope);
-	boolean visit(
-		ArrayAllocationExpression arrayAllocationExpression,
-		BlockScope scope);
+	boolean visit(ArrayAllocationExpression arrayAllocationExpression, BlockScope scope);
 	boolean visit(ArrayInitializer arrayInitializer, BlockScope scope);
-	boolean visit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		BlockScope scope);
-	boolean visit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		ClassScope scope);
+	boolean visit(ArrayQualifiedTypeReference arrayQualifiedTypeReference, BlockScope scope);
+	boolean visit(ArrayQualifiedTypeReference arrayQualifiedTypeReference, ClassScope scope);
 	boolean visit(ArrayReference arrayReference, BlockScope scope);
 	boolean visit(ArrayTypeReference arrayTypeReference, BlockScope scope);
 	boolean visit(ArrayTypeReference arrayTypeReference, ClassScope scope);
@@ -129,9 +107,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(CharLiteral charLiteral, BlockScope scope);
 	boolean visit(ClassLiteralAccess classLiteral, BlockScope scope);
 	boolean visit(Clinit clinit, ClassScope scope);
-	boolean visit(
-		CompilationUnitDeclaration compilationUnitDeclaration,
-		CompilationUnitScope scope);
+	boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope);
 	boolean visit(CompoundAssignment compoundAssignment, BlockScope scope);
 	boolean visit(ConditionalExpression conditionalExpression, BlockScope scope);
 	boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope);
@@ -163,13 +139,9 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope);
 	boolean visit(PostfixExpression postfixExpression, BlockScope scope);
 	boolean visit(PrefixExpression prefixExpression, BlockScope scope);
-	boolean visit(
-		QualifiedAllocationExpression qualifiedAllocationExpression,
-		BlockScope scope);
+	boolean visit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);
 	boolean visit(QualifiedNameReference qualifiedNameReference, BlockScope scope);
-	boolean visit(
-		QualifiedSuperReference qualifiedSuperReference,
-		BlockScope scope);
+	boolean visit(QualifiedSuperReference qualifiedSuperReference, BlockScope scope);
 	boolean visit(QualifiedThisReference qualifiedThisReference, BlockScope scope);
 	boolean visit(QualifiedTypeReference qualifiedTypeReference, BlockScope scope);
 	boolean visit(QualifiedTypeReference qualifiedTypeReference, ClassScope scope);

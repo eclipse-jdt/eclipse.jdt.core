@@ -15,14 +15,14 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.*;
 
 public interface IProblemFactory {
-	IProblem createProblem(
-		char[] originatingFileName,
-		int problemId,
-		String[] arguments,
-		int severity,
-		int startPosition,
-		int endPosition,
-		int lineNumber);
-	Locale getLocale();
-	String getLocalizedMessage(int problemId, String[] problemArguments);
+IProblem createProblem(
+	char[] originatingFileName, 
+	int problemId, 
+	String[] arguments, 
+	int severity, 
+	int startPosition, 
+	int endPosition,
+	int lineNumber);
+Locale getLocale();
+String getLocalizedMessage(int problemId, String[] problemArguments);
 }
