@@ -1481,11 +1481,10 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 /**
  * 
  */
-public static ITypeHierarchy load(IType type, InputStream input, IJavaSearchScope scope) throws JavaModelException {
+public static ITypeHierarchy load(IType type, InputStream input) throws JavaModelException {
 	try {
 		TypeHierarchy typeHierarchy = new TypeHierarchy();
 		typeHierarchy.initialize(1);
-		typeHierarchy.scope = scope;
 		
 		IType[] types = new IType[10];
 		int typeCount = 0;
@@ -1522,7 +1521,10 @@ public static ITypeHierarchy load(IType type, InputStream input, IJavaSearchScop
 				bytes[length++] = b;
 			}
 		} while(b != SEPARATOR1);
-		
+
+		// read project
+//		typeHierarchy.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+
 		// read types
 		int count = 0;
 		while((b = (byte)input.read()) != SEPARATOR1) {

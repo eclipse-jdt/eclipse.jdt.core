@@ -330,11 +330,8 @@ public boolean isMember() throws JavaModelException {
 /**
  * @see IType
  */
-public ITypeHierarchy loadTypeHierachy(IJavaProject project, InputStream input, IProgressMonitor monitor) throws JavaModelException {
-	return TypeHierarchy.load(
-		this,
-		input,
-		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}));
+public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monitor) throws JavaModelException {
+	return TypeHierarchy.load(this, input);
 }
 /**
  * @see IType
