@@ -248,16 +248,12 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 					for (int i = 0; i < attributesCount; i++) {
 						int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
 						char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
-						if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
-							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
-						} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
+						if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
 							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.innerClassesAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
 							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.sourceFileAttribute;
-						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.ENCLOSING_METHOD)) {
 							this.enclosingMethodAttribute = new EnclosingMethodAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.enclosingMethodAttribute;

@@ -51,7 +51,11 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		throws ClassFormatException {
 			
 		boolean no_code_attribute = (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
-		accessFlags = u2At(classFileBytes, 0, offset);
+		final int flags = u2At(classFileBytes, 0, offset);
+		accessFlags = flags;
+		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
+			this.isSynthetic = true;
+		}
 		
 		this.nameIndex = u2At(classFileBytes, 2, offset);
 		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.nameIndex);

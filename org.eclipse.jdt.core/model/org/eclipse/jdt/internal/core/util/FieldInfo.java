@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IConstantValueAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
+import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISignatureAttribute;
 
 /**
@@ -44,8 +45,11 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	 */
 	public FieldInfo(byte classFileBytes[], IConstantPool constantPool, int offset)
 		throws ClassFormatException {
-		this.accessFlags = u2At(classFileBytes, 0, offset);
-
+		final int flags = u2At(classFileBytes, 0, offset);
+		this.accessFlags = flags;
+		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
+			this.isSynthetic = true;
+		}
 		this.nameIndex = u2At(classFileBytes, 2, offset);
 		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.nameIndex);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {

@@ -108,6 +108,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			buffer.append("volatile"); //$NON-NLS-1$
 		}
+		if ((accessFlags & IModifierConstants.ACC_ENUM) != 0) {
+			if (!firstModifier) {
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append("enum"); //$NON-NLS-1$
+		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -257,6 +266,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			buffer.append("synchronized"); //$NON-NLS-1$
 		}
+		if ((accessFlags & IModifierConstants.ACC_BRIDGE) != 0) {
+			if (!firstModifier) {
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append("bridge"); //$NON-NLS-1$
+		}		
+		if ((accessFlags & IModifierConstants.ACC_VARARGS) != 0) {
+			if (!firstModifier) {
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append("varargs"); //$NON-NLS-1$
+		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -290,6 +317,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				firstModifier = false;
 			}
 			buffer.append("public"); //$NON-NLS-1$
+		}
+		if ((accessFlags & IModifierConstants.ACC_ANNOTATION) != 0) {
+			if (!firstModifier) {
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append("@"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -414,9 +450,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					versionNumber,
 					Integer.toString(majorVersion),
 					Integer.toString(minorVersion),
-					(accesssFlags & IModifierConstants.ACC_SUPER) != 0
+					((accesssFlags & IModifierConstants.ACC_SUPER) != 0
 							? Util.bind("classfileformat.superflagisset")//$NON-NLS-1$
-							: Util.bind("classfileformat.superflagisnotset")//$NON-NLS-1$
+							: Util.bind("classfileformat.superflagisnotset"))//$NON-NLS-1$
+					+ (isDeprecated(classFileReader) ? ", deprecated" : EMPTY_OUTPUT)//$NON-NLS-1$
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
 			if (signatureAttribute != null) {
@@ -449,6 +486,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		} else {
 			decodeModifiersForType(buffer, accesssFlags);
+			if (isSynthetic(classFileReader)) {
+				buffer.append("synthetic"); //$NON-NLS-1$
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
 		}
 		if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
@@ -473,7 +514,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				CharOperation.replace(superinterface, '/', '.');
 				buffer
 					.append(superinterface)
-					.append(Util.bind("disassembler.comma")); //$NON-NLS-1$
+					.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
+					.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 			}
 			char[] superinterface = superclassInterfaces[length - 1];
 			CharOperation.replace(superinterface, '/', '.');
@@ -513,7 +555,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					if (attribute != innerClassesAttribute
 						&& attribute != sourceAttribute
 						&& attribute != signatureAttribute
-						&& attribute != enclosingMethodAttribute) {
+						&& attribute != enclosingMethodAttribute
+						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
+						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, 0);
 					}
 				}
@@ -538,10 +582,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
 			innerNameIndex = innerClassesAttributeEntry.getInnerNameIndex();
 			accessFlags = innerClassesAttributeEntry.getAccessFlags();
-			buffer.append(Util.bind("disassembler.openinnerclassentry")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			dumpTab(tabNumber + 1, buffer);
 			buffer
+				.append(Util.bind("disassembler.openinnerclassentry")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.inner_class_info_name")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(innerClassNameIndex);
@@ -550,9 +592,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 					.append(innerClassesAttributeEntry.getInnerClassName());
 			}
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			dumpTab(tabNumber + 1, buffer);
 			buffer
+				.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
+				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.outer_class_info_name")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(outerClassNameIndex);
@@ -562,7 +604,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(innerClassesAttributeEntry.getOuterClassName());
 			}
 			writeNewLine(buffer, lineSeparator, tabNumber);
-			dumpTab(tabNumber + 1, buffer);
+			dumpTab(tabNumber, buffer);
+			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 			buffer
 				.append(Util.bind("disassembler.inner_name")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
@@ -572,9 +615,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 					.append(innerClassesAttributeEntry.getInnerName());
 			}
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			dumpTab(tabNumber + 1, buffer);
 			buffer
+				.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
+				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.inner_accessflags")) //$NON-NLS-1$
 				.append(accessFlags)
 				.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -590,10 +633,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
 		innerNameIndex = innerClassesAttributeEntry.getInnerNameIndex();
 		accessFlags = innerClassesAttributeEntry.getAccessFlags();
-		buffer.append(Util.bind("disassembler.openinnerclassentry")); //$NON-NLS-1$
-		writeNewLine(buffer, lineSeparator, tabNumber);
-		dumpTab(tabNumber + 1, buffer);
 		buffer
+			.append(Util.bind("disassembler.openinnerclassentry")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.inner_class_info_name")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(innerClassNameIndex);
@@ -602,9 +643,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(innerClassesAttributeEntry.getInnerClassName());
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber);
-		dumpTab(tabNumber + 1, buffer);
 		buffer
+			.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.outer_class_info_name")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(outerClassNameIndex);
@@ -614,7 +655,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(innerClassesAttributeEntry.getOuterClassName());
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		dumpTab(tabNumber + 1, buffer);
+		dumpTab(tabNumber, buffer);
+		buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		buffer
 			.append(Util.bind("disassembler.inner_name")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
@@ -624,9 +666,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(innerClassesAttributeEntry.getInnerName());
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber);
-		dumpTab(tabNumber + 1, buffer);
 		buffer
+			.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(Util.bind("disassembler.inner_accessflags")) //$NON-NLS-1$
 			.append(accessFlags)
 			.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -650,6 +692,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(fieldInfo.getDescriptorIndex())
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(fieldDescriptor);
+			if (fieldInfo.isDeprecated()) {
+				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
+			}
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			if (signatureAttribute != null) {
 				buffer
@@ -660,6 +705,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
+		if (fieldInfo.isSynthetic()) {
+			buffer.append("synthetic"); //$NON-NLS-1$
+			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+		}
 		CharOperation.replace(fieldDescriptor, '/', '.');
 		buffer.append(Signature.toCharArray(fieldDescriptor));
 		buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -708,7 +757,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != constantValueAttribute
-						&& attribute != signatureAttribute) {
+						&& attribute != signatureAttribute
+						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
+						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber);
 					}
 				}
@@ -733,6 +784,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(methodInfo.getDescriptorIndex())
 				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 				.append(methodDescriptor);
+			if (methodInfo.isDeprecated()) {
+				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
+			}			
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			if (signatureAttribute != null) {
 				buffer
@@ -745,13 +799,18 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.maxStack")) //$NON-NLS-1$
 				.append(codeAttribute.getMaxStack())
-				.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
+				.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
+				.append(Util.bind("disassembler.space"))//$NON-NLS-1$
 				.append(Util.bind("classfileformat.maxLocals")) //$NON-NLS-1$
 				.append(codeAttribute.getMaxLocals());
 		}		
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags);
+		if (methodInfo.isSynthetic()) {
+			buffer.append("synthetic"); //$NON-NLS-1$
+			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+		}
 		CharOperation.replace(methodDescriptor, '/', '.');
 		char[] methodName = null;
 		if (methodInfo.isConstructor()) {
@@ -774,7 +833,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				CharOperation.replace(exceptionName, '/', '.');
 				buffer
 					.append(exceptionName)
-					.append(Util.bind("disassembler.comma")); //$NON-NLS-1$
+					.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
+					.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 			}
 			char[] exceptionName = exceptionNames[length - 1];
 			CharOperation.replace(exceptionName, '/', '.');
@@ -788,8 +848,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != codeAttribute
-						&& attribute != exceptionAttribute
-						&& attribute != signatureAttribute) {
+							&& attribute != exceptionAttribute
+							&& attribute != signatureAttribute
+							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
+							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber);
 						writeNewLine(buffer, lineSeparator, tabNumber);
 					}
@@ -823,10 +885,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {
-			dumpTab(tabNumber, buffer);
+			final int tabNumberForExceptionAttribute = tabNumber + 2;
+			dumpTab(tabNumberForExceptionAttribute, buffer);
 			IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Util.bind("disassembler.exceptiontableheader")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
 			for (int i = 0; i < exceptionTableLength - 1; i++) {
 				IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[i];
 				buffer
@@ -844,7 +907,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					CharOperation.replace(catchType, '/', '.');
 					buffer.append(catchType);
 				}
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
 			}
 			IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[exceptionTableLength - 1];
 			buffer
@@ -867,9 +930,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 		int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
-			dumpTab(tabNumber, buffer);
+			int tabNumberForLineAttribute = tabNumber + 2;
+			dumpTab(tabNumberForLineAttribute, buffer);
 			buffer.append(Util.bind("disassembler.linenumberattributeheader")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
 			for (int i = 0; i < lineAttributeLength - 1; i++) {
 				buffer
@@ -878,7 +942,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("classfileformat.linenumbertableto")) //$NON-NLS-1$
 					.append(lineattributesEntries[i][1])
 					.append(Util.bind("classfileformat.linenumbertableclose")); //$NON-NLS-1$
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			}
 			buffer
 				.append(Util.bind("classfileformat.linenumbertablefrom")) //$NON-NLS-1$
@@ -890,9 +954,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 		int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (localVariableAttributeLength != 0) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
+			int tabNumberForLocalVariableAttribute = tabNumber + 2;
+			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
 			buffer.append(Util.bind("disassembler.localvariabletableattributeheader")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
 			for (int i = 0; i < localVariableAttributeLength - 1; i++) {
 				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
@@ -911,7 +976,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				char[] localVariableTableDescriptor = Signature.toCharArray(localVariableTableEntry.getDescriptor());
 				CharOperation.replace(localVariableTableDescriptor, '/', '.');
 				buffer.append(localVariableTableDescriptor);
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
 			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
 			int startPC = localVariableTableEntry.getStartPC();
@@ -1019,6 +1084,30 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 			}
 			return null;
+	}
+	
+	private boolean isDeprecated(IClassFileReader classFileReader) {
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.DEPRECATED)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isSynthetic(IClassFileReader classFileReader) {
+		int flags = classFileReader.getAccessFlags();
+		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
+			return true;
+		}
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void writeNewLine(StringBuffer buffer, String lineSeparator, int tabNumber) {
