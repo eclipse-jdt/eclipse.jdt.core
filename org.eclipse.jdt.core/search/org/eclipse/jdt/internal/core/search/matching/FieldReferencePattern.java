@@ -35,7 +35,6 @@ public class FieldReferencePattern extends MultipleSearchPattern {
 	protected char[] decodedName;
 
 	private static char[][] TAGS = { FIELD_REF, REF };
-	public char[][][] allSuperDeclaringTypeNames;
 
 public FieldReferencePattern(
 	char[] name, 
@@ -200,11 +199,6 @@ public String toString(){
 	return buffer.toString();
 }
 
-public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
-	this.allSuperDeclaringTypeNames = this.collectSuperTypeNames(this.declaringQualification, this.declaringSimpleName, this.matchMode, env);
-	return this.allSuperDeclaringTypeNames == null || this.allSuperDeclaringTypeNames != NOT_FOUND_DECLARING_TYPE; 
-}
-
 /**
  * @see SearchPattern#matchLevel(AstNode, boolean)
  */
@@ -309,12 +303,10 @@ private int matchLevel(TypeBinding receiverType, boolean isSuperAccess, FieldBin
 	if (receiverBinding == null) {
 		return INACCURATE_MATCH;
 	} else {
-		level = this.matchLevelAsSubtype(receiverBinding, this.declaringSimpleName, this.declaringQualification);
+		// Note there is no dynamic lookup for field access
+		level = this.matchLevelForType(this.declaringSimpleName, this.declaringQualification, receiverBinding);
 		if (level == IMPOSSIBLE_MATCH) {
-			level = this.matchLevelForType(this.allSuperDeclaringTypeNames, receiverBinding);
-			if (level == IMPOSSIBLE_MATCH) {
-				return IMPOSSIBLE_MATCH;
-			}
+			return IMPOSSIBLE_MATCH;
 		}
 	}
 

@@ -8,7 +8,6 @@ STREAM: 2.0
   ================================================================================
   * Search PRs:
   
-  1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results
   1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types
   1GK9B5Q: ITPJCORE:WINNT - Class reference search broken
   1GK96A0: ITPJCORE:WINNT - NPE during search operation
@@ -117,6 +116,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results
   1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
   1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown  
 
