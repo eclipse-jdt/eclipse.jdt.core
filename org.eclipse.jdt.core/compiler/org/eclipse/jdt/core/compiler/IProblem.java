@@ -786,8 +786,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int DuplicateTypeVariable = Internal + 520;
 	/** @since 3.0 */
-	int SuperclassIllegalTypeVariable = Internal +521;
+	int SuperclassIllegalTypeVariable = Internal + 521;
 	/** @since 3.0 */
-	int InterfaceIllegalTypeVariable = Internal +522;
-	
+	int InterfaceIllegalTypeVariable = Internal + 522;
+	/** @since 3.0 */
+	int TypeVariableReferenceFromStaticContext = Internal + 523;
 }

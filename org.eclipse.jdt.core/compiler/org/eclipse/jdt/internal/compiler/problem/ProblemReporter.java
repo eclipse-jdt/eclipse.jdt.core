@@ -164,6 +164,14 @@ public void argumentTypeProblem(SourceTypeBinding type, AbstractMethodDeclaratio
 		case InheritedNameHidesEnclosingName : // 5
 			id = IProblem.ArgumentTypeInheritedNameHidesEnclosingName;
 			break;
+		case NonStaticReferenceInStaticContext : // 7
+			this.handle(
+				IProblem.TypeVariableReferenceFromStaticContext,
+				new String[] {new String(expectedType.readableName())},
+				new String[] {new String(expectedType.shortReadableName())},
+				arg.type.sourceStart,
+				arg.type.sourceEnd);
+		    return;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -971,6 +979,14 @@ public void fieldTypeProblem(SourceTypeBinding type, FieldDeclaration fieldDecl,
 		case InheritedNameHidesEnclosingName : // 5
 			id = IProblem.FieldTypeInheritedNameHidesEnclosingName;
 			break;
+		case NonStaticReferenceInStaticContext : // 7
+			this.handle(
+				IProblem.TypeVariableReferenceFromStaticContext,
+				new String[] {new String(expectedType.readableName())},
+				new String[] {new String(expectedType.shortReadableName())},
+				fieldDecl.type.sourceStart,
+				fieldDecl.type.sourceEnd);
+			return;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2076,6 +2092,9 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedTypeHidesEnclosingName;
 			break;
+		case NonStaticReferenceInStaticContext :
+			id = IProblem.TypeVariableReferenceFromStaticContext;
+		    break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...

@@ -809,7 +809,6 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].getTypeBinding(scope);
 			if (!resolvedExceptionType.isValidBinding()) {
 				methodDecl.scope.problemReporter().exceptionTypeProblem(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
-				//methodDecl.scope.problemReporter().invalidType(exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
 			if (throwable != resolvedExceptionType && !throwable.isSuperclassOf(resolvedExceptionType)) {
@@ -829,10 +828,9 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		method.parameters = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			Argument arg = arguments[i];
-			method.parameters[i] = arg.type.getTypeBinding(scope);
+			method.parameters[i] = arg.type.getTypeBinding(methodDecl.scope);
 			if (!method.parameters[i].isValidBinding()) {
 				methodDecl.scope.problemReporter().argumentTypeProblem(this, methodDecl, arg, method.parameters[i]);
-				//methodDecl.scope.problemReporter().invalidType(arg, method.parameters[i]);
 				foundArgProblem = true;
 			} else if (method.parameters[i] == VoidBinding) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);

@@ -884,7 +884,12 @@ public class ClassScope extends Scope {
 				return new ProblemReferenceBinding(
 					compoundName[0],
 					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-
+			if (typeOrPackage instanceof TypeVariableBinding) {
+				// cannot bind to a type variable defined in enclosing context
+				return new ProblemReferenceBinding(
+						compoundName[0],
+						IllegalTypeVariable);
+			}
 			boolean checkVisibility = false;
 			for (; n < size; n++) {
 				if (!(typeOrPackage instanceof PackageBinding))

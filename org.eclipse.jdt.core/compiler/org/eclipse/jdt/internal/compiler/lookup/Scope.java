@@ -1319,6 +1319,7 @@ public abstract class Scope
 	final Binding getTypeOrPackage(char[] name, int mask) {
 		Scope scope = this;
 		ReferenceBinding foundType = null;
+		boolean insideStaticContext = false;
 		if ((mask & TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
@@ -1327,6 +1328,7 @@ public abstract class Scope
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
+					    insideStaticContext |= ((MethodScope) scope).isStatic;
 					case BLOCK_SCOPE :
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 						if (localType != null) {
@@ -1337,7 +1339,15 @@ public abstract class Scope
 						break;
 					case CLASS_SCOPE :
 						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-						// 6.5.5.1 - simple name favors member type over top-level type in same unit
+						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
+						// type variables take precedence over member types
+						TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
+						if (typeVariable != null) {
+						    if (insideStaticContext)
+								return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
+						    return typeVariable;
+						}
+						// 6.5.5.1 - member types have precedence over top-level type in same unit
 						ReferenceBinding memberType = findMemberType(name, sourceType);
 						if (memberType != null) { // skip it if we did not find anything
 							if (memberType.problemId() == Ambiguous) {
