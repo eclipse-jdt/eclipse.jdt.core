@@ -79,13 +79,6 @@ public class ForeachStatement extends Statement {
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-
-		// mark the synthetic variables as being used
-	    // TODO (philippe) should only allocate/tag required variables
-		this.collectionVariable.useFlag = LocalVariableBinding.USED;
-		this.indexVariable.useFlag = LocalVariableBinding.USED;
-		this.maxVariable.useFlag = LocalVariableBinding.USED;
-
 		// initialize break and continue labels
 		breakLabel = new Label();
 		continueLabel = new Label();
@@ -94,13 +87,11 @@ public class ForeachStatement extends Statement {
 		flowInfo = this.elementVariable.analyseCode(scope, flowContext, flowInfo);
 		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
 
-		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
-		
 		// element variable will be assigned when iterating
 		flowInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
-		// TODO (philippe) element variable is always used ? if action is empty, do we still use it ?
-		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 
+		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+		
 		// process the action
 		LoopingFlowContext loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
 		FlowInfo actionInfo = flowInfo.initsWhenTrue().copy();
@@ -120,6 +111,25 @@ public class ForeachStatement extends Statement {
 			}
 		}
 
+		// we need the variable to iterate the collection even if the 
+		// element variable is not used
+		switch(this.kind) {
+			case ARRAY :
+				if (!(this.action == null
+						|| this.action.isEmptyBlock()
+						|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0))) {
+					this.collectionVariable.useFlag = LocalVariableBinding.USED;
+					this.indexVariable.useFlag = LocalVariableBinding.USED;
+					this.maxVariable.useFlag = LocalVariableBinding.USED;
+				}
+				break;
+			case RAW_ITERABLE :
+				// TODO to be completed
+				break;
+			case GENERIC_ITERABLE :
+				// TODO to be completed
+				break;
+		}
 		//end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				loopingContext.initsOnBreak, 
@@ -142,7 +152,17 @@ public class ForeachStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		// TODO should optimize cases where nothing is to be done (action is empty statement)
+		if (this.action.isEmptyBlock()
+				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0)) {
+			codeStream.exitUserScope(scope);
+			if (mergedInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(
+					currentScope,
+					mergedInitStateIndex);
+			}
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
+		}
 		// TODO should optimize cases where no continuation is needed for(....) break;
 		// generate the initializations
 		switch(this.kind) {
@@ -169,26 +189,34 @@ public class ForeachStatement extends Statement {
 		breakLabel.codeStream = codeStream;
 		if (this.continueLabel != null) {
 			this.continueLabel.codeStream = codeStream;
+			// jump over the actionBlock
+			if (this.action != null && !this.action.isEmptyBlock()) {
+				int jumpPC = codeStream.position;
+				codeStream.goto_(conditionLabel);
+				codeStream.recordPositionsFrom(jumpPC, this.elementVariable.sourceStart);
+			}
+			// generate the loop action
+			actionLabel.place();
 		}
-		// jump over the actionBlock
-		if (!(action == null || action.isEmptyBlock())) {
-			int jumpPC = codeStream.position;
-			codeStream.goto_(conditionLabel);
-			codeStream.recordPositionsFrom(jumpPC, this.elementVariable.sourceStart);
-		}
-		// generate the loop action
-		actionLabel.place();
 		if (action != null) {
 			// initialize the indexVariable value
 			switch(this.kind) {
 				case ARRAY :
-					codeStream.load(this.collectionVariable);
-					codeStream.load(this.indexVariable);
-					codeStream.arrayAt(this.arrayElementTypeID);
-					if (this.elementVariableImplicitWidening != -1) {
-						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+					if (this.elementVariable.binding.resolvedPosition != -1) {
+						codeStream.load(this.collectionVariable);
+						codeStream.load(this.indexVariable);
+						codeStream.arrayAt(this.arrayElementTypeID);
+						if (this.elementVariableImplicitWidening != -1) {
+							codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+						}
+						codeStream.store(this.elementVariable.binding, false);
+						codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+						if (this.postCollectionInitStateIndex != -1) {
+							codeStream.addDefinitelyAssignedVariables(
+								currentScope,
+								postCollectionInitStateIndex);
+						}
 					}
-					codeStream.store(this.elementVariable.binding, false);
 					break;
 				case RAW_ITERABLE :
 					// TODO to be completed
@@ -199,6 +227,7 @@ public class ForeachStatement extends Statement {
 			}
 			action.generateCode(scope, codeStream);
 		}
+		
 		// continuation point
 		if (this.continueLabel != null) {
 			this.continueLabel.place();
@@ -213,31 +242,35 @@ public class ForeachStatement extends Statement {
 				case GENERIC_ITERABLE :
 					// TODO to be completed
 					break;
-			}			
-		}
-		// generate the condition
-		conditionLabel.place();
-		switch(this.kind) {
-			case ARRAY :
-				codeStream.load(this.indexVariable);
-				codeStream.load(this.maxVariable);
-				codeStream.if_icmplt(actionLabel);
-				break;
-			case RAW_ITERABLE :
-				// TODO to be completed
-				break;
-			case GENERIC_ITERABLE :
-				// TODO to be completed
-				break;
+			}
+			// generate the condition
+			conditionLabel.place();
+			if (this.postCollectionInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(
+					currentScope,
+					postCollectionInitStateIndex);
+			}
+			switch(this.kind) {
+				case ARRAY :
+					codeStream.load(this.indexVariable);
+					codeStream.load(this.maxVariable);
+					codeStream.if_icmplt(actionLabel);
+					break;
+				case RAW_ITERABLE :
+					// TODO to be completed
+					break;
+				case GENERIC_ITERABLE :
+					// TODO to be completed
+					break;
+			}
 		}
 		breakLabel.place();
-	
 		codeStream.exitUserScope(scope);
-		if (this.postCollectionInitStateIndex != -1) {
+		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				postCollectionInitStateIndex);
-		}		
+				mergedInitStateIndex);
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
@@ -258,7 +291,12 @@ public class ForeachStatement extends Statement {
 	}
 
 	public void resetStateForCodeGeneration() {
-		// TODO to be completed
+		if (this.breakLabel != null) {
+			this.breakLabel.resetStateForCodeGeneration();
+		}
+		if (this.continueLabel != null) {
+			this.continueLabel.resetStateForCodeGeneration();
+		}
 	}
 
 	public void resolve(BlockScope upperScope) {
@@ -305,14 +343,24 @@ public class ForeachStatement extends Statement {
 			if (this.kind == -1) {
 				scope.problemReporter().invalidTypeForCollection(collection);
 			} else {
-				// indexVariable is an int only if collection is an array
-				this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
-				scope.addLocalVariable(this.indexVariable);
-				this.indexVariable.constant = NotAConstant; // not inlinable
-	
-				this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
-				scope.addLocalVariable(this.maxVariable);
-				this.maxVariable.constant = NotAConstant; // not inlinable
+				switch(this.kind) {
+					case ARRAY :
+						// indexVariable is used only if collection is an array
+						this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
+						scope.addLocalVariable(this.indexVariable);
+						this.indexVariable.constant = NotAConstant; // not inlinable
+			
+						this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
+						scope.addLocalVariable(this.maxVariable);
+						this.maxVariable.constant = NotAConstant; // not inlinable
+						break;
+					case RAW_ITERABLE :
+						// TODO to be completed
+						break;
+					case GENERIC_ITERABLE :
+						// TODO to be completed
+						break;
+				}
 			}
 		}
 		if (action != null) {

@@ -390,5 +390,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		if (this.createdVerifier) {
 			this.stop();
 		}
+		// clean up output dir
+		File outputDir = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDir);
+		outputDir.delete();
 	}
 }
