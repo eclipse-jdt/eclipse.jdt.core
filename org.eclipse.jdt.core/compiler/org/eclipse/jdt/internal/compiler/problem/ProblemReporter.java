@@ -1984,6 +1984,14 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		end);
 }
+public void invalidTypeForCollection(Expression expression) {
+	this.handle(
+			IProblem.InvalidTypeForCollection,
+			NoArgument,
+			NoArgument,
+			expression.sourceStart,
+			expression.sourceEnd);
+}
 public void invalidTypeReference(Expression expression) {
 	this.handle(
 		IProblem.InvalidTypeExpression,
