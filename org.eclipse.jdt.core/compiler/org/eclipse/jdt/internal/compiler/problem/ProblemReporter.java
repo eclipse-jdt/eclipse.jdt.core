@@ -2082,12 +2082,18 @@ public void invalidType(ASTNode location, TypeBinding type) {
 	if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
+	int end = location.sourceEnd;
+	if (location instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) location;
+		if (ref.indexOfFirstFieldBinding >= 1)
+			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
+	}
 	this.handle(
 		id,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,
-		location.sourceEnd);
+		end);
 }
 public void invalidTypeReference(Expression expression) {
 	this.handle(
@@ -3120,13 +3126,19 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 	}
 */
 	String[] arguments = new String[] {new String(binding.readableName())};
+	int end = nameRef.sourceEnd;
+	if (nameRef instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
+		if (ref.indexOfFirstFieldBinding >= 1)
+			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
+	}
 	this.handle(
 		IProblem.UndefinedName,
 		arguments,
 		arguments,
 		severity,
 		nameRef.sourceStart,
-		nameRef.sourceEnd);
+		end);
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 
