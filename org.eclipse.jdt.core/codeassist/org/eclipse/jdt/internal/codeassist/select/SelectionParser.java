@@ -32,7 +32,15 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class SelectionParser extends AssistParser {
+	// OWNER
+	protected static final int SELECTION_PARSER = 1024;
+	protected static final int SELECTION_OR_ASSIST_PARSER = ASSIST_PARSER + SELECTION_PARSER;
+	
+	// KIND : all values known by SelectionParser are between 1025 and 1549
+	protected static final int K_BETWEEN_CASE_AND_COLON = SELECTION_PARSER + 1; // whether we are inside a block
 
+	public ASTNode assistNodeParent; // the parent node of assist node
+	
 	/* public fields */
 
 	public int selectionStart, selectionEnd;
@@ -65,12 +73,58 @@ protected void attachOrphanCompletionNode(){
 			}
 		}
 		
-		Statement statement = (Statement)wrapWithExplicitConstructorCallIfNeeded(orphan);
-		currentElement = currentElement.add(statement, 0);
+		if (orphan instanceof Expression) {
+			buildMoreCompletionContext((Expression)orphan);
+		} else {
+			Statement statement = (Statement) orphan;
+			currentElement = currentElement.add(statement, 0);
+		}
 		currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 	}
 }
-
+private void buildMoreCompletionContext(Expression expression) {
+	ASTNode parentNode = null;
+	
+	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
+	if(kind != 0) {
+//		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
+		nextElement : switch (kind) {
+			case K_BETWEEN_CASE_AND_COLON :
+				if(this.expressionPtr > 0) {
+					SwitchStatement switchStatement = new SwitchStatement();
+					switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
+					if(this.astLengthPtr > -1 && this.astPtr > -1) {
+						int length = this.astLengthStack[this.astLengthPtr];
+						int newAstPtr = this.astPtr - length;
+						ASTNode firstNode = this.astStack[newAstPtr + 1];
+						if(length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
+							switchStatement.statements = new Statement[length + 1];
+							System.arraycopy(
+								this.astStack, 
+								newAstPtr + 1, 
+								switchStatement.statements, 
+								0, 
+								length); 
+						}
+					}
+					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
+					if(switchStatement.statements == null) {
+						switchStatement.statements = new Statement[]{caseStatement};
+					} else {
+						switchStatement.statements[switchStatement.statements.length - 1] = caseStatement;
+					}
+					parentNode = switchStatement;
+					this.assistNodeParent = parentNode;
+				}
+				break;
+		}
+	}
+	if(parentNode != null) {
+		currentElement = currentElement.add((Statement)parentNode, 0);
+	} else {
+		currentElement = currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
+	}
+}
 private boolean checkRecoveredType() {
 	if (currentElement instanceof RecoveredType){
 		/* check if current awaiting identifier is the completion identifier */
@@ -823,6 +877,23 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		currentElement = currentElement.add(reference, 0);
 		lastIgnoredToken = -1;
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
+}
+protected void consumeToken(int token) {
+	super.consumeToken(token);
+	
+	// if in a method or if in a field initializer 
+	if (isInsideMethod() || isInsideFieldInitialization()) {
+		switch (token) {
+			case TokenNamecase :
+				pushOnElementStack(K_BETWEEN_CASE_AND_COLON);
+				break;
+			case TokenNameCOLON:
+				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) { 
+					popElement(K_BETWEEN_CASE_AND_COLON);
+				}
+				break;
+		}
 	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {

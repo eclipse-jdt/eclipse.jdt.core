@@ -47,6 +47,15 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>New CodeSelect feature: Enum constant are proposed inside switch label if the expression is an enum.
+<pre>
+Colors c;
+swith(c) {
+  case BLUE:
+  case RED; // select RED
+}
+</pre>
+</li>
 <li>Added new kind of type signature: <code>Signature#WILDCARD_TYPE_SIGNATURE</code>.<br>
 <code>Signature#getTypeSignatureKind(char[])</code> and <code>Signature#getTypeSignatureKind(String)</code>
 now return <code>Signature#WILDCARD_TYPE_SIGNATURE</code> if the signature is a wildcard : * or +Ljava.lang.Object; or -Ljava.lang.Object;
@@ -77,7 +86,9 @@ public class CompletionRequestor {
 </li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88429">88429</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85379">85379</a>
+[1.5][select][enum] Code resolve on enum in switch
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88429">88429</a>
 Redundant information in SourceMethodElementInfo
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88428">88428</a>
 Class file reader's method info still hold on byte array

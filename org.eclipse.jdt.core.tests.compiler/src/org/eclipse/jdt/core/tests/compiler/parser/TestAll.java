@@ -55,6 +55,7 @@ public class TestAll extends TestCase {
 		testClasses.add(SelectionTest2.class);
 		testClasses.add(GenericsSelectionTest.class);
 		testClasses.add(AnnotationSelectionTest.class);
+		testClasses.add(EnumSelectionTest.class);
 		
 		/* recovery tests */
 		testClasses.add(DietRecoveryTest.class);

@@ -33,7 +33,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new ResolveTests_1_5("test0075"));			
+	suite.addTest(new ResolveTests_1_5("test0093"));			
 	return suite;
 }
 
@@ -2033,6 +2033,41 @@ public void test0092() throws JavaModelException {
 		assertElementsEqual(
 			"Unexpected elements",
 			"",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85379
+public void test0093() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0093/MyEnum.java",
+				"package test0093;\n" +
+				"public enum MyEnum {\n" +
+				"  MyEnumConstant;\n" +
+				"}");
+		
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0093/Test.java",
+				"package test0093;\n" +
+				"public class Test {\n" + 
+				"  void foo(MyEnum e) {\n" +
+				"    switch(e) {\n" +
+				"      case MyEnumConstant:\n" +
+				"        break;\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n",
+				"MyEnumConstant");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"MyEnumConstant {key=Ltest0093/MyEnum;.MyEnumConstant} [in MyEnum [in [Working copy] MyEnum.java [in test0093 [in src2 [in Resolve]]]]]",
 			elements
 		);
 	} finally {

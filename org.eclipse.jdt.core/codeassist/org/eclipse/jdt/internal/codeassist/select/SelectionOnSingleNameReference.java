@@ -43,6 +43,12 @@ public SelectionOnSingleNameReference(char[] source, long pos) {
 	super(source, pos);
 }
 public TypeBinding resolveType(BlockScope scope) {
+	if (this.actualReceiverType != null) {
+		this.binding = scope.getField(this.actualReceiverType, token, this);
+		if (this.binding != null && this.binding.isValidBinding()) {
+			throw new SelectionNodeFound(binding);
+		}
+	} 
 	// it can be a package, type, member type, local variable or field
 	binding = scope.getBinding(token, Binding.VARIABLE | Binding.TYPE | Binding.PACKAGE, this, true /*resolve*/);
 	if (!binding.isValidBinding()) {
