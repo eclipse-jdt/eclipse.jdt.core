@@ -156,6 +156,7 @@ public void testOriginalIsOpen() throws CoreException {
 			original.isOpen());
 	}
 }
+// 31799 - asking project options on non-Java project populates the perProjectInfo cache incorrectly
 public void testIsOnClasspath() throws CoreException {
 	ICompilationUnit workingCopy = null;
 	try {
