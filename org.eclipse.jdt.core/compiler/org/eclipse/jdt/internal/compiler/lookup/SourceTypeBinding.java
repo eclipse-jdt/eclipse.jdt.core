@@ -15,6 +15,7 @@ import java.util.Hashtable;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -869,7 +870,12 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 
 	boolean foundReturnTypeProblem = false;
 	if (!method.isConstructor()) {
-		TypeReference returnType = ((MethodDeclaration) methodDecl).returnType;
+		TypeReference returnType = null;
+		if (methodDecl instanceof MethodDeclaration) {
+			returnType = ((MethodDeclaration) methodDecl).returnType;
+		} else {
+			returnType = ((AnnotationTypeMemberDeclaration) methodDecl).returnType;
+		}
 		if (returnType == null) {
 			methodDecl.scope.problemReporter().missingReturnType(methodDecl);
 			method.returnType = null;
