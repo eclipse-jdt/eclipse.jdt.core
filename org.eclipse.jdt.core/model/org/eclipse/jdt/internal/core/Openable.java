@@ -437,7 +437,11 @@ protected boolean parentExists(){
  */
 protected boolean resourceExists() {
 	
-	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.getPath(), true) != null;
+	return 
+		JavaModel.getTarget(
+			ResourcesPlugin.getWorkspace().getRoot(), 
+			this.getPath().makeRelative(), // ensure path is relative (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
+			true) != null;
 }
 
 /**

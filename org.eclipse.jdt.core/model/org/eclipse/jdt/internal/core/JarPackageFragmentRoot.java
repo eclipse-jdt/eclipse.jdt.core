@@ -610,6 +610,20 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	public void refreshChildren() {
 		// do nothing
 	}
+/**
+ * Returns whether the corresponding resource or associated file exists
+ */
+protected boolean resourceExists() {
+	if (this.isExternal()) {
+		return 
+			JavaModel.getTarget(
+				ResourcesPlugin.getWorkspace().getRoot(), 
+				this.getPath(), // don't make the path relative as this is an external archive
+				true) != null;
+	} else {
+		return super.resourceExists();
+	}
+}
 /*
  * @see JavaElement#rootedAt(IJavaProject)
  */

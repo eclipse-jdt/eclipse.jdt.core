@@ -485,6 +485,10 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 			return null;
 		}
 	}
+	
+	// if path is relative, it cannot be an external path
+	// (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
+	if (!path.isAbsolute()) return null; 
 
 	// lookup - outside the container
 	File externalFile = new File(path.toOSString());
