@@ -1185,7 +1185,7 @@ public class DefaultCodeFormatterOptions {
 			} else if (JavaCore.PRESERVE_ONE.equals(clearBlankLines)) {
 				this.number_of_empty_lines_to_preserve = 1;
 			} else {
-				this.number_of_empty_lines_to_preserve = 9999; // TODO (olivier) Integer.MAX_VALUE ?
+				this.number_of_empty_lines_to_preserve = Integer.MAX_VALUE;
 			}
 		}
 		final Object compactAssignment = settings.get(JavaCore.FORMATTER_COMPACT_ASSIGNMENT);
