@@ -174,7 +174,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 			if (this.pkg == null) {
 				if (this.simpleName == null) {
 					if (this.classOrInterface == CLASS_SUFFIX || this.classOrInterface == INTERFACE_SUFFIX)
-						key = new char[] {ONE_STAR[0], SEPARATOR, this.classOrInterface}; // find all classes or all interfaces
+						key = new char[] {ONE_STAR[0],  SEPARATOR,
+							isCaseSensitive() ? this.classOrInterface : Character.toLowerCase(this.classOrInterface)}; // find all classes or all interfaces
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {
 					key = CharOperation.concat(this.simpleName, ONE_STAR, SEPARATOR);
 				}
