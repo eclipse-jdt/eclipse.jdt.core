@@ -311,8 +311,6 @@ public void tearDownSuite() throws Exception {
 	
 	super.tearDownSuite();
 }
-
-
 public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
