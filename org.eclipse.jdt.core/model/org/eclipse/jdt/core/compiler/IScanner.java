@@ -128,8 +128,8 @@ public interface IScanner {
 	char[] getSource();
 
 	/**
-	 * Reposition the scanner on some portion of the original source. Once reaching the given <code>endPosition</code>
-	 * it will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
+	 * Reposition the scanner on some portion of the original source. The given endPosition is the last valid position.
+	 * Beyond this position, the scanner will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
 	 * 
 	 * @param startPosition the given start position
 	 * @param endPosition the given end position
