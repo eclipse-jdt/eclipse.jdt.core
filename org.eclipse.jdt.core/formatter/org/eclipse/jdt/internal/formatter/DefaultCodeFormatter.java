@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -154,7 +155,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private Map options;
 	
 	public DefaultCodeFormatter() {
-		this(DefaultCodeFormatterOptions.getDefault(), null);
+		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings()), null);
 	}
 
 	public DefaultCodeFormatter(Map options) {
@@ -176,7 +177,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.set(preferences.getMap());
 			}
 		} else {
-			this.preferences = DefaultCodeFormatterOptions.getDefault();
+			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 			if (preferences != null) {
 				this.preferences.set(preferences.getMap());
 			}

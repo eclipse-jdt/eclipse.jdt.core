@@ -52,10 +52,10 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -2176,7 +2176,7 @@ public final class JavaCore extends Plugin {
 		optionNames.add(CORE_ENCODING);
 		
 		// Formatter settings
-		Map codeFormatterOptionsMap = new DefaultCodeFormatterOptions().getMap(); // code formatter defaults
+		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getDefaultSettings(); // code formatter defaults
 		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();
