@@ -249,7 +249,7 @@ public void testReconcileAndCommit1() throws CoreException {
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (copy != null) copy.destroy();
-		this.deleteProject("Project");
+		this.deleteProject("JavaProject");
 	}
 }
 
