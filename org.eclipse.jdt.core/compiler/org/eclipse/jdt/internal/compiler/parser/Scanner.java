@@ -803,9 +803,8 @@ public int getNextToken() throws InvalidInputException {
 						startPosition = whiteStart;
 						return TokenNameWHITESPACE;
 					}
-					if (currentPosition >= eofPosition)
+					if (currentPosition > eofPosition)
 						return TokenNameEOF;
-					throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 				}
 				if (checkIfUnicode) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
