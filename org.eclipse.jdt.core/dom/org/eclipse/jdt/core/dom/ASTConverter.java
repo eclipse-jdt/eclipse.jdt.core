@@ -128,10 +128,6 @@ class ASTConverter {
 
 	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
-		if (resolveBindings) {
-			recordNodes(typeDecl, typeDeclaration);
-			typeDecl.resolveBinding();
-		}
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
 		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
@@ -157,6 +153,11 @@ class ASTConverter {
 		
 		buildBodyDeclarations(typeDeclaration, typeDecl);
 		setJavaDocComment(typeDecl);
+		if (resolveBindings) {
+			recordNodes(typeDecl, typeDeclaration);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
+			typeDecl.resolveBinding();
+		}
 		return typeDecl;
 	}
 
@@ -440,10 +441,6 @@ class ASTConverter {
 
 	public TypeDeclaration convert(MemberTypeDeclaration typeDeclaration) {
 		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
-		if (this.resolveBindings) {
-			recordNodes(typeDecl, typeDeclaration);
-			typeDecl.resolveBinding();
-		}
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
 		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
@@ -468,6 +465,11 @@ class ASTConverter {
 		}
 		buildBodyDeclarations(typeDeclaration, typeDecl);
 		setJavaDocComment(typeDecl);
+		if (this.resolveBindings) {
+			recordNodes(typeDecl, typeDeclaration);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
+			typeDecl.resolveBinding();
+		}
 		return typeDecl;
 	}
 
@@ -550,10 +552,6 @@ class ASTConverter {
 		
 	public MethodDeclaration convert(AbstractMethodDeclaration methodDeclaration) {
 		MethodDeclaration methodDecl = this.ast.newMethodDeclaration();
-		if (this.resolveBindings) {
-			recordNodes(methodDecl, methodDeclaration);
-			methodDecl.resolveBinding();
-		}
 		methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
@@ -617,6 +615,11 @@ class ASTConverter {
 			}
 		}
 		setJavaDocComment(methodDecl);
+		if (this.resolveBindings) {
+			recordNodes(methodDecl, methodDeclaration);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
+			methodDecl.resolveBinding();
+		}
 		return methodDecl;
 	}	
 
@@ -776,6 +779,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
 			recordNodes(anonymousClassDeclaration, expression);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			classInstanceCreation.resolveTypeBinding();
 		}
 		return classInstanceCreation;
@@ -2298,10 +2302,6 @@ class ASTConverter {
 	
 	private VariableDeclarationFragment convertToVariableDeclarationFragment(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
-		if (this.resolveBindings) {
-			recordNodes(variableDeclarationFragment, fieldDeclaration);
-			variableDeclarationFragment.resolveBinding();
-		}
 		SimpleName name = this.ast.newSimpleName(fieldDeclaration.name());
 		name.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.sourceEnd - fieldDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
@@ -2316,15 +2316,16 @@ class ASTConverter {
 			variableDeclarationFragment.setInitializer(convert(fieldDeclaration.initialization));
 		}
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd ));
+		if (this.resolveBindings) {
+			recordNodes(variableDeclarationFragment, fieldDeclaration);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
+			variableDeclarationFragment.resolveBinding();
+		}
 		return variableDeclarationFragment;
 	}
 
 	private VariableDeclarationFragment convertToVariableDeclarationFragment(LocalDeclaration localDeclaration) {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
-		if (this.resolveBindings) {
-			recordNodes(variableDeclarationFragment, localDeclaration);
-			variableDeclarationFragment.resolveBinding();
-		}
 		SimpleName name = this.ast.newSimpleName(localDeclaration.name());
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
@@ -2342,6 +2343,11 @@ class ASTConverter {
 			variableDeclarationFragment.setInitializer(convert(localDeclaration.initialization));
 		}
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
+		if (this.resolveBindings) {
+			recordNodes(variableDeclarationFragment, localDeclaration);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
+			variableDeclarationFragment.resolveBinding();
+		}
 		return variableDeclarationFragment;
 	}
 
@@ -2350,6 +2356,7 @@ class ASTConverter {
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(variableDeclarationFragment);
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, fieldDecl);
+			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			variableDeclarationFragment.resolveBinding();
 		}
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
@@ -2365,7 +2372,6 @@ class ASTConverter {
 		VariableDeclarationStatement variableDeclarationStatement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
-			variableDeclarationFragment.resolveBinding();
 		}
 		variableDeclarationStatement.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
 		Type type = convertType(localDeclaration.type);

@@ -221,12 +221,6 @@ public final class AST {
 		}
 
 		if (resolveBindings) {
-			// FIXME - If resolveBindings is true, we need to record the mod count
-			// once newAST has been constructed. If the mod count goes above
-			// this level, someone is modifying the AST and all bets are off
-			// regarding resolved bindings. All existing binding info should be
-			// discarded, and the various public resolveBinding methods should
-			// thereafter return null.
 			try {
 				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
@@ -320,12 +314,6 @@ public final class AST {
 			return parseCompilationUnit(source);
 		}
 	
-		// FIXME - If resolveBindings is true, we need to record the mod count
-		// once newAST has been constructed. If the mod count goes above
-		// this level, someone is modifying the AST and all bets are off
-		// regarding resolved bindings. All existing binding info should be
-		// discarded, and the various public resolveBinding methods should
-		// thereafter return null.
 		try {
 			CompilationUnitDeclaration compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(

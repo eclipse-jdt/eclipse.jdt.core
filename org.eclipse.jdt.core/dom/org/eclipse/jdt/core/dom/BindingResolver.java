@@ -26,12 +26,25 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
  */
 class BindingResolver {
 	
+	protected AST ast;
+
+	protected long modificationCount;
 	/**
 	 * Creates a binding resolver.
 	 */
-	BindingResolver() {
+	BindingResolver(AST ast) {
+		this.ast = ast;
 	}
 
+	/**
+	 * Store the number of modifications done using the ast. This is used to validate
+	 * resolveBinding methods. If the number changed, all resolve bindings methods
+	 * simply return null.
+	 */
+	void storeModificationCount(long modificationCount) {
+		this.modificationCount = modificationCount;
+	}
+	
 	/**
 	 * Allows the user to store information about the given old/new pair of
 	 * AST nodes.
