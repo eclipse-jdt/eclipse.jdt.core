@@ -18,6 +18,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -970,6 +971,36 @@ public static void waitForAutoBuild() {
 		e.printStackTrace();
 	} catch (InterruptedException e) {
 		e.printStackTrace();
+	}
+}
+protected void waitUntilIndexesReady() {
+	// dummy query for waiting until the indexes are ready
+	SearchEngine engine = new SearchEngine();
+	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+	try {
+		engine.searchAllTypeNames(
+			ResourcesPlugin.getWorkspace(),
+			null,
+			"!@$#!@".toCharArray(),
+			IJavaSearchConstants.PATTERN_MATCH,
+			IJavaSearchConstants.CASE_SENSITIVE,
+			IJavaSearchConstants.CLASS,
+			scope, 
+			new ITypeNameRequestor() {
+				public void acceptClass(
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {}
+				public void acceptInterface(
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {}
+			},
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+	} catch (CoreException e) {
 	}
 }
 }

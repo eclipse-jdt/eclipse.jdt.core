@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -31,36 +32,9 @@ public CompletionTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	IJavaProject project = setUpJavaProject("Completion");
+	setUpJavaProject("Completion");
 	
-	// dummy query for waiting until the indexes are ready
-	SearchEngine engine = new SearchEngine();
-	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
-	try {
-		engine.searchAllTypeNames(
-			project.getProject().getWorkspace(),
-			null,
-			"!@$#!@".toCharArray(),
-			IJavaSearchConstants.PATTERN_MATCH,
-			IJavaSearchConstants.CASE_SENSITIVE,
-			IJavaSearchConstants.CLASS,
-			scope, 
-			new ITypeNameRequestor() {
-				public void acceptClass(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path) {}
-				public void acceptInterface(
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path) {}
-			},
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-	} catch (CoreException e) {
-	}
+	waitUntilIndexesReady();
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Completion");

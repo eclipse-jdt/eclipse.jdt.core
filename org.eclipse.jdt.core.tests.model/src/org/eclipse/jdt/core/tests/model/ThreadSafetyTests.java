@@ -53,6 +53,7 @@ public void testDeadlock01() throws CoreException {
 				"");
 		
 		// simulate state on startup (flush containers, and discard their previous values)
+		waitUntilIndexesReady();
 		project.getJavaModel().close();
 		JavaModelManager.PreviousSessionContainers = new HashMap(5);
 		JavaModelManager.Containers = new HashMap(5);

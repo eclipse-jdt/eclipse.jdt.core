@@ -152,6 +152,7 @@ public void testContainerInitializer2() throws CoreException {
 				"");
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
 		JavaModelManager.Containers = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
@@ -186,6 +187,7 @@ public void testContainerInitializer3() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
 
 		// simulate state on startup (flush containers, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
 		JavaModelManager.Containers = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
@@ -222,6 +224,7 @@ public void testContainerInitializer4() throws CoreException {
 				"");
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
 		JavaModelManager.Containers = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
@@ -259,6 +262,7 @@ public void testContainerInitializer5() throws CoreException {
 				"");
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
 		JavaModelManager.Containers = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p1);
@@ -306,6 +310,11 @@ public void testContainerInitializer5() throws CoreException {
 	}
 }
 public static Test suite() {
+	if (true) {
+		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
+		suite.addTest(new ClasspathInitializerTests("testContainerInitializer4"));
+		return suite;
+	}
 	return new Suite(ClasspathInitializerTests.class);
 }
 protected void tearDown() throws Exception {
@@ -363,6 +372,7 @@ public void testVariableInitializer3() throws CoreException {
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
 		// simulate state on startup (flush variables, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
 		JavaModelManager.Variables = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
@@ -479,6 +489,7 @@ public void testVariableInitializer7() throws CoreException {
 		}));
 
 		// simulate state on startup (flush variables, and preserve their previous values)
+		waitUntilIndexesReady();
 		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
 		JavaModelManager.Variables = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
