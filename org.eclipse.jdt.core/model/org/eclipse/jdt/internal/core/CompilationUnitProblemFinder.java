@@ -185,6 +185,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 						lineNumber);
 				// only report local problems
 				if (CharOperation.equals(originatingFileName, fileName)){
+					if (JavaModelManager.VERBOSE){
+						System.out.println("PROBLEM FOUND while reconciling : "+problem.getMessage());
+					}
 					problemRequestor.acceptProblem(problem);
 				}
 				return problem;
