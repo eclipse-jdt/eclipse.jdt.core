@@ -373,7 +373,9 @@ public char[] getSuperclassName() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isAnonymous() {
-	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() == null && this.innerInfo.getSourceName() == null;
+	if (this.innerInfo == null) return false;
+	char[] sourceName = this.innerInfo.getSourceName();
+	return (sourceName == null || sourceName.length == 0);
 }
 /**
  * Answer whether the receiver contains the resolved binary form
