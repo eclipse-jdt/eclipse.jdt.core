@@ -13,6 +13,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class BinaryExpression extends OperatorExpression {
 	public Expression left, right;
 	public Constant optimizedBooleanConstant;
+	public TypeBinding type;	
 
 public BinaryExpression(Expression left, Expression right,int operator) {
 	this.left = left;
@@ -1339,7 +1340,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	int result = ResolveTypeTables[(bits & OperatorMASK) >> OperatorSHIFT][ (leftId << 4) + rightId];
 	left.implicitConversion = result >>> 12;
 	right.implicitConversion = (result >>> 4) & 0x000FF;
-	TypeBinding type;
+
 	bits |= result & 0xF;
 	switch (result & 0xF) {// record the current ReturnTypeID
 		// only switch on possible result type.....
