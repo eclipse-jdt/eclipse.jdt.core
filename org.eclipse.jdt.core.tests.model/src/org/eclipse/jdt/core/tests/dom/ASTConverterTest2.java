@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0547"));
+		suite.addTest(new ASTConverterTest2("test0550"));
 		return suite;
 	}
 	/**
@@ -4261,6 +4261,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			ASTNode node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
+			assertTrue("Not original", isOriginal(node));
 			assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 			FieldDeclaration declaration = (FieldDeclaration) node;
 			Type type = declaration.getType();
@@ -4748,5 +4749,32 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		
 		typeBinding = typeDeclaration2.resolveBinding();
 		assertEquals("Wrong key", "test0547/Local$LocalMember", typeBinding.getKey());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60581
+	 */
+	public void test0548() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0548", "PaletteStackEditPart.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48502
+	 */
+	public void test0549() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0549", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48502
+	 */
+	public void test0550() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0550", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 }
