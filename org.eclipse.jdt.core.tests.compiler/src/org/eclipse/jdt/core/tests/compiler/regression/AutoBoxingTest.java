@@ -1434,5 +1434,26 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"SUCCESS");
-	}				
+	}
+	
+	public void test055() { // boxing in foreach
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		byte[] bytes = {0, 1, 2};\n" + 
+				"		for(Integer i : bytes) {\n" + 
+				"			System.out.print(i);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	for(Integer i : bytes) {\n" + 
+			"	                ^^^^^\n" + 
+			"Type mismatch: cannot convert from element type byte to Integer\n" + 
+			"----------\n");
+	}	
 }
