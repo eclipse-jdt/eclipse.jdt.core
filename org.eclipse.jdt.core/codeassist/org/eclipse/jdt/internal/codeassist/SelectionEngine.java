@@ -183,9 +183,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				case TerminalSymbols.TokenNameIdentifier :
 					if (!expectingIdentifier)
 						return false;
-					entireSelection.append(lastIdentifier = scanner.getCurrentTokenSource());
+					lastIdentifier = scanner.getCurrentTokenSource();
 					lastIdentifierStart = scanner.startPosition;
 					lastIdentifierEnd = scanner.currentPosition - 1;
+					if(lastIdentifierEnd > selectionEnd) {
+						lastIdentifierEnd = selectionEnd;
+						lastIdentifier = CharOperation.subarray(lastIdentifier, 0,lastIdentifierEnd - lastIdentifierStart + 1);
+					}
+					entireSelection.append(lastIdentifier);
+						
 					identCount++;
 					expectingIdentifier = false;
 					break;
