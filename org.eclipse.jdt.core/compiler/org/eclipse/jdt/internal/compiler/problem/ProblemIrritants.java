@@ -120,6 +120,8 @@ public interface ProblemIrritants { // max: 500
 	final int CannotReturnInInitializer = Internal + 162;
 	final int InitializerMustCompleteNormally = Internal + 163;
 	
+	// assert
+	final int InvalidVoidExpression = Internal + 164;
 	// try
 	final int MaskedCatch = TypeRelated + 165;
 	final int DuplicateDefaultCase = 166;

@@ -110,8 +110,11 @@ public class AssertStatement extends Statement {
 	public void resolve(BlockScope scope) {
 		assertExpression.resolveTypeExpecting(scope, BooleanBinding);
 		if (exceptionArgument != null) {
-			TypeBinding exceptionArgumentTB = exceptionArgument.resolveType(scope);
-			exceptionArgument.implicitConversion = (exceptionArgumentTB.id << 4) + exceptionArgumentTB.id;
+			TypeBinding exceptionArgumentType = exceptionArgument.resolveType(scope);
+			if (exceptionArgumentType.id == T_void){
+				scope.problemReporter().illegalVoidExpression(exceptionArgument);
+			}
+			exceptionArgument.implicitConversion = (exceptionArgumentType.id << 4) + exceptionArgumentType.id;
 		}
 	}
 	

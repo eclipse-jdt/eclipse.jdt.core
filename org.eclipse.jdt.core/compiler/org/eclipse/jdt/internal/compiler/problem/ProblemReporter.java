@@ -976,6 +976,13 @@ public void illegalVisibilityModifierForInterfaceMemberType(SourceTypeBinding ty
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalVoidExpression(AstNode location) {
+	this.handle(
+		InvalidVoidExpression,
+		new String[] {},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void importProblem(ImportReference importRef, Binding expectedImport) {
 	int problemId = expectedImport.problemId();
 	switch (problemId) {
