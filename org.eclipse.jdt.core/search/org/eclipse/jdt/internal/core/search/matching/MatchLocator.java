@@ -351,6 +351,15 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		if (reader != null) {
 			IBinaryMethod[] methods = reader.getMethods();
 			if (methods != null) {
+				boolean firstIsSynthetic = false;
+				try {
+					if (type.isMember() && method.isConstructor() && !method.isStatic()) {
+						firstIsSynthetic = true;
+						argCount++;
+					}
+				} catch (JavaModelException e) {
+					// ignored
+				}
 				nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
 					IBinaryMethod binaryMethod = methods[i];
 					char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
@@ -358,10 +367,15 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 						char[][] parameterTypes = Signature.getParameterTypes(binaryMethod.getMethodDescriptor());
 						if (argCount != parameterTypes.length) continue nextMethod;
 						for (int j = 0; j < argCount; j++) {
-							TypeReference typeRef = arguments[j].type;
-							char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-							for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
-								typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+							char[] typeName;
+							if (j == 0 && firstIsSynthetic) {
+								typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
+							} else {
+								TypeReference typeRef = arguments[firstIsSynthetic ? j - 1 : j].type;
+								typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+								for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+									typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+							}
 							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
 							if (!CharOperation.endsWith(Signature.toCharArray(parameterTypeName), typeName))
 								continue nextMethod;
@@ -372,6 +386,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 				}
 			}
 		}
+		return null;
 	}
 
 	String[] parameterTypeSignatures = new String[argCount];
@@ -382,9 +397,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
-	IMethod handle = type.getMethod(new String(method.selector), parameterTypeSignatures);
-	if (type.isBinary() && !handle.exists()) return null; // element doesn't exist in the .class file
-	return handle;
+	return type.getMethod(new String(method.selector), parameterTypeSignatures);
 }
 /**
  * Creates an IField from the given field declaration and type. 
@@ -932,68 +945,6 @@ protected void report(long start, long end, IJavaElement element, int accuracy) 
  * in the source and reports a reference to this this qualified name
  * to the search requestor.
  */
-protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qualifiedName, IJavaElement element, int accuracy) throws CoreException {
-	if (accuracy == -1) return;
-
-	// compute source positions of the qualified reference 
-	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPossibleMatch.getContents());
-	scanner.resetTo(sourceStart, sourceEnd);
-
-	int refSourceStart = -1, refSourceEnd = -1;
-	int tokenNumber = qualifiedName.length;
-	int token = -1;
-	int previousValid = -1;
-	int i = 0;
-	int currentPosition;
-	do {
-		// find first token that is an identifier (parenthesized expressions include parenthesises in source range - see bug 20693 - Finding references to variables does not find all occurrences  )
-		do {
-			currentPosition = scanner.currentPosition;
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				// ignore
-			}
-		} while (token !=  TerminalTokens.TokenNameIdentifier && token !=  TerminalTokens.TokenNameEOF);
-
-		if (token != TerminalTokens.TokenNameEOF) {
-			char[] currentTokenSource = scanner.getCurrentTokenSource();
-			boolean equals = false;
-			while (i < tokenNumber && !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource)));
-			if (equals && (previousValid == -1 || previousValid == i - 2)) {
-				previousValid = i - 1;
-				if (refSourceStart == -1)
-					refSourceStart = currentPosition;
-				refSourceEnd = scanner.currentPosition - 1;
-			} else {
-				i = 0;
-				refSourceStart = -1;
-				previousValid = -1;
-			}
-			// read '.'
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				// ignore
-			}
-		}
-		if (i == tokenNumber) {
-			// accept reference
-			if (refSourceStart != -1) {
-				report(refSourceStart, refSourceEnd, element, accuracy);
-			} else {
-				report(sourceStart, sourceEnd, element, accuracy);
-			}
-			return;
-		}
-	} while (token != TerminalTokens.TokenNameEOF);
-
-}/**
- * Finds the accurate positions of the sequence of tokens given by qualifiedName
- * in the source and reports a reference to this this qualified name
- * to the search requestor.
- */
 protected void reportAccurateReference(int sourceStart, int sourceEnd, char[] name, IJavaElement element, int accuracy) throws CoreException {
 	if (accuracy == -1) return;
 
@@ -1077,6 +1028,69 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] 
 		previousValid = -1;
 		if (accuracyIndex < accuracies.length - 1)
 			accuracyIndex++;
+	} while (token != TerminalTokens.TokenNameEOF);
+
+}
+/**
+ * Finds the accurate positions of the sequence of tokens given by qualifiedName
+ * in the source and reports a reference to this this qualified name
+ * to the search requestor.
+ */
+protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qualifiedName, IJavaElement element, int accuracy) throws CoreException {
+	if (accuracy == -1) return;
+
+	// compute source positions of the qualified reference 
+	Scanner scanner = this.parser.scanner;
+	scanner.setSource(this.currentPossibleMatch.getContents());
+	scanner.resetTo(sourceStart, sourceEnd);
+
+	int refSourceStart = -1, refSourceEnd = -1;
+	int tokenNumber = qualifiedName.length;
+	int token = -1;
+	int previousValid = -1;
+	int i = 0;
+	int currentPosition;
+	do {
+		// find first token that is an identifier (parenthesized expressions include parenthesises in source range - see bug 20693 - Finding references to variables does not find all occurrences  )
+		do {
+			currentPosition = scanner.currentPosition;
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+				// ignore
+			}
+		} while (token !=  TerminalTokens.TokenNameIdentifier && token !=  TerminalTokens.TokenNameEOF);
+
+		if (token != TerminalTokens.TokenNameEOF) {
+			char[] currentTokenSource = scanner.getCurrentTokenSource();
+			boolean equals = false;
+			while (i < tokenNumber && !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource)));
+			if (equals && (previousValid == -1 || previousValid == i - 2)) {
+				previousValid = i - 1;
+				if (refSourceStart == -1)
+					refSourceStart = currentPosition;
+				refSourceEnd = scanner.currentPosition - 1;
+			} else {
+				i = 0;
+				refSourceStart = -1;
+				previousValid = -1;
+			}
+			// read '.'
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+				// ignore
+			}
+		}
+		if (i == tokenNumber) {
+			// accept reference
+			if (refSourceStart != -1) {
+				report(refSourceStart, refSourceEnd, element, accuracy);
+			} else {
+				report(sourceStart, sourceEnd, element, accuracy);
+			}
+			return;
+		}
 	} while (token != TerminalTokens.TokenNameEOF);
 
 }
