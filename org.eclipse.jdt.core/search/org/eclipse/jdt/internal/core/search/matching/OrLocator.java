@@ -153,9 +153,10 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
-		int newLevel = this.patternLocators[i].resolveLevel(binding);
+		PatternLocator patternLocator = this.patternLocators[i];
+		int newLevel = patternLocator.referenceType() == 0 ? IMPOSSIBLE_MATCH : patternLocator.resolveLevel(binding);
 		if (newLevel > level) {
-			closestPattern = this.patternLocators[i];
+			closestPattern = patternLocator;
 			if (newLevel == ACCURATE_MATCH) break;
 			level = newLevel;
 		}
