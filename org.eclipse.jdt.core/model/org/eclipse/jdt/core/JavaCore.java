@@ -3354,7 +3354,7 @@ public final class JavaCore extends Plugin {
 									buffer.append('\n'); 
 								}
 							}
-							buffer.append(" 		}"); //$NON-NLS-1$
+							buffer.append(" 	}"); //$NON-NLS-1$
 							Util.verbose("	previous value: " + buffer.toString()); //$NON-NLS-1$
 						}
 						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
