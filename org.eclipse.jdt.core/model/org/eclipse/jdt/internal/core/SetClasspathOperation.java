@@ -344,9 +344,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	}
 
 	public IJavaModelStatus verify() {
-if (( (IJavaProject) getElementToProcess()).getElementName().equals("Compiler")){
-		System.out.println();
-}
+
 		IJavaModelStatus status = super.verify();
 		if (!status.isOK()) {
 			return status;

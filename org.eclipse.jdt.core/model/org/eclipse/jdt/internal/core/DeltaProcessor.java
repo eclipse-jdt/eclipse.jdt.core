@@ -792,9 +792,6 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 			while (projects.hasMoreElements()) {
 				JavaProject project = (JavaProject) projects.nextElement();
 				try {
-					if (project.getElementName().equals("Compiler")){
-						System.out.println();
-					}
 					project.updateClassPath(null, canChangeResource);
 					if (canChangeResource)
 						project.saveClasspath(false);
