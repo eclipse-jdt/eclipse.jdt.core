@@ -200,7 +200,7 @@ public void evaluate(
 		if (!forwardingRequestor.hasErrors) {
 			Evaluator evaluator = 
 				new CodeSnippetEvaluator(
-					CharOperation.concat(codeSnippet, Util.LINE_SEPARATOR_CHARS), // 14838
+					codeSnippet,
 					this, 
 					environment,
 					options, 

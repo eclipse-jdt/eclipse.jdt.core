@@ -10,6 +10,8 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 import java.util.*;
 
 /**
@@ -113,7 +115,7 @@ Compiler getCompiler(ICompilerRequestor requestor) {
 				this.problemFactory,
 				this.context,
 				getMapper().startPosOffset,
-				getMapper().startPosOffset + codeSnippet.length - 1);
+				getMapper().startPosOffset + codeSnippet.length - 1 + Util.LINE_SEPARATOR_CHARS.length); // 14838
 		// Initialize the compiler's lookup environment with the already compiled super classes
 		IBinaryType binary = this.context.getRootCodeSnippetBinary();
 		if (binary != null) {
@@ -160,7 +162,7 @@ private CodeSnippetToCuMapper getMapper() {
 			
 		}
 		this.mapper = new CodeSnippetToCuMapper(
-			this.codeSnippet,
+			this.codeSnippet, 
 			this.context.packageName,
 			this.context.imports,
 			getClassName(),
