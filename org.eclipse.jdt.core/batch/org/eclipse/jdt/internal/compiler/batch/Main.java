@@ -944,9 +944,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 		
 		message = new String(messageWithNoDoubleQuotes);
-		if (arguments == null) {
-			return message;
-		}
 		int length = message.length();
 		int start = -1;
 		int end = length;
@@ -960,7 +957,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					try {
 						String argId = message.substring(end + 1, start);
 						index = Integer.parseInt(argId);
-						if (arguments[index] == null) {
+						if (arguments == null || arguments[index] == null) {
 							output.append('{').append(argId).append('}'); // leave parameter in since no better arg '{0}'
 						} else {
 							output.append(arguments[index]);
