@@ -14932,4 +14932,49 @@ public void test500(){
 			""
 		);
 	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86463
+	public void test529() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T extends List> {\n" + 
+				"	void bar() {\n" + 
+				"		T t = new ArrayList(); // BUG!!!\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			""
+		);
+	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86463
+	public void test530() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"abstract class Foo<T extends List>\n" + 
+				" {\n" + 
+				"  abstract void foo(T t);\n" + 
+				"  void foo2()\n" + 
+				"  {\n" + 
+				"    List l = new LinkedList();\n" + 
+				"    foo(l); // BUG!!!\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Foo<ArrayList>\n" + 
+				"{\n" + 
+				"  void foo(ArrayList l)\n" + 
+				"  {\n" + 
+				"    System.out.println(l);\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			""
+		);
+	}		
 }
