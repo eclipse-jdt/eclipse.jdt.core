@@ -142,6 +142,7 @@ public interface IPackageFragmentRoot
 	 * (possibly in a folder).
 	 * </p>
 	 * TODO: (jerome) should explain how to recognize excluded resources from others
+	 * TODO: (jerome) should explain somewhere end result once using nested source folders (is inner non-java rsc of outer? no)
 	 * @return an array of non-Java resources contained in this package fragment root
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
