@@ -78,17 +78,12 @@ public class Scribe {
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
-		if (offset >= 0) {
-			this.textRegionEnd = offset + length - 1; 
-		} else {
-			this.textRegionEnd = length - 1; 
-		}
+		this.textRegionEnd = offset + length - 1; 
 		reset();
 	}
 	
 	private final void addDeleteEdit(int start, int end) {
-		if (end < start) return;
-		if (this.textRegionStart < start && end <= this.textRegionEnd) {
+		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();
@@ -98,7 +93,7 @@ public class Scribe {
 	}
 	
 	private final void addInsertEdit(int insertPosition, String insertedString) {
-		if (this.textRegionStart < insertPosition && insertPosition <= this.textRegionEnd) {
+		if (this.textRegionStart <= insertPosition && insertPosition <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();
@@ -169,8 +164,7 @@ public class Scribe {
 	}
 	
 	private final void addReplaceEdit(int start, int end, String replacement) {
-		if (end < start) return;
-		if (this.textRegionStart < start && end <= this.textRegionEnd) {
+		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
 			if (this.edits.length == this.editsIndex) {
 				// resize
 				resize();

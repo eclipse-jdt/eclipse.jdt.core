@@ -304,11 +304,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private CodeFormatterVisitor createCodeFormatterVisitor(int offset, int length, String source) {
-		if (source.length() == length) {
-			return new CodeFormatterVisitor(this.preferences, options, -1, length);
-		} else {
-			return new CodeFormatterVisitor(this.preferences, options, offset, length);
-		}
+		return new CodeFormatterVisitor(this.preferences, options, offset, length);
 	}
 
 	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {

@@ -1177,6 +1177,63 @@ public class DefaultCodeFormatterOptions {
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
+		// TODO add conversion from old options to new options
+		final Object clearBlankLines = settings.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);
+		if (clearBlankLines != null) {
+			if (JavaCore.CLEAR_ALL.equals(clearBlankLines)) {
+				this.number_of_empty_lines_to_preserve = 0;
+			} else if (JavaCore.PRESERVE_ONE.equals(clearBlankLines)) {
+				this.number_of_empty_lines_to_preserve = 1;
+			} else {
+				this.number_of_empty_lines_to_preserve = 9999;
+			}
+		}
+		final Object compactAssignment = settings.get(JavaCore.FORMATTER_COMPACT_ASSIGNMENT);
+		if (compactAssignment != null) {
+			this.insert_space_before_assignment_operators = JavaCore.NORMAL.equals(compactAssignment);
+		}
+		final Object newLineOpenBrace = settings.get(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE);
+		if(newLineOpenBrace != null){
+			if (JavaCore.INSERT.equals(newLineOpenBrace)) {
+				this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+				this.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+				this.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+				this.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+				this.switch_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+			} else {
+				this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+				this.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+				this.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+				this.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+				this.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
+		}
+		final Object newLineControl = settings.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
+		if (newLineControl != null) {
+			this.insert_new_line_in_control_statements = JavaCore.INSERT.equals(newLineControl);
+		}
+		final Object newLineElseIf  = settings.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
+		if (newLineElseIf != null) {
+			this.compact_else_if = JavaCore.DO_NOT_INSERT.equals(newLineElseIf);
+		}
+		final Object newLineEmptyBlock  = settings.get(JavaCore.FORMATTER_NEWLINE_EMPTY_BLOCK);
+		if (newLineEmptyBlock != null) {
+			if (JavaCore.INSERT.equals(newLineEmptyBlock)) {
+				this.insert_new_line_in_empty_anonymous_type_declaration = true;
+				this.insert_new_line_in_empty_type_declaration = true;
+				this.insert_new_line_in_empty_method_body = true;
+				this.insert_new_line_in_empty_block = true;
+			} else {
+				this.insert_new_line_in_empty_anonymous_type_declaration = false;
+				this.insert_new_line_in_empty_type_declaration = false;
+				this.insert_new_line_in_empty_method_body = false;
+				this.insert_new_line_in_empty_block = false;
+			}
+		}
+		final Object castExpression = settings.get(JavaCore.FORMATTER_SPACE_CASTEXPRESSION);
+		if (castExpression != null) {
+			this.insert_space_after_closing_paren_in_cast = JavaCore.INSERT.equals(castExpression);
+		}
 	}
 
 	public static DefaultCodeFormatterOptions getDefault() {
