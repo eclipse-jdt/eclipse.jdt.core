@@ -348,13 +348,7 @@ protected IGenericType createInfoFromClassFileInJar(Openable classFile) throws J
 		e.printStackTrace();
 		return null;
 	} finally {
-		if (zipFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-			try {
-				zipFile.close();
-			} catch (java.io.IOException e) {
-				// ignore 
-			}
-		}	
+		JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 	}
 	this.infoToHandle.put(info, classFile);
 	return info;

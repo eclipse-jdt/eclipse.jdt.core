@@ -1257,13 +1257,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 						zipFile,
 						classFilePath);
 				} finally {
-					if (zipFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-						try {
-							zipFile.close();
-						} catch (IOException e) {
-							// ignore 
-						}
-					}
+					JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 				}
 			} else {
 				// class file in a directory

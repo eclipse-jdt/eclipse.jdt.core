@@ -437,12 +437,9 @@ public class JavaModelManager implements ISaveParticipant {
 	 * A cache of opened zip files per thread.
 	 * (map from Thread to map of IPath to java.io.ZipFile)
 	 */
-	public HashMap zipFiles = new HashMap();
+	private HashMap zipFiles = new HashMap();
 	
-	/**
-	 * The number of clients of the zip file cache.
-	 */
-	private int zipFilesClientCount = 0;
+
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
