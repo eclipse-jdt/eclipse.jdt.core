@@ -1840,5 +1840,28 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
-	}		
+	}	
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83847
+	 */
+	public void test065() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"  A;\n" + 
+				"  private void foo() {\n" + 
+				"    X e= new X() {\n" + 
+				"    };\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X e= new X() {\n" + 
+			"	         ^\n" + 
+			"Cannot instantiate the type X\n" + 
+			"----------\n");
+	}			
 }

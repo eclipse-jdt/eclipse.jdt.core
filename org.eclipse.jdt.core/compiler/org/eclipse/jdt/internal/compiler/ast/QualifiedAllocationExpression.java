@@ -324,6 +324,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			receiverType = new ProblemReferenceBinding(receiverType.sourceName(), (ReferenceBinding)receiverType, ProblemReasons.IllegalSuperTypeVariable);
 			scope.problemReporter().invalidType(this, receiverType);
 			return null;
+		} else if (type != null && receiverType.isEnum()) { // tolerate enum constant body
+			scope.problemReporter().cannotInstantiate(type, receiverType);
+			return this.resolvedType = receiverType;
 		}
 		// anonymous type scenario
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
