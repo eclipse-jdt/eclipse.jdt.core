@@ -62,9 +62,8 @@ public class ClassFile
 	public int methodCountOffset;
 	public int methodCount;
 	protected boolean creatingProblemType;
-	public static final int INITIAL_CONTENTS_SIZE = 1000;
-	public static final int INITIAL_HEADER_SIZE = 1000;
-	public static final int INCREMENT_SIZE = 1000;
+	public static final int INITIAL_CONTENTS_SIZE = 400;
+	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
 	public CodeStream codeStream;
 	protected int problemLine;	// used to create line number attributes for problem methods
@@ -225,7 +224,7 @@ public class ClassFile
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
 			if (contentsOffset + 8 >= contents.length) {
-				resizePoolContents(8);
+				resizeContents(8);
 			}
 			int sourceAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SourceName);
@@ -248,7 +247,7 @@ public class ClassFile
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
 			if (contentsOffset + 6 >= contents.length) {
-				resizePoolContents(6);
+				resizeContents(6);
 			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
@@ -264,10 +263,9 @@ public class ClassFile
 		// Inner class attribute
 		if (numberOfInnerClasses != 0) {
 			// Generate the inner class attribute
-			int exSize;
-			if (contentsOffset + (exSize = (8 * numberOfInnerClasses + 8))
-				>= this.contents.length) {
-				resizePoolContents(exSize);
+			int exSize = 8 * numberOfInnerClasses + 8;
+			if (exSize + contentsOffset >= this.contents.length) {
+				resizeContents(exSize);
 			}
 			// Now we now the size of the attribute and the number of entries
 			// attribute name
@@ -324,7 +322,7 @@ public class ClassFile
 		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
@@ -363,7 +361,7 @@ public class ClassFile
 		// check that there is enough space to write all the bytes for the field info corresponding
 		// to the @fieldBinding
 		if (contentsOffset + 30 >= contents.length) {
-			resizePoolContents(30);
+			resizeContents(30);
 		}
 		// Generate two attribute: constantValueAttribute and SyntheticAttribute
 		// Now we can generate all entries into the byte array
@@ -535,7 +533,7 @@ public class ClassFile
 			System.arraycopy(
 				innerClassesBindings,
 				0,
-				(innerClassesBindings = new ReferenceBinding[length * 2]),
+				innerClassesBindings = new ReferenceBinding[length * 2],
 				0,
 				length);
 		}
@@ -900,7 +898,7 @@ public class ClassFile
 		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 		// write the exception table
 		if (localContentsOffset + 50 >= this.contents.length) {
-			resizePoolContents(50);
+			resizeContents(50);
 		}
 		this.contents[localContentsOffset++] = 0;
 		this.contents[localContentsOffset++] = 0;
@@ -941,7 +939,7 @@ public class ClassFile
 		// then we do the local variable attribute
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -1191,7 +1189,7 @@ public class ClassFile
 				codeStream.methodDeclaration);
 		}
 		if (localContentsOffset + 20 >= this.contents.length) {
-			resizePoolContents(20);
+			resizeContents(20);
 		}
 		int max_stack = codeStream.stackMax;
 		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
@@ -1207,10 +1205,9 @@ public class ClassFile
 		// write the exception table
 		int exceptionHandlersNumber = codeStream.exceptionHandlersNumber;
 		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
-		int exSize;
-		if (localContentsOffset + (exSize = (exceptionHandlersNumber * 8 + 2))
-			>= this.contents.length) {
-			resizePoolContents(exSize);
+		int exSize = exceptionHandlersNumber * 8 + 2;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
@@ -1263,7 +1260,7 @@ public class ClassFile
 				int lineNumberNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
 				if (localContentsOffset + 8 >= this.contents.length) {
-					resizePoolContents(8);
+					resizeContents(8);
 				}
 				this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
@@ -1275,7 +1272,7 @@ public class ClassFile
 				for (int i = 0; i < length;) {
 					// write the entry
 					if (localContentsOffset + 4 >= this.contents.length) {
-						resizePoolContents(4);
+						resizeContents(4);
 					}
 					int pc = pcToSourceMapTable[i++];
 					this.contents[localContentsOffset++] = (byte) (pc >> 8);
@@ -1303,7 +1300,7 @@ public class ClassFile
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 			if (localContentsOffset + 8 >= this.contents.length) {
-				resizePoolContents(8);
+				resizeContents(8);
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -1314,7 +1311,7 @@ public class ClassFile
 			if (!codeStream.methodDeclaration.isStatic()) {
 				numberOfEntries++;
 				if (localContentsOffset + 10 >= this.contents.length) {
-					resizePoolContents(10);
+					resizeContents(10);
 				}
 				this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
 				this.contents[localContentsOffset++] = 0;
@@ -1343,7 +1340,7 @@ public class ClassFile
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 >= this.contents.length) {
-							resizePoolContents(10);
+							resizeContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
@@ -1377,7 +1374,7 @@ public class ClassFile
 		// update the number of attributes
 		// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -1417,7 +1414,7 @@ public class ClassFile
 				codeStream.methodDeclaration.scope.referenceType());
 		}
 		if (localContentsOffset + 20 >= this.contents.length) {
-			resizePoolContents(20);
+			resizeContents(20);
 		}
 		int max_stack = codeStream.stackMax;
 		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
@@ -1433,9 +1430,9 @@ public class ClassFile
 		// write the exception table
 		int exceptionHandlersNumber = codeStream.exceptionHandlersNumber;
 		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
-		int exSize;
-		if (localContentsOffset + (exSize = (exceptionHandlersNumber * 8 + 2)) >= this.contents.length) {
-			resizePoolContents(exSize);
+		int exSize = exceptionHandlersNumber * 8 + 2;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
@@ -1488,7 +1485,7 @@ public class ClassFile
 				int lineNumberNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
 				if (localContentsOffset + 8 >= this.contents.length) {
-					resizePoolContents(8);
+					resizeContents(8);
 				}
 				this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
@@ -1500,7 +1497,7 @@ public class ClassFile
 				for (int i = 0; i < length;) {
 					// write the entry
 					if (localContentsOffset + 4 >= this.contents.length) {
-						resizePoolContents(4);
+						resizeContents(4);
 					}
 					int pc = pcToSourceMapTable[i++];
 					this.contents[localContentsOffset++] = (byte) (pc >> 8);
@@ -1531,7 +1528,7 @@ public class ClassFile
 				int localVariableNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 				if (localContentsOffset + 8 >= this.contents.length) {
-					resizePoolContents(8);
+					resizeContents(8);
 				}
 				this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -1551,7 +1548,7 @@ public class ClassFile
 									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
 							if (localContentsOffset + 10 >= this.contents.length) {
-								resizePoolContents(10);
+								resizeContents(10);
 							}
 							// now we can safely add the local entry
 							numberOfEntries++;
@@ -1586,7 +1583,7 @@ public class ClassFile
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -1628,7 +1625,7 @@ public class ClassFile
 				codeStream.methodDeclaration.scope.referenceType());
 		}
 		if (localContentsOffset + 20 >= this.contents.length) {
-			resizePoolContents(20);
+			resizeContents(20);
 		}
 		int max_stack = codeStream.stackMax;
 		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
@@ -1653,7 +1650,7 @@ public class ClassFile
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
 			if (localContentsOffset + 20 >= this.contents.length) {
-				resizePoolContents(20);
+				resizeContents(20);
 			}			
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
@@ -1684,7 +1681,7 @@ public class ClassFile
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 			if (localContentsOffset + 8 >= this.contents.length) {
-				resizePoolContents(8);
+				resizeContents(8);
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -1699,7 +1696,7 @@ public class ClassFile
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -1746,7 +1743,7 @@ public class ClassFile
 		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 		// write the exception table
 		if (localContentsOffset + 50 >= this.contents.length) {
-			resizePoolContents(50);
+			resizeContents(50);
 		}
 
 		// write the exception table
@@ -1759,8 +1756,8 @@ public class ClassFile
 
 		if (codeStream.generateLineNumberAttributes) {
 			if (localContentsOffset + 20 >= this.contents.length) {
-				resizePoolContents(20);
-			}			
+				resizeContents(20);
+			}
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
 			    * (bytecodePC lineNumber)
@@ -1798,7 +1795,7 @@ public class ClassFile
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 			if (localContentsOffset + 8 >= this.contents.length) {
-				resizePoolContents(8);
+				resizeContents(8);
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -1808,7 +1805,7 @@ public class ClassFile
 			if (!codeStream.methodDeclaration.isStatic()) {
 				numberOfEntries++;
 				if (localContentsOffset + 10 >= this.contents.length) {
-					resizePoolContents(10);
+					resizeContents(10);
 				}
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = 0;
@@ -1837,7 +1834,7 @@ public class ClassFile
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 							LocalVariableBinding localVariable = syntheticArguments[i];
 							if (localContentsOffset + 10 >= this.contents.length) {
-								resizePoolContents(10);
+								resizeContents(10);
 							}
 							// now we can safely add the local entry
 							numberOfEntries++;
@@ -1869,7 +1866,7 @@ public class ClassFile
 					for (int i = 0, max = parameters.length; i < max; i++) {
 						TypeBinding argumentBinding = parameters[i];
 						if (localContentsOffset + 10 >= this.contents.length) {
-							resizePoolContents(10);
+							resizeContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
@@ -1906,7 +1903,7 @@ public class ClassFile
 		}
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -1937,7 +1934,7 @@ public class ClassFile
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
-		contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside contents byte array before we started to write
 		// any information about the codeAttribute
@@ -1955,7 +1952,7 @@ public class ClassFile
 		contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
 		contents[codeAttributeOffset + 13] = (byte) code_length;
 		if ((localContentsOffset + 40) >= this.contents.length) {
-			resizePoolContents(40);
+			resizeContents(40);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
@@ -1999,7 +1996,7 @@ public class ClassFile
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 			if (localContentsOffset + 8 > this.contents.length) {
-				resizePoolContents(8);
+				resizeContents(8);
 			}
 			contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -2019,7 +2016,7 @@ public class ClassFile
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 > this.contents.length) {
-							resizePoolContents(10);
+							resizeContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
@@ -2053,7 +2050,7 @@ public class ClassFile
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
-			resizePoolContents(2);
+			resizeContents(2);
 		}
 		contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -2203,7 +2200,7 @@ public class ClassFile
 	 */
 	public void generateCodeAttributeHeader() {
 		if (contentsOffset + 20 >= this.contents.length) {
-			resizePoolContents(20);
+			resizeContents(20);
 		}
 		int constantValueNameIndex =
 			constantPool.literalIndex(AttributeNamesConstants.CodeName);
@@ -2243,8 +2240,9 @@ public class ClassFile
 			// The method has a throw clause. So we need to add an exception attribute
 			// check that there is enough space to write all the bytes for the exception attribute
 			int length = thrownsExceptions.length;
-			if (contentsOffset + (8 + length * 2) >= this.contents.length) {
-				resizePoolContents(8 + length * 2);
+			int exSize = 8 + length * 2;
+			if (exSize + contentsOffset >= this.contents.length) {
+				resizeContents(exSize);
 			}
 			int exceptionNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.ExceptionsName);
@@ -2269,7 +2267,7 @@ public class ClassFile
 			// Deprecated attribute
 			// Check that there is enough space to write the deprecated attribute
 			if (contentsOffset + 6 >= this.contents.length) {
-				resizePoolContents(6);
+				resizeContents(6);
 			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
@@ -2287,7 +2285,7 @@ public class ClassFile
 			// Synthetic attribute
 			// Check that there is enough space to write the deprecated attribute
 			if (contentsOffset + 6 >= this.contents.length) {
-				resizePoolContents(6);
+				resizeContents(6);
 			}
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
@@ -2333,7 +2331,7 @@ public class ClassFile
 		// to the @methodBinding
 		methodCount++; // add one more method
 		if (contentsOffset + 10 >= this.contents.length) {
-			resizePoolContents(10);
+			resizeContents(10);
 		}
 		if (targetJDK < ClassFileConstants.JDK1_5) {
 		    // pre 1.5, synthetic was an attribute, not a modifier
@@ -2365,7 +2363,7 @@ public class ClassFile
 		// to the @methodBinding
 		methodCount++; // add one more method
 		if (contentsOffset + 10 >= this.contents.length) {
-			resizePoolContents(10);
+			resizeContents(10);
 		}
 		contents[contentsOffset++] = (byte) ((AccDefault | AccStatic) >> 8);
 		contents[contentsOffset++] = (byte) (AccDefault | AccStatic);
@@ -2495,14 +2493,12 @@ public class ClassFile
 	/**
 	 * Resize the pool contents
 	 */
-	private final void resizePoolContents(int minimalSize) {
-		final int contentsLength = this.contents.length;
-		System.arraycopy(
-			this.contents,
-			0,
-			(this.contents = new byte[contentsLength + Math.max(INCREMENT_SIZE, minimalSize)]),
-			0,
-			contentsLength);
+	private final void resizeContents(int minimalSize) {
+		int length = this.contents.length;
+		int toAdd = length;
+		if (toAdd < minimalSize)
+			toAdd = minimalSize;
+		System.arraycopy(this.contents, 0, this.contents = new byte[length + toAdd], 0, length);
 	}
 
 	/**
