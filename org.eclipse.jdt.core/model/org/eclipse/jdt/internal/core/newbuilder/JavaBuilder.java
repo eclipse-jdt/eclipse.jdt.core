@@ -259,60 +259,54 @@ private void initializeBuilder() throws CoreException {
 	this.classpath = new ClasspathLocation[max];
 	this.prereqOutputFolders = new LookupTable();
 	
-	for (int i = 0; i < max; i++) {
+	nextEntry : for (int i = 0; i < max; i++) {
 		IClasspathEntry entry = entries[i];
 		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
-		if (target == null) continue;
+		if (target == null) continue nextEntry;
 
-		if (target instanceof IResource){
-			
-			switch(entry.getEntryKind()){
-
+		if (target instanceof IResource) {
+			IResource resource = (IResource) target;
+			switch(entry.getEntryKind()) {
 				case IClasspathEntry.CPE_SOURCE :
-
-					if (!(target instanceof IContainer)) continue;
-					sourceFolders[srcCount] = (IContainer) target;
+					if (!(resource instanceof IContainer)) continue nextEntry;
+					sourceFolders[srcCount++] = (IContainer) resource;
 					classpath[cpCount++] = ClasspathLocation.forSourceFolder(
-						sourceFolders[srcCount++].getLocation().toOSString(),
-						outputFolder.getLocation().toOSString());
-					break;
-				
-			case IClasspathEntry.CPE_PROJECT :
+						resource.getLocation().toString(),
+						outputFolder.getLocation().toString());
+					break nextEntry;
 
-				if (!(target instanceof IProject)) continue;
-				IProject prereqProject = (IProject) target;
-				IPath outputLocation = getJavaProject(prereqProject).getOutputLocation();
-				IResource prereqOutputFolder;
-				if (prereqProject.getFullPath().equals(outputLocation)){
-					prereqOutputFolder = prereqProject;
-				} else {
-					prereqOutputFolder = workspaceRoot.findMember(outputLocation);
-					if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder)){
-						continue;
+				case IClasspathEntry.CPE_PROJECT :
+					if (!(resource instanceof IProject)) continue nextEntry;
+					IProject prereqProject = (IProject) resource;
+					IPath outputLocation = getJavaProject(prereqProject).getOutputLocation();
+					IResource prereqOutputFolder;
+					if (prereqProject.getFullPath().equals(outputLocation)) {
+						prereqOutputFolder = prereqProject;
+					} else {
+						prereqOutputFolder = workspaceRoot.findMember(outputLocation);
+						if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder))
+							continue nextEntry;
 					}
-				}
-				prereqOutputFolders.put(prereqProject, prereqOutputFolder);
-				classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toOSString());
-				break;
+					prereqOutputFolders.put(prereqProject, prereqOutputFolder);
+					classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
+					break nextEntry;
 
-			case IClasspathEntry.CPE_LIBRARY :
-			
-				if (target instanceof IFile){
-					String extension = entry.getPath().getFileExtension();
-					if (!JAR_EXTENSION.equalsIgnoreCase(extension) && ZIP_EXTENSION.equalsIgnoreCase(extension)) continue;
-				} else if (!(target instanceof IFolder)){
-					continue;
-				}
-				classpath[cpCount++] = ClasspathLocation.forLibrary(((IResource)target).getLocation().toOSString());
-				break;
+				case IClasspathEntry.CPE_LIBRARY :
+					if (resource instanceof IFile) {
+						String extension = entry.getPath().getFileExtension();
+						if (!(JAR_EXTENSION.equalsIgnoreCase(extension) || ZIP_EXTENSION.equalsIgnoreCase(extension)))
+							continue nextEntry;
+					} else if (!(resource instanceof IFolder)) {
+						continue nextEntry;
+					}
+					classpath[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
+					break nextEntry;
 			}
-		} else {
-			if (target instanceof File){
-				String extension = entry.getPath().getFileExtension();
-				if (!JAR_EXTENSION.equalsIgnoreCase(extension) && ZIP_EXTENSION.equalsIgnoreCase(extension)) continue;
-				classpath[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toOSString());
-			} 
-			break;
+		} else if (target instanceof File) {
+			String extension = entry.getPath().getFileExtension();
+			if (!(JAR_EXTENSION.equalsIgnoreCase(extension) || ZIP_EXTENSION.equalsIgnoreCase(extension)))
+				continue nextEntry;
+			classpath[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toString());
 		}
 	}
 	if (srcCount < max)
