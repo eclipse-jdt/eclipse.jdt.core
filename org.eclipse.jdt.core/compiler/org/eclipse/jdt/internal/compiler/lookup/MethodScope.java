@@ -321,6 +321,7 @@ public class MethodScope extends BlockScope {
 		    method.binding.typeVariables = NoTypeVariables;
 		} else {
 			method.binding.typeVariables = createTypeVariables(typeParameters);
+			method.binding.modifiers |= AccGenericSignature;
 		}
 		return method.binding;
 	}
