@@ -41,22 +41,24 @@ public class EnclosingMethodAttribute extends ClassFileAttribute implements IEnc
 		}
 		this.enclosingClassName = constantPoolEntry.getClassInfoName();
 		this.methodNameAndTypeIndex = u2At(classFileBytes, 8, offset);
-		constantPoolEntry = constantPool.decodeEntry(this.methodNameAndTypeIndex);
-		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_NameAndType) {
-			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+		if (this.methodNameAndTypeIndex != 0) {
+			constantPoolEntry = constantPool.decodeEntry(this.methodNameAndTypeIndex);
+			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_NameAndType) {
+				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+			}
+			this.methodDescriptorIndex = constantPoolEntry.getNameAndTypeInfoDescriptorIndex();
+			this.methodNameIndex = constantPoolEntry.getNameAndTypeInfoNameIndex();
+			constantPoolEntry = constantPool.decodeEntry(this.methodDescriptorIndex);
+			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+			}
+			this.methodDescriptor = constantPoolEntry.getUtf8Value();
+			constantPoolEntry = constantPool.decodeEntry(this.methodNameIndex);
+			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+			}
+			this.methodName = constantPoolEntry.getUtf8Value();
 		}
-		this.methodDescriptorIndex = constantPoolEntry.getNameAndTypeInfoDescriptorIndex();
-		this.methodNameIndex = constantPoolEntry.getNameAndTypeInfoNameIndex();
-		constantPoolEntry = constantPool.decodeEntry(this.methodDescriptorIndex);
-		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
-			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
-		}
-		this.methodDescriptor = constantPoolEntry.getUtf8Value();
-		constantPoolEntry = constantPool.decodeEntry(this.methodNameIndex);
-		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
-			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
-		}
-		this.methodName = constantPoolEntry.getUtf8Value();
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IEnclosingMethodAttribute#getEnclosingClass()

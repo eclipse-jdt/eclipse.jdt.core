@@ -71,20 +71,41 @@ public interface IAnnotationComponentValue {
 	int getConstantValueIndex();
 
 	/**
-	 * Answer back the enum constant as described in the JVM specifications.
+	 * Answer back the utf8 constant as described in the JVM specifications.
+	 * This utf8 represents the simple name of the enum constant represented
+	 * by this annotation component value.
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant
 	 */
-	IConstantPoolEntry getEnumConstant();	
+	IConstantPoolEntry getEnumConstantName();	
 	
 	/**
-	 * Answer back the enum constant index as described in the JVM specifications.
+	 * Answer back the utf8 constant index as described in the JVM specifications.
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant index
 	 */
-	int getEnumConstantIndex();
+	int getEnumConstantNameIndex();
+
+	/**
+	 * Answer back the utf8 constant as described in the JVM specifications.
+	 * This utf8 represents the binary name of the type of the enum constant represented
+	 * by this annotation component value.
+	 * This is initialized only of the tag item is 'e'.
+	 * 
+	 * @return the enum constant
+	 */
+	IConstantPoolEntry getEnumConstantTypeName();	
+	
+	/**
+	 * Answer back the utf8 constant index as described in the JVM specifications.
+	 * This is initialized only of the tag item is 'e'.
+	 * 
+	 * @return the enum constant index
+	 */
+	int getEnumConstantTypeNameIndex();
+
 	/**
 	 * Answer back the tag as described in the JVM specifications.
 	 * 

@@ -1059,10 +1059,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
 			.append(" ")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClass()) //$NON-NLS-1$
-			.append(".")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
-			.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClass()); //$NON-NLS-1$
+		if (enclosingMethodAttribute.getMethodNameAndTypeIndex() != 0) {
+			buffer
+				.append(".")//$NON-NLS-1$
+				.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
+				.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
+		}
 	}
 	
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {

@@ -21,18 +21,20 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
  * Default implementation of IAnnotationComponent
  */
 public class AnnotationComponentValue extends ClassFileStruct implements IAnnotationComponentValue {
-	
-	private int readOffset;
-	private int constantValueIndex;
-	private IConstantPoolEntry constantValue;
-	private int classFileInfoIndex;
-	private IConstantPoolEntry classFileInfo;
-	private int enumConstantIndex;
-	private IConstantPoolEntry enumConstant;
-	private IAnnotation attributeValue;
-	private int valuesNumber;
 	private IAnnotationComponentValue[] annotationComponentValues;
+	private IAnnotation attributeValue;
+	private IConstantPoolEntry classFileInfo;
+	private int classFileInfoIndex;
+	private IConstantPoolEntry constantValue;
+	private int constantValueIndex;
+	private int enumConstantTypeNameIndex;
+	private int enumConstantNameIndex;
+	private IConstantPoolEntry enumConstantTypeName;
+	private IConstantPoolEntry enumConstantName;
+
+	private int readOffset;
 	private int tag;
+	private int valuesNumber;
 	
 	public AnnotationComponentValue(
 			byte[] classFileBytes,
@@ -70,14 +72,24 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 				this.readOffset += 2;
 				break;
 			case 'e' :
-				final int enumIndex = this.u2At(classFileBytes, this.readOffset, offset);
-				this.enumConstantIndex = enumIndex;
-				if (enumIndex != 0) {
-					IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(enumIndex);
-					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Fieldref) {
+				int index = this.u2At(classFileBytes, this.readOffset, offset);
+				this.enumConstantTypeNameIndex = index;
+				if (index != 0) {
+					IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(index);
+					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
-					this.enumConstant = constantPoolEntry;
+					this.enumConstantTypeName = constantPoolEntry;
+				}
+				this.readOffset += 2;
+				index = this.u2At(classFileBytes, this.readOffset, offset);
+				this.enumConstantNameIndex = index;
+				if (index != 0) {
+					IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(index);
+					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+					}
+					this.enumConstantName = constantPoolEntry;
 				}
 				this.readOffset += 2;
 				break;
@@ -150,16 +162,28 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 		return this.constantValueIndex;
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstant()
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantName()
 	 */
-	public IConstantPoolEntry getEnumConstant() {
-		return this.enumConstant;
+	public IConstantPoolEntry getEnumConstantName() {
+		return this.enumConstantName;
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantIndex()
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantNameIndex()
 	 */
-	public int getEnumConstantIndex() {
-		return this.enumConstantIndex;
+	public int getEnumConstantNameIndex() {
+		return this.enumConstantNameIndex;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantTypeName()
+	 */
+	public IConstantPoolEntry getEnumConstantTypeName() {
+		return this.enumConstantTypeName;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantTypeNameIndex()
+	 */
+	public int getEnumConstantTypeNameIndex() {
+		return enumConstantTypeNameIndex;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getTag()
