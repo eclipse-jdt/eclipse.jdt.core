@@ -15,7 +15,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.jdom.IDOMNode;
-import org.eclipse.jdt.internal.core.lookup.*;
 
 import java.util.*;
 
@@ -375,12 +374,6 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
  */
 public char[][] getPackageName() {
 	return null;
-}
-/**
- * Returns the reference information for this compilation unit
- */
-public ReferenceInfo getReferenceInfo() throws JavaModelException {
-	return ((CompilationUnitElementInfo)getElementInfo()).getReferenceInfo();
 }
 /**
  * @see ISourceReference

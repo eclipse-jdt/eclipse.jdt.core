@@ -8,16 +8,16 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.*;
-import org.eclipse.jdt.internal.core.lookup.ReferenceInfo;
+import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
+import org.eclipse.jdt.core.*;
 
 import java.util.*;
 
 /**
  * A requestor for the fuzzy parser, used to compute the children of an ICompilationUnit.
  */
-public class CompilationUnitStructureRequestor implements ISourceElementRequestor {
+public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter implements ISourceElementRequestor {
 
 	/**
 	 * The handle to the compilation unit being parsed
@@ -71,22 +71,6 @@ public class CompilationUnitStructureRequestor implements ISourceElementRequesto
 	protected char[] fPackageName= null;
 
 	/**
-	 * Array of bytes describing reference info found during the
-	 * parse. Entires are constants defined by ReferenceInfo,
-	 * and the corresponding names are in fReferenceNames.
-	 *
-	 * @see ReferenceInfo
-	 */
-	protected byte[] fReferenceKinds= fgEmptyByte;
-
-	/**
-	 * Array of referenced names found during the
-	 * parse. Entires are char arrays, and the corresponding
-	 * reference kinds are in fReferenceKinds.
-	 */
-	protected char[][] fReferenceNames= fgEmptyCharChar;
-
-	/**
 	 * The number of references reported thus far. Used to
 	 * expand the arrays of reference kinds and names.
 	 */
@@ -124,36 +108,6 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 	fUnitInfo = unitInfo;
 	fNewElements = newElements;
 	fSourceFileName= unit.getElementName().toCharArray();
-}
-public void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition) {
-
-	// type name could be qualified
-	if (CharOperation.indexOf('.', typeName) < 0){
-		acceptTypeReference(typeName, sourcePosition);
-	} else {
-		acceptTypeReference(CharOperation.splitOn('.', typeName), -1, -1); // source positions are not used
-		// use simple name afterwards
-		typeName = CharOperation.lastSegment(typeName, '.');
-	}
-	if (argCount < 10) {
-		// common case (i.e. small arg count)
-		int len = typeName.length;
-		char[] name = new char[len+4];
-		name[0] = '<';
-		System.arraycopy(typeName, 0, name, 1, len);
-		// fix for 1FWAKJJ
-		name[len+1] = '>';
-		name[len+2] = '/';
-		name[len+3] = (char) ('0' + argCount);
-		addReference(ReferenceInfo.REFTYPE_call, name);
-	}
-	else {
-		String name = "<" + new String(typeName) + ">/" + argCount;   //$NON-NLS-2$ //$NON-NLS-1$
-		addReference(ReferenceInfo.REFTYPE_call, name.toCharArray());
-	}
-}
-public void acceptFieldReference(char[] fieldName, int sourcePosition) {
-	addReference(ReferenceInfo.REFTYPE_var, fieldName);
 }
 /**
  * @see ISourceElementRequestor
@@ -201,21 +155,6 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
  * 
  */
 public void acceptLineSeparatorPositions(int[] positions) {}
-public void acceptMethodReference(char[] methodName, int argCount, int sourcePosition) {
-	if (argCount < 10) {
-		// common case (i.e. small arg count)
-		int len = methodName.length;
-		char[] name = new char[len+2];
-		System.arraycopy(methodName, 0, name, 0, len);
-		name[len] = '/';
-		name[len+1] = (char) ('0' + argCount);
-		addReference(ReferenceInfo.REFTYPE_call, name);
-	}
-	else {
-		String name = new String(methodName) + "/" + argCount;   //$NON-NLS-1$
-		addReference(ReferenceInfo.REFTYPE_call, name.toCharArray());
-	}
-}
 /**
  * @see ISourceElementRequestor
  */
@@ -247,82 +186,6 @@ public void acceptProblem(IProblem problem) {
 		fProblems= new ArrayList();
 	}
 	fProblems.add(problem);
-}
-public void acceptTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {
-	int last = typeName.length - 1;
-	for (int i = 0; i < last; ++i) {
-		addReference(ReferenceInfo.REFTYPE_unknown, typeName[i]);
-	}
-	addReference(ReferenceInfo.REFTYPE_type, typeName[last]);
-}
-public void acceptTypeReference(char[] typeName, int sourcePosition) {
-	addReference(ReferenceInfo.REFTYPE_type, typeName);
-}
-public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd) {
-	for (int i = 0; i < name.length; ++i) {
-		addReference(ReferenceInfo.REFTYPE_unknown, name[i]);
-	}
-}
-public void acceptUnknownReference(char[] name, int sourcePosition) {
-	addReference(ReferenceInfo.REFTYPE_unknown, name);
-}
-/**
- * Adds the given reference to the reference info for this CU.
- */
-protected void addReference(byte kind, char[] name) {
-
-	HashtableOfObject refCache = null;
-	switch(kind){
-		case ReferenceInfo.REFTYPE_unknown:
-			if ((refCache = this.unknownRefCache) == null){
-				refCache = this.unknownRefCache = new HashtableOfObject(5);
-			}
-			break;		
-		case ReferenceInfo.REFTYPE_call: 
-			if ((refCache = this.messageRefCache) == null){
-				refCache = this.messageRefCache = new HashtableOfObject(5);
-			}
-			break;
-		case ReferenceInfo.REFTYPE_type:
-			if ((refCache = this.typeRefCache) == null){
-				refCache = this.typeRefCache = new HashtableOfObject(5);
-			}
-			break;		
-		case ReferenceInfo.REFTYPE_var:
-			if ((refCache = this.fieldRefCache) == null){
-				refCache = this.fieldRefCache = new HashtableOfObject(5);
-			}
-			break;		
-		case ReferenceInfo.REFTYPE_import:
-		case ReferenceInfo.REFTYPE_derive:
-		case ReferenceInfo.REFTYPE_class:
-		case ReferenceInfo.REFTYPE_constant:	
-	}
-	if (refCache == null) addReference0(kind, name); // backward compatible
-	if (refCache.containsKey(name)) return;
-	refCache.put(name, name);
-	addReference0(kind, name);
-}
-/**
- * Adds the given reference to the reference info for this CU.
- */
-private void addReference0(byte kind, char[] name) {
-
-	int count = fRefCount++;
-	if (count >= fReferenceKinds.length) {
-		int size = fgReferenceAllocation;
-		if (fReferenceKinds.length > 0) {
-			size = fReferenceKinds.length * 2;
-		}
-		byte[] kinds = new byte[size];
-		System.arraycopy(fReferenceKinds, 0, kinds, 0, fReferenceKinds.length);
-		fReferenceKinds = kinds;
-		char[][] names = new char[size][];
-		System.arraycopy(fReferenceNames, 0, names, 0, fReferenceNames.length);
-		fReferenceNames = names;
-	}
-	fReferenceKinds[count] = kind;
-	fReferenceNames[count] = name;
 }
 /**
  * Convert these type names to signatures.
@@ -614,17 +477,6 @@ public void exitClass(int declarationEnd) {
  */
 public void exitCompilationUnit(int declarationEnd) {
 	fUnitInfo.setSourceLength(declarationEnd + 1);
-
-	// make the reference arrays the correct size
-	if (fRefCount != fReferenceKinds.length) {
-		byte[] kinds= new byte[fRefCount];
-		System.arraycopy(fReferenceKinds, 0, kinds, 0, fRefCount);
-		fReferenceKinds= kinds;
-		char[][] names= new char[fRefCount][];
-		System.arraycopy(fReferenceNames, 0, names, 0, fRefCount);
-		fReferenceNames= names;
-	}
-	fUnitInfo.setReferenceInfo(new ReferenceInfo(fReferenceNames, fReferenceKinds));
 
 	// determine if there were any parsing errors
 	fUnitInfo.setIsStructureKnown(true);
