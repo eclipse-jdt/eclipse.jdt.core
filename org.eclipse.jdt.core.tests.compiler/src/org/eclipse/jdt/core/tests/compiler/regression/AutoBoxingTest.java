@@ -1512,5 +1512,33 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"10");
-	}			
+	}
+	
+	public void test059() { // autoboxing and generics
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.Iterator;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Integer> list = new ArrayList<Integer>();\n" + 
+				"		for (int i = 0; i < 5; i++) {\n" + 
+				"			list.add(i);\n" + 
+				"	    }\n" + 
+				"	    int sum = 0;\n" + 
+				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" + 
+				"	    	if (1 == iterator.next()) {\n" + 
+				"	    		System.out.println(\"SUCCESS\");\n" + 
+				"	    		break;\n" + 
+				"	    	}\n" + 
+				"	    }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
 }

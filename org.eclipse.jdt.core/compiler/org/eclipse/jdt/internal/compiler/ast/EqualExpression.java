@@ -406,13 +406,13 @@ public class EqualExpression extends BinaryExpression {
 	
 			boolean leftIsCast, rightIsCast;
 			if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			TypeBinding leftType = left.resolveType(scope);
+			TypeBinding originalLeftType = left.resolveType(scope);
 	
 			if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			TypeBinding rightType = right.resolveType(scope);
+			TypeBinding originalRightType = right.resolveType(scope);
 	
 		// always return BooleanBinding
-		if (leftType == null || rightType == null){
+		if (originalLeftType == null || originalRightType == null){
 			constant = NotAConstant;		
 			return null;
 		}
@@ -420,23 +420,15 @@ public class EqualExpression extends BinaryExpression {
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
-		boolean unboxedLeft = false, unboxedRight = false;
+		TypeBinding leftType = originalLeftType, rightType = originalRightType;
 		if (use15specifics) {
 			if (leftType != NullBinding && leftType.isBaseType()) {
 				if (!rightType.isBaseType()) {
-					TypeBinding unboxedType = env.computeBoxingType(rightType);
-					if (unboxedType != rightType) {
-						rightType = unboxedType;
-						unboxedRight = true;
-					}
+					rightType = env.computeBoxingType(rightType);
 				}
 			} else {
 				if (rightType != NullBinding && rightType.isBaseType()) {
-					TypeBinding unboxedType = env.computeBoxingType(leftType);
-					if (unboxedType != leftType) {
-						leftType = unboxedType;
-						unboxedLeft = true;
-					}
+					leftType = env.computeBoxingType(leftType);
 				}
 			}
 		}
@@ -450,8 +442,8 @@ public class EqualExpression extends BinaryExpression {
 			//  0000   0000       0000   0000      0000
 			//  <<16   <<12       <<8    <<4       <<0
 			int operatorSignature = OperatorSignatures[EQUAL_EQUAL][ (leftTypeID << 4) + rightTypeID];
-			left.implicitConversion =  (unboxedLeft ? UNBOXING : 0) | (operatorSignature >>> 12);
-			right.implicitConversion =  (unboxedRight ? UNBOXING : 0) | ((operatorSignature >>> 4) & 0x000FF);
+			left.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), originalLeftType);
+			right.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 8) & 0x0000F), originalRightType);
 			bits |= operatorSignature & 0xF;		
 			if ((operatorSignature & 0x0000F) == T_undefined) {
 				constant = Constant.NotAConstant;
