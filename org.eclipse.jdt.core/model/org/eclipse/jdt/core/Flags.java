@@ -112,18 +112,18 @@ public final class Flags {
 	public static final int AccDeprecated = IConstants.AccDeprecated;
 	/**
 	 * Enumaration property flag. See The Java Virtual Machine Specification for more details.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int AccEnum = IConstants.AccEnum;
 	/**
 	 * Bridge method property flag. See The Java Virtual Machine Specification for more details.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int AccBridge = IConstants.AccBridge;
 	/**
 	 * Variable number of argument method property flag.
 	 * See The Java Virtual Machine Specification for more details.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int AccVarargs = IConstants.AccVarargs;
 
