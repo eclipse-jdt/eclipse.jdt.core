@@ -2026,4 +2026,71 @@ public void test0045() {
 		expected15ProblemLog
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74519
+ */
+public void test0046() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public @interface X {\n" + 
+		"	String annName();\n" + 
+		"}"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public @interface X {\n" + 
+		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = "";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74519
+ */
+public void test0047() {
+	String[] testFiles = new String[] {
+		"A.java",
+		"public @interface A {}",
+		"X.java",
+		"@A public class X {\n" + 
+		"}"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in A.java (at line 1)\n" + 
+		"	public @interface A {}\n" + 
+		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	@A public class X {\n" + 
+		"	^^\n" + 
+		"Syntax error, annotations are only available if source level is 1.5\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = "";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
 }
