@@ -14,7 +14,6 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 
 /**
  * A simpleIndexInput is an input on an in memory Index. 
@@ -125,14 +124,14 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#query(String)
 	 */
-	public IQueryResult[] query(String word) {
+	public String[] query(String word) {
 		char[] wordChar= word.toCharArray();
 		WordEntry wordEntry= index.getWordEntry(wordChar);
 		int[] fileNums= wordEntry.getRefs();
-		IQueryResult[] files= new IQueryResult[fileNums.length];
-		for (int i= 0; i < files.length; i++)
-			files[i]= getIndexedFile(fileNums[i]);
-		return files;
+		String[] paths= new String[fileNums.length];
+		for (int i= 0; i < paths.length; i++)
+			paths[i]= getIndexedFile(fileNums[i]).getPath();
+		return paths;
 	}
 	public IEntryResult[] queryEntries(char[] pattern, int matchRule) {
 		return null;
@@ -140,13 +139,13 @@ public class SimpleIndexInput extends IndexInput {
 	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) {
 		return null;
 	}
-	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) {
+	public String[] queryFilesReferringToPrefix(char[] prefix) {
 			return null;
 	}
 	/**
 	 * @see IndexInput#queryInDocumentNames(String)
 	 */
-	public IQueryResult[] queryInDocumentNames(String word) {
+	public String[] queryInDocumentNames(String word) {
 		setFirstFile();
 		ArrayList matches= new ArrayList();
 		while (hasMoreFiles()) {
@@ -155,7 +154,7 @@ public class SimpleIndexInput extends IndexInput {
 				matches.add(file.getPath());
 			moveToNextFile();
 		}
-		IQueryResult[] match= new IQueryResult[matches.size()];
+		String[] match= new String[matches.size()];
 		matches.toArray(match);
 		return match;
 	}

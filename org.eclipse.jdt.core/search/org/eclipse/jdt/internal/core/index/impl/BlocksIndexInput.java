@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -211,15 +210,15 @@ public class BlocksIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#query(String)
 	 */
-	public IQueryResult[] query(String word) throws IOException {
+	public String[] query(String word) throws IOException {
 		open();
 		int[] fileNums= getMatchingFileNumbers(word.toCharArray());
 		int size= fileNums.length;
-		IQueryResult[] files= new IQueryResult[size];
+		String[] paths= new String[size];
 		for (int i= 0; i < size; ++i) {
-			files[i]= getIndexedFile(fileNums[i]);
+			paths[i]= getIndexedFile(fileNums[i]).getPath();
 		}
-		return files;
+		return paths;
 	}
 	/**
 	 * If no prefix is provided in the pattern, then this operation will have to walk
@@ -309,7 +308,7 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		return entries;
 	}
-	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
+	public String[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
 		open();
 		
 		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
@@ -342,30 +341,30 @@ public class BlocksIndexInput extends IndexInput {
 			blockLoc = summary.getNextBlockLocationForPrefix(prefix, blockLoc);				
 		}
 		/* extract indexed files */
-		IQueryResult[] files = new IQueryResult[count];
+		String[] paths = new String[count];
 		Object[] indexedFiles = fileMatches.valueTable;
 		for (int i = 0, index = 0, max = indexedFiles.length; i < max; i++){
 			IndexedFile indexedFile = (IndexedFile) indexedFiles[i];
 			if (indexedFile != null){
-				files[index++] = indexedFile;
+				paths[index++] = indexedFile.getPath();
 			}
 		}	
-		return files;
+		return paths;
 	}
 	/**
 	 * @see IndexInput#queryInDocumentNames(String)
 	 */
-	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
+	public String[] queryInDocumentNames(String word) throws IOException {
 		open();
 		ArrayList matches= new ArrayList();
 		setFirstFile();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
 			if (file.getPath().indexOf(word) != -1)
-				matches.add(file);
+				matches.add(file.getPath());
 			moveToNextFile();
 		}
-		IQueryResult[] match= new IQueryResult[matches.size()];
+		String[] match= new String[matches.size()];
 		matches.toArray(match);
 		return match;
 	}

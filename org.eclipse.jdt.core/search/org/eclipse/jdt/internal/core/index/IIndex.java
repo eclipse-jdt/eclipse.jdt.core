@@ -24,21 +24,9 @@ public interface IIndex {
 	 */
 	void add(IDocument document, IIndexer indexer) throws IOException;
 	/**
-	 * Empties the index.
-	 */
-	void empty() throws IOException;
-	/**
 	 * Returns the index file on the disk.
 	 */
 	File getIndexFile();
-	/**
-	 * Returns the number of documents indexed.
-	 */
-	int getNumDocuments() throws IOException;
-	/**
-	 * Returns the number of unique words indexed.
-	 */
-	int getNumWords() throws IOException;
 	/**
 	 * Returns the path corresponding to a given document number
 	 */
@@ -50,7 +38,7 @@ public interface IIndex {
 	/**
 	 * Returns the paths of the documents containing the given word.
 	 */
-	IQueryResult[] query(String word) throws IOException;
+	String[] query(String word) throws IOException;
 	/**
 	 * Returns all entries for a given word.
 	 */
@@ -58,11 +46,11 @@ public interface IIndex {
 	/**
 	 * Returns the paths of the documents whose names contain the given word.
 	 */
-	IQueryResult[] queryInDocumentNames(String word) throws IOException;
+	String[] queryInDocumentNames(String word) throws IOException;
 	/**
 	 * Returns the paths of the documents containing the given word prefix.
 	 */
-	IQueryResult[] queryPrefix(char[] prefix) throws IOException;
+	String[] queryPrefix(char[] prefix) throws IOException;
 	/**
 	 * Removes the corresponding document from the index.
 	 */

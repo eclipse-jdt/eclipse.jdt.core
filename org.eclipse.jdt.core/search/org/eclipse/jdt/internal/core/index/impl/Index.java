@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IIndexer;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 
 /**
  * An Index is used to create an index on the disk, and to make queries. It uses a set of 
@@ -112,56 +111,30 @@ public class Index implements IIndex {
 	/**
 	 * Initialises the indexGenerator.
 	 */
-	public void empty() throws IOException {
-
-		if (indexFile.exists()){
-			indexFile.delete();
-			//initialisation of mainIndex
-			InMemoryIndex mainIndex= new InMemoryIndex();
-			IndexOutput mainIndexOutput= new BlocksIndexOutput(indexFile);
-			if (!indexFile.exists())
-				mainIndex.save(mainIndexOutput);
-		}
-
-		//initialisation of addsIndex
-		addsIndex= new InMemoryIndex();
-		addsIndexInput= new SimpleIndexInput(addsIndex);
-
-		//vectors who keep track of the removed Files
-		removedInAdds= new HashMap(11);
-		removedInOld= new HashMap(11);
-	}
+//	public void empty() throws IOException {
+//
+//		if (indexFile.exists()){
+//			indexFile.delete();
+//			//initialisation of mainIndex
+//			InMemoryIndex mainIndex= new InMemoryIndex();
+//			IndexOutput mainIndexOutput= new BlocksIndexOutput(indexFile);
+//			if (!indexFile.exists())
+//				mainIndex.save(mainIndexOutput);
+//		}
+//
+//		//initialisation of addsIndex
+//		addsIndex= new InMemoryIndex();
+//		addsIndexInput= new SimpleIndexInput(addsIndex);
+//
+//		//vectors who keep track of the removed Files
+//		removedInAdds= new HashMap(11);
+//		removedInOld= new HashMap(11);
+//	}
 	/**
 	 * @see IIndex#getIndexFile
 	 */
 	public File getIndexFile() {
 		return indexFile;
-	}
-	/**
-	 * @see IIndex#getNumDocuments
-	 */
-	public int getNumDocuments() throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			input.open();
-			return input.getNumFiles();
-		} finally {
-			input.close();
-		}		
-	}
-	/**
-	 * @see IIndex#getNumWords
-	 */
-	public int getNumWords() throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			input.open();
-			return input.getNumWords();
-		} finally {
-			input.close();
-		}		
 	}
 	/**
 	 * Returns the path corresponding to a given document number
@@ -259,7 +232,7 @@ public class Index implements IIndex {
 	/**
 	 * @see IIndex#query
 	 */
-	public IQueryResult[] query(String word) throws IOException {
+	public String[] query(String word) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
@@ -280,7 +253,7 @@ public class Index implements IIndex {
 	/**
 	 * @see IIndex#queryInDocumentNames
 	 */
-	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
+	public String[] queryInDocumentNames(String word) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
@@ -292,7 +265,7 @@ public class Index implements IIndex {
 	/**
 	 * @see IIndex#queryPrefix
 	 */
-	public IQueryResult[] queryPrefix(char[] prefix) throws IOException {
+	public String[] queryPrefix(char[] prefix) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {

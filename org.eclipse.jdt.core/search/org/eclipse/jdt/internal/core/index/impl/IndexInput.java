@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 
 
 /**
@@ -114,14 +113,14 @@ public abstract class IndexInput {
 	/**
 	 * Returns the list of the files containing the given word in the index.
 	 */
-	public abstract IQueryResult[] query(String word) throws IOException;
+	public abstract String[] query(String word) throws IOException;
 	public abstract IEntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException;
 	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException;
-	public abstract IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
+	public abstract String[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
 	/**
 	 * Returns the list of the files whose name contain the given word in the index.
 	 */
-	public abstract IQueryResult[] queryInDocumentNames(String word) throws IOException;
+	public abstract String[] queryInDocumentNames(String word) throws IOException;
 	/**
 	 * Set the pointer on the current file to the first file of the index.
 	 */

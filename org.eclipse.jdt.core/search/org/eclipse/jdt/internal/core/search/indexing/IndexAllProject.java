@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -64,13 +63,13 @@ public class IndexAllProject extends IndexRequest {
 			monitor.enterRead(); // ask permission to read
 			saveIfNecessary(index, monitor);
 
-			IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
-			int max = results == null ? 0 : results.length;
+			String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+			int max = paths == null ? 0 : paths.length;
 			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
 			for (int i = 0; i < max; i++)
-				indexedFileNames.put(results[i].getPath(), DELETED);
+				indexedFileNames.put(paths[i], DELETED);
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
 			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
