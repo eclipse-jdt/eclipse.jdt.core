@@ -2925,6 +2925,7 @@ public void test0141() throws JavaModelException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88295
 public void test0142() throws JavaModelException {
 	ICompilationUnit enumeration = null;
 	try {
@@ -2957,7 +2958,6 @@ public void test0142() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"REDc[LOCAL_VARIABLE_REF]{REDc, null, Ltest0142.Colors;, REDc, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {

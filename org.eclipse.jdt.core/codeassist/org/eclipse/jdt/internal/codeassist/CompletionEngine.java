@@ -595,24 +595,28 @@ public final class CompletionEngine
 				if (astNode instanceof CompletionOnSingleNameReference) {
 					CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
 					this.completionToken = singleNameReference.token;
-					findVariablesAndMethods(
-						this.completionToken,
-						scope,
-						(CompletionOnSingleNameReference) astNode,
-						scope);
-					// can be the start of a qualified type name
-					findTypesAndPackages(this.completionToken, scope);
-					findKeywords(this.completionToken, singleNameReference.possibleKeywords);
-					if(astNodeParent instanceof SwitchStatement) {
+					SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
+					if(switchStatement != null
+							&& switchStatement.expression.resolvedType != null
+							&& switchStatement.expression.resolvedType.isEnum()) {
 						this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
-					}
-					if(singleNameReference.canBeExplicitConstructor){
-						if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
-							ReferenceBinding ref = scope.enclosingSourceType();
-							findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
-						} else if(CharOperation.prefixEquals(this.completionToken, Keywords.SUPER, false)) {
-							ReferenceBinding ref = scope.enclosingSourceType();
-							findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
+					} else {
+						findVariablesAndMethods(
+							this.completionToken,
+							scope,
+							(CompletionOnSingleNameReference) astNode,
+							scope);
+						// can be the start of a qualified type name
+						findTypesAndPackages(this.completionToken, scope);
+						findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+						if(singleNameReference.canBeExplicitConstructor){
+							if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
+								ReferenceBinding ref = scope.enclosingSourceType();
+								findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
+							} else if(CharOperation.prefixEquals(this.completionToken, Keywords.SUPER, false)) {
+								ReferenceBinding ref = scope.enclosingSourceType();
+								findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
+							}
 						}
 					}
 				} else {
