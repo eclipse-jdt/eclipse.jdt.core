@@ -1599,7 +1599,7 @@ public class ClassFile
 					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 					localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					localContents[localContentsOffset++] = (byte) nameIndex;
-					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericReferenceTypeSignature());
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
 					localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 					localContents[localContentsOffset++] = (byte) descriptorIndex;
 					localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
@@ -2397,7 +2397,7 @@ public class ClassFile
 					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 					localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					localContents[localContentsOffset++] = (byte) nameIndex;
-					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericReferenceTypeSignature());
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
 					localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 					localContents[localContentsOffset++] = (byte) descriptorIndex;
 					localContents[localContentsOffset++] = 0;// the resolved position for this is always 0

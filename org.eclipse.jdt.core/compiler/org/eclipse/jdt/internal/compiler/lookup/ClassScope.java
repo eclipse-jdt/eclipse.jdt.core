@@ -315,6 +315,7 @@ public class ClassScope extends Scope {
 			return; 
 		}		    
 		sourceType.typeVariables = createTypeVariables(typeParameters);
+		sourceType.modifiers |= AccGenericSignature;
 	}
 	
 	private void checkAndSetModifiers() {

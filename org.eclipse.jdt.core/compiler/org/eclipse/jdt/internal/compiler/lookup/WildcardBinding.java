@@ -68,6 +68,7 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public TypeBinding erasure() {
         return this.bound.erasure();
+        // TODO (philippe) should use bound only if EXTENDS, if not use variable erasure
     }
 
     /* (non-Javadoc)
@@ -96,12 +97,12 @@ public class WildcardBinding extends ReferenceBinding {
 		        this.tagBits |= HasTypeVariable;
 		    
 			this.fPackage = someBound.getPackage();
-			// should not be set yet
-			// this.superclass = null;
-			// this.superInterfaces = null;
+			if (someBound.isInterface()) {
+				modifiers |= AccInterface;
+			}
 		}
 	}
-	
+
 	/**
 	 * Returns true if a type is identical to another one,
 	 * or for generic types, true if compared to its raw type.

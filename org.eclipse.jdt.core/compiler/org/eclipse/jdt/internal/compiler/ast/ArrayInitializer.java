@@ -155,7 +155,7 @@ public class ArrayInitializer extends Expression {
 					} else if (BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)) {
 						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else {
-						scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionTb, expectedElementsTb);
+						scope.problemReporter().typeMismatchError(expressionTb, expectedElementsTb, expression);
 						return null;
 					}
 				}
@@ -190,7 +190,7 @@ public class ArrayInitializer extends Expression {
 		}
 		if (leafElementType != null) {
 			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
-			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(this, probableTb, expectedTb);
+			scope.problemReporter().typeMismatchError(probableTb, expectedTb, this);
 		}
 		return null;
 	}

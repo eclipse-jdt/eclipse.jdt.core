@@ -148,7 +148,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 			    sig.append('.').append(this.sourceName());
 			} else {
-			    char[] typeSig = this.type.genericTypeSignature();
+			    char[] typeSig = this.type.signature();
 			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 			}	   	    
 			if (this.arguments != null) {
@@ -580,6 +580,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        		return wildcard.environment.createWildcard(substitutedBound, wildcard.kind);
 			        }
 		        }
+			}
+		} else if (originalType.isGenericType()) {
+		    // treat as if parameterized with its type variables
+			ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+			TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
+			int length = originalVariables.length;
+			TypeBinding[] originalArguments;
+			System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
+			TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
+			if (substitutedArguments != originalArguments) {
+				return this.environment.createParameterizedType(
+						originalGenericType, substitutedArguments, null);
 			}
 		}
 		return originalType;

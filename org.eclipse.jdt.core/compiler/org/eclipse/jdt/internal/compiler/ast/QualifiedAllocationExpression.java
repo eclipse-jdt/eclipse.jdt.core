@@ -276,10 +276,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if (enclosingInstanceType.isCompatibleWith(expectedType)) {
 				return receiverType;
 			}
-			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-				this.enclosingInstance,
-				enclosingInstanceType,
-				expectedType);
+			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance);
 			return this.resolvedType = receiverType;
 		}
 
@@ -302,10 +299,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// TODO (philippe) no deprecation check?
 		if (enclosingInstance != null) {
 			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
-				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-					enclosingInstance,
-					enclosingInstanceType,
-					inheritedBinding.declaringClass.enclosingType());
+				scope.problemReporter().typeMismatchError(enclosingInstanceType, inheritedBinding.declaringClass.enclosingType(), enclosingInstance);
 				return this.resolvedType = anonymousType.binding;
 			}
 		}

@@ -3868,4 +3868,32 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: Cannot convert from ? super ZA to the bounded parameter <T extends ZB> of the type Z<T>\n" + 
 			"----------\n");
 	}
+	public void test137() {
+		this.runConformTest(
+			new String[] {
+				"Z.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class Z <T extends List> { \n" + 
+				"    T t;\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        foo(new Z<ArrayList>().set(new ArrayList<String>()));\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    Z<T> set(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"    T get() { \n" + 
+				"        return this.t; \n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static void foo(Z<? extends ArrayList> za) {\n" + 
+				"        za.get().isEmpty();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
 }

@@ -102,7 +102,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		} else if (argLength != typeVariables.length) { // check arity
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
-		}			
+		}
+		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
+		checkGeneric: {
+		    for (int i = 0; i < argLength; i++)
+				if (typeVariables[i] != argTypes[i])
+				    break checkGeneric;
+			return currentType;
+		}
 		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, enclosingType);
 		// check argument type compatibility
 		for (int i = 0; i < argLength; i++) {

@@ -117,7 +117,7 @@ public abstract class Scope
 		}
 
 		// apply inferred variable substitutions
-		ParameterizedGenericMethodBinding methodSubstitute = new ParameterizedGenericMethodBinding(method, mostSpecificSubstitutes);
+		ParameterizedGenericMethodBinding methodSubstitute = new ParameterizedGenericMethodBinding(method, mostSpecificSubstitutes, environment());
 
 		// check bounds
 		for (int i = 0, length = typeVariables.length; i < length; i++) {

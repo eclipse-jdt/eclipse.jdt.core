@@ -166,7 +166,7 @@ public class Assignment extends Expression {
 			checkRawAssignment(scope, lhsType, rhsType);
 			return this.resolvedType;
 		}
-		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, rhsType, lhsType);
+		scope.problemReporter().typeMismatchError(rhsType, lhsType, expression);
 		return lhsType;
 	}
 	/* (non-Javadoc)

@@ -384,6 +384,25 @@ public FieldBinding[] fields() {
 	return fields;
 }
 /**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#genericTypeSignature()
+ */
+public char[] genericTypeSignature() {
+    if (this.genericReferenceTypeSignature == null) {
+	    StringBuffer sig = new StringBuffer(10);
+	    char[] typeSig = this.signature();
+	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
+	    	sig.append(typeSig[i]);
+	    }
+	    sig.append('<');
+	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+	        sig.append(this.typeVariables[i].genericTypeSignature());
+	    }
+	    sig.append(">;"); //$NON-NLS-1$
+		this.genericReferenceTypeSignature = sig.toString().toCharArray();
+    }
+    return this.genericReferenceTypeSignature;
+}
+/**
  * <param1 ... paramN>superclass superinterface1 ... superinterfaceN
  * <T:LY<TT;>;U:Ljava/lang/Object;V::Ljava/lang/Runnable;:Ljava/lang/Cloneable;:Ljava/util/Map;>Ljava/lang/Exception;Ljava/lang/Runnable;
  */
@@ -412,29 +431,6 @@ public char[] genericSignature() {
     }
 	return sig.toString().toCharArray();
 }
-/**
- * Produce a signature equivalent to the genericTypeSignature of a reference to this type: X<T> 
- * where args are actual params
- * type<param1 ... paramN>
- * LX<TT;>;
- */
-public char[] genericReferenceTypeSignature() {
-    if (this.genericReferenceTypeSignature == null) {
-	    StringBuffer sig = new StringBuffer(10);
-	    char[] typeSig = this.genericTypeSignature();
-	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
-	    	sig.append(typeSig[i]);
-	    }
-	    sig.append('<');
-	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
-	        sig.append(this.typeVariables[i].genericTypeSignature());
-	    }
-	    sig.append(">;"); //$NON-NLS-1$
-		this.genericReferenceTypeSignature = sig.toString().toCharArray();
-    }
-    return this.genericReferenceTypeSignature;
-}
-
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)

@@ -3288,37 +3288,13 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void typeMismatchError(TypeBinding resultType, TypeBinding expectedType, ASTNode location) {
-	String resultTypeName = new String(resultType.readableName());
-	String expectedTypeName = new String(expectedType.readableName());
-	String resultTypeShortName = new String(resultType.shortReadableName());
-	String expectedTypeShortName = new String(expectedType.shortReadableName());
-	if (resultTypeShortName.equals(expectedTypeShortName)){
-		resultTypeShortName = resultTypeName;
-		expectedTypeShortName = expectedTypeName;
-	}
+public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location) {
 	this.handle(
 		IProblem.TypeMismatch,
-		new String[] {resultTypeName, expectedTypeName},
-		new String[] {resultTypeShortName, expectedTypeShortName},
+		new String[] {new String(actualType.readableName()), new String(expectedType.readableName())},
+		new String[] {new String(actualType.shortReadableName()), new String(expectedType.shortReadableName())},
 		location.sourceStart,
 		location.sourceEnd);
-}
-public void typeMismatchErrorActualTypeExpectedType(Expression expression, TypeBinding actualType, TypeBinding expectedType) {
-	String constantTypeName = new String(actualType.readableName());
-	String expectedTypeName = new String(expectedType.readableName());
-	String constantTypeShortName = new String(actualType.shortReadableName());
-	String expectedTypeShortName = new String(expectedType.shortReadableName());
-	if (constantTypeShortName.equals(expectedTypeShortName)){
-		constantTypeShortName = constantTypeName;
-		expectedTypeShortName = expectedTypeName;
-	}
-	this.handle(
-		IProblem.TypeMismatch,
-		new String[] {constantTypeName, expectedTypeName},
-		new String[] {constantTypeShortName, expectedTypeShortName},
-		expression.sourceStart,
-		expression.sourceEnd);
 }
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};

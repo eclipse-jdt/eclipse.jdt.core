@@ -21,12 +21,14 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 public class ParameterizedGenericMethodBinding extends ParameterizedMethodBinding implements Substitution {
 
     private TypeBinding[] typeArguments; 
+    private LookupEnvironment environment;
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
      */
-	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments) {
+	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments, LookupEnvironment environment) {
 
+	    this.environment = environment;
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
 		this.declaringClass = originalMethod.declaringClass;
@@ -58,14 +60,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     	        TypeBinding[] originalArguments = originalParameterizedType.arguments;
     	        TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
     	        if (substitutedArguments != originalArguments) {
-    	            return originalParameterizedType.environment.createParameterizedType(
+    	            return this.environment.createParameterizedType(
     	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
         	    } 
-    	    } else if (originalType.isArrayType()) {
+			} else if (originalType.isArrayType()) {
     			TypeBinding originalLeafComponentType = originalType.leafComponentType();
     			TypeBinding substitutedLeafComponentType = substitute(originalLeafComponentType);
     			if (substitutedLeafComponentType != originalLeafComponentType) {
-    			    return ((ArrayBinding)originalType).environment().createArrayType(substitutedLeafComponentType, originalType.dimensions());
+    			    return this.environment.createArrayType(substitutedLeafComponentType, originalType.dimensions());
     			}
 			} else if (originalType.isWildcard()) {
 		        WildcardBinding wildcard = (WildcardBinding) originalType;
@@ -73,10 +75,22 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        TypeBinding originalBound = wildcard.bound;
 			        TypeBinding substitutedBound = substitute(originalBound);
 			        if (substitutedBound != originalBound) {
-		        		return wildcard.environment.createWildcard(substitutedBound, wildcard.kind);
+		        		return this.environment.createWildcard(substitutedBound, wildcard.kind);
 			        }
 		        }
     	    }
+		} else if (originalType.isGenericType()) {
+		    // treat as if parameterized with its type variables
+			ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+			TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
+			int length = originalVariables.length;
+			TypeBinding[] originalArguments;
+			System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
+			TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
+			if (substitutedArguments != originalArguments) {
+				return this.environment.createParameterizedType(
+						originalGenericType, substitutedArguments, null);
+			}
         }
         return originalType;
     }

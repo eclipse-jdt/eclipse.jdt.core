@@ -51,7 +51,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			    sig.append('.').append(this.sourceName()).append(';');
 				this.genericTypeSignature = sig.toString().toCharArray();
 			} else {
-			     this.genericTypeSignature = this.type.genericTypeSignature(); // erasure
+			     this.genericTypeSignature = this.type.signature(); // erasure
 			}
 	    }
 	   return this.genericTypeSignature;

@@ -131,9 +131,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	    // extra cast needed if method return type was type variable
 	    if (this.codegenBinding.returnType.isTypeVariable()) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = this.binding.returnType;
-	        }
+	        this.genericCast = variableReturnType.genericCast(this.binding.returnType);
 	    }
 	} 
 	if (this.binding.isPrivate()){

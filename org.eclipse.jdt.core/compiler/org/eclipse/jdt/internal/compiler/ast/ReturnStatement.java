@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ReturnStatement extends Statement {
 		
 	public Expression expression;
-	public TypeBinding expressionType;
 	public boolean isSynchronized;
 	public SubRoutineStatement[] subroutines;
 	public boolean isAnySubRoutineEscaping = false;
@@ -92,7 +91,7 @@ public class ReturnStatement extends Statement {
 			}
 		} else {
 			this.saveValueVariable = null;
-			if ((!isSynchronized) && (expressionType == BooleanBinding)) {
+			if (!isSynchronized && this.expression != null && this.expression.resolvedType == BooleanBinding) {
 				this.expression.bits |= ValueForReturnMASK;
 			}
 		}
@@ -196,6 +195,7 @@ public class ReturnStatement extends Statement {
 					? null 
 					: methodBinding.returnType)
 				: VoidBinding;
+		TypeBinding expressionType;
 		if (methodType == VoidBinding) {
 			// the expression should be null
 			if (expression == null)
@@ -225,7 +225,7 @@ public class ReturnStatement extends Statement {
 			return;
 		}
 		if (methodType != null){
-			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
+			scope.problemReporter().typeMismatchError(expressionType, methodType, expression);
 		}
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Binding for a type parameter, held by source or binary type..
@@ -96,6 +97,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return this.superclass; // java/lang/Object
 	}	
 
+	/**
+	 * Returns the type to use for generic cast, or null if none required
+	 */
+	public TypeBinding genericCast(TypeBinding otherType) {
+		if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
+		TypeBinding otherErasure = otherType.erasure();
+		if (otherErasure == this.firstBound) return null;
+		return otherErasure;
+	}
+	
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>

@@ -185,7 +185,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.typeVariables[rank++] = variable;
 			} while (wrapper.signature[wrapper.start] != '>');
 			wrapper.start++; // skip '>'
-			this.tagBits |= 	HasUnresolvedTypeVariables;
+			this.tagBits |=  HasUnresolvedTypeVariables;
+			this.modifiers |= AccGenericSignature;
 		}
 
 		// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
