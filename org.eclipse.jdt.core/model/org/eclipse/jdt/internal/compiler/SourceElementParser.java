@@ -1124,7 +1124,7 @@ private void notifySourceElementRequestor(TypeParameter[] typeParameters) {
 /*
 * Update the bodyStart of the corresponding parse node
 */
-public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
+public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, TypeDeclaration declaringType) {
 	
 	// range check
 	boolean isInRange = 
@@ -1133,6 +1133,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 
 	switch(fieldDeclaration.getKind()) {
 		case AbstractVariableDeclaration.FIELD:
+		case AbstractVariableDeclaration.ENUM_CONSTANT:
 			int fieldEndPosition = fieldDeclaration.declarationSourceEnd;
 			if (fieldDeclaration instanceof SourceFieldDeclaration) {
 				fieldEndPosition = ((SourceFieldDeclaration) fieldDeclaration).fieldEndPosition;
@@ -1144,10 +1145,14 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			if (isInRange) {
 				int currentModifiers = fieldDeclaration.modifiers;
 				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				char[] typeName = 
+					fieldDeclaration.type == null ? // case of enum
+							declaringType.name: 
+							CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
 				requestor.enterField(
 					fieldDeclaration.declarationSourceStart, 
 					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-					CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.'),
+					typeName,
 					fieldDeclaration.name, 
 					fieldDeclaration.sourceStart, 
 					fieldDeclaration.sourceEnd); 
@@ -1362,7 +1367,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
       switch (nextDeclarationType) {
          case 0 :
             fieldIndex++;
-            notifySourceElementRequestor(nextFieldDeclaration);
+            notifySourceElementRequestor(nextFieldDeclaration, typeDeclaration);
             break;
          case 1 :
             methodIndex++;

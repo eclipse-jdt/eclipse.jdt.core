@@ -456,6 +456,7 @@ public class HandleFactory {
 						if (field.declarationSourceStart < elementPosition && field.declarationSourceEnd > elementPosition) {
 							switch (field.getKind()) {
 								case AbstractVariableDeclaration.FIELD :
+								case AbstractVariableDeclaration.ENUM_CONSTANT :
 									newElement = parentType.getField(new String(field.name));
 									break;
 								case AbstractVariableDeclaration.INITIALIZER :
