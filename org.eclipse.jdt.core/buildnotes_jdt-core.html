@@ -43,6 +43,22 @@ Eclipse SDK 3.0M9 Build - ?th April 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API for User Library Container support in JavaCore:
+<pre>
+
+	/**
+	 * Name of the User Library Container id.
+	 */
+	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
+	
+	/**
+	 * Returns the names of all defined user libraries. The corresponding classpath container path
+	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
+	 * @return Return an array containing the names of all known user defined.
+	 */
+	public static String[] getUserLibraryNames();
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
