@@ -214,24 +214,6 @@ public Member getOuterMostLocalContext() {
 		current = current.getParent();
 	} 
 	return lastLocalContext;
-/*	TODO (jerome) check old version, especially was answering local types
-	switch (fParent.getElementType()) {
-		case COMPILATION_UNIT:
-			return null;
-		case TYPE:
-			Member declaringMember = ((Member)fParent).getOuterMostLocalContext();
-			if (declaringMember == null && getElementType() != TYPE) {
-				return this;
-			} else {
-				return declaringMember;
-			}
-		case INITIALIZER:
-		case FIELD:
-		case METHOD:
-			return ((Member)fParent).getOuterMostLocalContext();
-	}
-	return null;
-*/	
 }
 /**
  * @see IMember
