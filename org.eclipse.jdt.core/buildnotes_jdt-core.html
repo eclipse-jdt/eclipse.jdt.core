@@ -12,6 +12,33 @@
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK Build 20011211 - 11th December 2001
+<br>Project org.eclipse.jdt.core v_219
+<h2>
+What's new in this drop</h2>
+
+<ul>
+<li> Java element deltas are batched. If the java model operation modifies
+	 a resource, then the java element deltas are merged and fired during 
+	 the resource delta processing. If the java model operation doesn't 
+	 modify any resource (e.g. IWorkingCopy.reconcile()), then the java
+	 element delta is fired right away.
+</ul>
+<h3>
+Problem Reports Fixed</h3>
+
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6117">6117</a>
+CodeFormatter - impossible to set indentation level and position mapping w/o deprecated methods
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6719">6719</a>
+LocalTypeDeclaration::traverse
+
+<h3>
+Problem Reports Closed</h3>
+
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK Build 20011211 - 11th December 2001
 <br>Project org.eclipse.jdt.core v_218
 <h2>
 What's new in this drop</h2>
