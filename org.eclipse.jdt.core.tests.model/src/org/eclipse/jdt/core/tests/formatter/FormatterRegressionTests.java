@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +56,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test508"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test512"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -6643,5 +6642,69 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68506
+	 */
+	public void test509() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
+		preferences.keep_simple_if_on_one_line = true;
+		preferences.keep_then_statement_on_same_line = true;
+		preferences.keep_guardian_clause_on_one_line = true;
+		preferences.use_tab = true;
+		preferences.compact_else_if = true;
+		preferences.insert_new_line_at_end_of_file = true;
+		preferences.number_of_empty_lines_to_preserve = 0;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter,"test509", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68506
+	 */
+	public void test510() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
+		preferences.keep_simple_if_on_one_line = true;
+		preferences.keep_then_statement_on_same_line = true;
+		preferences.keep_guardian_clause_on_one_line = true;
+		preferences.use_tab = true;
+		preferences.compact_else_if = true;
+		preferences.insert_new_line_at_end_of_file = false;
+		preferences.number_of_empty_lines_to_preserve = 1;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter,"test510", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68506
+	 */
+	public void test511() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
+		preferences.keep_simple_if_on_one_line = true;
+		preferences.keep_then_statement_on_same_line = true;
+		preferences.keep_guardian_clause_on_one_line = true;
+		preferences.use_tab = true;
+		preferences.compact_else_if = true;
+		preferences.insert_new_line_at_end_of_file = false;
+		preferences.number_of_empty_lines_to_preserve = 1;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter,"test511", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68506
+	 */
+	public void test512() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
+		preferences.keep_simple_if_on_one_line = true;
+		preferences.keep_then_statement_on_same_line = true;
+		preferences.keep_guardian_clause_on_one_line = true;
+		preferences.use_tab = true;
+		preferences.compact_else_if = true;
+		preferences.insert_new_line_at_end_of_file = true;
+		preferences.number_of_empty_lines_to_preserve = 1;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter,"test512", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -777,6 +777,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_opening_brace_in_array_initializer";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line at the end of the current file
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_at_end_of_file";//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a new line before the catch keyword in try statement

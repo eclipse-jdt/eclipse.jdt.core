@@ -5,4 +5,3 @@ public class X {
 			str9 = "xxxxxxxxxx",
 			str10 = "xxxxxxxxxx";
 }
-

@@ -6,3 +6,6 @@ if (k > 0) i = 3;}public void bar() {}
 public long l; // long field
 public String s = null;
 }
+
+
+

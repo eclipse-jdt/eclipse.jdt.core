@@ -655,6 +655,8 @@ public class Scribe {
 			}
 		} else if (this.textRegionStart <= editOffset && editOffset <= this.textRegionEnd) {
 			return true;
+		} else if (editOffset == this.scannerEndPosition && editOffset == this.textRegionEnd + 1) {
+			return true;
 		}
 		return false;
 	}
@@ -759,6 +761,123 @@ public class Scribe {
 			printNewLine();
 		}
 	}
+	
+	public void printEndOfCompilationUnit() {
+		try {
+			// if we have a space between two tokens we ensure it will be dumped in the formatted string
+			int currentTokenStartPosition = this.scanner.currentPosition;
+			boolean hasComment = false;
+			boolean hasLineComment = false;
+			boolean hasWhitespace = false;
+			int count = 0;
+			while (true) {
+				this.currentToken = this.scanner.getNextToken();
+				switch(this.currentToken) {
+					case TerminalTokens.TokenNameWHITESPACE :
+						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
+						count = 0;
+						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
+							switch(whiteSpaces[i]) {
+								case '\r' :
+									if ((i + 1) < max) {
+										if (whiteSpaces[i + 1] == '\n') {
+											i++;
+										}
+									}
+									count++;
+									break;
+								case '\n' :
+									count++;
+							}
+						}
+						if (count == 0) {
+							hasWhitespace = true;
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						} else if (hasComment) {
+							if (count == 1) {
+								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
+							} else {
+								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
+							}
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						} else if (hasLineComment) {
+							this.preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						} else {
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						}
+						currentTokenStartPosition = this.scanner.currentPosition;						
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						if (count >= 1) {
+							if (count > 1) {
+								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (count == 1) {
+								printNewLine(this.scanner.getCurrentTokenStartPosition());
+							}
+						} else if (hasWhitespace) {
+							space();
+						} 
+						hasWhitespace = false;
+						this.printCommentLine(this.scanner.getRawTokenSource());
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasLineComment = true;		
+						count = 0;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						if (count >= 1) {
+							if (count > 1) {
+								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (count == 1) {
+								printNewLine(this.scanner.getCurrentTokenStartPosition());
+							}
+						} else if (hasWhitespace) {
+							space();
+						} 
+						hasWhitespace = false;
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasLineComment = false;
+						hasComment = true;
+						count = 0;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						if (count >= 1) {
+							if (count > 1) {
+								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (count == 1) {
+								printNewLine(this.scanner.getCurrentTokenStartPosition());
+							}
+						} else if (hasWhitespace) {
+							space();
+						} 
+						hasWhitespace = false;
+						this.printBlockComment(this.scanner.getRawTokenSource(), true);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasLineComment = false;
+						hasComment = true;
+						count = 0;
+						break;
+					case TerminalTokens.TokenNameSEMICOLON :
+						char[] currentTokenSource = this.scanner.getRawTokenSource();
+						this.print(currentTokenSource, this.formatter.preferences.insert_space_before_semicolon);
+						break;
+					case TerminalTokens.TokenNameEOF :
+						if (count >= 1 || this.formatter.preferences.insert_new_line_at_end_of_file) {
+							this.printNewLine(this.scannerEndPosition);
+						}
+						return;
+					default :
+						// step back one token
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+						return;
+				}
+			}
+		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
+
 	public void printComment() {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
