@@ -549,7 +549,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			for (int j = 1, max2 = this.innerFields.length; j < max2; j++) {
 				VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 				fragment.setName(ast.newSimpleName(new String(this.innerFields[j].name)));
-				fragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[j].sourceStart));
 			}
 			String currentFieldType = this.type;
 			
