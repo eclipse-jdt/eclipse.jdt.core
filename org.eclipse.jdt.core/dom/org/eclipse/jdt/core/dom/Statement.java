@@ -87,8 +87,7 @@ public abstract class Statement extends ASTNode {
 	 * comments with statements. Furthermore, AST.parseCompilationUnit did not
 	 * associate leading comments, making this moot. Clients that need to access
 	 * comments preceding a statement should use a scanner to reanalyze the
-	 * source text immediately preceding the statement's source range. Clients
-	 * that need to associate a comment with a statement should use a property.
+	 * source text immediately preceding the statement's source range.
 	 */
 	public String getLeadingComment() {
 		return optionalLeadingComment;
@@ -125,8 +124,7 @@ public abstract class Statement extends ASTNode {
 	 * @exception IllegalArgumentException if the comment string is invalid
 	 * @deprecated This feature was removed in the 2.1 release because it was
 	 * only a partial, and inadequate, solution to the issue of associating
-	 * comments with statements. Clients that need to associate a comment with
-	 * a statement should use a property.
+	 * comments with statements.
 	 */
 	public void setLeadingComment(String comment) {
 		if (comment != null) {

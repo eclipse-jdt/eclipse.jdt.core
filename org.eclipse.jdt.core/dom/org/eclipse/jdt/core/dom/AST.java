@@ -49,6 +49,13 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * be requested at the time the AST is created.
  * </p>
  * <p>
+ * Note that there is no built-in way to serialize a modified AST to a source
+ * code string. Naive serialization of a newly-constructed AST to a string is
+ * a straightforward application of an AST visitor. However, preserving comments
+ * and formatting from the originating source code string is a challenging
+ * problem (support for this is planned for a future release).
+ * </p>
+ * <p>
  * Clients may create instances of this class, which is not intended to be
  * subclassed.
  * </p>
@@ -174,7 +181,7 @@ public final class AST {
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns a corresponding abstract syntax tree. The source 
 	 * string is obtained from the Java model element using
-	 * <code>ICompilationUnit.getSource()<code>.
+	 * <code>ICompilationUnit.getSource()</code>.
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
 	 * Each node in the subtree carries source range(s) information relating back
