@@ -34,6 +34,8 @@ import org.eclipse.jdt.internal.core.util.CharArrayOps;
  
 /* package */ class DOMType extends DOMMember implements IDOMType {
 
+	private static final String[] EMPTY_SUPERINTERFACES = new String[] {};
+
 	/**
 	 * The 'class' or 'interface' keyword if altered
 	 * from the documents contents, otherwise <code>null</code>.
@@ -272,9 +274,8 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 	buffer.append(getName());
 
 	if (isClass()) {
-		boolean hasSuperclass = false, hasInterfaces = false;
+		boolean hasInterfaces = false;
 		if (getMask(MASK_TYPE_HAS_SUPERCLASS)) {
-			hasSuperclass = true;
 			if (fExtendsRange[0] < 0) {
 				buffer.append(" extends "); //$NON-NLS-1$
 			} else {
@@ -306,14 +307,10 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 				buffer.append(fDocument, fInterfacesRange[1] + 1, fOpenBodyRange[0] - fInterfacesRange[1] - 1);
 			}
 		} else {
-			if (hasSuperclass) {
-				if (fSuperclassRange[0] < 0) {
-					buffer.append(' ');
-				} else {
-					buffer.append(fDocument, fSuperclassRange[1] + 1, fOpenBodyRange[0] - fSuperclassRange[1] - 1);
-				}
+			if (fSuperclassRange[0] < 0) {
+				buffer.append(' ');
 			} else {
-				buffer.append(fDocument, fNameRange[1] + 1, fOpenBodyRange[0] - fNameRange[1] - 1);
+				buffer.append(fDocument, fSuperclassRange[1] + 1, fOpenBodyRange[0] - fSuperclassRange[1] - 1);
 			}
 		}
 	} else {
@@ -672,9 +669,9 @@ public void setSuperInterfaces(String[] names) {
 	}
 	fragment();
 	fSuperInterfaces= names;
-	if (names == null || names.length == 0) {
+	if (names.length == 0) {
 		fInterfaces= null;
-		fSuperInterfaces= null;
+		fSuperInterfaces= EMPTY_SUPERINTERFACES;
 		setMask(MASK_TYPE_HAS_INTERFACES, false);
 	} else {
 		setMask(MASK_TYPE_HAS_INTERFACES, true);
