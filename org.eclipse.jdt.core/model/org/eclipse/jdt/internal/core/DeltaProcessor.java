@@ -395,8 +395,9 @@ public class DeltaProcessor {
 									}
 								} else {
 									// in case the project was removed then added then changed (see bug 19799)
-									if (JavaProject.hasJavaNature(project)) { // need nature check - 18698
+									if (isJavaProject) { // need nature check - 18698
 										this.addToParentInfo((JavaProject)JavaCore.create(project));
+										processChildren = true;
 									}
 								}
 							} else {
