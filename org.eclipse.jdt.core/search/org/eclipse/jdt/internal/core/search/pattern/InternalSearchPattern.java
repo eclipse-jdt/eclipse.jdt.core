@@ -43,14 +43,6 @@ public abstract class InternalSearchPattern {
 		this.matchMode = matchRule - (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 	}
 
-	/*
-	 * @see SearchPattern
-	 */
-	public abstract void decodeIndexKey(char[] key);
-
-	/*
-	 * @see SearchPattern
-	 */
 	public abstract char[] encodeIndexKey();
 
 	protected char[] encodeIndexKey(char[] key) {
@@ -85,7 +77,6 @@ public abstract class InternalSearchPattern {
 	 * Query a given index for matching entries. 
 	 */
 	public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		IndexInput input = new BlocksIndexInput(index.getIndexFile());
 		try {
@@ -95,23 +86,21 @@ public abstract class InternalSearchPattern {
 			input.close();
 		}
 	}
-	
+
 	/**
 	 * Query a given index for matching entries. 
 	 *
 	 */
 	public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	
 		char[][] categories = getMatchCategories();
 		char[] queryKey = encodeIndexKey();
-		for (int iCategory = 0, categoriesLength = categories.length; iCategory < categoriesLength; iCategory++) {
+		for (int i = 0, l = categories.length; i < l; i++) {
 			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-			char[] category = categories[iCategory];
-			findIndexMatches(input, requestor, participant, scope, progressMonitor, queryKey, category);
+			findIndexMatches(input, requestor, participant, scope, progressMonitor, queryKey, categories[i]);
 		}
 	}
-	
+
 	protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor, char[] queryKey, char[] category) throws IOException {
 		/* narrow down a set of entries using prefix criteria */
 		// TODO per construction the queryKey will always be the most specific prefix. This should evolve to be the search pattern directly, using proper match rule
@@ -215,8 +204,6 @@ public abstract class InternalSearchPattern {
 	public abstract SearchPattern getBlankPattern();
 
 	public abstract char[][] getMatchCategories();
-
-	public abstract int getMatchRule();
 
 	public abstract boolean matchesDecodedPattern(SearchPattern decodedPattern);
 
