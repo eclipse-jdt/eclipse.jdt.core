@@ -38,9 +38,19 @@ Eclipse SDK 2.1 Build - ? September 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The source lookup for .class files inside jar files has been improved. Before it worked only if the .class files
+had a source file attribute. This was too limiting in case of the usage of a library which has not been compiled in
+debug mode. Now in case there is no such source file attribute, an heuristic is used to create the proper entry. We
+assume that a class named A in a package p has been compiled from a class A.java in a folder p. For .class files
+that correspond to member or local classes the source mapping is using the top level class name in which the class is defined.
+The only limitiation that still exists is that it is not possible to retrieve the source for secondary types (types
+that are defined in a file which doesn't have the same name). See bug <A HREF="http://dev.eclipse.org/bugs/show_bug.cgi?id=21475">21475</a>
+for further details.</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23466">23466</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21475">21475</a>
+Attaching Source-Code to a library which is not compiled with debug info
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23466">23466</a>
 Compiler violates JLS 8.3.2
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21022">21022</a>
 warning on imports while typing and warning on unused imports is on
