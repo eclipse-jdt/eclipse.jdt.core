@@ -7301,5 +7301,25 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}		
-	
+	public void test268() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"public class X <T> {\n" + 
+				"	X[] foo() {\n" + 
+				"		ArrayList<X> list = new ArrayList();\n" + 
+				"		return list.toArray(new X[list.size()]);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	ArrayList<X> list = new ArrayList();\n" + 
+			"	                    ^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type ArrayList to type ArrayList<X>. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n");
+	}			
 }
