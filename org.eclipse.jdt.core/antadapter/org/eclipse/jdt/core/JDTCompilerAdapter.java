@@ -11,10 +11,12 @@
 package org.eclipse.jdt.core;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FileSet;
@@ -23,7 +25,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.Util;
 
 /**
- * Ant compiler adapter for the Eclipse Java compiler. This adapter permits the
+ * Ant 1.5 compiler adapter for the Eclipse Java compiler. This adapter permits the
  * Eclipse Java compiler to be used with the <code>javac</code> task in Ant scripts. In order
  * to use it, just set the property <code>build.compiler</code> as follows:
  * <p>
@@ -33,7 +35,7 @@ import org.eclipse.jdt.internal.core.Util;
  * For more information on Ant check out the website at http://jakarta.apache.org/ant/ .
  * </p>
  * 
- * @since 2.0
+ * @since 2.0.1
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
@@ -99,12 +101,86 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		includeJavaRuntime = false;
         classpath.append(getCompileClasspath());
 
+        // For -sourcepath, use the "sourcepath" value if present.
+        // Otherwise default to the "srcdir" value.
+        Path sourcepath = null;
+        
+        // retrieve the method getSourcepath() using reflect
+        // This is done to improve the compatibility to ant 1.5
+        Class javacClass = Javac.class;
+        Method getSourcepathMethod = null;
+        try {
+	        getSourcepathMethod = javacClass.getMethod("getSourcepath", null); //$NON-NLS-1$
+        } catch(NoSuchMethodException e) {
+        }
+        Path compileSourcepath = null;
+        if (getSourcepathMethod != null) {
+	 		try {
+				compileSourcepath = (Path) getSourcepathMethod.invoke(attributes, null);
+			} catch (IllegalAccessException e) {
+			} catch (InvocationTargetException e) {
+			}
+        }
+        if (compileSourcepath != null) {
+            sourcepath = compileSourcepath;
+        } else {
+            sourcepath = src;
+        }
+		classpath.append(sourcepath);
 		/*
 		 * Set the classpath for the Eclipse compiler.
 		 */
 		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
 		cmd.createArgument().setPath(classpath);
 
+        String memoryParameterPrefix = Project.getJavaVersion().equals(Project.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
+        if (memoryInitialSize != null) {
+            if (!attributes.isForkedJavac()) {
+                attributes.log(Util.bind("ant.jdtadapter.error.ignoringMemoryInitialSize"), Project.MSG_WARN);//$NON-NLS-1$
+            } else {
+                cmd.createArgument().setValue(memoryParameterPrefix
+                                              + "ms" + memoryInitialSize); //$NON-NLS-1$
+            }
+        }
+
+        if (memoryMaximumSize != null) {
+            if (!attributes.isForkedJavac()) {
+                attributes.log(Util.bind("ant.jdtadapter.error.ignoringMemoryMaximumSize"), Project.MSG_WARN);//$NON-NLS-1$
+            } else {
+                cmd.createArgument().setValue(memoryParameterPrefix
+                                              + "mx" + memoryMaximumSize); //$NON-NLS-1$
+            }
+        }
+
+        if (debug) {
+	       // retrieve the method getSourcepath() using reflect
+	        // This is done to improve the compatibility to ant 1.5
+	        Method getDebugLevelMethod = null;
+	        try {
+		        getDebugLevelMethod = javacClass.getMethod("getDebugLevel", null); //$NON-NLS-1$
+	        } catch(NoSuchMethodException e) {
+	        }
+     	    String debugLevel = null;
+	        if (getDebugLevelMethod != null) {
+				try {
+					debugLevel = (String) getDebugLevelMethod.invoke(attributes, null);
+				} catch (IllegalAccessException e) {
+				} catch (InvocationTargetException e) {
+				}
+        	}
+			if (debugLevel != null) {
+				if (debugLevel.length() == 0) {
+					cmd.createArgument().setValue("-g:none"); //$NON-NLS-1$
+				} else {
+					cmd.createArgument().setValue("-g:" + debugLevel); //$NON-NLS-1$
+				}
+			} else {
+				cmd.createArgument().setValue("-g"); //$NON-NLS-1$
+            }
+        } else {
+            cmd.createArgument().setValue("-g:none"); //$NON-NLS-1$
+        }
+        
 		/*
 		 * Handle the nowarn option. If none, then we generate all warnings.
 		 */		
@@ -139,13 +215,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		}
 
 		/*
-		 * debug option
-		 */
-		if (debug) {
-			cmd.createArgument().setValue("-g"); //$NON-NLS-1$
-		}
-
-		/*
 		 * verbose option
 		 */
 		if (verbose) {
@@ -165,6 +234,29 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		}
 
 		/*
+		 * source option
+		 */
+		String source = attributes.getSource();
+        if (source != null) {
+            cmd.createArgument().setValue("-source"); //$NON-NLS-1$
+            cmd.createArgument().setValue(source);
+        }
+        
+		if (Project.getJavaVersion().equals(Project.JAVA_1_4)) {
+			cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
+		} else {
+			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
+		}
+		
+		/*
+		 * encoding option
+		 */
+        if (encoding != null) {
+            cmd.createArgument().setValue("-encoding"); //$NON-NLS-1$
+            cmd.createArgument().setValue(encoding);
+        }
+
+		/*
 		 * extra option allowed by the Eclipse compiler
 		 */
 		cmd.createArgument().setValue("-time"); //$NON-NLS-1$
@@ -173,23 +265,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * extra option allowed by the Eclipse compiler
 		 */
 		cmd.createArgument().setValue("-noImportError"); //$NON-NLS-1$
-
-		/*
-		 * source option
-		 */
-		String source = attributes.getSource();
-        if (source != null) {
-            cmd.createArgument().setValue("-source"); //$NON-NLS-1$
-            cmd.createArgument().setValue(source);
-        }
-
-		/*
-		 * encoding option
-		 */
-        if (encoding != null) {
-            cmd.createArgument().setValue("-encoding"); //$NON-NLS-1$
-            cmd.createArgument().setValue(encoding);
-        }
 
 		/*
 		 * Eclipse compiler doesn't have a -sourcepath option. This is
