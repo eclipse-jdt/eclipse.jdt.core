@@ -275,14 +275,14 @@ public static ISearchPattern createSearchPattern(String stringPattern, int searc
  * 	<ul>
  * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
  * 			element. In case the element is a method, declarations of matching methods in subtypes will also
- *  		be found, allowing to find declarations of abstract methods, etc.
+ *  		be found, allowing to find declarations of abstract methods, etc.</li>
  *
- *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.
+ *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
  *
  *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
- *  		above.
+ *  		above.</li>
  *
- *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.
+ *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
  *	</ul>
  * @return a search pattern for a java element or <code>null</code> if the given element is ill-formed
  */
@@ -357,13 +357,13 @@ private IWorkingCopy[] getWorkingCopies(IJavaElement element) {
  *		  for both declarations and all references </li>
  *	  <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: search for
  *		  all implementors of an interface; the value is only valid if
- *		  the Java element represents an interface
+ *		  the Java element represents an interface</li>
  * 	</ul>
  * @param scope the search result has to be limited to the given scope
  * @param resultCollector a callback object to which each match is reported	 
  * @exception JavaModelException if the search failed. Reasons include:
  *	<ul>
- *		<li>the classpath is incorrectly set
+ *		<li>the classpath is incorrectly set</li>
  *	</ul>
  */
 public void search(IWorkspace workspace, String patternString, int searchFor, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
@@ -670,7 +670,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
  *			};
  *		}
  * </pre>
- * <code>
+ * </code>
  * then searching for declarations of referenced types in method <code>X.test()</code>
  * would collect the class <code>B</code> and the interface <code>I</code>.
  * </p>
