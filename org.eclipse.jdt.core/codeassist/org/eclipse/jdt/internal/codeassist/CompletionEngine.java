@@ -1361,6 +1361,9 @@ public final class CompletionEngine
 			MethodBinding method = methods[f];
 			if (method.isConstructor())
 				continue next;
+				
+			if (method.isFinal())
+				continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if (onlyStaticMethods && !method.isStatic())
