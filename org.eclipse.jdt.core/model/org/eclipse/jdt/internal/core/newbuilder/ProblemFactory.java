@@ -6,13 +6,12 @@ package org.eclipse.jdt.internal.core.newbuilder;
  */
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.core.util.LookupTable;
 
 import java.util.*;
 
 public class ProblemFactory extends DefaultProblemFactory {
 
-static LookupTable factories = new LookupTable(5);
+static SimpleLookupTable factories = new SimpleLookupTable(5);
 
 private ProblemFactory(Locale locale) {
 	super(locale);

@@ -12,7 +12,6 @@ import org.eclipse.jdt.internal.core.*;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.util.LookupTable;
 
 import java.io.*;
 import java.util.*;
@@ -68,7 +67,7 @@ public static ClasspathLocation[] computeLocations(
 	IJavaProject javaProject,
 	String outputFolderLocation,
 	ArrayList sourceFolders,
-	LookupTable prereqOutputFolders) throws JavaModelException {
+	SimpleLookupTable prereqOutputFolders) throws JavaModelException {
 
 	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true);
 	int cpCount = 0;

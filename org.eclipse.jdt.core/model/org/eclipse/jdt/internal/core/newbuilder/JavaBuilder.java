@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.util.LookupTable;
 
 import java.io.File;
 import java.util.*;
@@ -26,7 +25,7 @@ IWorkspaceRoot workspaceRoot;
 ClasspathLocation[] classpath;
 IContainer outputFolder;
 IContainer[] sourceFolders;
-LookupTable prereqOutputFolders; // maps a prereq project to its output folder
+SimpleLookupTable prereqOutputFolders; // maps a prereq project to its output folder
 State lastState;
 BuildNotifier notifier;
 
@@ -59,7 +58,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 				buildAll();
 			} else if (sourceFolders.length > 0) {
 				// if there is no source to compile & no classpath changes then we are done
-				LookupTable deltas = findDeltas();
+				SimpleLookupTable deltas = findDeltas();
 				if (deltas == null)
 					buildAll();
 				else
@@ -96,7 +95,7 @@ private void buildAll() throws CoreException {
 	recordNewState(imageBuilder.newState);
 }
 
-private void buildDeltas(LookupTable deltas) throws CoreException {
+private void buildDeltas(SimpleLookupTable deltas) throws CoreException {
 	if (DEBUG)
 		System.out.println("\nINCREMENTAL build of: " + currentProject.getName()); //$NON-NLS-1$
 
@@ -131,10 +130,10 @@ private void createFolder(IContainer folder) throws CoreException {
 	}
 }
 
-private LookupTable findDeltas() {
+private SimpleLookupTable findDeltas() {
 	notifier.subTask(Util.bind("build.readingDelta", currentProject.getName())); //$NON-NLS-1$
 	IResourceDelta delta = getDelta(currentProject);
-	LookupTable deltas = new LookupTable();
+	SimpleLookupTable deltas = new SimpleLookupTable();
 	if (delta != null) {
 		deltas.put(currentProject, delta);
 	} else {
@@ -144,10 +143,10 @@ private LookupTable findDeltas() {
 		return null;
 	}
 
-	Enumeration enum = prereqOutputFolders.keys();
-	while (enum.hasMoreElements()) {
-		IProject prereqProject = (IProject) enum.nextElement();
-		if (lastState.isStructurallyChanged(prereqProject, getLastState(prereqProject))) {
+	Object[] keyTable = prereqOutputFolders.keyTable;
+	for (int i = 0, l = keyTable.length; i < l; i++) {
+		IProject prereqProject = (IProject) keyTable[i];
+		if (prereqProject != null && lastState.isStructurallyChanged(prereqProject, getLastState(prereqProject))) {
 			notifier.subTask(Util.bind("build.readingDelta", prereqProject.getName())); //$NON-NLS-1$
 			delta = getDelta(prereqProject);
 			if (delta != null) {
@@ -219,7 +218,7 @@ private void initializeBuilder() throws CoreException {
 	this.lastState = getLastState(currentProject);
 
 	ArrayList sourceList = new ArrayList();
-	this.prereqOutputFolders = new LookupTable();
+	this.prereqOutputFolders = new SimpleLookupTable();
 	this.classpath = NameEnvironment.computeLocations(
 		workspaceRoot,
 		javaProject,
@@ -231,12 +230,14 @@ private void initializeBuilder() throws CoreException {
 }
 
 private void recordNewState(State state) {
-	Enumeration enum = prereqOutputFolders.keys();
-	while (enum.hasMoreElements()) {
-		IProject prereqProject = (IProject) enum.nextElement();
-		State prereqState = getLastState(prereqProject);
-		if (prereqState != null)
-			state.recordLastStructuralChanges(prereqProject, prereqState.lastStructuralBuildNumber);
+	Object[] keyTable = prereqOutputFolders.keyTable;
+	for (int i = 0, l = keyTable.length; i < l; i++) {
+		IProject prereqProject = (IProject) keyTable[i];
+		if (prereqProject != null) {
+			State prereqState = getLastState(prereqProject);
+			if (prereqState != null)
+				state.recordLastStructuralChanges(prereqProject, prereqState.lastStructuralBuildNumber);
+		}
 	}
 
 //	state.dump();

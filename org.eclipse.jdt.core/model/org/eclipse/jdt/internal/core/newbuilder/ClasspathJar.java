@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
-import org.eclipse.jdt.internal.core.util.LookupTable;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
@@ -17,7 +16,7 @@ class ClasspathJar extends ClasspathLocation {
 
 String zipFilename; // keep for equals
 ZipFile zipFile;
-LookupTable directoryCache;	
+SimpleLookupTable directoryCache;	
 
 ClasspathJar(String zipFilename) {
 	try {
@@ -25,12 +24,12 @@ ClasspathJar(String zipFilename) {
 		this.zipFile = new ZipFile(new File(zipFilename));
 		buildDirectoryStructure();
 	} catch(IOException e) {
-		directoryCache = new LookupTable();
+		directoryCache = new SimpleLookupTable();
 	}
 }
 
 void buildDirectoryStructure() {
-	directoryCache = new LookupTable(101);
+	directoryCache = new SimpleLookupTable(101);
 	for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = ((ZipEntry) e.nextElement()).getName();
 

@@ -22,7 +22,7 @@ HashtableOfObject references;
 
 int buildNumber;
 int lastStructuralBuildNumber;
-HashtableOfObject structuralBuildNumbers;
+SimpleLookupTable structuralBuildNumbers;
 
 protected State(JavaBuilder javaBuilder) {
 	this.javaProject = javaBuilder.javaProject;
@@ -32,7 +32,7 @@ protected State(JavaBuilder javaBuilder) {
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildNumber = this.buildNumber;
-	this.structuralBuildNumbers = new HashtableOfObject(3);
+	this.structuralBuildNumbers = new SimpleLookupTable(3);
 }
 
 void cleanup() {
@@ -64,7 +64,7 @@ char[][] getAdditionalTypeNamesFor(char[] fileId) {
 }
 
 boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
-	Object o = structuralBuildNumbers.get(prereqProject.getName().toCharArray());
+	Object o = structuralBuildNumbers.get(prereqProject.getName());
 	if (prereqState != null) {
 		int previous = o == null ? 0 : ((Integer) o).intValue();
 		if (previous == prereqState.lastStructuralBuildNumber) return false;
@@ -84,7 +84,7 @@ void record(char[] fileId, char[][][] qualifiedRefs, char[][] simpleRefs, char[]
 }
 
 void recordLastStructuralChanges(IProject prereqProject, int prereqBuildNumber) {
-	structuralBuildNumbers.put(prereqProject.getName().toCharArray(), new Integer(prereqBuildNumber));
+	structuralBuildNumbers.put(prereqProject.getName(), new Integer(prereqBuildNumber));
 }
 
 void remove(IPath filePath) {

@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
-import org.eclipse.jdt.internal.core.util.LookupTable;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
@@ -15,16 +14,16 @@ import java.util.*;
 class ClasspathDirectory extends ClasspathLocation {
 
 String binaryPath; // includes .class files for a single directory
-LookupTable missingPackages;
-LookupTable directoryCache;
+SimpleLookupTable missingPackages;
+SimpleLookupTable directoryCache;
 
 ClasspathDirectory(String binaryPath) {
 	this.binaryPath = binaryPath;
 	if (!binaryPath.endsWith("/")) //$NON-NLS-1$
 		this.binaryPath += "/"; //$NON-NLS-1$
 
-	this.missingPackages = new LookupTable(11);
-	this.directoryCache = new LookupTable(11);
+	this.missingPackages = new SimpleLookupTable(11);
+	this.directoryCache = new SimpleLookupTable(11);
 }
 
 void clear() {
@@ -92,8 +91,8 @@ boolean isPackage(char[][] compoundName, char[] packageName) {
 }
 
 void reset() {
-	this.missingPackages = new LookupTable(11);
-	this.directoryCache = new LookupTable(11);
+	this.missingPackages = new SimpleLookupTable(11);
+	this.directoryCache = new SimpleLookupTable(11);
 }
 
 public String toString() {

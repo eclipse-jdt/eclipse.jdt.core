@@ -10,11 +10,10 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.util.LookupTable;
 
 import java.util.*;
 
@@ -40,7 +39,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	this.simpleStrings = new ArrayList(33);
 }
 
-public boolean build(LookupTable deltas) {
+public boolean build(SimpleLookupTable deltas) {
 	// initialize builder
 	// walk this project's deltas, find changed source files
 	// walk prereq projects' deltas, find changed class files & add affected source files
@@ -61,13 +60,15 @@ public boolean build(LookupTable deltas) {
 		notifier.updateProgressDelta(0.10f);
 		notifier.checkCancel();
 
-		Enumeration enum = javaBuilder.prereqOutputFolders.keys();
-		while (enum.hasMoreElements()) {
-			IProject prereqProject = (IProject) enum.nextElement();
-//			if (prereqProject.lastMajorBuildNumber > lastState.getMajorBuildNumberFor(prereqProject))
-			IResourceDelta binaryDelta = (IResourceDelta) deltas.get(prereqProject);
-			if (binaryDelta != null)
-				findAffectedSourceFiles(binaryDelta, (IResource) javaBuilder.prereqOutputFolders.get(prereqProject));
+		Object[] keyTable = javaBuilder.prereqOutputFolders.keyTable;
+		Object[] valueTable = javaBuilder.prereqOutputFolders.valueTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			IProject prereqProject = (IProject) keyTable[i];
+			if (prereqProject != null) {
+				IResourceDelta binaryDelta = (IResourceDelta) deltas.get(prereqProject);
+				if (binaryDelta != null)
+					findAffectedSourceFiles(binaryDelta, (IResource) valueTable[i]);
+			}
 		}
 		notifier.updateProgressDelta(0.10f);
 		notifier.checkCancel();
@@ -105,10 +106,6 @@ public boolean build(LookupTable deltas) {
 protected void addAffectedSourceFiles() {
 	if (qualifiedStrings.isEmpty() && simpleStrings.isEmpty()) return;
 
-	HashtableOfObject references = newState.references;
-	char[][] keyTable = references.keyTable;
-	Object[] valueTable = references.valueTable;
-
 	// the qualifiedStrings are of the form 'p1/p1' & the simpleStrings are just 'X'
 	char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedStrings);
 	// if a well known qualified name was found then we can skip over these
@@ -119,6 +116,8 @@ protected void addAffectedSourceFiles() {
 	if (simpleNames.length < simpleStrings.size())
 		simpleNames = null;
 
+	char[][] keyTable = newState.references.keyTable;
+	Object[] valueTable = newState.references.valueTable;
 	next : for (int i = 0, l = keyTable.length; i < l; i++) {
 		char[] key = keyTable[i];
 		if (key != null) {
