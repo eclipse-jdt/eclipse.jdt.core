@@ -23,7 +23,7 @@ public class BufferManager {
 	 * LRU cache of buffers. The key and value for an entry
 	 * in the table is the identical buffer.
 	 */
-	protected OverflowingLRUCache fOpenBuffers = new BufferCache(20);
+	protected OverflowingLRUCache fOpenBuffers = new BufferCache(60);
 	protected static BufferManager fgDefaultBufferManager;
 /**
  * Creates a new buffer manager.

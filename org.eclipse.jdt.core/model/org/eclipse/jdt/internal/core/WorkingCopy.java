@@ -285,10 +285,24 @@ public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException 
  * @see Openable
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
+
+	IBuffer buffer;
+	
+	// request buffer factory
+	if (this.bufferFactory != null) {
+		buffer = this.bufferFactory.createBuffer(this);
+		if (buffer != null){
+			CompilationUnit original = (CompilationUnit) getOriginalElement();
+			buffer.setContents(original.getContents());
+			buffer.addBufferChangedListener(this);
+			return buffer;
+		}
+	} 
+	// create default buffer
 	ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
-	IBuffer buf= getBufferManager().openBuffer((char[])original.getBuffer().getCharacters().clone(), pm, this, isReadOnly());
-	buf.addBufferChangedListener(this);
-	return buf;	
+	buffer = getBufferManager().openBuffer((char[])original.getBuffer().getCharacters().clone(), pm, this, isReadOnly());
+	buffer.addBufferChangedListener(this);
+	return buffer;	
 }
 protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (buffer == null && this.bufferFactory != null) {
