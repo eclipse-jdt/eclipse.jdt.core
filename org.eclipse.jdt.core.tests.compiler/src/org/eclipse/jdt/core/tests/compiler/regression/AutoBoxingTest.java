@@ -582,4 +582,35 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"y"
 		);
 	}
+	// varargs and autoboxing
+	public void test012() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"	double x = 0XaP1; \n" +
+				"	double y = 0XFFP2D;\n" +
+				"	float z  = 0Xf.FP2F;\n" +
+				"	System.out.printf(\"%f %f %f%n\", x, y, z);\n" +
+				"    }\n" +
+				"}",
+			},
+			"20,000000 1020,000000 63,750000"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"	Double x = new Double(0XaP1); \n" +
+				"	double y = 0XFFP2D;\n" +
+				"	float z  = 0Xf.FP2F;\n" +
+				"	System.out.printf(\"%f %f %f%n\", x, y, z);\n" +
+				"    }\n" +
+				"}",
+			},
+			"20,000000 1020,000000 63,750000"
+		);
+	}
 }
