@@ -704,7 +704,7 @@ IfThenElseStatement ::=  'if' '(' Expression ')' StatementNoShortIf 'else' State
 IfThenElseStatementNoShortIf ::=  'if' '(' Expression ')' StatementNoShortIf 'else' StatementNoShortIf
 /.$putCase consumeStatementIfWithElse(); $break ./
 
-SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
+SwitchStatement ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 /.$putCase consumeStatementSwitch() ; $break ./
 
 SwitchBlock ::= '{' '}'
