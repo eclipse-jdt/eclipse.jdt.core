@@ -68,6 +68,8 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -2280,7 +2282,7 @@ public final class JavaCore extends Plugin {
 	 * @param optionName the name of an option
 	 * @return the String value of a given option
 	 * @see JavaCore#getDefaultOptions()
-	 * @see JavaCorePreferenceInitializer for changing default settings
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 * @since 2.0
 	 */
 	public static String getOption(String optionName) {
@@ -2312,7 +2314,7 @@ public final class JavaCore extends Plugin {
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see #getDefaultOptions()
-	 * @see JavaCorePreferenceInitializer for changing default settings
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 */
 	public static Hashtable getOptions() {
 
@@ -2526,6 +2528,141 @@ public final class JavaCore extends Plugin {
 		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
 		if (result == null) return JavaModelManager.NO_WORKING_COPY;
 		return result;
+	}
+
+	/*
+	 * Initializes the default preferences settings for this plug-in.
+	 */
+	protected void initializeDefaultPreferences() {
+		
+		// Init and store default and instance preferences
+		IEclipsePreferences defaultPreferences = getDefaultPreferences();
+		
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
+		
+		// Compiler settings
+		Map compilerOptionsMap = new CompilerOptions().getMap(); // compiler defaults
+		for (Iterator iter = compilerOptionsMap.entrySet().iterator(); iter.hasNext();) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String optionName = (String) entry.getKey();
+			defaultPreferences.put(optionName, (String)entry.getValue());
+			optionNames.add(optionName);
+		}
+		
+		// Override some compiler defaults
+		defaultPreferences.put(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
+		defaultPreferences.put(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
+		defaultPreferences.put(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
+		defaultPreferences.put(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
+		defaultPreferences.put(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
+		defaultPreferences.put(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
+	
+		// Builder settings
+		defaultPreferences.put(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
+
+		defaultPreferences.put(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
+		optionNames.add(CORE_JAVA_BUILD_INVALID_CLASSPATH);
+	
+		defaultPreferences.put(CORE_JAVA_BUILD_DUPLICATE_RESOURCE, WARNING); 
+		optionNames.add(CORE_JAVA_BUILD_DUPLICATE_RESOURCE);
+		
+		defaultPreferences.put(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, CLEAN); 
+		optionNames.add(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER);
+
+		// JavaCore settings
+		defaultPreferences.put(CORE_JAVA_BUILD_ORDER, IGNORE); 
+		optionNames.add(CORE_JAVA_BUILD_ORDER);
+	
+		defaultPreferences.put(CORE_INCOMPLETE_CLASSPATH, ERROR); 
+		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
+		
+		defaultPreferences.put(CORE_CIRCULAR_CLASSPATH, ERROR); 
+		optionNames.add(CORE_CIRCULAR_CLASSPATH);
+		
+		defaultPreferences.put(CORE_INCOMPATIBLE_JDK_LEVEL, IGNORE); 
+		optionNames.add(CORE_INCOMPATIBLE_JDK_LEVEL);
+		
+		defaultPreferences.put(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, ENABLED); 
+		optionNames.add(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS);
+
+		defaultPreferences.put(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, ENABLED); 
+		optionNames.add(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS);
+
+		// encoding setting comes from resource plug-in
+		optionNames.add(CORE_ENCODING);
+		
+		// Formatter settings
+		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getJavaConventionsSettings(); // code formatter defaults
+		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String optionName = (String) entry.getKey();
+			defaultPreferences.put(optionName, (String)entry.getValue());
+			optionNames.add(optionName);
+		}		
+		defaultPreferences.put(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
+		optionNames.add(FORMATTER_NEWLINE_OPENING_BRACE);
+
+		defaultPreferences.put(FORMATTER_NEWLINE_CONTROL, DO_NOT_INSERT);
+		optionNames.add(FORMATTER_NEWLINE_CONTROL);
+
+		defaultPreferences.put(FORMATTER_CLEAR_BLANK_LINES, PRESERVE_ONE); 
+		optionNames.add(FORMATTER_CLEAR_BLANK_LINES);
+
+		defaultPreferences.put(FORMATTER_NEWLINE_ELSE_IF, DO_NOT_INSERT);
+		optionNames.add(FORMATTER_NEWLINE_ELSE_IF);
+
+		defaultPreferences.put(FORMATTER_NEWLINE_EMPTY_BLOCK, INSERT); 
+		optionNames.add(FORMATTER_NEWLINE_EMPTY_BLOCK);
+
+		defaultPreferences.put(FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
+		optionNames.add(FORMATTER_LINE_SPLIT);
+
+		defaultPreferences.put(FORMATTER_COMPACT_ASSIGNMENT, NORMAL); 
+		optionNames.add(FORMATTER_COMPACT_ASSIGNMENT);
+
+		defaultPreferences.put(FORMATTER_TAB_CHAR, TAB); 
+		optionNames.add(FORMATTER_TAB_CHAR);
+
+		defaultPreferences.put(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
+		optionNames.add(FORMATTER_TAB_SIZE);
+		
+		defaultPreferences.put(FORMATTER_SPACE_CASTEXPRESSION, INSERT); //$NON-NLS-1$ 
+		optionNames.add(FORMATTER_SPACE_CASTEXPRESSION);
+
+		// CodeAssist settings
+		defaultPreferences.put(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_VISIBILITY_CHECK);
+
+		defaultPreferences.put(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_IMPLICIT_QUALIFICATION);
+		
+		defaultPreferences.put(CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_FIELD_PREFIXES);
+		
+		defaultPreferences.put(CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_STATIC_FIELD_PREFIXES);
+		
+		defaultPreferences.put(CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_LOCAL_PREFIXES);
+		
+		defaultPreferences.put(CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_ARGUMENT_PREFIXES);
+		
+		defaultPreferences.put(CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_FIELD_SUFFIXES);
+		
+		defaultPreferences.put(CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_STATIC_FIELD_SUFFIXES);
+		
+		defaultPreferences.put(CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_LOCAL_SUFFIXES);
+		
+		defaultPreferences.put(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
+		
+		defaultPreferences.put(CODEASSIST_RESTRICTIONS_CHECK, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_RESTRICTIONS_CHECK);
 	}
 	
 	/**
@@ -3865,7 +4002,7 @@ public final class JavaCore extends Plugin {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions()
-	 * @see JavaCorePreferenceInitializer for changing default settings
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 */
 	public static void setOptions(Hashtable newOptions) {
 		
@@ -3940,6 +4077,9 @@ public final class JavaCore extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
+		// init preferences
+		initializeDefaultPreferences();
+
 		final JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.configurePluginDebugOptions();
