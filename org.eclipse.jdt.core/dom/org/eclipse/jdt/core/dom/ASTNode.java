@@ -1113,15 +1113,16 @@ public abstract class ASTNode {
 	public static final int PROTECT = 4;
 
 	/**
-	 * Flags; none set by default.
+	 * int containing the node type in the top 16 bits and
+	 * flags in the bottom 16 bits; none set by default.
      * <p>
-     * N.B. This ia a private field, but declared as package-visible
+     * N.B. This is a private field, but declared as package-visible
      * for more efficient access from inner classes.
      * </p>
 	 * 
 	 * @see #MALFORMED
 	 */
-	int flags = 0;
+	int typeAndFlags = 0;
 		
 	/**
 	 * Property of parent in which this node is a child, or <code>null</code>
@@ -1281,7 +1282,7 @@ public abstract class ASTNode {
 		    if (element == null) {
 		        throw new IllegalArgumentException();
 		    }
-			if ((ASTNode.this.flags & PROTECT) != 0) {
+			if ((ASTNode.this.typeAndFlags & PROTECT) != 0) {
 				// this node is protected => cannot gain or lose children
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
@@ -1291,7 +1292,7 @@ public abstract class ASTNode {
 			if (oldChild == newChild) {
 				return oldChild;
 			}
-			if ((oldChild.flags & PROTECT) != 0) {
+			if ((oldChild.typeAndFlags & PROTECT) != 0) {
 				// old child is protected => cannot be unparented
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
@@ -1313,7 +1314,7 @@ public abstract class ASTNode {
 		    if (element == null) {
 		        throw new IllegalArgumentException();
 		    }
-			if ((ASTNode.this.flags & PROTECT) != 0) {
+			if ((ASTNode.this.typeAndFlags & PROTECT) != 0) {
 				// this node is protected => cannot gain or lose children
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
@@ -1334,13 +1335,13 @@ public abstract class ASTNode {
 		 * @see List#remove(int)
 		 */
 		public Object remove(int index) {
-			if ((ASTNode.this.flags & PROTECT) != 0) {
+			if ((ASTNode.this.typeAndFlags & PROTECT) != 0) {
 				// this node is protected => cannot gain or lose children
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
 			// delink old child from parent
 			ASTNode oldChild = (ASTNode) this.store.get(index);
-			if ((oldChild.flags & PROTECT) != 0) {
+			if ((oldChild.typeAndFlags & PROTECT) != 0) {
 				// old child is protected => cannot be unparented
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
@@ -1462,8 +1463,9 @@ public abstract class ASTNode {
 		}
 		
 		this.ast = ast;
-		this.flags = ast.getDefaultNodeFlag();
-		this.ast.modifying();
+		setNodeType(getNodeType0());
+		setFlags(ast.getDefaultNodeFlag());
+		// setFlags calls modifying();
 	}
 	
 	/**
@@ -1929,7 +1931,7 @@ public abstract class ASTNode {
 			// new child is not of the right type
 			throw new ClassCastException();
 		}
-		if ((newChild.flags & PROTECT) != 0) {
+		if ((newChild.typeAndFlags & PROTECT) != 0) {
 			// new child node is protected => cannot be parented
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
@@ -1975,7 +1977,7 @@ public abstract class ASTNode {
 	 * @since 3.0
 	 */ 
 	final void preReplaceChild(ASTNode oldChild, ASTNode newChild, ChildPropertyDescriptor property) {
-		if ((this.flags & PROTECT) != 0) {
+		if ((this.typeAndFlags & PROTECT) != 0) {
 			// this node is protected => cannot gain or lose children
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
@@ -1984,7 +1986,7 @@ public abstract class ASTNode {
 		}
 		// delink old child from parent
 		if (oldChild != null) {
-			if ((oldChild.flags & PROTECT) != 0) {
+			if ((oldChild.typeAndFlags & PROTECT) != 0) {
 				// old child node is protected => cannot be unparented
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
@@ -2053,7 +2055,7 @@ public abstract class ASTNode {
 	 * @since 3.0
 	 */ 
 	final void preValueChange(SimplePropertyDescriptor property) {
-		if ((this.flags & PROTECT) != 0) {
+		if ((this.typeAndFlags & PROTECT) != 0) {
 			// this node is protected => cannot change valure of properties
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
@@ -2077,7 +2079,7 @@ public abstract class ASTNode {
      * @exception RuntimeException is not modifiable
      */
 	final void checkModifiable() {
-		if ((this.flags & PROTECT) != 0) {
+		if ((this.typeAndFlags & PROTECT) != 0) {
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
 		this.ast.modifying();
@@ -2272,7 +2274,7 @@ public abstract class ASTNode {
 	 * @see #setFlags(int)
 	 */
 	public final int getFlags() {
-		return this.flags;
+		return this.typeAndFlags & 0xFFFF;
 	}
 	
 	/**
@@ -2301,7 +2303,8 @@ public abstract class ASTNode {
 	 */
 	public final void setFlags(int flags) {
 		this.ast.modifying();
-		this.flags = flags;
+		int old = this.typeAndFlags & 0xFFFF0000;
+		this.typeAndFlags = old | (flags & 0xFFFF);
 	}
 
 	/**
@@ -2315,7 +2318,31 @@ public abstract class ASTNode {
 	 * 
 	 * @return one of the node type constants
 	 */
-	public abstract int getNodeType();
+	public final int getNodeType() {
+		return this.typeAndFlags >>> 16;
+	}
+	
+	/**
+	 * Sets the integer value identifying the type of this concrete AST node.
+	 * The values are small positive integers, suitable for use in switch statements.
+	 * 
+	 * @param nodeType one of the node type constants
+	 */
+	private void setNodeType(int nodeType) {
+		int old = this.typeAndFlags & 0xFFFF0000;
+		this.typeAndFlags = old | (nodeType << 16);
+	}
+	
+	/**
+	 * Returns an integer value identifying the type of this concrete AST node.
+	 * <p>
+	 * This internal method is implemented in each of the
+	 * concrete node subclasses.
+	 * </p>
+	 * 
+	 * @return one of the node type constants
+	 */
+	abstract int getNodeType0();
 	
 	/**
 	 * The <code>ASTNode</code> implementation of this <code>Object</code>
@@ -2339,7 +2366,24 @@ public abstract class ASTNode {
 	 * @return <code>true</code> if the subtree matches, or 
 	 * <code>false</code> if they do not match
 	 */
-	public abstract boolean subtreeMatch(ASTMatcher matcher, Object other);
+	public final boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		return subtreeMatch0(matcher, other);
+	}
+	
+	/**
+	 * Returns whether the subtree rooted at the given node matches the
+	 * given other object as decided by the given matcher.
+	 * <p>
+	 * This internal method is implemented in each of the
+	 * concrete node subclasses.
+	 * </p>
+	 * 
+	 * @param matcher the matcher
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or 
+	 * <code>false</code> if they do not match
+	 */
+	abstract boolean subtreeMatch0(ASTMatcher matcher, Object other);
 	
 	/**
 	 * Returns a deep copy of the subtree of AST nodes rooted at the
