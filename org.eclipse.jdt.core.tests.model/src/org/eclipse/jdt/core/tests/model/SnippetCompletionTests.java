@@ -46,6 +46,7 @@ public static Test suite() {
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInnerClass"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface2"));
+	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithDollar"));
 	
 	return suite;
 }
@@ -260,4 +261,28 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
+public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "test00XX", "Test.class");
+	IType type = cf.getType();
+	
+	String snippet = 
+		"int varX;\n" +
+		"int varY;\n" +
+		"var";
+		
+	char[][] typeNames = {};
+	char[][] names = {};
+	int[] modifiers = {};
+
+	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
+	
+	assertEquals(
+		"should have 3 completions",
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) ,
+		requestor.getResults());
+}
+
 }

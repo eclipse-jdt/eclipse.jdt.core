@@ -238,9 +238,9 @@ public class TypeConverter {
 		} else { // qualified type reference
 			char[][] identifiers =	CharOperation.splitOn('.', type, 0, dimStart);
 			if (dim == 0) {
-				return new QualifiedTypeReference(identifiers, new long[]{0});
+				return new QualifiedTypeReference(identifiers, new long[identifiers.length]);
 			} else {
-				return new ArrayQualifiedTypeReference(identifiers, dim, new long[]{0});
+				return new ArrayQualifiedTypeReference(identifiers, dim, new long[identifiers.length]);
 			}
 		}
 	}
