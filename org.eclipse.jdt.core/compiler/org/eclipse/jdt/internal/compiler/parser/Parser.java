@@ -3672,14 +3672,14 @@ protected void consumeStatementIfNoElse() {
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
-				endStatementPosition); 
+				endPosition); 
 	} else {
 		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
 				thenStatement, 
 				intStack[intPtr--], 
-				endStatementPosition); 
+				endPosition); 
 	}
 }
 protected void consumeStatementIfWithElse() {
@@ -3712,7 +3712,7 @@ protected void consumeStatementIfWithElse() {
 				thenStatement, 
 				elseStatement, 
 				intStack[intPtr--], 
-				endStatementPosition); 
+				endPosition); 
 	}
 }
 protected void consumeStatementLabel() {
