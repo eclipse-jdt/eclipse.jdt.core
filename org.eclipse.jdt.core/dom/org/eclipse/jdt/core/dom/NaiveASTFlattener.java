@@ -698,10 +698,14 @@ class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(node.getOperator().toString());
 		this.buffer.append(' ');
 		node.getRightOperand().accept(this);
-		for (Iterator it = node.extendedOperands().iterator(); it.hasNext(); ) {
-			this.buffer.append(node.getOperator().toString());
-			Expression e = (Expression) it.next();
-			e.accept(this);
+		final List extendedOperands = node.extendedOperands();
+		if (extendedOperands.size() != 0) {
+			this.buffer.append(' ');
+			for (Iterator it = extendedOperands.iterator(); it.hasNext(); ) {
+				this.buffer.append(node.getOperator().toString()).append(' ');
+				Expression e = (Expression) it.next();
+				e.accept(this);
+			}
 		}
 		return false;
 	}

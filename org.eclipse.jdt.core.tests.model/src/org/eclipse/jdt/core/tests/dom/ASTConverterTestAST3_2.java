@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0597"));
+		suite.addTest(new ASTConverterTestAST3_2("test0598"));
 		return suite;
 	}
 	/**
@@ -6027,5 +6027,29 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		
 		assertTrue("not identical", typeBinding == typeBinding2);
 		assertTrue("not identical", typeBinding.isEqualTo(typeBinding2));
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84778
+	 */
+	public void test0598() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	int m(int i) {\n" +
+				"		return /*start*/1 + 2 + ++i/*end*/;\n" +
+				"	}\n" +
+				"}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, node.getNodeType());
+			assertEquals("Wrong debug string", "1 + 2 + ++i", node.toString());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }
