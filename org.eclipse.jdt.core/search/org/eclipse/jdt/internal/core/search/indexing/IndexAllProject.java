@@ -95,6 +95,7 @@ public class IndexAllProject extends IndexRequest {
 								}
 							}
 						}
+						final boolean hasOutputs = !outputs.isEmpty();
 						
 						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
@@ -115,7 +116,7 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FOLDER :
 												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
 													return false;
-												if (outputs.contains(proxy.requestFullPath())) {
+												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
 													return false;
 												}
 										}
@@ -146,7 +147,7 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FOLDER :
 												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
 													return false;
-												if (outputs.contains(proxy.requestFullPath())) {
+												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
 													return false;
 												}
 										}
