@@ -14,7 +14,8 @@ package org.eclipse.jdt.internal.formatter.align;
  * Exception used to backtrack and break available alignments
  * When the exception is thrown, it is assumed that some alignment will be changed.
  *
- * @since 2.1 */
+ * @since 2.1
+ */
 public class AlignmentException extends RuntimeException {
 	
 	public static final int LINE_TOO_LONG = 1;
