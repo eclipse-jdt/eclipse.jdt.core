@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.formatter.*;
 import java.util.*;
 
 public class FormatterOptions {	
-/**
+	/**
 	 * Option IDs
 	 */
 	public static final String OPTION_InsertNewlineBeforeOpeningBrace = "org.eclipse.jdt.core.formatter.newline.openingBrace"; //$NON-NLS-1$
