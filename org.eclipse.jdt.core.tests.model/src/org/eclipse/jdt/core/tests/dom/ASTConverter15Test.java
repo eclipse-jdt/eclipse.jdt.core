@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 153 };
+//		TESTS_NUMBERS = new int[] { 155 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4703,5 +4703,46 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0154() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		test(/*start*/1/*end*/);\n" +
+				"	}\n" +
+				"	public static void test(Integer i) {}\n" +
+				"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, node.getNodeType());
+		NumberLiteral literal = (NumberLiteral) node;
+		assertTrue("Is boxed", literal.resolveBoxing());
+		assertFalse("Is unboxed", literal.resolveUnboxing());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0155() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static int bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		test(/*start*/bar()/*end*/);\n" +
+				"	}\n" +
+				"	public static void test(Integer i) { System.out.print('y'); }\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) node;
+		assertTrue("Is boxed", methodInvocation.resolveBoxing());
+		assertFalse("Is unboxed", methodInvocation.resolveUnboxing());
     }
 }

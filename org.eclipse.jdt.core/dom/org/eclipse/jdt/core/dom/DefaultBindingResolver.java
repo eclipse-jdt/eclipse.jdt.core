@@ -366,6 +366,30 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 	
 	/*
+	 * @see BindingResolver#resolveBoxing(Expression)
+	 */
+	boolean resolveBoxing(Expression expression) {
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
+			return (compilerExpression.implicitConversion & TypeIds.BOXING) != 0;
+		}
+		return false;
+	}
+	
+	/*
+	 * @see BindingResolver#resolveUnboxing(Expression)
+	 */
+	boolean resolveUnboxing(Expression expression) {
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
+			return (compilerExpression.implicitConversion & TypeIds.UNBOXING) != 0;
+		}
+		return false;
+	}
+	
+	/*
 	 * @see BindingResolver#resolveConstantExpressionValue(Expression)
 	 */
 	Object resolveConstantExpressionValue(Expression expression) {
