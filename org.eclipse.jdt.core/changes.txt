@@ -120,6 +120,7 @@ PRs Fixed in 1.0NL stream (since 0.9)
 
 PRs Closed in this Release
 ==================================================================================
+1GJWIRA: ITPJCORE:WINNT - ClassCastException occured while compiling in the recovery
 1GIUQ92: ITPJCORE:WINNT - Empty lines added on reorg operations
 1GJ31GB: ITPJCORE:WINNT - Formatter - doesn't line up braces vertically when begin brace on new line
 1GIV9WS: ITPJCORE:WIN2000 - Unexpected compiler behavior
