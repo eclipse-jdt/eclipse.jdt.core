@@ -179,6 +179,15 @@ public class Scribe {
 		alignment.performFragmentEffect();
 	}
 	
+	public void consumeNextToken() {
+		printComment();
+		try {
+			this.currentToken = this.scanner.getNextToken();
+			addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}

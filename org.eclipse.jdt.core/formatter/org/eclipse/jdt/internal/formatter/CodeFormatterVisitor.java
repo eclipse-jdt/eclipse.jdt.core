@@ -1226,12 +1226,33 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 	
 	private void formatEmptyStatement() {
-
-		if (this.preferences.put_empty_statement_on_new_line) {
-			this.scribe.printNewLine();
+		if (this.preferences.remove_unnecessary_semicolon) {
+			this.scribe.consumeNextToken();
+		} else {
+			if (this.preferences.put_empty_statement_on_new_line) {
+				this.scribe.printNewLine();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
+	}
+
+	private void formatEmptyTypeDeclaration(boolean isFirst) {
+		boolean hasSemiColon = isSemiColon();
+		if (this.preferences.remove_unnecessary_semicolon) {
+			while(isSemiColon()) {
+				this.scribe.consumeNextToken();
+				this.scribe.printTrailingComment();
+			}
+		} else {
+			while(isSemiColon()) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printTrailingComment();
+			}
+			if (hasSemiColon && isFirst) {
+				this.scribe.printNewLine();
+			}
+		}
 	}
 
 	private void formatGuardClauseBlock(Block block, BlockScope scope) {
@@ -1580,7 +1601,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
 					}
 					if (isSemiColon()) {
-						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						if (this.preferences.remove_unnecessary_semicolon) {
+							this.scribe.consumeNextToken();
+						} else {
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						}
 						this.scribe.printTrailingComment();
 					}
 					this.scribe.printNewLine();
@@ -2365,6 +2390,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 
+		formatEmptyTypeDeclaration(true);
+		
 		int blankLineBetweenTypeDeclarations = this.preferences.blank_lines_between_type_declarations;
 		/*
 		 * Type declarations
@@ -2375,6 +2402,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
 				this.scribe.printComment();
+				formatEmptyTypeDeclaration(false);
 				if (blankLineBetweenTypeDeclarations != 0) {
 					this.scribe.printEmptyLines(blankLineBetweenTypeDeclarations);
 				} else {
@@ -2384,6 +2412,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			format(types[typesLength - 1]);
 		}
 		this.scribe.printComment();
+		formatEmptyTypeDeclaration(false);
 		return false;
 	}
 

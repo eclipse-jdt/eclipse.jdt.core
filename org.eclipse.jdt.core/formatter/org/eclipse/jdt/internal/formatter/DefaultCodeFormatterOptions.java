@@ -164,11 +164,11 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;//$NON-NLS-1$
 	public static final int DEFAULT_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY = 0;
 	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
-	
 	public static final int DEFAULT_PAGE_WIDTH = 80;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
 	public static final boolean DEFAULT_PUT_EMPTY_STATEMENT_ON_NEW_LINE = false;
 	public static final int DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
+	public static final boolean DEFAULT_REMOVE_UNNECESSARY_SEMICOLON = false;
 	public static final String DEFAULT_SWITCH_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
 	public static final int DEFAULT_TAB_SIZE = 4;
 	public static final String DEFAULT_TYPE_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -330,6 +330,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean preserve_user_linebreaks;
 	public boolean put_empty_statement_on_new_line; 
 	public int qualified_allocation_expression_arguments_alignment;
+	public boolean remove_unnecessary_semicolon;
 	public String switch_brace_position;
 	public int tab_size;
 	public String type_declaration_brace_position;
@@ -494,6 +495,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS, this.preserve_user_linebreaks ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT, getAlignment(this.qualified_allocation_expression_arguments_alignment));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, this.remove_unnecessary_semicolon ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION, this.switch_brace_position);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
@@ -1065,6 +1067,10 @@ public class DefaultCodeFormatterOptions {
 		if (qualifiedAllocationExpressionArgumentsAlignmentOption != null) {
 			this.qualified_allocation_expression_arguments_alignment = Integer.parseInt((String) qualifiedAllocationExpressionArgumentsAlignmentOption);
 		}
+		final Object removeUnnecessarySemiColonOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON);
+		if (removeUnnecessarySemiColonOption != null) {
+			this.remove_unnecessary_semicolon = DefaultCodeFormatterConstants.TRUE.equals(removeUnnecessarySemiColonOption);
+		}		
 		final Object switchBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION);
 		if (switchBracePositionOption != null) {
 			this.switch_brace_position = (String) switchBracePositionOption;
@@ -1236,6 +1242,7 @@ public class DefaultCodeFormatterOptions {
 		this.preserve_user_linebreaks = DEFAULT_PRESERVE_USER_LINEBREAKS;
 		this.put_empty_statement_on_new_line = DEFAULT_PUT_EMPTY_STATEMENT_ON_NEW_LINE;
 		this.qualified_allocation_expression_arguments_alignment = DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT;
+		this.remove_unnecessary_semicolon = DEFAULT_REMOVE_UNNECESSARY_SEMICOLON;
 		this.switch_brace_position = DEFAULT_SWITCH_BRACE_POSITION;
 		this.tab_size = DEFAULT_TAB_SIZE;
 		this.type_declaration_brace_position = DEFAULT_TYPE_DECLARATION_BRACE_POSITION;
@@ -1384,6 +1391,7 @@ public class DefaultCodeFormatterOptions {
 		this.preserve_user_linebreaks = false;
 		this.put_empty_statement_on_new_line = true;
 		this.qualified_allocation_expression_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
+		this.remove_unnecessary_semicolon = false;
 		this.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.tab_size = 4;
 		this.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
