@@ -71,7 +71,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			SearchDocument[] wrapperDocuments = new SearchDocument[length];
 			for (int i = 0; i < length; i++) {
 				wrapperDocuments[i] = new WrapperDocument(documents[i], this);
-			};
+			}
 			this.defaultSearchParticipant.locateMatches(wrapperDocuments, pattern, scope, requestor, monitor);
 		}
 
