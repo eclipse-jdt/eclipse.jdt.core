@@ -154,6 +154,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			int rank = 0;
 			do {
 				TypeVariableBinding variable = createTypeVariable(wrapper, rank);
+				variable.fPackage = this.fPackage;
 				System.arraycopy(this.typeVariables, 0, this.typeVariables = new TypeVariableBinding[rank + 1], 0, rank);
 				this.typeVariables[rank++] = variable;
 			} while (wrapper.signature[wrapper.start] != '>');

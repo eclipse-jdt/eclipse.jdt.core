@@ -141,18 +141,8 @@ public class WildcardBinding extends ReferenceBinding {
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
     public char[] signature() {
-        // TODO (philippe) per construction, should never be called 
         if (this.signature == null) {
-            switch (this.kind) {
-                case Wildcard.UNBOUND : 
-                    this.signature = WILDCARD_STAR;
-                    break;
-                case Wildcard.EXTENDS :
-                    this.signature = CharOperation.concat(WILDCARD_PLUS, this.bound.signature());
-					break;
-				default: // SUPER
-				    this.signature = CharOperation.concat(WILDCARD_MINUS, this.bound.signature());
-            }
+            this.signature = this.bound.signature();
         } 
         return this.signature;
     }

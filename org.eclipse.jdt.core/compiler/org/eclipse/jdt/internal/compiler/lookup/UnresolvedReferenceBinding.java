@@ -19,7 +19,7 @@ UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding)
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
 }
-String debugName() {
+public String debugName() {
 	return toString();
 }
 ReferenceBinding resolve(LookupEnvironment environment) {

@@ -44,7 +44,7 @@ public boolean canBeInstantiated() {
  */
 public abstract char[] constantPoolName();
 
-String debugName() {
+public String debugName() {
 	return new String(readableName());
 }
 /*

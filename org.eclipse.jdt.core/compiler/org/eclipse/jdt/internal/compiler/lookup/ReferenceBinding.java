@@ -286,7 +286,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	if (constantPoolName != null) 	return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
-String debugName() {
+public String debugName() {
 	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"; //$NON-NLS-1$
 }
 public final int depth() {
@@ -449,6 +449,8 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	if (this.isEquivalentTo(otherReferenceType)) return true;
 	if (otherReferenceType.isWildcard()) {
 	    return ((WildcardBinding) otherReferenceType).boundCheck(this);
+//	} else if (otherReferenceType.isTypeVariable()) {
+//	    return ((TypeVariableBinding) otherReferenceType).boundCheck(this);
 	}
 	if (otherReferenceType.isInterface())
 		return implementsInterface(otherReferenceType, true);

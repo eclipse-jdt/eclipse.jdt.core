@@ -571,7 +571,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	    if (fieldCodegenBinding.type.isTypeVariable()) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) fieldCodegenBinding.type;
 	        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = parameterizedField.type;
+			    this.genericCast = parameterizedField.type.erasure();
 	        }
 	    }
 	}		

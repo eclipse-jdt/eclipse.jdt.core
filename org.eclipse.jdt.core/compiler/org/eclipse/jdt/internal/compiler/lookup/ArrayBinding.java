@@ -41,7 +41,7 @@ public char[] constantPoolName() {
 	for (int i = dimensions - 1; i >= 0; i--) brackets[i] = '[';
 	return constantPoolName = CharOperation.concat(brackets, leafComponentType.signature());
 }
-String debugName() {
+public String debugName() {
 	StringBuffer brackets = new StringBuffer(dimensions * 2);
 	for (int i = dimensions; --i >= 0;)
 		brackets.append("[]"); //$NON-NLS-1$

@@ -49,7 +49,9 @@ public class Wildcard extends SingleTypeReference {
 		        boundType = scope.getJavaLangObject();
 	        }
 	    }
-	    return this.resolvedType = scope.environment().createWildcard(boundType, this.kind);
+	    WildcardBinding wildcard = scope.environment().createWildcard(boundType, this.kind);
+	    wildcard.fPackage = genericType.fPackage;
+	    return this.resolvedType = wildcard;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

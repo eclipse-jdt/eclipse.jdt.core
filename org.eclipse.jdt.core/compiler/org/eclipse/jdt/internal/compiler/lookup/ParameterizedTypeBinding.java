@@ -30,6 +30,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments, LookupEnvironment environment){
 		
 		this.type = type;
+		this.compoundName = type.compoundName;
 		this.fPackage = type.fPackage;
 		this.fileName = type.fileName;
 		// expect the fields & methods to be initialized correctly later
@@ -63,9 +64,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
-	String debugName() {
+	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		nameBuffer.append(this.type.debugName()).append('<');
+		nameBuffer.append(this.type.sourceName()).append('<');
 	    for (int i = 0, length = this.arguments.length; i < length; i++) {
 	        if (i > 0) nameBuffer.append(',');
 	        nameBuffer.append(this.arguments[i].debugName());
@@ -402,7 +403,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
 	 */
 	public char[] signature() {
-		return this.type.signature();  // erasure
+	    if (this.signature == null) {
+	        this.signature = this.type.signature();  // erasure
+	    }
+		return this.signature; 
 	}
 
 	/**
@@ -534,14 +538,71 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		StringBuffer buffer = new StringBuffer(10);
-		buffer.append(this.type);
-		buffer.append('<');
-		for (int i = 0; i < this.arguments.length; i++){
-			if (i > 0) buffer.append(',');
-			buffer.append(this.arguments[i]);
+	    StringBuffer buffer = new StringBuffer(30);
+		if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
+		if (isPublic()) buffer.append("public "); //$NON-NLS-1$
+		if (isProtected()) buffer.append("protected "); //$NON-NLS-1$
+		if (isPrivate()) buffer.append("private "); //$NON-NLS-1$
+		if (isAbstract() && isClass()) buffer.append("abstract "); //$NON-NLS-1$
+		if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
+		if (isFinal()) buffer.append("final "); //$NON-NLS-1$
+	
+		buffer.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append(this.debugName());
+	
+		buffer.append("\n\textends "); //$NON-NLS-1$
+		buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
+	
+		if (superInterfaces != null) {
+			if (superInterfaces != NoSuperInterfaces) {
+				buffer.append("\n\timplements : "); //$NON-NLS-1$
+				for (int i = 0, length = superInterfaces.length; i < length; i++) {
+					if (i  > 0)
+						buffer.append(", "); //$NON-NLS-1$
+					buffer.append((superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
+				}
+			}
+		} else {
+			buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 		}
-		buffer.append('>');
+	
+		if (enclosingType() != null) {
+			buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
+			buffer.append(enclosingType().debugName());
+		}
+	
+		if (fields != null) {
+			if (fields != NoFields) {
+				buffer.append("\n/*   fields   */"); //$NON-NLS-1$
+				for (int i = 0, length = fields.length; i < length; i++)
+				    buffer.append('\n').append((fields[i] != null) ? fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$ 
+			}
+		} else {
+			buffer.append("NULL FIELDS"); //$NON-NLS-1$
+		}
+	
+		if (methods != null) {
+			if (methods != NoMethods) {
+				buffer.append("\n/*   methods   */"); //$NON-NLS-1$
+				for (int i = 0, length = methods.length; i < length; i++)
+					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		} else {
+			buffer.append("NULL METHODS"); //$NON-NLS-1$
+		}
+	
+//		if (memberTypes != null) {
+//			if (memberTypes != NoMemberTypes) {
+//				buffer.append("\n/*   members   */"); //$NON-NLS-1$
+//				for (int i = 0, length = memberTypes.length; i < length; i++)
+//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
+//			}
+//		} else {
+//			buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$
+//		}
+	
+		buffer.append("\n\n"); //$NON-NLS-1$
 		return buffer.toString();
+		
 	}
 }

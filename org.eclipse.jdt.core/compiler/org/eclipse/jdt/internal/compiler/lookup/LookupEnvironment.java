@@ -655,30 +655,39 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 	//   or '+' TypeSignature
 	//   or TypeSignature
 	//   or '*'
+    WildcardBinding wildcard = null;
+    
 	switch (wrapper.signature[wrapper.start]) {
 		case '-' :
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.SUPER);
+			wildcard = createWildcard(bound, Wildcard.SUPER);
+			break;
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.EXTENDS);
+			wildcard = createWildcard(bound, Wildcard.EXTENDS);
+			break;
 		case '*' :
 			// ? - when constructing the wildcard binding, record the matching type variable so as to reach its firstBound lazily later on.
 			wrapper.start++;
-			TypeBinding boundType = null;
+			bound = null;
 			if (genericType instanceof ReferenceBinding) {
 			    ReferenceBinding refType = (ReferenceBinding) genericType;
 			    TypeVariableBinding[] typeVariables = refType.typeVariables();
 			    if (rank < typeVariables.length) {
-			        boundType = typeVariables[rank];
+			        bound = typeVariables[rank];
 			    }
 			}
-			if (boundType == null) boundType = getType(JAVA_LANG_OBJECT); // TODO (kent) error scenario to report 
-			return createWildcard(boundType, Wildcard.UNBOUND);
+			if (bound == null) bound = getType(JAVA_LANG_OBJECT); // TODO (kent) error scenario to report 
+			wildcard = createWildcard(bound, Wildcard.UNBOUND);
+	}
+	if (wildcard != null) {
+	    wildcard.fPackage = genericType.getPackage();
+	    return wildcard;
+	    
 	}
 	return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 }

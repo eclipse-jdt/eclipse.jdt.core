@@ -2138,11 +2138,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 					"}\n"
 			},
 			"----------\n" + 
-		"1. ERROR in test\\X1.java (at line 3)\n" + 
-		"	public class X1 < A1 > > > {\n" + 
-		"	                       ^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1 < A1 > > > {\n" + 
+			"	                       ^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n"
 		);
 	}
 	
@@ -3013,4 +3013,162 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
 			"----------\n");		
 	}		
+	// unbound wildcard implicitly bound by matching parameter bounds
+	public void test102() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<?> x = new X<BX<String>>(new BX<String>());\n" + 
+				"		x.t.foo(\"SUCC\");\n" + 
+				"		x.t.bar(\"ESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.print(p);\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"   void bar(Q q) { \n" + 
+				"		System.out.println(q);\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	x.t.bar(\"ESS\");\n" + 
+		"	    ^^^\n" + 
+		"The method bar(String) is undefined for the type ?\n" + 
+		"----------\n");		
+	}		
+	
+	public void test103() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends BX> x = new X<BX<String>>(new BX<String>());\n" + 
+				"		x.t.foo(\"SUCC\");\n" + 
+				"		x.t.bar(\"ESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.print(p);\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"   void bar(Q q) { \n" + 
+				"		System.out.println(q);\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
+
+	// wildcard bound check
+	public void test104() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends BX> x = new X<AX<String>>(new AX<String>());\n" + 
+				"		x.t.foo(\"SUCC\");\n" + 
+				"		x.t.bar(\"ESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.print(p);\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"   void bar(Q q) { \n" + 
+				"		System.out.println(q);\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X<? extends BX> x = new X<AX<String>>(new AX<String>());\n" + 
+		"	                ^\n" + 
+		"Type mismatch: cannot convert from X<AX<String>> to X<? extends BX>\n" + 
+		"----------\n");		
+	}			
+	public void test105() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
+				"		x.t.foo(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.println(p);\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
+	public void test106() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X<BX<String>> x = new X<BX<String>>(new BX<String>());\n" + 
+				"		x.t.foo(\"SUCC\");\n" + 
+				"		x.t.bar(\"ESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.print(p);\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"   void bar(Q q) { \n" + 
+				"		System.out.println(q);\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
+
 }

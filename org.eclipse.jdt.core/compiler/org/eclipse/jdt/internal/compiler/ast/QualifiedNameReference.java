@@ -667,7 +667,7 @@ public class QualifiedNameReference extends NameReference {
 		    if (originalField.type.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) originalField.type;
 		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
-				    requiredGenericCast = parameterizedField.type;
+				    requiredGenericCast = parameterizedField.type.erasure();
 		        }
 		    }		    
 		    setCodegenBinding(fieldBinding, index, originalField, requiredGenericCast);

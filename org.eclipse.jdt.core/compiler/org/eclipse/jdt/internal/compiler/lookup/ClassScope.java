@@ -322,6 +322,7 @@ public class ClassScope extends Scope {
 		nextParameter : for (int i = 0; i < length; i++) {
 			TypeParameter typeParameter = referenceContext.typeParameters[i];
 			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
+			parameterBinding.fPackage = sourceType.fPackage;
 			typeParameter.binding = parameterBinding;
 			
 			if (knownTypeParameterNames.containsKey(typeParameter.name)) {

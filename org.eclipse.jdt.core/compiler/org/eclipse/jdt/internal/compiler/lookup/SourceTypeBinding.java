@@ -944,83 +944,88 @@ public FieldBinding[] syntheticFields() {
 	return bindings;
 }
 public String toString() {
-	String s = "(id="+(id == NoId ? "NoId" : (""+id) ) +")\n"; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-4$ //$NON-NLS-1$
+    StringBuffer buffer = new StringBuffer(30);
+    buffer.append("(id="); //$NON-NLS-1$
+    if (id == NoId) 
+        buffer.append("NoId"); //$NON-NLS-1$
+    else 
+        buffer.append(id);
+    buffer.append(")\n"); //$NON-NLS-1$
+	if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
+	if (isPublic()) buffer.append("public "); //$NON-NLS-1$
+	if (isProtected()) buffer.append("protected "); //$NON-NLS-1$
+	if (isPrivate()) buffer.append("private "); //$NON-NLS-1$
+	if (isAbstract() && isClass()) buffer.append("abstract "); //$NON-NLS-1$
+	if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
+	if (isFinal()) buffer.append("final "); //$NON-NLS-1$
 
-	if (isDeprecated()) s += "deprecated "; //$NON-NLS-1$
-	if (isPublic()) s += "public "; //$NON-NLS-1$
-	if (isProtected()) s += "protected "; //$NON-NLS-1$
-	if (isPrivate()) s += "private "; //$NON-NLS-1$
-	if (isAbstract() && isClass()) s += "abstract "; //$NON-NLS-1$
-	if (isStatic() && isNestedType()) s += "static "; //$NON-NLS-1$
-	if (isFinal()) s += "final "; //$NON-NLS-1$
-
-	s += isInterface() ? "interface " : "class "; //$NON-NLS-1$ //$NON-NLS-2$
-	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"; //$NON-NLS-1$
+	buffer.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"); //$NON-NLS-1$
 
 	if (this.typeVariables != null && this.typeVariables != NoTypeVariables) {
-		s += "\n\t<"; //$NON-NLS-1$
+		buffer.append("\n\t<"); //$NON-NLS-1$
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 			if (i  > 0)
-				s += ", "; //$NON-NLS-1$
-			s += (this.typeVariables[i] != null) ? this.typeVariables[i].toString() : "NULL TYPE VARIABLE"; //$NON-NLS-1$
+				buffer.append(", "); //$NON-NLS-1$
+			buffer.append((this.typeVariables[i] != null) ? this.typeVariables[i].toString() : "NULL TYPE VARIABLE"); //$NON-NLS-1$
 		}
-		s += ">"; //$NON-NLS-1$
+		buffer.append(">"); //$NON-NLS-1$
 	} else {
-		s += "<NULL TYPE VARIABLES>"; //$NON-NLS-1$
+		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
 	}
-	s += "\n\textends "; //$NON-NLS-1$
-	s += (superclass != null) ? superclass.debugName() : "NULL TYPE"; //$NON-NLS-1$
+	buffer.append("\n\textends "); //$NON-NLS-1$
+	buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
 
 	if (superInterfaces != null) {
 		if (superInterfaces != NoSuperInterfaces) {
-			s += "\n\timplements : "; //$NON-NLS-1$
+			buffer.append("\n\timplements : "); //$NON-NLS-1$
 			for (int i = 0, length = superInterfaces.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
+					buffer.append(", "); //$NON-NLS-1$
+				buffer.append((superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
 			}
 		}
 	} else {
-		s += "NULL SUPERINTERFACES"; //$NON-NLS-1$
+		buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 	}
 
 	if (enclosingType() != null) {
-		s += "\n\tenclosing type : "; //$NON-NLS-1$
-		s += enclosingType().debugName();
+		buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
+		buffer.append(enclosingType().debugName());
 	}
 
 	if (fields != null) {
 		if (fields != NoFields) {
-			s += "\n/*   fields   */"; //$NON-NLS-1$
+			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
 			for (int i = 0, length = fields.length; i < length; i++)
-				s += (fields[i] != null) ? "\n" + fields[i].toString() : "\nNULL FIELD"; //$NON-NLS-1$ //$NON-NLS-2$
+			    buffer.append('\n').append((fields[i] != null) ? fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$ 
 		}
 	} else {
-		s += "NULL FIELDS"; //$NON-NLS-1$
+		buffer.append("NULL FIELDS"); //$NON-NLS-1$
 	}
 
 	if (methods != null) {
 		if (methods != NoMethods) {
-			s += "\n/*   methods   */"; //$NON-NLS-1$
+			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 			for (int i = 0, length = methods.length; i < length; i++)
-				s += (methods[i] != null) ? "\n" + methods[i].toString() : "\nNULL METHOD"; //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL METHODS"; //$NON-NLS-1$
+		buffer.append("NULL METHODS"); //$NON-NLS-1$
 	}
 
 	if (memberTypes != null) {
 		if (memberTypes != NoMemberTypes) {
-			s += "\n/*   members   */"; //$NON-NLS-1$
+			buffer.append("\n/*   members   */"); //$NON-NLS-1$
 			for (int i = 0, length = memberTypes.length; i < length; i++)
-				s += (memberTypes[i] != null) ? "\n" + memberTypes[i].toString() : "\nNULL TYPE"; //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL MEMBER TYPES"; //$NON-NLS-1$
+		buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$
 	}
 
-	s += "\n\n\n"; //$NON-NLS-1$
-	return s;
+	buffer.append("\n\n"); //$NON-NLS-1$
+	return buffer.toString();
 }
 public TypeVariableBinding[] typeVariables() {
 	return this.typeVariables;
