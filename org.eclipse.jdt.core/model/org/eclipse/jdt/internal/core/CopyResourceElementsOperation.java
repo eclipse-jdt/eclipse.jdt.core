@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.jdom.DOMException;
@@ -261,11 +263,15 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 		// update new resource content
 		try {
 			if (!destFile.isReadOnly() && newContent != null){
+				String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+				ByteArrayInputStream stream = new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding));				
 				destFile.setContents(
-					new ByteArrayInputStream(newContent.getBytes()), 
+					stream, 
 					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
 					getSubProgressMonitor(1));
 			}
+		} catch(IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -290,11 +296,14 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 		// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 		try {
 			if (newContent != null){
+				String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
 				destFile.setContents(
-					new ByteArrayInputStream(newContent.getBytes()), 
+					new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 					getSubProgressMonitor(1));
 			}
+		} catch(IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}

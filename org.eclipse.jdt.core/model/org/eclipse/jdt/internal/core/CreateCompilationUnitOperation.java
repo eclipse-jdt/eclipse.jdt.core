@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.resources.IContainer;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -93,14 +95,19 @@ protected void executeOperation() throws JavaModelException {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 		}
 	} else {
-		InputStream stream = new ByteArrayInputStream(BufferManager.stringToBytes(fSource));
-		createFile(folder, unit.getElementName(), stream, false);
-		fResultElements = new IJavaElement[] {unit};
-		if (unit.getParent().exists()) {
-			for (int i = 0; i < fResultElements.length; i++) {
-				delta.added(fResultElements[i]);
+		try {
+			String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+			InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
+			createFile(folder, unit.getElementName(), stream, false);
+			fResultElements = new IJavaElement[] {unit};
+			if (unit.getParent().exists()) {
+				for (int i = 0; i < fResultElements.length; i++) {
+					delta.added(fResultElements[i]);
+				}
+				addDelta(delta);
 			}
-			addDelta(delta);
+		} catch (IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
 	} 
 	worked(1);

@@ -102,13 +102,4 @@ public Enumeration getOpenBuffers() {
 protected void removeBuffer(IBuffer buffer) {
 	openBuffers.remove(buffer.getOwner());
 }
-/**
- * Returns the given String as a byte array. This is centralized here in case
- * we need to do special conversion.
- */
-public static byte[] stringToBytes(String s) {
-
-	return s.getBytes();
-	
-}
 }
