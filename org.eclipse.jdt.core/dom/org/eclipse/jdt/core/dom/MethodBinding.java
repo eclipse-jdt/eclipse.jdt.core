@@ -25,7 +25,8 @@ class MethodBinding implements IMethodBinding {
 	private ITypeBinding[] exceptionTypes;
 	private String name;
 	private ITypeBinding declaringClass;
-	private ITypeBinding returnType; 
+	private ITypeBinding returnType;
+	private String key;
 	
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;
@@ -154,46 +155,48 @@ class MethodBinding implements IMethodBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
-		// TODO (olivier) would improve to compute key once and cache it
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(this.getDeclaringClass().getKey());
-		buffer.append('/');
-		ITypeBinding _returnType = getReturnType();
-		if (_returnType != null) {
-			if (_returnType.isTypeVariable()) {
-				buffer.append(_returnType.getQualifiedName());
-			} else {
-				buffer.append(_returnType.getKey());
-			}
-		}
-		if (!isConstructor()) {
-			buffer.append(this.getName());
-		}
-		ITypeBinding[] parameters = getParameterTypes();
-		buffer.append('(');
-		for (int i = 0, max = parameters.length; i < max; i++) {
-			final ITypeBinding parameter = parameters[i];
-			if (parameter != null) {
-				if (parameter.isTypeVariable()) {
-					buffer.append(parameter.getQualifiedName());
+		if (this.key == null) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(this.getDeclaringClass().getKey());
+			buffer.append('/');
+			ITypeBinding _returnType = getReturnType();
+			if (_returnType != null) {
+				if (_returnType.isTypeVariable()) {
+					buffer.append(_returnType.getQualifiedName());
 				} else {
-					buffer.append(parameter.getKey());
+					buffer.append(_returnType.getKey());
 				}
 			}
-		}
-		buffer.append(')');
-		ITypeBinding[] thrownExceptions = getExceptionTypes();
-		for (int i = 0, max = thrownExceptions.length; i < max; i++) {
-			final ITypeBinding thrownException = thrownExceptions[i];
-			if (thrownException != null) {
-				if (thrownException.isTypeVariable()) {
-					buffer.append(thrownException.getQualifiedName());					
-				} else {
-					buffer.append(thrownException.getKey());
+			if (!isConstructor()) {
+				buffer.append(this.getName());
+			}
+			ITypeBinding[] parameters = getParameterTypes();
+			buffer.append('(');
+			for (int i = 0, max = parameters.length; i < max; i++) {
+				final ITypeBinding parameter = parameters[i];
+				if (parameter != null) {
+					if (parameter.isTypeVariable()) {
+						buffer.append(parameter.getQualifiedName());
+					} else {
+						buffer.append(parameter.getKey());
+					}
 				}
 			}
+			buffer.append(')');
+			ITypeBinding[] thrownExceptions = getExceptionTypes();
+			for (int i = 0, max = thrownExceptions.length; i < max; i++) {
+				final ITypeBinding thrownException = thrownExceptions[i];
+				if (thrownException != null) {
+					if (thrownException.isTypeVariable()) {
+						buffer.append(thrownException.getQualifiedName());					
+					} else {
+						buffer.append(thrownException.getKey());
+					}
+				}
+			}
+			this.key = String.valueOf(buffer);
 		}
-		return buffer.toString();
+		return this.key;
 	}
 	
 	/* (non-Javadoc)
