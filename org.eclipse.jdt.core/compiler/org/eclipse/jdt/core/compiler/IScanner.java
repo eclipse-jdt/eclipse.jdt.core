@@ -84,6 +84,11 @@ public interface IScanner {
 	int getNextToken() throws InvalidInputException;
 
 	/**
+	 * Answers the original source being processed (not a copy of it). 
+	 */
+	char[] getSource();
+
+	/**
 	 * Reposition the scanner on some portion of the original source. Once reaching the given <code>endPosition</code>
 	 * it will anser EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
 	 */
@@ -92,6 +97,13 @@ public interface IScanner {
 	/**
 	 * Set the scanner source to process. By default, the scanner will consider starting at the beginning of the
 	 * source until it reaches its end.
+	 */
+	void setSource(char[] source);
+
+	/**
+	 * Set the scanner source to process. By default, the scanner will consider starting at the beginning of the
+	 * source until it reaches its end.
+	 * @deprecated - use #setSource instead
 	 */
 	void setSourceBuffer(char[] source);
 }

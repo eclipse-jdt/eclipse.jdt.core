@@ -93,7 +93,7 @@ public class ToolFactory {
 	 * 
 	 * <code>
 	 *   IScanner scanner = ToolFactory.createScanner(false, false, false);
-	 *   scanner.setSourceBuffer("int i = 0;".toCharArray());
+	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
 	 *     int token = scanner.getNextToken();
 	 *     if (token == ITerminalSymbols.TokenNameEOF) break;

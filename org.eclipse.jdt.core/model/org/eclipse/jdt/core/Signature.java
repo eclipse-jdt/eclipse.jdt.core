@@ -339,7 +339,7 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
 public static String createTypeSignature(String typeName, boolean isResolved) {
 	try {
 		Scanner scanner = new Scanner();
-		scanner.setSourceBuffer(typeName.toCharArray());
+		scanner.setSource(typeName.toCharArray());
 		int token = scanner.getNextToken();
 		StringBuffer sig = new StringBuffer();
 		int arrayCount = 0;

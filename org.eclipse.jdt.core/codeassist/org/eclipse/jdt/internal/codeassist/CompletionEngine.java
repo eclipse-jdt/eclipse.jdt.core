@@ -2248,7 +2248,7 @@ public final class CompletionEngine
 			
 			// compute variable name for base type
 			try{
-				nameScanner.setSourceBuffer(sourceName);
+				nameScanner.setSource(sourceName);
 				switch (nameScanner.getNextToken()) {
 					case TokenNameint :
 					case TokenNamebyte :
@@ -2299,7 +2299,7 @@ public final class CompletionEngine
 				
 				// completion must be an identifier (not a keyword, ...).
 				try{
-					nameScanner.setSourceBuffer(name);
+					nameScanner.setSource(name);
 					if(nameScanner.getNextToken() != TokenNameIdentifier)
 						continue next;
 				} catch(InvalidInputException e){

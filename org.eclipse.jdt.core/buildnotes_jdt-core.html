@@ -32,11 +32,19 @@ What's new in this drop</h2>
 			has been closed.</li>
 	</ul>
 </li>
+<li> IScanner API :
+	<ul>
+		<li> added <code>IScanner#getSource</code> so as to retrieve the scanner original source
+		<li> renamed <code>IScanner#setSourceBuffer</code> into <code>IScanner#setSource</code>
+	</ul>
+</li>	
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12380">12380</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12419">12419</a>
+api: IScanner - missing (?) getSourceBuffer
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12380">12380</a>
 AST/DOM: resolveTypeBinding() on the second operand of a instanceof expression return null 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9790">9790</a>
 Add constructors from superclass inserts in wrong place 

@@ -2350,7 +2350,7 @@ private boolean isKeyword(char[] tokenSource) {
 	}
 	try {
 		Scanner scanner = new Scanner();
-		scanner.setSourceBuffer(tokenSource);
+		scanner.setSource(tokenSource);
 		int token = scanner.getNextToken();
 		char[] currentKeyword;
 		try {

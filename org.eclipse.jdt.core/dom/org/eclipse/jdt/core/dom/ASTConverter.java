@@ -49,7 +49,7 @@ class ASTConverter {
 	
 	public CompilationUnit convert(CompilationUnitDeclaration unit, char[] source) {
 		this.compilationUnitSource = source;
-		scanner.setSourceBuffer(source);
+		scanner.setSource(source);
 		CompilationUnit compilationUnit = this.ast.newCompilationUnit();
 		// handle the package declaration immediately
 		// There is no node corresponding to the package declaration

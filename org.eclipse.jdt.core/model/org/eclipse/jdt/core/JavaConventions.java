@@ -74,7 +74,7 @@ private static synchronized char[] scannedIdentifier(String id) {
 		return null;
 	}
 	try {
-		SCANNER.setSourceBuffer(id.toCharArray());
+		SCANNER.setSource(id.toCharArray());
 		int token = SCANNER.getNextToken();
 		char[] currentIdentifier;
 		try {

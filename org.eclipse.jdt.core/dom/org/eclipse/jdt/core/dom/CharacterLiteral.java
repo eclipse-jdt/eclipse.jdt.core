@@ -109,7 +109,7 @@ public class CharacterLiteral extends Expression {
 		}
 		Scanner scanner = getAST().scanner;
 		char[] source = value.toCharArray();
-		scanner.setSourceBuffer(source);
+		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
 			int tokenType = scanner.getNextToken();

@@ -924,7 +924,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 	public String formatSourceString(String sourceString) {
 		char[] sourceChars = sourceString.toCharArray();
 		formattedSource = new StringBuffer(sourceChars.length);
-		scanner.setSourceBuffer(sourceChars);
+		scanner.setSource(sourceChars);
 		format();
 		return formattedSource.toString();
 	}
@@ -1977,7 +1977,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 		// to remember the first token of the line
 		int previousToken = -1;
 		// to remember the previous token.
-		splitScanner.setSourceBuffer(stringToSplit.toCharArray());
+		splitScanner.setSource(stringToSplit.toCharArray());
 
 		try {
 			// start the loop

@@ -235,7 +235,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int selectionEnd) {
 
 		Scanner scanner = new Scanner();
-		scanner.setSourceBuffer(source);
+		scanner.setSource(source);
 		
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;

@@ -25,7 +25,7 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
 
-	// 1.4 feature
+	// 1.4 feature 
 	private boolean assertMode;
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
@@ -1515,6 +1515,10 @@ public final int[] getLineEnds() {
 	System.arraycopy(lineEnds, 0, copy = new int[linePtr + 1], 0, linePtr + 1);
 	return copy;
 }
+
+public char[] getSource(){
+	return this.source;
+}
 final char[] optimizedCurrentTokenSource1() {
 	//return always the same char[] build only once
 
@@ -2729,18 +2733,25 @@ public final int searchLineNumber(int position) {
 	}
 	return m+2;
 }
-public final void setSourceBuffer(char[] sourceString){
+/** @deprecated - use #setSource instead */
+public final void setSourceBuffer(char[] source){
+	setSource(source);
+}
+public final void setSource(char[] source){
 	//the source-buffer is set to sourceString
 
-	source = sourceString;
+	if (source == null) {
+		this.source = new char[0];
+	} else {
+		this.source = source;
+	}
 	startPosition = -1;
 	initialPosition = currentPosition = 0;
 	containsAssertKeyword = false;
-	if (source == null) {
-		source = new char[0];
-	}
-	withoutUnicodeBuffer = new char[source.length];
+	withoutUnicodeBuffer = new char[this.source.length];
+
 }
+
 public String toString() {
 	if (startPosition == source.length)
 		return "EOF\n\n" + new String(source); //$NON-NLS-1$

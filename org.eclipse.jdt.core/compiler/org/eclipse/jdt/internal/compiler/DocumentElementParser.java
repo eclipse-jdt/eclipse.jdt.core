@@ -1045,7 +1045,7 @@ public void parseCompilationUnit(ICompilationUnit unit) {
 						new CompilationResult(unit, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1065,7 +1065,7 @@ public void parseConstructor(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1085,7 +1085,7 @@ public void parseField(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1106,7 +1106,7 @@ public void parseImport(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1130,7 +1130,7 @@ public void parseInitializer(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1151,7 +1151,7 @@ public void parseMethod(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1172,7 +1172,7 @@ public void parsePackage(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}
@@ -1193,7 +1193,7 @@ public void parseType(char[] regionSource) {
 						new CompilationResult(regionSource, 0, 0), 
 						regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
-		scanner.setSourceBuffer(regionSource);
+		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 	}

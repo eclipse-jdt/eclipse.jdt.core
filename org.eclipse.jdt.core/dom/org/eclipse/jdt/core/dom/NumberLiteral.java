@@ -88,7 +88,7 @@ public class NumberLiteral extends Expression {
 		}
 		Scanner scanner = getAST().scanner;
 		char[] source = token.toCharArray();
-		scanner.setSourceBuffer(source);
+		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
 			int tokenType = scanner.getNextToken();

@@ -110,7 +110,7 @@ public abstract class Engine implements ITypeRequestor {
 			TypeDeclaration type = unit.types[i];
 			if (type.declarationSourceStart < position
 				&& type.declarationSourceEnd >= position) {
-				getParser().scanner.setSourceBuffer(
+				getParser().scanner.setSource(
 					unit.compilationResult.compilationUnit.getContents());
 				parseMethod(type, unit, position);
 				return;

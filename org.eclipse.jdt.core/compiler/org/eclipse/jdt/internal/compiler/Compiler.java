@@ -377,7 +377,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			return; //work already done ...
 
 		//real parse of the method....
-		parser.scanner.setSourceBuffer(
+		parser.scanner.setSource(
 			unit.compilationResult.compilationUnit.getContents());
 		if (unit.types != null) {
 			for (int i = unit.types.length; --i >= 0;)

@@ -1074,7 +1074,7 @@ public void parseTypeMemberDeclarations(
 			initialize();
 			goForClassBodyDeclarations();
 			/* scanner initialization */
-			scanner.setSourceBuffer(sourceUnit.getContents());
+			scanner.setSource(sourceUnit.getContents());
 			scanner.resetTo(start, end);
 			/* unit creation */
 			referenceContext = compilationUnit = unit;
@@ -1111,7 +1111,7 @@ public void parseTypeMemberDeclarations(
 		initialize();
 		goForClassBodyDeclarations();
 		/* scanner initialization */
-		scanner.setSourceBuffer(contents);
+		scanner.setSource(contents);
 		scanner.recordLineSeparator = false;
 		scanner.resetTo(start, end);
 

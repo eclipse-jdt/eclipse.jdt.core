@@ -4895,7 +4895,7 @@ public int[] getJavaDocPositions() {
 		}
 
 		//real parse of the method....
-		this.scanner.setSourceBuffer(
+		this.scanner.setSource(
 			unit.compilationResult.compilationUnit.getContents());
 		if (unit.types != null) {
 			for (int i = unit.types.length; --i >= 0;)
@@ -6963,7 +6963,7 @@ public CompilationUnitDeclaration parse(
 		goForCompilationUnit();
 
 		/* scanner initialization */
-		scanner.setSourceBuffer(sourceUnit.getContents());
+		scanner.setSource(sourceUnit.getContents());
 
 		/* unit creation */
 		referenceContext = 
@@ -6996,7 +6996,7 @@ public CompilationUnitDeclaration parse(
 		goForCompilationUnit();
 
 		/* scanner initialization */
-		scanner.setSourceBuffer(sourceUnit.getContents());
+		scanner.setSource(sourceUnit.getContents());
 		scanner.resetTo(start, end);
 		/* unit creation */
 		referenceContext = 

@@ -214,7 +214,7 @@ public class CorrectionEngine implements ProblemReasons {
 		try {
 			String source = unit.getSource();
 			Scanner scanner = new Scanner();
-			scanner.setSourceBuffer(source.toCharArray());
+			scanner.setSource(source.toCharArray());
 			
 			scanner.resetTo(correctionStart, correctionEnd);
 			int token = 0;

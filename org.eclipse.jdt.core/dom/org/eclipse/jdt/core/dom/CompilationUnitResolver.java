@@ -194,7 +194,7 @@ class CompilationUnitResolver extends Compiler {
 		
 		//fill the methods bodies in order for the code to be generated
 		//real parse of the method....
-		parser.scanner.setSourceBuffer(source);
+		parser.scanner.setSource(source);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
 			for (int i = types.length; --i >= 0;)
