@@ -1092,6 +1092,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (statement instanceof Expression) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
+				if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+					this.scribe.printNewLine();
+				}
 			} else if (statement instanceof LocalDeclaration) {
 				LocalDeclaration currentLocal = (LocalDeclaration) statement;
 				if (i < (statementsLength - 1)) {
@@ -1103,17 +1106,25 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						if (currentLocal.declarationSourceStart != nextLocal.declarationSourceStart) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 							this.scribe.printTrailingComment();
+							if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+								this.scribe.printNewLine();
+							}
 						}
 					} else {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
+						if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+							this.scribe.printNewLine();
+						}
 					}
 				} else {
 					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
+					if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+						this.scribe.printNewLine();
+					}
 				}
-			}
-			if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+			} else if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
 				this.scribe.printNewLine();
 			}
 		}
