@@ -2623,6 +2623,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired
 	 * @exception CoreException if the operation failed.
+	 * @since 2.1
 	 */
 	public static void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
