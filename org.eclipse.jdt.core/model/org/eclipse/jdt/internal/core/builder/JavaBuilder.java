@@ -299,7 +299,7 @@ private SimpleLookupTable findDeltas() {
 	return deltas;
 }
 
-private State getLastState(IProject project) {
+public State getLastState(IProject project) {
 	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState(project, notifier.monitor);
 }
 

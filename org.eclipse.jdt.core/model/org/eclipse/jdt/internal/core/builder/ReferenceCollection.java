@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
-import java.util.*;
-
 public class ReferenceCollection {
 
 char[][][] qualifiedNameReferences; // contains no simple names as in just 'a' which is kept in simpleNameReferences instead
@@ -120,14 +118,16 @@ static {
 		InternedSimpleNames[i] = new NameSet(37);
 }
 
-static char[][][] internQualifiedNames(ArrayList qualifiedStrings) {
+static char[][][] internQualifiedNames(StringSet qualifiedStrings) {
 	if (qualifiedStrings == null) return EmptyQualifiedNames;
-	int length = qualifiedStrings.size();
+	int length = qualifiedStrings.elementSize;
 	if (length == 0) return EmptyQualifiedNames;
 
 	char[][][] result = new char[length][][];
-	for (int i = 0; i < length; i++)
-		result[i] = CharOperation.splitOn('/', ((String) qualifiedStrings.get(i)).toCharArray());
+	String[] strings = qualifiedStrings.values;
+	for (int i = 0, l = strings.length; i < l; i++)
+		if (strings[i] != null)
+			result[--length] = CharOperation.splitOn('/', strings[i].toCharArray());
 	return internQualifiedNames(result);
 }
 
@@ -163,14 +163,16 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	return keepers;
 }
 
-static char[][] internSimpleNames(ArrayList simpleStrings) {
+static char[][] internSimpleNames(StringSet simpleStrings) {
 	if (simpleStrings == null) return EmptySimpleNames;
-	int length = simpleStrings.size();
+	int length = simpleStrings.elementSize;
 	if (length == 0) return EmptySimpleNames;
 
 	char[][] result = new char[length][];
-	for (int i = 0; i < length; i++)
-		result[i] = ((String) simpleStrings.get(i)).toCharArray();
+	String[] strings = simpleStrings.values;
+	for (int i = 0, l = strings.length; i < l; i++)
+		if (strings[i] != null)
+			result[--length] = strings[i].toCharArray();
 	return internSimpleNames(result, true);
 }
 
