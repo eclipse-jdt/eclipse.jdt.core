@@ -214,7 +214,7 @@ public void testIsOnClasspath() throws CoreException {
 public void _testCommit2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		this.createProject("SimpleProject");
+		this.createJavaProject("SimpleProject", new String[] {"src"}, "bin");
 		this.createFolder("/SimpleProject/src/native.1");
 		String source = 
 			"class X {}";
