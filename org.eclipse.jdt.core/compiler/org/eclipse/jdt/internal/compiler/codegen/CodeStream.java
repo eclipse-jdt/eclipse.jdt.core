@@ -1849,16 +1849,16 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 				if (syntheticArgType != targetEnclosingType) {
 					currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
 				}
-				if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
-					enclosingInstance.generateCode(currentScope, this, true);
-					if (syntheticArgType == targetEnclosingType){
-						this.dup();
-					} 
-					this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
-					this.pop();
-				} else {
-					enclosingInstance.generateCode(currentScope, this, syntheticArgType == targetEnclosingType);
-				}			
+				//if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+				enclosingInstance.generateCode(currentScope, this, true);
+				if (syntheticArgType == targetEnclosingType){
+					this.dup();
+				} 
+				this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
+				this.pop();
+				//} else {
+				//	enclosingInstance.generateCode(currentScope, this, syntheticArgType == targetEnclosingType);
+				//}			
 			} else {
 				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
 				if (emulationPath == null) {
@@ -1871,13 +1871,13 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 	} else { // we may still have an enclosing instance to consider
 		if (enclosingInstance != null) {
 			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
-			if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
-				enclosingInstance.generateCode(currentScope, this, true);
-				this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
-				this.pop();
-			} else {
-				enclosingInstance.generateCode(currentScope, this, false); // do not want the value
-			}			
+			//if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+			enclosingInstance.generateCode(currentScope, this, true);
+			this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
+			this.pop();
+			//} else {
+			//	enclosingInstance.generateCode(currentScope, this, false); // do not want the value
+			//}			
 		}
 	}
 	// generate the synthetic outer arguments then
