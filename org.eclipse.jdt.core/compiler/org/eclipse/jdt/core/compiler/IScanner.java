@@ -96,7 +96,7 @@ public interface IScanner {
 
 	/**
 	 * Reposition the scanner on some portion of the original source. Once reaching the given <code>endPosition</code>
-	 * it will anser EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
+	 * it will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
 	 */
 	void resetTo(int startPosition, int endPosition);
 
