@@ -58,7 +58,8 @@ protected void verify(IJavaElement element) throws JavaModelException {
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 	}
 	if (elementType == IJavaElement.COMPILATION_UNIT) {
-		if (((ICompilationUnit) element).isWorkingCopy()) {
+		CompilationUnit cu = (CompilationUnit)element;
+		if (cu.isWorkingCopy() && !cu.isPrimary()) {
 			error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		}
 	}

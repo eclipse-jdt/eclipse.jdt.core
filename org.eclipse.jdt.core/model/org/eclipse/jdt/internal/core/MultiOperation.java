@@ -239,8 +239,11 @@ public abstract class MultiOperation extends JavaModelOperation {
 			case IJavaElement.COMPILATION_UNIT :
 				if (destType != IJavaElement.PACKAGE_FRAGMENT)
 					error(IJavaModelStatusConstants.INVALID_DESTINATION, element);
-				else if (isMove() && ((ICompilationUnit) element).isWorkingCopy())
-					error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
+				else {
+					CompilationUnit cu = (CompilationUnit)element;
+					if (isMove() && cu.isWorkingCopy() && !cu.isPrimary())
+						error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
+				}
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				IPackageFragment fragment = (IPackageFragment) element;
