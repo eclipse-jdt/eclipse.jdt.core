@@ -364,7 +364,14 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 							updatePackageStatement(domCU, newFragName);
 							IBuffer buffer = cu.getBuffer();
 							String bufferContents = buffer.getContents();
-							String cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+							String domCUContents = domCU.getContents();
+							String cuContents = null;
+							if (domCUContents != null) {
+								cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+							} else {
+								// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=11285
+								cuContents = bufferContents;//$NON-NLS-1$
+							}
 							buffer.setContents(cuContents);
 							cu.save(null, false);
 						}
