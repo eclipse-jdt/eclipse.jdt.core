@@ -479,7 +479,7 @@ public class IncrementalTests extends Tests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 	
 			env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
@@ -491,7 +491,7 @@ public class IncrementalTests extends Tests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 
 			env.addClass(root, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
@@ -503,7 +503,7 @@ public class IncrementalTests extends Tests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 
 		} catch(StackOverflowError e){
