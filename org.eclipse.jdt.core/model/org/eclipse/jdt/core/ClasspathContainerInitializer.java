@@ -65,6 +65,6 @@ public abstract class ClasspathContainerInitializer {
      * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
      * @see IClasspathContainer
      */
-    public abstract void initialize(IPath containerPath, IJavaProject project) throws JavaModelException;
+    public abstract void initialize(IPath containerPath, IJavaProject project) throws CoreException;
 }
 

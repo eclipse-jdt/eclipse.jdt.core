@@ -457,6 +457,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					container = (IClasspathContainer)projectContainers.get(containerPath);
 					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 					ok = true;
+				} catch (CoreException e){
+					throw new JavaModelException(e);
 				} finally {
 					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
 				}
@@ -1082,7 +1084,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see IWorkingCopy
 	 * @since 2.0
 	 */
-	public IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
+	public static IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
 		
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
