@@ -58,17 +58,18 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL("converterJclMin");
-		setUpJavaProject("Converter"); //$NON-NLS-1$
-		
-		setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
+			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
 				null);
 		}		
+
+		setUpJavaProject("Converter"); //$NON-NLS-1$
+		setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {

@@ -827,7 +827,7 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	);
 	assertSearchResults(
 		"Starting search...\n" + 
-		getExternalJCLPathString() + " java.lang.Object\n" + 
+		getExternalJCLPathString("1.5") + " java.lang.Object\n" + 
 		"Done searching.",
 		result);
 }

@@ -209,17 +209,17 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL("converterJclMin");
-
-		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
+			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
 				null);
 		}		
+		
+		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertNotNull("No java project", javaProject);
 		IPackageFragment[] packageFragments = javaProject.getPackageFragments();
 		assertNotNull("No package fragments", packageFragments);

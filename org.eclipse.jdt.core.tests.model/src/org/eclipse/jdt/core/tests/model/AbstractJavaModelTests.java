@@ -715,19 +715,19 @@ protected void assertDeltas(String message, String expected) {
 							}
 						}
 					}
-				// inclusion patterns
-				IPath[] inclusionPaths;
-				if (inclusionPatterns == null) {
-					inclusionPaths = new IPath[0];
-				} else {
-					String[] patterns = inclusionPatterns[i];
-					int length = patterns.length;
-					inclusionPaths = new IPath[length];
-					for (int j = 0; j < length; j++) {
-						String inclusionPattern = patterns[j];
-						inclusionPaths[j] = new Path(inclusionPattern);
+					// inclusion patterns
+					IPath[] inclusionPaths;
+					if (inclusionPatterns == null) {
+						inclusionPaths = new IPath[0];
+					} else {
+						String[] patterns = inclusionPatterns[i];
+						int length = patterns.length;
+						inclusionPaths = new IPath[length];
+						for (int j = 0; j < length; j++) {
+							String inclusionPattern = patterns[j];
+							inclusionPaths[j] = new Path(inclusionPattern);
+						}
 					}
-				}
 					// exclusion patterns
 					IPath[] exclusionPaths;
 					if (exclusionPatterns == null) {
@@ -752,13 +752,12 @@ protected void assertDeltas(String message, String expected) {
 				}
 				for (int i= 0; i < libLength; i++) {
 					String lib = libraries[i];
-					if (lib.startsWith("JCL_LIB")) {
-						// ensure JCL variables are set
-						if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
-							JavaCore.setClasspathVariables(
-								new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-								new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-								null);
+					if (lib.startsWith("JCL")) {
+						try {
+							// ensure JCL variables are set
+							setUpJCLClasspathVariables(compliance);
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
 					}
 					if (lib.equals(lib.toUpperCase())) { // all upper case is a var 
@@ -1352,19 +1351,7 @@ protected void assertDeltas(String message, String expected) {
 		copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
 		
 		// ensure variables are set
-		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
-			if ("1.5".equals(compliance)) {
-				JavaCore.setClasspathVariables(
-					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
-					null);
-			} else {
-				JavaCore.setClasspathVariables(
-					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-					null);
-			}
-		}
+		setUpJCLClasspathVariables(compliance);
 	
 		// create project
 		final IProject project = getWorkspaceRoot().getProject(projectName);
@@ -1377,17 +1364,48 @@ protected void assertDeltas(String message, String expected) {
 		getWorkspace().run(populate, null);
 		IJavaProject javaProject = JavaCore.create(project);
 		if ("1.5".equals(compliance)) {
+			// set options
 			Map options = new HashMap();
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 			javaProject.setOptions(options);
+			
+			// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+			IClasspathEntry[] classpath = javaProject.getRawClasspath();
+			IPath jclLib = new Path("JCL_LIB");
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getPath().equals(jclLib)) {
+					classpath[i] = JavaCore.newVariableEntry(new Path("JCL15_LIB"), new Path("JCL15_SRC"), entry.getSourceAttachmentRootPath(), entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.isExported());
+					break;
+				}
+			}
+			javaProject.setRawClasspath(classpath, null);
 		}
 		return javaProject;
 	}
+	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
+		if ("1.5".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
+				setupExternalJCL("jclMin1.5");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
+					null);
+			} 
+		} else {
+			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
+				setupExternalJCL("jclMin");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+					null);
+			} 
+		}	
+	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL("jclMin");
 		
 		// ensure autobuilding is turned off
 		IWorkspaceDescription description = getWorkspace().getDescription();
