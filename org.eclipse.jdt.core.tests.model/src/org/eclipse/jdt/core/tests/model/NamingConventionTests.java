@@ -509,4 +509,52 @@ public void testSuggestGetterName005() throws CoreException {
 		"isFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
+public void testSuggestGetterName006() throws CoreException {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		project,
+		"isSomething".toCharArray(), //$NON-NLS-1$
+		0,
+		true,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"isSomething", //$NON-NLS-1$
+		new String(suggestion));
+}
+public void testSuggestGetterName007() throws CoreException {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		project,
+		"isSomething".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"getIsSomething", //$NON-NLS-1$
+		new String(suggestion));
+}
+public void testSuggestSetterName001() throws CoreException {
+	char[] suggestion = NamingConventions.suggestSetterName(
+		project,
+		"isSomething".toCharArray(), //$NON-NLS-1$
+		0,
+		true,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"setSomething", //$NON-NLS-1$
+		new String(suggestion));
+}
+public void testSuggestSetterName002() throws CoreException {
+	char[] suggestion = NamingConventions.suggestSetterName(
+		project,
+		"isSomething".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"setIsSomething", //$NON-NLS-1$
+		new String(suggestion));
+}
 }

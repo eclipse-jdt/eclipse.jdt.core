@@ -108,9 +108,12 @@ public final class NamingConventions {
 				char[] prefix = prefixes[i];
 				if (CharOperation.startsWith(name, prefix)) {
 					int currLen = prefix.length;
-					if (bestLength < currLen && name.length != currLen) {
-						withoutPrefixName = CharOperation.subarray(name, currLen, name.length);
-						bestLength = currLen;
+					boolean lastCharIsLetter = Character.isLetter(prefix[currLen - 1]);
+					if(!lastCharIsLetter || (lastCharIsLetter && name.length > currLen && Character.isUpperCase(name[currLen]))) {
+						if (bestLength < currLen && name.length != currLen) {
+							withoutPrefixName = CharOperation.subarray(name, currLen, name.length);
+							bestLength = currLen;
+						}
 					}
 				}
 			}
@@ -558,13 +561,50 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
+	 * 
 	 * @see Flags
+	 * @deprecated
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {
-		return suggestNewName(
-			CharOperation.concat(SETTER_NAME, suggestAccessorName(project, fieldName, modifiers)),
-			excludedNames
-		);
+		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
+	}
+	/**
+	 * Suggest name for a setter method. The name is computed from field's name.
+	 * 
+	 * @param project project which contains the field.
+	 * @param fieldName field's name's.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
+	 * @param isBoolean <code>true</code> if the field's type is boolean
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return char[] a name.
+	 * @see Flags
+	 */
+	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
+
+		if (isBoolean) {
+			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
+			int prefixLen =  GETTER_BOOL_NAME.length;
+			if (CharOperation.startsWith(name, GETTER_BOOL_NAME) 
+				&& name.length > prefixLen && Character.isUpperCase(name[prefixLen])) {
+				name = CharOperation.subarray(name, prefixLen, name.length);
+				return suggestNewName(
+					CharOperation.concat(SETTER_NAME, suggestAccessorName(project, name, modifiers)),
+					excludedNames
+				);
+			} else {
+				return suggestNewName(
+					CharOperation.concat(SETTER_NAME, suggestAccessorName(project, fieldName, modifiers)),
+					excludedNames
+				);
+			}
+		} else {
+			return suggestNewName(
+				CharOperation.concat(SETTER_NAME, suggestAccessorName(project, fieldName, modifiers)),
+				excludedNames
+			);
+		}
 	}
 	
 	/**
@@ -577,14 +617,33 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return String a name.
+	 * 
 	 * @see Flags
+	 * @deprecated
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
+		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
+	}
+	/**
+	 * Suggest name for a setter method. The name is computed from field's name.
+	 * 
+	 * @param project project which contains the field.
+	 * @param fieldName field's name's.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
+	 * @param isBoolean <code>true</code> if the field's type is boolean
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String a name.
+	 * @see Flags
+	 */
+	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(
 			suggestSetterName(
 				project,
 				fieldName.toCharArray(),
 				modifiers,
+				isBoolean,
 				convertStringToChars(excludedNames)));
 	}
 	

@@ -47,12 +47,23 @@ non public methods to scenario where thrown exceptions are not compatible (probl
 This problem is optional, and its severity is also controlled by the <code>JavaCore</code>
 preference <code>"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"</code>.
 </li>
+<li> API Change in org.eclipse.jdt.core.NamingConventions: a new boolean parameter 'isBoolean' added. The value of this parameter is <code>true</code> if the field's type is boolean.
+	<ul>
+	<li><code>suggestSetterName(IJavaProject,char[],int,char[][])</code> become <code>suggestSetterName(IJavaProject,char[],int,boolean,char[][])</code>
+	</li>
+	<li><code>suggestSetterName(IJavaProject,String,int,String[])</code> become <code>suggestSetterName(IJavaProject,String,int,boolean,String[])</code>
+	</li>
+	</ul>
+	
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30113">30113</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30102">30102</a>
+NamingConvention: Tests fail 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30113">30113</a>
 Wrong positions in the outliner for a field that follows an initializer 
-<br<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30224">30224</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30224">30224</a>
 No JavaElement delta when renaming non-Java project 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30108">30108</a>
 not clear what 'modifiers' in NamingConventions means 
