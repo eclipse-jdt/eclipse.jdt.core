@@ -20,15 +20,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.CRC32;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -38,9 +34,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.Index;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
@@ -277,33 +271,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 			if (request.equals(this.awaitingJobs[i])) return;
 	}
 
-	final IPath container = project.getFullPath();
-	IContainer folder = container.equals(sourceFolder)
-		? (IContainer) project
-		 : (IContainer) ResourcesPlugin.getWorkspace().getRoot().getFolder(sourceFolder);
-	try {
-// KJ : Release next week
-//		folder.accept(new IResourceProxyVisitor() {
-//			public boolean visit(IResourceProxy proxy) throws CoreException {
-//				if (proxy.getType() == IResource.FILE) {
-//					if (Util.isJavaFileName(proxy.getName())) { 
-//						IResource resource = proxy.requestResource();
-//						if (!Util.isExcluded(resource, exclusionPattern))
-		folder.accept(new IResourceVisitor() {
-			public boolean visit(IResource resource) throws CoreException {
-				if (resource.getType() == IResource.FILE) {
-					if (Util.isJavaFileName(resource.getName()) && !Util.isExcluded(resource, exclusionPattern)) {
-						addSource((IFile)resource, container);
-					}
-					return false;
-				}
-				return true;
-			}
-		});
-	} catch (CoreException e) {
-		// Folder does not exist.
-		// It will be indexed only when DeltaProcessor detects its addition
-	}
+	this.request(new AddFolderToIndex(sourceFolder, project, exclusionPattern, this));
 }
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
@@ -424,30 +392,15 @@ public synchronized void removeIndexFamily(IPath path) {
  * Remove the content of the given source folder from the index.
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder) {
-		try {
-			/* ensure no concurrent write access to index */
-			IPath indexPath = javaProject.getPath();
-			IIndex index = this.getIndex(indexPath, true, /*reuse index file*/ false /*create if none*/);
-			if (index == null) return;
-			ReadWriteMonitor monitor = this.getMonitorFor(index);
-			if (monitor == null) return; // index got deleted since acquired
+	IProject project = javaProject.getProject();
+	if (this.jobEnd >= this.jobStart) {
+		// check if a job to index the project is not already in the queue
+		IndexRequest request = new IndexAllProject(project, this);
+		for (int i = this.jobEnd; i >= this.jobStart; i--)
+			if (request.equals(this.awaitingJobs[i])) return;
+	}
 
-			try {
-				monitor.enterRead(); // ask permission to read
-				IQueryResult[] results = index.queryInDocumentNames(sourceFolder.toString());
-				// all file names belonging to the folder or its subfolders
-				for (int i = 0, max = results == null ? 0 : results.length; i < max; i++)
-					// TODO: Should not remove excluded resources
-					this.remove(results[i].getPath(), indexPath); // write lock will be acquired by the remove operation
-			} finally {
-				monitor.exitRead(); // free read lock
-			}
-		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to remove " + sourceFolder.toString() + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
-		}
+	this.request(new RemoveFolderFromIndex(sourceFolder, project, this));
 }
 /**
  * Flush current state
