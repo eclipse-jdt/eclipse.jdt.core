@@ -46,9 +46,9 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
  * given type within the specified region, in the context of
  * the given project.
  */
-public CreateTypeHierarchyOperation(IType element, IRegion region, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IRegion region, IJavaProject project, ICompilationUnit[] workingCopies, IType element, boolean computeSubtypes) throws JavaModelException {
 	super(element);
-	this.typeHierarchy = new RegionBasedTypeHierarchy(region, project, element, computeSubtypes);
+	this.typeHierarchy = new RegionBasedTypeHierarchy(region, project, workingCopies, element, computeSubtypes);
 }
 /**
  * Constructs an operation to create a type hierarchy for the

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.hierarchy;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
@@ -38,12 +39,13 @@ public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	protected IJavaProject fProject;
 /**
  * Creates a TypeHierarchy on the types in the specified region,
+ * considering first the given working copies,
  * using the given project for a name lookup contenxt. If a specific
  * type is also specified, the type hierarchy is pruned to only
  * contain the branch including the specified type.
  */
-public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, IType type, boolean computeSubtypes) throws JavaModelException {
-	super(type, null/*no working copies*/, (IJavaSearchScope)null, computeSubtypes);
+public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, ICompilationUnit[] workingCopies, IType type, boolean computeSubtypes) throws JavaModelException {
+	super(type, workingCopies, (IJavaSearchScope)null, computeSubtypes);
 	fRegion = region;
 	fProject = project;
 }

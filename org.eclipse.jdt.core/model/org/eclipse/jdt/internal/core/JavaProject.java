@@ -1991,12 +1991,25 @@ public class JavaProject
 		IRegion region,
 		IProgressMonitor monitor)
 		throws JavaModelException {
+			
+		return newTypeHierarchy(region, DefaultWorkingCopyOwner.PRIMARY, monitor);
+	}
+
+	/**
+	 * @see IJavaProject
+	 */
+	public ITypeHierarchy newTypeHierarchy(
+		IRegion region,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException {
 
 		if (region == null) {
 			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
 		}
+		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
-			new CreateTypeHierarchyOperation(null, region, this, true);
+			new CreateTypeHierarchyOperation(region, this, workingCopies, null, true);
 		runOperation(op, monitor);
 		return op.getResult();
 	}
@@ -2009,6 +2022,19 @@ public class JavaProject
 		IRegion region,
 		IProgressMonitor monitor)
 		throws JavaModelException {
+			
+		return newTypeHierarchy(type, region, DefaultWorkingCopyOwner.PRIMARY, monitor);
+	}
+
+	/**
+	 * @see IJavaProject
+	 */
+	public ITypeHierarchy newTypeHierarchy(
+		IType type,
+		IRegion region,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException {
 
 		if (type == null) {
 			throw new IllegalArgumentException(Util.bind("hierarchy.nullFocusType"));//$NON-NLS-1$
@@ -2016,8 +2042,9 @@ public class JavaProject
 		if (region == null) {
 			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
 		}
+		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
-			new CreateTypeHierarchyOperation(type, region, this, true);
+			new CreateTypeHierarchyOperation(region, this, workingCopies, type, true);
 		runOperation(op, monitor);
 		return op.getResult();
 	}
