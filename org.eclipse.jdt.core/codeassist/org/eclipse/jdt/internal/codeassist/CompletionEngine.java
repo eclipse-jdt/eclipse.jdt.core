@@ -2308,7 +2308,10 @@ public final class CompletionEngine
 				for (int i = 0; i <= expectedTypesPtr; i++) {
 					if(expectedTypes[i] instanceof ReferenceBinding) {
 						ReferenceBinding refBinding = (ReferenceBinding)expectedTypes[i];
-						if(!unitScope.isDefinedInSameUnit(refBinding)) {
+						boolean inSameUnit = unitScope.isDefinedInSameUnit(refBinding);
+						
+						// top level types of the current unit are already proposed.
+						if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
 							int relevance = R_DEFAULT + R_CASE + R_EXPECTED_TYPE;
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();

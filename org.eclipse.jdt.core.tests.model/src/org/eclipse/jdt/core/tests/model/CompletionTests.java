@@ -159,6 +159,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName1"));
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
 	suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
+	suite.addTest(new CompletionTests("testCompletionMemberType"));
 	
 	return suite;
 }
@@ -2236,6 +2237,23 @@ public void testCompletionExpectedTypeIsNotValid() throws JavaModelException {
 
 	assertEquals(
 		"element:CompletionExpectedTypeIsNotValid    completion:CompletionExpectedTypeIsNotValid    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25815
+*/
+public void testCompletionMemberType() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMemberType.java");
+
+	String str = cu.getSource();
+	String completeBehind = "new ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CompletionMemberType    completion:CompletionMemberType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:Y    completion:Y    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());
 }
 }
