@@ -295,20 +295,13 @@ public class TryStatement extends SubRoutineStatement {
 					}
 					if (i == maxCatches - 1) {
 						this.exitAnyExceptionHandler();
-						if (subRoutineStartLabel != null) {
-							if (!catchExits[i] && preserveCurrentHandler) {
-								requiresNaturalJsr = !nonReturningSubRoutine;
-								codeStream.goto_(endLabel);
-							}
-						}
-					} else {
-						if (!catchExits[i] && preserveCurrentHandler) {
-							if (nonReturningSubRoutine) {
-								codeStream.goto_(subRoutineStartLabel);
-							} else {
-								requiresNaturalJsr = true;
-								codeStream.goto_(endLabel);
-							}
+					}
+					if (!catchExits[i] && preserveCurrentHandler) {
+						if (nonReturningSubRoutine) {
+							codeStream.goto_(subRoutineStartLabel);
+						} else {
+							requiresNaturalJsr = true;
+							codeStream.goto_(endLabel);
 						}
 					}
 				}
