@@ -70,6 +70,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(Initializer initializer, MethodScope scope);
 	void endVisit(InstanceOfExpression instanceOfExpression, BlockScope scope);
 	void endVisit(IntLiteral intLiteral, BlockScope scope);
+	void endVisit(IteratorForStatement forStatement, BlockScope scope);
 	void endVisit(LabeledStatement labeledStatement, BlockScope scope);
 	void endVisit(LocalDeclaration localDeclaration, BlockScope scope);
 	void endVisit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope);
@@ -153,6 +154,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(Initializer initializer, MethodScope scope);
 	boolean visit(InstanceOfExpression instanceOfExpression, BlockScope scope);
 	boolean visit(IntLiteral intLiteral, BlockScope scope);
+	boolean visit(IteratorForStatement forStatement, BlockScope scope);
 	boolean visit(LabeledStatement labeledStatement, BlockScope scope);
 	boolean visit(LocalDeclaration localDeclaration, BlockScope scope);
 	boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope);

@@ -198,6 +198,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(IntLiteral intLiteral, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(IteratorForStatement forStatement, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(LabeledStatement labeledStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -489,6 +492,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(IteratorForStatement forStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(LabeledStatement labeledStatement, BlockScope scope) {
