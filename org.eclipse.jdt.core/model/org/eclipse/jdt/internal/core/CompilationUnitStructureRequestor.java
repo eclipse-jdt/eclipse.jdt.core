@@ -244,31 +244,33 @@ public void enterEnum(TypeInfo typeInfo) {
  */
 public void enterField(FieldInfo fieldInfo) {
 
-		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
-		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		SourceField handle = null;
-		
-		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new SourceField(parentHandle, new String(fieldInfo.name));
-		}
-		else {
-			Assert.isTrue(false); // Should not happen
-		}
-		resolveDuplicates(handle);
-		
-		SourceFieldElementInfo info = new SourceFieldElementInfo();
-		info.fieldName = fieldInfo.name;
-		info.setNameSourceStart(fieldInfo.nameSourceStart);
-		info.setNameSourceEnd(fieldInfo.nameSourceEnd);
-		info.setSourceRangeStart(fieldInfo.declarationStart);
-		info.setFlags(fieldInfo.modifiers);
-		info.setTypeName(fieldInfo.type);
+	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
+	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
+	SourceField handle = null;
+	
+	if (parentHandle.getElementType() == IJavaElement.TYPE) {
+		handle = new SourceField(parentHandle, new String(fieldInfo.name));
+	}
+	else {
+		Assert.isTrue(false); // Should not happen
+	}
+	resolveDuplicates(handle);
+	
+	SourceFieldElementInfo info = new SourceFieldElementInfo();
+	info.fieldName = fieldInfo.name;
+	info.setNameSourceStart(fieldInfo.nameSourceStart);
+	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
+	info.setSourceRangeStart(fieldInfo.declarationStart);
+	info.setFlags(fieldInfo.modifiers);
+	info.setTypeName(fieldInfo.type);
+	
+	this.unitInfo.addAnnotationPositions(handle, fieldInfo.annotationPositions);
 
-		parentInfo.addChild(handle);
-		this.newElements.put(handle, info);
+	parentInfo.addChild(handle);
+	this.newElements.put(handle, info);
 
-		this.infoStack.push(info);
-		this.handleStack.push(handle);
+	this.infoStack.push(info);
+	this.handleStack.push(handle);
 }
 /**
  * @see ISourceElementRequestor
@@ -350,6 +352,7 @@ public void enterMethod(MethodInfo methodInfo) {
 	info.setArgumentTypeNames(methodInfo.parameterTypes);
 	info.setReturnType(methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType);
 	info.setExceptionTypeNames(methodInfo.exceptionTypes);
+	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);
 	parentInfo.addChild(handle);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
@@ -385,6 +388,7 @@ protected void enterType(TypeInfo typeInfo) {
 	info.setSourceFileName(this.sourceFileName);
 	info.setPackageName(this.packageName);
 	parentInfo.addChild(handle);
+	this.unitInfo.addAnnotationPositions(handle, typeInfo.annotationPositions);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
@@ -424,6 +428,7 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 		typeParameters[length] = handle;
 		elementInfo.typeParameters = typeParameters;
 	}
+	this.unitInfo.addAnnotationPositions(handle, typeParameterInfo.annotationPositions);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);

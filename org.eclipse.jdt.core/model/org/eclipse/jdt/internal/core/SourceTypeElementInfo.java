@@ -30,9 +30,9 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 
 	protected static final ISourceImport[] NO_IMPORTS = new ISourceImport[0];
 	protected static final InitializerElementInfo[] NO_INITIALIZERS = new InitializerElementInfo[0];
-	protected static final ISourceField[] NO_FIELDS = new ISourceField[0];
-	protected static final ISourceMethod[] NO_METHODS = new ISourceMethod[0];
-	protected static final ISourceType[] NO_TYPES = new ISourceType[0];
+	protected static final SourceField[] NO_FIELDS = new SourceField[0];
+	protected static final SourceMethod[] NO_METHODS = new SourceMethod[0];
+	protected static final SourceType[] NO_TYPES = new SourceType[0];
 	/**
 	 * The name of the superclass for this type. This name
 	 * is fully qualified for binary types and is NOT
@@ -94,23 +94,32 @@ public ISourceType getEnclosingType() {
  * @see ISourceType
  */
 public ISourceField[] getFields() {
+	SourceField[] fieldHandles = getFieldHandles();
+	int length = fieldHandles.length;
+	ISourceField[] fields = new ISourceField[length];
+	for (int i = 0; i < length; i++) {
+		try {
+			ISourceField field = (ISourceField) fieldHandles[i].getElementInfo();
+			fields[i] = field;
+		} catch (JavaModelException e) {
+			// ignore
+		}
+	}
+	return fields;
+}
+public SourceField[] getFieldHandles() {
 	int length = this.children.length;
 	if (length == 0) return NO_FIELDS;
-	ISourceField[] fields = new ISourceField[length];
+	SourceField[] fields = new SourceField[length];
 	int fieldIndex = 0;
 	for (int i = 0; i < length; i++) {
 		IJavaElement child = this.children[i];
-		if (child instanceof SourceField) {
-			try {
-				ISourceField field = (ISourceField)((SourceField)child).getElementInfo();
-				fields[fieldIndex++] = field;
-			} catch (JavaModelException e) {
-				// ignore
-			}
-		}
+		if (child instanceof SourceField)
+			fields[fieldIndex++] = (SourceField) child;
 	}
 	if (fieldIndex == 0) return NO_FIELDS;
-	System.arraycopy(fields, 0, fields = new ISourceField[fieldIndex], 0, fieldIndex);
+	if (fieldIndex < length)
+		System.arraycopy(fields, 0, fields = new SourceField[fieldIndex], 0, fieldIndex);
 	return fields;
 }
 /**
@@ -197,46 +206,65 @@ public int getKind() {
  * @see ISourceType
  */
 public ISourceType[] getMemberTypes() {
+	SourceType[] memberTypeHandles = getMemberTypeHandles();
+	int length = memberTypeHandles.length;
+	ISourceType[] memberTypes = new ISourceType[length];
+	for (int i = 0; i < length; i++) {
+		try {
+			ISourceType type = (ISourceType) memberTypeHandles[i].getElementInfo();
+			memberTypes[i] = type;
+		} catch (JavaModelException e) {
+			// ignore
+		}
+	}
+	return memberTypes;
+}
+public SourceType[] getMemberTypeHandles() {
 	int length = this.children.length;
 	if (length == 0) return NO_TYPES;
-	ISourceType[] memberTypes = new ISourceType[length];
+	SourceType[] memberTypes = new SourceType[length];
 	int typeIndex = 0;
 	for (int i = 0; i < length; i++) {
 		IJavaElement child = this.children[i];
-		if (child instanceof SourceType) {
-			try {
-				ISourceType type = (ISourceType)((SourceType)child).getElementInfo();
-				memberTypes[typeIndex++] = type;
-			} catch (JavaModelException e) {
-				// ignore
-			}
-		}
+		if (child instanceof SourceType)
+			memberTypes[typeIndex++] = (SourceType)child;
 	}
 	if (typeIndex == 0) return NO_TYPES;
-	System.arraycopy(memberTypes, 0, memberTypes = new ISourceType[typeIndex], 0, typeIndex);
+	if (typeIndex < length)
+		System.arraycopy(memberTypes, 0, memberTypes = new SourceType[typeIndex], 0, typeIndex);
 	return memberTypes;
 }
 /**
  * @see ISourceType
  */
 public ISourceMethod[] getMethods() {
-	int length = this.children.length;
-	if (length == 0) return NO_METHODS;
+	SourceMethod[] methodHandles = getMethodHandles();
+	int length = methodHandles.length;
 	ISourceMethod[] methods = new ISourceMethod[length];
 	int methodIndex = 0;
 	for (int i = 0; i < length; i++) {
-		IJavaElement child = this.children[i];
-		if (child instanceof SourceMethod) {
-			try {
-				ISourceMethod method = (ISourceMethod)((SourceMethod)child).getElementInfo();
-				methods[methodIndex++] = method;
-			} catch (JavaModelException e) {
-				// ignore
-			}
+		try {
+			ISourceMethod method = (ISourceMethod) methodHandles[i].getElementInfo();
+			methods[methodIndex++] = method;
+		} catch (JavaModelException e) {
+			// ignore
 		}
 	}
+	return methods;
+}
+public SourceMethod[] getMethodHandles() {
+	int length = this.children.length;
+	if (length == 0) return NO_METHODS;
+	SourceMethod[] methods = new SourceMethod[length];
+	int methodIndex = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = this.children[i];
+		if (child instanceof SourceMethod)
+			methods[methodIndex++] = (SourceMethod) child;
+	}
 	if (methodIndex == 0) return NO_METHODS;
-	System.arraycopy(methods, 0, methods = new ISourceMethod[methodIndex], 0, methodIndex);
+	if (methodIndex < length)
+		System.arraycopy(methods, 0, methods = new SourceMethod[methodIndex], 0, methodIndex);
 	return methods;
 }
 /**

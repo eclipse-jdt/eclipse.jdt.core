@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 
-/* package */ class CompilationUnitElementInfo extends OpenableElementInfo {
+public class CompilationUnitElementInfo extends OpenableElementInfo {
 
 	/**
 	 * The length of this compilation unit's source code <code>String</code>
@@ -24,6 +27,19 @@ import org.eclipse.jdt.core.ISourceRange;
 	 * was opened or last updated.
 	 */
 	protected long timestamp;
+	
+	/*
+	 * The positions of annotations for each element in this compilation unit.
+	 * A map from IJavaElement to long[]
+	 */
+	public HashMap annotationPositions;
+	
+public void addAnnotationPositions(IJavaElement handle, long[] positions) {
+	if (positions == null) return;
+	if (this.annotationPositions == null)
+		this.annotationPositions = new HashMap();
+	this.annotationPositions.put(handle, positions);
+}
 /**
  * Returns the length of the source string.
  */

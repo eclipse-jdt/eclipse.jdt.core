@@ -223,6 +223,16 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 			alloc.sourceStart);
 	}
 }
+private long[] collectAnnotationPositions(Annotation[] annotations) {
+	if (annotations == null) return null;
+	int length = annotations.length;
+	long[] result = new long[length];
+	for (int i = 0; i < length; i++) {
+		Annotation annotation = annotations[i];
+		result[i] = (((long) annotation.sourceStart) << 32) + annotation.declarationSourceEnd; 
+	}
+	return result;
+}
 protected void consumeAnnotationTypeMemberDeclarationHeader() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
@@ -865,6 +875,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			methodInfo.parameterNames = argumentNames;
 			methodInfo.exceptionTypes = thrownExceptionTypes;
 			methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
+			methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
 			requestor.enterConstructor(methodInfo);
 		}
 		if (reportReferenceInfo) {
@@ -915,6 +926,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		methodInfo.parameterNames = argumentNames;
 		methodInfo.exceptionTypes = thrownExceptionTypes;
 		methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
+		methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
 		requestor.enterMethod(methodInfo);
 	}		
 		
@@ -1015,6 +1027,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 				fieldInfo.type = typeName;
 				fieldInfo.nameSourceStart = fieldDeclaration.sourceStart;
 				fieldInfo.nameSourceEnd = fieldDeclaration.sourceEnd;
+				fieldInfo.annotationPositions = collectAnnotationPositions(fieldDeclaration.annotations);
 				requestor.enterField(fieldInfo);
 			}
 			this.visitIfNeeded(fieldDeclaration, declaringType);
@@ -1128,6 +1141,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
  					typeInfo.superclass = isEnumInit ? declaringType.name : null;
  					typeInfo.superinterfaces = interfaceNames;
  					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+					typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 					requestor.enterClass(typeInfo);
                }
             } else {
@@ -1142,6 +1156,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
  					typeInfo.superclass = CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
  					typeInfo.superinterfaces = interfaceNames;
  					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+					typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 					requestor.enterClass(typeInfo);
                }
             }
@@ -1167,6 +1182,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
 				typeInfo.superinterfaces = interfaceNames;
 				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+				typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 				requestor.enterInterface(typeInfo);
             }
             if (nestedTypeIndex == typeNames.length) {
@@ -1192,6 +1208,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
 				typeInfo.superinterfaces = interfaceNames;
 				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+				typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 				requestor.enterEnum(typeInfo);
             }
             if (nestedTypeIndex == typeNames.length) {
