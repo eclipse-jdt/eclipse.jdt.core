@@ -287,7 +287,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns the info for this handle.  
 	 * If this element is not already open, it and all of its parents are opened.
 	 * Does not return null.
-	 * NOTE: BinaryType infos are NJOT rooted under JavaElementInfo.
+	 * NOTE: BinaryType infos are NOT rooted under JavaElementInfo.
 	 * @exception JavaModelException if the element is not present or not accessible
 	 */
 	public Object getElementInfo() throws JavaModelException {
