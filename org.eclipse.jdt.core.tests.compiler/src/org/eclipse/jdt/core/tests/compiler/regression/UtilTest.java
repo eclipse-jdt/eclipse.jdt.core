@@ -225,7 +225,7 @@ public void test37() {
 public void test38() {
 
 	assertTrue("Path pattern matching failure",
-		!CharOperation.pathMatch("*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+		!CharOperation.pathMatch("/*.java".toCharArray(), "/hello/x/y/z/World/X.java".toCharArray(), true, '/'));
 }
 
 /*
@@ -284,7 +284,36 @@ public void test42() {
 	assertTrue("Path pattern matching failure-5",
 		!CharOperation.pathMatch("**/test/**".toCharArray(), "org/apache/test.java".toCharArray(), true, '/'));
 }
+/*
+ * Corner cases
+ */
+public void test43() {
 
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("/test/".toCharArray(), "/test/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		CharOperation.pathMatch("/test/**".toCharArray(), "/test/CVS/Entries".toCharArray(), true, '/'));
+}
+/*
+ * Corner cases
+ */
+public void test44() {
+		
+	assertTrue("Path pattern matching failure-1",
+		!CharOperation.pathMatch("test".toCharArray(), "test/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		!CharOperation.pathMatch("**/test".toCharArray(), "test/CVS/Entries".toCharArray(), true, '/'));
+}
+/*
+ * Corner cases
+ */
+public void test45() {
+		
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("/test/test1/".toCharArray(), "/test/test1/test/test1".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		!CharOperation.pathMatch("/test/test1".toCharArray(), "/test/test1/test/test1".toCharArray(), true, '/'));
+}
 public static Class testClass() {
 	return UtilTest.class;
 }
