@@ -3286,9 +3286,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");		
 	}		
 	// test member types
-	// TODO (philippe) Type mismatch b/w Thread & <T extends X.MX<Runnable>
-	public void _test112() {
-		this.runConformTest(
+	public void test112() {
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3306,7 +3305,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-			"SUCCESS");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\r\n" + 
+			"	void foo(X<Thread>.MX.MMX<X> mx) {\r\n" + 
+			"	           ^^^^^^\n" + 
+			"Type mismatch: Cannot convert from Thread to the bounded parameter <T extends X.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n");		
 	}			
 	public void test113() {
 		this.runConformTest(
@@ -3381,4 +3385,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");		
 	}			
+	// test member types
+	// TODO (philippe) Type mismatch b/w Thread & <T extends X.MX<Runnable>
+	public void test117() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        \n" + 
+				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    void foo(X<X.MX.MMX>.MX.MMX<X> mx) {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    class MX <MT> {\n" + 
+				"        class MMX <MMT> {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}				
 }
