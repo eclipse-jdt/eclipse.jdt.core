@@ -631,41 +631,41 @@ ConstructorDeclaration ::= ConstructorHeader ';'
 ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Primary '.' OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= Name '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Primary '.' OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.This); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.This); $break ./
 /:$readableName ExplicitConstructorInvocation:/
 
@@ -1057,14 +1057,14 @@ AllocationHeader ::= 'new' ClassType '(' ArgumentListopt ')'
 /.$putCase consumeAllocationHeader(); $break ./
 /:$readableName AllocationHeader:/
 
-ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= 'new' OnlyTypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionWithTypeArguments(); $break ./
 
 ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 
 ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -1075,7 +1075,7 @@ ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' Si
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1149,16 +1149,16 @@ FieldAccess ::= 'super' '.' 'Identifier'
 MethodInvocation ::= Name '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationName(); $break ./
 
-MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+MethodInvocation ::= Name '.' OnlyTypeArguments 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationNameWithTypeArguments(); $break ./
 
-MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+MethodInvocation ::= Primary '.' OnlyTypeArguments 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimaryWithTypeArguments(); $break ./
 
 MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimary(); $break ./
 
-MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+MethodInvocation ::= 'super' '.' OnlyTypeArguments 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationSuperWithTypeArguments(); $break ./
 
 MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
@@ -1222,9 +1222,9 @@ CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpress
 /.$putCase consumeCastExpression(); $break ./
 CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
-CastExpression ::= PushLPAREN Name TypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
-CastExpression ::= PushLPAREN Name TypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenerics(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
@@ -1555,6 +1555,10 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 -----------------------------------------------
 TypeArguments ::= '<' TypeArgumentList1
 /.$putCase consumeTypeArguments(); $break ./
+/:$readableName TypeArguments:/
+
+OnlyTypeArguments ::= '<' TypeArgumentList1
+/.$putCase consumeOnlyTypeArguments(); $break ./
 /:$readableName TypeArguments:/
 
 TypeArgumentList1 -> TypeArgument1
