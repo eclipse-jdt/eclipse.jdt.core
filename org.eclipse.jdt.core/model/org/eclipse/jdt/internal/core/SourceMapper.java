@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -323,7 +324,27 @@ public class SourceMapper
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
-					// TODO: Traverse directory
+					return computeRootPath(file);
+				}
+			}
+		}
+		return null;
+	}
+	private String computeRootPath(File directory) {
+		File[] files = directory.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			if (file.isDirectory()) {
+				String rootPath = computeRootPath(file);
+				if (rootPath != null) return rootPath;
+			} else if (Util.isJavaFileName(file.getName())) {
+				try {
+					char[] contents = Util.getFileCharContent(file, this.encoding);
+					IPath fullPath = new Path(file.getPath());
+					IPath relativePath = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+					String rootPath = computeRootPath(relativePath.toString(), contents);
+					if (rootPath != null) return rootPath;
+				} catch (IOException e) {
 				}
 			}
 		}
