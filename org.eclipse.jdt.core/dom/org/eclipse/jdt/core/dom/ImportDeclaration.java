@@ -344,16 +344,27 @@ public class ImportDeclaration extends ASTNode {
 	}
 	
 	/**
-	 * Resolves and returns the binding for the package or type imported by
-	 * this import declaration.
+	 * Resolves and returns the binding for the package, type, field, or
+	 * method named in this import declaration.
+	 * <p>
+	 * The name specified in a non-static single-type import can resolve
+	 * to a type (only). The name specified in a non-static on-demand
+	 * import can itself resolve to either a package or a type.
+	 * For static imports (introduced in JLS3), the name specified in a
+	 * static on-demand import can itself resolve to a type (only).
+	 * The name specified in a static single import can resolve to a
+	 * type, field, or method; in cases where the name could be resolved
+	 * to more than one element with that name (for example, two
+	 * methods both named "max", or a method and a field), this method
+	 * returns one of the plausible bindings.
+	 * </p>
 	 * <p>
 	 * Note that bindings are generally unavailable unless requested when the
 	 * AST is being built.
 	 * </p>
 	 * 
-	 * @return the package binding (for on-demand imports) or type binding
-	 *    (for single-type imports), or <code>null</code> if the binding cannot
-	 *    be resolved
+	 * @return a package, type, field, or method binding, or <code>null</code>
+	 * if the binding cannot be resolved
 	 */	
 	public IBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveImport(this);
