@@ -5832,4 +5832,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	public void test213() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class X<R,T extends Comparable<T>>{\n" + 
+				"	T test;\n" + 
+				"	public Comparable<? extends T> getThis(){\n" + 
+				"		return test;\n" + 
+				"	}\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 }

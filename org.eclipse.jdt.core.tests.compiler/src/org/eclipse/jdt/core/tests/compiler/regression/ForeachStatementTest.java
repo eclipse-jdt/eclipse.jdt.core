@@ -1324,6 +1324,28 @@ public void test025() {
 		},
 		"SUCCESS");
 }
+// 68440 - verify error due to local variable invalid slot sharing
+public void test026() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    Object[] array = {\n" + 
+			"    };\n" + 
+			"    void test() {\n" + 
+			"        for (Object object : array) {\n" + 
+			"            String str = object.toString();\n" + 
+			"            str += \"\";\n" + // force 'str' to be preserved during codegen
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X().test();\n" + 
+			"		System.out.println(\"SUCCESS\");\n" +
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

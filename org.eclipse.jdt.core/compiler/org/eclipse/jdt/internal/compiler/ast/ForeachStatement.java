@@ -351,37 +351,35 @@ public class ForeachStatement extends Statement {
 					}
 			    }
 			}
-			if (this.kind == -1) {
-				scope.problemReporter().invalidTypeForCollection(collection);
-			} else {
-				switch(this.kind) {
-					case ARRAY :
-						// indexVariable is used only if collection is an array
-						this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
-						scope.addLocalVariable(this.indexVariable);
-						this.indexVariable.constant = NotAConstant; // not inlinable
-			
-						this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
-						scope.addLocalVariable(this.maxVariable);
-						this.maxVariable.constant = NotAConstant; // not inlinable
-						break;
-					case RAW_ITERABLE :
-					case GENERIC_ITERABLE :
-						this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), AccDefault, false);
-						scope.addLocalVariable(this.indexVariable);
-						this.indexVariable.constant = NotAConstant; // not inlinable
-						break;
-				}
+			switch(this.kind) {
+				case ARRAY :
+					// allocate #index secret variable (of type int)
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
+					scope.addLocalVariable(this.indexVariable);
+					this.indexVariable.constant = NotAConstant; // not inlinable
+					
+					// allocate #max secret variable
+					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
+					scope.addLocalVariable(this.maxVariable);
+					this.maxVariable.constant = NotAConstant; // not inlinable
+					break;
+				case RAW_ITERABLE :
+				case GENERIC_ITERABLE :
+					// allocate #index secret variable (of type Iterator)
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), AccDefault, false);
+					scope.addLocalVariable(this.indexVariable);
+					this.indexVariable.constant = NotAConstant; // not inlinable
+					break;
+				default :
+					scope.problemReporter().invalidTypeForCollection(collection);
 			}
-		}
-		if (action != null) {
-			action.resolve(scope);
-		}
-		if (!hasError) {
-			// add secret variables used for the code generation
+			// add #array secret variable (of collection type)
 			this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
 			scope.addLocalVariable(this.collectionVariable);
 			this.collectionVariable.constant = NotAConstant; // not inlinable
+		}
+		if (action != null) {
+			action.resolve(scope);
 		}
 	}
 	
