@@ -45,6 +45,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	}
 	/**
 	 * Create raw generic method for raw type (double substitution from type vars with raw type arguments, and erasure of method variables)
+	 * Only invoked for non-static generic methods of raw type (could remove support for statics from below)
 	 */
 	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, RawTypeBinding rawType, LookupEnvironment environment) {
 
@@ -62,11 +63,15 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.typeArguments = rawArguments;
 	    this.originalMethod = originalMethod;
 		boolean isStatic = originalMethod.isStatic();
-	    this.parameters = Scope.substitute(this, 
-	    										isStatic ? originalMethod.parameters : Scope.substitute(rawType, originalMethod.parameters));
-	    this.thrownExceptions = Scope.substitute(this, 
-	    										isStatic ? originalMethod.thrownExceptions : Scope.substitute(rawType, originalMethod.thrownExceptions));
-	    this.returnType = this.substitute(isStatic ? originalMethod.returnType : rawType.substitute(originalMethod.returnType));
+	    this.parameters = Scope.substitute(this, isStatic 
+	    									? originalMethod.parameters // no substitution if original was static
+	    									: Scope.substitute(rawType, originalMethod.parameters));
+	    this.thrownExceptions = Scope.substitute(this, 	isStatic 
+	    									? originalMethod.thrownExceptions // no substitution if original was static
+	    									: Scope.substitute(rawType, originalMethod.thrownExceptions));
+	    this.returnType = this.substitute(isStatic 
+	    									? originalMethod.returnType // no substitution if original was static
+	    									: rawType.substitute(originalMethod.returnType));
 	}
 	
 	/**

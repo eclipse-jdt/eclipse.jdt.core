@@ -8759,5 +8759,38 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot refer to the type parameter E as a supertype\n" + 
 			"----------\n");
-	}		
+	}
+	//74669
+	public void test336() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface IMyInterface {\n" + 
+				"}\n" + 
+				"class MyClass <Type> {\n" + 
+				"\n" + 
+				"	public <Type> Type myMethod(Object obj, Class type) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static <Type> Type myMethod2(Object obj, Class type) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/* This is the class that will not save or compile */\n" + 
+				"public class X {\n" + 
+				"    public IMyInterface getThis() {\n" + 
+				"		if (true)\n" + 
+				"			return new MyClass().myMethod(this, IMyInterface.class);\n" + 
+				"		else\n" + 
+				"			return MyClass.myMethod2(this, IMyInterface.class);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
+			"----------\n");
+	}
 }
