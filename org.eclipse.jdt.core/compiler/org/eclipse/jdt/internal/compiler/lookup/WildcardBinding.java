@@ -449,13 +449,13 @@ public class WildcardBinding extends ReferenceBinding {
     public ReferenceBinding superclass() {
 		if (this.superclass == null) {
 			TypeBinding superType = null;
-			if (this.kind == Wildcard.EXTENDS && this.bound.isClass()) {
+			if (this.kind == Wildcard.EXTENDS && !this.bound.isInterface()) {
 				superType = this.bound;
 			} else {
 				TypeVariableBinding variable = this.typeVariable();
 				if (variable != null) superType = variable.firstBound;
 			}
-			this.superclass = superType != null && superType.isClass()
+			this.superclass = superType != null && !superType.isInterface()
 				? (ReferenceBinding) superType
 				: environment.getType(JAVA_LANG_OBJECT);
 		}

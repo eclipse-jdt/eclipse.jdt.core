@@ -2755,4 +2755,101 @@ public class EnumTest extends AbstractComparableTest {
 			"The method clone() of type X.Test1 should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}			
+	public void test090() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		public Test1 foo() { return V; }\n" + 
+				"	}\n" + 
+				"	Zork z;\n" +
+				"}\n",
+				"java/lang/Object.java",
+				"package java.lang;\n" +
+				"public class Object {\n" + 
+				"	public Object foo() { return this; }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public Test1 foo() { return V; }\n" + 
+			"	             ^^^^^\n" + 
+			"The method foo() of type X.Test1 should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	public void test091() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		void foo() {}\n" + 
+				"	}\n" + 
+				"	class Member<E extends Test1> {\n" + 
+				"		void bar(E e) {\n" + 
+				"			e.foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	public void test092() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		void foo() {}\n" + 
+				"	}\n" + 
+				"	class Member<E extends Object & Test1> {\n" + 
+				"		void bar(E e) {\n" + 
+				"			e.foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	class Member<E extends Object & Test1> {\n" + 
+			"	                                ^^^^^\n" + 
+			"The type X.Test1 is not an interface; it cannot be specified as a bounded parameter\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	e.foo();\n" + 
+			"	  ^^^\n" + 
+			"The method foo() is undefined for the type E\n" + 
+			"----------\n");
+	}			
+	public void test093() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		void foo() {}\n" + 
+				"	}\n" + 
+				"	class Member<E extends Test1> {\n" + 
+				"		E e;\n" + 
+				"		void bar(Member<? extends Test1> me) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }

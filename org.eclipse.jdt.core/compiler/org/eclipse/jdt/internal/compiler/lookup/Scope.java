@@ -408,7 +408,7 @@ public abstract class Scope
 			ReferenceBinding superRefType = (ReferenceBinding) superType;
 			if (superRefType.isFinal())
 				problemReporter().finalVariableBound(typeVariable, typeRef);
-			if (superType.isClass()) {
+			if (!superType.isInterface()) {
 				typeVariable.superclass = superRefType;
 			} else {
 				typeVariable.superInterfaces = new ReferenceBinding[] {superRefType};
@@ -434,7 +434,7 @@ public abstract class Scope
 						continue nextVariable;
 					}
 					superRefType = (ReferenceBinding) superType;
-					if (superType.isClass()) {
+					if (!superType.isInterface()) {
 						problemReporter().boundMustBeAnInterface(typeRef, superType);
 						typeVariable.tagBits |= HierarchyHasProblems;
 						noProblems = false;
@@ -1210,7 +1210,8 @@ public abstract class Scope
 			}
 			return matchingMethod;
 		}
-		return candidates[0].declaringClass.isClass()
+		ReferenceBinding declaringClass = candidates[0].declaringClass;
+		return !declaringClass.isInterface()
 			? mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite)
 			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
 	}
@@ -2842,7 +2843,7 @@ public abstract class Scope
 			if (mec == null) continue;
 			mec = leastContainingInvocation(mec, (Set)invocations.get(mec), lubStack);
 			if (mec == null) return null;
-			if (mec.isClass()) firstBound = mec;
+			if (!mec.isInterface()) firstBound = mec;
 			mecs[count++] = mec; // recompact them to the front
 
 		}
