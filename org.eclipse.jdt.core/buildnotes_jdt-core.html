@@ -17,9 +17,9 @@ What's new in this drop</h2>
 <ul>
 <li>Resource copy filters : A new setting allows to specify exclusion filters for resource being copied to the output folder..
 	<ul>
-	<li>option id:				"org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"
+	<li>option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"
 	<li>possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
-	<li>default:				"cvs,.*" 
+	<li>default:			"cvs,.*" 
 	</ul>
 </li>
 <li>Encoding support : Batch compiler can be specified the source encoding format using '-encoding myEncoding' command line option.
@@ -28,9 +28,9 @@ by suffixing its name with '[myEncoding]' (if applied to a folder, then all file
 encoding). When no encoding is specified, then the platform default is used (as before). Similarily, a JavaCore option got added to
 control the default encoding (no support yet for per file custom encoding).
 	<ul>
-	<li>option id:				"org.eclipse.jdt.core.encoding"
+	<li>option id:			"org.eclipse.jdt.core.encoding"
 	<li>possible values:	{ "" for platform default, or any of the supported encoding name }.
-	<li>default:				"" 
+	<li>default:			"" 
 	</ul>
 </li>
 <li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9035">9035</a> required to increment the index signature 
