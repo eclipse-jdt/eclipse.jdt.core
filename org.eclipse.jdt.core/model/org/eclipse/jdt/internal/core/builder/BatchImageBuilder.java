@@ -135,6 +135,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
 							if (resource.getFullPath().equals(sourcePath)) return true;
+							if (javaBuilder.filterResource(resource)) return false;
 
 							getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount));
 					}
