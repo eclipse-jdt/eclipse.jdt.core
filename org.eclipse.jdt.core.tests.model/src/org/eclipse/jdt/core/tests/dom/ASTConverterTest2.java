@@ -2930,5 +2930,36 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Unexpected key", "test0502/A$3", typeBinding.getKey()); //$NON-NLS-1$
 	}	
 
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502i() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'field' in 'B' in 'foo()'
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
+		IVariableBinding fieldBinding = fragment.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/B/field", fieldBinding.getKey()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
+	 */
+	public void test0502j() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// 'bar()' in 'B' in 'foo()'
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertEquals("Unexpected key", "test0502/A/voidfoo()/B/voidbar()", methodBinding.getKey()); //$NON-NLS-1$
+	}	
+
 }
 
