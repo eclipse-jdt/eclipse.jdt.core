@@ -240,6 +240,15 @@ class MethodBinding implements IMethodBinding {
 		return this.binding.isSynthetic();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isVarargs()
+	 * @since 3.1
+	 */
+	public boolean isVarargs() {
+		// TODO (olivier) - missing implementation
+		return false;
+	}
+
 	/*
 	 * @see IBinding#getKey()
 	 */

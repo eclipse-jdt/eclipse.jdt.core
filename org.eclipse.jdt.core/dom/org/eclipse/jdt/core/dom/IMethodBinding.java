@@ -232,4 +232,16 @@ public interface IMethodBinding extends IBinding {
 	 */
 	// TODO - need better name
 	public boolean isRawMethod();
+	
+	/**
+	 * Returns whether this is a variable arity method.
+	 * <p>
+	 * Note: Variable arity ("varargs") methods were added in JLS3.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a variable arity method,
+	 *    and <code>false</code> otherwise
+	 * @since 3.1
+	 */ 
+	public boolean isVarargs();	
 }
