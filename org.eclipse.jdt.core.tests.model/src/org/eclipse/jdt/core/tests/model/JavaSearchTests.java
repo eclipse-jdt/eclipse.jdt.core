@@ -229,6 +229,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInCast"));
 	suite.addTest(new JavaSearchTests("testPatternMatchTypeReference"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceNotCaseSensitive"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2443,6 +2444,23 @@ public void testTypeReferenceInThrows() throws JavaModelException, CoreException
 		resultCollector);
 	assertEquals(
 		"src/a7/X.java a7.X.foo() -> void [MyException] EXACT_MATCH",
+		resultCollector.toString());
+}
+/**
+ * Type reference test (not case sensitive)
+ */
+public void testTypeReferenceNotCaseSensitive() throws JavaModelException, CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "d4");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	ISearchPattern pattern = SearchEngine.createSearchPattern("Y", TYPE, REFERENCES, false);
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		pattern, 
+		scope,
+		resultCollector);
+	assertEquals(
+		"src/d4/X.java d4.X.foo() -> Object [Y]",
 		resultCollector.toString());
 }
 /**
