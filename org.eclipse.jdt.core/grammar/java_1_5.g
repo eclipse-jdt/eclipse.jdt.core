@@ -781,11 +781,15 @@ InterfaceMemberDeclaration -> InterfaceDeclaration
 ConstantDeclaration -> FieldDeclaration
 /:$readableName ConstantDeclaration:/
 
-ArrayInitializer ::= '{' ,opt '}'
+PushLeftBrace ::= $empty
+/.$putCase consumePushLeftBrace(); $break ./
+/:$readableName PushLeftBrace:/
+
+ArrayInitializer ::= '{' PushLeftBrace ,opt '}'
 /.$putCase consumeEmptyArrayInitializer(); $break ./
-ArrayInitializer ::= '{' VariableInitializers '}'
+ArrayInitializer ::= '{' PushLeftBrace VariableInitializers '}'
 /.$putCase consumeArrayInitializer(); $break ./
-ArrayInitializer ::= '{' VariableInitializers , '}'
+ArrayInitializer ::= '{' PushLeftBrace VariableInitializers , '}'
 /.$putCase consumeArrayInitializer(); $break ./
 /:$readableName ArrayInitializer:/
 
@@ -2094,16 +2098,16 @@ MemberValue -> MemberValueArrayInitializer
 /:$readableName MemberValue:/
 /:$compliance 1.5:/
 
-MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
+MemberValueArrayInitializer ::= '{' PushLeftBrace MemberValues ',' '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' MemberValues '}'
+MemberValueArrayInitializer ::= '{' PushLeftBrace MemberValues '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' ',' '}'
+MemberValueArrayInitializer ::= '{' PushLeftBrace ',' '}'
 /.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' '}'
+MemberValueArrayInitializer ::= '{' PushLeftBrace '}'
 /.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$readableName MemberValueArrayInitializer:/
 /:$compliance 1.5:/
