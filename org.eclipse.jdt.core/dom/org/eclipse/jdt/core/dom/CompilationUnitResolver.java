@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 import java.util.*;
 
@@ -397,6 +398,54 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
+	public static CompilationUnitDeclaration resolve(
+		IClassFile classFile,
+		NodeSearcher nodeSearcher,
+		boolean cleanUp,
+		char[] source,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		CompilationUnitDeclaration unit = null;
+		try {
+			
+			StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
+			
+			String classFileName = classFile.getElementName(); // this includes the trailing .class
+			buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
+			char[] fileName = String.valueOf(buffer).toCharArray();
+			JavaProject project = (JavaProject) classFile.getJavaProject();
+			CompilationUnitResolver compilationUnitVisitor =
+				new CompilationUnitResolver(
+					getNameEnvironment(project, owner, monitor),
+					getHandlingPolicy(),
+					project.getOptions(true),
+					getRequestor(),
+					getProblemFactory(monitor));
+	
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
+	
+			char[][] expectedPackageName = CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray());
+		
+			unit = compilationUnitVisitor.resolve(
+				new BasicCompilationUnit(
+					source,
+					expectedPackageName,
+					new String(fileName),
+					encoding),
+				nodeSearcher,
+				true, // method verification
+				true, // analyze code
+				true); // generate code
+			return unit;
+		} finally {
+			if (cleanUp && unit != null) {
+				unit.cleanUp();
+			}
+		}
+	}
+	
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
 		NodeSearcher nodeSearcher,

@@ -91,7 +91,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = new CodeSnippetParsingUtil().parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
@@ -101,7 +101,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		CompilationUnitDeclaration compilationUnitDeclaration = CodeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.options);
+		CompilationUnitDeclaration compilationUnitDeclaration = new CodeSnippetParsingUtil().parseCompilationUnit(source.toCharArray(), this.options);
 		
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
@@ -116,7 +116,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options);
+		Expression expression = new CodeSnippetParsingUtil().parseExpression(source.toCharArray(), this.options);
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
@@ -126,7 +126,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options);
+		ConstructorDeclaration constructorDeclaration = new CodeSnippetParsingUtil().parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
@@ -179,19 +179,19 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options);
+		Expression expression = new CodeSnippetParsingUtil().parseExpression(source.toCharArray(), this.options);
 		
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
-		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = new CodeSnippetParsingUtil().parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations != null) {
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 		}
 
-		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options);
+		ConstructorDeclaration constructorDeclaration = new CodeSnippetParsingUtil().parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);

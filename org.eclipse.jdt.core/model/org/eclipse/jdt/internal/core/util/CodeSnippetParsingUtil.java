@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -31,12 +32,14 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class CodeSnippetParsingUtil {
 
-	public static ASTNode[] parseClassBodyDeclarations(char[] source, Map settings) {
+	public IProblem problems[];
+	public int lineSeparatorPositions[];
+
+	public ASTNode[] parseClassBodyDeclarations(char[] source, Map settings) {
 		return parseClassBodyDeclarations(source, 0, source.length, settings);
 	}
 	
-	public static ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, Map settings) {
-		
+	public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -56,10 +59,16 @@ public class CodeSnippetParsingUtil {
 				"", //$NON-NLS-1$
 				compilerOptions.defaultEncoding);
 
-		return parser.parseClassBodyDeclarations(source, offset, length, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
+		final CompilationUnitDeclaration compilationUnitDeclaration = new CompilationUnitDeclaration(problemReporter, compilationResult, source.length);
+		ASTNode[] result = parser.parseClassBodyDeclarations(source, offset, length, compilationUnitDeclaration);
+		
+		this.problems = compilationResult.problems;
+		this.lineSeparatorPositions = compilationResult.lineSeparatorPositions;
+		return result;
 	}
 
-	public static CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings) {
+	public CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings) {
 		
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -99,11 +108,11 @@ public class CodeSnippetParsingUtil {
 		return compilationUnitDeclaration;
 	}
 
-	public static Expression parseExpression(char[] source, Map settings) {
+	public Expression parseExpression(char[] source, Map settings) {
 		return parseExpression(source, 0, source.length, settings);
 	}
 	
-	public static Expression parseExpression(char[] source, int offset, int length, Map settings) {
+	public Expression parseExpression(char[] source, int offset, int length, Map settings) {
 		
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -123,14 +132,18 @@ public class CodeSnippetParsingUtil {
 				"", //$NON-NLS-1$
 				compilerOptions.defaultEncoding);
 
-		return parser.parseExpression(source, offset, length, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
+		Expression result = parser.parseExpression(source, offset, length, new CompilationUnitDeclaration(problemReporter, compilationResult, source.length));
+		this.problems = compilationResult.problems;
+		this.lineSeparatorPositions = compilationResult.lineSeparatorPositions;
+		return result;
 	}
 
-	public static ConstructorDeclaration parseStatements(char[] source, Map settings) {
+	public ConstructorDeclaration parseStatements(char[] source, Map settings) {
 		return parseStatements(source, 0, source.length, settings);
 	}
 	
-	public static ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings) {
+	public ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -159,8 +172,10 @@ public class CodeSnippetParsingUtil {
 		
 		parser.scanner.setSource(source);
 		parser.scanner.resetTo(offset, offset + length);
-		parser.parse(constructorDeclaration, compilationUnitDeclaration);
+		parser.parse(constructorDeclaration, compilationUnitDeclaration, true);
 		
+		this.problems = compilationResult.problems;
+		this.lineSeparatorPositions = compilationResult.lineSeparatorPositions;
 		return constructorDeclaration;
 	}	
 }

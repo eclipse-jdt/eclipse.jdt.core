@@ -281,9 +281,10 @@ public final class AST {
 		AST ast = new AST();
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
+		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		switch(kind) {
 			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source, offset, length, options);
+				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(source, offset, length, options);
 				if (constructorDeclaration != null) {
 					Block block = ast.newBlock();
 					Statement[] statements = constructorDeclaration.statements;
@@ -297,13 +298,13 @@ public final class AST {
 				}
 				break;
 			case K_EXPRESSION :
-				org.eclipse.jdt.internal.compiler.ast.Expression expression = CodeSnippetParsingUtil.parseExpression(source, offset, length, options);
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = codeSnippetParsingUtil.parseExpression(source, offset, length, options);
 				if (expression != null) {
 					return converter.convert(expression);
 				}
 				break;
 			case K_CLASS_BODY_DECLARATIONS :
-				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = CodeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
 				if (nodes != null) {
 					return converter.convert(nodes);
 				}
@@ -410,8 +411,50 @@ public final class AST {
 		if (options == null) {
 			options = JavaCore.getOptions();
 		}
-		// TODO (olivier) missing implementation
-		throw new RuntimeException();
+		ASTConverter converter = new ASTConverter(options, false, null);
+		converter.compilationUnitSource = source;
+		converter.scanner.setSource(source);
+		
+		AST ast = new AST();
+		ast.setBindingResolver(new BindingResolver());
+		converter.setAST(ast);
+		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+		switch(kind) {
+			case K_STATEMENTS :
+				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(source, offset, length, options);
+				if (constructorDeclaration != null) {
+					Block block = ast.newBlock();
+					Statement[] statements = constructorDeclaration.statements;
+					if (statements != null) {
+						int statementsLength = statements.length;
+						for (int i = 0; i < statementsLength; i++) {
+							block.statements().add(converter.convert(statements[i]));
+						}
+					}
+					// TODO Root the block to a compilation unit
+					// record the problems, comments and line numbers
+					return block;
+				}
+				break;
+			case K_EXPRESSION :
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = codeSnippetParsingUtil.parseExpression(source, offset, length, options);
+				if (expression != null) {
+					Expression expression2 = converter.convert(expression);
+					// TODO Root the expression to a compilation unit
+					// record the problems, comments and line numbers
+					return expression2;
+				}
+				break;
+			case K_CLASS_BODY_DECLARATIONS :
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
+				if (nodes != null) {
+					TypeDeclaration typeDeclaration = converter.convert(nodes);
+					// TODO Root the expression to a compilation unit
+					// record the problems, comments and line numbers
+					return typeDeclaration;
+				}
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -1374,8 +1417,87 @@ public final class AST {
 		if (owner == null) {
 			owner = DefaultWorkingCopyOwner.PRIMARY;
 		}
-		// TODO (olivier) missing implementation
-		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+
+		char[] source = null;
+		String sourceString = null;
+		try {
+			sourceString = classFile.getSource();
+		} catch (JavaModelException e) {
+			throw new IllegalArgumentException();
+		}
+
+		if (sourceString == null) {
+			throw new IllegalArgumentException();
+		}
+		source = sourceString.toCharArray();
+
+		NodeSearcher searcher = new NodeSearcher(position);
+
+		final Map options = classFile.getJavaProject().getOptions(true);
+		if (resolveBindings) {
+			CompilationUnitDeclaration compilationUnitDeclaration = null;
+			try {
+				// parse and resolve
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(
+					classFile,
+					searcher,
+					false/*don't cleanup*/,
+					source,
+					owner,
+					monitor);
+				
+				ASTConverter converter = new ASTConverter(options, true, monitor);
+				AST ast = new AST();
+				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+			
+				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
+				compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return compilationUnit;
+			} catch(JavaModelException e) {
+				/* if a JavaModelException is thrown trying to retrieve the name environment
+				 * then we simply do a parsing without creating bindings.
+				 * Therefore all binding resolution will return null.
+				 */
+				CompilationUnitDeclaration compilationUnitDeclaration2 = CompilationUnitResolver.parse(
+					source,
+					searcher,
+					options);
+				
+				ASTConverter converter = new ASTConverter(options, false, monitor);
+				AST ast = new AST();
+				final BindingResolver resolver = new BindingResolver();
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+	
+				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration2, source);
+				compilationUnit.setLineEndTable(compilationUnitDeclaration2.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return compilationUnit;
+			} finally {
+				if (compilationUnitDeclaration != null) {
+					compilationUnitDeclaration.cleanUp();
+				}
+			}
+		} else {
+			CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.parse(
+				source,
+				searcher,
+				options);
+			
+			ASTConverter converter = new ASTConverter(options, false, monitor);
+			AST ast = new AST();
+			final BindingResolver resolver = new BindingResolver();
+			ast.setBindingResolver(resolver);
+			converter.setAST(ast);
+
+			CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
+			compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+			resolver.storeModificationCount(ast.modificationCount());
+			return compilationUnit;
+		}
 	}
 		
 	/**

@@ -60,13 +60,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private long time;
 	
 	public static Test suite() {
 		if (true) {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test450"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test447"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test451"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -133,6 +135,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			getWorkspace().setDescription(description);
 		}
 		setUpJavaProject("Formatter"); //$NON-NLS-1$
+		this.time = System.currentTimeMillis();
 	}	
 
 	/**
@@ -140,7 +143,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("Formatter"); //$NON-NLS-1$
-		
+		System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));
 		super.tearDown();
 	}	
 
@@ -5323,7 +5326,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void _test447() {
+	public void test447() {
 		String resourcePath = getResource("test447", "settings.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
 		assertNotNull("No preferences", options);
@@ -5368,5 +5371,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test450", "A.java", CodeFormatter.K_UNKNOWN, 0, false, 0, 0);//$NON-NLS-1$ //$NON-NLS-2$
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
+	 */
+	public void test451() {
+		String resourcePath = getResource("test451", "settings.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

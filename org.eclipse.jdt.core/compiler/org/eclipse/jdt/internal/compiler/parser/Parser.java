@@ -5425,6 +5425,9 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 	}
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
+	parse(cd, unit, false);
+}
+public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
 	//only parse the method body of cd
 	//fill out its statements
 
@@ -5432,6 +5435,9 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 
 	initialize();
 	goForBlockStatementsopt();
+	if (recordLineSeparator) {
+		this.scanner.recordLineSeparator = true;
+	}
 	this.nestedMethod[this.nestedType]++;
 	pushOnRealBlockStack(0);
 	
