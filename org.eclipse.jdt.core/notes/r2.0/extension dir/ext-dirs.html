@@ -1,0 +1,68 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Build">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">
+   <title>JDT - Extension Directories</title>
+</head>
+<body>
+
+<h2>
+Extension Directories</h2>
+Last revised 11:30 Thursday October 18, 2001
+<p>Work item: Add support to Java model for JDK 1.2-style extension directories
+(aka optional packages)
+<p>The proposal is to allow a library classpath entry to refer to an extension
+directory. An extension directory is a folder containing any number of
+JAR files (including 0). A library classpath entry (<tt>CPE_LIBRARY</tt>)
+with a path whose last segment is "*" indicates an extension directory;
+for example, a library entry with the path "D:/jdk1.4/jre/lib/ext/*" means
+the extension directory "D:/jdk1.4/jre/lib/ext". Like all library entries,
+extension directories can be in folders inside the workspace or in directories
+in the local file system outside the workspace. A variable classpath entry
+may also resolve to an extension directory following the same rule about
+ending in "*". Thus a variable classpath entry like "JRE_LIB/ext/*" would
+resolve to an extension directory; and a simple one like "FOO" could resolve
+to either a JAR library, a library folder, an extension directory, or a
+project.
+<p>Each of the JARs in an extension directory on a project's class path
+would give rise to a separate <tt>IPackageFragmentRoot</tt> (kind <tt>K_BINARY</tt>);
+these package fragment roots are all child elements of the <tt>IJavaProject</tt>.
+The Java model would not have a Java element corresponding to the extension
+directory itself.
+<p>Every package fragment root that is a child of a project element stems
+from some entry on that project's original classpath. Given a package fragment
+root, how does one trace it back to the classpath entry that gave rise
+to it? In the presence of variable classpath entries and extension directories,
+the answer is not obvious. Having a simple answer is important to some
+clients. For instance, the Java UI includes the names of classpath variables
+in items in its Packages view.
+<p>on <tt>IPackageFragmentRoot</tt>
+<br><tt>/**</tt>
+<br><tt>&nbsp;* Returns the classpath entry that gives rise to this package
+fragment root.</tt>
+<br><tt>&nbsp;* This package fragment root must exist. The returned classpath
+entry is</tt>
+<br><tt>&nbsp;* equivalent to one of the classpath entries of this package
+fragment</tt>
+<br><tt>&nbsp;* root's project.</tt>
+<br><tt>&nbsp;*</tt>
+<br><tt>&nbsp;* @return the originating classpath entry</tt>
+<br><tt>&nbsp;* @exception JavaModelException if this element does not
+exist</tt>
+<br><tt>&nbsp;*/</tt>
+<br><tt>IClasspathEntry getOriginatingClasspathEntry() throws JavaModelException;</tt>
+<p>This method would replace <tt>IJavaProject.getPackageFragmentRoots(IClasspathEntry
+entry)</tt>, which has problems and would be removed from the API (via
+deprecation).
+<p>How does one attach source to JARs in an extension directory? The API
+for attaching source is on the classpath entry; this allows this information
+to be shared between developers. Clearly, this would not work for extension
+directories, where the names of the JARs in the directory might not even
+be known in advance. [This is currently an open issue. How important is
+source attachment for JARs in an extension directory? How important is
+making this information shareable between developers?]
+<br>&nbsp;
+</body>
+</html>
