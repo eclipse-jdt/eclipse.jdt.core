@@ -185,7 +185,8 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 				IResource resource = null;
 				switch(proxy.getType()) {
 					case IResource.FILE :
-						if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName()) || org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) return false;
+						if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName()) ||
+							org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) return false;
 
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
@@ -198,7 +199,10 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							if (deletedAll) {
 								IResource originalResource = findOriginalResource(partialPath);
 								String id = originalResource.getFullPath().removeFirstSegments(1).toString();
-								createProblemFor(resource, Util.bind("build.duplicateResource", id), javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true)); //$NON-NLS-1$
+								createProblemFor(
+									resource,
+									Util.bind("build.duplicateResource", id), //$NON-NLS-1$
+									javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true));
 								return false;
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins
