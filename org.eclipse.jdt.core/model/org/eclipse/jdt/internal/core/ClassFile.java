@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -591,7 +590,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 			} else	{
 				// root is a class folder
 				
-				IFolder pkgFolder = (IFolder) getParent().getResource();
+				IContainer pkgFolder = (IContainer) getParent().getResource();
 				IResource[] files = null;
 				try {
 					files = pkgFolder.members();

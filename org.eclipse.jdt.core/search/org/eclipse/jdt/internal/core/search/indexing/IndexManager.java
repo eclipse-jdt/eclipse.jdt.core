@@ -327,15 +327,15 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	IndexRequest request = null;
 	if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile)target, this);
+		request = new AddJarFileToIndex((IFile) target, this);
 	} else if (target instanceof java.io.File) {
-		if (((java.io.File)target).isFile()) {
+		if (((java.io.File) target).isFile()) {
 			request = new AddJarFileToIndex(path, this);
 		} else {
 			return;
 		}
-	} else if (target instanceof IFolder) {
-		request = new IndexBinaryFolder((IFolder)target, this);
+	} else if (target instanceof IContainer) {
+		request = new IndexBinaryFolder((IContainer) target, this);
 	} else {
 		return;
 	}

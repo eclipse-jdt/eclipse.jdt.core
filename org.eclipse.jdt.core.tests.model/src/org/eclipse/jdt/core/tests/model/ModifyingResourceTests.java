@@ -218,7 +218,8 @@ protected IClassFile createClassFile(String libPath, String classFileRelativePat
 	IJavaProject javaProject = classFile.getJavaProject();
 	IProject project = javaProject.getProject();
 	String sourcePath = project.getLocation().toOSString() + File.separatorChar + classFile.getType().getElementName() + ".java";
-	Util.compile(new String[] {sourcePath, contents}, javaProject.getOptions(true), getFolder(libPath).getLocation().toOSString());
+	String libOSPath = new Path(libPath).segmentCount() > 1 ? getFolder(libPath).getLocation().toOSString() : getProject(libPath).getLocation().toOSString();
+	Util.compile(new String[] {sourcePath, contents}, javaProject.getOptions(true), libOSPath);
 	project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	return classFile;
 }

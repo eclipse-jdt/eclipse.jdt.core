@@ -786,7 +786,7 @@ protected void assertDeltas(String message, String expected) {
 							exclusionPaths[j] = new Path(exclusionPattern);
 						}
 					}
-					if (lib.indexOf(File.separatorChar) == -1 && lib.equals(lib.toUpperCase())) { // all upper case is a var 
+					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var 
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
 							new Path(new String(vars[0])), 

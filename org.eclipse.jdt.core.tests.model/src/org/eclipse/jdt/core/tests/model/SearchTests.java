@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.*;
@@ -422,6 +423,27 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		assertTrue("Should throw an OperationCanceledException", operationCanceled);
  	} finally {
  		job.runningSem.release();
+ 	}
+ }
+ /*
+  * Ensures that types are found if the project is a ib folder
+  * (regression test for bug 83822 Classes at root of project not found in Open Type dialog)
+  */
+ public void testProjectLib() throws CoreException {
+ 	try {
+ 		IJavaProject javaProject = createJavaProject("P1", new String[0], new String[] {"/P1"}, "bin");
+ 		createClassFile("/P1", "X.class", "public class X {}");
+ 		IProject project = javaProject.getProject();
+ 		project.close(null);
+ 		waitUntilIndexesReady();
+ 		project.open(null);
+ 		assertAllTypes(
+ 			"Unexpected types in P1",
+ 			javaProject,
+ 			"X"
+ 		);
+ 	} finally {
+ 		deleteProject("P1");
  	}
  }
 /*

@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
@@ -26,9 +26,9 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBinaryFolder extends IndexRequest {
-	IFolder folder;
+	IContainer folder;
 
-	public IndexBinaryFolder(IFolder folder, IndexManager manager) {
+	public IndexBinaryFolder(IContainer folder, IndexManager manager) {
 		super(folder.getFullPath(), manager);
 		this.folder = folder;
 	}
