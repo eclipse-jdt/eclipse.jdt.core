@@ -114,6 +114,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  5515      AbortCompilation during polymorphic search  
   5275      eBay Defect 186249 - OTI PR# 1GLEYT1
   5267      Dependent Projects not compiled when project is saved  
   5425      Exception on CodeAssist
