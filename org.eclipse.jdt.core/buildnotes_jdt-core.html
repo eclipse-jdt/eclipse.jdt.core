@@ -52,6 +52,9 @@ Eclipse SDK 3.1 - ?th July 2004 - J2SE 1.5 Preview - Codename "Cheetah"
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Once 1.5 source compliance is enabled, the typecheck rules for conditional operator (a ? b : c) has been
+changed a little to allow scenario where 'b' and 'c' have a common supertype (there is no longer a need for
+one to be assignable to the other as in the past). This is required by JLS 3rd edition.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
