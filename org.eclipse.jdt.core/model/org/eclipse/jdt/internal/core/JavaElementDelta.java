@@ -636,6 +636,18 @@ public String toDebugString(int depth) {
 		buffer.append("REORDERED IN CLASSPATH"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((changeFlags & IJavaElementDelta.F_SOURCEATTACHED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("SOURCE ATTACHED"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((changeFlags & IJavaElementDelta.F_SOURCEDETACHED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("SOURCE DETACHED"); //$NON-NLS-1$
+		prev = true;
+	}
 	if ((changeFlags & IJavaElementDelta.F_MODIFIERS) != 0) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$

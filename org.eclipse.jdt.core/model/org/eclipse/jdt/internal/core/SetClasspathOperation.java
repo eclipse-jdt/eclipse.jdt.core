@@ -64,14 +64,21 @@ public class SetClasspathOperation extends JavaModelOperation {
 		for (int i = 0; i < roots.length; i++) {
 			IPackageFragmentRoot root = roots[i];
 			delta.changed(root, flag);
-			if (flag == IJavaElementDelta.F_REMOVED_FROM_CLASSPATH){
+			if ((flag & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 
+					|| (flag & IJavaElementDelta.F_SOURCEDETACHED) != 0){
 				try {
 					root.close();
 				} catch (JavaModelException e) {
 				}
+				// force detach source on jar package fragment roots (source will be lazily computed when needed)
+				if (root instanceof JarPackageFragmentRoot) {
+					((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
+				}
 			}
 		}
 	}
+
+
 
 	/**
 	 * Returns the index of the item in the list if the given list contains the specified entry. If the list does
@@ -83,7 +90,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry entry) {
 
 		for (int i = 0; i < list.length; i++) {
-			if (list[i].equals(entry)) {
+			if (list[i].getPath().equals(entry.getPath())) {
 				return i;
 			}
 		}
@@ -275,8 +282,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 			
 		IndexManager indexManager = manager.getIndexManager();
 		for (int i = 0; i < oldResolvedPath.length; i++) {
+			
 			// do not notify remote project changes
 			if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) continue; 
+			
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
 			if (index == -1) {
 				IPackageFragmentRoot[] pkgFragmentRoots =
@@ -287,29 +296,42 @@ public class SetClasspathOperation extends JavaModelOperation {
 				hasChangedContentForDependents |= 
 					(changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
 
-				// force detach source on jar package fragment roots (source will be lazily computed when needed)
-				// and remove the .java files from the index (.class files belong to binary folders which can be shared, 
-				// so leave the index) 
-				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
-					IPackageFragmentRoot root = pkgFragmentRoots[j];
-					if (root instanceof JarPackageFragmentRoot) {
-						((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
-					} else if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
-						indexManager.removeSourceFolderFromIndex(project, oldResolvedPath[i].getPath());
-					}
+				// Remove the .java files from the index.
+				// Note that .class files belong to binary folders which can be shared, 
+				// so leave the index for .class files.
+				if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
+					indexManager.removeSourceFolderFromIndex(project, oldResolvedPath[i].getPath());
 				}
 				hasDelta = true;
 
 			} else {
 				hasChangedContentForDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 				if (oldResolvedPathLongest && index != i) { //reordering of the classpath
+						addClasspathDeltas(
+							project.getPackageFragmentRoots(oldResolvedPath[i]),
+							IJavaElementDelta.F_CLASSPATH_REORDER,
+							delta);
+						int changeKind = oldResolvedPath[i].getEntryKind();
+						hasChangedContentForDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
+		
+						hasDelta = true;
+				}
+				
+				// check source attachment
+				int sourceAttachmentFlags = 
+					this.getSourceAttachmentDeltaFlag(
+						oldResolvedPath[i].getSourceAttachmentPath(),
+						newResolvedPath[index].getSourceAttachmentPath());
+				int sourceAttachmentRootFlags = 
+					this.getSourceAttachmentDeltaFlag(
+						oldResolvedPath[i].getSourceAttachmentRootPath(),
+						newResolvedPath[index].getSourceAttachmentRootPath());
+				int flags = sourceAttachmentFlags | sourceAttachmentRootFlags;
+				if (flags != 0) {
 					addClasspathDeltas(
 						project.getPackageFragmentRoots(oldResolvedPath[i]),
-						IJavaElementDelta.F_CLASSPATH_REORDER,
+						flags | IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, // TEMPORARY: Need to signal a F_REMOVED_FROM_CLASSPATH so that UI updates correctly
 						delta);
-					int changeKind = oldResolvedPath[i].getEntryKind();
-					hasChangedContentForDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
-	
 					hasDelta = true;
 				}
 			}
@@ -355,18 +377,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					(changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
 				hasDelta = true;
 
-			} else {
-				hasChangedContentForDependents |= (newResolvedPath[i].isExported() != oldResolvedPath[index].isExported());
-				if (!oldResolvedPathLongest && index != i) { //reordering of the classpath
-					addClasspathDeltas(
-						project.getPackageFragmentRoots(newResolvedPath[i]),
-						IJavaElementDelta.F_CLASSPATH_REORDER,
-						delta);
-					int changeKind = newResolvedPath[i].getEntryKind();
-					hasChangedContentForDependents |= changeKind == IClasspathEntry.CPE_SOURCE;
-					hasDelta = true;
-				}
-			}
+			} // classpath reordering has already been generated in previous loop
 		}
 		if (hasDelta) {
 			try {
@@ -378,6 +389,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 			if (hasChangedContentForDependents){
 				updateAffectedProjects(project.getProject().getFullPath());
 			}
+		}
+	}
+	/*
+	 * Returns the source attachment flag for the delta between the 2 give source paths.
+	 * Returns either F_SOURCEATTACHED, F_SOURCEDETACHED, F_SOURCEATTACHED | F_SOURCEDETACHED
+	 * or 0 if there is no difference.
+	 */
+	private int getSourceAttachmentDeltaFlag(IPath oldPath, IPath newPath) {
+		if (oldPath == null) {
+			if (newPath != null) {
+				return IJavaElementDelta.F_SOURCEATTACHED;
+			} else {
+				return 0;
+			}
+		} else if (newPath == null) {
+			return IJavaElementDelta.F_SOURCEDETACHED;
+		} else if (!oldPath.equals(newPath)) {
+			return IJavaElementDelta.F_SOURCEATTACHED | IJavaElementDelta.F_SOURCEDETACHED;
+		} else {
+			return 0;
 		}
 	}
 
