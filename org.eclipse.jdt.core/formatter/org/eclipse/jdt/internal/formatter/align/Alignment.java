@@ -304,7 +304,6 @@ public class Alignment {
 					}
 					return wasSplit = true;
 				}
-
 			/*  # aligned fragment
 			 *  foo(#AAAAA,
 			 *      #BBBBB,
@@ -312,34 +311,16 @@ public class Alignment {
 			 */
 			case M_NEXT_PER_LINE_SPLIT : 
 				if (this.fragmentBreaks[0] == NONE) {
-					
-					if (this.fragmentCount > 1 && this.fragmentBreaks[1] == NONE) {
-						for (i = 1; i < this.fragmentCount; i++){
+					if (this.fragmentCount > 1
+							&& this.fragmentBreaks[1] == NONE) {
+						if ((this.mode & M_INDENT_ON_COLUMN) != 0) {
+							this.fragmentIndentations[0] = this.breakIndentationLevel;
+						}
+						for (i = 1; i < this.fragmentCount; i++) {
 							this.fragmentBreaks[i] = BREAK;
 							this.fragmentIndentations[i] = this.breakIndentationLevel;
 						}
-						// first fragment is also broken if it would be beyond the subsequent fragments
-						// e.g.   foobar(#AAAAA,    foobar(
-						//          #BBBBB,     -->   #AAAAA,
-						//          #CCCCC)           #BBBBB,
-						//                            #CCCCC)
-						int firstFragmentIndentation = this.scribe.getIndentationLevel(this.location.outputColumn);
-						if (firstFragmentIndentation > this.breakIndentationLevel){
-							this.fragmentBreaks[0] = BREAK;					
-							this.fragmentIndentations[0] = this.breakIndentationLevel;						
-						} else if (firstFragmentIndentation < this.breakIndentationLevel) {
-							if ((this.mode & M_INDENT_ON_COLUMN) == 0) { 
-								this.fragmentBreaks[0] = BREAK;					
-							}
-							this.fragmentIndentations[0] = this.breakIndentationLevel;						
-						}
 						return wasSplit = true;
-					} else {
-						if (this.fragmentIndentations[0] != this.breakIndentationLevel) {
-							this.fragmentBreaks[0] = BREAK;					
-							this.fragmentIndentations[0] = this.breakIndentationLevel;						
-							return wasSplit = true;
-					}
 					}
 				}
 				break;

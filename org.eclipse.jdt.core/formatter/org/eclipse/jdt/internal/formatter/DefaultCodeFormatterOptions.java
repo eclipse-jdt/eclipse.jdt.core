@@ -39,7 +39,7 @@ public class DefaultCodeFormatterOptions {
 	public static final String DEFAULT_BLOCK_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
 	public static final boolean DEFAULT_COMPACT_ELSE_IF = true;
 	public static final int DEFAULT_COMPACT_IF_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
-	public static final int DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT;
+	public static final int DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
 	public static final int DEFAULT_CONTINUATION_INDENTATION = 2; // 2 indentations
 	// TODO remove before 3.0
 	/**

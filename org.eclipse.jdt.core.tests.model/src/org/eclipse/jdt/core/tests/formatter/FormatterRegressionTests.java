@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test361"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test362"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -698,7 +698,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test068() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
-		preferences.allocation_expression_arguments_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		preferences.allocation_expression_arguments_alignment = Alignment.M_ONE_PER_LINE_SPLIT;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test068", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -822,7 +822,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test081() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
-		preferences.array_initializer_expressions_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		preferences.array_initializer_expressions_alignment = Alignment.M_ONE_PER_LINE_SPLIT;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test081", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -3931,4 +3931,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test361", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47802
+	 * @deprecated
+	 */
+	public void test362() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
+		preferences.use_tab = true;
+		preferences.method_declaration_arguments_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		preferences.page_width = 57;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test362", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
 }
