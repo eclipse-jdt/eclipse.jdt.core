@@ -19,7 +19,7 @@
 		<jar 
 			jarfile="${dest}/jdtcom.jar"
 			basedir="bin"
-			includes="org/eclipse/jdt/internal/compiler/**" />
+			includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/*" />
 		
 		<echo message="UPDATE jdtcomsrc.zip" />
 		<zip zipfile="${dest}/jdtcomsrc.zip">
