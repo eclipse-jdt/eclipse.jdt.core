@@ -30,6 +30,13 @@ public class AnnotationMessageSend extends MessageSend {
 		this.arguments = arguments;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
+	 */
+	public boolean isSuperAccess() {
+		return false;
+	}
+
 	public StringBuffer printExpression(int indent, StringBuffer output){
 	
 		if (receiver != null) {
@@ -52,7 +59,9 @@ public class AnnotationMessageSend extends MessageSend {
 		constant = NotAConstant;
 		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
+			this.receiverType = sourceTypeBinding;
+			this.receiver = new AnnotationQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		}
 		else {
 			this.receiverType = receiver.resolveType(scope);

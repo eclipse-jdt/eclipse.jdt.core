@@ -789,34 +789,6 @@ public class BlockScope extends Scope {
 
 	/* API
      *	
-	 *	Answer the field binding that corresponds to fieldName.
-	 *	Start the lookup at the receiverType.
-	 *	InvocationSite implements
-	 *		isSuperAccess(); this is used to determine if the discovered field is visible.
-	 *	Only fields defined by the receiverType or its supertypes are answered;
-	 *	a field of an enclosing type will not be found using this API.
-	 *
-	 *	If no visible field is discovered, an error binding is answered.
-	 */
-	public FieldBinding getField(
-		TypeBinding receiverType,
-		char[] fieldName,
-		InvocationSite invocationSite) {
-
-		FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
-		if (field == null)
-			return new ProblemFieldBinding(
-				receiverType instanceof ReferenceBinding
-					? (ReferenceBinding) receiverType
-					: null,
-				fieldName,
-				NotFound);
-		else
-			return field;
-	}
-
-	/* API
-     *	
 	 *	Answer the method binding that corresponds to selector, argumentTypes.
 	 *	Start the lookup at the enclosing type of the receiver.
 	 *	InvocationSite implements 

@@ -1672,4 +1672,18 @@ public abstract class Scope
 		}
 		return methodBinding;
 	}
+
+	public FieldBinding getField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
+	
+		FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
+		if (field == null)
+			return new ProblemFieldBinding(
+				receiverType instanceof ReferenceBinding
+					? (ReferenceBinding) receiverType
+					: null,
+				fieldName,
+				NotFound);
+		else
+			return field;
+	}
 }
