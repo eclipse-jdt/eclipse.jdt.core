@@ -560,7 +560,7 @@ public void test015() {
 		assertTrue(false);
 	} catch (IOException e) {
 		assertTrue(false);
-	}	
+	}
 }
 /*
  * Empty block action
