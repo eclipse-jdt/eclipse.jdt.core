@@ -616,6 +616,9 @@ class ASTConverter {
 	}	
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.CastExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.CastExpression) expression);
+		}
 		if (checkForParenthesis(expression)) {
 			return convertToParenthesizedExpression(expression);
 		}
@@ -643,9 +646,6 @@ class ASTConverter {
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Assignment) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Assignment) expression);
-		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.CastExpression) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.CastExpression) expression);
 		}
 		if (expression instanceof ClassLiteralAccess) {
 			return convert((ClassLiteralAccess) expression);
@@ -1035,6 +1035,9 @@ class ASTConverter {
 			castExpression.setType(convertToType((NameReference)expression.type));
 		}
 		castExpression.setExpression(convert(expression.expression));
+		if (this.resolveBindings) {
+			recordNodes(castExpression, expression);
+		}
 		return castExpression;
 	}
 		
