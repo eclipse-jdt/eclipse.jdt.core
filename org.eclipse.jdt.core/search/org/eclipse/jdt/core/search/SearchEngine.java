@@ -446,7 +446,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		MatchLocator matchLocator = 
-			new MatchLocator(
+			new MatchLocator2(
 				pattern, 
 				detailLevel, 
 				resultCollector, 
@@ -634,7 +634,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator(
+		MatchLocator locator = new MatchLocator2(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
@@ -692,7 +692,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator(
+		MatchLocator locator = new MatchLocator2(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
@@ -753,7 +753,7 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator(
+		MatchLocator locator = new MatchLocator2(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
