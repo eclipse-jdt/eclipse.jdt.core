@@ -32,6 +32,11 @@ public WorkingCopyNotInClasspathTests(String name) {
 }
 
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(WorkingCopyNotInClasspathTests.class.getName());
+		suite.addTest(new WorkingCopyNotInClasspathTests("testCommit3"));
+		return suite;
+	}
 	return new Suite(WorkingCopyNotInClasspathTests.class);
 }
 
@@ -214,7 +219,45 @@ public void testIsOnClasspath() throws CoreException {
 public void testCommit2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		this.createJavaProject("SimpleProject", new String[] {"src"}, "bin");
+		this.createJavaProject("JavaProject", new String[] {"src"}, "bin");
+		this.createFolder("/JavaProject/src/native.1");
+		String source = 
+			"class X {}";
+		IFile file = this.createFile("/JavaProject/src/native.1/X.java", source);
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		copy = (ICompilationUnit) cu.getWorkingCopy();
+		
+		IBuffer workingCopyBuffer = copy.getBuffer();
+		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
+		String newContents = 
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}";
+			
+		workingCopyBuffer.setContents(newContents);
+		copy.reconcile(true, null);
+		copy.commit(true, null);
+		
+		IFile originalFile = (IFile)cu.getResource();
+		assertSourceEquals(
+			"Unexpected contents", 
+			newContents, 
+			new String(Util.getResourceContentsAsCharArray(originalFile)));
+	} catch(JavaModelException e) {
+		e.printStackTrace();		
+		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
+	} finally {
+		if (copy != null) copy.destroy();
+		this.deleteProject("Project");
+	}
+}
+
+// 41583
+public void testCommit3() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/native.1");
 		String source = 
 			"class X {}";
@@ -231,6 +274,7 @@ public void testCommit2() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
+		copy.reconcile(true, null);
 		copy.commit(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();
@@ -246,5 +290,4 @@ public void testCommit2() throws CoreException {
 		this.deleteProject("SimpleProject");
 	}
 }
-
 }
