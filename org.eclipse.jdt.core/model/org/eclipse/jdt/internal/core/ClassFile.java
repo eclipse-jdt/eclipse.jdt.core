@@ -313,8 +313,9 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 	workingCopy.buffer = buffer;
 	
 	// set the buffer source
-	buffer.setContents(contents);
-
+	if (buffer != null && buffer.getCharacters() == null){
+		buffer.setContents(contents);
+	}
 	return workingCopy;
 }
 /**

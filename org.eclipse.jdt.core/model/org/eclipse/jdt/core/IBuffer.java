@@ -80,7 +80,8 @@ public void close();
  */
 public char getChar(int position);
 /**
- * Returns the contents of this buffer as a character array.
+ * Returns the contents of this buffer as a character array, or <code>null</code> if
+ * the buffer has not been initialized.
  * <p>
  * Callers should make no assumption about whether the returned character array
  * is or is not the genuine article or a copy. In other words, if the client
@@ -96,7 +97,8 @@ public char getChar(int position);
 public char[] getCharacters();
 /**
  * Returns the contents of this buffer as a <code>String</code>. Like all strings,
- * the result is an immutable value object.
+ * the result is an immutable value object., It can also answer <code>null</code> if
+ * the buffer has not been initialized.
  * <p>
  * A <code>RuntimeException</code> might be thrown if the buffer is closed.
  *

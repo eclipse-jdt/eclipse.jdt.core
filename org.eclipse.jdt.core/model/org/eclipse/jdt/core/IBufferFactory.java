@@ -16,10 +16,12 @@ public interface IBufferFactory {
 
 	/**
 	 * Creates a buffer for the given owner.
-	 * The new buffer will be initialized with the contents
-	 * of the owner (see ISourceReference#getSource()).
+	 * The new buffer will be initialized with the contents of the owner 
+	 * iff it was not already initialized by the factory (a buffer is unitialized if 
+	 * its content is <code>null</code>).
 	 * 
 	 * @param owner the owner of the buffer
+	 * @see IBuffer
 	 */
 	IBuffer createBuffer(IOpenable owner);
 }
