@@ -161,7 +161,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * this constructor, but then there is no way to initialize the option used by the formatter.
 	 */ 
 	public CodeFormatterVisitor() {
-		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSetttings()), JavaCore.getDefaultOptions(), 0, -1);
+		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), JavaCore.getDefaultOptions(), 0, -1);
 	}
 
 	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length) {

@@ -1466,14 +1466,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}	
 	
 	public void test155() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSetttings());
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test155", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=44036
 	public void test156() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSetttings());
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test156", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
@@ -3791,7 +3791,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44493
 	 */
 	public void test349() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSetttings());
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test349", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
@@ -3818,7 +3818,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44653
 	 */
 	public void test352() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSetttings());
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test352", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}

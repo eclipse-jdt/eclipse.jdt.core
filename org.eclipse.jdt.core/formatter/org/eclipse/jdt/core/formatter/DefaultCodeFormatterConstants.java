@@ -246,7 +246,7 @@ public class DefaultCodeFormatterConstants {
 	 * <p>This is subject to change before 3.0.</p>
 	 * @since 3.0
 	 */
-	public static Map getJavaConventionsSetttings() {
+	public static Map getJavaConventionsSettings() {
 		return DefaultCodeFormatterOptions.getJavaConventionsSettings().getMap();
 	}
 }
