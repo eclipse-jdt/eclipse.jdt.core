@@ -64,7 +64,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for binary expressions
 	public static final int ValueForReturnMASK = Bit5; 
-	public static final int OnlyValueRequiredMASK = Bit6; // TODO: (philippe) should get rid of in boolean codegen
+	public static final int OnlyValueRequiredMASK = Bit6; // TODO: (philippe) should get rid of 'OnlyValueRequiredMASK' in boolean codegen
 
 	// for name references 
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;	

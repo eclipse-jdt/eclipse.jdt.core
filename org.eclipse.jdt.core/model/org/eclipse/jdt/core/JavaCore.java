@@ -2892,7 +2892,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					oldContainer = null;
 				}
 			}
-			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: (philippe) could improve to only compare entries
+			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){
 				modifiedProjects[i] = null; // filter out this project - container did not change
 				continue;
 			}
