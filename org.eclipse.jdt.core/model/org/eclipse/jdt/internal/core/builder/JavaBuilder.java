@@ -379,8 +379,7 @@ private boolean hasClasspathChanged() {
 	ClasspathLocation[] oldBinaryLocations = lastState.binaryLocations;
 	newLength = newBinaryLocations.length;
 	oldLength = oldBinaryLocations.length;
-	n = o = 0;
-	for (; n < newLength && o < oldLength; n++, o++) {
+	for (n = o = 0; n < newLength && o < oldLength; n++, o++) {
 		if (newBinaryLocations[n].equals(oldBinaryLocations[o])) continue;
 		if (DEBUG)
 			System.out.println(newBinaryLocations[n] + " != " + oldBinaryLocations[o]); //$NON-NLS-1$
@@ -388,7 +387,7 @@ private boolean hasClasspathChanged() {
 	}
 	if (n < newLength || o < oldLength) {
 		if (DEBUG)
-			System.out.println("Binary folders/jar files size changed"); //$NON-NLS-1$
+			System.out.println("Number of binary folders/jar files has changed"); //$NON-NLS-1$
 		return true;
 	}
 	return false;
