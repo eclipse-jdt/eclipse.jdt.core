@@ -319,12 +319,11 @@ class MethodBinding implements IMethodBinding {
 			// other binding missing
 			return false;
 		}
-		String key1 = other.getKey();
-		if (key1 == null) {
-			// other binding has no key
+		if (!(other instanceof MethodBinding)) {
 			return false;
 		}
-		return key1.equals(getKey());
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding otherBinding = ((MethodBinding) other).binding;
+		return BindingComparator.isEqual(this.binding, otherBinding);
 	}
 	
 	/* (non-Javadoc)

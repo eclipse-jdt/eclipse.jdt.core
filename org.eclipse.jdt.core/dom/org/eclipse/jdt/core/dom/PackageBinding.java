@@ -122,12 +122,11 @@ class PackageBinding implements IPackageBinding {
 			// other binding missing
 			return false;
 		}
-		String key1 = other.getKey();
-		if (key1 == null) {
-			// other binding has no key
+		if (!(other instanceof PackageBinding)) {
 			return false;
 		}
-		return key1.equals(getKey());
+		org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding2 = ((PackageBinding) other).binding;
+		return CharOperation.equals(this.binding.compoundName, packageBinding2.compoundName);
 	}
 	
 	private void computeNameAndComponents() {

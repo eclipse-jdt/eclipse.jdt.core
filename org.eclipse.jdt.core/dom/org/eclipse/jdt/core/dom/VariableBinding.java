@@ -18,10 +18,11 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
  * Internal implementation of variable bindings.
@@ -204,12 +205,12 @@ class VariableBinding implements IVariableBinding {
 			// other binding missing
 			return false;
 		}
-		String key1 = other.getKey();
-		if (key1 == null) {
-			// other binding has no key
+		if (!(other instanceof VariableBinding)) {
 			return false;
 		}
-		return key1.equals(getKey());
+		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding = ((VariableBinding) other).binding;
+		// check return type
+		return BindingComparator.isEqual(this.binding, otherBinding);
 	}
 	
 	/*
