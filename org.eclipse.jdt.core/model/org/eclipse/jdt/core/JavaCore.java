@@ -940,7 +940,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 			});
 			variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
-			if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
+			if (variablePath == JavaModelManager.VariableInitializationInProgress) {
+				// variable was not initialized by initializer, remove it
+				JavaModelManager.variablePut(variableName, null);
+				return null; // break cycle
+			}
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
 				System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
 			}

@@ -340,8 +340,12 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 							null);
 					}
 				}
-				if (JavaCore.getClasspathVariable(lib) != null) {
-					entries[sourceLength+i] = JavaCore.newVariableEntry(new Path(lib), null, null);
+				if (lib.equals(lib.toUpperCase())) { // all upper case is a var
+					String[] vars = lib.split(",");
+					entries[sourceLength+i] = JavaCore.newVariableEntry(
+						new Path(vars[0]), 
+						vars.length > 1 ? new Path(vars[1]) : null, 
+						vars.length > 2 ? new Path(vars[2]) : null);
 				} else {
 					IPath libPath = new Path(lib);
 					if (!libPath.isAbsolute() && libPath.segmentCount() > 0 && libPath.getFileExtension() == null) {

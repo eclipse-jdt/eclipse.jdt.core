@@ -112,6 +112,9 @@ public static Test suite() {
 	
 	// Signature tests
 	suite.addTest(SignatureTests.suite());
+	
+	// Variable initializers and container initializers tests
+	suite.addTest(InitializerTests.suite());
 
 	return suite;
 }

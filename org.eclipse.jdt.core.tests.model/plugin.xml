@@ -17,5 +17,16 @@
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
    </requires>
 
+	<extension point = "org.eclipse.jdt.core.classpathVariableInitializer">
+		<classpathVariableInitializer
+			variable="TEST_LIB"
+			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
+		<classpathVariableInitializer
+			variable="TEST_SRC"
+			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
+		<classpathVariableInitializer
+			variable="TEST_ROOT"
+			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
+	</extension>		
 
 </plugin>
