@@ -11406,5 +11406,43 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <Z> and <X7>
 		);
-	}	
+	}
+	// 79797
+	public void test430() {
+		this.runConformTest(
+			new String[] {
+				"p/MMM.java",
+				"package p;\n" +
+				"public interface MMM< F extends MMM<F,G>, G extends NNN> { } \n",
+				"p/NNN.java",
+				"package p;\n" +
+				"public interface NNN { } \n",
+			},
+			"");
+
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import p.MMM;\n" + 
+				"import p.NNN;\n" + 
+				"\n" + 
+				"interface RRR< A extends MMM<A, B>, B extends NNN> {}\n" + 
+				"\n" + 
+				"class J1 implements MMM<J1, J2> { }\n" + 
+				"class J2 implements NNN { }\n" + 
+				"\n" + 
+				"class J3 implements RRR<J1,J2> {} \n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    J3 thing = null;\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"",
+			null,
+			false, // do not flush output
+			null);		
+	}			
+	
 }

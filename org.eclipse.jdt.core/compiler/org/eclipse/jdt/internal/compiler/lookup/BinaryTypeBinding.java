@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -222,14 +224,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		if (wrapper.signature[wrapper.start] == '<') {
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
-			int rank = 0;
-			do {
-				TypeVariableBinding variable = createTypeVariable(wrapper, rank);
-				variable.fPackage = this.fPackage;
-				System.arraycopy(this.typeVariables, 0, this.typeVariables = new TypeVariableBinding[rank + 1], 0, rank);
-				this.typeVariables[rank++] = variable;
-				initializeTypeVariable(variable, this.typeVariables, wrapper);
-			} while (wrapper.signature[wrapper.start] != '>');
+			this.typeVariables = createTypeVariables(wrapper, this);
 			wrapper.start++; // skip '>'
 			this.tagBits |=  HasUnresolvedTypeVariables;
 			this.modifiers |= AccGenericSignature;
@@ -360,13 +355,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
-			int rank = 0;
-			do {
-				TypeVariableBinding variable = createTypeVariable(wrapper, rank);
-				System.arraycopy(typeVars, 0, typeVars = new TypeVariableBinding[rank + 1], 0, rank);
-				typeVars[rank++] = variable;
-				initializeTypeVariable(variable,typeVars, wrapper);
-			} while (wrapper.signature[wrapper.start] != '>');
+			typeVars = createTypeVariables(wrapper, this);
 			wrapper.start++; // skip '>'
 		}
 
@@ -417,6 +406,9 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
 	result.typeVariables = typeVars;
+	for (int i = 0, length = typeVars.length; i < length; i++) {
+		typeVars[i].declaringElement = result; // fixup the declaring element of the type variable
+	}
 	return result;
 }
 /**
@@ -460,14 +452,46 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }
-private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int rank) {
-	// ParameterSignature = Identifier ':' TypeSignature
-	//   or Identifier ':' TypeSignature(optional) InterfaceBound(s)
-	// InterfaceBound = ':' TypeSignature
-	int colon = CharOperation.indexOf(':', wrapper.signature, wrapper.start);
-	char[] variableName = CharOperation.subarray(wrapper.signature, wrapper.start, colon);
-	TypeVariableBinding variable = new TypeVariableBinding(variableName, this, rank);
-	return variable;
+
+private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Binding declaringElement) {
+	// detect all type variables first
+	char[] typeSignature = wrapper.signature;
+	int depth = 0, length = typeSignature.length;
+	int rank = 0;
+	ArrayList variables = new ArrayList(1);
+	depth = 0;
+	boolean pendingVariable = true;
+	createVariables: {
+		for (int i = 1; i < length; i++) {
+			switch(typeSignature[i]) {
+				case '<' : 
+					depth++;
+					break;
+				case '>' : 
+					if (--depth < 0)
+						break createVariables;
+					break;
+				case ';' :
+					if ((depth == 0) && (i +1 < length) && (typeSignature[i+1] != ':'))
+						pendingVariable = true;
+					break;
+				default:
+					if (pendingVariable) {
+						pendingVariable = false;
+						int colon = CharOperation.indexOf(':', typeSignature, i);
+						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
+						variables.add(new TypeVariableBinding(variableName, declaringElement, rank++));
+					}
+			}
+		}
+	}
+	// initialize type variable bounds - may refer to forward variables
+	TypeVariableBinding[] result;
+	variables.toArray(result = new TypeVariableBinding[rank]);
+	for (int i = 0; i < rank; i++) {
+		initializeTypeVariable(result[i], result, wrapper);
+	}
+	return result;
 }
 
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
