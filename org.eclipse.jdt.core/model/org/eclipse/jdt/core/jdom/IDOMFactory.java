@@ -168,6 +168,7 @@ public IDOMType createType();
  * a public class named <code>"AClass"</code>, with no members or comment.
  *
  * @return the new class
+ * @since 2.0
  */
 public IDOMType createClass();
 /**
