@@ -706,9 +706,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
-			if (methods[i].selector == assistIdentifier){
-				throw new SelectionNodeFound(methods[i].binding);
-			}
+			AbstractMethodDeclaration method = methods[i];
+			if (method.selector == assistIdentifier){
+				if(method.binding != null) {
+					throw new SelectionNodeFound(method.binding);
+				} else {
+					if(method.scope != null) {
+						throw new SelectionNodeFound(new MethodBinding(method.modifiers, method.selector, null, null, null, method.scope.referenceType().binding));
+					}
+				}
+		}
 		}
 	}
 }
