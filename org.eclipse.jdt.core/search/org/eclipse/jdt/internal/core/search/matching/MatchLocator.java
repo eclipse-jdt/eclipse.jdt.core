@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -1076,29 +1075,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 	private INameEnvironment getNameEnvironment(JavaProject project) throws JavaModelException {
 		//return project.getSearchableNameEnvironment();
 		
-		IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
-		int length = roots.length;
-		String[] classpathNames = new String[length];
-		int rootModes[] = new int[length];
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		for (int i = 0; i < length; i++) {
-			IPackageFragmentRoot root = roots[i];
-			IPath path = root.getPath();
-			rootModes[i] = (root.getKind() == IPackageFragmentRoot.K_SOURCE)  ? ClasspathDirectory.SOURCE : ClasspathDirectory.BINARY;
-			if (root.isArchive()) {
-				// pass in a relative path (for internal jar) as this is what is needed by FileNamewEnviroment.getZipFile(File)
-				classpathNames[i] = path.toOSString();
-			} else {
-				Object target = JavaModel.getTarget(workspaceRoot, path, false);
-				if (target instanceof IResource) {
-					classpathNames[i] = ((IResource)target).getLocation().toOSString();
-				} else {
-					classpathNames[i] = path.toOSString();
-				}
-			}
-		}
 		return new JavaSearchNameEnvironment(project);
-		
 	}
 
 	public CompilationUnitDeclaration dietParse(final char[] source) {

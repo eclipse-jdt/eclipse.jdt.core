@@ -10,15 +10,13 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -46,52 +44,33 @@ public void cleanup() {
 }
 
 private void computeClasspathLocations(
-	IWorkspaceRoot root,
+	IWorkspaceRoot workspaceRoot,
 	JavaProject javaProject) throws CoreException {
 
 	String encoding = null;
-
-	IClasspathEntry[] classpath = javaProject.getExpandedClasspath(true/*ignore unresolved variables*/);
-	int length = classpath.length;
-	ArrayList locations = new ArrayList(length);
-	nextEntry : for (int i = 0; i < length; i++) {
-		IClasspathEntry entry = classpath[i];
-		IPath path = entry.getPath();
-		Object target = JavaModel.getTarget(root, path, true);
-		if (target == null) continue nextEntry;
-
-		switch(entry.getEntryKind()) {
-			case IClasspathEntry.CPE_SOURCE :
-				if (!(target instanceof IContainer)) continue nextEntry;
+	IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
+	int length = roots.length;
+	ClasspathLocation[] locations = new ClasspathLocation[length];
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	for (int i = 0; i < length; i++) {
+		IPackageFragmentRoot root = roots[i];
+		IPath path = root.getPath();
+		if (root.isArchive()) {
+			ZipFile zipFile = manager.getZipFile(path);
+			locations[i] = new ClasspathJar(zipFile);
+		} else {
+			Object target = JavaModel.getTarget(workspaceRoot, path, false);
+			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				if (encoding == null) {
 					encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 				}
-				locations.add(new ClasspathSourceDirectory((IContainer)target, encoding));
-				continue nextEntry;
-
-			case IClasspathEntry.CPE_LIBRARY :
-				if (target instanceof IResource) {
-					IResource resource = (IResource) target;
-					ClasspathLocation location = null;
-					if (resource instanceof IFile) {
-						String fileName = path.lastSegment();
-						if (!Util.isArchiveFileName(fileName)) continue nextEntry;
-						location = getClasspathJar((IFile)resource);
-					} else if (resource instanceof IContainer) {
-						location = ClasspathLocation.forBinaryFolder((IContainer) target, false); // is library folder not output folder
-					}
-					locations.add(location);
-				} else if (target instanceof File) {
-					String fileName = path.lastSegment();
-					if (!Util.isArchiveFileName(fileName)) continue nextEntry;
-					locations.add(getClasspathJar(path.toOSString()));
-				}
-				continue nextEntry;
+				locations[i] = new ClasspathSourceDirectory((IContainer)target, encoding);
+			} else {
+				locations[i] = ClasspathLocation.forBinaryFolder((IContainer) target, false);
+			}
 		}
 	}
-
-	this.locations = new ClasspathLocation[locations.size()];
-	locations.toArray(this.locations);
+	this.locations = locations;
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
