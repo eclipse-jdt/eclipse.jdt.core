@@ -20,7 +20,15 @@
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
  *                                 CLEAN
  *     IBM Corporation - added getClasspathContainerInitializer(String)
- * TODO: (david) should list new JavaCore preferences for NamingConventions
+ *     IBM Corporation - added the following constants:
+ *                                 CODEASSIST_ARGUMENT_PREFIXES
+ *                                 CODEASSIST_ARGUMENT_SUFFIXES
+ *                                 CODEASSIST_FIELD_PREFIXES
+ *                                 CODEASSIST_FIELD_SUFFIXES
+ *                                 CODEASSIST_LOCAL_PREFIXES
+ *                                 CODEASSIST_LOCAL_SUFFIXES
+ *                                 CODEASSIST_STATIC_FIELD_PREFIXES
+ *                                 CODEASSIST_STATIC_FIELD_SUFFIXES
  ******************************************************************************/
 package org.eclipse.jdt.core;
 

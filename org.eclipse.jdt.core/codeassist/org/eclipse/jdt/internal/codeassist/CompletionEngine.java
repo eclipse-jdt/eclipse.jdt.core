@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2001, 2002 , 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -2911,23 +2911,6 @@ public final class CompletionEngine
 		this.startPosition = start;
 		this.endPosition = end + 1;
 	}
-	//TODO: (david) unused?
-	private char[] computeBaseNames(char firstName, char[][] excludeNames){
-		char[] name = new char[]{firstName};
-		
-		for(int i = 0 ; i < excludeNames.length ; i++){
-			if(CharOperation.equals(name, excludeNames[i], false)) {
-				name[0]++;
-				if(name[0] > 'z')
-					name[0] = 'a';
-				if(name[0] == firstName)
-					return null;
-				i = 0;
-			}	
-		}
-		
-		return name;
-	}
 	private int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
@@ -2967,28 +2950,30 @@ public final class CompletionEngine
 			}
 		} else if(parent instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) parent;
-			
-			ReferenceBinding binding = (ReferenceBinding)messageSend.receiverType;
-			boolean isStatic = messageSend.receiver.isTypeReference();
-			
-			while(binding != null) {	
-				computeExpectedTypesForMessageSend(
-					binding,
-					messageSend.selector,
-					messageSend.arguments,
-					(ReferenceBinding)messageSend.receiverType,
-					scope,
-					messageSend,
-					isStatic);
-				computeExpectedTypesForMessageSendForInterface(
-					binding,
-					messageSend.selector,
-					messageSend.arguments,
-					(ReferenceBinding)messageSend.receiverType,
-					scope,
-					messageSend,
-					isStatic);
-				binding = binding.superclass();
+
+			if(messageSend.receiverType instanceof ReferenceBinding) {
+				ReferenceBinding binding = (ReferenceBinding)messageSend.receiverType;
+				boolean isStatic = messageSend.receiver.isTypeReference();
+				
+				while(binding != null) {	
+					computeExpectedTypesForMessageSend(
+						binding,
+						messageSend.selector,
+						messageSend.arguments,
+						(ReferenceBinding)messageSend.receiverType,
+						scope,
+						messageSend,
+						isStatic);
+					computeExpectedTypesForMessageSendForInterface(
+						binding,
+						messageSend.selector,
+						messageSend.arguments,
+						(ReferenceBinding)messageSend.receiverType,
+						scope,
+						messageSend,
+						isStatic);
+					binding = binding.superclass();
+				}
 			}
 		} else if(parent instanceof AllocationExpression) {
 			AllocationExpression allocationExpression = (AllocationExpression) parent;
@@ -3239,59 +3224,6 @@ public final class CompletionEngine
 			this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
 		}
 	}
-	//TODO: (david) unused?
-	private char[][] computeNames(char[] sourceName, boolean forArray){
-		char[][] names = new char[5][];
-		int nameCount = 0;
-		boolean previousIsUpperCase = false;
-		boolean previousIsLetter = true;
-		for(int i = sourceName.length - 1 ; i >= 0 ; i--){
-			boolean isUpperCase = Character.isUpperCase(sourceName[i]);
-			boolean isLetter = Character.isLetter(sourceName[i]);
-			if(isUpperCase && !previousIsUpperCase && previousIsLetter){
-				char[] name = CharOperation.subarray(sourceName,i,sourceName.length);
-				if(name.length > 1){
-					if(nameCount == names.length) {
-						System.arraycopy(names, 0, names = new char[nameCount * 2][], 0, nameCount);
-					}
-					name[0] = Character.toLowerCase(name[0]);
-					
-					if(forArray) {
-						int length = name.length;
-						if (name[length-1] == 's'){
-							System.arraycopy(name, 0, name = new char[length + 2], 0, length);
-							name[length] = 'e';
-							name[length+1] = 's';
-						} else {
-							System.arraycopy(name, 0, name = new char[length + 1], 0, length);
-							name[length] = 's';
-						}
-					}					
-					names[nameCount++] = name;
-				}
-			}
-			previousIsUpperCase = isUpperCase;
-			previousIsLetter = isLetter;
-		}
-		if(nameCount == 0){
-			char[] name = CharOperation.toLowerCase(sourceName);
-			if(forArray) {
-				int length = name.length;
-				if (name[length-1] == 's'){
-					System.arraycopy(name, 0, name = new char[length + 2], 0, length);
-					name[length] = 'e';
-					name[length+1] = 's';
-				} else {
-					System.arraycopy(name, 0, name = new char[length + 1], 0, length);
-					name[length] = 's';
-				}
-			}					
-			names[nameCount++] = name;
-			
-		}
-		System.arraycopy(names, 0, names = new char[nameCount][], 0, nameCount);
-		return names;
-	}
 	
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
 		
@@ -3322,17 +3254,4 @@ public final class CompletionEngine
 		
 		return completion.toString().toCharArray();
 	}
-	//TODO: (david) unused?
-	private boolean isEnclosed(ReferenceBinding possibleEnclosingType, ReferenceBinding type){
-		if(type.isNestedType()){
-			ReferenceBinding enclosing = type.enclosingType();
-			while(enclosing != null ){
-				if(possibleEnclosingType == enclosing)
-					return true;
-				enclosing = enclosing.enclosingType();
-			}
-		}
-		return false;
-	}
-
 }
