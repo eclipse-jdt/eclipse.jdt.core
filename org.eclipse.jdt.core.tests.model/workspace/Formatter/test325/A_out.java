@@ -14,9 +14,8 @@ public class Test {
                 "patchcorr.com");
         File volcombine = new File(System.getProperty("user.dir"),
                 "volcombine.com");
-        File warpvol =
-					new File(System.getProperty("user.dir"), "warpvol.com");
-		return solvematchshift.exists() && solvematchmod.exists()
+        File warpvol = new File(System.getProperty("user.dir"), "warpvol.com");
+        return solvematchshift.exists() && solvematchmod.exists()
                 && atchvol1.exists() && matchorwarp.exists()
                 && patchcorr.exists() && volcombine.exists()
                 && warpvol.exists();
