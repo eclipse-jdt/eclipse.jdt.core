@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -100,6 +101,14 @@ public abstract class Scope
 			return environment().createArrayType(type, dimension);
 		else
 			return new ArrayBinding(type, dimension);
+	}
+
+	public final ClassScope enclosingClassScope() {
+		Scope scope = this;
+		while ((scope = scope.parent) != null) {
+			if (scope instanceof ClassScope) return (ClassScope)scope;
+		}
+		return null; // may answer null if no type around
 	}
 
 	public final MethodScope enclosingMethodScope() {
@@ -1030,7 +1039,6 @@ public abstract class Scope
 	/* Internal use only 
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask) {
-		
 		Scope scope = this;
 		ReferenceBinding foundType = null;
 		if ((mask & TYPE) == 0) {
@@ -1068,7 +1076,7 @@ public abstract class Scope
 									// found a valid type in the 'immediate' scope (ie. not inherited)
 									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundType == null)
-										return memberType;
+										return memberType; 
 									if (foundType.isValidBinding())
 										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
 										if (foundType != memberType)
@@ -1107,7 +1115,8 @@ public abstract class Scope
 					if (!typeImport.onDemand) {
 						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
 							if (unitScope.resolveSingleTypeImport(typeImport) != null) {
-								if (typeImport.reference != null) typeImport.reference.used = true;
+								ImportReference importReference = typeImport.reference;
+								if (importReference != null) importReference.used = true;
 								return typeImport.resolvedImport; // already know its visible
 							}
 						}
@@ -1116,8 +1125,8 @@ public abstract class Scope
 			}
 			// check if the name is in the current package, skip it if its a sub-package
 			PackageBinding currentPackage = unitScope.fPackage; // extra temp to workaround JIT issue (35731)
-			unitScope.recordReference(currentPackage.compoundName, name);
 			Binding binding = currentPackage.getTypeOrPackage(name);
+			unitScope.recordReference(currentPackage.compoundName, name);
 			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
 
 			// check on demand imports
@@ -1128,12 +1137,12 @@ public abstract class Scope
 					ImportBinding someImport = imports[i];
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.resolvedImport;
-						ReferenceBinding temp =
-							(resolvedImport instanceof PackageBinding)
+						ReferenceBinding temp = resolvedImport instanceof PackageBinding
 								? findType(name, (PackageBinding) resolvedImport, currentPackage)
 								: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
 						if (temp != null && temp.isValidBinding()) {
-							if (someImport.reference != null) someImport.reference.used = true;
+							ImportReference importReference = someImport.reference;
+							if (importReference != null) importReference.used = true;
 							if (foundInImport)
 								// Answer error binding -- import on demand conflict; name found in two import on demand packages.
 								return new ProblemReferenceBinding(name, Ambiguous);
