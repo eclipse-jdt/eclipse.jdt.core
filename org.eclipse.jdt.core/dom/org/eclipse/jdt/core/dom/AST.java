@@ -164,9 +164,12 @@ public final class AST {
 	 * The returned compilation unit node is the root node of a new AST.
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
-	 * is not remembered with the AST). If a syntax error is detected while
-	 * parsing, the relevant node(s) of the tree will be flagged as 
-	 * <code>MALFORMED</code>.
+	 * is not remembered with the AST).
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
 	 * </p>
 	 * <p>
 	 * If <code>resolveBindings</code> is <code>true</code>, the various names
@@ -247,9 +250,12 @@ public final class AST {
 	 * The returned compilation unit node is the root node of a new AST.
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
-	 * is not remembered with the AST). If a syntax error is detected while
-	 * parsing, the relevant node(s) of the tree will be flagged as 
-	 * <code>MALFORMED</code>.
+	 * is not remembered with the AST).
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
 	 * </p>
 	 * <p>
 	 * If the given project is not <code>null</code>, the various names
@@ -340,9 +346,12 @@ public final class AST {
 	 * The returned compilation unit node is the root node of a new AST.
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
-	 * is not remembered with the AST). If a syntax error is detected while
-	 * parsing, the relevant node(s) of the tree will be flagged as 
-	 * <code>MALFORMED</code>.
+	 * is not remembered with the AST). 
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
@@ -674,9 +683,8 @@ public final class AST {
 	 * Creates an unparented method declaration node owned by this AST.
 	 * By default, the declaration is for a method of an unspecified, but 
 	 * legal, name; no modifiers; no Javadoc comment; no parameters; return
-	 * type void; no array dimensions after the parameters; no thrown 
-	 * exceptions; and no body (as opposed to an empty
-	 * body).
+	 * type void; no extra array dimensions; no thrown exceptions; and no
+	 * body (as opposed to an empty body).
 	 * <p>
 	 * To create a constructor, use this method and then call
 	 * <code>MethodDeclaration.setConstructor(true)</code> and

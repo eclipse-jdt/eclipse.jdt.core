@@ -884,8 +884,8 @@ public class ASTMatcher {
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
 	 * <p>
-	 * Note that extra array dimensions are ignored, as they really only
-	 * affect how the node is rendered as text.
+	 * Note that extra array dimensions are compared since they are an
+	 * important part of the method declaration.
 	 * </p>
 	 * 
 	 * @param node the node
@@ -899,7 +899,6 @@ public class ASTMatcher {
 			return false;
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
-		// n.b. ignore differences in extraArrayDimensions
 		return (
 			(node.getModifiers() == o.getModifiers())
 				&& (node.isConstructor() == o.isConstructor())
@@ -907,6 +906,7 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getReturnType(), o.getReturnType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())
+	 			&& node.getExtraDimensions() == o.getExtraDimensions()
 				&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
@@ -1191,8 +1191,8 @@ public class ASTMatcher {
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
 	 * <p>
-	 * Note that extra array dimensions are ignored, as they really only
-	 * affect how the node is rendered as text.
+	 * Note that extra array dimensions are compared since they are an
+	 * important part of the declaration.
 	 * </p>
 	 * 
 	 * @param node the node
@@ -1206,11 +1206,11 @@ public class ASTMatcher {
 			return false;
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
-		// n.b. ignore differences in extraArrayDimensions
 		return (
 			(node.getModifiers() == o.getModifiers())
 				&& safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
+	 			&& node.getExtraDimensions() == o.getExtraDimensions()
 				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer()));
 	}
 

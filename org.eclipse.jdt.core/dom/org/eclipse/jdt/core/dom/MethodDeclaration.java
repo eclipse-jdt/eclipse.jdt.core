@@ -28,21 +28,8 @@ import java.util.List;
  *    [ Javadoc ] { Modifier } Identifier <b>(</b>
  * 		  [ FormalParameter
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
- *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] MethodBody
+ *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
  * </pre>
- * Normal form:
- * <pre>
- * MethodDeclaration:
- *    [ Javadoc ] { Modifier } ( Type | <b>void</b> ) Identifier
- *        <b>(</b> [ FormalParamter { <b>,</b> FormalParameter } ] <b>)</b>
- *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ]
- *        ( Block | <b>;</b> )
- * ConstructorDeclaration:
- *    [ Javadoc ] { Modifier } Identifier
- *        <b>(</b> [ FormalParameter { <b>,</b> FormalParameter } ] <b>)</b>
- *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ]
- *        Block
- * </pre> 
  * <p>
  * When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter.
@@ -99,14 +86,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	private Type returnType = null;
 	
 	/**
-	 * The number of array dimensions that appear after the parameter, rather
-	 * than after the return type itself; meaningless (and should be ignored)
-	 * if the type is not an array type or if it exceeds the number of 
-	 * dimensions in the array type; defaults to 0.
+	 * The number of array dimensions that appear after the parameters, rather
+	 * than after the return type itself; defaults to 0.
 	 * 
 	 * @since 2.1
 	 */
-	private int displacedArrayDimensions = 0;
+	private int extraArrayDimensions = 0;
 
 	/**
 	 * The list of thrown exception names (element type: <code>Name</code>).
@@ -308,8 +293,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * Returns the return type of the method declared in this method 
-	 * declaration. This is one of the few places where the void type 
-	 * is meaningful.
+	 * declaration, exclusive of any extra array dimensions. 
+	 * This is one of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons).
@@ -327,8 +312,8 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Sets the return type of the method declared in this method declaration
-	 * to the given type. This is one of the few places where the void type is
-	 * meaningful.
+	 * to the given type, exclusive of any extra array dimensions. This is one
+	 * of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons).
@@ -350,46 +335,39 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 
 	/**
-	 * Returns the number of array dimensions that appear after the parameters
-	 * instead of after the return type.
+	 * Returns the number of extra array dimensions over and above the 
+	 * explicitly-specified return type.
 	 * <p>
-	 * For example, <code>int[][][] foo()</code> has no array dimensions after
-	 * the parameters; <code>int[] foo()[][]</code> has 2 array dimensions 
-	 * after the parameters. In both cases, the return type is an array type
-	 * with 3 dimensions.
-	 * </p>
-	 * <p>
-	 * The value is meaningless (and should be ignored) if the type is not an
-	 * array type or if it exceeds the number of dimensions in the array type.
-	 * The safe default value is 0; this represents the preferred syntax of the
-	 * construct where all dimensions appear as part of the type.
+	 * For example, <code>int foo()[][]</code> has a return type of 
+	 * <code>int</code> and two extra array dimensions; 
+	 * <code>int[][] foo()</code> has a return type of <code>int[][]</code>
+	 * and zero extra array dimensions. The two constructs have different
+	 * ASTs, even though there are really syntactic variants of the same
+	 * method declaration.
 	 * </p>
 	 * 
-	 * @return the number of array dimensions included after the 
-	 * parameters instead of after the return type
+	 * @return the number of extra array dimensions
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
-		return displacedArrayDimensions;
+		return extraArrayDimensions;
 	}
 
 	/**
-	 * Sets the number of array dimensions that appear after the parameters
-	 * instead of after the return type.
+	 * Returns the number of extra array dimensions over and above the 
+	 * explicitly-specified return type.
 	 * <p>
-	 * For example, <code>int[][][] foo()</code> has no array dimensions after
-	 * the parameters; <code>int[] foo()[][]</code> has 2 array dimensions 
-	 * after the parameters. In both cases, the return type is an array type 
-	 * with 3 dimensions.
-	 * </p>
-	 * <p>
-	 * The value is meaningless (and should be ignored) if the type is not an
-	 * array type or if it exceeds the number of dimensions in the array type.
-	 * The safe default value is 0; this represents the preferred syntax of the
-	 * construct where all dimensions appear as part of the type.
+	 * For example, <code>int foo()[][]</code> is rendered as a return
+	 * type of <code>int</code> with two extra array dimensions; 
+	 * <code>int[][] foo()</code> is rendered as a return type of 
+	 * <code>int[][]</code> with zero extra array dimensions. The two
+	 * constructs have different ASTs, even though there are really syntactic
+	 * variants of the same method declaration.
 	 * </p>
 	 * 
-	 * @param dimensions the number of array dimensions after the parameters 
+	 * @return the number of extra array dimensions
+	 * 
+	 * @param dimensions the number of array dimensions
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
 	 * @since 2.1
@@ -399,7 +377,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			throw new IllegalArgumentException();
 		}
 		modifying();
-		this.displacedArrayDimensions = dimensions;
+		this.extraArrayDimensions = dimensions;
 	}
 
 	/**

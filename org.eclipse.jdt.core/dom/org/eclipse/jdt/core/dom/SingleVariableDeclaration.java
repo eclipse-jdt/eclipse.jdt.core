@@ -12,32 +12,14 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * VariableDeclaration declaration AST node type. Union of field declaration,
- * local variable declaration, and formal parameter declaration.
+ * Single variable declaration AST node type. Single variable
+ * declaration nodes are used in a limited number of places, including formal
+ * parameter lists and catch clauses. They are not used for field declarations
+ * and regular variable declaration statements.
  *
  * <pre>
- * FieldDeclaration:
- *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
- *        { <b>,</b> Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression] }
- *        <b>;</b>
- * LocalVariableDeclaration:
- *    { <b>final</b> } Type
- * 		Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
- *      { <b>,</b> Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression] }
- *      <b>;</b>
- * FormalParameter:
- *    { <b>final</b> } Type Identifier { <b>[</b><b>]</b> }
- * </pre>
- * Simplified normalized form:
- * <pre>
  * SingleVariableDeclaration:
- *    { Modifier } Type Identifier [ <b>=</b> Expression ]
- * FieldDeclaration:
- *    SingleVariableDeclaration <b>;</b>
- * LocalVariableDeclaration:
- *    SingleVariableDeclaration <b>;</b>
- * FormalParameter:
- *    SingleVariableDeclaration
+ *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  * 
  * @since 2.0
@@ -71,14 +53,12 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	private Type type = null;
 
 	/**
-	 * The number of array dimensions that appear after the variable, rather
-	 * than after the type itself; meaningless (and should be ignored) if the
-	 * type is not an array type or if it exceeds the number of dimensions in
-	 * the array type; defaults to 0.
+	 * The number of extra array dimensions that appear after the variable;
+	 * defaults to 0.
 	 * 
 	 * @since 2.1
 	 */
-	private int displacedArrayDimensions = 0;
+	private int extraArrayDimensions = 0;
 
 	/**
 	 * The initializer expression, or <code>null</code> if none;
@@ -201,7 +181,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/**
-	 * Returns the type of the variable declared in this variable declaration.
+	 * Returns the type of the variable declared in this variable declaration,
+	 * exclusive of any extra array dimensions.
 	 * 
 	 * @return the type
 	 */ 
@@ -215,7 +196,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
 	 * Sets the type of the variable declared in this variable declaration to 
-	 * the given type.
+	 * the given type, exclusive of any extra array dimensions.
 	 * 
 	 * @param type the new type
 	 * @exception IllegalArgumentException if:
@@ -233,44 +214,37 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/**
-	 * Returns the number of array dimensions that appear after the variable
-	 * instead of after the type.
+	 * Returns the number of extra array dimensions over and above the 
+	 * explicitly-specified type.
 	 * <p>
-	 * For example, <code>int[][][] i</code> has no array dimensions after the
-	 * variable; <code>int[] i[][]</code> has 2 array dimensions after the
-	 * variable. In both cases, the type is an array type with 3 dimensions.
-	 * </p>
-	 * <p>
-	 * The value is meaningless (and should be ignored) if the type is not an
-	 * array type or if it exceeds the number of dimensions in the array type.
-	 * The safe default value is 0; this represents the preferred syntax of the
-	 * construct where all dimensions appear as part of the type.
+	 * For example, <code>int x[][]</code> has a type of 
+	 * <code>int</code> and two extra array dimensions; 
+	 * <code>int[][] x</code> has a type of <code>int[][]</code>
+	 * and zero extra array dimensions. The two constructs have different
+	 * ASTs, even though there are really syntactic variants of the same
+	 * variable declaration.
 	 * </p>
 	 * 
-	 * @return the number of array dimensions included after the 
-	 * variable instead of after the type
+	 * @return the number of extra array dimensions
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
-		return displacedArrayDimensions;
+		return extraArrayDimensions;
 	}
 
 	/**
-	 * Sets the number of array dimensions that appear after the variable
-	 * instead of after the type.
+	 * Returns the number of extra array dimensions over and above the 
+	 * explicitly-specified type.
 	 * <p>
-	 * For example, <code>int[][][] i</code> has no array dimensions after the
-	 * variable; <code>int[] i[][]</code> has 2 array dimensions after the
-	 * variable. In both cases, the type is an array type with 3 dimensions.
-	 * </p>
-	 * <p>
-	 * The value is meaningless (and should be ignored) if the type is not an
-	 * array type or if it exceeds the number of dimensions in the array type.
-	 * The safe default value is 0; this represents the preferred syntax of the
-	 * construct where all dimensions appear as part of the type.
+	 * For example, <code>int x[][]</code> has a type of 
+	 * <code>int</code> and two extra array dimensions; 
+	 * <code>int[][] x</code> has a type of <code>int[][]</code>
+	 * and zero extra array dimensions. The two constructs have different
+	 * ASTs, even though there are really syntactic variants of the same
+	 * variable declaration.
 	 * </p>
 	 * 
-	 * @param dimensions the number of array dimensions after the variable
+	 * @param dimensions the number of array dimensions
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
 	 * @since 2.1
@@ -280,7 +254,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			throw new IllegalArgumentException();
 		}
 		modifying();
-		this.displacedArrayDimensions = dimensions;
+		this.extraArrayDimensions = dimensions;
 	}
 
 	/* (omit javadoc for this method)
