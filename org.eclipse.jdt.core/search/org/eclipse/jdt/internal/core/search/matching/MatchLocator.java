@@ -517,16 +517,31 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 		return; // if initial diet parse did not work, no need to dig into method bodies.
 	}
 
+	// save existing values to restore them at the end of the parsing process
+	// see bug 47079 for more details
+	int[] oldLineEnds = this.parser.scanner.lineEnds;
+	int oldLinePtr = this.parser.scanner.linePtr;
+	
 	try {
 		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.parser.scanner.setSource(contents);
-		this.parser.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
-		if (this.parser.javadocParser.checkJavadoc)
+
+		// inline old setLineEnds
+		final int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
+		this.parser.scanner.lineEnds = lineSeparatorPositions;
+		this.parser.scanner.linePtr = lineSeparatorPositions.length - 1;
+
+		if (this.parser.javadocParser.checkJavadoc) {
 			this.parser.javadocParser.scanner.setSource(contents);
+		}
 		this.parser.nodeSet = this.currentPossibleMatch.nodeSet;
 		this.parser.parseBodies(unit);
 	} finally {
 		this.parser.nodeSet = null;
+		// this is done to prevent any side effects on the compilation unit result
+		// line separator positions array.
+		this.parser.scanner.lineEnds = oldLineEnds;
+		this.parser.scanner.linePtr = oldLinePtr;
 	}
 }
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {

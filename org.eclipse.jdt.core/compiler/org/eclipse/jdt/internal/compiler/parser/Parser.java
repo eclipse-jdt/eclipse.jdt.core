@@ -4606,7 +4606,16 @@ public int[] getJavaDocPositions() {
 		//real parse of the method....
 		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.scanner.setSource(contents);
-		this.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
+		
+		// save existing values to restore them at the end of the parsing process
+		// see bug 47079 for more details
+		int[] oldLineEnds = this.scanner.lineEnds;
+		int oldLinePtr = this.scanner.linePtr;
+
+		final int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
+		this.scanner.lineEnds = lineSeparatorPositions;
+		this.scanner.linePtr = lineSeparatorPositions.length - 1;
+
 		if (this.javadocParser.checkJavadoc) {
 			this.javadocParser.scanner.setSource(contents);
 		}
@@ -4617,6 +4626,11 @@ public int[] getJavaDocPositions() {
 		
 		// tag unit has having read bodies
 		unit.bits |= AstNode.HasAllMethodBodies;
+
+		// this is done to prevent any side effects on the compilation unit result
+		// line separator positions array.
+		this.scanner.lineEnds = oldLineEnds;
+		this.scanner.linePtr = oldLinePtr;
 	}
 protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
 This variable is a type reference and dim will be its dimensions*/

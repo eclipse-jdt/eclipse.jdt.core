@@ -3076,10 +3076,6 @@ public final int getLineNumber(int position) {
 	}
 	return m+2;
 }
-public final void setLineEnds(int[] positions){
-	this.lineEnds = positions;
-	this.linePtr = positions.length - 1;
-}
 public final void setSource(char[] sourceString){
 	//the source-buffer is set to sourceString
 
